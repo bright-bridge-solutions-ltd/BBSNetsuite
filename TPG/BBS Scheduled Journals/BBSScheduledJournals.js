@@ -245,6 +245,77 @@ function scheduled(type)
 						{
 							switch (transactionType)
 								{
+									case 'Journal':
+										journalRecord.selectNewLineItem('line');
+										journalRecord.setCurrentLineItemValue('line', 'account', originalAccount);
+										
+										if(amount >= 0)
+											{
+												//If we have a positive amount then this goes as a debit to the deferred revenue account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+											}
+										else
+											{
+												//If its negative, then it goes as a credit to the deferred revenue account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'debit', Math.abs(amount));
+											}
+										
+										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
+										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+										journalRecord.setCurrentLineItemValue('line', 'memo', memo);
+										journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_cseg_sales_dept', salesDepartment);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
+										journalRecord.commitLineItem('line'); 
+										
+										
+										salesAcc = getSalesAccount(businessLine, custRepresentingSubsidiary);
+										journalRecord.selectNewLineItem('line');
+										journalRecord.setCurrentLineItemValue('line', 'account', salesAcc);
+										
+										if(amount >= 0)
+											{
+												//If we have a positive amount then this goes as a credit to the sales account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+											}
+										else
+											{
+												//If its negative, then it goes as a debit to the sales account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'credit', Math.abs(amount));
+											}
+										
+										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
+										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+										journalRecord.setCurrentLineItemValue('line', 'memo', memo);
+										journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_cseg_sales_dept', salesDepartment);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
+										
+										if(custRepresentingSubsidiary != null && custRepresentingSubsidiary != '')
+											{
+												journalRecord.setCurrentLineItemValue('line', 'eliminate', 'T');
+											}
+										
+										journalRecord.commitLineItem('line'); 
+										
+										break;
+
 									case 'CustInvc':
 										journalRecord.selectNewLineItem('line');
 										journalRecord.setCurrentLineItemValue('line', 'account', deferredRevenueAcc);

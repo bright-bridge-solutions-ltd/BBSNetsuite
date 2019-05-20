@@ -22,7 +22,7 @@ function externalIdsAfterSubmit(type)
 {
 	var context = nlapiGetContext();
 	
-	if(context.getExecutionContext() == 'userinterface')
+	if(context.getExecutionContext() == 'userinterface' || context.getExecutionContext() == 'csvimport')
 		{
 			if(type == 'create' || type == 'edit')
 				{
