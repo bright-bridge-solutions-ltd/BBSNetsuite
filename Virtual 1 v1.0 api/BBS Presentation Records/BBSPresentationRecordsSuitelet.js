@@ -242,19 +242,19 @@ function presentationRecordsSuitelet(request, response)
 		//
 		var sessionIdParamField = form.addField('custpage_param_session_id', 'text', 'Session Id');
 		sessionIdParamField.setDisplayType('hidden');
-		sessionIdParamField.setDefaultValue(productionBatchId);
+		sessionIdParamField.setDefaultValue(sessionId);
 		
 		//Store the record type in a field in the form so that it can be retrieved in the POST section of the code
 		//
 		var recordTypeParamField = form.addField('custpage_param_rec_type', 'text', 'Record Type');
 		recordTypeParamField.setDisplayType('hidden');
-		recordTypeParamField.setDefaultValue(mode);
+		recordTypeParamField.setDefaultValue(recordType);
 		
 		//Store the billing type in a field in the form so that it can be retrieved in the POST section of the code
 		//
 		var billingTypeParamField = form.addField('custpage_param_billing_type', 'text', 'Billing Type');
 		billingTypeParamField.setDisplayType('hidden');
-		billingTypeParamField.setDefaultValue(soLink);
+		billingTypeParamField.setDefaultValue(billingType);
 		
 		
 		//Work out what the form layout should look like based on the stage number
@@ -268,7 +268,6 @@ function presentationRecordsSuitelet(request, response)
 					var sessionId = libCreateSession();
 					sessionIdParamField.setDefaultValue(sessionId);
 					
-					
 					//Add a select field to pick the record type from
 					//
 					var recordTypeSelectField = form.addField('custpage_select_rec_type', 'select', 'Record Type', null, null);
@@ -277,8 +276,9 @@ function presentationRecordsSuitelet(request, response)
 					recordTypeSelectField.addSelectOption('I', 'Invoices', false);
 					recordTypeSelectField.setMandatory(true);
 					
+					//Add a field for the billing type
+					//
 					var billingTypeSelectField = form.addField('custpage_select_bill_type', 'select', 'Billing Type', 'classification', null);
-					
 					
 					//Add a submit button to the form
 					//
@@ -319,18 +319,11 @@ function presentationRecordsSuitelet(request, response)
 					//
 					var partnerSelectField = form.addField('custpage_select_partner', 'select', 'Partner', null, 'custpage_tab_items');
 					
-					//Add a mark/unmark button
+					//Add required buttons to sublist and form
 					//
 					subList.addMarkAllButtons();
-					
-					//Add a refresh button
-					//
 					subList.addRefreshButton();
-					
-					//Add a submit button to the form
-					//
 					form.addSubmitButton('Create Presentation Records');
-					
 					
 					//Load up the custom saved search
 					//
@@ -359,26 +352,55 @@ function presentationRecordsSuitelet(request, response)
 							var sublistField = subList.addField(columnId, columnType, columnLabel, columnSearchType);
 							sublistField.setDisplayType('disabled');
 						}
-					
-					
-					//Get the filters from the saved search
-					//
+
 					
 					//Add filter based on invoice/credit notes
 					//
+					if(recordType != null && recordType != '')
+						{
+							switch(recordType)
+								{
+									case 'C':
+										recordSearch.addFilter(new nlobjSearchFilter( 'type', null, 'anyof', 'CustCred'));
+										break;
+										
+									case 'I':
+										recordSearch.addFilter(new nlobjSearchFilter( 'type', null, 'anyof', 'CustInvc' ));
+										break;
+								}
+						}
+				
+					//Add filter based on billing type
+					//
+					if(billingType != null && billingType != '')
+						{
+							recordSearch.addFilter(new nlobjSearchFilter( 'class', null, 'anyof', billingType ));
+						}
+					
 					
 					//Get the session record to see if we are filtering by partner and add filter if needed
 					//
+					var selectedPartner = libGetSessionData(sessionId);
+					
+					if(selectedPartner != null && selectedPartner != '')
+						{
+							recordSearch.addFilter(new nlobjSearchFilter( 'entity', null, 'anyof', selectedPartner ));
+						}
+					
 					
 					//Get the search results
 					//
 					var recordSearchResults = getResults(recordSearch);
 					var partnerList = {};
 					
+					//Do we have any results to process
+					//
 					if(recordSearchResults != null && recordSearchResults.length > 0)
 						{
 							var lineNo = Number(0);
 						
+							//Loop through the results
+							//
 							for (var int2 = 0; int2 < recordSearchResults.length; int2++) 
 								{
 									lineNo++;
@@ -390,7 +412,7 @@ function presentationRecordsSuitelet(request, response)
 											subList.setLineItemValue('custpage_sublist_tick', lineNo, 'T');
 										}
 								
-									//Process the rest of the results
+									//Loop through the columns
 									//
 									for (var int3 = 0; int3 < recordColumns.length; int3++) 
 										{
@@ -417,7 +439,6 @@ function presentationRecordsSuitelet(request, response)
 												}
 										}
 								}
-						
 						}
 
 					//Fill in the partner select list
@@ -425,10 +446,8 @@ function presentationRecordsSuitelet(request, response)
 					for ( var partner in partnerList) 
 						{
 							partnerSelectField.addSelectOption(partner, partnerList[partner], false);
-						
 						}
 			
-
 					break;
 					
 				case 3:
