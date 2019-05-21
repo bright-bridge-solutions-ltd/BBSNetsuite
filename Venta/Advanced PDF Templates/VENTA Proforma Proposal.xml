@@ -146,7 +146,7 @@
   
     <table style="width: 100%;">
     <tr>
-      <td align="center" style="margin-top: 200px; font-size: 20pt; color:#ffffff">Proposal</td>
+      <td align="center" style="margin-top: 200px; font-size: 20pt; color:#ffffff">Pro Forma Invoice</td>
     </tr>
     <tr>
       <td align="center" style="margin-top: 10px; font-size: 20pt; color:#ffffff">${record.tranid}</td>
