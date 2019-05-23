@@ -26,70 +26,103 @@
 
     <macrolist>
         <macro id="nlheader">
-            <table class="header" style="width: 100%;"><tr>
-	<td>&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right" rowspan="8"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: right; width:160px; height:40px;" /> </#if></td>
+    <table class="header" style="width: 100%;">
+    <tr>
+	<td align="left"><span style="font-size:18px; color:red; font-weight: bold;">PURCHASE ORDER</span></td>
+	<td align="left">&nbsp;</td>
+	<td align="right" rowspan="8" ><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: right; width:160px; height:40px;" /> </#if></td>
 	</tr>
+	</table>
 
+	<table class="header" style="width: 100%;">
 	<tr>
-      <td colspan="2"><span style="font-size:18px; color:red; font-weight: bold;">PURCHASE ORDER</span></td>
-      <td align="right">&nbsp;</td>
+    <td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Supplier Details:</td>
+    <td align="right">&nbsp;</td>
+    <td align="right">&nbsp;</td>
+    <td align="right">&nbsp;</td>
     </tr>
+              
+    <tr>
+    <td align="left" colspan="2" rowspan="6" style="font-size:10px; background-color:#ffffff; color:#000000; padding: 5px;">${record.billaddress}<br/>Tel: ${record.entity.phone}</td>
+    <td align="right">&nbsp;</td>
+    <td align="right">&nbsp;</td>
+    <td align="right">&nbsp;</td>
+    </tr>
+              
 
-	<tr><td rowspan="6"><span style="font-size:10px;">${record.custbody_subsidiary_address}</span></td><td align="right">&nbsp;</td><td align="right">&nbsp;</td></tr>
-	<tr><td align="left">&nbsp;</td></tr>
-	<tr><td align="left">&nbsp;</td></tr>
-	<tr><td align="left">&nbsp;</td></tr>
-	<tr><td align="left">&nbsp;</td></tr>
-	<tr><td align="left">&nbsp;</td></tr>
 
-	<tr><td align="left" colspan="2" style="width: 100%; font-size:10px; font-weight: bold;">Web: www.bannatyne.co.uk</td></tr>
-
+	
 	</table>
 
     <table style="width: 100%; margin-top: 10px;">
 	<tr>
-	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Supplier Details</td>
+	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Deliver To:</td>
 	<td align="left">&nbsp;</td>
-	<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">ORDER NO:</td>
-	<td align="left" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.tranid}</td>
+	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Invoice To:</td>
 	</tr>
 
 	<tr>
-	<td align="left" colspan="2" rowspan="5" style="font-size:10px; background-color:#ffffff; color:#000000; padding: 5px;">${record.billaddress}</td>
+	<td align="left" colspan="2" rowspan="5" style="font-size:10px; background-color:#ffffff; color:#000000; padding: 5px;">${record.custbodypo_delviery_address}</td>
     <td align="left">&nbsp;</td>
-	<td align="left" rowspan="1" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Order Date:</td>
-	<td align="left" rowspan="1" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.trandate}</td>
-	</tr>
-
-    <tr>
-	<td align="left">&nbsp;</td>
-	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Required By:</td>
-	<td align="left"  style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.duedate}</td>
+	<td align="left" colspan="2" rowspan="5" style="font-size:10px; background-color:#ffffff; color:#000000; padding: 5px;">${record.custbody_subsidiary_address}</td>
 	</tr>
       
     <tr>
-	<td align="left">&nbsp;</td>
-	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Account No:</td>
-	<td align="left"  style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody_ban_brakes_account_number}</td>
-	</tr>
-
+    <td align="left">&nbsp;</td>   
+    </tr>
+    <tr>
+    <td align="left">&nbsp;</td>   
+    </tr>
+    <tr>
+    <td align="left">&nbsp;</td>   
+    </tr>
+    <tr>
+    <td align="left">&nbsp;</td>   
+    </tr>
+    
+      
+	<tr style="margin-top: 10px;">
+    <td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Ordered By:</td>
+	<td align="left" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.employee}</td>
+	<td align="left">&nbsp;</td>   
+    <td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Order No:</td>
+	<td align="left" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.tranid}</td>
+    </tr>
+    <tr>
+    <td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Email:</td>
+	<td align="left" colspan="2" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.employee.email}</td>   
+    <td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Order Date:</td>
+	<td align="left" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.trandate}</td>
+    </tr>
+    <tr>
+    <td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Telephone:</td>
+	<td align="left" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.employee.phone}</td>
+	<td align="left">&nbsp;</td>   
+    <td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Required By:</td>
+	<td align="left" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.duedate}</td>
+    </tr>
+    <tr>
+    <td align="left">&nbsp;</td>   
+    <td align="left">&nbsp;</td>   
+    <td align="left">&nbsp;</td>   
+    <td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Account No:</td>
+	<td align="left" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody_ban_brakes_account_number}</td>
+    </tr>
+      
 	</table>
 </macro>
     <macro id="nlfooter">
 
 	<table style="width: 100%;">
 	<tr>
-	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Deliver To:</td>
+	<td align="left" colspan="2" >&nbsp;</td>
     <td align="left" rowspan="2" style="padding: 5px; font-size: 9px;">&nbsp;</td>
 	<td align="left" style="font-size: 10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">TOTAL GOODS:</td>
 	<td align="right" style="font-size: 10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.subtotal}</td>
 	</tr>
 
 	<tr>
-	<td align="left" colspan="2" rowspan="5" style="font-size:10px; background-color:#ffffff; color:#000000; padding: 5px;">${record.custbodypo_delviery_address}</td>
+	<td align="left" colspan="2" rowspan="5" >&nbsp;</td>
 	<td align="left" rowspan="1" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">TOTAL VAT:</td>
 	<td align="right" rowspan="1" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.taxtotal}</td>
 	</tr>
@@ -99,7 +132,6 @@
 	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">AMOUNT DUE:</td>
 	<td align="right"  style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.total}</td>
 	</tr>
-
 
       
     </table>
@@ -230,7 +262,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="280px" footer="nlfooter" footer-height="130px" padding="1cm 1cm 1cm 1cm" size="A4">
+<body header="nlheader" header-height="370px" footer="nlfooter" footer-height="120px" padding="1cm 1cm 1cm 1cm" size="A4">
 
 <#if record.item?has_content>
   <table class="itemtable" style="width: 100%;"><!-- start items -->
