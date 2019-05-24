@@ -64,7 +64,7 @@ function scheduled(type)
 	var transactionSearch = nlapiCreateSearch("transaction",
 			[
 			   [
-			    	[["type","anyof","VendBill","VendCred","CustCred","CustInvc"],"AND",["mainline","is","F"],"AND",["taxline","is","F"],"AND",["shipping","is","F"],"AND",["cogs","is","F"],"AND",["custbodyoverhead","is","F"],"AND",["custcol_bbs_journal_posted","is","F"]],
+			    	[["type","anyof","VendBill","VendCred","CustCred","CustInvc","ExpRept"],"AND",["mainline","is","F"],"AND",["taxline","is","F"],"AND",["shipping","is","F"],"AND",["cogs","is","F"],"AND",["custbodyoverhead","is","F"],"AND",["custcol_bbs_journal_posted","is","F"]],
 			    	"OR",
 			    	[["type","anyof","Journal"],"AND",["custcol_bbs_journal_posted","is","F"],"AND",["custbody_bbs_system_generated","is","F"]]
 			    ], 
@@ -123,7 +123,10 @@ function scheduled(type)
 			   new nlobjSearchColumn("custcol_cseg_sales_dept"),
 			   new nlobjSearchColumn("account"),
 			   new nlobjSearchColumn("custrecord_arrival_date","custcol_csegbkref"),
-			   new nlobjSearchColumn("memo")
+			   new nlobjSearchColumn("memo"),
+			   new nlobjSearchColumn("custcol_tour_type"),
+			   new nlobjSearchColumn("custcol_supply_location"),
+			   new nlobjSearchColumn("custcol_item_code")
 			]
 			);
 	
@@ -170,6 +173,9 @@ function scheduled(type)
 					var originalAccount = transactionSearchResults[int].getValue("account");
 					var travelDate = transactionSearchResults[int].getValue("custrecord_arrival_date","custcol_csegbkref");
 					var memo = transactionSearchResults[int].getValue("memo");
+					var tourType = transactionSearchResults[int].getValue("custcol_tour_type");
+					var supplyLocation = transactionSearchResults[int].getValue("custcol_supply_location");
+					var itemCode = transactionSearchResults[int].getValue("custcol_item_code");
 					
 					var originalCurrenyAmount = amount;
 					
@@ -274,6 +280,9 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										journalRecord.commitLineItem('line'); 
 										
 										
@@ -306,6 +315,9 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										
 										if(custRepresentingSubsidiary != null && custRepresentingSubsidiary != '')
 											{
@@ -346,6 +358,9 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										journalRecord.commitLineItem('line'); 
 										
 										
@@ -378,8 +393,88 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										
 										if(custRepresentingSubsidiary != null && custRepresentingSubsidiary != '')
+											{
+												journalRecord.setCurrentLineItemValue('line', 'eliminate', 'T');
+											}
+										
+										journalRecord.commitLineItem('line'); 
+										
+										break;
+										
+									case 'ExpRept':
+										journalRecord.selectNewLineItem('line');
+										journalRecord.setCurrentLineItemValue('line', 'account', deferredCostsAcc);
+										//journalRecord.setCurrentLineItemValue('line', 'account', originalAccount);
+										
+										if(amount >= 0)
+											{
+												//If we have a positive amount then this goes as a credit to the sales account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+											}
+										else
+											{
+												//If its negative, then it goes as a debit to the sales account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'debit', Math.abs(amount));
+											}
+										
+										//journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
+										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+										journalRecord.setCurrentLineItemValue('line', 'memo', memo);
+										journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
+										journalRecord.commitLineItem('line'); 
+										
+										cogsAcc = getCogsAccount(businessLine, suppRepresentingSubsidiary);
+										journalRecord.selectNewLineItem('line');
+										journalRecord.setCurrentLineItemValue('line', 'account', cogsAcc);
+										
+										if(amount >= 0)
+											{
+												//If we have a positive amount then this goes as a debit to the deferred revenue account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+											}
+										else
+											{
+												//If its negative, then it goes as a credit to the deferred revenue account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'credit', Math.abs(amount));
+											}
+										
+										//journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
+										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+										journalRecord.setCurrentLineItemValue('line', 'memo', memo);
+										journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
+										
+										if(suppRepresentingSubsidiary != null && suppRepresentingSubsidiary != '')
 											{
 												journalRecord.setCurrentLineItemValue('line', 'eliminate', 'T');
 											}
@@ -418,6 +513,9 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										journalRecord.commitLineItem('line'); 
 										
 										cogsAcc = getCogsAccount(businessLine, suppRepresentingSubsidiary);
@@ -449,6 +547,9 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										
 										if(suppRepresentingSubsidiary != null && suppRepresentingSubsidiary != '')
 											{
@@ -489,6 +590,9 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										journalRecord.commitLineItem('line'); 
 										
 										
@@ -521,6 +625,9 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										
 										if(custRepresentingSubsidiary != null && custRepresentingSubsidiary != '')
 											{
@@ -562,6 +669,9 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										journalRecord.commitLineItem('line'); 
 										
 										cogsAcc = getCogsAccount(businessLine, suppRepresentingSubsidiary);
@@ -594,6 +704,9 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										
 										if(suppRepresentingSubsidiary != null && suppRepresentingSubsidiary != '')
 											{
@@ -743,6 +856,10 @@ function translateType(_transactionType)
 	
 	switch(_transactionType)
 		{
+			case 'ExpRept':
+				realTransactionType = 'expensereport';
+				break;
+				
 			case 'Journal':
 				
 				realTransactionType = 'journalentry';
