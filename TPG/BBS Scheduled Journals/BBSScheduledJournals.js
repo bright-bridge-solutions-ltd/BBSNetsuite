@@ -255,17 +255,35 @@ function scheduled(type)
 										journalRecord.selectNewLineItem('line');
 										journalRecord.setCurrentLineItemValue('line', 'account', originalAccount);
 										
-										if(amount >= 0)
+										if(originalAccount == deferredRevenueAcc)
 											{
-												//If we have a positive amount then this goes as a debit to the deferred revenue account
-												//
-												journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+												if(amount >= 0)
+													{
+														//If we have a positive amount then this goes as a debit to the deferred revenue account
+														//
+														journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+													}
+												else
+													{
+														//If its negative, then it goes as a credit to the deferred revenue account
+														//
+														journalRecord.setCurrentLineItemValue('line', 'credit', Math.abs(amount));
+													}
 											}
 										else
 											{
-												//If its negative, then it goes as a credit to the deferred revenue account
-												//
-												journalRecord.setCurrentLineItemValue('line', 'debit', Math.abs(amount));
+												if(amount >= 0)
+												{
+													//If we have a positive amount then this goes as a debit to the deferred revenue account
+													//
+													journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+												}
+											else
+												{
+													//If its negative, then it goes as a credit to the deferred revenue account
+													//
+													journalRecord.setCurrentLineItemValue('line', 'debit', Math.abs(amount));
+												}
 											}
 										
 										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
@@ -281,28 +299,53 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
-										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_supply_location', supplyLocation);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										journalRecord.commitLineItem('line'); 
 										
 										
-										salesAcc = getSalesAccount(businessLine, custRepresentingSubsidiary);
-										journalRecord.selectNewLineItem('line');
-										journalRecord.setCurrentLineItemValue('line', 'account', salesAcc);
-										
-										if(amount >= 0)
+										if(originalAccount == deferredRevenueAcc)
 											{
-												//If we have a positive amount then this goes as a credit to the sales account
-												//
-												journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+												salesAcc = getSalesAccount(businessLine, custRepresentingSubsidiary);
 											}
 										else
 											{
-												//If its negative, then it goes as a debit to the sales account
-												//
-												journalRecord.setCurrentLineItemValue('line', 'credit', Math.abs(amount));
+												salesAcc = getCogsAccount(businessLine, custRepresentingSubsidiary);
 											}
+
+										journalRecord.selectNewLineItem('line');
+										journalRecord.setCurrentLineItemValue('line', 'account', salesAcc);
 										
+										if(originalAccount == deferredRevenueAcc)
+											{
+												if(amount >= 0)
+													{
+														//If we have a positive amount then this goes as a credit to the sales account
+														//
+														journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+													}
+												else
+													{
+														//If its negative, then it goes as a debit to the sales account
+														//
+														journalRecord.setCurrentLineItemValue('line', 'debit', Math.abs(amount));
+													}
+											}
+										else
+											{
+												if(amount >= 0)
+												{
+													//If we have a positive amount then this goes as a credit to the sales account
+													//
+													journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+												}
+											else
+												{
+													//If its negative, then it goes as a debit to the sales account
+													//
+													journalRecord.setCurrentLineItemValue('line', 'credit', Math.abs(amount));
+												}
+											}
 										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
@@ -316,7 +359,7 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
-										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_supply_location', supplyLocation);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										
 										if(custRepresentingSubsidiary != null && custRepresentingSubsidiary != '')
@@ -359,7 +402,7 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
-										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_supply_location', supplyLocation);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										journalRecord.commitLineItem('line'); 
 										
@@ -394,7 +437,7 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
-										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_supply_location', supplyLocation);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										
 										if(custRepresentingSubsidiary != null && custRepresentingSubsidiary != '')
@@ -437,7 +480,7 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
-										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_supply_location', supplyLocation);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										journalRecord.commitLineItem('line'); 
 										
@@ -471,7 +514,7 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
-										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_supply_location', supplyLocation);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										
 										if(suppRepresentingSubsidiary != null && suppRepresentingSubsidiary != '')
@@ -514,7 +557,7 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
-										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_supply_location', supplyLocation);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										journalRecord.commitLineItem('line'); 
 										
@@ -548,7 +591,7 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
-										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_supply_location', supplyLocation);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										
 										if(suppRepresentingSubsidiary != null && suppRepresentingSubsidiary != '')
@@ -591,7 +634,7 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
-										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_supply_location', supplyLocation);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										journalRecord.commitLineItem('line'); 
 										
@@ -626,7 +669,7 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
-										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_supply_location', supplyLocation);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										
 										if(custRepresentingSubsidiary != null && custRepresentingSubsidiary != '')
@@ -670,7 +713,7 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
-										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_supply_location', supplyLocation);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										journalRecord.commitLineItem('line'); 
 										
@@ -705,7 +748,7 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_arrival_date', travelDate);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', tourType);
-										journalRecord.setCurrentLineItemValue('line', 'custcol_tour_type', supplyLocation);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_supply_location', supplyLocation);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_item_code', itemCode);
 										
 										if(suppRepresentingSubsidiary != null && suppRepresentingSubsidiary != '')
