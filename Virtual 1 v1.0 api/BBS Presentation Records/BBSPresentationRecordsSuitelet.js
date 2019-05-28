@@ -223,6 +223,7 @@ function presentationRecordsSuitelet(request, response)
 		var sessionId = request.getParameter('session');		//The session id  which is used when refreshing a page with the 'refresh' button
 		var recordType = request.getParameter('recordtype');	//Record Type C=Credit Notes, I=Invoices
 		var billingType = request.getParameter('billingtype'); 	//Billing type (class)
+		var batches = request.getParameter('batches'); 			//Batches (PR records)
 		
 		stage = (stage == null || stage == '' ? 1 : stage);
 
@@ -334,6 +335,12 @@ function presentationRecordsSuitelet(request, response)
 					//
 					subList.addField('custpage_sublist_tick', 'checkbox', 'Select', null);
 					
+					//Add the record id as the second column
+					//
+					var sublistField = subList.addField('custpage_sublist_pr_id', 'text', 'ID', null);
+					sublistField.setDisplayType('disabled');
+					
+					
 					//Now add all of the other columns from the saved search
 					//
 					for(var int = 0; int < recordColumns.length; int++)
@@ -341,13 +348,22 @@ function presentationRecordsSuitelet(request, response)
 							var columnLabel = recordColumns[int].getLabel();
 							var columnType = recordColumns[int]['type'];
 							var columnSearchType = recordColumns[int]['searchtype'];
+							var columnName = recordColumns[int]['name'];
 							
+							//If the column type is 'select' then we would want to display it as a text field, but also have a column to hold its id value as well
+							//
+							if(columnType == 'select')
+							{
+								var sublistField = subList.addField('custpage_sublist_id_' + columnName, 'text', columnLabel + '(ID)', null);
+								sublistField.setDisplayType('hidden');
+							}
+						
 							if(columnType == 'select' && columnSearchType == null)
 								{
 									columnType = 'text';
 								}
 							
-							var columnId = 'custpage_sublist_' + int.toString();
+							var columnId = 'custpage_sublist_' + columnName; //int.toString();
 							
 							var sublistField = subList.addField(columnId, columnType, columnLabel, columnSearchType);
 							sublistField.setDisplayType('disabled');
@@ -412,20 +428,43 @@ function presentationRecordsSuitelet(request, response)
 											subList.setLineItemValue('custpage_sublist_tick', lineNo, 'T');
 										}
 								
+									//Populate the internal id column
+									//
+									var resultLineId = recordSearchResults[int2].getId();
+									subList.setLineItemValue('custpage_sublist_pr_id', lineNo, resultLineId);
+									
 									//Loop through the columns
 									//
 									for (var int3 = 0; int3 < recordColumns.length; int3++) 
 										{
 											var rowColumnData = '';
+											
+											//See if the column has a text equivalent
+											//
 											rowColumnData = recordSearchResults[int2].getText(recordColumns[int3]);
 											
+											//If no text is returned, i.e. the column is not a lookup or list
+											//
 											if(rowColumnData == null)
 												{
 													rowColumnData = recordSearchResults[int2].getValue(recordColumns[int3]);
 												}
+											else
+												{
+													//If it did have a text value, then we need to save the id value as well
+													//
+													var tempColumnId = 'custpage_sublist_id_' + recordColumns[int3]['name'];
+													var tempColumnData = recordSearchResults[int2].getValue(recordColumns[int3]);
+													
+													subList.setLineItemValue(tempColumnId, lineNo, tempColumnData);
+												}
 											
-											var columnId = 'custpage_sublist_' + int3.toString();
+											//Get the column name in the sublist
+											//
+											var columnId = 'custpage_sublist_' + recordColumns[int3]['name']; //int3.toString();
 											
+											//Assign the value to teh column
+											//
 											subList.setLineItemValue(columnId, lineNo, rowColumnData);
 											
 											//See if we have a result column called 'Partner' then we need to add this to the list of partners to filter by
@@ -457,27 +496,27 @@ function presentationRecordsSuitelet(request, response)
 					batchesField.setDefaultValue(batches);
 					
 					var warningField = form.addField('custpage_warning', 'inlinehtml', null, null, null);
-					warningField.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Refresh the screen untill all works orders are updated to the batch, before producing documentation<p/>');
+					warningField.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Refresh the screen to view the progress of the presentation records<p/>');
 					warningField.setDisplayType('disabled');
 					
-					var tab = form.addTab('custpage_tab_items', 'Production Batches Created');
-					tab.setLabel('Production Batches Created');
+					var tab = form.addTab('custpage_tab_items', 'Presentation Records Created');
+					tab.setLabel('Presentation Records Created');
 					
 					var tab2 = form.addTab('custpage_tab_items2', '');
 					
 					form.addField('custpage_tab2', 'text', 'test', null, 'custpage_tab_items2');
 					
-					var subList = form.addSubList('custpage_sublist_items', 'list', 'Production Batches Created', 'custpage_tab_items');
+					var subList = form.addSubList('custpage_sublist_items', 'list', 'Presentation Records Created', 'custpage_tab_items');
 					
-					subList.setLabel('Production Batches Created');
+					subList.setLabel('Presentation Records Created');
 					
 					var listView = subList.addField('custpage_sublist_view', 'url', 'View', null);
 					listView.setLinkText('View');
+					
 					var listId = subList.addField('custpage_sublist_id', 'text', 'Internal Id', null);
-					var listBatch = subList.addField('custpage_sublist_batch', 'text', 'Production Batch', null);
-					var listEntered = subList.addField('custpage_sublist_entered', 'date', 'Date Entered', null);
-					var listDue = subList.addField('custpage_sublist_due', 'date', 'Due Date', null);
-					var listUpdated = subList.addField('custpage_sublist_updated', 'checkbox', 'W/O Updated To Batch', null);
+					var listBatch = subList.addField('custpage_sublist_batch', 'text', 'Presentation Record', null);
+					var listPartner = subList.addField('custpage_sublist_partner', 'text', 'Partner', null);
+					var listUpdated = subList.addField('custpage_sublist_updated', 'text', 'Update Status', null);
 					
 					if(batches != '')
 						{
@@ -491,23 +530,22 @@ function presentationRecordsSuitelet(request, response)
 									filters[0] = new nlobjSearchFilter('internalid', null, 'anyof', batchesArray);
 									
 									var columns = new Array();
-									columns[0] = new nlobjSearchColumn('custrecord_bbs_bat_description');
-									columns[1] = new nlobjSearchColumn('custrecord_bbs_bat_date_entered');
-									columns[2] = new nlobjSearchColumn('custrecord_bbs_bat_date_due');
-									columns[3] = new nlobjSearchColumn('custrecord_bbs_wo_updated');
+									columns[0] = new nlobjSearchColumn('custrecord_bbs_pr_type');
+									columns[1] = new nlobjSearchColumn('custrecord_bbs_pr_partner');
+									columns[2] = new nlobjSearchColumn('custrecord_bbs_pr_inv_pay_term');
+									columns[3] = new nlobjSearchColumn('name');
 									
-									var batchResults = nlapiSearchRecord('customrecord_bbs_assembly_batch', null, filters, columns);
+									var batchResults = nlapiSearchRecord('customrecord_bbs_presentation_record', null, filters, columns);
 									
 									for (var int2 = 0; int2 < batchResults.length; int2++) 
 										{
 											lineNo++;
 											
-											subList.setLineItemValue('custpage_sublist_view', lineNo, nlapiResolveURL('RECORD', 'customrecord_bbs_assembly_batch', batchResults[int2].getId(), 'VIEW'));
+											subList.setLineItemValue('custpage_sublist_view', lineNo, nlapiResolveURL('RECORD', 'customrecord_bbs_presentation_record', batchResults[int2].getId(), 'VIEW'));
 											subList.setLineItemValue('custpage_sublist_id', lineNo, batchResults[int2].getId());
-											subList.setLineItemValue('custpage_sublist_batch', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_description'));
-											subList.setLineItemValue('custpage_sublist_entered', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_date_entered'));
-											subList.setLineItemValue('custpage_sublist_due', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_date_due'));
-											subList.setLineItemValue('custpage_sublist_updated', lineNo, batchResults[int2].getValue('custrecord_bbs_wo_updated'));
+											subList.setLineItemValue('custpage_sublist_batch', lineNo, batchResults[int2].getValue('name'));
+											subList.setLineItemValue('custpage_sublist_partner', lineNo, batchResults[int2].getText('custrecord_bbs_pr_partner'));
+											subList.setLineItemValue('custpage_sublist_updated', lineNo, batchResults[int2].getText('custrecord_bbs_wo_updated'));
 										}
 								}
 						}
@@ -517,7 +555,7 @@ function presentationRecordsSuitelet(request, response)
 					
 					//Add a submit button to the form
 					//
-					form.addSubmitButton('Generate Production Batch Documentation');
+					//form.addSubmitButton('Generate Production Batch Documentation');
 					
 					break;
 					
@@ -577,159 +615,111 @@ function presentationRecordsSuitelet(request, response)
 			case 2:
 				
 				var lineCount = request.getLineItemCount('custpage_sublist_items');
-				var productionBatchId = request.getParameter('custpage_production_batch');
-				var mode = request.getParameter('custpage_mode');
-				var soLink = request.getParameter('custpage_solink'); // T/F - choose to select w/o that are/are not linked to sales orders
+				var recordType = request.getLineItemCount('custpage_param_rec_type');
 				
-				//See if we are updating an existing batch or creating new ones
+				var woArray = {};
+				var now = new Date();
+				var nowFormatted = new Date(now.getTime() + (now.getTimezoneOffset() * 60000)).format('Ymd:Hi');
+				var batchesCreated = [];
+						
+				//Loop round the sublist to find rows that are ticked
 				//
-				switch(mode)
-				{
-					//Update existing batch
-					//
-					case 'U':
+				for (var int = 1; int <= lineCount; int++) 
+					{
+						var ticked = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_tick', int);
 						
-						//Find all the ticked items & their quantities
-						//
-						for (var int = 1; int <= lineCount; int++) 
-						{
-							var ticked = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_tick', int);
-							
-							if (ticked == 'T')
-								{
-									var woId = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id', int);
-									
-									var woRecord = nlapiLoadRecord('workorder', woId);
-									woRecord.setFieldValue('custbody_bbs_wo_batch', productionBatchId);
-									nlapiSubmitRecord(woRecord, false, true);
-								}
-						}
-						
-						//Return to the production batch record
-						//
-						response.sendRedirect('RECORD', 'customrecord_bbs_assembly_batch', productionBatchId, true, null);
-						
-						break;
-				
-					//Create new batches
-					//
-					case 'C':
-						
-						var woArray = {};
-						var now = new Date();
-						var nowFormatted = new Date(now.getTime() + (now.getTimezoneOffset() * 60000)).format('Ymd:Hi');
-						var batchesCreated = [];
-						
-						//Loop round the sublist to find rows that are ticked
-						//
-						for (var int = 1; int <= lineCount; int++) 
+						if (ticked == 'T')
 							{
-								var ticked = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_tick', int);
-								
-								if (ticked == 'T')
-									{
-										var woId = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id', int);
-										var belongsTo = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_belongs', int);
-//SMI									var finish = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_finish_type', int);
-										var soTranId = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_so_tranid', int);
-										var custEntityId = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_cust_entityid', int);
-										var custEntity = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_customer', int);
-										var custEntityAccNo = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_customer_acc_no', int);
-										var logo = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_logo', int);
-										var soNumber = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_so_no', int);
+								var woId = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_pr_id', int);
+								var recordType = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_type', int);
+								var billingType = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_class', int);
+								var partner = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_entity', int);
+								var paymentTerms = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_terms', int);
 										
-										//Build the batch key (which is used as the batch description)
-										//
-										var key = '';
-										
-										if (soLink == 'T')
-											{
-//SMI										 	key = custEntity + ':' + soTranId + ':' + finish;
-											 	key = soNumber + ':' + logo;
-											}
-										else
-											{
-//SMI											key = belongsTo + ':' + finish + ':' + nowFormatted;
-												key = belongsTo + ':' + nowFormatted;
-											}
-										
-										if(!woArray[key])
-											{
-												woArray[key] = [woId];
-											}
-										else
-											{
-												woArray[key].push(woId);
-											}
-									}
-							}
-					
-						//Limit the qty of batches to be a maximum of MAX_BATCH_SIZE or 30 whichever is smaller
-						//
-						var batchCount = Number(Object.keys(woArray).length);
-						
-						var count = Number(0);
-						
-						for ( var wo in woArray) 
-							{
-								count++;
-									
-								if(count > MAX_BATCH_SIZE)
-									{
-										delete woArray[wo];
-									}
-							}
+								//Build the batch key (which is used as the batch description)
+								//
+								var key = '';
 
-						var prodBatchId = '';
+								switch(recordType)
+									{
+										case 'Invoice':
+											key = recordType + ':' + partner + ':' + billingType + ':' + paymentTerms;
+											break;
+											
+										case 'Credit Note':
+											key = recordType + ':' + partner;
+											break;
+									}
+	
+								if(!woArray[key])
+									{
+										woArray[key] = [woId];
+									}
+								else
+									{
+										woArray[key].push(woId);
+									}
+							}
+					}
+					
 						
-						nlapiLogExecution('DEBUG', 'Count of prod batches', (Object.keys(woArray).length).toString());
+				var prodBatchId = '';
 						
-						var woToProcessArray = {};
+				nlapiLogExecution('DEBUG', 'Count of presentation batches', (Object.keys(woArray).length).toString());
 						
-						//Loop round the batch keys to create the batches
+				var woToProcessArray = {};
+						
+				//Loop round the batch keys to create the batches
+				//
+				for (var woKey in woArray) 
+					{
+						//Create the PR record
 						//
-						for (var woKey in woArray) 
+						var prodBatchRecord = nlapiCreateRecord('customrecord_bbs_presentation_record');   // 2GU's
+						
+						//Update the basic fields on the PR record
+						//
+						var keyElements = woKey.split(':');
+						
+						if(keyElements[0] == 'Invoice')
 							{
-								//Create the batch record
-								//
-								var prodBatchRecord = nlapiCreateRecord('customrecord_bbs_assembly_batch');   // 2GU's
-								prodBatchRecord.setFieldValue('custrecord_bbs_bat_description',woKey);
-								
-								//Save the batch record & get the id
-								//
-								prodBatchId = nlapiSubmitRecord(prodBatchRecord, true, true);  // 4GU's
-								batchesCreated.push(prodBatchId);
-								
-								//Update the batch with the derived name
-								//
-								var batchName = woKey.split(':')[0] + '-' + prodBatchId.toString();
-								
-								nlapiSubmitField('customrecord_bbs_assembly_batch', prodBatchId, 'name', batchName, false)  // 2GU's
-								
-								//Loop round the w/o id's associated with this batch
-								//
-								woIds = woArray[woKey];
-								
-								//Save the id of the created batch along with the works orders that go with it
-								//
-								woToProcessArray[prodBatchId] = woIds;
-								
+								prodBatchRecord.setFieldValue('custrecord_bbs_pr_type', '2');
+								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner', keyElements[1]);
+								prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_pay_term', keyElements[3]);
+							}
+						else
+							{
+								prodBatchRecord.setFieldValue('custrecord_bbs_pr_type', '1');
+								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner', keyElements[1]);
 							}
 						
-						var scheduleParams = {custscript_wo_array: JSON.stringify(woToProcessArray)};
-						nlapiScheduleScript('customscript_bbs_prod_batch_scheduled', null, scheduleParams);
 						
-						var batchesCreatedText = JSON.stringify(batchesCreated);
-						var params = new Array();
+						//Save the batch record & get the id
+						//
+						prodBatchId = nlapiSubmitRecord(prodBatchRecord, true, true);  // 4GU's
+						batchesCreated.push(prodBatchId);
+								
+						//Loop round the w/o id's associated with this batch
+						//
+						woIds = woArray[woKey];
+								
+						//Save the id of the created batch along with the works orders that go with it
+						//
+						woToProcessArray[prodBatchId] = woIds;
+								
+					}
 						
-						params['stage'] = '3';
-						params['batches'] = batchesCreatedText;
-						params['solink'] = soLink;
+				var scheduleParams = {custscript_wo_array: JSON.stringify(woToProcessArray)};
+				//nlapiScheduleScript('customscript_pr_scheduled', null, scheduleParams);
 						
-						response.sendRedirect('SUITELET','customscript_bbs_assign_wo_suitelet', 'customdeploy_bbs_assign_wo_suitelet', null, params);
+				var batchesCreatedText = JSON.stringify(batchesCreated);
+				var params = new Array();
 						
-						break;
-				}
+				params['stage'] = ++stage;
+				params['batches'] = batchesCreatedText;
+						
+				response.sendRedirect('SUITELET', nlapiGetContext().getScriptId(), nlapiGetContext().getDeploymentId(), null, params);
+						
 				
 				break;
 			
