@@ -47,7 +47,7 @@ function scheduled(type)
 					
 					try
 						{
-							nlapiSubmitField(translateType(recordType), recordId, ['postingperiod','custbody_?????'], ['69',recordPeriod], true);
+							nlapiSubmitField(translateType(recordType), recordId, ['postingperiod','custbody_bbs_saved_posting_period'], ['69',recordPeriod], true);
 						}
 					catch(err)
 						{
