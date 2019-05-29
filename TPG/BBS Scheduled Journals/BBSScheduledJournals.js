@@ -161,7 +161,7 @@ function scheduled(type)
 					var exchangeRate = Number(transactionSearchResults[int].getValue("exchangerate"));
 					//var amount = Math.abs(Number(transactionSearchResults[int].getValue("fxamount")));
 					var amount = Number(transactionSearchResults[int].getValue("fxamount"));
-					var transactionLineNo = Number(transactionSearchResults[int].getValue("line"));
+					var transactionLineNo = transactionSearchResults[int].getValue("line");
 					var transactionId = transactionSearchResults[int].getId();
 					var transactionUniqueKey = transactionSearchResults[int].getValue("lineuniquekey");
 					var transactionType = transactionSearchResults[int].getValue("type");
@@ -240,7 +240,14 @@ function scheduled(type)
 					
 					//Save the unique line id, so we can update it to say we have created a journal later
 					//
-					uniqueLineIds[transactionUniqueKey] = transactionUniqueKey;
+					if(transactionType == 'ExpRept')
+						{
+							uniqueLineIds[transactionLineNo] = transactionLineNo;
+						}
+					else
+						{
+							uniqueLineIds[transactionUniqueKey] = transactionUniqueKey;
+						}
 					
 					//Work out what account we should use
 					//
@@ -859,7 +866,7 @@ function saveJournal(_journalRecord, _transactionType, _transactionNumber, _uniq
 						{
 							for (var int3 = 1; int3 <= transactionExpenseLines; int3++) 
 								{
-									var lineUniqueKey = sourceTransactionRecord.getLineItemValue('expense', 'lineuniquekey', int3);
+									var lineUniqueKey = sourceTransactionRecord.getLineItemValue('expense', 'line', int3);
 									
 									if(_uniqueLineIds[lineUniqueKey])
 										{

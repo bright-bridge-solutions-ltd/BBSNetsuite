@@ -32,5 +32,12 @@ function resetJournalPostedBL(type, form, request)
 				{
 					nlapiSetLineItemValue('expense', 'custcol_bbs_journal_posted', int, 'F');
 				}
+			
+			lines = nlapiGetLineItemCount('line');
+			
+			for (var int = 1; int <= lines; int++) 
+				{
+					nlapiSetLineItemValue('line', 'custcol_bbs_journal_posted', int, 'F');
+				}
 		}
 }
