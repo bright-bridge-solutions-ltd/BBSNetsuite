@@ -17,10 +17,12 @@ function copyQuotePageInit(type)
 {
 	if(type == 'copy')
 		{
-			var originalProbability = nlapiGetFieldValue('custpage_bbs_orig_probability').replace('%', '');
-					
+			var originalProbability = nlapiGetFieldValue('custpage_bbs_orig_probability'); //.replace('%', '');
+				
 			if(originalProbability != null && originalProbability != '')
 				{
+					originalProbability = originalProbability.replace('%', '');
+					
 					var allowedProbabilities = ['1.0','10.0','25.0','50.0','75.0','99.0'];
 				
 					if(allowedProbabilities.indexOf(originalProbability) != -1)
