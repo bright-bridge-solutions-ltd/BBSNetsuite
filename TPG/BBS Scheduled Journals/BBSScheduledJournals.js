@@ -69,6 +69,8 @@ function scheduled(type)
 			    	[["type","anyof","Journal"],"AND",["custcol_bbs_journal_posted","is","F"],"AND",["custbody_bbs_system_generated","is","F"]]
 			    ], 
 			   "AND", 
+			   ["department","noneof","@NONE@"],
+			   "AND",
 			   ["custcol_csegbkref.custrecord_arrival_date","onorbefore","today"], 
 			   "AND", 
 			   ["custcol_csegbkref.custrecord_arrival_date","onorafter","01/01/2019"], 

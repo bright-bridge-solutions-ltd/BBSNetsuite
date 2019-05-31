@@ -92,6 +92,10 @@ function processResults(_recordType)
 function updateCurrencies(_recordId, _currencies, _recType)
 {
 	var record = null;
+	if(_recordId == '25558')
+		{
+			nlapiLogExecution('DEBUG', 'Currencies', JSON.stringify(_currencies));
+		}
 	
 	//Read the customer record
 	//
@@ -123,6 +127,11 @@ function updateCurrencies(_recordId, _currencies, _recType)
 					for (var int = 1; int <= currencyCount; int++) 
 						{
 							var lineCurrency = record.getLineItemValue('currency', 'currency', int);
+							
+							if(_recordId == '25558')
+							{
+								nlapiLogExecution('DEBUG', 'Currencies', int.toString() + ":" + lineCurrency + ":" + currency);
+							}
 							
 							if(lineCurrency == currency)
 								{
