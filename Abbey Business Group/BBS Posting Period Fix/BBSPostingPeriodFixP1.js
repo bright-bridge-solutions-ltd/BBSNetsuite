@@ -16,7 +16,8 @@ function scheduled(type)
 	
 	var transactionSearch = getResults(nlapiCreateSearch("transaction",
 			[
-			   [["postingperiod","abs","106"],"OR",["postingperiod","abs","107"],"OR",["postingperiod","abs","108"]], 
+			   //[["postingperiod","abs","106"],"OR",["postingperiod","abs","107"],"OR",["postingperiod","abs","108"]], 
+			   ["postingperiod","abs","104"],
 			   "AND", 
 			   ["mainline","is","T"]
 			], 
