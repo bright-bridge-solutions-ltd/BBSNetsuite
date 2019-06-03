@@ -868,7 +868,12 @@ function saveJournal(_journalRecord, _transactionType, _transactionNumber, _uniq
 						{
 							for (var int3 = 1; int3 <= transactionExpenseLines; int3++) 
 								{
-									var lineUniqueKey = sourceTransactionRecord.getLineItemValue('expense', 'line', int3);
+									var lineUniqueKey = sourceTransactionRecord.getLineItemValue('expense', 'lineuniquekey', int3);
+									
+									if(lineUniqueKey == null || lineUniqueKey == '')
+										{
+											lineUniqueKey = sourceTransactionRecord.getLineItemValue('expense', 'line', int3);
+										}
 									
 									if(_uniqueLineIds[lineUniqueKey])
 										{
