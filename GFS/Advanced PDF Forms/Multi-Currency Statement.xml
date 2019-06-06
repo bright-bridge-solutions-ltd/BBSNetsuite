@@ -16,8 +16,8 @@
   
         <#assign subsidiary>${statement.subsidiary}</#assign>
   
-        <#if subsidiary=="Intermail">
-              <#assign regInfo>Company Registration No: 06863317. Registered Office: Century House, 100 Station Road, Horsham, West Sussex, RH13 5UZ, United Kingdom.</#assign>
+        <#if subsidiary=="Intermail Limited">
+              <#assign regInfo>Company Registration No: 3244323. Registered Office: Century House, 100 Station Road, Horsham, West Sussex, RH13 5UZ, United Kingdom.</#assign>
               <#assign emailInfo>info@gfsdeliver.com</#assign>
               <#assign telInfo>01635 565000</#assign>
               <#assign vatInfo>GB 642 3131 76</#assign>
@@ -74,38 +74,35 @@
 	<td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${statement.billaddress}<br/>VAT Number: ${statement.vatregnum}</span></td>
 	<td align="right" style="font-size:10pt"></td>
 	
-	<td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${compadr}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+	<td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${compadr}</span><br/>VAT No. ${vatInfo}<br /><br/><#if subsidiary=="Global Freight Solutions"><b>Email:</b> ${emailInfo}<br /></#if><b>Tel:</b> ${telInfo}</td>
+	</tr>
+</table>
+              <table style="width: 100%;">
+    <tr>
+	<td colspan="2" class="addressheader"></td><td></td><td></td><td></td>
 	</tr>
 	<tr>
-    <!--<<td align="right"></td>-->
-	<td align="right"></td>
+	<td colspan="2" rowspan="8" class="address"></td><td></td><td></td><td></td>
 	</tr>
 	<tr>
-	<!--<<td align="right" style="font-size:10pt"></td>-->
-	<td align="right" style="font-size:10pt"></td>
-	</tr>
-	<tr>
-	<!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
-	<td align="right" style="font-size:10pt">&nbsp;</td>
-	</tr>
-	<tr>
-	<!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
-	<td align="right" style="font-size:10pt">&nbsp;</td>
-	</tr>
-	<tr >
-	<!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
-    <td align="right" style="font-size:10pt">&nbsp;</td>
-	</tr>
-    <tr style="font-size:10pt">
-      <!--<td align="right">&nbsp;</td>-->
-      <td align="right">&nbsp;</td>
-      </tr>
-    <tr style="font-size:10pt">
-      <!--<td align="right">&nbsp;</td>-->
-      <td align="right">&nbsp;</td>
-      </tr>
-          </table>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"></td><td align="right" style="font-size:10pt"></td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Statement Date</b></td><td align="right" style="font-size:10pt">${statement.trandate?string["dd MMM yyyy"]}</td>
+    </tr>
+  <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"></td><td align="right" style="font-size:10pt"></td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td></td><td></td>
+    </tr>
+
+
+  </table>
         </macro>
+      
+      
+      
         <macro id="nlfooter">
           
  		<#assign done>N</#assign>
@@ -114,7 +111,7 @@
             <#assign accno>${line.custbody_bbs_account_no}</#assign>
             
             <#if accno?length gt 0 && done=="N" >
-        <table style="width: 100%;">
+        <table style="width: 100%; padding-top: 10px;">
           <tr><td>Bank Details for payments in ${statement.currency}:</td></tr>
           <tr><td>${line.custbody_bbs_bank_account}</td></tr>
           <tr><td>${line.custbody_bbs_bank_name}</td></tr>
@@ -240,39 +237,17 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="250px" footer="nlfooter" footer-height="10px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="300px" footer="nlfooter" footer-height="60px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
   
-    <table style="width: 100%;">
-    <tr>
-	<td colspan="2" class="addressheader"></td><td></td><td></td><td></td>
-	</tr>
-	<tr>
-	<td colspan="2" rowspan="8" class="address"></td><td></td><td></td><td></td>
-	</tr>
-	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"></td><td align="right" style="font-size:10pt"></td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Statement Date</b></td><td align="right" style="font-size:10pt">${statement.trandate?string["dd MMM yyyy"]}</td>
-    </tr>
-  <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"></td><td align="right" style="font-size:10pt"></td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
-    </tr>
 
-
-  </table>
-  
-  <p/>
+ 
   
     <#if statement.lines?has_content>
 <table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list statement.lines as line><#if line_index==0>
 <thead>
 	<tr>
 	<th colspan="3">${line.datecol@label}</th>
-	<th colspan="12">${line.description@label}</th>
+	<th colspan="12" style="padding-left: 5px;">${line.description@label}</th>
 	<th align="right" colspan="3">Debit</th>
 	<th align="right" colspan="4">Credit</th>
     <th align="right" colspan="4">Paid</th>
@@ -286,9 +261,9 @@
 	<td colspan="3">${line.datecol?string["dd MMM yyyy"]}</td>
       
     <#if pos gt -1>
-	  <td colspan="12">${line.description[pos..]}</td>
+	  <td colspan="12" style="padding-left: 5px;">${line.description[pos..]}</td>
     <#else>
-      <td colspan="12">${line.description}</td>
+      <td colspan="12" style="padding-left: 5px;">${line.description}</td>
     </#if>
       
     <#if line.charge?length gt 0> 
