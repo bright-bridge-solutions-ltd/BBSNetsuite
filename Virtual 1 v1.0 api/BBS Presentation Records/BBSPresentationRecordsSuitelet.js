@@ -514,8 +514,10 @@ function presentationRecordsSuitelet(request, response)
 					listView.setLinkText('View');
 					
 					var listId = subList.addField('custpage_sublist_id', 'text', 'Internal Id', null);
-					var listBatch = subList.addField('custpage_sublist_batch', 'text', 'Presentation Record', null);
+					var listType = subList.addField('custpage_sublist_type', 'text', 'Record Type', null);
+					var listName = subList.addField('custpage_sublist_name', 'text', 'Name', null);
 					var listPartner = subList.addField('custpage_sublist_partner', 'text', 'Partner', null);
+					var listStatus = subList.addField('custpage_sublist_status', 'text', 'Status', null);
 					var listUpdated = subList.addField('custpage_sublist_updated', 'text', 'Update Status', null);
 					
 					if(batches != '')
@@ -534,6 +536,8 @@ function presentationRecordsSuitelet(request, response)
 									columns[1] = new nlobjSearchColumn('custrecord_bbs_pr_partner');
 									columns[2] = new nlobjSearchColumn('custrecord_bbs_pr_inv_pay_term');
 									columns[3] = new nlobjSearchColumn('name');
+									columns[4] = new nlobjSearchColumn('custrecord_bbs_pr_status');
+									columns[5] = new nlobjSearchColumn('custrecord_bbs_pr_internal_status');
 									
 									var batchResults = nlapiSearchRecord('customrecord_bbs_presentation_record', null, filters, columns);
 									
@@ -543,9 +547,11 @@ function presentationRecordsSuitelet(request, response)
 											
 											subList.setLineItemValue('custpage_sublist_view', lineNo, nlapiResolveURL('RECORD', 'customrecord_bbs_presentation_record', batchResults[int2].getId(), 'VIEW'));
 											subList.setLineItemValue('custpage_sublist_id', lineNo, batchResults[int2].getId());
-											subList.setLineItemValue('custpage_sublist_batch', lineNo, batchResults[int2].getValue('name'));
+											subList.setLineItemValue('custpage_sublist_type', lineNo, batchResults[int2].getText('custrecord_bbs_pr_type'));
+											subList.setLineItemValue('custpage_sublist_name', lineNo, batchResults[int2].getValue('name'));
 											subList.setLineItemValue('custpage_sublist_partner', lineNo, batchResults[int2].getText('custrecord_bbs_pr_partner'));
-											subList.setLineItemValue('custpage_sublist_updated', lineNo, batchResults[int2].getText('custrecord_bbs_wo_updated'));
+											subList.setLineItemValue('custpage_sublist_status', lineNo, batchResults[int2].getText('custrecord_bbs_pr_status'));
+											subList.setLineItemValue('custpage_sublist_updated', lineNo, batchResults[int2].getText('custrecord_bbs_pr_internal_status'));
 										}
 								}
 						}
@@ -621,6 +627,7 @@ function presentationRecordsSuitelet(request, response)
 				var now = new Date();
 				var nowFormatted = new Date(now.getTime() + (now.getTimezoneOffset() * 60000)).format('Ymd:Hi');
 				var batchesCreated = [];
+				var todaysDate = new Date();
 						
 				//Loop round the sublist to find rows that are ticked
 				//
@@ -686,12 +693,16 @@ function presentationRecordsSuitelet(request, response)
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_type', '2');
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner', keyElements[1]);
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_pay_term', keyElements[3]);
+								prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_due_date', calculateDueDate(todaysDate, keyElements[3]));
 							}
 						else
 							{
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_type', '1');
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner', keyElements[1]);
 							}
+						
+						prodBatchRecord.setFieldValue('custrecord_bbs_pr_status', '1'); //Status = 1 (Open)
+						prodBatchRecord.setFieldValue('custrecord_bbs_pr_internal_status', '1'); //Status = 1 (Awaiting Transaction Allocation)
 						
 						
 						//Save the batch record & get the id
@@ -709,8 +720,8 @@ function presentationRecordsSuitelet(request, response)
 								
 					}
 						
-				var scheduleParams = {custscript_wo_array: JSON.stringify(woToProcessArray)};
-				//nlapiScheduleScript('customscript_pr_scheduled', null, scheduleParams);
+				var scheduleParams = {custscript_pr_array: JSON.stringify(woToProcessArray), custscript_pr_type: recordType};
+				nlapiScheduleScript('customscript_pr_scheduled', null, scheduleParams);
 						
 				var batchesCreatedText = JSON.stringify(batchesCreated);
 				var params = new Array();
@@ -749,7 +760,36 @@ function presentationRecordsSuitelet(request, response)
 //Functions
 //=====================================================================
 //
-
+function calculateDueDate(_startDate, _payTerms)
+{
+	var payTermsRecord = null;
+	var dueDate = _startDate;
+	
+	try
+		{
+			payTermsRecord = nlapiLoadRecord('term', _payTerms);
+		}
+	catch(err)
+		{
+			payTermsRecord = null;
+		}
+	
+	if(payTermsRecord != null)
+		{
+			var days = Number(payTermsRecord.getFieldValue('daysuntilnetdue'));
+			
+			try
+				{
+					dueDate = nlapiAddDays(_startDate, days);
+				}
+			catch(err)
+				{
+					dueDate = _startDate;
+				}
+		}
+	
+	return(nlapiDateToString(dueDate));
+}
 
 function removePrefix(fullString)
 {
