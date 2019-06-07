@@ -11,6 +11,8 @@
 //=============================================================================================
 //	
 var PR_AUTO_SEND_DOCS = (nlapiGetContext().getPreference('custscript_bbs_pr_auto_send') == 'T' ? true : false);
+var PR_DOC_TEMPLATE_ID = nlapiGetContext().getPreference('custscript_bbs_pr_doc_template');
+var PR_DOC_FOLDER_ID = nlapiGetContext().getPreference('custscript_bbs_pr_doc_folder');
 
 /**
  * @param {String} type Context Types: scheduled, ondemand, userinterface, aborted, skipped
@@ -165,8 +167,18 @@ function prUpdate(type)
 				}
 		}
 	
-	//
+	//=============================================================================================
+	//=============================================================================================
 	//Loop through the array of PR records to generate documents
+	//=============================================================================================
+	//=============================================================================================
+	//
+	
+	//Get the company config info
+	//
+	var companyInformationRecord = nlapiLoadConfiguration('companyinformation');
+	
+	//Loop through each of the PR records
 	//
 	for (var prKey in prArray) 
 		{
@@ -186,28 +198,137 @@ function prUpdate(type)
 			//
 			if(prRecord)
 				{
-					//TODO - generate the documents
+					var partnerRecord = null;
+					
+					//Load the partner record from the pr record
 					//
-				
-				
-					//Update the pr status
-					//
-					prRecord.setFieldValue('custrecord_bbs_pr_internal_status', '3'); //Documents generated
-				
 					try
 						{
-							nlapiSubmitRecord(prRecord, false, true); //2GU's
+							partnerRecord = nlapiLoadRecord('customer', prRecord.getFieldValue('custrecord_bbs_pr_partner'));
 						}
 					catch(err)
 						{
-							nlapiLogExecution('DEBUG', 'Error updating presentation record - ' + err.message, prKey);
+						partnerRecord = null;
+						}
+
+					//Get the line data from a search
+					//
+					var invoiceLines = getResults(nlapiCreateSearch("transaction",
+							[
+							   ["type","anyof","CustInvc","CustCred"], 
+							   "AND", 
+							   ["custbody_bbs_pr_id","anyof",prKey], 
+							   "AND", 
+							   ["mainline","is","F"], 
+							   "AND", 
+							   ["shipping","is","F"], 
+							   "AND", 
+							   ["taxline","is","F"], 
+							   "AND", 
+							   ["cogs","is","F"]
+							], 
+							[
+							   new nlobjSearchColumn("trandate"), 
+							   new nlobjSearchColumn("tranid").setSort(false), 
+							   new nlobjSearchColumn("entity"), 
+							   new nlobjSearchColumn("quantity"), 
+							   new nlobjSearchColumn("item"), 
+							   new nlobjSearchColumn("custcol_bbs_end_cust_name"), 
+							   new nlobjSearchColumn("custcol_bbs_accessid_v1c"), 
+							   new nlobjSearchColumn("custcol_bbs_site_name"), 
+							   new nlobjSearchColumn("custbody_bbs_partner_po_number"), 
+							   new nlobjSearchColumn("memo"),
+							   new nlobjSearchColumn("amount")
+							]
+							));
+					
+					
+					//Generate the csv detail file & save to the PR record
+					//
+					if(invoiceLines != null && invoiceLines.length > 0)
+						{
+							var csvText = '"User","V1 ID","Description","PO Reference","Cost"\n';
+							
+							for (var int = 0; int < invoiceLines.length; int++) 
+								{
+									var lineTranDate = invoiceLines[int].getValue('trandate');
+									var lineTranId = invoiceLines[int].getValue('tranid');
+									var lineTranEntity = invoiceLines[int].getText('entity');
+									var lineTranQuantity = invoiceLines[int].getValue('quantity');
+									var lineTranItem = invoiceLines[int].getText('item');
+									var lineTranEndUserName = invoiceLines[int].getValue('custcol_bbs_end_cust_name');
+									var lineTranV1c = invoiceLines[int].getValue('custcol_bbs_accessid_v1c');
+									var lineTranSiteName = invoiceLines[int].getValue('custcol_bbs_site_name');
+									var lineTranPartnerPo = invoiceLines[int].getValue('custbody_bbs_partner_po_number');
+									var lineTranDecscription = invoiceLines[int].getValue('memo');
+									var lineTranAmount= invoiceLines[int].getValue('amount');
+									
+									csvText += lineTranEndUserName + ',' + lineTranV1c + ',' + lineTranDecscription + ',' + lineTranPartnerPo + ',' + lineTranAmount + '\n';
+								}
+						}
+					
+					//Create a file to hold the csv
+					//
+					var csvFileName = 'Presentation ' + prRecord.getFieldText('custrecord_bbs_pr_type') + ' ' + prRecord.getFieldText('custrecord_bbs_pr_partner') + ' ' + today.toUTCString() + '.csv';
+					var csvFile = nlapiCreateFile(csvFileName, 'CSV', csvText);
+					csvFile.setFolder(PR_DOC_FOLDER_ID);
+					
+					//Upload the file to the file cabinet.
+					//
+				    var csvFileId = nlapiSubmitFile(csvFile);
+				 
+					
+					//Render the PDF template & save to the PR record
+					//
+					if(PR_DOC_TEMPLATE_ID != null && PR_DOC_TEMPLATE_ID != '')
+						{
+							var templateFile = nlapiLoadFile(PR_DOC_TEMPLATE_ID);
+							var templateContents = templateFile.getValue();
+						
+							var renderer = nlapiCreateTemplateRenderer();
+							renderer.setTemplate(templateContents);
+							renderer.addRecord('record', prRecord);
+							renderer.addRecord('partner', partnerRecord);
+							renderer.addRecord('companyInformation', companyInformationRecord);
+							renderer.addSearchResults('lines', invoiceLines);
+							
+							var xml = renderer.renderToString();
+							var pdfFile = nlapiXMLToPDF(xml);
+							var pdfFileName = 'Presentation ' + prRecord.getFieldText('custrecord_bbs_pr_type') + ' ' + prRecord.getFieldText('custrecord_bbs_pr_partner') + ' ' + today.toUTCString();
+							
+							pdfFile.setName(pdfFileName);
+							pdfFile.setFolder(PR_DOC_FOLDER_ID);
+		
+						    //Upload the file to the file cabinet.
+							//
+						    var fileId = nlapiSubmitFile(pdfFile);
+						 
+						    //Attach the file to the PR record
+						    //
+						    nlapiAttachRecord("file", fileId, "customrecord_bbs_presentation_record", prKey); // 10GU's
+					
+							//Update the pr status
+							//
+							prRecord.setFieldValue('custrecord_bbs_pr_internal_status', '3'); //Documents generated
+						
+							try
+								{
+									nlapiSubmitRecord(prRecord, false, true); //2GU's
+								}
+							catch(err)
+								{
+									nlapiLogExecution('DEBUG', 'Error updating presentation record - ' + err.message, prKey);
+								}
 						}
 				}
 		}
 	
 	
-	//
+	//=============================================================================================
+	//=============================================================================================
 	//Loop through the array of PR records to email documents
+	//=============================================================================================
+	//=============================================================================================
 	//
 	if(PR_AUTO_SEND_DOCS == 'T')
 		{
@@ -283,4 +404,40 @@ function padding_left(s, c, n)
 	}
 	
 	return s;
+}
+
+function getResults(search)
+{
+	var searchResult = search.runSearch();
+	
+	//Get the initial set of results
+	//
+	var start = 0;
+	var end = 1000;
+	var searchResultSet = searchResult.getResults(start, end);
+	var resultlen = searchResultSet.length;
+
+	//If there is more than 1000 results, page through them
+	//
+	while (resultlen == 1000) 
+		{
+				start += 1000;
+				end += 1000;
+
+				var moreSearchResultSet = searchResult.getResults(start, end);
+				
+				if(moreSearchResultSet == null)
+					{
+						resultlen = 0;
+					}
+				else
+					{
+						resultlen = moreSearchResultSet.length;
+						searchResultSet = searchResultSet.concat(moreSearchResultSet);
+					}
+				
+				
+		}
+	
+	return searchResultSet;
 }
