@@ -45,3 +45,28 @@ function libClearSessionData(sessionId)
 {
 	nlapiDeleteRecord('customrecord_bbs_internal_params', sessionId);
 }
+
+function libEmailFiles(presentationId, templateId)
+{
+	var customrecord_bbs_presentation_recordSearch = nlapiSearchRecord("customrecord_bbs_presentation_record",null,
+			[
+			   ["file.internalid","noneof","@NONE@"],
+			   "AND",
+			   ["internalid","anyof",presentationId]
+			], 
+			[
+			   new nlobjSearchColumn("name").setSort(false), 
+			   new nlobjSearchColumn("custrecord_bbs_pr_type"), 
+			   new nlobjSearchColumn("description","file",null), 
+			   new nlobjSearchColumn("folder","file",null), 
+			   new nlobjSearchColumn("internalid","file",null), 
+			   new nlobjSearchColumn("name","file",null), 
+			   new nlobjSearchColumn("filetype","file",null)
+			]
+			);
+	
+	if(customrecord_bbs_presentation_recordSearch != null && customrecord_bbs_presentation_recordSearch.length > 0)
+		{
+		
+		}
+}

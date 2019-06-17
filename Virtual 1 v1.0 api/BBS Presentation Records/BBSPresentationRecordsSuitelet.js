@@ -354,7 +354,7 @@ function presentationRecordsSuitelet(request, response)
 							//
 							if(columnType == 'select')
 							{
-								var sublistField = subList.addField('custpage_sublist_id_' + columnName, 'text', columnLabel + '(ID)', null);
+								var sublistField = subList.addField('custpage_sublist_id_' + columnName, 'text', 'custpage_sublist_id_' + columnName, null);
 								sublistField.setDisplayType('hidden');
 							}
 						
@@ -463,7 +463,7 @@ function presentationRecordsSuitelet(request, response)
 											//
 											var columnId = 'custpage_sublist_' + recordColumns[int3]['name']; //int3.toString();
 											
-											//Assign the value to teh column
+											//Assign the value to the column
 											//
 											subList.setLineItemValue(columnId, lineNo, rowColumnData);
 											
@@ -641,6 +641,7 @@ function presentationRecordsSuitelet(request, response)
 								var recordType = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_type', int);
 								var billingType = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_class', int);
 								var partner = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_entity', int);
+								var partnerContact = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_contact', int);
 								var paymentTerms = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_terms', int);
 										
 								//Build the batch key (which is used as the batch description)
@@ -650,11 +651,11 @@ function presentationRecordsSuitelet(request, response)
 								switch(recordType)
 									{
 										case 'Invoice':
-											key = recordType + ':' + partner + ':' + billingType + ':' + paymentTerms;
+											key = recordType + ':' + partner + ':' + billingType + ':' + paymentTerms + ':' + partnerContact;
 											break;
 											
 										case 'Credit Note':
-											key = recordType + ':' + partner;
+											key = recordType + ':' + partner + ':' + partnerContact;
 											break;
 									}
 	
@@ -694,11 +695,14 @@ function presentationRecordsSuitelet(request, response)
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner', keyElements[1]);
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_pay_term', keyElements[3]);
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_due_date', calculateDueDate(todaysDate, keyElements[3]));
+								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner_contact', keyElements[4]);
+								prodBatchRecord.setFieldValue('custrecord_bbs_pr_billing_type', keyElements[2]);
 							}
 						else
 							{
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_type', '1');
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner', keyElements[1]);
+								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner_contact', keyElements[2]);
 							}
 						
 						prodBatchRecord.setFieldValue('custrecord_bbs_pr_status', '1'); //Status = 1 (Open)

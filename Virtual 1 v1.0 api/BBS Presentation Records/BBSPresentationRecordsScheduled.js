@@ -50,6 +50,7 @@ function prUpdate(type)
 	for (var prKey in prArray) 
 		{
 			var prTotalAmount = Number(0);
+			var prTotalTaxAmount = Number(0);
 			var prRemainingAmount = Number(0);
 			var prDisputedAmount = Number(0);
 			var transactionIds = prArray[prKey];
@@ -113,12 +114,14 @@ function prUpdate(type)
 									//
 									var transactionDisputed = transactionRecord.getFieldValue('custbody_bbs_disputed');
 									var transactionTotal = Number(transactionRecord.getFieldValue('total'));
+									var transactionTaxTotal = Number(transactionRecord.getFieldValue('taxtotal'));
 									var transactionRemaining = Number(transactionRecord.getFieldValue('amountremaining'));
 									
 									
 									//Calculate totals for the PR record
 									//
 									prTotalAmount += transactionTotal;
+									prTotalTaxAmount += transactionTaxTotal;
 									
 									if(transactionDisputed == 'T')
 										{
@@ -147,11 +150,13 @@ function prUpdate(type)
 							case 'Invoice':
 								prRecord.setFieldValue('custrecord_bbs_pr_inv_total', prTotalAmount);
 								prRecord.setFieldValue('custrecord_bbs_pr_inv_disputed', prDisputedAmount);
+								prRecord.setFieldValue('custrecord_bbs_pr_inv_tax_total', prTotalTaxAmount);
 										
 								break;
 								
 							case 'Credit Note':
 								prRecord.setFieldValue('custrecord_bbs_pr_cn_total', prTotalAmount);
+								prRecord.setFieldValue('custrecord_bbs_pr_cn_tax_total', prTotalTaxAmount);
 								
 								break;		
 						}
@@ -232,6 +237,7 @@ function prUpdate(type)
 							   new nlobjSearchColumn("tranid").setSort(false), 
 							   new nlobjSearchColumn("entity"), 
 							   new nlobjSearchColumn("quantity"), 
+							   new nlobjSearchColumn("rate"), 
 							   new nlobjSearchColumn("item"), 
 							   new nlobjSearchColumn("custcol_bbs_end_cust_name"), 
 							   new nlobjSearchColumn("custcol_bbs_accessid_v1c"), 
@@ -247,7 +253,7 @@ function prUpdate(type)
 					//
 					if(invoiceLines != null && invoiceLines.length > 0)
 						{
-							var csvText = '"User","V1 ID","Description","PO Reference","Cost"\n';
+							var csvText = '"Site","Quantity","Unit Amount","Total Amount","Description","Site ID","Partner PO Ref","Service ID"\n';
 							
 							for (var int = 0; int < invoiceLines.length; int++) 
 								{
@@ -255,6 +261,7 @@ function prUpdate(type)
 									var lineTranId = invoiceLines[int].getValue('tranid');
 									var lineTranEntity = invoiceLines[int].getText('entity');
 									var lineTranQuantity = invoiceLines[int].getValue('quantity');
+									var lineTranRate = invoiceLines[int].getValue('rate');
 									var lineTranItem = invoiceLines[int].getText('item');
 									var lineTranEndUserName = invoiceLines[int].getValue('custcol_bbs_end_cust_name');
 									var lineTranV1c = invoiceLines[int].getValue('custcol_bbs_accessid_v1c');
@@ -263,13 +270,13 @@ function prUpdate(type)
 									var lineTranDecscription = invoiceLines[int].getValue('memo');
 									var lineTranAmount= invoiceLines[int].getValue('amount');
 									
-									csvText += lineTranEndUserName + ',' + lineTranV1c + ',' + lineTranDecscription + ',' + lineTranPartnerPo + ',' + lineTranAmount + '\n';
+									csvText += lineTranEndUserName + ',' + lineTranQuantity  + ',' + lineTranRate + ',' + lineTranAmount + ',' + lineTranDecscription + ','  + lineTranSiteName + ',' + lineTranPartnerPo + ',' + lineTranV1c + '\n';
 								}
 						}
 					
 					//Create a file to hold the csv
 					//
-					var csvFileName = 'Presentation ' + prRecord.getFieldText('custrecord_bbs_pr_type') + ' ' + prRecord.getFieldText('custrecord_bbs_pr_partner') + ' ' + today.toUTCString() + '.csv';
+					var csvFileName = 'Presentation ' + prRecord.getFieldText('custrecord_bbs_pr_type') + ' ' + prRecord.getFieldValue('name') + '.csv';
 					var csvFile = nlapiCreateFile(csvFileName, 'CSV', csvText);
 					csvFile.setFolder(PR_DOC_FOLDER_ID);
 					
@@ -277,7 +284,10 @@ function prUpdate(type)
 					//
 				    var csvFileId = nlapiSubmitFile(csvFile);
 				 
-					
+				    //Attach the file to the PR record
+				    //
+				    nlapiAttachRecord("file", csvFileId, "customrecord_bbs_presentation_record", prKey); // 10GU's
+			
 					//Render the PDF template & save to the PR record
 					//
 					if(PR_DOC_TEMPLATE_ID != null && PR_DOC_TEMPLATE_ID != '')
@@ -289,24 +299,36 @@ function prUpdate(type)
 							renderer.setTemplate(templateContents);
 							renderer.addRecord('record', prRecord);
 							renderer.addRecord('partner', partnerRecord);
-							renderer.addRecord('companyInformation', companyInformationRecord);
 							renderer.addSearchResults('lines', invoiceLines);
 							
 							var xml = renderer.renderToString();
-							var pdfFile = nlapiXMLToPDF(xml);
-							var pdfFileName = 'Presentation ' + prRecord.getFieldText('custrecord_bbs_pr_type') + ' ' + prRecord.getFieldText('custrecord_bbs_pr_partner') + ' ' + today.toUTCString();
+							var pdfFile = null;
 							
-							pdfFile.setName(pdfFileName);
-							pdfFile.setFolder(PR_DOC_FOLDER_ID);
-		
-						    //Upload the file to the file cabinet.
-							//
-						    var fileId = nlapiSubmitFile(pdfFile);
-						 
-						    //Attach the file to the PR record
-						    //
-						    nlapiAttachRecord("file", fileId, "customrecord_bbs_presentation_record", prKey); // 10GU's
-					
+							try
+								{
+									pdfFile = nlapiXMLToPDF(xml);
+								}
+							catch(err)
+								{
+									nlapiLogExecution('ERROR', 'Error rendering PDF, PR record id = ' + prKey, err.message);
+								}
+							
+							if(pdfFile != null)
+								{
+									var pdfFileName = 'Presentation ' + prRecord.getFieldText('custrecord_bbs_pr_type') + ' ' + prRecord.getFieldValue('name');
+									
+									pdfFile.setName(pdfFileName);
+									pdfFile.setFolder(PR_DOC_FOLDER_ID);
+				
+								    //Upload the file to the file cabinet.
+									//
+								    var fileId = nlapiSubmitFile(pdfFile);
+								 
+								    //Attach the file to the PR record
+								    //
+								    nlapiAttachRecord("file", fileId, "customrecord_bbs_presentation_record", prKey); // 10GU's
+								}
+							
 							//Update the pr status
 							//
 							prRecord.setFieldValue('custrecord_bbs_pr_internal_status', '3'); //Documents generated
@@ -334,6 +356,8 @@ function prUpdate(type)
 		{
 			for (var prKey in prArray) 
 				{
+					checkResources();
+					
 					//Try to load the PR record
 					//
 					try
