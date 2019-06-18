@@ -559,34 +559,14 @@ function presentationRecordsSuitelet(request, response)
 					//
 					subList.addRefreshButton();
 					
-					//Add a submit button to the form
-					//
-					//form.addSubmitButton('Generate Production Batch Documentation');
-					
 					break;
-					
-				
-				case 4:
-					
-					//Get the batches data
-					//
-					var batchesArray = JSON.parse(batches);
-					var pdfFileObject = generateProdBatchDocs(batchesArray, soLink);
-					
-					//Send back the output in the response message
-					//
-					response.setContentType('PDF', 'Reprint Production Batch Documents', 'inline');
-					response.write(pdfFileObject.getValue());
 
-					break;
 				}
 		
 		//Write the response
 		//
-		if(stage != '4')
-			{
-				response.writePage(form);
-			}
+		response.writePage(form);
+
 	}
 	else
 	{
@@ -622,6 +602,9 @@ function presentationRecordsSuitelet(request, response)
 				
 				var lineCount = request.getLineItemCount('custpage_sublist_items');
 				var recordType = request.getLineItemCount('custpage_param_rec_type');
+				var sessionId = request.getParameter('custpage_param_session_id');		//The session id  which is used when refreshing a page with the 'refresh' button
+				
+				libClearSessionData(sessionId);
 				
 				var woArray = {};
 				var now = new Date();
@@ -736,25 +719,6 @@ function presentationRecordsSuitelet(request, response)
 				response.sendRedirect('SUITELET', nlapiGetContext().getScriptId(), nlapiGetContext().getDeploymentId(), null, params);
 						
 				
-				break;
-			
-			case 3:
-				//Need to generate the production batch documentation
-				//
-				
-				//Get the batches data
-				//
-				var batches = request.getParameter('custpage_batches');
-				var batchesArray = JSON.parse(batches);
-				var solink = request.getParameter('custpage_solink');
-				
-				var pdfFileObject = generateProdBatchDocs(batchesArray, solink);
-				
-				//Send back the output in the response message
-				//
-				response.setContentType('PDF', 'Production Batch Documents', 'inline');
-				response.write(pdfFileObject.getValue());
-
 				break;
 		}
 	}

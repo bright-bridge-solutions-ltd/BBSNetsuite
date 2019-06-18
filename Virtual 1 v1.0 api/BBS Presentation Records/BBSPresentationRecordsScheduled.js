@@ -358,39 +358,7 @@ function prUpdate(type)
 				{
 					checkResources();
 					
-					//Try to load the PR record
-					//
-					try
-						{
-							prRecord = nlapiLoadRecord('customrecord_bbs_presentation_record', prKey); //2GU;s
-						}
-					catch(err)
-						{
-							prRecord = null;
-							nlapiLogExecution('ERROR', 'Error loading PR record id = ' + prKey, err.message);
-						}
-					
-					//Did the PR record load ok?
-					//
-					if(prRecord)
-						{
-							//TODO - email the documents
-							//
-						
-						
-							//Update the pr status
-							//
-							prRecord.setFieldValue('custrecord_bbs_pr_internal_status', '4'); //Documents emailed
-						
-							try
-								{
-									nlapiSubmitRecord(prRecord, false, true); //2GU's
-								}
-							catch(err)
-								{
-									nlapiLogExecution('DEBUG', 'Error updating presentation record - ' + err.message, prKey);
-								}
-						}
+					libEmailFiles(prKey);
 				}
 		}
 }
