@@ -29,6 +29,7 @@ function prUpdate(type)
 	var today = new Date();
 	
 	nlapiLogExecution('DEBUG', 'PR JSON String', prArrayString);
+	nlapiLogExecution('DEBUG', 'Type', prRecordType);
 	
 	//Work out what type of transactions we are processing
 	//
@@ -38,7 +39,7 @@ function prUpdate(type)
 				transactionRecordType = 'invoice';
 				break;
 				
-			case 'Credit Note':
+			case 'Credit Memo':
 				transactionRecordType = 'creditmemo';
 				break;		
 		}
@@ -86,7 +87,7 @@ function prUpdate(type)
 							//
 							try
 								{
-									transactionRecord = nlapiLoadRecord(prRecordType, transactionIds[int2]); //10GU's
+									transactionRecord = nlapiLoadRecord(transactionRecordType, transactionIds[int2]); //10GU's
 								}
 							catch(err)
 								{
@@ -154,7 +155,7 @@ function prUpdate(type)
 										
 								break;
 								
-							case 'Credit Note':
+							case 'Credit Memo':
 								prRecord.setFieldValue('custrecord_bbs_pr_cn_total', prTotalAmount);
 								prRecord.setFieldValue('custrecord_bbs_pr_cn_tax_total', prTotalTaxAmount);
 								

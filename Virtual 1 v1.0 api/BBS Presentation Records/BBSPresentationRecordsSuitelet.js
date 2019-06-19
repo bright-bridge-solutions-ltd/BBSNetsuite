@@ -13,6 +13,8 @@
 var PR_AUTO_MARK_ALL = (nlapiGetContext().getPreference('custscript_bbs_pr_mark_all') == 'T' ? true : false);
 var PR_AUTO_SEND_DOCS = (nlapiGetContext().getPreference('custscript_bbs_pr_auto_send') == 'T' ? true : false);
 var PR_SAVED_SEARCH = nlapiGetContext().getPreference('custscript_bbs_pr_saved_search');
+var PR_INVOICE_FORM_ID = nlapiGetContext().getPreference('custscript_bbs_pr_inv_form_id');
+var PR_CREDIT_FORM_ID = nlapiGetContext().getPreference('custscript_bbs_pr_cn_form_id');
 
 
 /**
@@ -491,6 +493,8 @@ function presentationRecordsSuitelet(request, response)
 					
 				case 3:
 				
+					//Show the generated list of PR records and their current status
+					//
 					var batchesField = form.addField('custpage_batches', 'text', 'Batches', null, null);
 					batchesField.setDisplayType('hidden');
 					batchesField.setDefaultValue(batches);
@@ -555,6 +559,7 @@ function presentationRecordsSuitelet(request, response)
 										}
 								}
 						}
+					
 					//Add a refresh button
 					//
 					subList.addRefreshButton();
@@ -637,7 +642,7 @@ function presentationRecordsSuitelet(request, response)
 											key = recordType + ':' + partner + ':' + billingType + ':' + paymentTerms + ':' + partnerContact;
 											break;
 											
-										case 'Credit Note':
+										case 'Credit Memo':
 											key = recordType + ':' + partner + ':' + partnerContact;
 											break;
 									}
@@ -680,12 +685,14 @@ function presentationRecordsSuitelet(request, response)
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_due_date', calculateDueDate(todaysDate, keyElements[3]));
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner_contact', keyElements[4]);
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_billing_type', keyElements[2]);
+								prodBatchRecord.setFieldValue('customform', PR_INVOICE_FORM_ID);
 							}
 						else
 							{
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_type', '1');
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner', keyElements[1]);
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner_contact', keyElements[2]);
+								prodBatchRecord.setFieldValue('customform', PR_CREDIT_FORM_ID);
 							}
 						
 						prodBatchRecord.setFieldValue('custrecord_bbs_pr_status', '1'); //Status = 1 (Open)
