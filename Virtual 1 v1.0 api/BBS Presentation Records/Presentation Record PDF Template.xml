@@ -13,7 +13,7 @@
 			<td align="center" style="font-size: 10pt; color: #393939;">Thank you for paying by Direct Debit</td>
 			</tr>
 			<tr>
-			<td align="center" style="font-size: 10pt; color: #393939;">The amount due will be collected by Direct Debit on or just after 30 days</td>
+			<td align="center" style="font-size: 10pt; color: #393939;">The amount due will be collected by Direct Debit on or just after ${record.custrecord_bbs_pr_inv_pay_term}</td>
 			</tr>
 			<tr>
 			<td align="center" style="font-size: 10pt; color: #393939;">from the date of invoice</td>
