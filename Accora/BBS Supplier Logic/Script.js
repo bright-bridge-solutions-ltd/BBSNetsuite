@@ -5,36 +5,44 @@
  * 1.00       20 Jun 2019     cedricgriffiths
  *
  */
-var vendorSearch = nlapiSearchRecord("vendor",null,
-[
- []
-], 
-[
-   new nlobjSearchColumn("entityid").setSort(false)
-]
-);
-
-for (var int = 0; int < vendorSearch.length; int++) 
+function scheduled(type) 
 {
-	var recordId = vendorSearch[int].getId();
+	var vendorSearch = nlapiSearchRecord("vendor",null,
+	[
+	    ["isinactive","is","F"]
+	], 
+	[
+	   new nlobjSearchColumn("entityid").setSort(false)
+	]
+	);
 	
-	var record = nlapiLoadRecord('vendor', recordId);
+	var email = '';
 	
-	var lines = record.getLineItemCount('submachine');
-	var failed = false;
-	
-	for (var int2 = 1; int2 <= lines; int2++) 
+	for (var int = 0; int < vendorSearch.length; int++) 
 		{
-			var taxCode = nlapiGetLineItemValue('submachine', 'taxitem', int2)
-		
-			if(taxCode == null || taxCode == '')
+			var recordId = vendorSearch[int].getId();
+			
+			var record = nlapiLoadRecord('vendor', recordId);
+			
+			var lines = record.getLineItemCount('submachine');
+			var failed = false;
+			
+			for (var int2 = 1; int2 <= lines; int2++) 
 				{
-					failed = true;
+					var taxCode = nlapiGetLineItemValue('submachine', 'taxitem', int2)
+				
+					if(taxCode == null || taxCode == '')
+						{
+							failed = true;
+						}
+				}
+			
+			if(failed)
+				{
+					nlapiLogExecution('DEBUG', record.getFieldValue('entityid'), '');
+					email += record.getFieldValue('entityid') + '\n';
 				}
 		}
 	
-	if(failed)
-		{
-			nlapiLogExecution('DEBUG', 'Supplier needs fixing - ' + record.getFieldValue('entityid'), '');
-		}
+	nlapiSendEmail(3, 'cedric.griffiths@brightbridgesolutions.com', 'suppliers', email, null, null, null, null, false, false, null);
 }
