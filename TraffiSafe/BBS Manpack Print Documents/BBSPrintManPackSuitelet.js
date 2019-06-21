@@ -319,7 +319,7 @@ function buildOutput(salesOrderNumber)
 			   new nlobjSearchColumn("quantitycommitted",null,null), 
 			   new nlobjSearchColumn("quantity",null,null), 
 			   new nlobjSearchColumn("custcol_bbs_sales_line_contact",null,null).setSort(false), 
-			   new nlobjSearchColumn("salesdescription","item",null),
+			   new nlobjSearchColumn("salesdescription","item",null).setSort(false),
 			   new nlobjSearchColumn("entityid","custcol_bbs_sales_line_contact",null),
 			   new nlobjSearchColumn("custentity_bbs_contact_employee_number","custcol_bbs_sales_line_contact",null),
 			   new nlobjSearchColumn("shipaddress",null,null),
