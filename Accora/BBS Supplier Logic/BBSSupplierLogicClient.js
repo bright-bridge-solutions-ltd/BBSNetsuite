@@ -60,6 +60,11 @@ function supplierSaveRecord()
 				}
 
 		 }
+	else
+		{
+			validated = false;
+			alert('Please set at least one subsidiary and tax code on this supplier');
+		}
 	
     return validated;
 }
