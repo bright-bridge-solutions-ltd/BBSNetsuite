@@ -16,8 +16,8 @@ function scheduled(type)
 	
 	var transactionSearch = getResults(nlapiCreateSearch("transaction",
 			[
-			   //[["postingperiod","abs","106"],"OR",["postingperiod","abs","107"],"OR",["postingperiod","abs","108"]], 
-			   ["postingperiod","abs","104"],
+			   [["postingperiod","abs","110"],"OR",["postingperiod","abs","111"],"OR",["postingperiod","abs","112"]], 
+			   //["postingperiod","abs","109"],
 			   "AND", 
 			   ["mainline","is","T"]
 			], 
@@ -34,6 +34,7 @@ function scheduled(type)
 					var recordId = transactionSearch[int].getId();
 					var recordType = transactionSearch[int].getValue('type');
 					var recordPeriod = transactionSearch[int].getValue('postingperiod');
+					var newPeriod = '';
 					
 					if(!tranTypes[recordType])
 						{
@@ -46,9 +47,24 @@ function scheduled(type)
 					
 					checkResources();
 					
+					switch(recordPeriod)
+						{
+							case '110':
+								newPeriod = '144';
+								break;
+								
+							case '111':
+								newPeriod = '145';
+								break;
+								
+							case '112':
+								newPeriod = '146';
+								break;
+						}
+					
 					try
 						{
-							nlapiSubmitField(translateType(recordType), recordId, ['postingperiod','custbody_bbs_saved_posting_period'], ['69',recordPeriod], true);
+							nlapiSubmitField(translateType(recordType), recordId, ['postingperiod','custbody_bbs_saved_posting_period'], [newPeriod,recordPeriod], true);
 						}
 					catch(err)
 						{

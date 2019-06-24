@@ -5,32 +5,65 @@
 	
 	<macrolist>
         <macro id="nlfooter">
-        	<table class="footer" style="width: 100%; border: 1px; border-color: #0090d8;">
-            <tr>
-			<td align="center" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-			</tr>
-			<tr>
-			<td align="center" style="font-size: 10pt; color: #393939;">Thank you for paying by Direct Debit</td>
-			</tr>
-			<tr>
-			<td align="center" style="font-size: 10pt; color: #393939;">The amount due will be collected by Direct Debit on or just after ${record.custrecord_bbs_pr_inv_pay_term}</td>
-			</tr>
-			<tr>
-			<td align="center" style="font-size: 10pt; color: #393939;">from the date of invoice</td>
-			</tr>
-			<tr>
-			<td align="center" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-			</tr>
-			<tr>
-			<td align="center" style="font-size: 10pt; color: #393939;">If you have any queries in respect to your Direct Debit payment, please contact our</td>
-			</tr>
-			<tr>
-			<td align="center" style="font-size: 10pt; color: #393939;">Accounts Department on billingquery@virtual1.com</td>
-			</tr>
-			<tr>
-			<td align="center" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-			</tr>
-			</table>
+        	<#if partner.custentity_2663_direct_debit>
+	        	<table class="footer" style="width: 100%; border: 1px; border-color: #0090d8;">
+		            <tr>
+					<td align="center" style="font-size: 10pt; color: #393939;">&nbsp;</td>
+					</tr>
+					<tr>
+					<td align="center" style="font-size: 10pt; color: #393939;">Thank you for paying by Direct Debit</td>
+					</tr>
+					<tr>
+					<td align="center" style="font-size: 10pt; color: #393939;">The amount due will be collected by Direct Debit on or just after ${record.custrecord_bbs_pr_inv_pay_term}</td>
+					</tr>
+					<tr>
+					<td align="center" style="font-size: 10pt; color: #393939;">from the date of invoice</td>
+					</tr>
+					<tr>
+					<td align="center" style="font-size: 10pt; color: #393939;">&nbsp;</td>
+					</tr>
+					<tr>
+					<td align="center" style="font-size: 10pt; color: #393939;">If you have any queries in respect to your Direct Debit payment, please contact our</td>
+					</tr>
+					<tr>
+					<td align="center" style="font-size: 10pt; color: #393939;">Accounts Department on billingquery@virtual1.com</td>
+					</tr>
+					<tr>
+					<td align="center" style="font-size: 10pt; color: #393939;">&nbsp;</td>
+					</tr>
+				</table>
+			<#else>
+				<table class="footer" style="width: 100%; border: 1px; border-color: #0090d8;">
+		            <tr>
+					<td align="center" style="font-size: 10pt; color: #393939;">&nbsp;</td>
+					</tr>
+					<tr>
+					<td align="center" style="font-size: 10pt; color: #393939;">Payment required within ${record.custrecord_bbs_pr_inv_pay_term} from date of invoice, late payments will incur interest charges.</td>
+					</tr>
+					<tr>
+					<td align="center" style="font-size: 10pt; color: #393939;">Please ensure to quote invoice numbers for all BACS payments</td>
+					</tr>
+					<tr>
+					<td align="center" style="font-size: 10pt; color: #393939;">All bank transfers payable to: Virtual1 Ltd, Barclays Bank, Sort Code: 20-92-98, Account: 90728195</td>
+					</tr>
+					<tr>
+					<td align="center" style="font-size: 10pt; color: #393939;">SWIFT: BARCGB22XXX, IBAN: GB39BARC20929890728195</td>
+					</tr>
+					<tr>
+					<td align="center" style="font-size: 10pt; color: #393939;">&nbsp;</td>
+					</tr>
+					<tr>
+					<td align="center" style="font-size: 10pt; color: #393939;">If you have any queries in respect to your payment, please contact our</td>
+					</tr>
+					<tr>
+					<td align="center" style="font-size: 10pt; color: #393939;">Accounts Department on billingquery@virtual1.com</td>
+					</tr>
+					<tr>
+					<td align="center" style="font-size: 10pt; color: #393939;">&nbsp;</td>
+					</tr>
+				</table>
+			</#if>	
+			
 			
             <table class="footer" style="width: 100%; margin-top: 20px;">
             <tr>
@@ -148,7 +181,7 @@
 </style>
 </head>
 
-<body footer="nlfooter" footer-height="150px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+<body footer="nlfooter" footer-height="170px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 
 <table class="header" style="width: 100%;">
 <tr>
@@ -201,7 +234,7 @@
 
 <tr>
 	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" colspan="2" style="font-size: 10pt; color: #393939;">Reoccuring Charges</td>
+	<td align="left" colspan="2" style="font-size: 10pt; color: #393939;">Recurring Charges</td>
 	
 	<#if record.custrecord_bbs_pr_billing_type == "One Off">
 		<td align="right" style="font-size: 10pt; color: #393939;">£0.00</td>
@@ -353,7 +386,7 @@
 				</thead>
 			</#if>
 				<tr style="margin-top: 10px;">
-					<td align="left" style="font-size: 8pt; color: #393939; border-top: 1px; border-color: #0090d8;">${line.custcol_bbs_site_name}</td>
+					<td align="left" style="font-size: 8pt; color: #393939; border-top: 1px; border-color: #0090d8;">${line.custcol_bbs_end_cust_name} - ${line.custcol_bbs_site_post_code}</td>
 					<td align="left" style="font-size: 8pt; color: #393939; border-top: 1px; border-color: #0090d8;">${line.custcol_bbs_accessid_v1c}</td>
 					<td align="left" style="font-size: 8pt; color: #393939; border-top: 1px; border-color: #0090d8;">${line.memo}</td>
 					<td align="left" style="font-size: 8pt; color: #393939; border-top: 1px; border-color: #0090d8;">${line.custbody_bbs_partner_po_number}</td>

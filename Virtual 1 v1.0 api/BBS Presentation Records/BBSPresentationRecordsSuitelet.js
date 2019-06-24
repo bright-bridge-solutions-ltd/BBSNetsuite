@@ -225,6 +225,8 @@ function presentationRecordsSuitelet(request, response)
 		var sessionId = request.getParameter('session');		//The session id  which is used when refreshing a page with the 'refresh' button
 		var recordType = request.getParameter('recordtype');	//Record Type C=Credit Notes, I=Invoices
 		var billingType = request.getParameter('billingtype'); 	//Billing type (class)
+		var billingFreq = request.getParameter('billingfreq'); 	//Billing frequency
+		var billingGroup = request.getParameter('billinggroup'); //Billing group
 		var batches = request.getParameter('batches'); 			//Batches (PR records)
 		
 		stage = (stage == null || stage == '' ? 1 : stage);
@@ -259,6 +261,18 @@ function presentationRecordsSuitelet(request, response)
 		billingTypeParamField.setDisplayType('hidden');
 		billingTypeParamField.setDefaultValue(billingType);
 		
+		//Store the billing frequency in a field in the form so that it can be retrieved in the POST section of the code
+		//
+		var billingFreqParamField = form.addField('custpage_param_billing_freq', 'text', 'Billing Frequency');
+		billingFreqParamField.setDisplayType('hidden');
+		billingFreqParamField.setDefaultValue(billingFreq);
+		
+		//Store the billing group in a field in the form so that it can be retrieved in the POST section of the code
+		//
+		var billingGroupParamField = form.addField('custpage_param_billing_group', 'text', 'Billing Group');
+		billingGroupParamField.setDisplayType('hidden');
+		billingGroupParamField.setDefaultValue(billingGroup);
+		
 		
 		//Work out what the form layout should look like based on the stage number
 		//
@@ -282,6 +296,14 @@ function presentationRecordsSuitelet(request, response)
 					//Add a field for the billing type
 					//
 					var billingTypeSelectField = form.addField('custpage_select_bill_type', 'select', 'Billing Type', 'classification', null);
+					
+					//Add a field for the billing frequency
+					//
+					var billingTypeSelectField = form.addField('custpage_select_bill_freq', 'select', 'Billing Frequency', 'customlist_bbs_billing_frequency', null);
+					
+					//Add a field for the billing group
+					//
+					var billingTypeSelectField = form.addField('custpage_select_bill_group', 'select', 'Billing Group', 'customlist_billing_group_list', null);
 					
 					//Add a submit button to the form
 					//
@@ -393,6 +415,20 @@ function presentationRecordsSuitelet(request, response)
 					if(billingType != null && billingType != '')
 						{
 							recordSearch.addFilter(new nlobjSearchFilter( 'class', null, 'anyof', billingType ));
+						}
+					
+					//Add filter based on billing frequency
+					//
+					if(billingFreq != null && billingFreq != '')
+						{
+							recordSearch.addFilter(new nlobjSearchFilter( 'custentity_bbs_billing_frequency', 'customer', 'anyof', billingFreq ));
+						}
+					
+					//Add filter based on billing group
+					//
+					if(billingGroup != null && billingGroup != '')
+						{
+							recordSearch.addFilter(new nlobjSearchFilter( 'custentity_bbs_billing_group', 'customer', 'anyof', billingGroup ));
 						}
 					
 					
@@ -588,6 +624,8 @@ function presentationRecordsSuitelet(request, response)
 				var sessionId = request.getParameter('custpage_param_session_id');		//The session id  which is used when refreshing a page with the 'refresh' button
 				var recordType = request.getParameter('custpage_select_rec_type');	//Record Type C=Credit Notes, I=Invoices
 				var billingType = request.getParameter('custpage_select_bill_type'); 	//Billing type (class)
+				var billingFreq = request.getParameter('custpage_select_bill_freq'); 	//Billing frequency
+				var billingGroup = request.getParameter('custpage_select_bill_group'); 	//Billing group
 
 				
 				//Build up the parameters so we can call this suitelet again, but move it on to the next stage
@@ -597,6 +635,8 @@ function presentationRecordsSuitelet(request, response)
 				params['session'] = sessionId;
 				params['recordtype'] = recordType;
 				params['billingtype'] = billingType;
+				params['billingfreq'] = billingFreq;
+				params['billinggroup'] = billingGroup;
 				
 				
 				response.sendRedirect('SUITELET', nlapiGetContext().getScriptId(), nlapiGetContext().getDeploymentId(), null, params);

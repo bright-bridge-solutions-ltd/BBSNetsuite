@@ -245,7 +245,10 @@ function prUpdate(type)
 							   new nlobjSearchColumn("custcol_bbs_site_name"), 
 							   new nlobjSearchColumn("custbody_bbs_partner_po_number"), 
 							   new nlobjSearchColumn("memo"),
-							   new nlobjSearchColumn("amount")
+							   new nlobjSearchColumn("amount"),
+							   new nlobjSearchColumn("custcol_bbs_site_post_code"),
+							   new nlobjSearchColumn("custentity_bbs_billing_frequency","customer",null) 
+							   
 							]
 							));
 					
@@ -254,7 +257,7 @@ function prUpdate(type)
 					//
 					if(invoiceLines != null && invoiceLines.length > 0)
 						{
-							var csvText = '"Site","Quantity","Unit Amount","Total Amount","Description","Site ID","Partner PO Ref","Service ID"\n';
+							var csvText = '"Site ID","Service ID","From Date","To Date","Frequency","Amount","Description","Partner PO Ref","PE Ref"\n';
 							
 							for (var int = 0; int < invoiceLines.length; int++) 
 								{
@@ -269,9 +272,19 @@ function prUpdate(type)
 									var lineTranSiteName = invoiceLines[int].getValue('custcol_bbs_site_name');
 									var lineTranPartnerPo = invoiceLines[int].getValue('custbody_bbs_partner_po_number');
 									var lineTranDecscription = invoiceLines[int].getValue('memo');
-									var lineTranAmount= invoiceLines[int].getValue('amount');
+									var lineTranAmount = invoiceLines[int].getValue('amount');
+									var lineTranPostCode = invoiceLines[int].getValue('custcol_bbs_site_post_code');
+									var lineTranCustFrequency = invoiceLines[int].getText("custentity_bbs_billing_frequency","customer");
 									
-									csvText += lineTranEndUserName + ',' + lineTranQuantity  + ',' + lineTranRate + ',' + lineTranAmount + ',' + lineTranDecscription + ','  + lineTranSiteName + ',' + lineTranPartnerPo + ',' + lineTranV1c + '\n';
+									csvText += lineTranEndUserName + ' - ' + lineTranPostCode + ',' + 
+										lineTranV1c + ',' +
+										',' +
+										',' +
+										lineTranCustFrequency + ',' +
+										lineTranAmount + ',' + 
+										lineTranDecscription + ','  + 
+										lineTranPartnerPo + ',' + 
+										lineTranId + '\n';
 								}
 						}
 					
