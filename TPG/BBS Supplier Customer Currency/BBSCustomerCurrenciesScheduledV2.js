@@ -27,7 +27,6 @@ function processResults(_recordType)
 			], 
 			[
 			   new nlobjSearchColumn("entityid").setSort(false), 
-			   new nlobjSearchColumn("subsidiary"), 
 			   new nlobjSearchColumn("currency","mseSubsidiary",null)
 			]
 			));
@@ -51,7 +50,8 @@ function processResults(_recordType)
 					//
 					var recordId = recordSearch[int].getId();
 					var recordCurrencyId = recordSearch[int].getValue("currency","mseSubsidiary");
-				
+					var recordCurrencyText = recordSearch[int].getText("currency","mseSubsidiary");
+					
 					//Is this the first time through the loop
 					//
 					if(firstTime)
@@ -64,7 +64,7 @@ function processResults(_recordType)
 					//
 					if(previousRecordId == recordId)
 						{
-							currencies[recordCurrencyId] = recordCurrencyId;
+							currencies[recordCurrencyId] = recordCurrencyText;
 						}
 					else
 						{
@@ -76,10 +76,16 @@ function processResults(_recordType)
 							//
 							previousRecordId = recordId;
 							
+							//Clear out the currencies object from the last customer
+							//
 							for ( var currency in currencies) 
 								{
 									delete currencies[currency];
 								}
+							
+							//Save the latest currency away in the now empty object
+							//
+							currencies[recordCurrencyId] = recordCurrencyText;
 						}
 				}
 			
@@ -92,10 +98,6 @@ function processResults(_recordType)
 function updateCurrencies(_recordId, _currencies, _recType)
 {
 	var record = null;
-	if(_recordId == '25558')
-		{
-			nlapiLogExecution('DEBUG', 'Currencies', JSON.stringify(_currencies));
-		}
 	
 	//Read the customer record
 	//
@@ -124,15 +126,10 @@ function updateCurrencies(_recordId, _currencies, _recType)
 					
 					//Can we find a matching currency in the currency sublist
 					//
-					for (var int = 1; int <= currencyCount; int++) 
+					for (var int2 = 1; int2 <= currencyCount; int2++) 
 						{
-							var lineCurrency = record.getLineItemValue('currency', 'currency', int);
-							
-							if(_recordId == '25558')
-							{
-								nlapiLogExecution('DEBUG', 'Currencies', int.toString() + ":" + lineCurrency + ":" + currency);
-							}
-							
+							var lineCurrency = record.getLineItemValue('currency', 'currency', int2);
+
 							if(lineCurrency == currency)
 								{
 									currencyFound = true;

@@ -37,7 +37,7 @@ function scheduled(type)
 	//
 	var todaysDate = new Date();
 	var today = nlapiDateToString(todaysDate);
-	var periodNumber = libGetPeriod(today);
+	//var periodNumber = libGetPeriod(today);
 	
 	//Get the parameters
 	//
@@ -235,9 +235,15 @@ function scheduled(type)
 									journalRecord.setFieldValue('tosubsidiary', suppRepresentingSubsidiary);
 								}
 						
+							//Work out what period to use based on the travel date
+							//
+							var travelDateAsDate = nlapiStringToDate(travelDate);
+							var calculatedPeriod = libGetPeriod(travelDateAsDate);
 							
-							//journalRecord.setFieldValue('exchangerate', exchangeRate);
-							//journalRecord.setFieldValue('postingperiod', periodNumber);
+							if(calculatedPeriod != '')
+								{
+									journalRecord.setFieldValue('postingperiod', calculatedPeriod);
+								}
 						}
 					
 					//Save the unique line id, so we can update it to say we have created a journal later
@@ -952,6 +958,8 @@ function libGetPeriod(periodDate)
 	
 	var accountingperiodSearch = nlapiSearchRecord("accountingperiod",null,
 			[
+			   ["isadjust","is","F"], 
+			   "AND",
 			   ["startdate","onorbefore",periodDate], 
 			   "AND", 
 			   ["enddate","onorafter",periodDate], 
@@ -960,7 +968,9 @@ function libGetPeriod(periodDate)
 			   "AND", 
 			   ["isyear","is","F"], 
 			   "AND", 
-			   ["isquarter","is","F"]
+			   ["isquarter","is","F"],
+			   "AND", 
+			   ["isinactive","is","F"]
 			], 
 			[
 			   new nlobjSearchColumn("periodname",null,null), 
