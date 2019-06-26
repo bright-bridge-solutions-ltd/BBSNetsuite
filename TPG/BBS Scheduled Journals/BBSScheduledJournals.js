@@ -237,13 +237,22 @@ function scheduled(type)
 						
 							//Work out what period to use based on the travel date
 							//
-							var travelDateAsDate = nlapiStringToDate(travelDate);
-							var calculatedPeriod = libGetPeriod(travelDateAsDate);
+//							var travelDateAsDate = nlapiStringToDate(travelDate);
+//							var calculatedPeriod = libGetPeriod(travelDateAsDate);
 							
-							if(calculatedPeriod != '')
-								{
-									journalRecord.setFieldValue('postingperiod', calculatedPeriod);
-								}
+							//If we could not find a specific period, then see if we can find the next open one
+							//
+//							if(calculatedPeriod == '')
+//								{
+//									calculatedPeriod = libGetNextPeriod(travelDateAsDate);
+//								}
+							
+							//If we have worked out the period, we can set it on the journal, otherwise we will leave the system to do it
+							//
+//							if(calculatedPeriod != '')
+//								{
+//									journalRecord.setFieldValue('postingperiod', calculatedPeriod);
+//								}
 						}
 					
 					//Save the unique line id, so we can update it to say we have created a journal later
@@ -896,7 +905,7 @@ function saveJournal(_journalRecord, _transactionType, _transactionNumber, _uniq
 						}
 					catch(err)
 						{
-							nlapiLogExecution('ERROR', 'Error updating source transaction, deleting created journal', err.message);
+							nlapiLogExecution('ERROR', 'Error updating source transaction (' + _transactionType + ', ' + _transactionNumber + '), deleting created journal (' + journalId + ')', err.message);
 						
 							//If we cannot update the original transaction the we should delete the journal we created
 							//
@@ -979,6 +988,38 @@ function libGetPeriod(periodDate)
 			);
 	
 	if(accountingperiodSearch && accountingperiodSearch.length == 1)
+		{
+			returnValue = accountingperiodSearch[0].getId();
+		}
+	
+	return returnValue;
+}
+
+function libGetNextPeriod(periodDate)
+{
+	var returnValue = '';
+	
+	var accountingperiodSearch = nlapiSearchRecord("accountingperiod",null,
+			[
+			   ["isadjust","is","F"], 
+			   "AND",
+			   ["enddate","onorafter",periodDate], 
+			   "AND", 
+			   ["closed","is","F"], 
+			   "AND", 
+			   ["isyear","is","F"], 
+			   "AND", 
+			   ["isquarter","is","F"],
+			   "AND", 
+			   ["isinactive","is","F"]
+			], 
+			[
+			   new nlobjSearchColumn("periodname",null,null), 
+			   new nlobjSearchColumn("enddate",null,null).setSort(false)
+			]
+			);
+	
+	if(accountingperiodSearch && accountingperiodSearch.length > 0)
 		{
 			returnValue = accountingperiodSearch[0].getId();
 		}
