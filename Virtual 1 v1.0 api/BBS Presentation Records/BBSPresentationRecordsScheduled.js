@@ -247,7 +247,7 @@ function prUpdate(type)
 							   new nlobjSearchColumn("memo"),
 							   new nlobjSearchColumn("amount"),
 							   new nlobjSearchColumn("custcol_bbs_site_post_code"),
-							   new nlobjSearchColumn("custentity_bbs_billing_frequency","customer",null), 
+							   new nlobjSearchColumn("custcol_bbs_billing_frequency"), 
 							   new nlobjSearchColumn("custcol_bbs_pe_reference")
 							]
 							));
@@ -274,7 +274,7 @@ function prUpdate(type)
 									var lineTranDecscription = invoiceLines[int].getValue('memo');
 									var lineTranAmount = invoiceLines[int].getValue('amount');
 									var lineTranPostCode = invoiceLines[int].getValue('custcol_bbs_site_post_code');
-									var lineTranCustFrequency = invoiceLines[int].getText("custentity_bbs_billing_frequency","customer");
+									var lineTranCustFrequency = invoiceLines[int].getText("custcol_bbs_billing_frequency");
 									var lineTranPeReference = invoiceLines[int].getValue("custcol_bbs_pe_reference");
 									
 									csvText += lineTranEndUserName + ' - ' + lineTranPostCode + ',' + 
