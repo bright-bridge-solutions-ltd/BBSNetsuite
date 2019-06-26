@@ -50,15 +50,15 @@ function scheduled(type)
 					switch(recordPeriod)
 						{
 							case '110':
-								newPeriod = '144';
+								newPeriod = '140';
 								break;
 								
 							case '111':
-								newPeriod = '145';
+								newPeriod = '141';
 								break;
 								
 							case '112':
-								newPeriod = '146';
+								newPeriod = '142';
 								break;
 						}
 					
@@ -100,9 +100,16 @@ function getResults(search)
 		
 						
 						var moreSearchResultSet = searchResult.getResults(start, end);
-						resultlen = moreSearchResultSet.length;
-		
-						searchResultSet = searchResultSet.concat(moreSearchResultSet);
+						
+						if(moreSearchResultSet == null)
+							{
+								resultlen = 0;
+							}
+						else
+							{
+								resultlen = moreSearchResultSet.length;
+								searchResultSet = searchResultSet.concat(moreSearchResultSet);
+							}
 				}
 		}
 	return searchResultSet;
