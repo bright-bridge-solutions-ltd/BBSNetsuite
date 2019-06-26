@@ -421,7 +421,7 @@ function presentationRecordsSuitelet(request, response)
 					//
 					if(billingFreq != null && billingFreq != '')
 						{
-							recordSearch.addFilter(new nlobjSearchFilter( 'custentity_bbs_billing_frequency', 'customer', 'anyof', billingFreq ));
+							recordSearch.addFilter(new nlobjSearchFilter( 'custcol_bbs_billing_frequency', null, 'anyof', billingFreq ));
 						}
 					
 					//Add filter based on billing group
@@ -520,6 +520,8 @@ function presentationRecordsSuitelet(request, response)
 
 					//Fill in the partner select list
 					//
+					partnerSelectField.addSelectOption('', '-- All --', true);
+					
 					for ( var partner in partnerList) 
 						{
 							partnerSelectField.addSelectOption(partner, partnerList[partner], false);

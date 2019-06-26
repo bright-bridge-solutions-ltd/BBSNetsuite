@@ -53,13 +53,15 @@ function libGenerateStatement(partnerId)
 								{
 									//Run a search to get the line data for the statement
 									//
-									var customrecord_bbs_presentation_recordSearch = getResults(nlapiCreateSearch("customrecord_bbs_presentation_record",
+									var customrecord_bbs_presentation_recordSearch = libGetResults(nlapiCreateSearch("customrecord_bbs_presentation_record",
 											[
 											   ["custrecord_bbs_pr_partner","anyof",partnerId], 
 											   "AND", 
 											   ["custrecord_bbs_pr_status","anyof","1"]
 											], 
 											[
+											   new nlobjSearchColumn("created"),
+											   new nlobjSearchColumn("name"),
 											   new nlobjSearchColumn("custrecord_bbs_pr_type"), 
 											   new nlobjSearchColumn("custrecord_bbs_pr_billing_type"), 
 											   new nlobjSearchColumn("custrecord_bbs_pr_inv_pay_term"), 
@@ -111,11 +113,11 @@ function libGenerateStatement(partnerId)
 										{
 											//Set the file name & folder
 											//
-											var pdfFileName = 'Statement ' + partnerRecord.getFieldValue('entityid') + ' ' + today.toUTCString();
+											var pdfFileName = 'Statement ' + partnerRecord.getFieldValue('entityid') + ' ' + today.toUTCString() + '.pdf';
 											
 											pdfFile.setName(pdfFileName);
 											pdfFile.setFolder(documentFolderId);
-						
+											
 										    //Upload the file to the file cabinet.
 											//
 										    var fileId = nlapiSubmitFile(pdfFile);
@@ -127,7 +129,7 @@ function libGenerateStatement(partnerId)
 											//Load up the email template & merge
 											//
 											var emailMerger = nlapiCreateEmailMerger(statementEmailTemplateId);
-											emailMerger.setEntity('customer', partnerRecord);
+											emailMerger.setEntity('customer', partnerId);
 											var mergeResult = emailMerger.merge();
 											
 											if(mergeResult != null)
@@ -158,3 +160,42 @@ function libGenerateStatement(partnerId)
 			nlapiLogExecution('ERROR', 'No statement PDF template specified in Setup => Company => General Preferences', null);
 		}
 }
+
+function libGetResults(search)
+{
+	var searchResult = search.runSearch();
+	
+	//Get the initial set of results
+	//
+	var start = 0;
+	var end = 1000;
+	var searchResultSet = searchResult.getResults(start, end);
+	var resultlen = searchResultSet.length;
+
+	//If there is more than 1000 results, page through them
+	//
+	while (resultlen == 1000) 
+		{
+				start += 1000;
+				end += 1000;
+
+				var moreSearchResultSet = searchResult.getResults(start, end);
+				
+				if(moreSearchResultSet == null)
+					{
+						resultlen = 0;
+					}
+				else
+					{
+						resultlen = moreSearchResultSet.length;
+						searchResultSet = searchResultSet.concat(moreSearchResultSet);
+					}
+				
+				
+		}
+	
+	return searchResultSet;
+}
+
+
+

@@ -1,70 +1,12 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
 <pdf>
 <head>
-  <link name="Montserrat" type="font" subtype="opentype" src="https://system.eu1.netsuite.com/core/media/media.nl?id=1434&amp;c=5117415_SB1&amp;h=9f0c70eae5232e02168a&amp;_xt=.ttf" src-bold="https://system.eu1.netsuite.com/core/media/media.nl?id=1435&amp;c=5117415_SB1&amp;h=f330fe8bca81f8f2cbeb&amp;_xt=.ttf"  bytes="2" />
+
+  	<link name="Montserrat" type="font" subtype="opentype" src="https://system.eu1.netsuite.com/core/media/media.nl?id=1434&amp;c=5117415_SB1&amp;h=9f0c70eae5232e02168a&amp;_xt=.ttf" src-bold="https://system.eu1.netsuite.com/core/media/media.nl?id=1435&amp;c=5117415_SB1&amp;h=f330fe8bca81f8f2cbeb&amp;_xt=.ttf"  bytes="2" />
+	<#assign todaysDate = .now>
 	
 	<macrolist>
-        <macro id="nlfooter">
-        	<#if partner.custentity_2663_direct_debit>
-	        	<table class="footer" style="width: 100%; border: 1px; border-color: #0090d8;">
-		            <tr>
-					<td align="center" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-					</tr>
-					<tr>
-					<td align="center" style="font-size: 10pt; color: #393939;">Thank you for paying by Direct Debit</td>
-					</tr>
-					<tr>
-					<td align="center" style="font-size: 10pt; color: #393939;">The amount due will be collected by Direct Debit on or just after ${record.custrecord_bbs_pr_inv_pay_term}</td>
-					</tr>
-					<tr>
-					<td align="center" style="font-size: 10pt; color: #393939;">from the date of invoice</td>
-					</tr>
-					<tr>
-					<td align="center" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-					</tr>
-					<tr>
-					<td align="center" style="font-size: 10pt; color: #393939;">If you have any queries in respect to your Direct Debit payment, please contact our</td>
-					</tr>
-					<tr>
-					<td align="center" style="font-size: 10pt; color: #393939;">Accounts Department on billingquery@virtual1.com</td>
-					</tr>
-					<tr>
-					<td align="center" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-					</tr>
-				</table>
-			<#else>
-				<table class="footer" style="width: 100%; border: 1px; border-color: #0090d8;">
-		            <tr>
-					<td align="center" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-					</tr>
-					<tr>
-					<td align="center" style="font-size: 10pt; color: #393939;">Payment required within ${record.custrecord_bbs_pr_inv_pay_term} from date of invoice, late payments will incur interest charges.</td>
-					</tr>
-					<tr>
-					<td align="center" style="font-size: 10pt; color: #393939;">Please ensure to quote invoice numbers for all BACS payments</td>
-					</tr>
-					<tr>
-					<td align="center" style="font-size: 10pt; color: #393939;">All bank transfers payable to: Virtual1 Ltd, Barclays Bank, Sort Code: 20-92-98, Account: 90728195</td>
-					</tr>
-					<tr>
-					<td align="center" style="font-size: 10pt; color: #393939;">SWIFT: BARCGB22XXX, IBAN: GB39BARC20929890728195</td>
-					</tr>
-					<tr>
-					<td align="center" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-					</tr>
-					<tr>
-					<td align="center" style="font-size: 10pt; color: #393939;">If you have any queries in respect to your payment, please contact our</td>
-					</tr>
-					<tr>
-					<td align="center" style="font-size: 10pt; color: #393939;">Accounts Department on billingquery@virtual1.com</td>
-					</tr>
-					<tr>
-					<td align="center" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-					</tr>
-				</table>
-			</#if>	
-			
-			
+        <macro id="nlfooter">		
             <table class="footer" style="width: 100%; margin-top: 20px;">
             <tr>
 			<td align="center" style="font-size: 7pt; color: #393939;">Registered Office: Virtual1 Ltd. 6th Floor Alphabeta, 14-18 Finsbury Square, London, EC2A 1BR</td>
@@ -75,24 +17,40 @@
 			</table>
         </macro>
         
-        <macro id="nldetailfooter">
-            <table class="footer" style="width: 100%; margin-top: 20px;">
-            <tr>
-			<td align="center" style="font-size: 7pt; color: #393939;">Registered Office: Virtual1 Ltd. 6th Floor Alphabeta, 14-18 Finsbury Square, London, EC2A 1BR</td>
-			</tr>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;">
 			<tr>
-			<td align="center" style="font-size: 7pt; color: #393939;">Company Registration Number: 6177891. VAT No: GB 911828429</td>
+				<td align="left"><img src="https://system.eu1.netsuite.com/core/media/media.nl?id=1333&amp;c=5117415_SB1&amp;h=fe6f7221ff6a620f5628" style="float: left; width:150px; height:75px;" /></td>
 			</tr>
 			</table>
-        </macro>
-        
-        <macro id="nldetailheader">
-            <table style="width: 100%;">
+
+			<table style="width: 100%; margin-top: 20px;">
 			<tr>
-			<td align="left" colspan="2" style="font-size: 10pt; font-weight: bold; color: #393939;">${record.custrecord_bbs_pr_partner}</td>
-			<td align="left" style="font-size: 10pt; font-weight: bold; color: #0090d8;">${record.custrecord_bbs_pr_type} No. ${record.name}</td>
+				<td align="left" colspan="2" style="font-size: 10pt; font-weight: bold; color: #393939;">${partner.entityid}</td>
+				<td align="left" style="font-size: 10pt; font-weight: bold; color: #0090d8;">Statement</td>
+			</tr>
+			<tr style="margin-top: 20px;">
+				<td align="left" style="font-size: 10pt; font-weight: bold; color: #393939;">FAO ${partner.contact?keep_after(":")}</td>
+				<td>&nbsp;</td>
+				<td align="left" style="font-size: 10pt;  color: #393939;">Date: ${todaysDate?string["dd MMM yyyy"]}</td>
+			</tr>
+			<tr>
+				<td align="left"  style="font-size: 10pt; color: #393939;">${partner.defaultaddress}</td>
+				<td >&nbsp;</td>
+				<td align="left"  style="font-size: 10pt; color: #393939;">Virtual1 Ltd<br/>6th Floor Alphabeta<br/>14-18 Finsbury Square<br/>London<br/>EC2A 1BR</td>
+			</tr>
+			<tr>
+				<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
+				<td >&nbsp;</td>
+				<td align="left" style="font-size: 10pt; color: #393939;">(t) 0344 884 0800</td>
+			</tr>
+			<tr>
+				<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
+				<td >&nbsp;</td>
+				<td align="left" style="font-size: 10pt; color: #393939;">billingquery@virtual1.com</td>
 			</tr>
 			</table>
+
         </macro>
         
     </macrolist>
@@ -181,219 +139,72 @@
 </style>
 </head>
 
-<body footer="nlfooter" footer-height="170px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+<body header="nlheader" header-height="280px"  footer="nlfooter" footer-height="30px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 
-<table class="header" style="width: 100%;">
-<tr>
-	<td align="left"><img src="https://system.eu1.netsuite.com/core/media/media.nl?id=1333&amp;c=5117415_SB1&amp;h=fe6f7221ff6a620f5628" style="float: left; width:150px; height:75px;" /></td>
-</tr>
-</table>
-
-<table style="width: 100%; margin-top: 20px;">
-<tr>
-	<td align="left" colspan="2" style="font-size: 10pt; font-weight: bold; color: #393939;">${record.custrecord_bbs_pr_partner}</td>
-	<td align="left" style="font-size: 10pt; font-weight: bold; color: #0090d8;">${record.custrecord_bbs_pr_type} No. ${record.name}</td>
-</tr>
-<tr style="margin-top: 20px;">
-	<td align="left" style="font-size: 10pt; font-weight: bold; color: #393939;">FAO ${record.custrecord_bbs_pr_partner_contact?keep_after(":")}</td>
-	<td>&nbsp;</td>
-	<td align="left" style="font-size: 10pt;  color: #393939;">Date (and Tax Point): ${record.created?string["dd MMM yyyy"]}</td>
-</tr>
-<tr>
-	<td align="left"  style="font-size: 10pt; color: #393939;">${record.custrecord_bbs_pr_partner_address}</td>
-	<td >&nbsp;</td>
-	<td align="left"  style="font-size: 10pt; color: #393939;">Virtual1 Ltd<br/>6th Floor Alphabeta<br/>14-18 Finsbury Square<br/>London<br/>EC2A 1BR</td>
-</tr>
-<tr>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td >&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">(t) 0344 884 0800</td>
-</tr>
-<tr>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td >&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">billingquery@virtual1.com</td>
-</tr>
-</table>
-
-<#if record.custrecord_bbs_pr_type == "Invoice">
-
-<table style="width: 100%; margin-top: 100px;">
-<tr>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" colspan="2" style="font-size: 10pt; color: #393939;">One Off Charges</td>
-
-	
-	<#if record.custrecord_bbs_pr_billing_type == "One Off">
-		<td align="right" style="font-size: 10pt; color: #393939;">${record.custrecord_bbs_pr_inv_sub_total}</td>
-	<#else>
-		<td align="right" style="font-size: 10pt; color: #393939;">£0.00</td>
-	</#if>	
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-</tr>
-
-<tr>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" colspan="2" style="font-size: 10pt; color: #393939;">Recurring Charges</td>
-	
-	<#if record.custrecord_bbs_pr_billing_type == "One Off">
-		<td align="right" style="font-size: 10pt; color: #393939;">£0.00</td>
-	<#else>
-		<td align="right" style="font-size: 10pt; color: #393939;">${record.custrecord_bbs_pr_inv_sub_total}</td>
-	</#if>	
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-</tr>
-
-<tr>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-</tr>
-
-<tr>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" colspan="2" style="font-size: 10pt; color: #393939;">Total Charges</td>
-	<td align="right" style="font-size: 10pt; color: #393939;">${record.custrecord_bbs_pr_inv_sub_total}</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-</tr>
-
-<tr>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" colspan="2" style="font-size: 10pt; color: #393939;">VAT (20% of ${record.custrecord_bbs_pr_inv_sub_total})</td>
-	<td align="right" style="font-size: 10pt; color: #393939;">${record.custrecord_bbs_pr_inv_tax_total}</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-</tr>
-
-<tr>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939; border-bottom: 1px; border-color: #0090d8;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939; border-bottom: 1px; border-color: #0090d8;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939; border-bottom: 1px; border-color: #0090d8;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-</tr>
-
-<tr>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-</tr>
-
-<tr>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" colspan="2" style="font-size: 10pt; color: #393939; font-weight: bold;">Total</td>
-	<td align="right" style="font-size: 10pt; color: #393939; font-weight: bold;">${record.custrecord_bbs_pr_inv_total}</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-</tr>
-</table>
-
-<#else>
-
-<table style="width: 100%; margin-top: 100px;">
-<tr>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" colspan="2" style="font-size: 10pt; color: #393939;">One Off Charges</td>
-
-	
-	<#if record.custrecord_bbs_pr_billing_type == "One Off">
-		<td align="right" style="font-size: 10pt; color: #393939;">${record.custrecord_bbs_pr_cn_sub_total}</td>
-	<#else>
-		<td align="right" style="font-size: 10pt; color: #393939;">£0.00</td>
-	</#if>	
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-</tr>
-
-<tr>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" colspan="2" style="font-size: 10pt; color: #393939;">Reoccuring Charges</td>
-	
-	<#if record.custrecord_bbs_pr_billing_type == "One Off">
-		<td align="right" style="font-size: 10pt; color: #393939;">£0.00</td>
-	<#else>
-		<td align="right" style="font-size: 10pt; color: #393939;">${record.custrecord_bbs_pr_cn_sub_total}</td>
-	</#if>	
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-</tr>
-
-<tr>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-</tr>
-
-<tr>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" colspan="2" style="font-size: 10pt; color: #393939;">Total Charges</td>
-	<td align="right" style="font-size: 10pt; color: #393939;">${record.custrecord_bbs_pr_cn_sub_total}</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-</tr>
-
-<tr>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" colspan="2" style="font-size: 10pt; color: #393939;">VAT (20% of ${record.custrecord_bbs_pr_inv_sub_total})</td>
-	<td align="right" style="font-size: 10pt; color: #393939;">${record.custrecord_bbs_pr_cn_tax_total}</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-</tr>
-
-<tr>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939; border-bottom: 1px; border-color: #0090d8;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939; border-bottom: 1px; border-color: #0090d8;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939; border-bottom: 1px; border-color: #0090d8;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-</tr>
-
-<tr>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-</tr>
-
-<tr>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-	<td align="left" colspan="2" style="font-size: 10pt; color: #393939; font-weight: bold;">Total</td>
-	<td align="right" style="font-size: 10pt; color: #393939; font-weight: bold;">${record.custrecord_bbs_pr_cn_total}</td>
-	<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-</tr>
-</table>
-
-</#if>
-
-</body>
-
-<body header="nldetailheader" header-height="50px" footer="nldetailfooter" footer-height="30px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 
 
 <#if lines?has_content>
+
+	<!-- Details table -->
 	<table style="width: 100%;">	
 		<#list lines as line>
 			<#if line_index==0>
 				<thead>
 					<tr>
-						<th align="left" style="font-size: 11pt; color: #393939; font-weight: bold;">Site ID</th>
-						<th align="left" style="font-size: 11pt; color: #393939; font-weight: bold;">Service ID</th>
-						<th align="left" style="font-size: 11pt; color: #393939; font-weight: bold;">Description</th>
-						<th align="left" style="font-size: 11pt; color: #393939; font-weight: bold;">Partner PO Ref</th>
-						<th align="center" style="font-size: 11pt; color: #393939; font-weight: bold;">Amount</th>
+						<th align="left" style="font-size: 7pt; color: #393939; font-weight: bold; border-top: 1px; border-bottom: 1px; border-right: 1px; border-left: 1px; border-color: #0090d8;">Document<br/>Date</th>
+						<th align="left" style="font-size: 7pt; color: #393939; font-weight: bold; border-top: 1px; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">Due<br/>Date</th>
+						<th align="left" style="font-size: 7pt; color: #393939; font-weight: bold; border-top: 1px; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">Document<br/>Number</th>
+						<th align="left" style="font-size: 7pt; color: #393939; font-weight: bold; border-top: 1px; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">Document<br/>Type</th>
+						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-top: 1px; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">Total<br/>Amount</th>
+						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-top: 1px; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">Amount<br/>Paid/Applied</th>
+						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-top: 1px; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">Amount In<br/>Query</th>
+						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-top: 1px; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">Amount On<br/>DD Claim</th>
+						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-top: 1px; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">Amount<br/>Outstanding/Unapplied</th>
 					</tr>
 				</thead>
 			</#if>
-				<tr style="margin-top: 10px;">
-					<td align="left" style="font-size: 8pt; color: #393939; border-top: 1px; border-color: #0090d8;">${line.custcol_bbs_end_cust_name} - ${line.custcol_bbs_site_post_code}</td>
-					<td align="left" style="font-size: 8pt; color: #393939; border-top: 1px; border-color: #0090d8;">${line.custcol_bbs_accessid_v1c}</td>
-					<td align="left" style="font-size: 8pt; color: #393939; border-top: 1px; border-color: #0090d8;">${line.memo}</td>
-					<td align="left" style="font-size: 8pt; color: #393939; border-top: 1px; border-color: #0090d8;">${line.custbody_bbs_partner_po_number}</td>
-					<td align="right" style="font-size: 8pt; color: #393939; border-top: 1px; border-color: #0090d8;">${line.amount}</td>
-				</tr>
+				<#if line.custrecord_bbs_pr_type == "Invoice">
+					<tr>
+						<td align="left" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-left: 1px; border-color: #0090d8;">${line.created?string["dd/MM/yy"]}</td>
+						<td align="left" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.custrecord_bbs_pr_inv_due_date?string["dd/MM/yy"]}</td>
+						<td align="left" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.name}</td>
+						<td align="left" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.custrecord_bbs_pr_type}</td>
+						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.custrecord_bbs_pr_inv_total}</td>
+						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.custrecord_bbs_pr_inv_paid}</td>
+						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.custrecord_bbs_pr_inv_disputed}</td>
+						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.custrecord_bbs_pr_inv_proc_by_dd}</td>
+						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.custrecord_bbs_pr_inv_outstanding}</td>
+					</tr>
+				<#else>
+					<tr>
+						<td align="left" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-left: 1px; border-color: #0090d8;">${line.created?string["dd/MM/yy"]}</td>
+						<td align="left" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.custrecord_bbs_pr_inv_due_date?string["dd/MM/yy"]}</td>
+						<td align="left" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.name}</td>
+						<td align="left" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.custrecord_bbs_pr_type}</td>
+						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">(${line.custrecord_bbs_pr_cn_total})</td>
+						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">(${line.custrecord_bbs_pr_cn_applied})</td>
+						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">&nbsp;</td>
+						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">&nbsp;</td>
+						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">(${line.custrecord_bbs_pr_cn_unapplied})</td>
+					</tr>
+				</#if>
 		</#list>
-	</table>	
+	</table>
+	
+	<!-- Totals table -->	
+	<table style="width: 100%;">	
+		<tr>
+			<td align="left" style="font-size: 7pt; color: #393939; ">&nbsp;</td>
+			<td align="left" style="font-size: 7pt; color: #393939; ">&nbsp;</td>
+			<td align="left" style="font-size: 7pt; color: #393939; ">&nbsp;</td>
+			<td align="left" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">TOTALS</td>
+			<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">(${line.custrecord_bbs_pr_cn_total})</td>
+			<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">(${line.custrecord_bbs_pr_cn_applied})</td>
+			<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">&nbsp;</td>
+			<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">&nbsp;</td>
+			<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">(${line.custrecord_bbs_pr_cn_unapplied})</td>
+		</tr>
+	</table>
 </#if>
 
 </body>

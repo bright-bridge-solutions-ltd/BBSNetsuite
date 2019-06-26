@@ -15,5 +15,7 @@ function statementEmailer(type)
 	var context = nlapiGetContext();
 	var partnerId = context.getSetting('SCRIPT', 'custscript_bbs_partner_id');
 	
+	nlapiLogExecution('DEBUG', 'Running statement for customer id = ' + partnerId, '');
+	
 	libGenerateStatement(partnerId);
 }

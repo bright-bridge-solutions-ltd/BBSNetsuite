@@ -12,7 +12,7 @@
  */
 function scheduled(type) 
 {
-	//Start by seeing what partners have PR outstanding
+	//Start by seeing what partners have PR outstanding & group by partner
 	//
 	var customrecord_bbs_presentation_recordSearch = getResults(nlapiCreateSearch("customrecord_bbs_presentation_record",
 			[

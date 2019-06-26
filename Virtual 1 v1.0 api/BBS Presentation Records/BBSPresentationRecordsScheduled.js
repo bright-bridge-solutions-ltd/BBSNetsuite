@@ -330,7 +330,7 @@ function prUpdate(type)
 							
 							if(pdfFile != null)
 								{
-									var pdfFileName = 'Presentation ' + prRecord.getFieldText('custrecord_bbs_pr_type') + ' ' + prRecord.getFieldValue('name');
+									var pdfFileName = 'Presentation ' + prRecord.getFieldText('custrecord_bbs_pr_type') + ' ' + prRecord.getFieldValue('name') + '.pdf';
 									
 									pdfFile.setName(pdfFileName);
 									pdfFile.setFolder(PR_DOC_FOLDER_ID);
