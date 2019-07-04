@@ -51,6 +51,15 @@
 			</tr>
 			</table>
 
+			<table class="header" style="width: 100%; margin-top: 20px;">
+			<tr>
+				<td align="center" style="font-size: 10pt; font-weight: bold; color: #0090d8;">Delayed payment of invoices could result in additional interest charges</td>
+			</tr>
+			<tr>
+				<td align="center" style="font-size: 10pt; font-weight: bold; color: #0090d8;">and/or suspension of services</td>
+			</tr>
+			</table>
+			
         </macro>
         
     </macrolist>
@@ -139,9 +148,7 @@
 </style>
 </head>
 
-<body header="nlheader" header-height="280px"  footer="nlfooter" footer-height="30px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
-
-
+<body header="nlheader" header-height="330px"  footer="nlfooter" footer-height="30px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 
 <#if lines?has_content>
 
@@ -151,60 +158,103 @@
 			<#if line_index==0>
 				<thead>
 					<tr>
-						<th align="left" style="font-size: 7pt; color: #393939; font-weight: bold; border-top: 1px; border-bottom: 1px; border-right: 1px; border-left: 1px; border-color: #0090d8;">Document<br/>Date</th>
-						<th align="left" style="font-size: 7pt; color: #393939; font-weight: bold; border-top: 1px; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">Due<br/>Date</th>
-						<th align="left" style="font-size: 7pt; color: #393939; font-weight: bold; border-top: 1px; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">Document<br/>Number</th>
-						<th align="left" style="font-size: 7pt; color: #393939; font-weight: bold; border-top: 1px; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">Document<br/>Type</th>
-						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-top: 1px; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">Total<br/>Amount</th>
-						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-top: 1px; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">Amount<br/>Paid/Applied</th>
-						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-top: 1px; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">Amount In<br/>Query</th>
-						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-top: 1px; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">Amount On<br/>DD Claim</th>
-						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-top: 1px; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">Amount<br/>Outstanding/Unapplied</th>
+						<th align="left"  style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">Document<br/>Date</th>
+						<th align="left"  style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">Document<br/>Reference</th>
+						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">Document<br/>Value</th>
+						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">Outstanding<br/>Debit</th>
+						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">Outstanding<br/>Credit</th>
+						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">In<br/>Query</th>
+						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">Outstanding<br/>Balance</th>
 					</tr>
 				</thead>
 			</#if>
 				<#if line.custrecord_bbs_pr_type == "Invoice">
 					<tr>
-						<td align="left" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-left: 1px; border-color: #0090d8;">${line.created?string["dd/MM/yy"]}</td>
-						<td align="left" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.custrecord_bbs_pr_inv_due_date?string["dd/MM/yy"]}</td>
-						<td align="left" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.name}</td>
-						<td align="left" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.custrecord_bbs_pr_type}</td>
-						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.custrecord_bbs_pr_inv_total}</td>
-						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.custrecord_bbs_pr_inv_paid}</td>
-						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.custrecord_bbs_pr_inv_disputed}</td>
-						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.custrecord_bbs_pr_inv_proc_by_dd}</td>
-						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.custrecord_bbs_pr_inv_outstanding}</td>
+						<td align="left" style="font-size: 7pt; color: #393939;">${line.created?string["dd/MM/yy"]}</td>
+						<td align="left" style="font-size: 7pt; color: #393939;">${line.name}</td>
+						<td align="right" style="font-size: 7pt; color: #393939;">${line.custrecord_bbs_pr_inv_total}</td>
+						<td align="right" style="font-size: 7pt; color: #393939;">${line.formulacurrency}</td>
+						<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
+						
+						<#if line.custrecord_bbs_pr_inv_disputed gt 0>
+							<td align="right" style="font-size: 7pt; color: #393939;">${line.custrecord_bbs_pr_inv_disputed}</td>
+						<#else>
+							<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
+						</#if>
+						
+						<td align="right" style="font-size: 7pt; color: #393939;">${line.custrecord_bbs_pr_inv_outstanding}</td>
 					</tr>
 				<#else>
 					<tr>
-						<td align="left" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-left: 1px; border-color: #0090d8;">${line.created?string["dd/MM/yy"]}</td>
-						<td align="left" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.custrecord_bbs_pr_inv_due_date?string["dd/MM/yy"]}</td>
-						<td align="left" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.name}</td>
-						<td align="left" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">${line.custrecord_bbs_pr_type}</td>
-						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">(${line.custrecord_bbs_pr_cn_total})</td>
-						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">(${line.custrecord_bbs_pr_cn_applied})</td>
-						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">&nbsp;</td>
-						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">&nbsp;</td>
-						<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">(${line.custrecord_bbs_pr_cn_unapplied})</td>
+						<td align="left" style="font-size: 7pt; color: #393939;">${line.created?string["dd/MM/yy"]}</td>
+						<td align="left" style="font-size: 7pt; color: #393939;">${line.name}</td>
+						<td align="right" style="font-size: 7pt; color: #393939;">(${line.custrecord_bbs_pr_cn_total})</td>
+						<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
+						<td align="right" style="font-size: 7pt; color: #393939;">(${line.custrecord_bbs_pr_cn_unapplied})</td>
+						<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
+						<td align="right" style="font-size: 7pt; color: #393939;">(${line.custrecord_bbs_pr_cn_unapplied})</td>
 					</tr>
 				</#if>
 		</#list>
 	</table>
 	
-	<!-- Totals table -->	
-	<table style="width: 100%;">	
-		<tr>
-			<td align="left" style="font-size: 7pt; color: #393939; ">&nbsp;</td>
-			<td align="left" style="font-size: 7pt; color: #393939; ">&nbsp;</td>
-			<td align="left" style="font-size: 7pt; color: #393939; ">&nbsp;</td>
-			<td align="left" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">TOTALS</td>
-			<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">(${line.custrecord_bbs_pr_cn_total})</td>
-			<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">(${line.custrecord_bbs_pr_cn_applied})</td>
-			<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">&nbsp;</td>
-			<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">&nbsp;</td>
-			<td align="right" style="font-size: 7pt; color: #393939; border-bottom: 1px; border-right: 1px; border-color: #0090d8;">(${line.custrecord_bbs_pr_cn_unapplied})</td>
-		</tr>
-	</table>
+	<div style="page-break-inside: avoid;">
+		<!-- Aging table -->	
+		<table style="width: 100%; margin-top: 10px; page-break-inside: avoid;">	
+			<thead>
+				<tr>
+					<th align="left">&nbsp;</th>
+					<th align="left">&nbsp;</th>
+					<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">Not Due<br/>&nbsp;</th>
+					<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">1-30 Days<br/>Overdue</th>
+					<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">31-60 Days<br/>Overdue</th>
+					<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">61-90 Days<br/>Overdue</th>
+					<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">91+ Days<br/>Overdue</th>
+				</tr>
+			</thead>	
+			
+			<tr>
+				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_age_1}</td>
+				<td align="right" style="font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_age_2}</td>
+				<td align="right" style="font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_age_3}</td>
+				<td align="right" style="font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_age_4}</td>
+				<td align="right" style="font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_age_5}</td>
+			</tr>
+		</table>
+		
+		<!-- Totals table -->	
+		<table style="width: 100%; margin-top: 10px; page-break-inside: avoid;">			
+			<tr>
+				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-size: 7pt; color: #393939;">Total Amount</td>
+				<td align="right" style="font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_total_amount}</td>
+			</tr>
+			<tr>
+				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-size: 7pt; color: #393939;">Amount In Query</td>
+				<td align="right" style="font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_query_amount}</td>
+			</tr>
+			<tr>
+				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-size: 7pt; color: #393939; font-weight: bold;">Payment Due</td>
+				<td align="right" style="font-size: 7pt; color: #393939; font-weight: bold;">${statement.custrecord_bbs_pr_stat_payment_amount}</td>
+			</tr>
+		</table>
+	</div>
 </#if>
 
 </body>
