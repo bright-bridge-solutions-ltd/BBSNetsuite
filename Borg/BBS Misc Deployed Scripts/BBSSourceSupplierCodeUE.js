@@ -23,8 +23,9 @@ function sourceSupplierCodeAS(type)
 		{
 			var newRecord = nlapiGetNewRecord();
 			var newId = newRecord.getId();
+			var newType = newRecord.getRecordType();
 			
-			var poRecord = nlapiLoadRecord('purchaseorder', newId);
+			var poRecord = nlapiLoadRecord(newType, newId);
 			var lines = poRecord.getLineItemCount('item');
 			var supplierId = poRecord.getFieldValue('entity');
 			var recordUpdated = false;
