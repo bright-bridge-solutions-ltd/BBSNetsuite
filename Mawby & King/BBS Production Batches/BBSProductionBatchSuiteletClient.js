@@ -36,25 +36,12 @@ function clientFieldChanged(type, name, linenum)
 				}
 		}
 
-	if (name == 'custpage_glass_spec_select')
-		{
-			nlapiSetFieldValue('custpage_glass_spec_text', nlapiGetFieldText(name), false, true);
-		}
 
-	if (name == 'custpage_thickness_select')
-		{
-			nlapiSetFieldValue('custpage_thickness_text', nlapiGetFieldText(name), false, true);
-		}
-
-	if (name == 'custpage_stockflag_select')
-		{
-			nlapiSetFieldValue('custpage_stockflag_text', nlapiGetFieldText(name), false, true);
-		}
 }
 
 function clientSaveRecord()
 {
-	var stage = nlapiGetFieldValue('custpage_stage');
+	var stage = nlapiGetFieldValue('custpage_param_stage');
 	var returnStatus = false;
 	var message = '';
 	
@@ -66,10 +53,8 @@ function clientSaveRecord()
 				
 			case 2:
 				var count = nlapiGetLineItemCount('custpage_sublist_items');
-				var mode = nlapiGetFieldValue('custpage_mode');
-				var soLink = nlapiGetFieldValue('custpage_solink');
 				
-				message = 'Please select one or more works orders to continue';
+				message = 'Please select one or more lines to continue';
 				
 				for (var int = 1; int <= count; int++) 
 					{
