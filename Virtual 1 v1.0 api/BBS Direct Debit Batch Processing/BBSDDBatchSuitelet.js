@@ -465,7 +465,7 @@ function ddBatchRecordsSuitelet(request, response)
 					batchesField.setDefaultValue(batches);
 					
 					var warningField = form.addField('custpage_warning', 'inlinehtml', null, null, null);
-					warningField.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Refresh the screen to view the progress of the presentation records<p/>');
+					warningField.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Refresh the screen to view the progress of the direct debit batch records<p/>');
 					warningField.setDisplayType('disabled');
 					
 					var tab = form.addTab('custpage_tab_items', 'DD Batch Records Created');
@@ -483,7 +483,6 @@ function ddBatchRecordsSuitelet(request, response)
 					listView.setLinkText('View');
 					
 					var listId = subList.addField('custpage_sublist_id', 'text', 'Internal Id', null);
-					var listType = subList.addField('custpage_sublist_type', 'text', 'Record Type', null);
 					var listName = subList.addField('custpage_sublist_name', 'text', 'Name', null);
 					var listPartner = subList.addField('custpage_sublist_partner', 'text', 'Partner', null);
 					var listStatus = subList.addField('custpage_sublist_status', 'text', 'Status', null);
@@ -501,26 +500,23 @@ function ddBatchRecordsSuitelet(request, response)
 									filters[0] = new nlobjSearchFilter('internalid', null, 'anyof', batchesArray);
 									
 									var columns = new Array();
-									columns[0] = new nlobjSearchColumn('custrecord_bbs_pr_type');
-									columns[1] = new nlobjSearchColumn('custrecord_bbs_pr_partner');
-									columns[2] = new nlobjSearchColumn('custrecord_bbs_pr_inv_pay_term');
-									columns[3] = new nlobjSearchColumn('name');
-									columns[4] = new nlobjSearchColumn('custrecord_bbs_pr_status');
-									columns[5] = new nlobjSearchColumn('custrecord_bbs_pr_internal_status');
+									columns[0] = new nlobjSearchColumn('custrecord_bbs_dd_partner');
+									columns[1] = new nlobjSearchColumn('name');
+									columns[2] = new nlobjSearchColumn('custrecord_bbs_dd_status');
+									columns[3] = new nlobjSearchColumn('custrecord_bbs_dd_internal_status');
 									
-									var batchResults = nlapiSearchRecord('customrecord_bbs_presentation_record', null, filters, columns);
+									var batchResults = nlapiSearchRecord('customrecord_bbs_dd_batch', null, filters, columns);
 									
 									for (var int2 = 0; int2 < batchResults.length; int2++) 
 										{
 											lineNo++;
 											
-											subList.setLineItemValue('custpage_sublist_view', lineNo, nlapiResolveURL('RECORD', 'customrecord_bbs_presentation_record', batchResults[int2].getId(), 'VIEW'));
+											subList.setLineItemValue('custpage_sublist_view', lineNo, nlapiResolveURL('RECORD', 'customrecord_bbs_dd_batch', batchResults[int2].getId(), 'VIEW'));
 											subList.setLineItemValue('custpage_sublist_id', lineNo, batchResults[int2].getId());
-											subList.setLineItemValue('custpage_sublist_type', lineNo, batchResults[int2].getText('custrecord_bbs_pr_type'));
 											subList.setLineItemValue('custpage_sublist_name', lineNo, batchResults[int2].getValue('name'));
-											subList.setLineItemValue('custpage_sublist_partner', lineNo, batchResults[int2].getText('custrecord_bbs_pr_partner'));
-											subList.setLineItemValue('custpage_sublist_status', lineNo, batchResults[int2].getText('custrecord_bbs_pr_status'));
-											subList.setLineItemValue('custpage_sublist_updated', lineNo, batchResults[int2].getText('custrecord_bbs_pr_internal_status'));
+											subList.setLineItemValue('custpage_sublist_partner', lineNo, batchResults[int2].getText('custrecord_bbs_dd_partner'));
+											subList.setLineItemValue('custpage_sublist_status', lineNo, batchResults[int2].getText('custrecord_bbs_dd_status'));
+											subList.setLineItemValue('custpage_sublist_updated', lineNo, batchResults[int2].getText('custrecord_bbs_dd_internal_status'));
 										}
 								}
 						}
@@ -571,7 +567,8 @@ function ddBatchRecordsSuitelet(request, response)
 			case 2:
 				
 				var lineCount = request.getLineItemCount('custpage_sublist_items');
-				var recordType = request.getLineItemCount('custpage_param_rec_type');
+				var processingDate = request.getParameter('custpage_param_proc_date'); 	//Processing date
+				var bankAccount = request.getParameter('custpage_param_bank_acc'); 		//Bank account
 				var sessionId = request.getParameter('custpage_param_session_id');		//The session id  which is used when refreshing a page with the 'refresh' button
 				
 				libClearSessionData(sessionId);
@@ -591,42 +588,29 @@ function ddBatchRecordsSuitelet(request, response)
 						if (ticked == 'T')
 							{
 								var woId = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_pr_id', int);
-								var recordType = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_type', int);
-								var billingType = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_class', int);
-								var partner = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_entity', int);
-								var partnerContact = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_contact', int);
-								var paymentTerms = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_terms', int);
+								var partner = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_custrecord_bbs_pr_partner', int);
+								var amountToPay = request.getLineItemValue('custpage_sublist_items', 'custpage_amount_to_pay', int);
 										
 								//Build the batch key (which is used as the batch description)
 								//
-								var key = '';
-
-								switch(recordType)
-									{
-										case 'Invoice':
-											key = recordType + ':' + partner + ':' + billingType + ':' + paymentTerms + ':' + partnerContact;
-											break;
-											
-										case 'Credit Memo':
-											key = recordType + ':' + partner + ':' + partnerContact;
-											break;
-									}
-	
+								var key = partner;
+								var prDetailObject = new prDetails(woId, amountToPay);
+								
 								if(!woArray[key])
 									{
-										woArray[key] = [woId];
+										woArray[key] = [prDetailObject];
 									}
 								else
 									{
-										woArray[key].push(woId);
+										woArray[key].push(prDetailObject);
 									}
 							}
 					}
 					
 						
-				var prodBatchId = '';
+				var ddBatchId = '';
 						
-				nlapiLogExecution('DEBUG', 'Count of presentation batches', (Object.keys(woArray).length).toString());
+				nlapiLogExecution('DEBUG', 'Count of DD batches', (Object.keys(woArray).length).toString());
 						
 				var woToProcessArray = {};
 						
@@ -634,41 +618,21 @@ function ddBatchRecordsSuitelet(request, response)
 				//
 				for (var woKey in woArray) 
 					{
-						//Create the PR record
+						//Create the DD record
 						//
-						var prodBatchRecord = nlapiCreateRecord('customrecord_bbs_presentation_record');   // 2GU's
+						var ddBatchRecord = nlapiCreateRecord('customrecord_bbs_dd_batch');   	// 2GU's
 						
-						//Update the basic fields on the PR record
-						//
-						var keyElements = woKey.split(':');
-						
-						if(keyElements[0] == 'Invoice')
-							{
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_type', '2');
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner', keyElements[1]);
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_pay_term', keyElements[3]);
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_due_date', calculateDueDate(todaysDate, keyElements[3]));
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner_contact', keyElements[4]);
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_billing_type', keyElements[2]);
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_proc_by_dd','0');
-								prodBatchRecord.setFieldValue('customform', PR_INVOICE_FORM_ID);
-							}
-						else
-							{
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_type', '1');
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner', keyElements[1]);
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner_contact', keyElements[2]);
-								prodBatchRecord.setFieldValue('customform', PR_CREDIT_FORM_ID);
-							}
-						
-						prodBatchRecord.setFieldValue('custrecord_bbs_pr_status', '1'); //Status = 1 (Open)
-						prodBatchRecord.setFieldValue('custrecord_bbs_pr_internal_status', '1'); //Status = 1 (Awaiting Transaction Allocation)
-						
+						ddBatchRecord.setFieldValue('custrecord_bbs_dd_status', '1');
+						ddBatchRecord.setFieldValue('custrecord_bbs_dd_partner', woKey);
+						ddBatchRecord.setFieldValue('custrecord_bbs_dd_processing_date', processingDate);
+						ddBatchRecord.setFieldValue('custrecord_bbs_dd_bank_account', bankAccount);			
+						ddBatchRecord.setFieldValue('custrecord_bbs_pr_status', '1'); 			//Status = 1 (Open)
+						ddBatchRecord.setFieldValue('custrecord_bbs_pr_internal_status', '1'); 	//Status = 1 (Awaiting Transaction Allocation)
 						
 						//Save the batch record & get the id
 						//
-						prodBatchId = nlapiSubmitRecord(prodBatchRecord, true, true);  // 4GU's
-						batchesCreated.push(prodBatchId);
+						ddBatchId = nlapiSubmitRecord(ddBatchRecord, true, true);  // 4GU's
+						batchesCreated.push(ddBatchId);
 								
 						//Loop round the w/o id's associated with this batch
 						//
@@ -676,13 +640,15 @@ function ddBatchRecordsSuitelet(request, response)
 								
 						//Save the id of the created batch along with the works orders that go with it
 						//
-						woToProcessArray[prodBatchId] = woIds;
+						woToProcessArray[ddBatchId] = woIds;
 								
 					}
 						
-				var scheduleParams = {custscript_pr_array: JSON.stringify(woToProcessArray), custscript_pr_type: recordType};
-				nlapiScheduleScript('customscript_pr_scheduled', null, scheduleParams);
-						
+				var scheduleParams = {custscript_dd_array: JSON.stringify(woToProcessArray)};
+				nlapiScheduleScript('customscript_bbs_dd_scheduled', null, scheduleParams);
+					
+				nlapiLogExecution('DEBUG', 'Data to scheduled job', JSON.stringify(woToProcessArray));
+				
 				var batchesCreatedText = JSON.stringify(batchesCreated);
 				var params = new Array();
 						
@@ -701,36 +667,12 @@ function ddBatchRecordsSuitelet(request, response)
 //Functions
 //=====================================================================
 //
-function calculateDueDate(_startDate, _payTerms)
+function prDetails(_prId, _prAmountToPay)
 {
-	var payTermsRecord = null;
-	var dueDate = _startDate;
-	
-	try
-		{
-			payTermsRecord = nlapiLoadRecord('term', _payTerms);
-		}
-	catch(err)
-		{
-			payTermsRecord = null;
-		}
-	
-	if(payTermsRecord != null)
-		{
-			var days = Number(payTermsRecord.getFieldValue('daysuntilnetdue'));
-			
-			try
-				{
-					dueDate = nlapiAddDays(_startDate, days);
-				}
-			catch(err)
-				{
-					dueDate = _startDate;
-				}
-		}
-	
-	return(nlapiDateToString(dueDate));
+	this.prId = _prId;
+	this.prAmountToPay = _prAmountToPay;
 }
+
 
 function removePrefix(fullString)
 {
