@@ -81,9 +81,7 @@ function ddUpdate(type)
 	//=============================================================================================
 	//=============================================================================================
 	//
-	
-	/*
-	 
+
 	//Get the company config info
 	//
 	var companyInformationRecord = nlapiLoadConfiguration('companyinformation');
@@ -92,7 +90,7 @@ function ddUpdate(type)
 	//
 	for (var ddKey in ddArray) 
 		{
-			//Try to load the PR record
+			//Try to load the DD record
 			//
 			try
 				{
@@ -110,7 +108,7 @@ function ddUpdate(type)
 				{
 					var partnerRecord = null;
 					
-					//Load the partner record from the pr record
+					//Load the partner record from the dd record
 					//
 					try
 						{
@@ -123,102 +121,37 @@ function ddUpdate(type)
 
 					//Get the line data from a search
 					//
-					var invoiceLines = getResults(nlapiCreateSearch("transaction",
+					var prLines = getResults(nlapiCreateSearch("customrecordbbs_dd_batch_det",null,
 							[
-							   ["type","anyof","CustInvc","CustCred"], 
-							   "AND", 
-							   ["custbody_bbs_pr_id","anyof",ddKey], 
-							   "AND", 
-							   ["mainline","is","F"], 
-							   "AND", 
-							   ["shipping","is","F"], 
-							   "AND", 
-							   ["taxline","is","F"], 
-							   "AND", 
-							   ["cogs","is","F"]
+							   ["custrecord_bbs_dd_det_batch","anyof",ddKey]
 							], 
 							[
-							   new nlobjSearchColumn("trandate"), 
-							   new nlobjSearchColumn("tranid").setSort(false), 
-							   new nlobjSearchColumn("entity"), 
-							   new nlobjSearchColumn("quantity"), 
-							   new nlobjSearchColumn("rate"), 
-							   new nlobjSearchColumn("item"), 
-							   new nlobjSearchColumn("custcol_bbs_end_cust_name"), 
-							   new nlobjSearchColumn("custcol_bbs_accessid_v1c"), 
-							   new nlobjSearchColumn("custcol_bbs_site_name"), 
-							   new nlobjSearchColumn("custbody_bbs_partner_po_number"), 
-							   new nlobjSearchColumn("memo"),
-							   new nlobjSearchColumn("amount"),
-							   new nlobjSearchColumn("custcol_bbs_site_post_code"),
-							   new nlobjSearchColumn("custcol_bbs_billing_frequency"), 
-							   new nlobjSearchColumn("custcol_bbs_pe_reference")
+							   new nlobjSearchColumn("custrecord_bbs_dd_det_batch"), 
+							   new nlobjSearchColumn("custrecord_bbs_dd_det_pr"), 
+							   new nlobjSearchColumn("custrecord_bbs_dd_det_amount"), 
+							   new nlobjSearchColumn("custrecord_bbs_pr_inv_age","CUSTRECORD_BBS_DD_DET_PR",null), 
+							   new nlobjSearchColumn("custrecord_bbs_pr_billing_type","CUSTRECORD_BBS_DD_DET_PR",null), 
+							   new nlobjSearchColumn("custrecord_bbs_pr_inv_due_date","CUSTRECORD_BBS_DD_DET_PR",null), 
+							   new nlobjSearchColumn("custrecord_bbs_pr_status","CUSTRECORD_BBS_DD_DET_PR",null), 
+							   new nlobjSearchColumn("custrecord_bbs_pr_inv_proc_by_dd","CUSTRECORD_BBS_DD_DET_PR",null), 
+							   new nlobjSearchColumn("custrecord_bbs_presentation_record_date","CUSTRECORD_BBS_DD_DET_PR",null), 
+							   new nlobjSearchColumn("name","CUSTRECORD_BBS_DD_DET_PR",null)
 							]
 							));
 					
-					
-					//Generate the csv detail file & save to the PR record
+
+					//Render the PDF template & save to the DD record
 					//
-					if(invoiceLines != null && invoiceLines.length > 0)
+					if(DD_DOC_TEMPLATE_ID != null && DD_DOC_TEMPLATE_ID != '')
 						{
-							var csvText = '"Site ID","Service ID","From Date","To Date","Frequency","Amount","Description","Partner PO Ref","PE Ref"\n';
-							
-							for (var int = 0; int < invoiceLines.length; int++) 
-								{
-									var lineTranDate = invoiceLines[int].getValue('trandate');
-									var lineTranId = invoiceLines[int].getValue('tranid');
-									var lineTranEntity = invoiceLines[int].getText('entity');
-									var lineTranQuantity = invoiceLines[int].getValue('quantity');
-									var lineTranRate = invoiceLines[int].getValue('rate');
-									var lineTranItem = invoiceLines[int].getText('item');
-									var lineTranEndUserName = invoiceLines[int].getValue('custcol_bbs_end_cust_name');
-									var lineTranV1c = invoiceLines[int].getValue('custcol_bbs_accessid_v1c');
-									var lineTranSiteName = invoiceLines[int].getValue('custcol_bbs_site_name');
-									var lineTranPartnerPo = invoiceLines[int].getValue('custbody_bbs_partner_po_number');
-									var lineTranDecscription = invoiceLines[int].getValue('memo');
-									var lineTranAmount = invoiceLines[int].getValue('amount');
-									var lineTranPostCode = invoiceLines[int].getValue('custcol_bbs_site_post_code');
-									var lineTranCustFrequency = invoiceLines[int].getText("custcol_bbs_billing_frequency");
-									var lineTranPeReference = invoiceLines[int].getValue("custcol_bbs_pe_reference");
-									
-									csvText += lineTranEndUserName + ' - ' + lineTranPostCode + ',' + 
-										lineTranV1c + ',' +
-										',' +
-										',' +
-										lineTranCustFrequency + ',' +
-										lineTranAmount + ',' + 
-										lineTranDecscription + ','  + 
-										lineTranPartnerPo + ',' + 
-										lineTranPeReference + '\n';
-								}
-						}
-					
-					//Create a file to hold the csv
-					//
-					var csvFileName = 'Presentation ' + ddRecord.getFieldText('custrecord_bbs_pr_type') + ' ' + ddRecord.getFieldValue('name') + '.csv';
-					var csvFile = nlapiCreateFile(csvFileName, 'CSV', csvText);
-					csvFile.setFolder(PR_DOC_FOLDER_ID);
-					
-					//Upload the file to the file cabinet.
-					//
-				    var csvFileId = nlapiSubmitFile(csvFile);
-				 
-				    //Attach the file to the PR record
-				    //
-				    nlapiAttachRecord("file", csvFileId, "customrecord_bbs_presentation_record", ddKey); // 10GU's
-			
-					//Render the PDF template & save to the PR record
-					//
-					if(PR_DOC_TEMPLATE_ID != null && PR_DOC_TEMPLATE_ID != '')
-						{
-							var templateFile = nlapiLoadFile(PR_DOC_TEMPLATE_ID);
+							var templateFile = nlapiLoadFile(DD_DOC_TEMPLATE_ID);
 							var templateContents = templateFile.getValue();
 						
 							var renderer = nlapiCreateTemplateRenderer();
 							renderer.setTemplate(templateContents);
 							renderer.addRecord('record', ddRecord);
 							renderer.addRecord('partner', partnerRecord);
-							renderer.addSearchResults('lines', invoiceLines);
+							renderer.addSearchResults('lines', prLines);
 							
 							var xml = renderer.renderToString();
 							var pdfFile = null;
@@ -229,12 +162,12 @@ function ddUpdate(type)
 								}
 							catch(err)
 								{
-									nlapiLogExecution('ERROR', 'Error rendering PDF, PR record id = ' + ddKey, err.message);
+									nlapiLogExecution('ERROR', 'Error rendering PDF, DD record id = ' + ddKey, err.message);
 								}
 							
 							if(pdfFile != null)
 								{
-									var pdfFileName = 'Presentation ' + ddRecord.getFieldText('custrecord_bbs_pr_type') + ' ' + ddRecord.getFieldValue('name') + '.pdf';
+									var pdfFileName = 'Direct Debit Claim ' + ddRecord.getFieldValue('name') + '.pdf';
 									
 									pdfFile.setName(pdfFileName);
 									pdfFile.setFolder(PR_DOC_FOLDER_ID);
@@ -245,12 +178,12 @@ function ddUpdate(type)
 								 
 								    //Attach the file to the PR record
 								    //
-								    nlapiAttachRecord("file", fileId, "customrecord_bbs_presentation_record", ddKey); // 10GU's
+								    nlapiAttachRecord("file", fileId, "customrecord_bbs_dd_batch", ddKey); // 10GU's
 								}
 							
-							//Update the pr status
+							//Update the dd status
 							//
-							ddRecord.setFieldValue('custrecord_bbs_pr_internal_status', '3'); //Documents generated
+							ddRecord.setFieldValue('custrecord_bbs_dd_internal_status', '3'); //Documents generated
 						
 							try
 								{
@@ -258,12 +191,12 @@ function ddUpdate(type)
 								}
 							catch(err)
 								{
-									nlapiLogExecution('DEBUG', 'Error updating presentation record - ' + err.message, ddKey);
+									nlapiLogExecution('DEBUG', 'Error updating DD record - ' + err.message, ddKey);
 								}
 						}
 				}
 		}
-	*/
+	
 	
 	//=============================================================================================
 	//=============================================================================================
@@ -271,15 +204,13 @@ function ddUpdate(type)
 	//=============================================================================================
 	//=============================================================================================
 	//
-	
-	/*
 	for (var ddKey in ddArray) 
 		{
 			checkResources();
 					
 			libEmailFiles(ddKey);
 		}
-	*/
+	
 }
 
 //=============================================================================================

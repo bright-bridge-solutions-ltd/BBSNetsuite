@@ -46,12 +46,12 @@ function libClearSessionData(sessionId)
 	nlapiDeleteRecord('customrecord_bbs_internal_params', sessionId);
 }
 
-function libEmailFiles(presentationId)
+function libEmailFiles(ddBatchId)
 {
 	
 	//Get the email template id from the general preferences
 	//
-	var prEmailTemplateId = nlapiGetContext().getPreference('custscript_bbs_pr_email_template');
+	var ddEmailTemplateId = nlapiGetContext().getPreference('custscript_bbs_dd_email_template');
 	var currentUser = nlapiGetContext().getUser();
 	var executionContext = nlapiGetContext().getExecutionContext();
 	
@@ -67,50 +67,49 @@ function libEmailFiles(presentationId)
 
 	//Have we got an email template set up?
 	//
-	if(prEmailTemplateId != null && prEmailTemplateId != '')
+	if(ddEmailTemplateId != null && ddEmailTemplateId != '')
 		{
 			//Find files attached to the PR record
 			//
-			var customrecord_bbs_presentation_recordSearch = nlapiSearchRecord("customrecord_bbs_presentation_record",null,
+			var customrecord_bbs_dd_batchSearch = nlapiSearchRecord("customrecord_bbs_dd_batch",null,
 					[
 					   ["file.internalid","noneof","@NONE@"],
 					   "AND",
-					   ["internalid","anyof",presentationId]
+					   ["internalid","anyof",ddBatchId]
 					], 
 					[
 					   new nlobjSearchColumn("name").setSort(false), 
-					   new nlobjSearchColumn("custrecord_bbs_pr_type"), 
 					   new nlobjSearchColumn("description","file",null), 
 					   new nlobjSearchColumn("folder","file",null), 
 					   new nlobjSearchColumn("internalid","file",null), 
 					   new nlobjSearchColumn("name","file",null), 
 					   new nlobjSearchColumn("filetype","file",null),
-					   new nlobjSearchColumn("email","CUSTRECORD_BBS_PR_PARTNER",null)
+					   new nlobjSearchColumn("email","CUSTRECORD_BBS_DD_PARTNER",null)
 					]
 					);
 			
 			//Have we got any results?
 			//
-			if(customrecord_bbs_presentation_recordSearch != null && customrecord_bbs_presentation_recordSearch.length > 0)
+			if(customrecord_bbs_dd_batchSearch != null && customrecord_bbs_dd_batchSearch.length > 0)
 				{
 					var attachments = [];
 					var emailTo = null;
 					
 					//Loop through the results
 					//
-					for (var int = 0; int < customrecord_bbs_presentation_recordSearch.length; int++) 
+					for (var int = 0; int < customrecord_bbs_dd_batchSearch.length; int++) 
 						{
-							var fileId = customrecord_bbs_presentation_recordSearch[int].getValue("internalid","file");
+							var fileId = customrecord_bbs_dd_batchSearch[int].getValue("internalid","file");
 							var attachedFile = nlapiLoadFile(fileId);
 							attachments.push(attachedFile);
 							
-							emailTo = customrecord_bbs_presentation_recordSearch[int].getValue("email","CUSTRECORD_BBS_PR_PARTNER");
+							emailTo = customrecord_bbs_dd_batchSearch[int].getValue("email","CUSTRECORD_BBS_DD_PARTNER");
 						}
 					
 					if(emailTo != null)
 						{
-							var emailMerger = nlapiCreateEmailMerger(prEmailTemplateId);
-							emailMerger.setCustomRecord('customrecord_bbs_presentation_record', presentationId);
+							var emailMerger = nlapiCreateEmailMerger(ddEmailTemplateId);
+							emailMerger.setCustomRecord('customrecord_bbs_dd_batch', ddBatchId);
 							var mergeResult = emailMerger.merge();
 							
 							if(mergeResult != null)
@@ -122,17 +121,17 @@ function libEmailFiles(presentationId)
 										{
 											nlapiSendEmail(currentUser, emailTo, emailSubject, emailBody, null, null, null, attachments, true, false, returnEmail);
 											
-											var prRecord = nlapiLoadRecord('customrecord_bbs_presentation_record', presentationId);
+											var prRecord = nlapiLoadRecord('customrecord_bbs_dd_batch', ddBatchId);
 											
 											//Update the pr status
 											//
-											prRecord.setFieldValue('custrecord_bbs_pr_internal_status', '4'); //Documents emailed
+											prRecord.setFieldValue('custrecord_bbs_dd_internal_status', '4'); //Documents emailed
 										
 											nlapiSubmitRecord(prRecord, false, true); //2GU's
 										}
 									catch(err)
 										{
-											nlapiLogExecution('ERROR', 'Failed to email PR id = ' + presentationId, err.message);
+											nlapiLogExecution('ERROR', 'Failed to email DD id = ' + ddBatchId, err.message);
 										}
 								}
 						}
