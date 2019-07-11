@@ -233,10 +233,6 @@ function scheduled(type)
 					
 					var prRecordsArray = [];
 					
-					//Create the payment record
-					//
-					
-					
 					
 					//Search the batch detail records for PR records
 					//
@@ -262,6 +258,9 @@ function scheduled(type)
 								}
 						}
 					
+					var firstRecord = true;
+					var paymentRecord = null;
+					
 					//Now find all of the invoices to process 
 					//
 					var transactionSearch = getResults(nlapiCreateSearch("transaction",
@@ -279,7 +278,50 @@ function scheduled(type)
 							]
 							));
 					
-					
+					if(transactionSearch != null && transactionSearch.length > 0)
+						{
+							for (var int3 = 0; int3 < transactionSearch.length; int3++) 
+								{
+									var invoiceId = transactionSearch[int3].getId();
+									
+									if(firstRecord)
+										{
+											firstRecord = false;
+											
+											//Create the payment record
+											//
+											try
+												{
+													paymentRecord = nlapiTransformRecord('invoice', invoiceId, 'customerpayment', null);
+												}
+											catch(err)
+												{
+													paymentRecord = null;
+													nlapiLogExecution('ERROR', 'Error creating payment record', err.message);
+												}
+											
+											if(paymentRecord != null)
+												{
+													//Set all lines to be un-applied
+													//
+													var applyLines = paymentRecord.getLineItemCount('apply');
+													
+													for (var int4 = 1; int4 <= applyLines; int4++) 
+														{
+															paymentRecord.setLineItemValue('appy', 'apply', int4, 'F');
+														}
+												}
+										}
+									
+									//Now find the relevant line in the apply sublist
+									//
+									
+									
+									
+									
+								}
+						
+						}
 					
 					
 					
