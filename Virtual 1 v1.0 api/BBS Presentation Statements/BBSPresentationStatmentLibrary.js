@@ -132,11 +132,12 @@ function libGenerateStatement(partnerId)
 													
 													//Add up the totals as well
 													//
-													totalAmount += resultsOutstandingDebt;
 													totalDisputed += resultsDisputed;
-													totalPayment += resultsToBePaid;
 												}
 										}
+									
+									totalAmount = aging2 + aging3 + aging4 + aging5;
+									totalPayment = totalAmount + totalDisputed;
 									
 									statementRecord.setFieldValue('custrecord_bbs_pr_stat_age_1', aging1);
 									statementRecord.setFieldValue('custrecord_bbs_pr_stat_age_2', aging2);

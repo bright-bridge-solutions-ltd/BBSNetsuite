@@ -231,8 +231,7 @@
 				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
 				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
 				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="right" style="font-size: 7pt; color: #393939;">Total Amount</td>
+				<td align="right" style="font-size: 7pt; color: #393939;" colspan="2">Total Amount Overdue</td>
 				<td align="right" style="font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_total_amount}</td>
 			</tr>
 			<tr>
@@ -240,8 +239,7 @@
 				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
 				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
 				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="right" style="font-size: 7pt; color: #393939;">Amount In Query</td>
+				<td align="right" style="font-size: 7pt; color: #393939;" colspan="2">Amount Overdue In Query</td>
 				<td align="right" style="font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_query_amount}</td>
 			</tr>
 			<tr>
@@ -249,8 +247,7 @@
 				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
 				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
 				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="right" style="font-size: 7pt; color: #393939; font-weight: bold;">Payment Due</td>
+				<td align="right" style="font-size: 7pt; color: #393939; font-weight: bold;" colspan="2">Payment Overdue</td>
 				<td align="right" style="font-size: 7pt; color: #393939; font-weight: bold;">${statement.custrecord_bbs_pr_stat_payment_amount}</td>
 			</tr>
 		</table>

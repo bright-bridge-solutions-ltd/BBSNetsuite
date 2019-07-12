@@ -228,6 +228,7 @@ function presentationRecordsSuitelet(request, response)
 		var billingFreq = request.getParameter('billingfreq'); 	//Billing frequency
 		var billingGroup = request.getParameter('billinggroup'); //Billing group
 		var batches = request.getParameter('batches'); 			//Batches (PR records)
+		var billingDate = request.getParameter('billingdate'); 	//Billing date
 		
 		stage = (stage == null || stage == '' ? 1 : stage);
 
@@ -273,6 +274,11 @@ function presentationRecordsSuitelet(request, response)
 		billingGroupParamField.setDisplayType('hidden');
 		billingGroupParamField.setDefaultValue(billingGroup);
 		
+		//Store the billing date in a field in the form so that it can be retrieved in the POST section of the code
+		//
+		var billingDateParamField = form.addField('custpage_param_billing_date', 'text', 'Billing Date');
+		billingDateParamField.setDisplayType('hidden');
+		billingDateParamField.setDefaultValue(billingDate);
 		
 		//Work out what the form layout should look like based on the stage number
 		//
@@ -304,6 +310,11 @@ function presentationRecordsSuitelet(request, response)
 					//Add a field for the billing group
 					//
 					var billingTypeSelectField = form.addField('custpage_select_bill_group', 'select', 'Billing Group', 'customlist_billing_group_list', null);
+					
+					//Add a field for the billing date
+					//
+					var billingDateSelectField = form.addField('custpage_select_bill_date', 'date', 'Billing Date', null, null);
+					billingDateSelectField.setMandatory(true);
 					
 					//Add a submit button to the form
 					//
@@ -628,6 +639,7 @@ function presentationRecordsSuitelet(request, response)
 				var billingType = request.getParameter('custpage_select_bill_type'); 	//Billing type (class)
 				var billingFreq = request.getParameter('custpage_select_bill_freq'); 	//Billing frequency
 				var billingGroup = request.getParameter('custpage_select_bill_group'); 	//Billing group
+				var billingDate = request.getParameter('custpage_select_bill_date'); 	//Billing datwe
 
 				
 				//Build up the parameters so we can call this suitelet again, but move it on to the next stage
@@ -639,6 +651,7 @@ function presentationRecordsSuitelet(request, response)
 				params['billingtype'] = billingType;
 				params['billingfreq'] = billingFreq;
 				params['billinggroup'] = billingGroup;
+				params['billingdate'] = billingDate;
 				
 				
 				response.sendRedirect('SUITELET', nlapiGetContext().getScriptId(), nlapiGetContext().getDeploymentId(), null, params);
@@ -648,7 +661,8 @@ function presentationRecordsSuitelet(request, response)
 			case 2:
 				
 				var lineCount = request.getLineItemCount('custpage_sublist_items');
-				var recordType = request.getLineItemCount('custpage_param_rec_type');
+				var recordType = request.getParameter('custpage_param_rec_type');
+				var billingDate = request.getParameter('custpage_param_billing_date');
 				var sessionId = request.getParameter('custpage_param_session_id');		//The session id  which is used when refreshing a page with the 'refresh' button
 				
 				libClearSessionData(sessionId);
@@ -740,6 +754,7 @@ function presentationRecordsSuitelet(request, response)
 						
 						prodBatchRecord.setFieldValue('custrecord_bbs_pr_status', '1'); //Status = 1 (Open)
 						prodBatchRecord.setFieldValue('custrecord_bbs_pr_internal_status', '1'); //Status = 1 (Awaiting Transaction Allocation)
+						prodBatchRecord.setFieldValue('custrecord_bbs_presentation_record_date', billingDate); //Transaction date
 						
 						
 						//Save the batch record & get the id
@@ -757,7 +772,7 @@ function presentationRecordsSuitelet(request, response)
 								
 					}
 						
-				var scheduleParams = {custscript_pr_array: JSON.stringify(woToProcessArray), custscript_pr_type: recordType};
+				var scheduleParams = {custscript_pr_array: JSON.stringify(woToProcessArray), custscript_pr_type: recordType, custscript_pr_date: billingDate};
 				nlapiScheduleScript('customscript_pr_scheduled', null, scheduleParams);
 						
 				var batchesCreatedText = JSON.stringify(batchesCreated);
@@ -765,6 +780,7 @@ function presentationRecordsSuitelet(request, response)
 						
 				params['stage'] = ++stage;
 				params['batches'] = batchesCreatedText;
+				params['billingdate'] = billingDate;
 						
 				response.sendRedirect('SUITELET', nlapiGetContext().getScriptId(), nlapiGetContext().getDeploymentId(), null, params);
 						

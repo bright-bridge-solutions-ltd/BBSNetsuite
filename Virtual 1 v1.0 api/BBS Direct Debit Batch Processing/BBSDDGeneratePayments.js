@@ -260,6 +260,8 @@ function scheduled(type)
 					
 					var firstRecord = true;
 					var paymentRecord = null;
+					var paymentTotal = Number(0);
+					
 					
 					//Now find all of the invoices to process 
 					//
@@ -280,10 +282,16 @@ function scheduled(type)
 					
 					if(transactionSearch != null && transactionSearch.length > 0)
 						{
+							//Loop through the transaction results
+							//
 							for (var int3 = 0; int3 < transactionSearch.length; int3++) 
 								{
+									checkResources();
+									
 									var invoiceId = transactionSearch[int3].getId();
 									
+									//Is this the first pass through the results
+									//
 									if(firstRecord)
 										{
 											firstRecord = false;
@@ -292,7 +300,7 @@ function scheduled(type)
 											//
 											try
 												{
-													paymentRecord = nlapiTransformRecord('invoice', invoiceId, 'customerpayment', null);
+													paymentRecord = nlapiTransformRecord('invoice', invoiceId, 'customerpayment', {recordmode: 'dynamic'});
 												}
 											catch(err)
 												{
@@ -302,6 +310,10 @@ function scheduled(type)
 											
 											if(paymentRecord != null)
 												{
+													//Set the bank account
+													//
+													paymentRecord.setFieldValue('account', batchBankAccountId);
+												
 													//Set all lines to be un-applied
 													//
 													var applyLines = paymentRecord.getLineItemCount('apply');
@@ -315,23 +327,61 @@ function scheduled(type)
 									
 									//Now find the relevant line in the apply sublist
 									//
-									
-									
-									
-									
+									if(paymentRecord != null)
+										{
+											var applyLines = paymentRecord.getLineItemCount('apply');
+											
+											for (var int4 = 1; int4 <= applyLines; int4++) 
+												{
+													var doc = paymentRecord.getLineItemValue('apply', 'doc', int4);
+													
+													if(doc == invoiceId)
+														{
+															var dueAmount = Number(paymentRecord.getLineItemValue('apply', 'due', int4));
+															
+															paymentRecord.setLineItemValue('apply', 'apply', int4, 'T');
+															paymentRecord.setLineItemValue('apply', 'amount', int4, dueAmount);
+															
+															paymentTotal += dueAmount;
+															
+															break;
+														}
+												}
+										}
 								}
-						
 						}
 					
-					
-					
-					
-					
-					
+					if(paymentRecord != null)
+						{
+							checkResources();
+						
+							//Update the total on the payment record
+							//
+							paymentRecord.setFieldValue('payment', paymentTotal);
+							
+							//Commit the payment record
+							//
+							var paymentId = null;
+							
+							try
+								{
+									paymentId = nlapiSubmitRecord(paymentRecord, true, true);
+								}
+							catch(err)
+								{
+									paymentId = null;
+									nlapiLogExecution('ERROR', 'Error saving payment record', err.message);
+								}
+							
+							//Update the dd batch 
+							//
+							if(paymentId != null)
+								{
+									nlapiSubmitField('customrecord_bbs_dd_batch', batchId, ['custrecord_bbs_dd_payment_record','custrecord_bbs_dd_status'], [paymentId,'2'], false);
+								}
+						}
 				}
 		}
-	
-	
 }
 
 //=============================================================================================
@@ -340,14 +390,6 @@ function scheduled(type)
 //=============================================================================================
 //=============================================================================================
 //
-function ddBatchInfo(_batchId, _partnerId, _bankAccountId, _processingDate)
-{
-	this.batchId = _batchId;
-	this.partnerId = _partnerId;
-	this.bankAccountId = _bankAccountId;
-	this.processingDate = _processingDate;
-}
-
 function getResults(search)
 {
 	var searchResult = search.runSearch();
@@ -377,8 +419,6 @@ function getResults(search)
 						resultlen = moreSearchResultSet.length;
 						searchResultSet = searchResultSet.concat(moreSearchResultSet);
 					}
-				
-				
 		}
 	
 	return searchResultSet;
