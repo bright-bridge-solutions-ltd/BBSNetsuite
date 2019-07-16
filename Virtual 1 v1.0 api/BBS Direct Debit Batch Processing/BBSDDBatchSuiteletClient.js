@@ -17,26 +17,27 @@
  */
 function clientFieldChanged(type, name, linenum)
 {
-	if (name == 'custpage_product_type_select')
+
+	if (name == 'custpage_filter_due_date')
 		{
-			nlapiSetFieldValue('custpage_prod_type_text', nlapiGetFieldText(name), false, true);
+			var sessionId = nlapiGetFieldValue('custpage_param_session_id');
+			var sessionData = nlapiGetFieldValue(name);
 			
-			var productType = nlapiGetFieldValue(name);
-			
-			//If we change chosen a product type of 'glass spec' then show the glass spec field
-			//
-			if(productType == '5')
+			libSetSessionData(sessionId, sessionData);
+		}
+	
+	if(type == 'custpage_sublist_items' && name == 'custpage_amount_to_pay')
+		{
+			var amountToPay = Number(nlapiGetCurrentLineItemValue(type, name));
+			var amountOutstanding = Number(nlapiGetLineItemValue(type, 'custpage_sublist_custrecord_bbs_pr_inv_outstanding', linenum));
+		
+			if(amountToPay > amountOutstanding)
 				{
-					nlapiSetFieldDisplay('custpage_glass_spec_select', true);
-				}
-			else
-				{
-					nlapiSetFieldValue('custpage_glass_spec_select', '0', true, true);
-					nlapiSetFieldDisplay('custpage_glass_spec_select', false);
+					Ext.Msg.alert('⛔️️ Amount To Pay Error', 'Amount to pay cannot be greater that the outstanding amount', Ext.emptyFn);
+				
+					nlapiSetCurrentLineItemValue(type, name, '', false, true);
 				}
 		}
-
-
 }
 
 function clientSaveRecord()
@@ -54,7 +55,7 @@ function clientSaveRecord()
 			case 2:
 				var count = nlapiGetLineItemCount('custpage_sublist_items');
 				
-				message = 'Please select one or more lines to continue';
+				message = 'Please select one or more transactions to continue';
 				
 				for (var int = 1; int <= count; int++) 
 					{
@@ -71,7 +72,7 @@ function clientSaveRecord()
 				{	
 					alert(message);
 				}
-			
+
 				break;
 				
 			case 3:
@@ -97,32 +98,7 @@ function clientSaveRecord()
     return returnStatus;
 }
 
-function getResults(search)
-{
-	var searchResult = search.runSearch();
-	
-	//Get the initial set of results
-	//
-	var start = 0;
-	var end = 1000;
-	var searchResultSet = searchResult.getResults(start, end);
-	var resultlen = searchResultSet.length;
 
-	//If there is more than 1000 results, page through them
-	//
-	while (resultlen == 1000) 
-		{
-				start += 1000;
-				end += 1000;
-
-				var moreSearchResultSet = searchResult.getResults(start, end);
-				resultlen = moreSearchResultSet.length;
-
-				searchResultSet = searchResultSet.concat(moreSearchResultSet);
-		}
-	
-	return searchResultSet;
-}
 
 
 

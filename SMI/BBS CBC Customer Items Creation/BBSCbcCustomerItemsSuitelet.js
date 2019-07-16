@@ -291,7 +291,8 @@ function cbcCustomerItemsSuitelet(request, response){
 							var sublistFieldOpt4 = sublist.addField(sublistId + '_opt4', 'text', 'Size2', null);
 							var sublistFieldAlloc = sublist.addField(sublistId + '_alloc', 'select', 'Allocation Type', 'customlist_cbc_item_allocation_type');
 							var sublistFieldPoints = sublist.addField(sublistId + '_points', 'integer', 'Points', null);
-							sublistFieldAlloc.setMandatory(true);
+							//sublistFieldAlloc.setMandatory(true);
+							
 							//Set entry fields
 							//
 							sublistFieldAlloc.setDisplayType('entry');
@@ -345,6 +346,7 @@ function cbcCustomerItemsSuitelet(request, response){
 									var parentFiltersColour = [];
 									var parentFiltersSize1 = [];
 									var parentFiltersSize2 = [];
+									var parentFiltersFinish = [];
 									
 									parentFilters = filters[baseParentId];
 									
@@ -355,6 +357,7 @@ function cbcCustomerItemsSuitelet(request, response){
 													parentFiltersColour = parentFilters[0];
 													parentFiltersSize1 = parentFilters[1];
 													parentFiltersSize2 = parentFilters[2];
+													parentFiltersFinish = parentFilters[3];
 												}
 											catch(err)
 												{
@@ -389,6 +392,11 @@ function cbcCustomerItemsSuitelet(request, response){
 											matrixChildFilter.push("AND", ["custitem_bbs_item_size2","anyof",parentFiltersSize2]);
 										}
 								
+									if(parentFiltersFinish.length > 0)
+										{
+											matrixChildFilter.push("AND", ["custitem_bbs_item_finish_ref","anyof",parentFiltersFinish]);
+										}
+							
 									//Run the search
 									//
 									var matrixChildSearch = nlapiSearchRecord("item",null,
@@ -404,6 +412,7 @@ function cbcCustomerItemsSuitelet(request, response){
 											   new nlobjSearchColumn("custitem_bbs_item_colour",null,null), 
 											   new nlobjSearchColumn("custitem_bbs_item_size1",null,null), 
 											   new nlobjSearchColumn("custitem_bbs_item_size2",null,null), 
+											   new nlobjSearchColumn("custitem_bbs_item_finish_ref",null,null), 
 											   new nlobjSearchColumn("custitem_bbs_matrix_item_seq",null,null).setSort(false)
 											]
 											);
@@ -413,6 +422,7 @@ function cbcCustomerItemsSuitelet(request, response){
 									var matrixColours = {};
 									var matrixSize1s = {};
 									var matrixSize2s = {};
+									var matrixFinishes = {};
 									
 									if(matrixChildSearch)
 										{
@@ -426,15 +436,18 @@ function cbcCustomerItemsSuitelet(request, response){
 													var matrixOpt2 = matrixChildSearch[int3].getText('custitem_bbs_item_colour');
 													var matrixOpt3 = matrixChildSearch[int3].getText('custitem_bbs_item_size1');
 													var matrixOpt4 = matrixChildSearch[int3].getText('custitem_bbs_item_size2');
+													var matrixOpt5 = matrixChildSearch[int3].getText('custitem_bbs_item_finish_ref');
 													var matrixOpt2Id = matrixChildSearch[int3].getValue('custitem_bbs_item_colour');
 													var matrixOpt3Id = matrixChildSearch[int3].getValue('custitem_bbs_item_size1');
 													var matrixOpt4Id = matrixChildSearch[int3].getValue('custitem_bbs_item_size2');
+													var matrixOpt5Id = matrixChildSearch[int3].getValue('custitem_bbs_item_finish_ref');
 													
 													//Build up the list of available colours & sizes
 													//
 													matrixColours[matrixOpt2Id] = matrixOpt2;
 													matrixSize1s[matrixOpt3Id] = matrixOpt3;
 													matrixSize2s[matrixOpt4Id] = matrixOpt4;
+													matrixFinishes[matrixOpt5Id] = matrixOpt5;
 													
 													//Populate the sublist
 													//
@@ -467,6 +480,12 @@ function cbcCustomerItemsSuitelet(request, response){
 									for ( var matrixSize2 in matrixSize2s) 
 										{
 											filterBySize2.addSelectOption(matrixSize2, matrixSize2s[matrixSize2], false);
+										}
+							
+									var filterByFinish = form.addField('custpage_filter_finish_' + baseParentId.toString(), 'multiselect', 'Filter by Finish', null, subtabId);
+									for ( var matrixFinish in sortObject(matrixFinishes)) 
+										{
+											filterByFinish.addSelectOption(matrixFinish, matrixFinishes[matrixFinish], false);
 										}
 								}
 						}
@@ -641,3 +660,13 @@ function cbcCustomerItemsSuitelet(request, response){
 //=====================================================================
 //
 
+function sortObject(_unsortedObject)
+{
+	var sortedObject = {};
+	
+	Object.keys(_unsortedObject).sort().forEach(function(key) {
+		sortedObject[key] = _unsortedObject[key];
+	});
+
+	return sortedObject;
+}

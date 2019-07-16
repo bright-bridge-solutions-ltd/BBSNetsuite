@@ -136,7 +136,8 @@ function createAssembliesScheduled(type)
 									var newParentName = customerRef + '-' + parentItemCategory + '-' + parentName + '-' + colourAbbreviation;
 									var parentSalesDescription = parentRecord.getFieldValue('salesdescription');
 									var parentSize2 = parentRecord.getFieldValues('custitem_bbs_item_size2');
-		
+									var parentClass = parentRecord.getFieldValues('class');
+									
 									//Get data from the finish item
 									//
 									var finishItemDescription = finishRecord.getFieldValue('description');
@@ -209,7 +210,8 @@ function createAssembliesScheduled(type)
 													newParentRecord.setFieldValue('matchbilltoreceipt', 'T');
 //SMI												newParentRecord.setFieldValue('custitem_sw_base_parent', parent);
 													newParentRecord.setFieldValue('description', newParentDescription);
-						
+													newParentRecord.setFieldValue('class', parentClass);
+													
 													//Copy in the custom fields
 													//
 													for (var custFieldCount = 0; custFieldCount < customFields.length; custFieldCount++) 

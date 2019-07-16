@@ -31,8 +31,9 @@ function customerItemsFieldChanged(type, name, linenum)
 					var coloursSelected = nlapiGetFieldValues('custpage_filter_colour_' + baseParentId.toString());
 					var size1sSelected = nlapiGetFieldValues('custpage_filter_size1_' + baseParentId.toString());
 					var size2sSelected = nlapiGetFieldValues('custpage_filter_size2_' + baseParentId.toString());
+					var finishesSelected = nlapiGetFieldValues('custpage_filter_finish_' + baseParentId.toString());
 					
-					filters[baseParentId] = [coloursSelected,size1sSelected,size2sSelected];
+					filters[baseParentId] = [coloursSelected,size1sSelected,size2sSelected,finishesSelected];
 				}
 			
 			var filtersString = JSON.stringify(filters);

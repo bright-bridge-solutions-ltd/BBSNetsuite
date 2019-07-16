@@ -25,6 +25,8 @@ function prUpdate(type)
 	var context = nlapiGetContext();
 	var prArrayString = context.getSetting('SCRIPT', 'custscript_pr_array');
 	var prRecordType = context.getSetting('SCRIPT', 'custscript_pr_type');
+	var prBillingDate = context.getSetting('SCRIPT', 'custscript_pr_date');
+	
 	var transactionRecordType = '';
 	var today = new Date();
 	
@@ -106,10 +108,11 @@ function prUpdate(type)
 									
 									//Set the new field values on the transaction record
 									//
-									transactionRecord.setFieldValue('custbody_bbs_pr_id', prKey); 			//link to the pr record
-									transactionRecord.setFieldValue('approvalstatus', '2'); 				//status is now approved
-									transactionRecord.setFieldValue('tranid', prName);						//new document number
-									transactionRecord.setFieldValue('trandate', nlapiDateToString(today)); 	//new transaction date
+									transactionRecord.setFieldValue('custbody_bbs_pr_id', prKey); 				//link to the pr record
+									transactionRecord.setFieldValue('approvalstatus', '2'); 					//status is now approved
+									transactionRecord.setFieldValue('tranid', prName);							//new document number
+									transactionRecord.setFieldValue('trandate', prBillingDate); 				//new transaction date
+									//transactionRecord.setFieldValue('trandate', nlapiDateToString(today)); 	//new transaction date
 									
 									//Get field values from the transaction record
 									//
@@ -231,7 +234,9 @@ function prUpdate(type)
 							   "AND", 
 							   ["taxline","is","F"], 
 							   "AND", 
-							   ["cogs","is","F"]
+							   ["cogs","is","F"],
+							   "AND",
+							   ["customgl","is","F"]
 							], 
 							[
 							   new nlobjSearchColumn("trandate"), 

@@ -25,7 +25,6 @@ function prRecordRecalcUE(type)
 		{
 			//Get some basic details
 			//
-			var oldRecord = null;
 			var record = null;
 			var recordId = null;
 			var recordType = null;
@@ -35,7 +34,6 @@ function prRecordRecalcUE(type)
 			if(type == 'create' || type == 'edit')
 				{		
 					record = nlapiGetNewRecord();
-					oldRecord = nlapiGetOldRecord();
 				}
 					
 			if(type == 'delete')
@@ -57,44 +55,11 @@ function prRecordRecalcUE(type)
 						//
 						var presentationId = record.getFieldValue('custbody_bbs_pr_id');
 						
-						//Does this transaction have a pr linked to it? If so, we need to recalculate the PR record
+						//Does this transaction have a pr linked to it?
 						//
 						if(presentationId != null && presentationId != '')
 							{
 								libRecalcPresentationRecord(presentationId);
-								
-								//If the invoice has a linked PR & the PR is on a DD batch detail record, then we will have to recalculate the amount paid if
-								//the invoice has just been switched from "ok" to "in dispute" i.e. change the paid amount by the invoice amount
-								//
-								if(oldRecord != null)
-									{
-										var oldDisputeFlag = oldRecord.getFieldValue('custbody_bbs_disputed');
-										var newDisputeFlag = record.getFieldValue('custbody_bbs_disputed');
-										
-										if(newDisputeFlag != oldDisputeFlag)
-											{
-												var oldInvoiceAmount = Number(oldRecord.getFieldValue('total'));
-												var newInvoiceAmount = Number(record.getFieldValue('total'));
-											
-												//TODO recalculate the amount on the DD Batch detail record for this batch/pr record
-												//
-												
-											}
-										
-									}
-								
-							}
-						
-						//If the invoice was on a PR, but it is now not on one, we need to recalculate the old PR record as well
-						//
-						if(oldRecord != null)
-							{
-								var oldPresentationId = oldRecord.getFieldValue('custbody_bbs_pr_id');
-								
-								if(oldPresentationId != null && oldPresentationId != '' && (presentationId == null || presentationId == ''))
-									{
-										libRecalcPresentationRecord(oldPresentationId);
-									}
 							}
 						
 						break;
