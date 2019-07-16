@@ -8,6 +8,7 @@
 
 function updateJournals(type)
 	{
+	
 		// run search to find records to be updated
 		// define search filters
 		var searchFilters = new Array();
