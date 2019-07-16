@@ -626,8 +626,8 @@ function ddBatchRecordsSuitelet(request, response)
 						ddBatchRecord.setFieldValue('custrecord_bbs_dd_partner', woKey);
 						ddBatchRecord.setFieldValue('custrecord_bbs_dd_processing_date', processingDate);
 						ddBatchRecord.setFieldValue('custrecord_bbs_dd_bank_account', bankAccount);			
-						ddBatchRecord.setFieldValue('custrecord_bbs_pr_status', '1'); 			//Status = 1 (Open)
-						ddBatchRecord.setFieldValue('custrecord_bbs_pr_internal_status', '1'); 	//Status = 1 (Awaiting Transaction Allocation)
+						ddBatchRecord.setFieldValue('custrecord_bbs_dd_status', '1'); 			//Status = 1 (Open)
+						ddBatchRecord.setFieldValue('custrecord_bbs_dd_internal_status', '1'); 	//Status = 1 (Awaiting Transaction Allocation)
 						
 						//Save the batch record & get the id
 						//

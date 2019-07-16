@@ -234,7 +234,9 @@ function prUpdate(type)
 							   "AND", 
 							   ["taxline","is","F"], 
 							   "AND", 
-							   ["cogs","is","F"]
+							   ["cogs","is","F"],
+							   "AND",
+							   ["customgl","is","F"]
 							], 
 							[
 							   new nlobjSearchColumn("trandate"), 

@@ -197,7 +197,7 @@
 <tr style="margin-top: 20px;">
 	<td align="left" style="font-size: 10pt; font-weight: bold; color: #393939;">FAO ${record.custrecord_bbs_pr_partner_contact?keep_after(":")}</td>
 	<td>&nbsp;</td>
-	<td align="left" style="font-size: 10pt;  color: #393939;">Date (and Tax Point): ${record.created?string["dd MMM yyyy"]}</td>
+	<td align="left" style="font-size: 10pt;  color: #393939;">Date (and Tax Point): ${record.custrecord_bbs_presentation_record_date?string["dd MMM yyyy"]}</td>
 </tr>
 <tr>
 	<td align="left"  style="font-size: 10pt; color: #393939;">${record.custrecord_bbs_pr_partner_address}</td>
