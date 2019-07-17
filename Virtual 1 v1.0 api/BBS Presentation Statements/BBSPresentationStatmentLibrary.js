@@ -119,7 +119,7 @@ function libGenerateStatement(partnerId)
 															resultsToBePaid = (Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_cn_unapplied")) * Number(-1.0));
 														}
 													
-													//Only do aging for invoice type pr records
+													//Do aging for invoice type pr records
 													//
 													if(resultsTranType == 2)
 														{
@@ -128,6 +128,12 @@ function libGenerateStatement(partnerId)
 															aging3 += (resultsAge >= 31  && resultsAge <= 60 ? resultsOutstandingDebt : Number(0));
 															aging4 += (resultsAge >= 61  && resultsAge <= 90 ? resultsOutstandingDebt : Number(0));
 															aging5 += (resultsAge > 90 ? resultsOutstandingDebt : Number(0));
+														}
+													else
+														{
+															//Credit notes
+															//
+															aging1 += resultsToBePaid;
 														}
 													
 													//Add up the totals as well
