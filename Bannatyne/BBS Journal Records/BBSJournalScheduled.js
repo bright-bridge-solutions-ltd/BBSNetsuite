@@ -15,7 +15,6 @@ function updateJournals(type)
 		searchFilters[0] = new nlobjSearchFilter('type', null, 'anyof', 'Journal');
 		searchFilters[1] = new nlobjSearchFilter('trandate', null, 'onorafter', '1/6/2019');
 		searchFilters[2] = new nlobjSearchFilter('custcol_cseg2', null, 'anyof', '@NONE@');
-		searchFilters[3] = new nlobjSearchFilter('customform', null, 'anyof', 122,121); // custom form is BrightLime Charge Journal Entry OR BrightLime Transaction Journal Entry
 		
 		// define search columns
 		var searchColumns = new Array();
