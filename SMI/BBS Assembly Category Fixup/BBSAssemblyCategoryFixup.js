@@ -14,6 +14,7 @@ function scheduled(type)
 {
 	nlapiLogExecution('DEBUG', 'Starting', '');
 	
+	
 	var assemblyitemSearch = getResults(nlapiCreateSearch("assemblyitem",
 			[
 			   ["type","anyof","Assembly"], 
