@@ -270,7 +270,7 @@ function ddBatchRecordsSuitelet(request, response)
 					
 					//Add a field for the processing date
 					//
-					var processingDateSelectField = form.addField('custpage_select_proc_date', 'date', 'Processing Date', null, null);
+					var processingDateSelectField = form.addField('custpage_select_proc_date', 'date', 'Bank Clearing Date', null, null);
 					processingDateSelectField.setMandatory(true);
 					
 					//Add a field for the bank account

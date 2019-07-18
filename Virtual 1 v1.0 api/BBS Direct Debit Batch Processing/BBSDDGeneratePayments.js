@@ -211,7 +211,7 @@ function scheduled(type)
 			[
 			   ["custrecord_bbs_dd_status","anyof","1"], 
 			   "AND", 
-			   ["custrecord_bbs_dd_processing_date","onorbefore",todayString]
+			   ["custrecord_bbs_dd_pay_file_date","onorbefore",todayString]
 			], 
 			[
 			   new nlobjSearchColumn("custrecord_bbs_dd_partner"), 
