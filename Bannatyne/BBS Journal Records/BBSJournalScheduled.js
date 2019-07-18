@@ -15,6 +15,7 @@ function updateJournals(type)
 		searchFilters[0] = new nlobjSearchFilter('type', null, 'anyof', 'Journal');
 		searchFilters[1] = new nlobjSearchFilter('trandate', null, 'onorafter', '1/6/2019');
 		searchFilters[2] = new nlobjSearchFilter('custcol_cseg2', null, 'anyof', '@NONE@');
+		searchFilters[3] = new nlobjSearchFilter('memorized', null, 'is', 'F');
 		
 		// define search columns
 		var searchColumns = new Array();
@@ -31,47 +32,55 @@ function updateJournals(type)
 				// retrieve the internal ID of the journal record
 				var recordID = searchResults[i].getValue('internalid', null, 'GROUP');
 				
-				// load the journal record
-				var journalRecord = nlapiLoadRecord('journalentry', recordID);
-				
-				// get count of sublist lines on the journal record
-				var lineCount = journalRecord.getLineItemCount('line');
-				
-				// get the internal ID of the location from the first line of the sublist
-				var locationID = journalRecord.getLineItemValue('line', 'location', 1);
-				
-				// check if the locationID variable returns a value
-				if (locationID)
+				try
 					{
-						// load the location record
-						var locationRecord = nlapiLoadRecord('location', locationID);
+						// load the journal record
+						var journalRecord = nlapiLoadRecord('journalentry', recordID);
 						
-						// return values from the location record
-						var clubRegion = locationRecord.getFieldValue('custrecord_n103_cseg2');
-						var spaRegion = locationRecord.getFieldValue('custrecord_n103_cseg1');
-						var salesRegion = locationRecord.getFieldValue('custrecord_n103_cseg3');
-						var estatesRegion = locationRecord.getFieldValue('custrecord_n103_cseg4');
+						// get count of sublist lines on the journal record
+						var lineCount = journalRecord.getLineItemCount('line');
 						
-						// loop through line count
-						for (var x = 1; x <= lineCount; x++)
+						// get the internal ID of the location from the first line of the sublist
+						var locationID = journalRecord.getLineItemValue('line', 'location', 1);
+						
+						// check if the locationID variable returns a value
+						if (locationID)
 							{
-								// set line item fields on journal record
-								journalRecord.setLineItemValue('line', 'custcol_cseg2', x, clubRegion);
-								journalRecord.setLineItemValue('line', 'custcol_cseg1', x, spaRegion);
-								journalRecord.setLineItemValue('line', 'custcol_cseg3', x, salesRegion);
-								journalRecord.setLineItemValue('line', 'custcol_cseg4', x, estatesRegion);
-								journalRecord.commitLineItem('line');
+								// load the location record
+								var locationRecord = nlapiLoadRecord('location', locationID);
+								
+								// return values from the location record
+								var clubRegion = locationRecord.getFieldValue('custrecord_n103_cseg2');
+								var spaRegion = locationRecord.getFieldValue('custrecord_n103_cseg1');
+								var salesRegion = locationRecord.getFieldValue('custrecord_n103_cseg3');
+								var estatesRegion = locationRecord.getFieldValue('custrecord_n103_cseg4');
+								
+								// loop through line count
+								for (var x = 1; x <= lineCount; x++)
+									{
+										// set line item fields on journal record
+										journalRecord.setLineItemValue('line', 'custcol_cseg2', x, clubRegion);
+										journalRecord.setLineItemValue('line', 'custcol_cseg1', x, spaRegion);
+										journalRecord.setLineItemValue('line', 'custcol_cseg3', x, salesRegion);
+										journalRecord.setLineItemValue('line', 'custcol_cseg4', x, estatesRegion);
+										journalRecord.commitLineItem('line');
+									}
 							}
+						else
+							{
+								nlapiLogExecution('DEBUG', 'Code Check', 'Lines could not be updated as the location field was not populated');
+							}
+						
+						// submit the journal record
+						var submittedRecord = nlapiSubmitRecord(journalRecord);
+						nlapiLogExecution('DEBUG', 'Record Updated', 'Record ' + submittedRecord + ' has been updated. There are ' + (searchResults.length - (i+1)) + ' still to be updated');
 					}
-				else
+				catch(e)
 					{
-						nlapiLogExecution('DEBUG', 'Code Check', 'Lines could not be updated as the location field was not populated');
+						nlapiLogExecution('DEBUG', 'An Error has occured updating record ' + recordID, e);
 					}
-				
-				// submit the journal record
-				var submittedRecord = nlapiSubmitRecord(journalRecord);
-				nlapiLogExecution('DEBUG', 'Record Updated', 'Record ' + submittedRecord + ' has been updated. There are ' + (searchResults.length - (i+1)) + ' still to be updated');
-				
+						
+						
 				// get count of remaining usage limits
 				checkResources();
 			}
