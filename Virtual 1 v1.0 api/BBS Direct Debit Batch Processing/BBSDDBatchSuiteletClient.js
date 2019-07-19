@@ -18,6 +18,24 @@
 function clientFieldChanged(type, name, linenum)
 {
 
+	if (name == 'custpage_select_proc_date')
+	{
+		var dateFieldValue = nlapiGetFieldValue(name);
+		
+		if(dateFieldValue != null && dateFieldValue != '')
+			{
+				var dueDate = nlapiStringToDate(dateFieldValue);
+				var today = new Date();
+				var minClearingDate = nlapiAddDays(today, 3);
+				
+				if(dueDate.getTime() < minClearingDate.getTime())
+					{
+						Ext.Msg.alert('⛔️️ Clearing Date Error', 'The bank clearing date cannot be less that 3 days in the future', Ext.emptyFn);
+						nlapiSetFieldValue('custpage_select_proc_date', null, false, true);
+					}
+			}
+	}
+	
 	if (name == 'custpage_filter_due_date')
 		{
 			var sessionId = nlapiGetFieldValue('custpage_param_session_id');
