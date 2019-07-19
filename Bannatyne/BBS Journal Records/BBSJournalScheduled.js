@@ -8,13 +8,15 @@
 
 function updateJournals(type)
 	{
+		// initialise variables
+		var success = 0;
+		var failure = 0;
 	
 		// run search to find records to be updated
 		// define search filters
 		var searchFilters = new Array();
 		searchFilters[0] = new nlobjSearchFilter('type', null, 'anyof', 'Journal');
 		searchFilters[1] = new nlobjSearchFilter('trandate', null, 'onorafter', '1/6/2019');
-		searchFilters[2] = new nlobjSearchFilter('custcol_cseg2', null, 'anyof', '@NONE@');
 		searchFilters[3] = new nlobjSearchFilter('memorized', null, 'is', 'F');
 		
 		// define search columns
@@ -40,24 +42,24 @@ function updateJournals(type)
 						// get count of sublist lines on the journal record
 						var lineCount = journalRecord.getLineItemCount('line');
 						
-						// get the internal ID of the location from the first line of the sublist
-						var locationID = journalRecord.getLineItemValue('line', 'location', 1);
-						
-						// check if the locationID variable returns a value
-						if (locationID)
+						// loop through line count
+						for (var x = 1; x <= lineCount; x++)
 							{
-								// load the location record
-								var locationRecord = nlapiLoadRecord('location', locationID);
-								
-								// return values from the location record
-								var clubRegion = locationRecord.getFieldValue('custrecord_n103_cseg2');
-								var spaRegion = locationRecord.getFieldValue('custrecord_n103_cseg1');
-								var salesRegion = locationRecord.getFieldValue('custrecord_n103_cseg3');
-								var estatesRegion = locationRecord.getFieldValue('custrecord_n103_cseg4');
-								
-								// loop through line count
-								for (var x = 1; x <= lineCount; x++)
+								// get the internal ID of the location from the sublist line
+								var locationID = journalRecord.getLineItemValue('line', 'location', x);
+						
+								// check if the locationID variable returns a value
+								if (locationID)
 									{
+										// load the location record
+										var locationRecord = nlapiLoadRecord('location', locationID);
+								
+										// return values from the location record
+										var clubRegion = locationRecord.getFieldValue('custrecord_n103_cseg2');
+										var spaRegion = locationRecord.getFieldValue('custrecord_n103_cseg1');
+										var salesRegion = locationRecord.getFieldValue('custrecord_n103_cseg3');
+										var estatesRegion = locationRecord.getFieldValue('custrecord_n103_cseg4');
+								
 										// set line item fields on journal record
 										journalRecord.setLineItemValue('line', 'custcol_cseg2', x, clubRegion);
 										journalRecord.setLineItemValue('line', 'custcol_cseg1', x, spaRegion);
@@ -65,25 +67,28 @@ function updateJournals(type)
 										journalRecord.setLineItemValue('line', 'custcol_cseg4', x, estatesRegion);
 										journalRecord.commitLineItem('line');
 									}
-							}
-						else
-							{
-								nlapiLogExecution('DEBUG', 'Code Check', 'Lines could not be updated as the location field was not populated');
+								else
+									{
+										nlapiLogExecution('DEBUG', 'Code Check', 'Line ' + x ' could not be updated as the location field was not populated');
+									}
 							}
 						
 						// submit the journal record
 						var submittedRecord = nlapiSubmitRecord(journalRecord);
-						nlapiLogExecution('DEBUG', 'Record Updated', 'Record ' + submittedRecord + ' has been updated. There are ' + (searchResults.length - (i+1)) + ' still to be updated');
+						nlapiLogExecution('DEBUG', 'Record Updated', 'Record ' + submittedRecord + ' has been updated. There are ' + (searchResults.length - (i+1)) + ' records still to be updated');
+						success++; // increase success variable
 					}
 				catch(e)
 					{
 						nlapiLogExecution('DEBUG', 'An Error has occured updating record ' + recordID, e);
+						error++; // increase error variable
 					}
-						
-						
+				
 				// get count of remaining usage limits
 				checkResources();
 			}
+		
+		nlapiLogExecution('DEBUG', 'Script Complete', searchResults.length + ' records to update | ' + success + ' records updated successfully | ' + error + ' | errors');
 	}
 
 function checkResources()
@@ -91,7 +96,7 @@ function checkResources()
 		var remaining = parseInt(nlapiGetContext().getRemainingUsage());
 		nlapiLogExecution('DEBUG', 'Remaining Units', remaining + ' units remaining out of 10,000');
 		
-		if (remaining < 50)
+		if (remaining < 250)
 			{
 				nlapiYieldScript();
 			}
