@@ -7,7 +7,7 @@
  */
 
 function updateJournals(type)
-	{
+	{ 
 		// initialise variables
 		var success = 0;
 		var failure = 0;
