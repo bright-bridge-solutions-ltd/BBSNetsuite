@@ -85,7 +85,7 @@ function libEmailFiles(presentationId)
 					   new nlobjSearchColumn("internalid","file",null), 
 					   new nlobjSearchColumn("name","file",null), 
 					   new nlobjSearchColumn("filetype","file",null),
-					   new nlobjSearchColumn("email","CUSTRECORD_BBS_PR_PARTNER",null)
+					   new nlobjSearchColumn("custentity_bbs_bill_add_list","CUSTRECORD_BBS_PR_PARTNER",null)
 					]
 					);
 			
@@ -104,7 +104,7 @@ function libEmailFiles(presentationId)
 							var attachedFile = nlapiLoadFile(fileId);
 							attachments.push(attachedFile);
 							
-							emailTo = customrecord_bbs_presentation_recordSearch[int].getValue("email","CUSTRECORD_BBS_PR_PARTNER");
+							emailTo = customrecord_bbs_presentation_recordSearch[int].getValue("custentity_bbs_bill_add_list","CUSTRECORD_BBS_PR_PARTNER");
 						}
 					
 					if(emailTo != null)

@@ -121,24 +121,24 @@ function ddUpdate(type)
 
 					//Get the line data from a search
 					//
-					var prLines = getResults(nlapiCreateSearch("customrecordbbs_dd_batch_det",null,
+					var customrecordbbs_dd_batch_detSearch = nlapiSearchRecord("customrecordbbs_dd_batch_det",null,
 							[
 							   ["custrecord_bbs_dd_det_batch","anyof",ddKey]
 							], 
 							[
-							   new nlobjSearchColumn("custrecord_bbs_dd_det_batch"), 
-							   new nlobjSearchColumn("custrecord_bbs_dd_det_pr"), 
-							   new nlobjSearchColumn("custrecord_bbs_dd_det_amount"), 
-							   new nlobjSearchColumn("custrecord_bbs_pr_inv_age","CUSTRECORD_BBS_DD_DET_PR",null), 
-							   new nlobjSearchColumn("custrecord_bbs_pr_billing_type","CUSTRECORD_BBS_DD_DET_PR",null), 
 							   new nlobjSearchColumn("custrecord_bbs_pr_inv_due_date","CUSTRECORD_BBS_DD_DET_PR",null), 
-							   new nlobjSearchColumn("custrecord_bbs_pr_status","CUSTRECORD_BBS_DD_DET_PR",null), 
+							   new nlobjSearchColumn("custrecord_bbs_pr_inv_disputed","CUSTRECORD_BBS_DD_DET_PR",null), 
+							   new nlobjSearchColumn("custrecord_bbs_pr_inv_outstanding","CUSTRECORD_BBS_DD_DET_PR",null), 
+							   new nlobjSearchColumn("custrecord_bbs_pr_inv_paid","CUSTRECORD_BBS_DD_DET_PR",null), 
+							   new nlobjSearchColumn("custrecord_bbs_pr_inv_sub_total","CUSTRECORD_BBS_DD_DET_PR",null), 
+							   new nlobjSearchColumn("custrecord_bbs_pr_inv_tax_total","CUSTRECORD_BBS_DD_DET_PR",null), 
+							   new nlobjSearchColumn("custrecord_bbs_pr_inv_total","CUSTRECORD_BBS_DD_DET_PR",null), 
 							   new nlobjSearchColumn("custrecord_bbs_pr_inv_proc_by_dd","CUSTRECORD_BBS_DD_DET_PR",null), 
 							   new nlobjSearchColumn("custrecord_bbs_presentation_record_date","CUSTRECORD_BBS_DD_DET_PR",null), 
-							   new nlobjSearchColumn("name","CUSTRECORD_BBS_DD_DET_PR",null)
+							   new nlobjSearchColumn("name","CUSTRECORD_BBS_DD_DET_PR",null), 
+							   new nlobjSearchColumn("custrecord_bbs_dd_det_amount")
 							]
-							));
-					
+							);
 
 					//Render the PDF template & save to the DD record
 					//
@@ -151,7 +151,7 @@ function ddUpdate(type)
 							renderer.setTemplate(templateContents);
 							renderer.addRecord('record', ddRecord);
 							renderer.addRecord('partner', partnerRecord);
-							renderer.addSearchResults('lines', prLines);
+							renderer.addSearchResults('lines', customrecordbbs_dd_batch_detSearch);
 							
 							var xml = renderer.renderToString();
 							var pdfFile = null;
@@ -170,7 +170,7 @@ function ddUpdate(type)
 									var pdfFileName = 'Direct Debit Claim ' + ddRecord.getFieldValue('name') + '.pdf';
 									
 									pdfFile.setName(pdfFileName);
-									pdfFile.setFolder(PR_DOC_FOLDER_ID);
+									pdfFile.setFolder(DD_DOC_FOLDER_ID);
 				
 								    //Upload the file to the file cabinet.
 									//

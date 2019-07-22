@@ -47,7 +47,7 @@ function libGenerateStatement(partnerId)
 					
 					if(partnerRecord)
 						{
-							var partnerStatementEmailAddress = partnerRecord.getFieldValue('custentity_bbs_statement_email');
+							var partnerStatementEmailAddress = partnerRecord.getFieldValue('custentity_bbs_bill_add_list');
 						
 							if(partnerStatementEmailAddress != null && partnerStatementEmailAddress != '')
 								{

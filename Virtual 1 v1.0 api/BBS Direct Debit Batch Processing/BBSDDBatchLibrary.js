@@ -84,7 +84,7 @@ function libEmailFiles(ddBatchId)
 					   new nlobjSearchColumn("internalid","file",null), 
 					   new nlobjSearchColumn("name","file",null), 
 					   new nlobjSearchColumn("filetype","file",null),
-					   new nlobjSearchColumn("email","CUSTRECORD_BBS_DD_PARTNER",null)
+					   new nlobjSearchColumn("custentity_bbs_bill_add_list","CUSTRECORD_BBS_DD_PARTNER",null)
 					]
 					);
 			
@@ -103,7 +103,7 @@ function libEmailFiles(ddBatchId)
 							var attachedFile = nlapiLoadFile(fileId);
 							attachments.push(attachedFile);
 							
-							emailTo = customrecord_bbs_dd_batchSearch[int].getValue("email","CUSTRECORD_BBS_DD_PARTNER");
+							emailTo = customrecord_bbs_dd_batchSearch[int].getValue("custentity_bbs_bill_add_list","CUSTRECORD_BBS_DD_PARTNER");
 						}
 					
 					if(emailTo != null)
