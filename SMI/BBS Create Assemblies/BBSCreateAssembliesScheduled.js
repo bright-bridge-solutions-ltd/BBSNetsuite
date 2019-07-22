@@ -525,6 +525,7 @@ function createAssembliesScheduled(type)
 						{
 							//Remove the base child record from the customer's item pricing if it exists
 							//
+							/*
 							if(Object.keys(baseChildrenIds).length > 0)
 								{
 									for ( var baseChildrenId in baseChildrenIds) 
@@ -543,7 +544,7 @@ function createAssembliesScheduled(type)
 												}
 										}
 								}
-						
+							*/
 							
 							//Add the new child items to the customer's item pricing
 							//
@@ -569,6 +570,52 @@ function createAssembliesScheduled(type)
 						}
 				}
 			
+			
+			//Remove the base child record from the customer's item pricing if it exists
+			//
+			if(Object.keys(baseChildrenIds).length > 0)
+				{
+					var baseChildArray = [];
+					
+					//Make an array of the id's
+					//
+					for ( var baseChildrenId in baseChildrenIds) 
+						{
+							baseChildArray.push(baseChildrenId);
+						}
+					
+					//Search for products
+					//
+					var customrecord_bbs_customer_web_productSearch = nlapiSearchRecord("customrecord_bbs_customer_web_product",null,
+							[
+							   ["custrecord_bbs_web_product_customer","anyof",customerId], 
+							   "AND", 
+							   ["custrecord_bbs_web_product_item","anyof",baseChildArray]
+							], 
+							[
+							   new nlobjSearchColumn("custrecord_bbs_web_product_item")
+							]
+							);
+					
+					if(customrecord_bbs_customer_web_productSearch != null && customrecord_bbs_customer_web_productSearch.length > 0)
+						{
+							for (var int3 = 0; int3 < customrecord_bbs_customer_web_productSearch.length; int3++) 
+								{
+									var childId = customrecord_bbs_customer_web_productSearch[int3].getId();
+									
+									try
+										{
+											nlapiDeleteRecord("customrecord_bbs_customer_web_product", childId);
+										}
+									catch(err)
+										{
+											nlapiLogExecution('ERROR', 'Error deleting my catalogue entry with id = ' + childId, err.message);
+										}
+								}
+						}
+				}
+			
+
 			//Update the customer's web product with the new child items created
 			//
 			if(Object.keys(allChildWebProducts).length > 0)
