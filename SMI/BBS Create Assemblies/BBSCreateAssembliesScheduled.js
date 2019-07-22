@@ -46,6 +46,7 @@ function createAssembliesScheduled(type)
 	var useItemPricing = false;
 	var customerPriceLevel = null;
 	var customerCurrency = null;
+	var baseChildrenIds = {};
 	
 	//Re-hydrate the parent & child object
 	//
@@ -293,6 +294,10 @@ function createAssembliesScheduled(type)
 															//
 															if(childRecord)
 																{
+																	//Add the base child record to the list of id's to remove from the customer item pricing
+																	//
+																	baseChildrenIds[child] = child;
+																	
 																	//Check the remaining governance units available & yield if required
 																	//
 																	var execContext = nlapiGetContext();
@@ -518,6 +523,30 @@ function createAssembliesScheduled(type)
 				{
 					try
 						{
+							//Remove the base child record from the customer's item pricing if it exists
+							//
+							if(Object.keys(baseChildrenIds).length > 0)
+								{
+									for ( var baseChildrenId in baseChildrenIds) 
+										{
+											var itemPricingLines = customerRecord.getLineItemCount('itempricing');
+											
+											for (var int2 = 1; int2 <= itemPricingLines; int2++) 
+												{
+													var itemPricingId = customerRecord.getLineItemValue('itempricing', 'item', int2);
+													
+													if(itemPricingId == baseChildrenId)
+														{
+															customerRecord.removeLineItem('itempricing', int2);
+															break;
+														}
+												}
+										}
+								}
+						
+							
+							//Add the new child items to the customer's item pricing
+							//
 							var customerCurrency = customerRecord.getFieldValue('currency');
 						
 							for (var childPrice in allChildPricing) 
