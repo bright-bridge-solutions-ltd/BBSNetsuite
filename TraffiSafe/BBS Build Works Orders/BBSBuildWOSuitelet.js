@@ -237,7 +237,7 @@ function buildWoSuitelet(request, response)
 								sublist.setLineItemValue('custpage_sublist_wo_quantity', sublistLine, woQuantity);
 								sublist.setLineItemValue('custpage_sublist_wo_status', sublistLine, woStatus);
 								sublist.setLineItemValue('custpage_sublist_wo_id', sublistLine, woIntId);
-								
+								sublist.setLineItemValue('custpage_sublist_tick', sublistLine, 'T');
 								
 							}
 					}
@@ -338,9 +338,13 @@ function buildWoSuitelet(request, response)
 				//Call the next stage
 				//
 				var sessionId = request.getParameter('custpage_session_param');
+				libClearSessionData(sessionId);
+				
 				var params = new Array();
-				params['stage'] = stage + 1;
-				params['session'] = sessionId;
+				params['stage'] = 1;
+				
+				//params['stage'] = stage + 1;
+				//params['session'] = sessionId;
 				
 				var context = nlapiGetContext();
 				response.sendRedirect('SUITELET',context.getScriptId(), context.getDeploymentId(), null, params);

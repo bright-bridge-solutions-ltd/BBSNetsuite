@@ -113,7 +113,8 @@ function woBuildScheduled(type)
 	//
 	emailMessage += '\n';
 	emailMessage += 'Build works orders from production batches has completed\n';
-	nlapiSendEmail(usersEmail, usersEmail, 'Build Works Orders', emailMessage);
+	
+	//nlapiSendEmail(usersEmail, usersEmail, 'Build Works Orders', emailMessage);
 }
 
 //=============================================================================================
