@@ -32,27 +32,30 @@ function scheduled(type)
 					var customer = customrecord_bbs_customer_web_productSearch[int].getValue("custrecord_bbs_web_product_customer",null,"GROUP");
 					var product = customrecord_bbs_customer_web_productSearch[int].getValue("custrecord_bbs_web_product_item",null,"GROUP");
 					
-					var customrecord_bbs_customer_web_productSearch2 = nlapiSearchRecord("customrecord_bbs_customer_web_product",null,
-							[
-							   ["custrecord_bbs_web_product_customer","anyof",customer], 
-							   "AND", 
-							   ["custrecord_bbs_web_product_item","anyof",product]
-							], 
-							[
-							   new nlobjSearchColumn("custrecord_bbs_web_product_customer"), 
-							   new nlobjSearchColumn("custrecord_bbs_web_product_item")
-							]
-							);
-					
-					if(customrecord_bbs_customer_web_productSearch2 != null && customrecord_bbs_customer_web_productSearch2.length > 1)
+					if(customer != null && customer != '' && product != null && product != '')
 						{
-							for (var int2 = 1; int2 < customrecord_bbs_customer_web_productSearch2.length; int2++) 
+							var customrecord_bbs_customer_web_productSearch2 = nlapiSearchRecord("customrecord_bbs_customer_web_product",null,
+									[
+									   ["custrecord_bbs_web_product_customer","anyof",customer], 
+									   "AND", 
+									   ["custrecord_bbs_web_product_item","anyof",product]
+									], 
+									[
+									   new nlobjSearchColumn("custrecord_bbs_web_product_customer"), 
+									   new nlobjSearchColumn("custrecord_bbs_web_product_item")
+									]
+									);
+							
+							if(customrecord_bbs_customer_web_productSearch2 != null && customrecord_bbs_customer_web_productSearch2.length > 1)
 								{
-									checkResources();
-									
-									var catalogueId = customrecord_bbs_customer_web_productSearch2[int2].getId();
-									
-									nlapiDeleteRecord("customrecord_bbs_customer_web_product", catalogueId);
+									for (var int2 = 1; int2 < customrecord_bbs_customer_web_productSearch2.length; int2++) 
+										{
+											checkResources();
+											
+											var catalogueId = customrecord_bbs_customer_web_productSearch2[int2].getId();
+											
+											nlapiDeleteRecord("customrecord_bbs_customer_web_product", catalogueId);
+										}
 								}
 						}
 				}
