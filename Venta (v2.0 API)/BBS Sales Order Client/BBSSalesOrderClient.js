@@ -48,17 +48,21 @@ define(['N/currentRecord', 'N/search'],
             end: 1
         });
 		
-		// get the value of the name field from the first search result
-		var CPN = searchResult[0].getValue({
-            name: 'internalid'
-        });
-
-		// set the 'Customer Part Number' field for the current line using the CPN variable
-		record.setCurrentSublistValue({
-			sublistId: 'item',
-			fieldId: 'custcol_scm_customerpartnumber',
-			value: CPN
-		});
+		// check that the search has returned results
+		if (searchResult.length > 0)
+			{
+				// get the value of the name field from the first search result
+				var CPN = searchResult[0].getValue({
+		            name: 'internalid'
+		        });
+	
+				// set the 'Customer Part Number' field for the current line using the CPN variable
+				record.setCurrentSublistValue({
+					sublistId: 'item',
+					fieldId: 'custcol_scm_customerpartnumber',
+					value: CPN
+				});
+			}
 		
 		// get the value of the delivery date field for the current line
 		var delDate = record.getCurrentSublistValue({
