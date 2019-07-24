@@ -9,7 +9,7 @@
 
 /**
  * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
- * @appliedtorecord Proposal
+ * @appliedtorecord Proposal 
  *   
  * @param {String} type Operation types: create, edit, view, copy, print, email
  * @param {nlobjForm} form Current form
