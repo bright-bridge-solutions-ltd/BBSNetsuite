@@ -44,12 +44,12 @@ function itemReceiptAS(type)
 					for (var int = 1; int <= lines; int++) 
 						{
 							var itemId = itemReceiptRecord.getLineItemValue('item', 'item', int);
-							var itemInspect = itemReceiptRecord.getLineItemValue('item', 'custcol_bbs_po_item_inspection_yn', int);
+							var itemInspect = itemReceiptRecord.getLineItemValue('item', 'custcol_bbs_po_inspect_y_n', int);
 							var itemLine = itemReceiptRecord.getLineItemValue('item', 'line', int);
 							var itemQuantity = itemReceiptRecord.getLineItemValue('item', 'quantity', int);
 							var itemRevision = itemReceiptRecord.getLineItemValue('item', 'custcol_bbs_po_required_revision', int);
 							
-							if(itemInspect == 'T')
+							if(itemInspect == '1')
 								{
 									var inspectionRecord = null;
 									
