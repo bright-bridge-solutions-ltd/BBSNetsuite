@@ -46,10 +46,16 @@ function taskItemAS(type)
 				{
 					//Get field data from task
 					//
+				
+					//Header Info
+					//
 					var itemName = newRecord.getFieldValue('custevent_bbs_task_item_number');
 					var itemType = newRecord.getFieldValue('custevent_bbs_task_item_type');
 					var itemSerial = newRecord.getFieldValue('custevent_bbs_task_item_serial');
 					var itemLotNumber = newRecord.getFieldValue('custevent_bbs_task_item_lotnum');
+					
+					//Engineering Tab
+					//
 					var itemMaterial = newRecord.getFieldValue('custevent_bbs_task_item_material');
 					var itemDescription = newRecord.getFieldValue('custevent_bbs_task_item_display_name');
 					var itemTechDesc = newRecord.getFieldValue('custevent_bbs_task_item_tech_desc');
@@ -57,11 +63,23 @@ function taskItemAS(type)
 					var itemManPartNo = newRecord.getFieldValue('custevent_bbs_task_manuf_part_number');
 					var itemWeight = newRecord.getFieldValue('custevent_bbs_task_item_weight');
 					var itemInitialRevision = newRecord.getFieldValue('custevent_bbs_task_item_revision');
-					var itemInspectionReq = newRecord.getFieldValue('custevent_bbs_task_inspection_reqd');
 					var itemUnitType = newRecord.getFieldValue('custevent_bbs_task_units_type');
 					var itemStockUnits = newRecord.getFieldValue('custevent_bbs_task_units_stock');
 					var itemSalesUnit = newRecord.getFieldValue('custevent_bbs_task_units_sales');
 					var itemPurchaseUnit = newRecord.getFieldValue('custevent_bbs_task_units_purchase');
+					//var itemInspectionReq = newRecord.getFieldValue('custevent_bbs_task_inspection_reqd');
+					var itemInspectionReq = newRecord.getFieldValue('custevent_bbs_task_inspection_required');
+					
+					var itemEngineeringSpec = newRecord.getFieldValue('custevent_bbs_task_design_spec');
+					var itemMaterialSafetySheet = newRecord.getFieldValue('custevent_bbs_task_coshh_msds');
+					var itemEngineeringDrawing = newRecord.getFieldValue('custevent_bbs_task_engn_drawing');
+					var itemAtexCert = newRecord.getFieldValue('custevent_bbs_task_atex_certification');
+					var itemMaterialCert = newRecord.getFieldValue('custevent_bbs_task_material_cert');
+					var itemFactoryAcceptance = newRecord.getFieldValue('custevent_bbs_task_factory_acceptance');
+					var itemCalibrationCert = newRecord.getFieldValue('custevent_bbs_task_calibration_cert');
+
+					//Purchasing Tab
+					//
 					var itemPurchaseDescription = newRecord.getFieldValue('custevent_bbs_task_purch_description');
 					var itemPrefSupplier = newRecord.getFieldValue('custevent_bbs_task_preferred_supplier');
 					var itemCurrency = newRecord.getFieldValue('custevent_bbs_task_purch_currency');
@@ -72,6 +90,9 @@ function taskItemAS(type)
 					var itemUseBins = newRecord.getFieldValue('custevent_bbs_task_use_bins');
 					var itemAbcClass = newRecord.getFieldValue('custevent_bbs_task_item_abc_class');
 					var itemRoundUpQty = newRecord.getFieldValue('custevent_bbs_task_round_up_qty');
+					
+					//Finance Tab
+					//
 					var itemCostingMethod = newRecord.getFieldValue('custevent_bbs_task_costing_method');
 					var itemCogsAccount = newRecord.getFieldValue('custevent_bbs_task_account_cogs');
 					var itemAssetAccount = newRecord.getFieldValue('custevent_bbs_task_account_asset');
@@ -162,7 +183,7 @@ function taskItemAS(type)
 									itemRecord.setFieldValue('mpn', itemManPartNo);
 									itemRecord.setFieldValue('weight', itemWeight);
 									itemRecord.setFieldValue('weightunit', '3');	//Kg
-									itemRecord.setFieldValue('custitem_bbs_item_inspection_yn', itemInspectionReq);
+									itemRecord.setFieldValue('custitem_bbs_item_inspection_y_n', itemInspectionReq);
 									itemRecord.setFieldValue('unitstype', itemUnitType);
 									itemRecord.setFieldValue('stockunit', itemStockUnits);
 									itemRecord.setFieldValue('saleunit', itemSalesUnit);
@@ -179,6 +200,14 @@ function taskItemAS(type)
 									itemRecord.setFieldValue('salestaxcode', itemSalesTaxCode);
 									itemRecord.setFieldValue('atpmethod', 'CUMULATIVE_ATP_WITH_LOOK_AHEAD');
 									itemRecord.setFieldValue('purchasepricevarianceacct', itemPurchasePriceVariance);
+									itemRecord.setFieldValue('custitem_bbs_item_design_spec', itemEngineeringSpec);
+									itemRecord.setFieldValue('custitem_bbs_item_coshh_msds', itemMaterialSafetySheet);
+									itemRecord.setFieldValue('custitem_bbs_item_engn_drawing', itemEngineeringDrawing);
+									itemRecord.setFieldValue('custitem_bbs_item_atex_certification', itemAtexCert);
+									itemRecord.setFieldValue('custitem_bbs_item_material_cert', itemMaterialCert);
+									itemRecord.setFieldValue('custitem_bbs_item_factory_acceptance', itemFactoryAcceptance);
+									itemRecord.setFieldValue('custitem_bbs_item_calibration_cert', itemCalibrationCert);
+
 									
 									switch(itemCostingMethod)
 										{
