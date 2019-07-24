@@ -10,29 +10,50 @@ function updateJournals(type)
 	{ 
 		// initialise variables
 		var success = 0;
-		var failure = 0;
+		var error = 0;
+		var errors = new Array();
+		var lines = 0;
 	
-		// run search to find records to be updated
+		// run search to find region data from location records
 		// define search filters
-		var searchFilters = new Array();
-		searchFilters[0] = new nlobjSearchFilter('type', null, 'anyof', 'Journal');
-		searchFilters[1] = new nlobjSearchFilter('trandate', null, 'onorafter', '1/6/2019');
-		searchFilters[3] = new nlobjSearchFilter('memorized', null, 'is', 'F');
+		var locationSearchFilters = new Array();
+		locationSearchFilters[0] = new nlobjSearchFilter('isinactive', null, 'is', 'F'); // exclude inactive locations
 		
 		// define search columns
-		var searchColumns = new Array();
-		searchColumns[0] = new nlobjSearchColumn('internalid', null, 'GROUP');
+		var locationSearchColumns = new Array();
+		locationSearchColumns[0] = new nlobjSearchColumn('internalid');
+		locationSearchColumns[1] = new nlobjSearchColumn('custrecord_n103_cseg2'); // club region
+		locationSearchColumns[2] = new nlobjSearchColumn('custrecord_n103_cseg1'); // spa region
+		locationSearchColumns[3] = new nlobjSearchColumn('custrecord_n103_cseg3'); // sales region
+		locationSearchColumns[4] = new nlobjSearchColumn('custrecord_n103_cseg4'); // estates region
 		
 		// run search
-		var searchResults = getResults(nlapiCreateSearch('journalentry', searchFilters, searchColumns));
+		var locationSearch = nlapiSearchRecord('location', null, locationSearchFilters, locationSearchColumns);
+		nlapiLogExecution('DEBUG', 'Locations Found', 'There were ' + locationSearch.length + ' found');
 		
-		nlapiLogExecution('DEBUG', 'Records to be updated', searchResults.length);
+		// run search to find records to be updated
+		// define search filters
+		var journalSearchFilters = new Array();
+		journalSearchFilters[0] = new nlobjSearchFilter('type', null, 'anyof', 'Journal');
+		journalSearchFilters[1] = new nlobjSearchFilter('trandate', null, 'onorafter', '1/6/2019');
+		journalSearchFilters[2] = new nlobjSearchFilter('memorized', null, 'is', 'F');
+		
+		// define search columns
+		var journalSearchColumns = new Array();
+		journalSearchColumns[0] = new nlobjSearchColumn('internalid', null, 'GROUP');
+		
+		// run search
+		var journalSearch = getResults(nlapiCreateSearch('journalentry', journalSearchFilters, journalSearchColumns));
+		nlapiLogExecution('DEBUG', 'Records to be updated', 'There are ' + journalSearch.length + ' records to be updated');
 		
 		// loop through search results
-		for (var i = 0; i < searchResults.length; i++)
+		for (var i = 0; i < journalSearch.length; i++)
 			{
+				// reset lines variable to 0
+				lines = 0;
+			
 				// retrieve the internal ID of the journal record
-				var recordID = searchResults[i].getValue('internalid', null, 'GROUP');
+				var recordID = journalSearch[i].getValue('internalid', null, 'GROUP');
 				
 				try
 					{
@@ -46,19 +67,32 @@ function updateJournals(type)
 						for (var x = 1; x <= lineCount; x++)
 							{
 								// get the internal ID of the location from the sublist line
-								var locationID = journalRecord.getLineItemValue('line', 'location', x);
+								var recLocID = journalRecord.getLineItemValue('line', 'location', x);
 						
-								// check if the locationID variable returns a value
-								if (locationID)
+								// check if the recLocID variable returns a value
+								if (recLocID)
 									{
-										// load the location record
-										var locationRecord = nlapiLoadRecord('location', locationID);
-								
-										// return values from the location record
-										var clubRegion = locationRecord.getFieldValue('custrecord_n103_cseg2');
-										var spaRegion = locationRecord.getFieldValue('custrecord_n103_cseg1');
-										var salesRegion = locationRecord.getFieldValue('custrecord_n103_cseg3');
-										var estatesRegion = locationRecord.getFieldValue('custrecord_n103_cseg4');
+										lines++;
+									
+										// loop through the search results
+										for (var z = 0; z < locationSearch.length; z++)
+											{
+												// get the internal ID of the location from the search
+												var searchLocID = locationSearch[z].getValue('internalid');
+												
+												// check that the recLocID and searchLocID variables are the same
+												if (recLocID == searchLocID)
+													{
+														// retrieve region data from the search
+														var clubRegion = locationSearch[z].getValue('custrecord_n103_cseg2');
+														var spaRegion = locationSearch[z].getValue('custrecord_n103_cseg1');
+														var salesRegion = locationSearch[z].getValue('custrecord_n103_cseg3');
+														var estatesRegion = locationSearch[z].getValue('custrecord_n103_cseg4');
+														
+														// escape the loop
+														break;
+													}
+											}
 								
 										// set line item fields on journal record
 										journalRecord.setLineItemValue('line', 'custcol_cseg2', x, clubRegion);
@@ -69,18 +103,19 @@ function updateJournals(type)
 									}
 								else
 									{
-										nlapiLogExecution('DEBUG', 'Code Check', 'Line ' + x ' could not be updated as the location field was not populated');
+										nlapiLogExecution('DEBUG', 'Code Check', 'Line ' + x + ' could not be updated as the location field was not populated');
 									}
 							}
 						
 						// submit the journal record
 						var submittedRecord = nlapiSubmitRecord(journalRecord);
-						nlapiLogExecution('DEBUG', 'Record Updated', 'Record ' + submittedRecord + ' has been updated. There are ' + (searchResults.length - (i+1)) + ' records still to be updated');
+						nlapiLogExecution('DEBUG', 'Record Updated', 'Record ' + submittedRecord + ' has been updated. There are ' + (journalSearch.length - (i+1)) + ' records still to be updated');
 						success++; // increase success variable
 					}
 				catch(e)
 					{
-						nlapiLogExecution('DEBUG', 'An Error has occured updating record ' + recordID, e);
+						nlapiLogExecution('ERROR', 'An Error has occured updating record ' + recordID, e);
+						errors.push(recordID);
 						error++; // increase error variable
 					}
 				
@@ -88,7 +123,8 @@ function updateJournals(type)
 				checkResources();
 			}
 		
-		nlapiLogExecution('DEBUG', 'Script Complete', searchResults.length + ' records to update | ' + success + ' records updated successfully | ' + error + ' | errors');
+		nlapiLogExecution('DEBUG', 'Script Complete', journalSearch.length + ' records to update | ' + success + ' records updated successfully | ' + error + ' errors');
+		nlapiLogExecution('DEBUG', 'Errors', 'There were errors updating the following records: ' + errors);
 	}
 
 function checkResources()
@@ -96,7 +132,7 @@ function checkResources()
 		var remaining = parseInt(nlapiGetContext().getRemainingUsage());
 		nlapiLogExecution('DEBUG', 'Remaining Units', remaining + ' units remaining out of 10,000');
 		
-		if (remaining < 250)
+		if (remaining < 50)
 			{
 				nlapiYieldScript();
 			}
