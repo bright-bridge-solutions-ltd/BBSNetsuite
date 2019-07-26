@@ -22,12 +22,20 @@ function salesOrderSummaryAS(type)
 	var summary = {};
 	var salesOrderId = nlapiGetRecordId();
 	
+	//Only on create or edit of the sales order
+	//
 	if(type == 'create' || type == 'edit')
 		{
+			//Get the count of item lines
+			//
 			var lines = nlapiGetLineItemCount('item');
 			
+			//Loop through the item lines
+			//
 			for (var int = 1; int <= lines; int++) 
 				{
+					//Get values from the item line
+					//
 					var lineItem = nlapiGetLineItemValue('item', 'item', int);
 					var lineQuantity = nlapiGetLineItemValue('item', 'quantity', int);
 					var lineCommitted = nlapiGetLineItemValue('item', 'quantitycommitted', int);
@@ -35,10 +43,14 @@ function salesOrderSummaryAS(type)
 					var linePicked = nlapiGetLineItemValue('item', 'itempicked', int);
 					var lineType = nlapiGetLineItemValue('item', 'itemtype', int);
 	
+					//Only interested in inventory & non-inventory items
+					//
 					if(lineType == 'InvtPart' || lineType == 'NonInvtPart')
 						{
 							var recordType = '';	
 				  	        
+							//Translate the record type so it can be used in the api calls
+							//
 					        switch (lineType) 
 					        	{ 
 						            case 'InvtPart':
@@ -59,6 +71,8 @@ function salesOrderSummaryAS(type)
 					        //
 					        if(itemInfo.parent != null && itemInfo.parent != '')
 					        	{
+					        		//Parent info
+					        		//
 						        	var parentInfo = nlapiLookupField(recordType, itemInfo.parent, ['itemid','location','salesdescription'], false);
 						        	var parentInfoText = nlapiLookupField(recordType, itemInfo.parent, ['location'], true);
 					        		
@@ -94,9 +108,20 @@ function salesOrderSummaryAS(type)
 			//
 			var outputArray = [];
 			
+			//Loop through the summaries
+			//
 			for ( var key in summary) 
 				{
-					outputArray.push(new outputSummary(summary[key].itemId, summary[key].salesDescription, summary[key].locationText, summary[key].itemColourText, summary[key].getQuantitySizeSummary(), summary[key].getQuantitySizeTotal()));
+					//Push a new instance of the output summary object onto the output array
+					//
+					outputArray.push(new outputSummary	(	
+														summary[key].itemId, 
+														summary[key].salesDescription, 
+														summary[key].locationText, 
+														summary[key].itemColourText, 
+														summary[key].getQuantitySizeSummary(), 
+														summary[key].getQuantitySizeTotal())
+														);
 				}
 			
 			//Save the output array to the sales order
@@ -105,8 +130,14 @@ function salesOrderSummaryAS(type)
 		}
 }
 
+//=============================================================================
+//Objects
+//=============================================================================
+//
 function outputSummary(_product, _description, _location, _colour, _quantitySize, _total)
 {
+	//Properties
+	//
 	this.product = _product;
 	this.description = _description;
 	this.location = _location;
@@ -191,13 +222,20 @@ function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdesc
 
 function sizeQuantityCell(_size, _quantity, _sizeText)
 {
+	//Properties
+	//
 	this.sizeId = _size;
 	this.quantity = Number(_quantity);
-	this.sizeText = _sizeText;
-	
+	this.sizeText = _sizeText;	
 }
 
-//left padding s with c to a total of n chars
+
+//=============================================================================
+//Functions
+//=============================================================================
+//
+
+//Left padding s with c to a total of n chars
 //
 function padding_left(s, c, n) 
 {
