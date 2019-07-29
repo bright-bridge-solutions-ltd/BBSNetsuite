@@ -7,15 +7,15 @@
 define(['N/currentRecord', 'N/search', 'N/ui/dialog'],
 	function(currentRecord, search, dialog) {
 
-	function fieldChanged(context) {
+	function postSourcing(context) {
 		
-		var record = currentRecord.get();
+		var currentRecord = context.currentRecord;
 		
 		// check if the item field has been changed
 		if (context.sublistId == 'item' && context.fieldId == 'item')
 			{
 				// get the value of the available line field
-				var available = record.getCurrentSublistValue({
+				var available = currentRecord.getCurrentSublistValue({
 					sublistId: 'item',
 					fieldId: 'quantityavailable'
 				});
@@ -24,22 +24,22 @@ define(['N/currentRecord', 'N/search', 'N/ui/dialog'],
 				if (available != 0)
 					{
 						// set the value of the delivery date field to today
-						record.setCurrentSublistValue({
+						currentRecord.setCurrentSublistValue({
 							sublistId: 'item',
 							fieldId: 'expectedshipdate',
 							value: new Date()
 						});
 					}
 			}
-		
+
 	}
 	
-	function validateLine() {
+	function validateLine(context) {
 
-		var record = currentRecord.get();
+		var currentRecord = context.currentRecord;
 		
 		// get the value of the delivery date field for the current line
-		var delDate = record.getCurrentSublistValue({
+		var delDate = currentRecord.getCurrentSublistValue({
 			sublistId: 'item',
 			fieldId: 'expectedshipdate'
 		});
@@ -48,19 +48,19 @@ define(['N/currentRecord', 'N/search', 'N/ui/dialog'],
 		if (delDate)
 			{
 				// set the 'BBS Delivery Date' field for the current line using the delDate variable
-				record.setCurrentSublistValue({
+				currentRecord.setCurrentSublistValue({
 					sublistId: 'item',
 					fieldId: 'custcol_bbs_deliverydate',
 					value: delDate
 				});
 				
 				// get the value of the customer from the record
-				var custID = record.getValue({
+				var custID = currentRecord.getValue({
 					fieldId: 'entity'
 				});
 				
 				// get the internal ID of the item for the current line
-				var itemID = record.getCurrentSublistValue({
+				var itemID = currentRecord.getCurrentSublistValue({
 					sublistId: 'item',
 					fieldId: 'item'
 				});
@@ -76,7 +76,7 @@ define(['N/currentRecord', 'N/search', 'N/ui/dialog'],
 					filters: [{
 						name: 'custrecord_scm_cpn_item',
 						operator: 'anyof',
-						values: itemID	
+						values: itemID
 					},
 							{
 						name: 'custrecord_scm_cpn_customer',
@@ -100,7 +100,7 @@ define(['N/currentRecord', 'N/search', 'N/ui/dialog'],
 				        });
 			
 						// set the 'Customer Part Number' field for the current line using the CPN variable
-						record.setCurrentSublistValue({
+						currentRecord.setCurrentSublistValue({
 							sublistId: 'item',
 							fieldId: 'custcol_scm_customerpartnumber',
 							value: CPN
@@ -124,7 +124,7 @@ define(['N/currentRecord', 'N/search', 'N/ui/dialog'],
     }
 
     return {
-    	fieldChanged: fieldChanged,
+    	postSourcing: postSourcing,
     	validateLine: validateLine
     };
     
