@@ -6,8 +6,8 @@
  *
  */
 
-function updateJournals(type)
-	{ 
+function updateJournals(type) 
+	{
 		// initialise variables
 		var success = 0;
 		var error = 0;
@@ -108,7 +108,7 @@ function updateJournals(type)
 							}
 						
 						// submit the journal record
-						var submittedRecord = nlapiSubmitRecord(journalRecord);
+						var submittedRecord = nlapiSubmitRecord(journalRecord, false, true); // record, doSourcing, ignoreMandatoryFields
 						nlapiLogExecution('DEBUG', 'Record Updated', 'Record ' + submittedRecord + ' has been updated. There are ' + (journalSearch.length - (i+1)) + ' records still to be updated');
 						success++; // increase success variable
 					}
