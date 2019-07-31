@@ -136,6 +136,10 @@ function scheduled(type)
 	//
 	var transactionSearchResults = getResults(transactionSearch);
 	
+	nlapiLogExecution('DEBUG', 'Search results count', transactionSearchResults.length);
+	
+	checkResources();
+	
 	//Do we have any results to process
 	//
 	if(transactionSearchResults != null && transactionSearchResults.length > 0)
@@ -191,10 +195,13 @@ function scheduled(type)
 							//
 							if(journalRecord != null)
 								{
+									checkResources();
+								
 									//Commit the previous journal
 									//
 									saveJournal(journalRecord, lastTransactionType, lastTransactionId, uniqueLineIds);
 								}
+							
 							
 							//Save the transaction number & type
 							//
@@ -370,6 +377,7 @@ function scheduled(type)
 													journalRecord.setCurrentLineItemValue('line', 'credit', Math.abs(amount));
 												}
 											}
+										
 										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
@@ -806,6 +814,7 @@ function scheduled(type)
 //
 function saveJournal(_journalRecord, _transactionType, _transactionNumber, _uniqueLineIds)
 {
+	
 	//Save the journal
 	//
 	var journalId = null;
@@ -920,6 +929,9 @@ function saveJournal(_journalRecord, _transactionType, _transactionNumber, _uniq
 						}
 				}
 		}	
+	
+
+	
 }
 
 function translateType(_transactionType)
@@ -963,6 +975,8 @@ function translateType(_transactionType)
 
 function libGetPeriod(periodDate)
 {
+	checkResources();
+	
 	var returnValue = '';
 	
 	var accountingperiodSearch = nlapiSearchRecord("accountingperiod",null,
@@ -997,6 +1011,8 @@ function libGetPeriod(periodDate)
 
 function libGetNextPeriod(periodDate)
 {
+	checkResources();
+	
 	var returnValue = '';
 	
 	var accountingperiodSearch = nlapiSearchRecord("accountingperiod",null,
@@ -1101,11 +1117,12 @@ function getSalesAccount(_businessLine, _custRepresentingSubsidiary)
 
 function checkResources()
 {
-	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
+	var remaining = nlapiGetContext().getRemainingUsage();
 	
-	if(remaining < 200)
+	if(remaining < 500)
 		{
-			nlapiYieldScript();
+			var yieldResult = nlapiYieldScript();
+			nlapiLogExecution('DEBUG', 'Yield info ' + yieldResult.status + ' ' + yieldResult.reason + ' ' + yieldResult.information, '');
 		}
 }
 
@@ -1131,10 +1148,18 @@ function getResults(search)
 						end += 1000;
 		
 						var moreSearchResultSet = searchResult.getResults(start, end);
-						resultlen = moreSearchResultSet.length;
-		
-						searchResultSet = searchResultSet.concat(moreSearchResultSet);
+						
+						if(moreSearchResultSet != null)
+							{
+								resultlen = moreSearchResultSet.length;
+								searchResultSet = searchResultSet.concat(moreSearchResultSet);
+							}
+						else
+							{
+								resultlen = Number(0);
+							}
 				}
 		}
+	
 	return searchResultSet;
 }
