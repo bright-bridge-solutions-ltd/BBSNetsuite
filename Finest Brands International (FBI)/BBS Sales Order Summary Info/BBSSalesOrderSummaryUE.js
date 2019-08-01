@@ -42,7 +42,11 @@ function salesOrderSummaryAS(type)
 					var lineFulfilled = nlapiGetLineItemValue('item', 'quantityfulfilled', int);
 					var linePicked = nlapiGetLineItemValue('item', 'itempicked', int);
 					var lineType = nlapiGetLineItemValue('item', 'itemtype', int);
-	
+					var lineUnitPrice = nlapiGetLineItemValue('item', 'rate', int);
+					var lineAmount = nlapiGetLineItemValue('item', 'amount', int);
+					var lineVatAmount = nlapiGetLineItemValue('item', 'tax1amt', int);
+					var linevatCode = nlapiGetLineItemText('item', 'taxcode', int);
+					
 					//Only interested in inventory & non-inventory items
 					//
 					if(lineType == 'InvtPart' || lineType == 'NonInvtPart')
@@ -94,12 +98,21 @@ function salesOrderSummaryAS(type)
 					        													parentInfo.salesdescription,
 					        													itemInfoText.custitem_fbi_item_colour,
 					        													itemInfoText.custitem_fbi_item_size2,
-					        													parentInfoText.location);
+					        													parentInfoText.location,
+					        													lineUnitPrice,
+					        													linevatCode
+					        													);
 					        			}
 					        		
 					        		//Update the size & quantity in the summary
 					        		//
-					        		summary[key].updateSizeQuantity(itemInfo.custitem_fbi_item_size1, lineQuantity, itemInfoText.custitem_fbi_item_size1);
+					        		summary[key].updateSizeQuantity	(
+					        										itemInfo.custitem_fbi_item_size1, 
+					        										lineQuantity, 
+					        										itemInfoText.custitem_fbi_item_size1, 
+					        										lineAmount, 
+					        										lineVatAmount
+					        										);
 					        	} 
 						}
 				}
@@ -120,8 +133,13 @@ function salesOrderSummaryAS(type)
 														summary[key].locationText, 
 														summary[key].itemColourText, 
 														summary[key].getQuantitySizeSummary(), 
-														summary[key].getQuantitySizeTotal())
-														);
+														summary[key].getQuantitySizeTotal(),
+														summary[key].unitPrice,
+														summary[key].getAmountTotal(),
+														summary[key].getVatAmountTotal(),
+														summary[key].vatCode
+														)
+									);
 				}
 			
 			//Save the output array to the sales order
@@ -134,41 +152,47 @@ function salesOrderSummaryAS(type)
 //Objects
 //=============================================================================
 //
-function outputSummary(_product, _description, _location, _colour, _quantitySize, _total)
+function outputSummary(_product, _description, _location, _colour, _quantitySize, _total, _unitPrice, _amount, _vatAmount, _vatCode)
 {
 	//Properties
 	//
-	this.product = _product;
-	this.description = _description;
-	this.location = _location;
-	this.colour = _colour;
-	this.quantitysize = _quantitySize;
-	this.total = Number(_total);
+	this.product 		= _product;
+	this.description 	= _description;
+	this.location 		= _location;
+	this.colour 		= _colour;
+	this.quantitysize 	= _quantitySize;
+	this.total 			= Number(_total);
+	this.amount 		= Number(_amount);
+	this.unitPrice 		= Number(_unitPrice);
+	this.vatAmount 		= Number(_vatAmount);
+	this.vatCode 		= _vatCode
 }
 
-function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdescription, _itemColourText, _itemSize2Text, _locationText)
+function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdescription, _itemColourText, _itemSize2Text, _locationText, _unitPrice, _vatCode)
 {
 	//Properties
 	//
-	this.itemId = _itemid;
-	this.itemColourId = _itemColour;
-	this.itemSize2Id = _itemSize2;
-	this.locationId = _location;
-	this.salesDescription = _salesdescription;
-	this.itemColourText = _itemColourText;
-	this.itemSize2Text = _itemSize2Text;
-	this.locationText = _locationText;
-	this.sizeQuantity = [];
+	this.itemId 			= _itemid;
+	this.itemColourId 		= _itemColour;
+	this.itemSize2Id 		= _itemSize2;
+	this.locationId 		= _location;
+	this.salesDescription 	= _salesdescription;
+	this.itemColourText 	= _itemColourText;
+	this.itemSize2Text 		= _itemSize2Text;
+	this.locationText 		= _locationText;
+	this.unitPrice 			= Number(_unitPrice);
+	this.vatCode 			= _vatCode;
+	this.sizeQuantity 		= [];
 	
 	//Methods
 	//
-	this.updateSizeQuantity = function(_size, _quantity, _sizeText)
+	this.updateSizeQuantity = function(_size, _quantity, _sizeText, _amount, _vatAmount)
 		{
 			if(this.sizeQuantity.length == 0) 
 				{
 					//If no elements in the array then this is the first, so just push it on
 					//
-					this.sizeQuantity.push(new sizeQuantityCell(_size, _quantity, _sizeText));
+					this.sizeQuantity.push(new sizeQuantityCell(_size, _quantity, _sizeText, _amount, _vatAmount));
 				}
 			else
 				{
@@ -180,7 +204,10 @@ function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdesc
 						{
 							if(this.sizeQuantity[int2].sizeId == _size)
 								{
-									this.sizeQuantity[int2].quantity += Number(_quantity);
+									this.sizeQuantity[int2].quantity  += Number(_quantity);
+									this.sizeQuantity[int2].amount    += Number(_amount);
+									this.sizeQuantity[int2].vatAmount += Number(_vatAmount);
+									
 									updated = true;
 									break;
 								}
@@ -190,7 +217,7 @@ function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdesc
 					//
 					if(!updated)
 						{
-							this.sizeQuantity.push(new sizeQuantityCell(_size, _quantity, _sizeText));
+							this.sizeQuantity.push(new sizeQuantityCell(_size, _quantity, _sizeText, _amount, _vatAmount));
 						}
 				}
 		}
@@ -207,6 +234,30 @@ function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdesc
 			return totalQuantity;
 		}
 	
+	this.getAmountTotal = function()
+	{
+		var totalAmount = Number(0);
+		
+		for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
+			{
+				totalAmount += Number(this.sizeQuantity[int2].amount);
+			}
+		
+		return totalAmount;
+	}
+
+	this.getVatAmountTotal = function()
+	{
+		var totalVatAmount = Number(0);
+		
+		for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
+			{
+				totalVatAmount += Number(this.sizeQuantity[int2].vatAmount);
+			}
+		
+		return totalVatAmount;
+	}
+
 	this.getQuantitySizeSummary = function()
 		{
 			var summaryText = '';
@@ -220,13 +271,15 @@ function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdesc
 		}
 }
 
-function sizeQuantityCell(_size, _quantity, _sizeText)
+function sizeQuantityCell(_size, _quantity, _sizeText, _amount, _vatAmount)
 {
 	//Properties
 	//
-	this.sizeId = _size;
-	this.quantity = Number(_quantity);
-	this.sizeText = _sizeText;	
+	this.sizeId 	= _size;
+	this.quantity 	= Number(_quantity);
+	this.amount 	= Number(_amount);
+	this.vatAmount 	= Number(_vatAmount);
+	this.sizeText 	= _sizeText;	
 }
 
 
