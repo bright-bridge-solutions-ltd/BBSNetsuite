@@ -6,6 +6,8 @@
         <#assign telInfo>?????</#assign>
         <#assign vatInfo>?????</#assign>
         <#assign logoInfo>?????</#assign>
+        <#assign logoChampion>?????</#assign>
+        <#assign logoToggi>?????</#assign>
         <#assign footerMsg>?????</#assign>
         <#assign subsidiary>${record.subsidiary.id}</#assign>
   
@@ -16,14 +18,37 @@
               <#assign footerMsg>All goods remain the property of Finest Brands International until paid in full.</#assign>
               <#assign vatInfo>GB 927 5446 01</#assign>
               <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=11&amp;c=5293281_SB1&amp;h=fe2ea6b8bad94150217e</#assign>
+              <#assign logoChampion>https://5293281-sb1.app.netsuite.com/core/media/media.nl?id=1308&amp;c=5293281_SB1&amp;h=e81a9c06d74f143fcbfa</#assign>
+              <#assign logoToggi>https://5293281-sb1.app.netsuite.com/core/media/media.nl?id=1310&amp;c=5293281_SB1&amp;h=cd567fd4c49356911ee1</#assign>
         </#if>
        
     <macrolist>
         <macro id="nlheader">
+          
     <table class="header" style="width: 100%;">
     <tr>
 	<td align="left"><span style="font-size:24px;">Pick Note</span></td>
-	<td align="right">&nbsp;</td>
+	<td align="center" colspan="6">
+      <table style="width: 100%;">
+        <tr>
+          <td align="left" rowspan="5"><img src="${logoChampion}" style="float: left; width:80px; height:80px;" /></td>
+          <td align="center" colspan="5"><b>Finest Brands International Ltd Laurel House, 146 - 148 Garnet Road, Leeds, LS11 5HP</b></td>
+          <td align="right" rowspan="5"><img src="${logoToggi}" style="float: right; width:80px; height:80px;" /></td>
+        </tr>
+        <tr>
+          <td align="center" colspan="5">Tel: 0113 270 7000 Fax: 0113 270 6890 Email: info@finestbrands.co.uk</td>
+        </tr>
+        <tr>
+          <td align="center" colspan="5">Company Registration No: 02545569. VAT Registration No: GB 927 5446 01</td>
+        </tr>
+        <tr>
+          <td align="center" colspan="5">&nbsp;</td>
+        </tr>
+        <tr>
+          <td align="center" colspan="5">&nbsp;</td>
+        </tr>
+      </table>
+    </td>
 	<td align="right"><img src="${logoInfo}" style="float: right; width:80px; height:80px;" /></td>
     </tr>
     </table>
@@ -123,21 +148,6 @@
         </macro>
 
         <macro id="nlfooter">
-
-       
-       <table style="width: 100%;">
-         <tr class="messagerow">
-              <td align="center" class="message"><b>Finest Brands International Ltd Laurel House, 146 - 148 Garnet Road, Leeds, LS11 5HP</b></td>
-		 </tr>
-         <tr class="messagerow">
-              <td align="center" class="message">Tel: 0113 270 7000 Fax: 0113 270 6890 Email: info@finestbrands.co.uk</td>
-		 </tr>
-		 <tr class="messagerow">
-              <td align="center" class="message">Company Registration No: 02545569. VAT Registration No: GB 927 5446 012</td>
-		 </tr>
-
-        </table>
-
 		<table class="footer" style="width: 100%;">
           <tr>
 			<td align="right"><pagenumber/> of <totalpages/></td>
@@ -247,7 +257,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="250px" footer="nlfooter" footer-height="10px" padding="0.5in 0.5in 0.5in 0.5in" size="A4-LANDSCAPE">
+<body header="nlheader" header-height="250px" footer="nlfooter" footer-height="5px" padding="0.5in 0.5in 0.5in 0.5in" size="A4-LANDSCAPE">
 
   
 
