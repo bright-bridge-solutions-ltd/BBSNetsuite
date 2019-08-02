@@ -212,6 +212,7 @@ function createAssembliesScheduled(type)
 //SMI												newParentRecord.setFieldValue('custitem_sw_base_parent', parent);
 													newParentRecord.setFieldValue('description', newParentDescription);
 													newParentRecord.setFieldValue('class', parentClass);
+													newParentRecord.setFieldValue('custitem_unit_of_sale', '1');
 													
 													//Copy in the custom fields
 													//
@@ -353,6 +354,7 @@ function createAssembliesScheduled(type)
 //SMI																				newChildRecord.setFieldValue('custitem_sw_base_parent', parent);
 																					newChildRecord.setFieldValue('description', newChildDescription);
 																					newChildRecord.setFieldValue('class', childClass);
+																					newChildRecord.setFieldValue('custitem_unit_of_sale', '1');
 																					
 																					//Copy in the custom fields
 																					//
