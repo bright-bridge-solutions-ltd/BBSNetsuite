@@ -7,6 +7,7 @@ define(['N/record'],
 function(record) {
 
     function beforeSubmit(context) {
+    	
     	// check if record is being edited or deleted
     	if (context.type == 'edit' || context.type == 'delete')
     		{
@@ -238,7 +239,6 @@ function(record) {
 								    value: lineTotal
 								});
 		    				}
-		    			
 				    }
     		
     			// save the changes to the PO record
