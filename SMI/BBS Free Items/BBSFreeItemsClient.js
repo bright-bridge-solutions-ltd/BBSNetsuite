@@ -26,7 +26,7 @@ function saveRecord(type)
 		var freeChocolates = nlapiLookupField('customer', customerID, 'custentity_freechoco');
 				
 		// get the sales order total from the current record
-		var total = nlapiGetFieldValue('total');
+		var total = nlapiGetFieldValue('subtotal');
 				
 		// get a count of lines in the item sublist
 		var itemCount = nlapiGetLineItemCount('item');
@@ -149,31 +149,31 @@ function saveRecord(type)
 				if (freeItemsExist == true)
 					{
 						// display alert to warn the user and ask them if they want to remove the free items
-						if (confirm('The transaction total is below the level to include free items. Would you like to remove the free items from the order?') == true )
-							{ // user clicked ok
-								// loop through item lines
-								for (var i = 1; i <= itemCount; i++)
-									{
-										// get the item ID from the line
-										var item = nlapiGetLineItemValue('item', 'item', i);
-												
-										// check if the item is the free chocolates or free biscuits item
-										if (item == chocolates || item == biscuits)
-											{
-												// remove the item from the sublist
-												nlapiRemoveLineItem('item', i);
-											}
-									}
-										
-								// save the record
-								return true;
-							}
-						
-						else // user clicked cancel
-							{
-								// save the record
-								return true;
-							}
+							if (confirm('The transaction total is below the level to include free items. Would you like to remove the free items from the order?') == true )
+								{ // user clicked ok
+									// loop through item lines
+									for (var i = 1; i <= itemCount; i++)
+										{
+											// get the item ID from the line
+											var item = nlapiGetLineItemValue('item', 'item', i);
+													
+											// check if the item is the free chocolates or free biscuits item
+											if (item == chocolates || item == biscuits)
+												{
+													// remove the item from the sublist
+													nlapiRemoveLineItem('item', i);
+												}
+										}
+											
+									// save the record
+									return true;
+								}
+							
+							else // user clicked cancel
+								{
+									// save the record
+									return true;
+								}
 					}
 						
 				else // free items do not exist on the order
