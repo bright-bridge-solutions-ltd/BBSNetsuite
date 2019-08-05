@@ -9,11 +9,11 @@
 function saveRecord(type)
 	{
 		// retrieve script parameters
-		var biscuits = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_biscuits');
-		var chocolates = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_chocolates');
-		var biscuitsLevel = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_biscuits_level');
+		var biscuits = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_biscuits_client');
+		var chocolates = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_chocolates_client');
+		var biscuitsLevel = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_biscuits_level_client');
 		biscuitsLevel = parseInt(biscuitsLevel); // convert to integer number
-		var chocolatesLevel = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_chocolates_level');
+		var chocolatesLevel = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_chocolates_level_client');
 		chocolatesLevel = parseInt(chocolatesLevel) // convert to integer number
 			
 		// get the internal ID of the customer from the current record
