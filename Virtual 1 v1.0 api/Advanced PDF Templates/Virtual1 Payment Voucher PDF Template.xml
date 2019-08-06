@@ -1,0 +1,181 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+
+  	<link name="Montserrat" type="font" subtype="opentype" src="https://system.eu1.netsuite.com/core/media/media.nl?id=1434&amp;c=5117415_SB1&amp;h=9f0c70eae5232e02168a&amp;_xt=.ttf" src-bold="https://system.eu1.netsuite.com/core/media/media.nl?id=1435&amp;c=5117415_SB1&amp;h=f330fe8bca81f8f2cbeb&amp;_xt=.ttf"  bytes="2" />
+	<#assign todaysDate = .now>
+	
+	<macrolist>
+        <macro id="nlfooter">		
+            <table class="footer" style="width: 100%; margin-top: 20px;">
+            <tr>
+			<td align="center" style="font-size: 7pt; color: #393939;">Registered Office: Virtual1 Ltd. 6th Floor Alphabeta, 14-18 Finsbury Square, London, EC2A 1BR</td>
+			</tr>
+			<tr>
+			<td align="center" style="font-size: 7pt; color: #393939;">Company Registration Number: 6177891. VAT No: GB 911828429</td>
+			</tr>
+			</table>
+        </macro>
+        
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;">
+			<tr>
+				<td align="left"><img src="https://system.eu1.netsuite.com/core/media/media.nl?id=1333&amp;c=5117415_SB1&amp;h=fe6f7221ff6a620f5628" style="float: left; width:150px; height:75px;" /></td>
+			</tr>
+			</table>
+
+			<table style="width: 100%; margin-top: 20px;">
+			<tr>
+				<td align="left" colspan="2" style="font-size: 10pt; font-weight: bold; color: #393939;">${record.entity}</td>
+				<td align="left" style="font-size: 10pt; font-weight: bold; color: #0090d8;">Remittance Advice</td>
+			</tr>
+			<tr style="margin-top: 20px;">
+				<td align="left" style="font-size: 10pt; font-weight: bold; color: #393939;">FAO ${record.entity.contact}</td>
+				<td>&nbsp;</td>
+				<td align="left" style="font-size: 10pt;  color: #393939;">Date: ${record.trandate?string["dd MMM yyyy"]}</td>
+			</tr>
+			<tr>
+				<td align="left"  style="font-size: 10pt; color: #393939;">${record.address}</td>
+				<td >&nbsp;</td>
+				<td align="left"  style="font-size: 10pt; color: #393939;">Virtual1 Ltd<br/>6th Floor Alphabeta<br/>14-18 Finsbury Square<br/>London<br/>EC2A 1BR</td>
+			</tr>
+			<tr>
+				<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
+				<td >&nbsp;</td>
+				<td align="left" style="font-size: 10pt; color: #393939;">(t) 0344 884 0800</td>
+			</tr>
+			<tr>
+				<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
+				<td >&nbsp;</td>
+				<td align="left" style="font-size: 10pt; color: #393939;">finance@virtual1.com</td>
+			</tr>
+			</table>
+
+			
+        </macro>
+        
+    </macrolist>
+    
+    <style type="text/css">* {
+			font-family: Montserrat;
+		}
+		table {
+			font-size: 9pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            color: #333333;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { align:left }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 7pt;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+
+<body header="nlheader" header-height="330px"  footer="nlfooter" footer-height="30px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+
+  <#if record.apply?has_content>
+
+<table style="width: 100%; margin-top: 10px;"><!-- start apply sublist --><#list record.apply as apply><#if apply_index==0>
+<thead>
+	<tr>
+    <th>&nbsp;</th>
+	<th colspan="3" align="center" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;"><b>Document Date</b></th>
+	<th colspan="3" align="center" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;"><b>Document Ref.</b></th>
+	<th colspan="3" align="center" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;"><b>Amount Outstanding</b></th>
+	<th colspan="3" align="center" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;"><b>Payment Amount</b></th>
+    <th>&nbsp;</th>
+	</tr>
+</thead>
+</#if><tr>
+  	<td>&nbsp;</td>
+	<td colspan="3" align="center" line-height="150%" style="font-size: 7pt; color: #393939;">${apply.applydate}</td>
+	<td colspan="3" align="center" style="font-size: 7pt; color: #393939;">${apply.refnum}</td>
+	<td colspan="3" align="center" style="font-size: 7pt; color: #393939;">${apply.due}</td>
+	<td colspan="3" align="right" style="font-size: 7pt; color: #393939;">${apply.amount}</td>
+	<td>&nbsp;</td>
+	</tr>
+	</#list><!-- end apply --></table>
+</#if>
+  
+<table style="width: 100%; margin-top: 10px;">
+	<tr>
+		<td>&nbsp;</td>
+		<td colspan="3" align="center" line-height="150%" style="font-size: 7pt; color: #393939;">&nbsp;</td>
+		<td colspan="3" align="center" style="font-size: 7pt; color: #393939;">&nbsp;</td>
+		<td colspan="3" align="center" style="font-size: 7pt; color: #393939; border-top: 1px; border-color: #0090d8;"><b>Payment Total</b></td>
+		<td colspan="3" align="right" style="font-size: 7pt; color: #393939; border-top: 1px; border-color: #0090d8;"><b>${record.total}</b></td>
+		<td>&nbsp;</td>
+	</tr>
+</table>
+
+</body>
+</pdf>
