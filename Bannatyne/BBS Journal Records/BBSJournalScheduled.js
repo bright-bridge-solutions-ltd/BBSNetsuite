@@ -36,7 +36,7 @@ function updateJournals(type)
 		var journalSearchFilters = new Array();
 		journalSearchFilters[0] = new nlobjSearchFilter('type', null, 'anyof', 'Journal');
 		journalSearchFilters[1] = new nlobjSearchFilter('trandate', null, 'within', '1/1/2019', '31/5/2019');
-		journalSearchFilters[2] = new nlobjSearchFilter('parent', 'account', 'anyof', 54);
+		journalSearchFilters[2] = new nlobjSearchFilter('parent', 'account', 'anyof', 225, 58);
 		
 		// define search columns
 		var journalSearchColumns = new Array();
