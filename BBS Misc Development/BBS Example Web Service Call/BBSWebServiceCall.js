@@ -59,7 +59,7 @@ function webServiceLogin(appId, email, password, account, role, sessionInfo)
     xml += '</soap:Body>';
     xml += '</soap:Envelope>';
 
-    var sUrl = 'https://webservices.netsuite.com/services/NetSuitePort_2017_2';
+    var sUrl = 'https://webservices.eu2.netsuite.com/services/NetSuitePort_2017_2';
 
     var resp = nlapiRequestURL( sUrl, xml , headers );
     var bodyXml = nlapiStringToXML(resp.getBody());
@@ -83,6 +83,42 @@ function webServiceLogin(appId, email, password, account, role, sessionInfo)
 		}
     
     return (loginStatus === 'true');
+}
+
+function webServiceReadBudget(sessionInfo, appId, budgetId)
+{
+	var headers = new Array();
+	
+    headers['User-Agent-x'] = 'SuiteScript-Call';
+    headers['Content-Type'] = 'text/xml; charset=utf-8';
+    headers['SOAPAction'] = 'get';
+    headers['Cookie'] = sessionInfo['sessionId'];
+    
+	var xml = '';
+	
+	xml += '<soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">';
+	xml += '    <soap:Header>';
+	xml += '        <applicationInfo xmlns="urn:messages_2017_2.platform.webservices.netsuite.com">';
+	xml += '            <applicationId>' + appId +'</applicationId>';
+	xml += '        </applicationInfo>';
+	xml += '    </soap:Header>';
+	xml += '    <soap:Body>';
+	xml += '        <get xmlns="urn:messages_2017_2.platform.webservices.netsuite.com">';
+	xml += '            <baseRef type="budget" internalId="1" xsi:type="q1:RecordRef" xmlns:q1="urn:core_2017_2.platform.webservices.netsuite.com"/>';
+	xml += '        </get>';
+	xml += '    </soap:Body>';
+	xml += '</soap:Envelope>';
+	
+	var sUrl = 'https://webservices.eu2.netsuite.com/services/NetSuitePort_2017_2';
+
+    var resp = nlapiRequestURL( sUrl, xml , headers );
+    var bodyXml = nlapiStringToXML(resp.getBody());
+
+    var requestStatusNode = nlapiSelectNode(bodyXml, '/soapenv:Envelope/soapenv:Body/nlapi:getResponse/nlapi:readResponse/platformCore:status');
+    
+    var addStatus = nlapiSelectValue(requestStatusNode, '@isSuccess');
+
+    return (addStatus === 'true');
 }
 
 function webServiceCreateSpecialWo(sessionInfo, appId, customerId, assemblyId, quantity, sourceTranId, sourceTranLine, subsidiaryId)
@@ -118,7 +154,7 @@ var headers = new Array();
 	xml += '</soap:Body>';
 	xml += '</soap:Envelope>';
 	
-	var sUrl = 'https://webservices.netsuite.com/services/NetSuitePort_2017_2';
+	var sUrl = 'https://webservices.eu2.netsuite.com/services/NetSuitePort_2017_2';
 
     var resp = nlapiRequestURL( sUrl, xml , headers );
     var bodyXml = nlapiStringToXML(resp.getBody());
