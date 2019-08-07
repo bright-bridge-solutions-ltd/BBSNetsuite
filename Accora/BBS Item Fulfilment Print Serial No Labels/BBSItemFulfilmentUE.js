@@ -40,14 +40,14 @@ function itemFulfilmentAfterSubmit(type)
 			var newRecord = nlapiGetNewRecord();
 			var newRecordId = newRecord.getId();
 			
-			var record = nlapiLoadRecord('itemfulfillment', newRecordId);
+			var record = nlapiLoadRecord('itemfulfillment', newRecordId); //10 Gu's
 			var updated = false;
 			
 			if(record)
 				{
 					var lines = record.getLineItemCount('item');
-					var salesOrderId = record.getFieldValue('createdfrom');
 					var fulfilmentId = record.getFieldValue('tranid');
+					var salesOrderId = record.getFieldValue('createdfrom');
 					
 					if(salesOrderId != null && salesOrderId != '')
 						{
@@ -56,6 +56,17 @@ function itemFulfilmentAfterSubmit(type)
 							
 							if(salesOrderLocation == '7') //Only Orwell is required
 								{
+									var salesOrderRecord = null;
+									
+									try
+										{
+											salesOrderRecord = nlapiLoadRecord('salesorder', salesOrderId); //10 GU's
+										}
+									catch(err)
+										{
+											salesOrderRecord = null;
+										}
+								
 									for (var int = 1; int <= lines; int++) 
 										{
 											var item = record.getLineItemValue('item', 'item', int);
@@ -66,7 +77,7 @@ function itemFulfilmentAfterSubmit(type)
 											
 											try
 												{
-													isSerialItem = nlapiLookupField(getItemRecordType(itemType), item, 'custitem_serial_numbered', false);
+													isSerialItem = nlapiLookupField(getItemRecordType(itemType), item, 'custitem_serial_numbered', false); //5 GU's
 												}
 											catch(err)
 												{
@@ -81,17 +92,6 @@ function itemFulfilmentAfterSubmit(type)
 												
 													updated = true;
 													
-													var salesOrderRecord = null;
-													
-													try
-														{
-															salesOrderRecord = nlapiLoadRecord('salesorder', salesOrderId);
-														}
-													catch(err)
-														{
-															salesOrderRecord = null;
-														}
-													
 													if(salesOrderRecord != null)
 														{
 															soLines = salesOrderRecord.getLineItemCount('item');
@@ -104,15 +104,6 @@ function itemFulfilmentAfterSubmit(type)
 																		{
 																			salesOrderRecord.setLineItemValue('item', 'custcol_serial_numbers_udi', int2, serialNumber);
 																			
-																			try
-																				{
-																					nlapiSubmitRecord(salesOrderRecord, false, true);
-																				}
-																			catch(err)
-																				{
-																					nlapiLogExecution('ERROR', 'Error saving sales order', err.message);
-																				}
-																			
 																			break;
 																		}
 																}
@@ -122,7 +113,23 @@ function itemFulfilmentAfterSubmit(type)
 									
 									if(updated)
 										{
-											nlapiSubmitRecord(record, false, true);
+											try
+												{
+													nlapiSubmitRecord(record, false, true); //20 Gu's
+												}
+											catch(err)
+												{
+													nlapiLogExecution('ERROR', 'Error saving item fulfilment', err.message);
+												}
+											
+											try
+												{
+													nlapiSubmitRecord(salesOrderRecord, false, true); //20 Gu's
+												}
+											catch(err)
+												{
+													nlapiLogExecution('ERROR', 'Error saving sales order', err.message);
+												}
 										}
 								}
 						}
