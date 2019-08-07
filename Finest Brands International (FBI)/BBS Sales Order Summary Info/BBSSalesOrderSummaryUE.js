@@ -21,6 +21,7 @@ function salesOrderSummaryAS(type)
 {
 	var summary = {};
 	var salesOrderId = nlapiGetRecordId();
+	var thisRecordType = nlapiGetRecordType();
 	
 	//Only on create or edit of the sales order
 	//
@@ -45,7 +46,7 @@ function salesOrderSummaryAS(type)
 					var lineUnitPrice = nlapiGetLineItemValue('item', 'rate', int);
 					var lineAmount = nlapiGetLineItemValue('item', 'amount', int);
 					var lineVatAmount = nlapiGetLineItemValue('item', 'tax1amt', int);
-					var linevatCode = nlapiGetLineItemText('item', 'taxcode', int);
+					var linevatCode = nlapiGetLineItemValue('item', 'taxrate1', int);
 					
 					//Only interested in inventory & non-inventory items
 					//
@@ -131,7 +132,7 @@ function salesOrderSummaryAS(type)
 														summary[key].itemId, 
 														summary[key].salesDescription, 
 														summary[key].locationText, 
-														summary[key].itemColourText, 
+														summary[key].itemColourText + ' ' + summary[key].itemSize2Text, 
 														summary[key].getQuantitySizeSummary(), 
 														summary[key].getQuantitySizeTotal(),
 														summary[key].unitPrice,
@@ -144,7 +145,7 @@ function salesOrderSummaryAS(type)
 			
 			//Save the output array to the sales order
 			//
-			nlapiSubmitField('salesorder', salesOrderId, 'custbody_bbs_item_summary_json', JSON.stringify(outputArray), false);
+			nlapiSubmitField(thisRecordType, salesOrderId, 'custbody_bbs_item_summary_json', JSON.stringify(outputArray), false);
 		}
 }
 
@@ -235,28 +236,28 @@ function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdesc
 		}
 	
 	this.getAmountTotal = function()
-	{
-		var totalAmount = Number(0);
-		
-		for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
-			{
-				totalAmount += Number(this.sizeQuantity[int2].amount);
-			}
-		
-		return totalAmount;
-	}
+		{
+			var totalAmount = Number(0);
+			
+			for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
+				{
+					totalAmount += Number(this.sizeQuantity[int2].amount);
+				}
+			
+			return totalAmount;
+		}
 
 	this.getVatAmountTotal = function()
-	{
-		var totalVatAmount = Number(0);
-		
-		for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
-			{
-				totalVatAmount += Number(this.sizeQuantity[int2].vatAmount);
-			}
-		
-		return totalVatAmount;
-	}
+		{
+			var totalVatAmount = Number(0);
+			
+			for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
+				{
+					totalVatAmount += Number(this.sizeQuantity[int2].vatAmount);
+				}
+			
+			return totalVatAmount;
+		}
 
 	this.getQuantitySizeSummary = function()
 		{
@@ -293,16 +294,17 @@ function sizeQuantityCell(_size, _quantity, _sizeText, _amount, _vatAmount)
 function padding_left(s, c, n) 
 {
 	if (! s || ! c || s.length >= n) 
-	{
-		return s;
-	}
+		{
+			return s;
+		}
 	
 	var max = (n - s.length)/c.length;
 	
 	for (var i = 0; i < max; i++) 
-	{
-		s = c + s;
-	}
+		{
+			s = c + s;
+		}
 	
 	return s;
 }
+
