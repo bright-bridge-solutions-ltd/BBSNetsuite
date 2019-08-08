@@ -50,7 +50,7 @@ function salesOrderSummaryAS(type)
 					
 					//Only interested in inventory & non-inventory items
 					//
-					if(lineType == 'InvtPart' || lineType == 'NonInvtPart')
+					if(lineType == 'InvtPart' || lineType == 'NonInvtPart' || lineType == 'Discount')
 						{
 							var recordType = '';	
 				  	        
@@ -65,6 +65,10 @@ function salesOrderSummaryAS(type)
 						            case 'NonInvtPart':
 						            	recordType = 'noninventoryitem';
 						                break;
+						            
+						            case 'Discount':
+						            	recordType = 'discountitem';
+						                break;
 					        	}
 						
 					        //Get info about current product & parent etc.
@@ -74,47 +78,67 @@ function salesOrderSummaryAS(type)
 					        
 					        //If we have a parent then proceed
 					        //
+					        var parentInfo = {};
+					        var parentInfoText = {};
+					        
 					        if(itemInfo.parent != null && itemInfo.parent != '')
 					        	{
 					        		//Parent info
 					        		//
-						        	var parentInfo = nlapiLookupField(recordType, itemInfo.parent, ['itemid','location','salesdescription'], false);
-						        	var parentInfoText = nlapiLookupField(recordType, itemInfo.parent, ['location'], true);
+						        	parentInfo = nlapiLookupField(recordType, itemInfo.parent, ['itemid','location','salesdescription'], false);
+						        	parentInfoText = nlapiLookupField(recordType, itemInfo.parent, ['location'], true);
+					        	}
+					        else
+					        	{
+					        		parentInfo = nlapiLookupField(recordType, lineItem, ['itemid','location','salesdescription'], false);
+					        		parentInfoText = nlapiLookupField(recordType, lineItem, ['location'], true);
 					        		
-					        		//Build up the key for the summary
-					        		//Parent id + colour id + size2 id
-					        		//
-					        		var key = padding_left(itemInfo.parent, '0', 6) + 
-					        			padding_left(itemInfo.custitem_fbi_item_colour, '0', 6) + 
-					        			padding_left((itemInfo.custitem_fbi_item_size2 == '' ? '0' : itemInfo.custitem_fbi_item_size2), '0', 6);
+					        		parentInfo.salesdescription = parentInfo.itemid;
+					        		itemInfo.parent = lineItem;
+					        		itemInfo.custitem_fbi_item_colour = '0';
+					        		itemInfo.custitem_fbi_item_size1 = '0';
+					        		itemInfo.custitem_fbi_item_size2 = '0';
 					        		
-					        		//Does the key exist in the summary, if not create a new entry
-					        		//
-					        		if(!summary[key])
-					        			{
-					        				summary[key] = new itemSummaryInfo(	parentInfo.itemid, 
-					        													itemInfo.custitem_fbi_item_colour, 
-					        													itemInfo.custitem_fbi_item_size2, 
-					        													parentInfo.location, 
-					        													parentInfo.salesdescription,
-					        													itemInfoText.custitem_fbi_item_colour,
-					        													itemInfoText.custitem_fbi_item_size2,
-					        													parentInfoText.location,
-					        													lineUnitPrice,
-					        													linevatCode
-					        													);
-					        			}
+					        		itemInfoText.parent = parentInfo.itemid;
+					        		itemInfoText.custitem_fbi_item_colour = '';
+					        		itemInfoText.custitem_fbi_item_size1 = '';
+					        		itemInfoText.custitem_fbi_item_size2 = '';
+					        	}
+					        
+					        	//Build up the key for the summary
+					        	//Parent id + colour id + size2 id
+					        	//
+					        	var key = padding_left(itemInfo.parent, '0', 6) + 
+					        		padding_left(itemInfo.custitem_fbi_item_colour, '0', 6) + 
+					        		padding_left((itemInfo.custitem_fbi_item_size2 == '' ? '0' : itemInfo.custitem_fbi_item_size2), '0', 6);
 					        		
-					        		//Update the size & quantity in the summary
-					        		//
-					        		summary[key].updateSizeQuantity	(
-					        										itemInfo.custitem_fbi_item_size1, 
-					        										lineQuantity, 
-					        										itemInfoText.custitem_fbi_item_size1, 
-					        										lineAmount, 
-					        										lineVatAmount
-					        										);
-					        	} 
+					        	//Does the key exist in the summary, if not create a new entry
+					        	//
+					        	if(!summary[key])
+					        		{
+					        			summary[key] = new itemSummaryInfo(	parentInfo.itemid, 
+					        												itemInfo.custitem_fbi_item_colour, 
+					        												itemInfo.custitem_fbi_item_size2, 
+					        												parentInfo.location, 
+					        												parentInfo.salesdescription,
+					        												itemInfoText.custitem_fbi_item_colour,
+					        												itemInfoText.custitem_fbi_item_size2,
+					        												parentInfoText.location,
+					        												lineUnitPrice,
+					        												linevatCode
+					        												);
+					        		}
+					        		
+					        	//Update the size & quantity in the summary
+					        	//
+					        	summary[key].updateSizeQuantity	(
+					        									itemInfo.custitem_fbi_item_size1, 
+					        									lineQuantity, 
+					        									itemInfoText.custitem_fbi_item_size1, 
+					        									lineAmount, 
+					        									lineVatAmount
+					        									);
+					        	
 						}
 				}
 			
@@ -265,7 +289,14 @@ function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdesc
 			
 			for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
 				{
-					summaryText += this.sizeQuantity[int2].quantity.toString() + '(' + this.sizeQuantity[int2].sizeText + ') ';
+					if(this.sizeQuantity[int2].sizeText != '')
+						{
+							summaryText += this.sizeQuantity[int2].quantity.toString() + '(' + this.sizeQuantity[int2].sizeText + ') ';
+						}
+					else
+						{
+							summaryText += this.sizeQuantity[int2].quantity.toString() + ' ';
+						}
 				}
 			
 			return summaryText;

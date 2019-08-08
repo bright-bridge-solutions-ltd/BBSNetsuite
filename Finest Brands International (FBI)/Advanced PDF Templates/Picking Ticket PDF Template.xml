@@ -268,22 +268,22 @@
   <#if info_index==0>
 <thead>
 	<tr>
-	<th>Product</th>
-	<th colspan="3">Description</th>
-	<th>Location</th>
-	<th colspan="2">Colour</th>
-	<th align="left" colspan="3">Quantity (Size)</th>
-	<th align="right">Total</th>
+	<th style="background-color: #000000; color: #ffffff;">Product</th>
+	<th colspan="2" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Description</th>
+	<th style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Location</th>
+	<th colspan="2" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Colour</th>
+	<th align="left" colspan="4" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Quantity (Size)</th>
+	<th align="right" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Total</th>
 	</tr>
 </thead>
 </#if>
   <tr style="line-height: 200%;">
-      <td>${info.product}</td>
-      <td colspan="3">${info.description}</td>
-      <td>${info.location}</td>
-      <td colspan="2">${info.colour}</td>
-      <td colspan="3">${info.quantitysize}</td>
-      <td align="right">${info.total}</td>
+      <td style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.product}</td>
+      <td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.description}</td>
+      <td style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.location}</td>
+      <td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.colour}</td>
+      <td colspan="4" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.quantitysize}</td>
+      <td align="right" style="border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">${info.total}</td>
   </tr>
   
   	<#assign summary_total += info.total>
@@ -296,8 +296,8 @@
       <td colspan="3">&nbsp;</td>
       <td>&nbsp;</td>
       <td colspan="2">&nbsp;</td>
-      <td colspan="3"><b>Total</b></td>
-      <td align="right" class="totalcell">${summary_total}</td>
+      <td colspan="3" style="background-color: #000000; color: #ffffff;">Total</td>
+      <td align="right" style="border-right: 1px solid black; border-top: 1px solid black;  border-bottom: 1px solid black;">${summary_total}</td>
   </tr>
   </table>
 </body>
