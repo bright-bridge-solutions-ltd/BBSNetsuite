@@ -1,0 +1,330 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd"><pdfset><#if statements??><#list statements as statement>
+<pdf>
+<head>
+  
+        <#assign regInfo>?????</#assign>
+        <#assign emailInfo>?????</#assign>
+        <#assign telInfo>?????</#assign>
+        <#assign vatInfo>?????</#assign>
+        <#assign logoInfo>?????</#assign>
+        <#assign logoChampion>?????</#assign>
+        <#assign logoToggi>?????</#assign>
+        
+              <#assign regInfo>Company Registration No: 02545569. Registered Office: Laurel House, 146-148 Garnet Road, Leeds, LS11 5HP, United Kingdom.</#assign>
+              <#assign emailInfo>info@finestbrands.co.uk</#assign>
+              <#assign telInfo>0113 270 7007</#assign>
+              <#assign vatInfo>GB 927 5446 012</#assign>
+              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=11&amp;c=5293281_SB1&amp;h=fe2ea6b8bad94150217e</#assign>
+              <#assign logoChampion>https://5293281-sb1.app.netsuite.com/core/media/media.nl?id=1308&amp;c=5293281_SB1&amp;h=e81a9c06d74f143fcbfa</#assign>
+              <#assign logoToggi>https://5293281-sb1.app.netsuite.com/core/media/media.nl?id=1310&amp;c=5293281_SB1&amp;h=cd567fd4c49356911ee1</#assign>
+
+  
+
+    <macrolist>
+       <macro id="nlheader">
+          <table class="header" style="width: 100%;">
+          	<tr>
+              <td><img src="${logoInfo}" style="float: left; width:80px; height:80px;" /></td>
+              <td colspan="2"><span class="nameandaddress">${companyInformation.companyName}<br />${companyInformation.addressText}</span><br/>${telInfo}<br/>VAT No. ${vatInfo}</td>
+              <td>&nbsp;</td>
+              <td align="right" style="font-size:24px;">${record@title}</td>
+            </tr>
+          </table>
+
+<table class="header" style="width: 100%; margin-top: 20px;">
+	<tr>
+	<td class="addressheader"><span style="font-size:10pt"><b>Statement To: ${customer.custentity_bbs_desl_account_number}</b></span><br /><span class="nameandaddress" style="font-size:10pt">${statement.billaddress}</span></td>
+	<td class="addressheader"><span style="font-size:10pt"><b>Remit To: ${customer.custentity_bbs_desl_account_number}</b></span><br /><span class="nameandaddress" style="font-size:10pt">${statement.billaddress}</span></td>
+	</tr>
+</table>
+
+<table class="header" style="width: 100%; margin-top: 10px;">
+  	<tr>
+	<td >Statement Date: ${statement.trandate}</td>
+	<td >Statement Date: ${statement.trandate}</td>
+	</tr>
+</table>
+
+</macro>
+        <macro id="nlfooter">
+            <table style="width: 100%;">
+    			<tr>
+      				<!--Left hand half of output-->
+          			<td style="margin-right: 5px;">
+                      <table class="aging" style="width: 100%;">
+                        <tr>
+                            <th align="center" style="font-size: 6pt; background-color: #000000; color: #ffffff;">${statement.aging1@label}</th>
+                            <th align="center" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${statement.aging2@label}</th>
+                            <th align="center" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${statement.aging3@label}</th>
+                            <th align="center" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${statement.aging4@label}</th>
+                            <th align="center" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${statement.aging5@label}</th>
+                        </tr>
+                        <tr>
+                            <td align="right" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${statement.aging1}</td>
+                            <td align="right" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${statement.aging2}</td>
+                            <td align="right" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${statement.aging3}</td>
+                            <td align="right" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${statement.aging4}</td>
+                            <td align="right" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px ">${statement.aging5}</td>
+                        </tr>
+                    </table>
+                      
+                    <table style="width: 100%; margin-top: 35px;">
+                     	<tr>
+                          <td rowspan="5"><img src="${logoChampion}" style="float: left; width: 50px; height: 50px;" /></td>
+                          <td rowspan="5"><img src="${logoToggi}" style="float: left; width: 50px; height: 50px;" /></td>
+                          <td>&nbsp;</td>
+                          <td>&nbsp;</td>
+                      	</tr>
+                      	<tr>
+                          	<td>&nbsp;</td>
+                          	<td>&nbsp;</td>
+                      	</tr>
+                      	<tr>
+                      		<td align="left" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">Amount Due</td>
+                        	<td align="right" style="font-size: 6pt; border: 1px solid black;">${statement.amountDue}</td>
+                      	</tr>
+                      	<tr>
+                          	<td>&nbsp;</td>
+                          	<td>&nbsp;</td>
+                      	</tr>
+						<tr>
+                          	<td>&nbsp;</td>
+                          	<td>&nbsp;</td>
+                     	</tr>
+                      	
+                    </table>
+                      
+                  	</td>
+
+          			<!--Right hand half of output-->
+          			<td style="margin-left: 5px;">
+                      <#assign done>N</#assign>
+                          <#list statement.lines as line>
+                              <#assign accno>${line.custbody_bbs_account_no}</#assign>
+                              <#if accno?length gt 0 && done=="N" >
+                                  <table style="width: 100%;">
+                                      <tr><td style="font-size: 6pt;">Bank Details for payments in ${statement.currency}:</td></tr>
+                                      <tr><td style="font-size: 6pt;">${line.custbody_bbs_bank_account}</td></tr>
+                                      <tr><td style="font-size: 6pt;">${line.custbody_bbs_bank_name}</td></tr>
+                                      <tr><td style="font-size: 6pt;">Account Number: ${line.custbody_bbs_account_no}</td></tr>
+                                      <tr><td style="font-size: 6pt;">Sort Code: ${line.custbody_bbs_sort_code}</td></tr>
+                                      <tr><td style="font-size: 6pt;">IBAN: ${line.custbody_bbs_iban}</td></tr>
+                                      <tr><td style="font-size: 6pt;">Swift Code: ${line.custbody_bbs_bic}</td></tr>
+                                      <tr><td style="font-size: 6pt;">&nbsp;</td></tr>
+
+                                      <#assign done>Y</#assign>
+                                  </table>
+                              </#if>
+                          </#list>
+                      
+                      <table style="width: 100%; margin-top: 5px;">
+                    	<tr>
+                          	<td align="left" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">Amount Due</td>
+                        	<td align="right" style="font-size: 6pt; border: 1px solid black;">${statement.amountDue}</td>
+                          	<td>&nbsp;</td>
+                      		<td>&nbsp;</td>
+                      	</tr>
+                      </table>
+                      
+                  	</td>
+          		</tr>
+          	</table>
+          
+ 		
+
+<table class="footer" style="width: 100%; margin-top: 10px;">
+  <tr>
+	<td align="left">Page <pagenumber/> of <totalpages/></td>
+	<td align="right">Page <pagenumber/> of <totalpages/></td>
+	</tr>
+</table>
+</macro>
+</macrolist>
+          
+          
+    <style type="text/css">table {
+            <!--font-family: sans-serif;-->
+      		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            <!--background-color: #e3e3e3;-->
+            border-bottom: 1px solid black;
+    		border-collapse: collapse;
+            <!--color: #333333;-->
+        }
+        td {
+            padding: 0px;
+            vertical-align: top;
+            font-size:10px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 6pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      table.message{
+        border: 1px solid #dddddd;
+      }
+        tr.totalrow {
+            <!--background-color: #e3e3e3;-->
+            line-height: 200%;
+        }
+      tr.messagerow{
+        font-size: 6pt;
+      }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 12pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+          font-size: 10pt;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalcell {
+          border-bottom: 1px solid black;
+    		border-collapse: collapse;
+        }
+      td.message{
+        font-size: 8pt;
+      }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="280px" footer="nlfooter" footer-height="120px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+ 
+  <table style="width: 100%;">
+    <tr>
+      <!--Left hand half of output-->
+      <td style="margin-right: 5px;">
+        <table class="itemtable" style="width: 100%; margin-top: 10px;">
+    		<tr>
+      			<td>All amounts shown in ${statement.currency}</td>
+    		</tr>
+  		</table>
+  
+	<table class="itemtable" style="width: 100%; margin-top: 10px;">
+		<#list statement.lines as line>
+			<#if line_index==0>
+				<thead>
+					<tr>
+						<th colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff;">${line.datecol@label}</th>
+						<th colspan="5" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.description@label}</th>
+						<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.charge@label}</th>
+						<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.payment@label}</th>
+						<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.balance@label}</th>
+					</tr>
+				</thead>
+			</#if>
+			<tr style="line-height: 200%;">
+				<td colspan="2"  style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.datecol}</td>
+				<td colspan="5" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.description}</td>
+				<td align="right" colspan="2" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.charge}</td>
+				<td align="right" colspan="2" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.payment}</td>
+				<td align="right" colspan="2" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">${line.balance}</td>
+			</tr>
+		</#list>
+	</table>
+      </td>
+      
+      <!--Right hand half of output-->
+      <td style="margin-left: 5px;">
+        <table class="itemtable" style="width: 100%; margin-top: 10px;">
+    <tr>
+      <td>All amounts shown in ${statement.currency}</td>
+    </tr>
+  </table>
+  
+	<table class="itemtable" style="width: 100%; margin-top: 10px;">
+		<#list statement.lines as line>
+			<#if line_index==0>
+				<thead>
+					<tr>
+						<th colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff;">${line.datecol@label}</th>
+						<th colspan="5" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.description@label}</th>
+						<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.charge@label}</th>
+						<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.payment@label}</th>
+						<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.balance@label}</th>
+					</tr>
+				</thead>
+			</#if>
+			<tr style="line-height: 200%;">
+				<td colspan="2"  style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.datecol}</td>
+				<td colspan="5" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.description}</td>
+				<td align="right" colspan="2" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.charge}</td>
+				<td align="right" colspan="2" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.payment}</td>
+				<td align="right" colspan="2" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">${line.balance}</td>
+			</tr>
+		</#list>
+	</table>
+      </td>
+    </tr>
+    
+  </table>
+  
+  
+
+</body>
+</pdf>
+</#list>
+<#else>
+<pdf>
+  <head>
+  </head>
+  <body>
+	<p>Please use Single Currency Advanced Printing Template</p>
+  </body>
+</pdf>
+</#if>
+</pdfset>
