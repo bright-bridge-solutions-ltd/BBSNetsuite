@@ -261,8 +261,8 @@
 					<tr>
 						<th colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff;">${line.datecol@label}</th>
 						<th colspan="5" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.description@label}</th>
-						<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.charge@label}</th>
-						<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.payment@label}</th>
+						<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">Debit</th>
+						<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">Credit</th>
 						<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.balance@label}</th>
 					</tr>
 				</thead>
