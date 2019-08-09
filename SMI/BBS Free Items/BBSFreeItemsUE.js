@@ -4,6 +4,7 @@
  * Version    	Date            Author          Remarks
  * 1.00       	02 Aug 2019     sambatten		Initial Version
  * 1.10			05 Aug 2019		sambatten		Added if statement to check custom form being used is 'SMI Standard Sales Order'
+ * 1.20			09 Aug 2019		sambatten		Added if statement to check order doesn't contain any items with product codes starting 'CPHS'
  */
 
 function beforeSubmit(type)
@@ -43,129 +44,158 @@ function beforeSubmit(type)
 								
 						// get a count of lines in the item sublist
 						var itemCount = nlapiGetLineItemCount('item');
-								
-						// check if the total is greater than/equal to the biscuitsLevel variable AND less than the chocolatesLevel variable AND the freeBiscuits variable returns T
-						if (freeBiscuits == 'T' && (total >= biscuitsLevel && total < chocolatesLevel))
+						
+						// declare variable called CPHSExists and initialize value
+						var CPHSExists = false;
+					
+						// loop through item lines
+						for (var a = 1; a <= itemCount; a++)
 							{
-								// declare variable called alreadyExists and initialize value
-								var alreadyExists = false;
-										
-								// loop through item lines
-								for (var i = 1; i <= itemCount; i++)
+								// get the text value of the item field for the line
+								var itemCode = nlapiGetLineItemText('item', 'item', a);
+								
+								// check if the itemCode variable returns 'CPHS'
+								if (itemCode.includes('CPHS') == true)
 									{
-										// get the item ID from the line
-										var item = nlapiGetLineItemValue('item', 'item', i);
-				
-										// check free chocolates item doesn't exist in the item sublist
-										if (item == chocolates)
-											{
-												// remove the item from the sublist
-												nlapiRemoveLineItem('item', i);
-											}
-												
-										// check free biscuits item doesn't already exist in the item sublist
-										else if (item == biscuits)
-											{
-												// set value of alreadyExists variable to true
-												alreadyExists = true;
-											}
-									}
-									
-								// check that the alreadyExists variable returns false
-								if (alreadyExists == false)
-									{
-										// select a new line item
-										nlapiSelectNewLineItem('item');
+										// set the value of the CPHSExists variable to true
+										CPHSExists = true;
 										
-										// set the item, quantity and item rate field values on the new line
-										nlapiSetCurrentLineItemValue('item', 'item', biscuits, false, true); // type, fldnam, value, firefieldchanged, synchronous
-										nlapiSetCurrentLineItemValue('item', 'quantity', 1, false, true); // type, fldnam, value, firefieldchanged, synchronous
-										nlapiSetCurrentLineItemValue('item', 'rate', 0.00, false, true); // type, fldnam, value, firefieldchanged, synchronous
-												
-										// commit the line
-										nlapiCommitLineItem('item');
+										// break the loop
+										break;
 									}
 							}
 						
-						// check if the total is greater than/equal to the chocolatesLevel variable AND the freeChocolates variable returns T
-						else if (freeChocolates == 'T' && total >= chocolatesLevel)
+						// check that the CPHSExists variable returns true
+						if (CPHSExists == true)
 							{
-								// declare variable called alreadyExists and initialize value
-								var alreadyExists = false;
-										
-								// loop through item lines
-								for (var i = 1; i <= itemCount; i++)
-									{
-										// get the item ID from the line
-										var item = nlapiGetLineItemValue('item', 'item', i);
-					
-										// check free biscuits item doesn't exist in the item sublist
-										if (item == biscuits)
-											{
-												// remove the item from the sublist
-												nlapiRemoveLineItem('item', i);
-											}
-												
-										// check free chocolates item doesn't already exist in the item sublist
-										else if (item == chocolates)
-											{
-												// set value of alreadyExists variable to true
-												alreadyExists = true;
-											}
-									}
-									
-								// check that the alreadyExists variable returns false
-								if (alreadyExists == false)
-									{
-										// select a new line item
-										nlapiSelectNewLineItem('item');
-												
-										// set the item, quantity and item rate field values on the new line
-										nlapiSetCurrentLineItemValue('item', 'item', chocolates, false, true); // type, fldnam, value, firefieldchanged, synchronous
-										nlapiSetCurrentLineItemValue('item', 'quantity', 1, false, true); // type, fldnam, value, firefieldchanged, synchronous
-										nlapiSetCurrentLineItemValue('item', 'rate', 0.00, false, true); // type, fldnam, value, firefieldchanged, synchronous
-												
-										// commit the line
-										nlapiCommitLineItem('item');
-									}
+								// save the record
+								return true;
 							}
-								
-						else // transaction total is below the rules set so we need to check the item sublist doesn't contain either of the free items
-							{
-								// declare variable called freeItemsExist and initialise value
-						    	var freeItemsExist = false;
-				
-						    	// loop through item lines
-								for (var i = 1; i <= itemCount; i++)
+						else // CPHSExists variable returns false
+							{	
+								// check if the total is greater than/equal to the biscuitsLevel variable AND less than the chocolatesLevel variable AND the freeBiscuits variable returns T
+								if (freeBiscuits == 'T' && (total >= biscuitsLevel && total < chocolatesLevel))
 									{
-										// get the item ID from the line
-										var item = nlapiGetLineItemValue('item', 'item', i);
-					
-										// check free chocolates or biscuits items don't already exist in the item sublist
-										if (item == chocolates || item == biscuits)
-											{
-												// set value of freeItemsExist variable to true
-						    					freeItemsExist = true;
-						    						
-						    					// escape loop
-						    					break;
-											}
-									}
-										
-								// check if the freeItemsExist variable returns true
-								if (freeItemsExist == true)
-									{
+										// declare variable called alreadyExists and initialize value
+										var alreadyExists = false;
+												
 										// loop through item lines
-										for (var i = 1; i <= itemCount; i++)
+										for (var b = 1; b <= itemCount; b++)
 											{
 												// get the item ID from the line
-												var item = nlapiGetLineItemValue('item', 'item', i);
-																	
-												// check if the item is the free chocolates or free biscuits item
-												if (item == chocolates || item == biscuits)
+												var item = nlapiGetLineItemValue('item', 'item', b);
+						
+												// check free chocolates item doesn't exist in the item sublist
+												if (item == chocolates)
 													{
 														// remove the item from the sublist
-														nlapiRemoveLineItem('item', i);
+														nlapiRemoveLineItem('item', b);
+													}
+														
+												// check free biscuits item doesn't already exist in the item sublist
+												else if (item == biscuits)
+													{
+														// set value of alreadyExists variable to true
+														alreadyExists = true;
+													}
+											}
+											
+										// check that the alreadyExists variable returns false
+										if (alreadyExists == false)
+											{
+												// select a new line item
+												nlapiSelectNewLineItem('item');
+												
+												// set the item, quantity and item rate field values on the new line
+												nlapiSetCurrentLineItemValue('item', 'item', biscuits, false, true); // type, fldnam, value, firefieldchanged, synchronous
+												nlapiSetCurrentLineItemValue('item', 'quantity', 1, false, true); // type, fldnam, value, firefieldchanged, synchronous
+												nlapiSetCurrentLineItemValue('item', 'rate', 0.00, false, true); // type, fldnam, value, firefieldchanged, synchronous
+														
+												// commit the line
+												nlapiCommitLineItem('item');
+											}
+									}
+								
+								// check if the total is greater than/equal to the chocolatesLevel variable AND the freeChocolates variable returns T
+								else if (freeChocolates == 'T' && total >= chocolatesLevel)
+									{
+										// declare variable called alreadyExists and initialize value
+										var alreadyExists = false;
+												
+										// loop through item lines
+										for (var c = 1; c <= itemCount; c++)
+											{
+												// get the item ID from the line
+												var item = nlapiGetLineItemValue('item', 'item', c);
+							
+												// check free biscuits item doesn't exist in the item sublist
+												if (item == biscuits)
+													{
+														// remove the item from the sublist
+														nlapiRemoveLineItem('item', c);
+													}
+														
+												// check free chocolates item doesn't already exist in the item sublist
+												else if (item == chocolates)
+													{
+														// set value of alreadyExists variable to true
+														alreadyExists = true;
+													}
+											}
+											
+										// check that the alreadyExists variable returns false
+										if (alreadyExists == false)
+											{
+												// select a new line item
+												nlapiSelectNewLineItem('item');
+														
+												// set the item, quantity and item rate field values on the new line
+												nlapiSetCurrentLineItemValue('item', 'item', chocolates, false, true); // type, fldnam, value, firefieldchanged, synchronous
+												nlapiSetCurrentLineItemValue('item', 'quantity', 1, false, true); // type, fldnam, value, firefieldchanged, synchronous
+												nlapiSetCurrentLineItemValue('item', 'rate', 0.00, false, true); // type, fldnam, value, firefieldchanged, synchronous
+														
+												// commit the line
+												nlapiCommitLineItem('item');
+											}
+									}
+										
+								else // transaction total is below the rules set so we need to check the item sublist doesn't contain either of the free items
+									{
+										// declare variable called freeItemsExist and initialise value
+								    	var freeItemsExist = false;
+						
+								    	// loop through item lines
+										for (var d = 1; d <= itemCount; d++)
+											{
+												// get the item ID from the line
+												var item = nlapiGetLineItemValue('item', 'item', d);
+							
+												// check free chocolates or biscuits items don't already exist in the item sublist
+												if (item == chocolates || item == biscuits)
+													{
+														// set value of freeItemsExist variable to true
+								    					freeItemsExist = true;
+								    						
+								    					// escape loop
+								    					break;
+													}
+											}
+												
+										// check if the freeItemsExist variable returns true
+										if (freeItemsExist == true)
+											{
+												// loop through item lines
+												for (var e = 1; e <= itemCount; e++)
+													{
+														// get the item ID from the line
+														var item = nlapiGetLineItemValue('item', 'item', e);
+																			
+														// check if the item is the free chocolates or free biscuits item
+														if (item == chocolates || item == biscuits)
+															{
+																// remove the item from the sublist
+																nlapiRemoveLineItem('item', e);
+															}
 													}
 											}
 									}
