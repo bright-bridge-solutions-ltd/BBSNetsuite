@@ -201,6 +201,22 @@ function scheduled(type)
 	//Start of main code
 	//=============================================================================================
 	//
+	
+	//Find any sales orders with a billing end date that have not yet been processed
+	//
+	processBillingEndDates();
+	
+	processFullyBilledOrders();
+}
+
+//=============================================================================================
+//=============================================================================================
+//Functions
+//=============================================================================================
+//=============================================================================================
+//
+function processFullyBilledOrders()
+{
 	var today = new Date();
 	var todayString = today.format('d/m/Y');
 	
@@ -212,10 +228,12 @@ function scheduled(type)
 			   "AND", 
 			   ["mainline","is","T"], 
 			   "AND", 
-			   ["status","anyof","SalesOrd:F","SalesOrd:E"], 				//Pending Billing, Pending Billing/Partially Fulfilled
+			   ["status","anyof","SalesOrd:G"], 					//Fully billed
 			   "AND", 
-			   ["custbody_bbs_billing_end_date","onorbefore",todayString]
-			], 
+			   ["custbody_bbs_next_sales_order","anyof","@NONE@"],	//Does not have a next sales order
+			   "AND", 
+			   ["custbody_bbs_billing_end_date","isempty",""]		//We do not have a billing end date
+			],
 			[
 			   new nlobjSearchColumn("tranid"), 
 			   new nlobjSearchColumn("trandate")
@@ -232,7 +250,7 @@ function scheduled(type)
 				
 					var salesOrderId = salesorderSearch[int].getId();
 					var salesDate = nlapiStringToDate(salesorderSearch[int].getValue('trandate'));
-					var newSalesDate = new Date(salesDate.getFullYear() + 1, salesDate.getMonth, salesDate.getDate());
+					var newSalesDate = new Date(salesDate.getFullYear() + 1, salesDate.getMonth(), salesDate.getDate());
 					var newSalesDateString = nlapiDateToString(newSalesDate);
 					
 					//Make a copy of the sales order
@@ -257,6 +275,10 @@ function scheduled(type)
 							newSalesOrder.setFieldValue('trandate', newSalesDateString);
 							newSalesOrder.setFieldValue('saleseffectivedate', newSalesDateString);
 							
+							//Update the header with the link to the old sales order
+							//
+							newSalesOrder.setFieldValue('custbody_bbs_prev_sales_order', salesOrderId);
+						
 							//Save the new sales order
 							//
 							var newSalesOrderId = null;
@@ -289,20 +311,10 @@ function scheduled(type)
 									
 									if(oldSalesOrder != null)
 										{
-											//Update the header with the link to the new sales order
+											//Sets the link to the new sales order
 											//
-											oldSalesOrder.setFieldValue('custbody_bbs_prev_sales_order', newSalesOrderId);
-										
-											//Loop through the lines on the order setting the quantity to be the same as that invoiced
-											//
-											var lines = oldSalesOrder.getLineItemCount('item');
+											oldSalesOrder.setFieldValue('custbody_bbs_next_sales_order', newSalesOrderId);
 											
-											for (var int2 = 1; int2 <= lines; int2++) 
-												{
-													var invoicedQuantity = oldSalesOrder.getLineItemValue('item', 'quantitybilled', int2);
-													
-													oldSalesOrder.setLineItemValue('item', 'quantity', int2, invoicedQuantity);
-												}
 											
 											//Try to save the old sales order
 											//
@@ -322,12 +334,91 @@ function scheduled(type)
 		}
 }
 
-//=============================================================================================
-//=============================================================================================
-//Functions
-//=============================================================================================
-//=============================================================================================
-//
+function processBillingEndDates()
+{
+	var today = new Date();
+	var todayString = today.format('d/m/Y');
+	
+	//Find any relevant sales orders
+	//
+	var salesorderSearch = getResults(nlapiCreateSearch("salesorder",
+			[
+			   ["type","anyof","SalesOrd"], 
+			   "AND", 
+			   ["mainline","is","T"], 
+			   "AND", 
+			   ["status","anyof","SalesOrd:F","SalesOrd:E"], 				//Pending Billing, Pending Billing/Partially Fulfilled
+			   "AND", 
+			   ["custbody_bbs_billing_end_date","onorbefore",todayString],
+			   "AND",
+			   ["custbody_bbs_billing_end_date_proc","is","F"]
+			], 
+			[
+			   new nlobjSearchColumn("tranid"), 
+			   new nlobjSearchColumn("trandate")
+			]
+			));
+	
+	if(salesorderSearch != null && salesorderSearch.length > 0)
+		{
+			//Loop through the sales orders
+			//
+			for (var int = 0; int < salesorderSearch.length; int++) 
+				{
+					checkResources();
+					
+					var salesOrderId = salesorderSearch[int].getId();
+					
+					//Load the old sales order
+					//
+					var oldSalesOrder = null;
+					
+					try
+						{
+							oldSalesOrder = nlapiLoadRecord('salesorder', salesOrderId);
+						}
+					catch(err)
+						{
+							oldSalesOrder = null;
+							nlapiLogExecution('ERROR', 'Error loading old sales order, id = ' + salesOrderId, err.message);
+						}
+					
+					if(oldSalesOrder != null)
+						{
+							
+							//Loop through the lines on the order setting the quantity to be the same as that invoiced
+							//
+							var lines = oldSalesOrder.getLineItemCount('item');
+							
+							for (var int2 = 1; int2 <= lines; int2++) 
+								{
+									var invoicedQuantity = oldSalesOrder.getLineItemValue('item', 'quantitybilled', int2);
+									
+									oldSalesOrder.setLineItemValue('item', 'quantity', int2, invoicedQuantity);
+								}
+							
+							//Mark the order as processed
+							//
+							oldSalesOrder.setFieldValue('custbody_bbs_billing_end_date_proc', 'T');
+							
+							//Try to save the old sales order
+							//
+							try
+								{
+									nlapiSubmitRecord(oldSalesOrder, true, true);
+								}
+							catch(err)
+								{
+									nlapiLogExecution('ERROR', 'Error updating old sales order, id = ' + salesOrderId, err.message);
+								}
+						}
+				}
+		}
+}
+
+
+
+
 function getResults(search)
 {
 	var searchResult = search.runSearch();
