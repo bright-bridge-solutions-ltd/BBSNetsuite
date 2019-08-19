@@ -47,6 +47,22 @@ function salesOrderSummaryAS(type)
 					var lineAmount = nlapiGetLineItemValue('item', 'amount', int);
 					var lineVatAmount = nlapiGetLineItemValue('item', 'tax1amt', int);
 					var linevatCode = nlapiGetLineItemValue('item', 'taxrate1', int);
+					var priceLevel = nlapiGetLineItemValue('item', 'price', int);
+					linevatCode = parseFloat(linevatCode).toFixed(2) + '%';
+					
+					// check that the priceLevel is not -1 (custom) or 1 (base price)
+					if (priceLevel > 1)
+						{
+							// lookup the discount percentage on the price level record
+							var discount = nlapiLookupField('pricelevel', priceLevel, 'discountpct');
+							discount = (parseFloat(discount) * -1);
+							discount = discount.toFixed(2) + '%';
+						}
+					else
+						{
+							// set the discount variable to '0.00%'
+							var discount = '0.00%';
+						}
 					
 					//Only interested in inventory & non-inventory items
 					//
@@ -125,7 +141,8 @@ function salesOrderSummaryAS(type)
 					        												itemInfoText.custitem_fbi_item_size2,
 					        												parentInfoText.location,
 					        												lineUnitPrice,
-					        												linevatCode
+					        												linevatCode,
+					        												discount
 					        												);
 					        		}
 					        		
@@ -162,7 +179,8 @@ function salesOrderSummaryAS(type)
 														summary[key].unitPrice,
 														summary[key].getAmountTotal(),
 														summary[key].getVatAmountTotal(),
-														summary[key].vatCode
+														summary[key].vatCode,
+														summary[key].discount
 														)
 									);
 				}
@@ -177,7 +195,7 @@ function salesOrderSummaryAS(type)
 //Objects
 //=============================================================================
 //
-function outputSummary(_product, _description, _location, _colour, _quantitySize, _total, _unitPrice, _amount, _vatAmount, _vatCode)
+function outputSummary(_product, _description, _location, _colour, _quantitySize, _total, _unitPrice, _amount, _vatAmount, _vatCode, _discount)
 {
 	//Properties
 	//
@@ -190,10 +208,11 @@ function outputSummary(_product, _description, _location, _colour, _quantitySize
 	this.amount 		= Number(_amount);
 	this.unitPrice 		= Number(_unitPrice);
 	this.vatAmount 		= Number(_vatAmount);
-	this.vatCode 		= _vatCode
+	this.vatCode 		= _vatCode;
+	this.discount		= _discount;
 }
 
-function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdescription, _itemColourText, _itemSize2Text, _locationText, _unitPrice, _vatCode)
+function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdescription, _itemColourText, _itemSize2Text, _locationText, _unitPrice, _vatCode, _discount)
 {
 	//Properties
 	//
@@ -207,6 +226,7 @@ function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdesc
 	this.locationText 		= _locationText;
 	this.unitPrice 			= Number(_unitPrice);
 	this.vatCode 			= _vatCode;
+	this.discount			= _discount;
 	this.sizeQuantity 		= [];
 	
 	//Methods
@@ -291,7 +311,15 @@ function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdesc
 				{
 					if(this.sizeQuantity[int2].sizeText != '')
 						{
-							summaryText += this.sizeQuantity[int2].quantity.toString() + '(' + this.sizeQuantity[int2].sizeText + ') ';
+							// check if this is the last item in the array
+							if (int2 == (this.sizeQuantity.length-1))
+								{
+									summaryText += this.sizeQuantity[int2].quantity.toString() + ' x ' + this.sizeQuantity[int2].sizeText;
+								}
+							else
+								{
+									summaryText += this.sizeQuantity[int2].quantity.toString() + ' x ' + this.sizeQuantity[int2].sizeText + ', ';
+								}
 						}
 					else
 						{
