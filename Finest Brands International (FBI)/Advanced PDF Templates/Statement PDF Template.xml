@@ -21,31 +21,48 @@
   
 
     <macrolist>
-       <macro id="nlheader">
-          <table class="header" style="width: 100%;">
-          	<tr>
-              <td><img src="${logoInfo}" style="float: left; width:80px; height:80px;" /></td>
-              <td colspan="2"><span class="nameandaddress">${companyInformation.companyName}<br />${companyInformation.addressText}</span><br/>${telInfo}<br/>VAT No. ${vatInfo}</td>
-              <td>&nbsp;</td>
-              <td align="right" style="font-size:24px;">${record@title}</td>
-            </tr>
-          </table>
-
-<table class="header" style="width: 100%; margin-top: 20px;">
-	<tr>
-	<td class="addressheader"><span style="font-size:10pt"><b>Statement To: ${customer.custentity_bbs_desl_account_number}</b></span><br /><span class="nameandaddress" style="font-size:10pt">${statement.billaddress}</span></td>
-	<td class="addressheader"><span style="font-size:10pt"><b>Remit To: ${customer.custentity_bbs_desl_account_number}</b></span><br /><span class="nameandaddress" style="font-size:10pt">${statement.billaddress}</span></td>
-	</tr>
-</table>
-
-<table class="header" style="width: 100%; margin-top: 10px;">
-  	<tr>
-	<td >Statement Date: ${statement.trandate}</td>
-	<td >Statement Date: ${statement.trandate}</td>
-	</tr>
-</table>
-
-</macro>
+         <macro id="nlheader">
+          	<table style="width: 100%;">
+    			<tr>
+					<td colspan="2" align="left" style="font-size: 16pt; font-weight: bold;">STATEMENT</td>
+    
+    				<td><img src="${logoInfo}" style="float: center; width:80px; height:80px;" /></td>
+      
+    				<td colspan="2" >
+                      <table  style="width: 100%; height: 130px;">
+        				<tr>
+                          <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                          <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                          <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                          <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                          <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                          <td>&nbsp;</td>
+                        </tr>
+                      </table>
+                    </td>
+				</tr>
+			</table>
+         
+          	<table  style="width: 50%; height: 130px; margin-right: 5px;">
+                <tr>
+					<td style="padding-left: 5px;">${statement.billaddress}</td>
+				</tr>
+                <tr>
+                    <td style="padding-left: 5px;"><br/>Statement Date: ${statement.trandate}</td>
+                </tr>
+             </table>
+      	</macro>
+ 
         <macro id="nlfooter">
             <table style="width: 100%;">
     			<tr>
@@ -68,54 +85,7 @@
                         </tr>
                     </table>
                       
-                    <table style="width: 100%; margin-top: 35px;">
-                     	<tr>
-                          <td rowspan="5"><img src="${logoChampion}" style="float: left; width: 50px; height: 50px;" /></td>
-                          <td rowspan="5"><img src="${logoToggi}" style="float: left; width: 50px; height: 50px;" /></td>
-                          <td>&nbsp;</td>
-                          <td>&nbsp;</td>
-                      	</tr>
-                      	<tr>
-                          	<td>&nbsp;</td>
-                          	<td>&nbsp;</td>
-                      	</tr>
-                      	<tr>
-                      		<td align="left" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">Amount Due</td>
-                        	<td align="right" style="font-size: 6pt; border: 1px solid black;">${statement.amountDue}</td>
-                      	</tr>
-                      	<tr>
-                          	<td>&nbsp;</td>
-                          	<td>&nbsp;</td>
-                      	</tr>
-						<tr>
-                          	<td>&nbsp;</td>
-                          	<td>&nbsp;</td>
-                     	</tr>
-                      	
-                    </table>
-                      
                   	</td>
-
-          			<!--Right hand half of output-->
-          			<td style="margin-left: 5px;">
-                      <#assign done>N</#assign>
-                          <#list statement.lines as line>
-                              <#assign accno>${line.custbody_bbs_account_no}</#assign>
-                              <#if accno?length gt 0 && done=="N" >
-                                  <table style="width: 100%;">
-                                      <tr><td style="font-size: 6pt;">Bank Details for payments in ${statement.currency}:</td></tr>
-                                      <tr><td style="font-size: 6pt;">${line.custbody_bbs_bank_account}</td></tr>
-                                      <tr><td style="font-size: 6pt;">${line.custbody_bbs_bank_name}</td></tr>
-                                      <tr><td style="font-size: 6pt;">Account Number: ${line.custbody_bbs_account_no}</td></tr>
-                                      <tr><td style="font-size: 6pt;">Sort Code: ${line.custbody_bbs_sort_code}</td></tr>
-                                      <tr><td style="font-size: 6pt;">IBAN: ${line.custbody_bbs_iban}</td></tr>
-                                      <tr><td style="font-size: 6pt;">Swift Code: ${line.custbody_bbs_bic}</td></tr>
-                                      <tr><td style="font-size: 6pt;">&nbsp;</td></tr>
-
-                                      <#assign done>Y</#assign>
-                                  </table>
-                              </#if>
-                          </#list>
                       
                       <table style="width: 100%; margin-top: 5px;">
                     	<tr>
@@ -129,12 +99,48 @@
                   	</td>
           		</tr>
           	</table>
+   
+        <table style="width: 100%;">
+          <tr><td>Bank Details for payments in ${record.currency}:</td></tr>
+          <tr><td>${record.custbody_bbs_bank_account} | ${record.custbody_bbs_bank_name} | Account Number: ${record.custbody_bbs_account_no} | Sort Code: ${record.custbody_bbs_sort_code} | IBAN: ${record.custbody_bbs_iban} | Swift Code: ${record.custbody_bbs_bic}</td></tr>
+          <tr><td>&nbsp;</td></tr>
+        </table>
           
- 		
+        <table class="header" style="width: 100%; border: 1px solid black; margin-top: 10px;">
+            <tr>
+            <td align="center" colspan="6">
+              <table style="width: 100%;">
+                <tr>
+                  <td align="left" rowspan="5" style="margin: 2px;"><img src="${logoChampion}" style="float: left; width: 50px; height: 50px;" /><p style="clear:left; font-size: 6pt;">www.championhats.co.uk</p></td>
+                  <td align="center" colspan="4" style="font-size: 8pt;"><b>Finest Brands International Ltd, Laurel House, 146 - 148 Garnet Road, Leeds, LS11 5HP</b></td>
+                  <td align="right" rowspan="5"><img src="${logoToggi}" style="float: left; width: 50px; height: 50px;" /><p style="clear:left; font-size: 6pt;">www.toggi.com</p></td>
+                </tr>
+                <tr>
+                  <td align="center" colspan="4" style="font-size: 8pt;">Tel: 0113 270 7000 Fax: 0113 270 6890 Email: info@finestbrands.co.uk</td>
+                </tr>
+                <tr>
+                  <td align="center" colspan="4" style="font-size: 8pt;">Company Registration No: 02545569. VAT Registration No: GB 927 5446 01</td>
+                </tr>
+                 <tr>
+                  <td align="center" colspan="4" style="font-size: 6pt;">Registered Office: Unit 4, Heron Road, Rumney, Cardiff, CF3 3JE</td>
+                </tr>
+                <tr>
+                  <td align="center" colspan="4" style="font-size: 8pt;">All payments should be made to Finest Brands International Ltd.</td>
+                </tr>
+                <tr>
+                  <td align="left" rowspan="5"></td> <!--  text in adjacent cell won't center so have added empty column -->
+                  <td align="center" colspan="4" style="font-size: 6pt;">Title to all goods supplied under all contracts will remain with the seller until all sums outstanding have been paid in full.</td>
+                </tr>
+                <tr>
+                  <td align="center" colspan="4" style="font-size: 6pt;">Please refer to full written terms of trading already supplied.</td>
+                </tr>
+              </table>
+            </td>
+            </tr>
+            </table> 		
 
 <table class="footer" style="width: 100%; margin-top: 10px;">
   <tr>
-	<td align="left">Page <pagenumber/> of <totalpages/></td>
 	<td align="right">Page <pagenumber/> of <totalpages/></td>
 	</tr>
 </table>
@@ -185,16 +191,16 @@
         table.total {
             page-break-inside: avoid;
         }
-      table.message{
+      	table.message{
         border: 1px solid #dddddd;
-      }
+      	}
         tr.totalrow {
             <!--background-color: #e3e3e3;-->
             line-height: 200%;
         }
-      tr.messagerow{
+      	tr.messagerow{
         font-size: 6pt;
-      }
+      	}
         td.totalboxtop {
             font-size: 12pt;
             background-color: #e3e3e3;
@@ -217,9 +223,9 @@
           border-bottom: 1px solid black;
     		border-collapse: collapse;
         }
-      td.message{
+      	td.message{
         font-size: 8pt;
-      }
+      	}
         td.totalboxbot {
             background-color: #e3e3e3;
             font-weight: bold;
@@ -242,78 +248,37 @@
         }
 </style>
 </head>
+
 <body header="nlheader" header-height="280px" footer="nlfooter" footer-height="120px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
- 
-  <table style="width: 100%;">
-    <tr>
-      <!--Left hand half of output-->
-      <td style="margin-right: 5px;">
-        <table class="itemtable" style="width: 100%; margin-top: 10px;">
-    		<tr>
-      			<td>All amounts shown in ${statement.currency}</td>
-    		</tr>
-  		</table>
-  
-	<table class="itemtable" style="width: 100%; margin-top: 10px;">
-		<#list statement.lines as line>
-			<#if line_index==0>
-				<thead>
-					<tr>
-						<th colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff;">${line.datecol@label}</th>
-						<th colspan="5" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.description@label}</th>
-						<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">Debit</th>
-						<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">Credit</th>
-						<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.balance@label}</th>
-					</tr>
-				</thead>
-			</#if>
-			<tr style="line-height: 200%;">
-				<td colspan="2"  style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.datecol}</td>
-				<td colspan="5" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.description}</td>
-				<td align="right" colspan="2" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.charge}</td>
-				<td align="right" colspan="2" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.payment}</td>
-				<td align="right" colspan="2" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">${line.balance}</td>
-			</tr>
-		</#list>
-	</table>
-      </td>
-      
-      <!--Right hand half of output-->
-      <td style="margin-left: 5px;">
-        <table class="itemtable" style="width: 100%; margin-top: 10px;">
-    <tr>
-      <td>All amounts shown in ${statement.currency}</td>
-    </tr>
-  </table>
-  
-	<table class="itemtable" style="width: 100%; margin-top: 10px;">
-		<#list statement.lines as line>
-			<#if line_index==0>
-				<thead>
-					<tr>
-						<th colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff;">${line.datecol@label}</th>
-						<th colspan="5" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.description@label}</th>
-						<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.charge@label}</th>
-						<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.payment@label}</th>
-						<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.balance@label}</th>
-					</tr>
-				</thead>
-			</#if>
-			<tr style="line-height: 200%;">
-				<td colspan="2"  style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.datecol}</td>
-				<td colspan="5" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.description}</td>
-				<td align="right" colspan="2" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.charge}</td>
-				<td align="right" colspan="2" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.payment}</td>
-				<td align="right" colspan="2" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">${line.balance}</td>
-			</tr>
-		</#list>
-	</table>
-      </td>
-    </tr>
-    
-  </table>
-  
-  
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;">
+	<tr>
+		<td>All amounts shown in ${statement.currency}</td>
+	</tr>
+</table>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;">
+	<#list statement.lines as line>
+		<#if line_index==0>
+			<thead>
+				<tr>
+					<th colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff;">${line.datecol@label}</th>
+					<th colspan="5" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.description@label}</th>
+					<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">Debit</th>
+					<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">Credit</th>
+					<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.balance@label}</th>
+				</tr>
+			</thead>
+		</#if>
+				<tr style="line-height: 200%;">
+					<td colspan="2"  style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.datecol}</td>
+					<td colspan="5" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.description}</td>
+					<td align="right" colspan="2" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.charge}</td>
+					<td align="right" colspan="2" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.payment}</td>
+					<td align="right" colspan="2" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">${line.balance}</td>
+				</tr>
+	</#list>
+</table>
 
 </body>
 </pdf>

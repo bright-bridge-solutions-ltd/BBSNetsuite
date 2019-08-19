@@ -20,46 +20,55 @@
               <#assign logoToggi>https://5293281-sb1.app.netsuite.com/core/media/media.nl?id=1310&amp;c=5293281_SB1&amp;h=cd567fd4c49356911ee1</#assign>
         </#if>
   
-
     <macrolist>
         <macro id="nlheader">
           	<table style="width: 100%;">
     			<tr>
-					<td colspan="2" align="left" style="font-size: 16pt; font-weight: bold;">SALES ORDER<br/>CONFIRMATION</td>
+					<td colspan="2" align="left" style="font-size: 16pt; font-weight: bold;">INVOICE</td>
     
     				<td><img src="${logoInfo}" style="float: center; width:80px; height:80px;" /></td>
       
     				<td colspan="2" >
                       <table  style="width: 100%; border: 1px solid black; height: 130px;">
         				<tr>
-                          <td colspan="2" align="left" style="padding-left: 5px; font-size: 9pt;">Order Date</td>
+          					<td colspan="2" align="left" style="padding-left: 5px; font-size: 6pt;">Invoice No.</td>
+          					<td>&nbsp;</td>
+          					<td colspan="2" align="left" style="padding-right: 2px; font-size: 6pt;">${record.tranid}</td>
+        				</tr>
+                        <tr>
+                          <td colspan="2" align="left" style="padding-left: 5px; font-size: 6pt;">Invoice Date</td>
                           <td>&nbsp;</td>
-                          <td colspan="2" align="left" style="padding-right: 2px; font-size: 9pt;">${record.trandate}</td>
+                          <td colspan="2" align="left" style="padding-right: 2px; font-size: 6pt;">${record.trandate}</td>
                         </tr>
                         <tr>
-                          <td colspan="2" align="left" style="padding-left: 5px; font-size: 9pt;">Est. Ship Date</td>
+                          <td colspan="2" align="left" style="padding-left: 5px; font-size: 6pt;">Due Date</td>
                           <td>&nbsp;</td>
-                          <td colspan="2" align="left" style="padding-right: 2px; font-size: 9pt;">${record.shipdate}</td>
+                          <td colspan="2" align="left" style="padding-right: 2px; font-size: 6pt;">${record.duedate}</td>
                         </tr>
                         <tr>
-                          <td colspan="2" align="left" style="padding-left: 5px; font-size: 9pt;">Customer</td>
+                          <td colspan="2" align="left" style="padding-left: 5px; font-size: 6pt;">Customer</td>
                           <td>&nbsp;</td>
-                          <td colspan="2" align="left" style="padding-right: 2px; font-size: 9pt;">${record.entity.companyname}</td>
+                          <td colspan="2" align="left" style="padding-right: 2px; font-size: 6pt;">${record.entity.companyname}</td>
                         </tr>
                         <tr>
-                          <td colspan="2" align="left" style="padding-left: 5px; font-size: 9pt;">Account No</td>
+                          <td colspan="2" align="left" style="padding-left: 5px; font-size: 6pt;">Account No</td>
                           <td>&nbsp;</td>
-                          <td colspan="2" align="left" style="padding-right: 2px; font-size: 9pt;">${record.entity.custentity_bbs_desl_account_number}</td>
+                          <td colspan="2" align="left" style="padding-right: 2px; font-size: 6pt;">${record.entity.custentity_bbs_desl_account_number}</td>
                         </tr>
                         <tr>
-                          <td colspan="2" align="left" style="padding-left: 5px; font-size: 9pt;">Currency</td>
+                          <td colspan="2" align="left" style="padding-left: 5px; font-size: 6pt;">Currency</td>
                           <td>&nbsp;</td>
-                          <td colspan="2" align="left" style="padding-right: 2px; font-size: 9pt;">${record.currency}</td>
+                          <td colspan="2" align="left" style="padding-right: 2px; font-size: 6pt;">${record.currency}</td>
                         </tr>
                         <tr>
-                          <td colspan="2" align="left" style="padding-left: 5px; font-size: 9pt;">Dispatch Method</td>
+                          <td colspan="2" align="left" style="padding-left: 5px; font-size: 6pt;">VAT Reg No</td>
                           <td>&nbsp;</td>
-                          <td colspan="2" align="left" style="padding-right: 2px; font-size: 9pt;">${record.shipmethod}</td>
+                          <td colspan="2" align="left" style="padding-right: 2px; font-size: 6pt;">${record.entity.vatregnumber}</td>
+                        </tr>
+                        <tr>
+                          	<td colspan="2" align="left" style="padding-left: 5px; font-size: 6pt;">Dispatch Method</td>
+                          	<td>&nbsp;</td>
+                          	<td colspan="2" align="left" style="padding-right: 2px; font-size: 6pt;">${record.shipmethod}</td>
                         </tr>
                       </table>
                     </td>
@@ -111,7 +120,7 @@
       	</macro>
 
         <macro id="nlfooter">
-
+        
         <table style="width: 100%;">
           <tr><td>Bank Details for payments in ${record.currency}:</td></tr>
           <tr><td>${record.custbody_bbs_bank_account} | ${record.custbody_bbs_bank_name} | Account Number: ${record.custbody_bbs_account_no} | Sort Code: ${record.custbody_bbs_sort_code} | IBAN: ${record.custbody_bbs_iban} | Swift Code: ${record.custbody_bbs_bic}</td></tr>
@@ -175,7 +184,7 @@
             <!--color: #333333;-->
         }
         td {
-            padding: 2px;
+            padding: 0px;
             vertical-align: top;
             font-size:10px;
         }
@@ -194,13 +203,12 @@
         table.itemtable th {
             padding-bottom: 0px;
             padding-top: 0px;
-
         }
         table.body td {
             padding-top: 0px;
         }
         table.total {
-            page-break-inside: avoid;
+            page-break-inside: auto;
         }
       	table.message{
         border: 1px solid #dddddd;
@@ -231,7 +239,7 @@
             background-color: #e3e3e3;
         }
         td.totalcell {
-          	border-bottom: 1px solid black;
+          border-bottom: 1px solid black;
     		border-collapse: collapse;
         }
       	td.message{
@@ -259,27 +267,27 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="280px" footer="nlfooter" footer-height="160px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="280px" footer="nlfooter" footer-height="140px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
-<table style="width: 100%; border-right: 1px solid black;">
+<table style="width: 100%;">
 <thead>
 	<tr >
 	<th align="center" style="background-color: #000000; color: #ffffff; font-size: 10pt;">Order No</th>
-    <th align="center" style="background-color: #000000; color: #ffffff; border-left: 1px solid white; font-size: 10pt;">Customer Order Reference</th>
-	<th align="center" style="background-color: #000000; color: #ffffff; border-left: 1px solid white; font-size: 10pt;">Order Date</th>
-    </tr>
+    <th align="center" style="background-color: #000000; color: #ffffff; border-left: 1px solid white; font-size: 10pt;">Customer Order Ref</th>
+	<th align="center" style="background-color: #000000; color: #ffffff; border-left: 1px solid white; font-size: 10pt;">Due Delivery</th>
+    <th align="center" style="background-color: #000000; color: #ffffff; border-left: 1px solid white; font-size: 10pt;">Despatch Date</th>
+	</tr>
 </thead>
   <tr>
-  <td align="center" style="border-left: 1px solid black; border-bottom: 1px solid black; font-size: 10pt;">${record.tranid}</td>
-  <td align="center" style="border-left: 1px solid black; border-bottom: 1px solid black; font-size: 10pt;">${record.otherrefnum}</td>
-  <td align="center" style="border-left: 1px solid black; border-bottom: 1px solid black; font-size: 10pt;">${record.trandate}</td>
+  <td align="center" style="border-left: 1px solid black; border-bottom: 1px solid black; font-size: 10pt;">${record.createdfrom.tranid}</td>
+  <td align="center" style="border-left: 1px solid black; border-bottom: 1px solid black; font-size: 10pt;">${record.createdfrom.otherrefnum}</td>
+  <td align="center" style="border-left: 1px solid black; border-bottom: 1px solid black; font-size: 10pt;">${record.createdfrom.shipdate}</td>
+  <td align="center" style="border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black; font-size: 10pt;">${record.createdfrom.actualshipdate}</td>
   </tr>
   </table>
-  
-  
 
 <#assign summary_info = record.custbody_bbs_item_summary_json?eval>
-<table class="total" style="width: 100%; margin-top: 10px; border-right: 1px solid black;">
+<table class="total" cellpadding="2px" style="width: 100%; margin-top: 10px; border-right: 1px solid black;">
 <#list summary_info as info>
   <#if info_index==0>
 <thead>
@@ -308,10 +316,18 @@
       <td align="center" colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.vatCode}</td>    
   </tr>
 	</#list>
-  </table>
-
+  </table>  
   
-<table style="width: 100%; margin-top: 10px;">
+<!--  check if the terms contains 'Settlement' -->
+<#if record.terms?contains('settlement')>
+	<table style="width: 100%; margin-top: 10px;">
+		<tr>
+			<td>${record.terms.discountpercent}% discount may be deducted from the full value of this invoice if payment is received before ${record.custbody_bbs_settlement_discount_until}. No credit note will be issued. Following payment, you must ensure you have only recovered the VAT actually paid.</td>
+		</tr>
+	</table>
+</#if>
+
+<table cellpadding="2px" style="width: 100%;">
 	<tr>
 		<td align="left">
 			<#if record.custbody_bbs_vat_summary?has_content>
@@ -339,7 +355,7 @@
 			</#if>
 		</td>
 		<td align="left">
-			<table class="total" style="width: 100%; margin-top: 10px;">
+			<table class="total" cellpadding="2px" style="width: 100%; margin-top: 10px;">
 				<tr class="totalrow">
 					<td colspan="3">&nbsp;</td>
 					<td align="right" style="background-color: #000000; color: #ffffff; border-bottom: 1px solid white; font-weight: bold;">SUB TOTAL</td>

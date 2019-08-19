@@ -1,0 +1,279 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+        <#assign regInfo>?????</#assign>
+        <#assign emailInfo>?????</#assign>
+        <#assign telInfo>?????</#assign>
+        <#assign vatInfo>?????</#assign>
+        <#assign logoInfo>?????</#assign>
+        <#assign logoChampion>?????</#assign>
+        <#assign logoToggi>?????</#assign>
+        <#assign subsidiary>${record.subsidiary.id}</#assign>
+  
+          <#if subsidiary=="2">
+              <#assign regInfo>Company Registration No: 02545569. Registered Office: Laurel House, 146-148 Garnet Road, Leeds, LS11 5HP, United Kingdom.</#assign>
+              <#assign emailInfo>info@finestbrands.co.uk</#assign>
+              <#assign telInfo>0113 270 7007</#assign>
+              <#assign vatInfo>GB 927 5446 012</#assign>
+              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=11&amp;c=5293281_SB1&amp;h=fe2ea6b8bad94150217e</#assign>
+              <#assign logoChampion>https://5293281-sb1.app.netsuite.com/core/media/media.nl?id=1308&amp;c=5293281_SB1&amp;h=e81a9c06d74f143fcbfa</#assign>
+              <#assign logoToggi>https://5293281-sb1.app.netsuite.com/core/media/media.nl?id=1310&amp;c=5293281_SB1&amp;h=cd567fd4c49356911ee1</#assign>
+        </#if>
+  
+
+    <macrolist>
+        <macro id="nlheader">
+          	<table style="width: 100%;">
+    			<tr>
+					<td colspan="2" align="left" style="font-size: 16pt; font-weight: bold;">PURCHASE ORDER</td>
+    
+    				<td><img src="${logoInfo}" style="float: center; width:80px; height:80px;" /></td>
+      
+    				<td colspan="2" >
+                      <table  style="width: 100%; border: 1px solid black; height: 130px;">
+        				<tr>
+          					<td colspan="2" align="left" style="padding-left: 5px; font-size: 8pt;">Order Number:</td>
+          					<td colspan="2" align="left" style="font-size: 8pt;">${record.tranid}</td>
+        				</tr>
+                        <tr>
+                          <td colspan="2" align="left" style="padding-left: 5px; font-size: 8pt;">Order Date: </td>
+                          <td colspan="2" align="left" style="font-size: 8pt;">${record.trandate}</td>
+                        </tr>
+                        <tr>
+                          <td colspan="2" align="left" style="padding-left: 5px; font-size: 8pt;">Your Ref:</td>
+                          <td colspan="2" align="left" style="font-size: 8pt;">${record.otherrefnum}</td>
+                        </tr>
+                        <tr>
+                          <td colspan="2" align="left" style="padding-left: 5px; font-size: 8pt;">Account Ref:</td>
+                          <td colspan="2" align="left" style="font-size: 8pt;">${record.memo}</td>
+                        </tr>
+                      </table>
+                    </td>
+				</tr>
+			</table>
+          
+          	<table style="width: 100%; margin-top: 5px;">
+              	<tr>
+                  <td colspan="3">
+          			<table  style="width: 100%; border: 1px solid black; height: 130px; margin-right: 5px;">
+                      <tr>
+                        <td style="font-size: 10pt; padding-left: 5px;"><b>Invoice Address</b></td>
+                      </tr>
+                      <tr>
+						<td style="padding-left: 5px;">${record.billaddress}</td>
+					  </tr>
+                      <tr>
+                      	<td>&nbsp;</td>
+                      </tr>
+                      <tr>
+                      	<td>&nbsp;</td>
+                      </tr>
+                      <tr>
+                      	<td>&nbsp;</td>
+                      </tr>
+                    </table>
+				  </td>
+				  <td colspan="2">
+          			<table  style="width: 100%; border: 1px solid black; height: 130px;">
+                      <tr>
+                        <td style="font-size: 10pt; padding-left: 5px;"><b>Delivery Address</b></td>
+                      </tr>
+                      <tr>
+						<td style="padding-left: 5px;">${record.shipaddress}</td>
+					  </tr>
+                      <tr>
+                      	<td>&nbsp;</td>
+                      </tr>
+                      <tr>
+                      	<td>&nbsp;</td>
+                      </tr>
+                      <tr>
+                      	<td>&nbsp;</td>
+                      </tr>
+                    </table>
+				  </td>
+               	</tr>
+          	</table>
+      	</macro>
+
+        <macro id="nlfooter">
+
+        <table class="header" style="width: 100%; border: 1px solid black;">
+            <tr>
+            <td align="center" colspan="6">
+              <table style="width: 100%;">
+                <tr>
+                  <td align="left" rowspan="6"><img src="${logoChampion}" style="float: left; width: 50px; height: 50px;" /></td>
+                  <td align="center" colspan="5" style="font-size: 8pt;"><b>Finest Brands International Ltd Laurel House, 146 - 148 Garnet Road, Leeds, LS11 5HP</b></td>
+                  <td align="right" rowspan="6"><img src="${logoToggi}" style="float: left; width: 50px; height: 50px;" /></td>
+                </tr>
+                <tr>
+                  <td align="center" colspan="5" style="font-size: 8pt;">Tel: 0113 270 7000 Fax: 0113 270 6890 Email: info@finestbrands.co.uk</td>
+                </tr>
+                <tr>
+                  <td align="center" colspan="5" style="font-size: 8pt;">Company Registration No: 02545569. VAT Registration No: GB 927 5446 01</td>
+                </tr>
+              </table>
+            </td>
+            </tr>
+            </table>
+
+		<table class="footer" style="width: 100%; margin-top: 5px;">
+          <tr>
+			<td align="right"><pagenumber/> of <totalpages/></td>
+		</tr>
+        </table>
+        </macro>
+    </macrolist>
+
+    <style type="text/css">
+    	table {
+            <!--font-family: sans-serif;-->
+      		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            <!--background-color: #e3e3e3;-->
+            border-bottom: 1px solid black;
+    		border-collapse: collapse;
+            <!--color: #333333;-->
+        }
+        td {
+            padding: 0px;
+            vertical-align: top;
+            font-size:10px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 6pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      	table.message{
+        	border: 1px solid #dddddd;
+      	}
+        tr.totalrow {
+            <!--background-color: #e3e3e3;-->
+            line-height: 200%;
+        }
+      	tr.messagerow{
+        	font-size: 6pt;
+      	}
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 10pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+          	font-size: 10pt;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalcell {
+          	border-bottom: 1px solid black;
+    		border-collapse: collapse;
+        }
+      	td.message{
+        	font-size: 8pt;
+      	}
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="280px" footer="nlfooter" footer-height="160px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+<table class="itemtable" style="width: 100%; margin-top: 10px; border-right: 1px solid black;">
+<#list record.item as item>
+<#if item_index==0>
+<thead>
+	<tr>
+	<th align="center" colspan="2" style="background-color: #000000; color: #ffffff;">Qty Ordered</th>
+	<th align="center" colspan="4" style="background-color: #000000; color: #ffffff;">Product Code</th>
+	<th align="center" colspan="6" style="background-color: #000000; color: #ffffff;">Product Description</th>
+	<th align="right" colspan="2" style="background-color: #000000; color: #ffffff;">Unit Price</th>
+	<th align="right" colspan="2" style="background-color: #000000; color: #ffffff;">Net Amt</th>
+	<th align="right" colspan="2" style="background-color: #000000; color: #ffffff;">VAT Amt</th>
+	</tr>
+</thead>
+</#if>
+  <tr>
+      <td align="center" colspan="2" style="border-bottom: 1px solid black; border-left: 1px solid black;">${item.quantity}</td>
+      <td align="center" colspan="4" style="border-bottom: 1px solid black; border-left: 1px solid black;">${item.item}</td>
+      <td align="center" colspan="6" style="border-bottom: 1px solid black; border-left: 1px solid black;">${item.description}</td>
+      <td align="right" colspan="2" style="border-bottom: 1px solid black; border-left: 1px solid black;">${item.rate}</td>
+      <td align="right" colspan="2" style="border-bottom: 1px solid black; border-left: 1px solid black;">${item.grossamt}</td>
+      <td align="right" colspan="2" style="border-bottom: 1px solid black; border-left: 1px solid black;">${item.tax1amt}</td>
+  </tr>
+</#list>
+</table>
+
+<table class="total" style="width: 100%; margin-top: 10px;">
+	<tr class="totalrow">
+		<td colspan="4">&nbsp;</td>
+		<td align="left" style="background-color: #000000; color: #ffffff; border-bottom: 1px solid white; font-weight: bold;">Total Net Amount</td>
+		<td align="right" style="border-right: 1px solid black; border-top: 1px solid black;">${record.subtotal}</td>
+	</tr>
+	<tr class="totalrow">
+		<td colspan="4">&nbsp;</td>
+		<td align="left" style="background-color: #000000; color: #ffffff; border-bottom: 1px solid white; font-weight: bold;">Total VAT Amount</td>
+		<td align="right" style="border-right: 1px solid black; border-top: 1px solid black;">${record.taxtotal}</td>
+	</tr>
+	<tr class="totalrow">
+		<td colspan="4">&nbsp;</td>
+		<td align="left" style="background-color: #000000; color: #ffffff; border-bottom: 1px solid white; font-weight: bold;">Order Total</td>
+		<td align="right" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">${record.total}</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+	</tr>
+</table>
+
+</body>
+</pdf>

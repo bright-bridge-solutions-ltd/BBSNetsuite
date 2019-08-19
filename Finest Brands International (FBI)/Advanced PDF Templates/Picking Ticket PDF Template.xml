@@ -76,7 +76,7 @@
       </table>
     </td>
     <td>
-      <table  style="width: 100%; border: 1px solid black; margin-right: 2px; height: 130px;">
+      <table style="width: 100%; border: 1px solid black; margin-right: 2px; height: 130px;">
         <tr>
           <td align="left" style="padding-left: 5px;"><b>Picking Note</b></td>
           <td>&nbsp;</td>
@@ -133,7 +133,7 @@
           <td align="left" style="border-bottom: 1px solid black; line-height: 300%; padding-left: 5px;"><b>No Of Cartons</b></td>
         </tr>
         <tr>
-          <td align="left" style="border-bottom: 1px solid black; line-height: 300%; padding-left: 5px;"><b>Packer No</b></td>
+          <td align="left" style="border-bottom: 1px solid black; line-height: 300%; padding-left: 5px;"><b>Packer</b></td>
         </tr>
         <tr>
           <td align="left" style="line-height: 300%; padding-left: 5px;"><b>Despatch Method</b></td>
@@ -200,16 +200,16 @@
         table.total {
             page-break-inside: avoid;
         }
-      table.message{
+      	table.message{
         border: 1px solid #dddddd;
-      }
+      	}
         tr.totalrow {
             <!--background-color: #e3e3e3;-->
             line-height: 200%;
         }
-      tr.messagerow{
+      	tr.messagerow{
         font-size: 6pt;
-      }
+      	}
         td.totalboxtop {
             font-size: 12pt;
             background-color: #e3e3e3;
@@ -232,9 +232,9 @@
           border-bottom: 1px solid black;
     		border-collapse: collapse;
         }
-      td.message{
+      	td.message{
         font-size: 8pt;
-      }
+      	}
         td.totalboxbot {
             background-color: #e3e3e3;
             font-weight: bold;
@@ -263,41 +263,35 @@
 
 <#assign summary_total = 0>
 <#assign summary_info = record.custbody_bbs_item_summary_json?eval>
-<table class="itemtable" style="width: 100%; margin-top: 10px;">
+<table class="itemtable" cellpadding="2px" style="width: 100%; margin-top: 10px;">
 <#list summary_info as info>
   <#if info_index==0>
 <thead>
 	<tr>
-	<th style="background-color: #000000; color: #ffffff;">Product</th>
-	<th colspan="2" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Description</th>
-	<th style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Location</th>
-	<th colspan="2" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Colour</th>
-	<th align="left" colspan="4" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Quantity (Size)</th>
-	<th align="right" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Total</th>
+	<th align="left" colspan="2" style="background-color: #000000; color: #ffffff;">Product</th>
+	<th align="left" colspan="2" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Description</th>
+	<th align="left" colspan="2" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Colour</th>
+	<th align="left" colspan="5" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Quantity (Size)</th>
+	<th align="center" colspan="1" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Total</th>
 	</tr>
 </thead>
 </#if>
   <tr style="line-height: 200%;">
-      <td style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.product}</td>
-      <td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.description}</td>
-      <td style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.location}</td>
-      <td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.colour}</td>
-      <td colspan="4" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.quantitysize}</td>
-      <td align="right" style="border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">${info.total}</td>
+      <td align="left" colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.product}</td>
+      <td align="left" colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.description}</td>
+      <td align="left" colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.colour}</td>
+      <td align="left" colspan="5" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.quantitysize}</td>
+      <td align="center" colspan="1" style="border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">${info.total}</td>
   </tr>
   
   	<#assign summary_total += info.total>
 	</#list>
   </table>
 
-  <table class="total" style="width: 100%; margin-top: 10px;">
+  <table class="total" align="right" style="width: 25%; margin-top: 10px;">
     <tr style="line-height: 200%;">
-      <td>&nbsp;</td>
-      <td colspan="3">&nbsp;</td>
-      <td>&nbsp;</td>
-      <td colspan="2">&nbsp;</td>
-      <td colspan="3" style="background-color: #000000; color: #ffffff;">Total</td>
-      <td align="right" style="border-right: 1px solid black; border-top: 1px solid black;  border-bottom: 1px solid black;">${summary_total}</td>
+      <td align="center" colspan="3" style="font-size: 8pt; font-weight: bold; background-color: #000000; color: #ffffff;">Total</td>
+      <td align="center" colspan="2" style="border-right: 1px solid black; border-top: 1px solid black;  border-bottom: 1px solid black;">${summary_total}</td>
   </tr>
   </table>
 </body>
