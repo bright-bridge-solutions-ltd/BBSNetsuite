@@ -52,7 +52,7 @@ function contactAddressBRL(type, form, request)
 										{
 											addresssText = companyRecord.getLineItemValue('addressbook', 'addressbookaddress_text', int);
 											
-											if(type == 'view')
+											if(type == 'view' && addresssText != null && addresssText != '')
 												{
 													addresssText = addresssText.replace(/\r\n/g, "<br/>");
 												}
@@ -83,7 +83,7 @@ function contactAddressBRL(type, form, request)
 									{
 										addresssDepotText = companyRecord.getLineItemValue('addressbook', 'addressbookaddress_text', int);
 										
-										if(type == 'view')
+										if(type == 'view' && addresssDepotText != null && addresssDepotText != '')
 											{
 												addresssDepotText = addresssDepotText.replace(/\r\n/g, "<br/>");
 											}
