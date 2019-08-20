@@ -47,9 +47,49 @@ function salesOrderSummaryAS(type)
 					var lineAmount = nlapiGetLineItemValue('item', 'amount', int);
 					var lineVatAmount = nlapiGetLineItemValue('item', 'tax1amt', int);
 					var linevatCode = nlapiGetLineItemValue('item', 'taxrate1', int);
-					var priceLevel = nlapiGetLineItemValue('item', 'price', int);
 					linevatCode = parseFloat(linevatCode).toFixed(2) + '%';
 					
+					//Get the price level for the line
+					//
+					var priceLevel = nlapiGetLineItemValue('item', 'custcol_bbs_old_price_level', int);
+					
+					//Check if the priceLevel variable returns a value
+					//
+					if (priceLevel)
+						{
+							// check that the priceLevel is not -1 (custom) or 1 (base price)
+							if (priceLevel > 1)
+								{
+									// lookup the discount percentage on the price level record
+									var discount = nlapiLookupField('pricelevel', priceLevel, 'discountpct');
+									discount = (parseFloat(discount) * -1);
+									discount = discount.toFixed(2) + '%';
+								}
+							else
+								{
+									// set the discount variable to '0.00%'
+									var discount = '0.00%';
+								}
+						}
+					else //custcol_bbs_old_price_level field is empty
+						{
+							priceLevel = nlapiGetLineItemValue('item', 'price', int);
+							
+							// check that the priceLevel is not -1 (custom) or 1 (base price)
+							if (priceLevel > 1)
+								{
+									// lookup the discount percentage on the price level record
+									var discount = nlapiLookupField('pricelevel', priceLevel, 'discountpct');
+									discount = (parseFloat(discount) * -1);
+									discount = discount.toFixed(2) + '%';
+								}
+							else
+								{
+									// set the discount variable to '0.00%'
+									var discount = '0.00%';
+								}
+						}
+
 					// check that the priceLevel is not -1 (custom) or 1 (base price)
 					if (priceLevel > 1)
 						{
