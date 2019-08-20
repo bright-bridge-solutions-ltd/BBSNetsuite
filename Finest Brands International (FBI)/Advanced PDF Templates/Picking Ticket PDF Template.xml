@@ -157,7 +157,8 @@
         </macro>
     </macrolist>
 
-    <style type="text/css">table {
+    <style type="text/css">
+    	table {
             <!--font-family: sans-serif;-->
       		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
             font-size: 9pt;
@@ -294,5 +295,12 @@
       <td align="center" colspan="2" style="border-right: 1px solid black; border-top: 1px solid black;  border-bottom: 1px solid black;">${summary_total}</td>
   </tr>
   </table>
+  
+<table style="width: 100%; margin-top: 10px;">
+	<tr>
+		<td><p align="center"><span style="font-size:14px; font-weight:bold;">Any discrepancies must be advised in writing within 48 hours of the goods being received</span></p></td>
+	</tr>
+</table>
+  
 </body>
 </pdf>
