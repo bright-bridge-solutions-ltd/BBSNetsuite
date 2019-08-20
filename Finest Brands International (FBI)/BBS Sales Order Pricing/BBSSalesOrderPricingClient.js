@@ -108,10 +108,15 @@ function salesOrderPricingValidateLine(type)
 							//
 							var newPrice = Number(customrecord_nsts_ep_pricingupdatepricesSearch[0].getValue("custrecord_nsts_ep_pricingupdatenewprice"));
 							
+							//Get the current price level
+							//
+							var currPriceLvl = nlapiGetCurrentLineItemValue('item', 'price');
+							
 							//Set the current line pricing
 							//
 							nlapiSetCurrentLineItemValue('item', 'price', '-1', true, true);	//Custom price level
 							nlapiSetCurrentLineItemValue('item', 'rate', newPrice, true, true);	//New price
+							nlapiSetCurrentLineItemValue('item', 'custcol_bbs_old_price_level', currPriceLvl, true, true); //Previous price level
 						}
 				}
 		}
