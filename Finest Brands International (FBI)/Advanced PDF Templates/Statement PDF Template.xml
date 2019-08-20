@@ -1,119 +1,80 @@
-<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd"><pdfset><#if statements??><#list statements as statement>
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd"><pdfset><#if statements?has_content><#list statements as statement>
 <pdf>
 <head>
-  
-        <#assign regInfo>?????</#assign>
-        <#assign emailInfo>?????</#assign>
-        <#assign telInfo>?????</#assign>
-        <#assign vatInfo>?????</#assign>
-        <#assign logoInfo>?????</#assign>
-        <#assign logoChampion>?????</#assign>
-        <#assign logoToggi>?????</#assign>
-        
-              <#assign regInfo>Company Registration No: 02545569. Registered Office: Laurel House, 146-148 Garnet Road, Leeds, LS11 5HP, United Kingdom.</#assign>
-              <#assign emailInfo>info@finestbrands.co.uk</#assign>
-              <#assign telInfo>0113 270 7007</#assign>
-              <#assign vatInfo>GB 927 5446 012</#assign>
-              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=11&amp;c=5293281_SB1&amp;h=fe2ea6b8bad94150217e</#assign>
-              <#assign logoChampion>https://5293281-sb1.app.netsuite.com/core/media/media.nl?id=1308&amp;c=5293281_SB1&amp;h=e81a9c06d74f143fcbfa</#assign>
-              <#assign logoToggi>https://5293281-sb1.app.netsuite.com/core/media/media.nl?id=1310&amp;c=5293281_SB1&amp;h=cd567fd4c49356911ee1</#assign>
-
-  
-
+    
     <macrolist>
-         <macro id="nlheader">
-          	<table style="width: 100%;">
+		<macro id="nlheader">
+        	<table class="header" style="width: 100%;">
     			<tr>
 					<td colspan="2" align="left" style="font-size: 16pt; font-weight: bold;">STATEMENT</td>
-    
-    				<td><img src="${logoInfo}" style="float: center; width:80px; height:80px;" /></td>
-      
-    				<td colspan="2" >
-                      <table  style="width: 100%; height: 130px;">
-        				<tr>
-                          <td>&nbsp;</td>
-                        </tr>
-                        <tr>
-                          <td>&nbsp;</td>
-                        </tr>
-                        <tr>
-                          <td>&nbsp;</td>
-                        </tr>
-                        <tr>
-                          <td>&nbsp;</td>
-                        </tr>
-                        <tr>
-                          <td>&nbsp;</td>
-                        </tr>
-                        <tr>
-                          <td>&nbsp;</td>
-                        </tr>
-                      </table>
-                    </td>
+    				<td align="center"><img src="https://system.eu1.netsuite.com/core/media/media.nl?id=11&amp;c=5293281_SB1&amp;h=fe2ea6b8bad94150217e" style="float: center; width:80px; height:80px;" /></td>
+    				<td colspan="2" rowspan="8"></td>
 				</tr>
 			</table>
-         
-          	<table  style="width: 50%; height: 130px; margin-right: 5px;">
-                <tr>
-					<td style="padding-left: 5px;">${statement.billaddress}</td>
+
+          	<table style="width: 50%; margin-top: 60px;">
+              	<tr>
+                    <td>&nbsp;</td>
+                </tr>
+              	<tr>
+					<td style="padding-left: 5px; font-size: 9pt;">${statement.billaddress}</td>
 				</tr>
                 <tr>
-                    <td style="padding-left: 5px;"><br/>Statement Date: ${statement.trandate}</td>
+                    <td>&nbsp;</td>
                 </tr>
-             </table>
+                 <tr>
+                 	<td style="padding-left: 5px; font-size: 9pt;">Statement Date: ${statement.trandate}</td>
+                 </tr>
+     		</table>
       	</macro>
- 
+        
         <macro id="nlfooter">
             <table style="width: 100%;">
     			<tr>
-      				<!--Left hand half of output-->
-          			<td style="margin-right: 5px;">
-                      <table class="aging" style="width: 100%;">
-                        <tr>
-                            <th align="center" style="font-size: 6pt; background-color: #000000; color: #ffffff;">${statement.aging1@label}</th>
-                            <th align="center" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${statement.aging2@label}</th>
-                            <th align="center" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${statement.aging3@label}</th>
-                            <th align="center" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${statement.aging4@label}</th>
-                            <th align="center" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${statement.aging5@label}</th>
-                        </tr>
-                        <tr>
-                            <td align="right" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${statement.aging1}</td>
-                            <td align="right" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${statement.aging2}</td>
-                            <td align="right" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${statement.aging3}</td>
-                            <td align="right" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${statement.aging4}</td>
-                            <td align="right" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px ">${statement.aging5}</td>
-                        </tr>
-                    </table>
-                      
-                  	</td>
-                      
-                      <table style="width: 100%; margin-top: 5px;">
-                    	<tr>
-                          	<td align="left" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">Amount Due</td>
-                        	<td align="right" style="font-size: 6pt; border: 1px solid black;">${statement.amountDue}</td>
-                          	<td>&nbsp;</td>
-                      		<td>&nbsp;</td>
-                      	</tr>
-                      </table>
-                      
+          			<td colspan="2">
+	                      <table cellpadding="1" class="aging" style="width: 100%;">
+	                        <tr>
+	                            <th align="center" style="font-size: 9pt; background-color: #000000; color: #ffffff;">${statement.aging1@label}</th>
+	                            <th align="center" style="font-size: 9pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${statement.aging2@label}</th>
+	                            <th align="center" style="font-size: 9pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${statement.aging3@label}</th>
+	                            <th align="center" style="font-size: 9pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${statement.aging4@label}</th>
+	                            <th align="center" style="font-size: 9pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${statement.aging5@label}</th>
+	                        </tr>
+	                        <tr>
+	                            <td align="right" style="font-size: 9pt; border-left: 1px solid black; border-bottom: 1px solid black;">${statement.aging1}</td>
+	                            <td align="right" style="font-size: 9pt; border-left: 1px solid black; border-bottom: 1px solid black;">${statement.aging2}</td>
+	                            <td align="right" style="font-size: 9pt; border-left: 1px solid black; border-bottom: 1px solid black;">${statement.aging3}</td>
+	                            <td align="right" style="font-size: 9pt; border-left: 1px solid black; border-bottom: 1px solid black;">${statement.aging4}</td>
+	                            <td align="right" style="font-size: 9pt; border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px ">${statement.aging5}</td>
+	                        </tr>
+	                    </table>
+	                  </td>
+	                  <td>
+	                      <table cellpadding="1" style="width: 100%; margin-left: 10px;">
+	                    	<tr>
+	                      		<td>&nbsp;</td>	                    	
+	                          	<td align="left" colspan="2" style="font-size: 9pt; font-weight: bold; background-color: #000000; color: #ffffff; border-left: 1px solid white;">Amount Due</td>
+	                        	<td align="right" colspan="2" style="font-size: 9pt; border: 1px solid black;">${statement.amountDue}</td>
+	                      	</tr>
+	                      </table>
                   	</td>
           		</tr>
           	</table>
-   
-        <table style="width: 100%;">
-          <tr><td>Bank Details for payments in ${record.currency}:</td></tr>
-          <tr><td>${record.custbody_bbs_bank_account} | ${record.custbody_bbs_bank_name} | Account Number: ${record.custbody_bbs_account_no} | Sort Code: ${record.custbody_bbs_sort_code} | IBAN: ${record.custbody_bbs_iban} | Swift Code: ${record.custbody_bbs_bic}</td></tr>
+        
+        <table style="width: 100%; margin-top: 10px;">
+          <tr><td>Bank Details for payments in ${statement.currency}:</td></tr>
+          <tr><td>Main Bank Account | HSBC | Account Number: 12345678 | Sort Code: 00-11-22 | IBAN: IBAN39879798 | Swift Code: BIC030203830</td></tr>
           <tr><td>&nbsp;</td></tr>
         </table>
-          
-        <table class="header" style="width: 100%; border: 1px solid black; margin-top: 10px;">
+        
+        	<table class="header" style="width: 100%; border: 1px solid black;">
             <tr>
             <td align="center" colspan="6">
               <table style="width: 100%;">
                 <tr>
-                  <td align="left" rowspan="5" style="margin: 2px;"><img src="${logoChampion}" style="float: left; width: 50px; height: 50px;" /><p style="clear:left; font-size: 6pt;">www.championhats.co.uk</p></td>
+                  <td align="left" rowspan="5" style="margin: 2px;"><img src="https://5293281-sb1.app.netsuite.com/core/media/media.nl?id=1308&amp;c=5293281_SB1&amp;h=e81a9c06d74f143fcbfa" style="float: left; width: 50px; height: 50px;" /><p style="clear:left; font-size: 6pt;">www.championhats.co.uk</p></td>
                   <td align="center" colspan="4" style="font-size: 8pt;"><b>Finest Brands International Ltd, Laurel House, 146 - 148 Garnet Road, Leeds, LS11 5HP</b></td>
-                  <td align="right" rowspan="5"><img src="${logoToggi}" style="float: left; width: 50px; height: 50px;" /><p style="clear:left; font-size: 6pt;">www.toggi.com</p></td>
+                  <td align="right" rowspan="5"><img src="https://5293281-sb1.app.netsuite.com/core/media/media.nl?id=1310&amp;c=5293281_SB1&amp;h=cd567fd4c49356911ee1" style="float: left; width: 50px; height: 50px;" /><p style="clear:left; font-size: 6pt;">www.toggi.com</p></td>
                 </tr>
                 <tr>
                   <td align="center" colspan="4" style="font-size: 8pt;">Tel: 0113 270 7000 Fax: 0113 270 6890 Email: info@finestbrands.co.uk</td>
@@ -137,18 +98,19 @@
               </table>
             </td>
             </tr>
-            </table> 		
+            </table>      
 
-<table class="footer" style="width: 100%; margin-top: 10px;">
-  <tr>
-	<td align="right">Page <pagenumber/> of <totalpages/></td>
-	</tr>
-</table>
-</macro>
-</macrolist>
-          
-          
-    <style type="text/css">table {
+            <table class="footer" style="width: 100%;">
+            	<tr>
+					<td align="right">Page <pagenumber/> of <totalpages/></td>
+				</tr>
+			</table>
+        
+        </macro>
+    
+    </macrolist>
+
+   <style type="text/css">table {
             <!--font-family: sans-serif;-->
       		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
             font-size: 9pt;
@@ -249,33 +211,35 @@
 </style>
 </head>
 
-<body header="nlheader" header-height="280px" footer="nlfooter" footer-height="120px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="280px" footer="nlfooter" footer-height="160px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
 <table class="itemtable" style="width: 100%; margin-top: 10px;">
 	<tr>
-		<td>All amounts shown in ${statement.currency}</td>
+		<td  style="padding-left: 5px; font-size: 9pt;">All amounts shown in ${statement.currency}</td>
 	</tr>
 </table>
 
-<table class="itemtable" style="width: 100%; margin-top: 10px;">
+<table class="itemtable" cellpadding="1" style="width: 100%; margin-top: 10px; border: 1px solid black;">
 	<#list statement.lines as line>
 		<#if line_index==0>
 			<thead>
 				<tr>
-					<th colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff;">${line.datecol@label}</th>
-					<th colspan="5" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.description@label}</th>
-					<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">Debit</th>
-					<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">Credit</th>
-					<th align="right" colspan="2" style="font-size: 6pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.balance@label}</th>
+					<th colspan="2" style="font-size: 9pt; background-color: #000000; color: #ffffff;">${line.datecol@label}</th>
+					<th colspan="5" style="font-size: 9pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.description@label}</th>
+					<th align="center" colspan="3" style="font-size: 9pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">Transaction Type</th>
+					<th align="right" colspan="2" style="font-size: 9pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">Debit</th>
+					<th align="right" colspan="2" style="font-size: 9pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">Credit</th>
+					<th align="right" colspan="2" style="font-size: 9pt; background-color: #000000; color: #ffffff; border-left: 1px solid white;">${line.balance@label}</th>
 				</tr>
 			</thead>
 		</#if>
-				<tr style="line-height: 200%;">
-					<td colspan="2"  style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.datecol}</td>
-					<td colspan="5" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.description}</td>
-					<td align="right" colspan="2" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.charge}</td>
-					<td align="right" colspan="2" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black;">${line.payment}</td>
-					<td align="right" colspan="2" style="font-size: 6pt; border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">${line.balance}</td>
+				<tr style="line-height: 150%;">
+					<td colspan="2"  style="font-size: 9pt;">${line.datecol}</td>
+					<td colspan="5" style="font-size: 9pt; border-left: 1px solid black;">${line.description}</td>
+					<td align="center" colspan="3" style="font-size: 9pt; border-left: 1px solid black;"><#if line.description?contains('Sales Invoice')>INV<#elseif line.description?contains('Credit Note')>CRN</#if></td>
+					<td align="right" colspan="2" style="font-size: 9pt; border-left: 1px solid black;">${line.charge}</td>
+					<td align="right" colspan="2" style="font-size: 9pt; border-left: 1px solid black;">${line.payment}</td>
+					<td align="right" colspan="2" style="font-size: 9pt; border-left: 1px solid black;">${line.balance}</td>
 				</tr>
 	</#list>
 </table>
