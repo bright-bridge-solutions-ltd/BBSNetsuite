@@ -226,71 +226,52 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="280px" footer="nlfooter" footer-height="160px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+  
+<body header="nlheader" header-height="280px" footer="nlfooter" footer-height="60px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+  
+<#assign summary_info = record.custbody_po_matrix_item_json?eval>
 
 <table style="width: 100%; margin-top: 10px;">
 	<tr>
 		<td><b>Style:</b></td>
-		<td colspan="2" rowspan="1"><b>LAMBLEY - TAW19-026 - LADIES HORSE PRINT SHIRT</b></td>
+		<td colspan="2" rowspan="1"><b>${summary_info[0].description}</b></td>
 	</tr>
 	<tr>
 		<td><b>Order breakdown:</b></td>
 	</tr>
 </table>
 
-
-<table style="width: 100%; margin-top: 10px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">
-	<tr>
-		<td style="width='25%'; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">8</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">10</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">12</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">14</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">16</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">18</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">20</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">TOTAL</td>
-	</tr>
-	<tr>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">Tan Horse Print</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">20</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">50</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">60</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">50</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">40</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">20</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">10</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">250</td>
-	</tr>
-	<tr>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-	</tr>
-</table>
-
-<table align="center" style="width: 500px; margin-top: 10px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">
-	<tr>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;"><strong>Total Order Quantity</strong></td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;"><strong>Unit Price</strong></td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;"><strong>Total Order Value</strong></td>
-	</tr>
-	<tr>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;"><strong>250</strong></td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;"><strong>US$ 22.20</strong></td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;"><strong>US$ 4,825.00</strong></td>
-	</tr>
-</table>
-
-<#assign summary_info = record.custbody_po_matrix_item_json?eval>
-<table style="width: 100%; margin-top: 10px;">
+<table style="width: 100%; margin-top: 10px; border-top: 1px solid black; border-left: 1px solid black;">
 <#list summary_info as info>
+		<#if info_index==0>
+          <thead>
+            <tr>
+              	<th colspan="3" style="border-right: 1px solid black; border-bottom: 1px solid black;">Description</th>
+              
+            	<#list info.quantitysize as qsh>
+                  <th align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">${qsh.sizeText}</th>
+                </#list>
+            </tr>
+          </thead>
+        </#if>
+      
+      	<tr>
+      		<td colspan="3" style="border-right: 1px solid black; border-bottom: 1px solid black;">${info.colour}</td>
+          
+          	<#list info.quantitysize as qsd>
+              	<#if qsd.quantity==0>
+                  <td align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+                <#else>
+                  <td align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">${qsd.quantity}</td>
+                </#if>  
+            </#list>
+      	</tr>
+      
+
+</#list>
+</table>
+
+<table style="width: 100%; margin-top: 10px;">
 	<tr>
 		<td width="25%"><b>Delivery into FBI:</b></td>
 		<td>${record.duedate}</td>
@@ -301,35 +282,35 @@
 	</tr>
 	<tr>
 		<td width="25%"><b>Production Specifications:</b></td>
-		<td colspan="2" rowspan="1">${info.specifications}</td>
+		<td colspan="2" rowspan="1">${summary_info[0].item_specification}</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
 	</tr>
 	<tr>
 		<td width="25%"><b>Trim:</b></td>
-		<td colspan="2" rowspan="1">${info.trim}</td>
+		<td colspan="2" rowspan="1">${summary_info[0].item_trim}</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
 	</tr>
 	<tr>
 		<td width="25%"><b>Packaging and Barcodes:</b></td>
-		<td colspan="2" rowspan="1">${info.packaging}</td>
+		<td colspan="2" rowspan="1">${summary_info[0].item_packaging}</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
 	</tr>
 	<tr>
 		<td width="25%"><b>Outer Packaging:</b></td>
-		<td colspan="2" rowspan="1">${info.outerpackaging}</td>
+		<td colspan="2" rowspan="1">${summary_info[0].item_outer_packaging}</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
 	</tr>
 	<tr>
 		<td width="25%"><b>Terms:</b></td>
-		<td colspan="2" rowspan="1">${info.terms}</td>
+		<td colspan="2" rowspan="1">${summary_info[0].item_purchase_terms}</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
@@ -339,8 +320,8 @@
 		<td>&nbsp;</td>
 		<td>${record.trandate}</td>
 	</tr>
-</#list>
 </table>
 
+  
 </body>
 </pdf>

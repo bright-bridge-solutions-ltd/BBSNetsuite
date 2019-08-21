@@ -161,7 +161,7 @@ function purchaseOrderSummaryAS(type)
 			//Now we have done all summarising, we need to generate the output format 
 			//
 			var outputArray = [];
-			/*
+			
 			//Loop through the summaries
 			//
 			for ( var key in summary) 
@@ -178,14 +178,19 @@ function purchaseOrderSummaryAS(type)
 														summary[key].unitPrice,
 														summary[key].getAmountTotal(),
 														summary[key].getVatAmountTotal(),
-														summary[key].vatCode
+														summary[key].vatCode,
+														summary[key].item_specification,
+														summary[key].item_trim,
+														summary[key].item_packaging,
+														summary[key].item_outer_packaging,
+														summary[key].item_purchase_terms
 														)
 									);
 				}
-			*/
+			
 			//Save the output array to the sales order
 			//
-			nlapiSubmitField(thisRecordType, salesOrderId, 'custbody_bbs_item_summary_json', JSON.stringify(outputArray), false);
+			nlapiSubmitField(thisRecordType, salesOrderId, 'custbody_po_matrix_item_json', JSON.stringify(outputArray), false);
 		}
 }
 
@@ -193,20 +198,26 @@ function purchaseOrderSummaryAS(type)
 //Objects
 //=============================================================================
 //
-function outputSummary(_product, _description, _location, _colour, _quantitySize, _total, _unitPrice, _amount, _vatAmount, _vatCode)
+function outputSummary(_product, _description, _location, _colour, _quantitySize, _total, _unitPrice, _amount, _vatAmount, _vatCode, _item_specification, _item_trim, _item_packaging, _item_outer_packaging, _item_purchase_terms)
 {
 	//Properties
 	//
-	this.product 		= _product;
-	this.description 	= _description;
-	this.location 		= _location;
-	this.colour 		= _colour;
-	this.quantitysize 	= _quantitySize;
-	this.total 			= Number(_total);
-	this.amount 		= Number(_amount);
-	this.unitPrice 		= Number(_unitPrice);
-	this.vatAmount 		= Number(_vatAmount);
-	this.vatCode 		= _vatCode;
+	this.product 				= _product;
+	this.description 			= _description;
+	this.location 				= _location;
+	this.colour 				= _colour;
+	this.quantitysize 			= _quantitySize;
+	this.total 					= Number(_total);
+	this.amount 				= Number(_amount);
+	this.unitPrice 				= Number(_unitPrice);
+	this.vatAmount 				= Number(_vatAmount);
+	this.vatCode 				= _vatCode;
+	this.item_specification		= _item_specification
+	this.item_trim				= _item_trim
+	this.item_packaging			= _item_packaging
+	this.item_outer_packaging	= _item_outer_packaging
+	this.item_purchase_terms	= _item_purchase_terms
+	
 }
 
 function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdescription, _itemColourText, _itemSize2Text, _locationText, _unitPrice, _vatCode, _item_specification, _item_trim, _item_packaging, _item_outer_packaging, _item_purchase_terms, _sizeList, _sizeListText)
@@ -311,29 +322,7 @@ function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdesc
 
 	this.getQuantitySizeSummary = function()
 		{
-			var summaryText = '';
-			
-			for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
-				{
-					if(this.sizeQuantity[int2].sizeText != '')
-						{
-							// check if this is the last item in the array
-							if (int2 == (this.sizeQuantity.length-1))
-								{
-									summaryText += this.sizeQuantity[int2].quantity.toString() + ' x ' + this.sizeQuantity[int2].sizeText;
-								}
-							else
-								{
-									summaryText += this.sizeQuantity[int2].quantity.toString() + ' x ' + this.sizeQuantity[int2].sizeText + ', ';
-								}
-						}
-					else
-						{
-							summaryText += this.sizeQuantity[int2].quantity.toString() + ' ';
-						}
-				}
-			
-			return summaryText;
+			return this.sizeQuantity;
 		}
 }
 
