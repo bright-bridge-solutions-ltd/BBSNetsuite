@@ -33,6 +33,7 @@ function(currentRecord, runtime, search, dialog) {
 				
 		chocolatesLevel = parseInt(chocolatesLevel) // convert to integer number
 		
+		
 		log.debug({
 			title: 'Parameters',
 			details: 'Biscuits: ' + biscuitsLevel + ' / Chocolates ' + chocolatesLevel
