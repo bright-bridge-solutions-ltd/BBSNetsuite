@@ -234,7 +234,7 @@
 <table style="width: 100%; margin-top: 10px;">
 	<tr>
 		<td><b>Style:</b></td>
-		<td colspan="2" rowspan="1"><b>${summary_info[0].description}</b></td>
+		<td colspan="2" rowspan="1"><b>${summary_info.outputArray[0].description}</b></td>
 	</tr>
 	<tr>
 		<td><b>Order breakdown:</b></td>
@@ -242,7 +242,7 @@
 </table>
 
 <table style="width: 100%; margin-top: 10px; border-top: 1px solid black; border-left: 1px solid black;">
-<#list summary_info as info>
+<#list summary_info.outputArray as info>
 		<#if info_index==0>
           <thead>
             <tr>
@@ -251,6 +251,9 @@
             	<#list info.quantitysize as qsh>
                   <th align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">${qsh.sizeText}</th>
                 </#list>
+              
+              <th  align="center" style="border-right: 1px solid black; border-bottom: 1px solid black;">Total</th>
+              
             </tr>
           </thead>
         </#if>
@@ -263,15 +266,32 @@
                   <td align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
                 <#else>
                   <td align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">${qsd.quantity}</td>
-                </#if>  
+                </#if> 
             </#list>
+              
+              <td  align="center" style="border-right: 1px solid black; border-bottom: 1px solid black;">${info.total}</td>
+          
       	</tr>
-      
-
 </#list>
 </table>
 
-<table style="width: 100%; margin-top: 10px;">
+<table style="width: 100%; margin-top: 10px; border-top: 1px solid black; border-left: 1px solid black;">
+  <thead>
+    <tr>
+      <th align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">Total Order Quantity</th>
+      <th align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">Unit Price</th>
+      <th align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">Total Order Value</th>
+    </tr>
+  </thead>
+  <tr>
+    <td align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">${summary_info.totalQuantity}</td>
+    <td align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">${summary_info.unitPrice}</td>
+    <td align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">${summary_info.totalAmount}</td>
+    
+  </tr>
+</table>
+  
+<table style="width: 100%; margin-top: 20px;">
 	<tr>
 		<td width="25%"><b>Delivery into FBI:</b></td>
 		<td>${record.duedate}</td>
@@ -282,35 +302,35 @@
 	</tr>
 	<tr>
 		<td width="25%"><b>Production Specifications:</b></td>
-		<td colspan="2" rowspan="1">${summary_info[0].item_specification}</td>
+		<td colspan="2" rowspan="1">${summary_info.outputArray[0].item_specification}</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
 	</tr>
 	<tr>
 		<td width="25%"><b>Trim:</b></td>
-		<td colspan="2" rowspan="1">${summary_info[0].item_trim}</td>
+		<td colspan="2" rowspan="1">${summary_info.outputArray[0].item_trim}</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
 	</tr>
 	<tr>
 		<td width="25%"><b>Packaging and Barcodes:</b></td>
-		<td colspan="2" rowspan="1">${summary_info[0].item_packaging}</td>
+		<td colspan="2" rowspan="1">${summary_info.outputArray[0].item_packaging}</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
 	</tr>
 	<tr>
 		<td width="25%"><b>Outer Packaging:</b></td>
-		<td colspan="2" rowspan="1">${summary_info[0].item_outer_packaging}</td>
+		<td colspan="2" rowspan="1">${summary_info.outputArray[0].item_outer_packaging}</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
 	</tr>
 	<tr>
 		<td width="25%"><b>Terms:</b></td>
-		<td colspan="2" rowspan="1">${summary_info[0].item_purchase_terms}</td>
+		<td colspan="2" rowspan="1">${summary_info.outputArray[0].item_purchase_terms}</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
