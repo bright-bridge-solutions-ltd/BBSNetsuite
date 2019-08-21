@@ -206,6 +206,8 @@ function scheduled(type)
 	//
 	processBillingEndDates();
 	
+	//Find any fully billed sales orders & create new sales orders from them
+	//
 	processFullyBilledOrders();
 }
 
@@ -279,6 +281,42 @@ function processFullyBilledOrders()
 							//
 							newSalesOrder.setFieldValue('custbody_bbs_prev_sales_order', salesOrderId);
 						
+							//Load the old sales order so we can copy across the billing schedules
+							//
+							var oldSalesOrder = null;
+							
+							try
+								{
+									oldSalesOrder = nlapiLoadRecord('salesorder', salesOrderId);
+								}
+							catch(err)
+								{
+									oldSalesOrder = null;
+									nlapiLogExecution('ERROR', 'Error loading old sales order, id = ' + salesOrderId, err.message);
+								}
+							
+							if(oldSalesOrder != null)
+								{
+									//Loop through the lines on the old sales order to see if there are any billing schedules to copy across
+									//
+									var lines = oldSalesOrder.getLineItemCount('item');
+									
+									for (var int2 = 1; int2 <= lines; int2++) 
+										{
+											var billingSchedule = oldSalesOrder.getLineItemValue('item', 'billingschedule', int2);
+											
+											try
+												{
+													newSalesOrder.setLineItemValue('item', 'billingschedule', int2, billingSchedule);
+												}
+											catch(err)
+												{
+													nlapiLogExecution('ERROR', 'Error setting billing schedule on new sales order', err.message);
+												}
+										}
+							
+								}
+							
 							//Save the new sales order
 							//
 							var newSalesOrderId = null;
