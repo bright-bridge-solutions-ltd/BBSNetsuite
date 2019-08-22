@@ -1,9 +1,9 @@
 /**
  * Module Description
  * 
- * Version    Date            Author           Remarks
- * 1.00       19 Aug 2019     sambatten
- *
+ * 	Version    	Date            Author          Remarks
+ * 	1.00       	19 Aug 2019     sambatten
+ *	1.10		22 Aug 2019		sambatten		Removed tax rate formatting as was causing null values to appear on layout. Added if statement to only push tax codes/amounts if handling/shipping amount is not 0
  */
 
 function beforeSubmit(type)
@@ -28,7 +28,7 @@ function beforeSubmit(type)
 					{
 						// get line item fields
 						taxRate = nlapiGetLineItemValue('item', 'taxrate1', x);
-						taxRate = parseFloat(taxRate).toFixed(2)+"%";
+						taxRate = parseFloat(taxRate).toFixed(2);
 						taxAmt = nlapiGetLineItemValue('item', 'tax1amt', x);
 						taxName = nlapiGetLineItemText('item', 'taxcode', x);
 						goodsAmt = nlapiGetLineItemValue('item', 'amount', x);
@@ -46,13 +46,17 @@ function beforeSubmit(type)
 			{
 				// retrieve shipping tax rate and amounts
 				shippingTaxRate = nlapiGetFieldValue('shippingtax1rate');
-				shippingTaxRate = parseFloat(shippingTaxRate).toFixed(2)+"%";
+				shippingTaxRate = parseFloat(shippingTaxRate).toFixed(2);
 				shippingTaxName = nlapiGetFieldText('shippingtaxcode');
 				shippingAmt = nlapiGetFieldValue('shippingcost');
 				shippingTaxAmt = shippingAmt * (shippingTaxRate/100);
-					
-				// push shipping data to the poleArr
-				poleArr.push({rate: shippingTaxRate, amt: shippingTaxAmt, amtconverted: ((shippingTaxAmt * exchangeRate)), name: shippingTaxName, code: shippingTaxCode, goods: shippingAmt, goodsconverted: ((shippingAmt * exchangeRate))});
+				
+				// check if the shippingAmt is not 0
+				if (shippingAmt != 0)
+					{
+						// push shipping data to the poleArr
+						poleArr.push({rate: shippingTaxRate, amt: shippingTaxAmt, amtconverted: ((shippingTaxAmt * exchangeRate)), name: shippingTaxName, code: shippingTaxCode, goods: shippingAmt, goodsconverted: ((shippingAmt * exchangeRate))});
+					}
 			}
 
 			// get handling amount and tax info to add this data to the poleArr array
@@ -63,13 +67,17 @@ function beforeSubmit(type)
 				{
 					// retrieve handling tax rate and amounts
 					handlingTaxRate = nlapiGetFieldValue('handlingtax1rate');
+					handlingTaxRate = parseFloat(handlingTaxRate).toFixed(2);
 					handlingTaxName = nlapiGetFieldValue('handlingtaxcode');
 					handlingAmt = nlapiGetFieldValue('handlingcost');
 					handlingTaxAmt = handlingAmt * (handlingTaxRate/100);
-					handlingTaxRate = parseFloat(handlingTaxRate).toFixed(2)+"%";
 					
-					// push handling data to the poleArr
-					poleArr.push({rate: handlingTaxRate, amt: handlingTaxAmt, amtconverted: ((handlingTaxAmt * exchangeRate)), name: handlingTaxName, code: handlingTaxCode, goods: handlingAmt, goodsconverted: ((handlingAmt * exchangeRate))});
+					// check if the handlingAmt is not 0
+					if (handlingAmt != 0)
+						{
+							// push handling data to the poleArr
+							poleArr.push({rate: handlingTaxRate, amt: handlingTaxAmt, amtconverted: ((handlingTaxAmt * exchangeRate)), name: handlingTaxName, code: handlingTaxCode, goods: handlingAmt, goodsconverted: ((handlingAmt * exchangeRate))});
+						}
 				}
 
 			// loop through poleArr to summarise the data. Put the summarised data into a new array 'r'
