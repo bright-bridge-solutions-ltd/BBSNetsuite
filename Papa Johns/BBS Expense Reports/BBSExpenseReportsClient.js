@@ -12,7 +12,6 @@ function pageInit(type)
 		nlapiDisableLineItemField('expense', 'department', true);
 		nlapiDisableLineItemField('expense', 'category', true);
 		nlapiDisableLineItemField('expense', 'taxcode', true);
-		nlapiDisableLineItemField('expense', 'tax1amt', true);
 		nlapiDisableLineItemField('expense', 'foreignamount', true);
 		nlapiDisableLineItemField('expense', 'amount', true);
 		

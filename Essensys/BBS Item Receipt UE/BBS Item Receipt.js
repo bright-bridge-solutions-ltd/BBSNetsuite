@@ -6,7 +6,7 @@
  *
  */
 
-function beforeSubmit(type)
+function afterSubmit(type)
 	{
 		// check if record is being created, edited or deleted
 		if (type == 'create' || type == 'edit' || type == 'delete')
@@ -34,6 +34,8 @@ function beforeSubmit(type)
 					
 						// get the SO line number
 						var lineNo = nlapiGetLineItemValue('item', 'line', i);
+						
+						nlapiLogExecution('DEBUG', 'Code Check', 'i is - ' + i + ' | lineNo is - ' + lineNo);
 						
 						// get the value of the received rate field from the PO record
 						var rcvdTotal = poRec.getLineItemValue('item', 'custcol_rcvd_rate', lineNo);

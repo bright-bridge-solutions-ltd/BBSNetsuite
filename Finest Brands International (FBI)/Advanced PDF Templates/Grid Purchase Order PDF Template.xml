@@ -99,18 +99,21 @@
             <td align="center" colspan="6">
               <table style="width: 100%;">
                 <tr>
-                  <td align="left" rowspan="6"><img src="${logoChampion}" style="float: left; width: 50px; height: 50px;" /></td>
-                  <td align="center" colspan="5" style="font-size: 10pt;"><b>* CONFIRMATION OF TERMS AND DELIVERY REQUIRED BY RETURN *</b></td>
-                  <td align="right" rowspan="6"><img src="${logoToggi}" style="float: left; width: 50px; height: 50px;" /></td>
+                  <td align="left" rowspan="5" style="margin: 2px;"><img src="${logoChampion}" style="float: left; width: 50px; height: 50px;" /><p style="clear:left; font-size: 6pt;">www.championhats.co.uk</p></td>
+                  <td align="center" colspan="4" style="font-size: 10pt;"><b>* CONFIRMATION OF TERMS AND DELIVERY REQUIRED BY RETURN *</b></td>
+                  <td align="right" rowspan="5"><img src="${logoToggi}" style="float: left; width: 50px; height: 50px;" /><p style="clear:left; font-size: 6pt;">www.toggi.com</p></td>
                 </tr>
                 <tr>
-                  <td align="center" colspan="5" style="font-size: 8pt;"><b>Finest Brands International Ltd Laurel House, 146 - 148 Garnet Road, Leeds, LS11 5HP</b></td>
+                <td align="center" colspan="4" style="font-size: 8pt;"><b>Finest Brands International Ltd, Laurel House, 146 - 148 Garnet Road, Leeds, LS11 5HP</b></td>
                 </tr>
                 <tr>
-                  <td align="center" colspan="5" style="font-size: 8pt;">Tel: 0113 270 7000 Fax: 0113 270 6890 Email: info@finestbrands.co.uk</td>
+                  <td align="center" colspan="4" style="font-size: 8pt;">Tel: 0113 270 7000 Fax: 0113 270 6890 Email: info@finestbrands.co.uk</td>
                 </tr>
                 <tr>
-                  <td align="center" colspan="5" style="font-size: 8pt;">Company Registration No: 02545569. VAT Registration No: GB 927 5446 01</td>
+                  <td align="center" colspan="4" style="font-size: 8pt;">Company Registration No: 02545569. VAT Registration No: GB 927 5446 01</td>
+                </tr>
+                 <tr>
+                  <td align="center" colspan="4" style="font-size: 6pt;">Registered Office: Unit 4, Heron Road, Rumney, Cardiff, CF3 3JE</td>
                 </tr>
               </table>
             </td>
@@ -226,71 +229,72 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="280px" footer="nlfooter" footer-height="160px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+  
+<body header="nlheader" header-height="280px" footer="nlfooter" footer-height="80px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+  
+<#assign summary_info = record.custbody_po_matrix_item_json?eval>
 
 <table style="width: 100%; margin-top: 10px;">
 	<tr>
 		<td><b>Style:</b></td>
-		<td colspan="2" rowspan="1"><b>LAMBLEY - TAW19-026 - LADIES HORSE PRINT SHIRT</b></td>
+		<td colspan="2" rowspan="1"><b>${summary_info.outputArray[0].description}</b></td>
 	</tr>
 	<tr>
 		<td><b>Order breakdown:</b></td>
 	</tr>
 </table>
 
-
-<table style="width: 100%; margin-top: 10px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">
-	<tr>
-		<td style="width='25%'; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">8</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">10</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">12</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">14</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">16</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">18</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">20</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">TOTAL</td>
-	</tr>
-	<tr>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">Tan Horse Print</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">20</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">50</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">60</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">50</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">40</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">20</td>
-		<td style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">10</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">250</td>
-	</tr>
-	<tr>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-	</tr>
+<table style="width: 100%; margin-top: 10px; border-top: 1px solid black; border-left: 1px solid black;">
+<#list summary_info.outputArray as info>
+		<#if info_index==0>
+          <thead>
+            <tr>
+              	<th colspan="3" style="border-right: 1px solid black; border-bottom: 1px solid black;">Description</th>
+              
+            	<#list info.quantitysize as qsh>
+                  <th align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">${qsh.sizeText}</th>
+                </#list>
+              
+              <th  align="center" style="border-right: 1px solid black; border-bottom: 1px solid black;">Total</th>
+              
+            </tr>
+          </thead>
+        </#if>
+      
+      	<tr>
+      		<td colspan="3" style="border-right: 1px solid black; border-bottom: 1px solid black;">${info.colour}</td>
+          
+          	<#list info.quantitysize as qsd>
+              	<#if qsd.quantity==0>
+                  <td align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+                <#else>
+                  <td align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">${qsd.quantity}</td>
+                </#if> 
+            </#list>
+              
+              <td  align="center" style="border-right: 1px solid black; border-bottom: 1px solid black;">${info.total}</td>
+          
+      	</tr>
+</#list>
 </table>
 
-<table align="center" style="width: 500px; margin-top: 10px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">
-	<tr>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;"><strong>Total Order Quantity</strong></td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;"><strong>Unit Price</strong></td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;"><strong>Total Order Value</strong></td>
-	</tr>
-	<tr>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;"><strong>250</strong></td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;"><strong>US$ 22.20</strong></td>
-		<td style="border-right: 1px solid black; border-bottom: 1px solid black;"><strong>US$ 4,825.00</strong></td>
-	</tr>
+<table style="width: 100%; margin-top: 10px; border-top: 1px solid black; border-left: 1px solid black;">
+  <thead>
+    <tr>
+      <th align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">Total Order Quantity</th>
+      <th align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">Unit Price</th>
+      <th align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">Total Order Value</th>
+    </tr>
+  </thead>
+  <tr>
+    <td align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">${summary_info.totalQuantity}</td>
+    <td align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">${summary_info.unitPrice}</td>
+    <td align="center" style="text-align: center; border-right: 1px solid black; border-bottom: 1px solid black;">${summary_info.totalAmount}</td>
+    
+  </tr>
 </table>
-
-<#assign summary_info = record.custbody_po_matrix_item_json?eval>
-<table style="width: 100%; margin-top: 10px;">
-<#list summary_info as info>
+  
+<table style="width: 100%; margin-top: 20px;">
 	<tr>
 		<td width="25%"><b>Delivery into FBI:</b></td>
 		<td>${record.duedate}</td>
@@ -301,35 +305,35 @@
 	</tr>
 	<tr>
 		<td width="25%"><b>Production Specifications:</b></td>
-		<td colspan="2" rowspan="1">${info.specifications}</td>
+		<td colspan="2" rowspan="1">${summary_info.outputArray[0].item_specification}</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
 	</tr>
 	<tr>
 		<td width="25%"><b>Trim:</b></td>
-		<td colspan="2" rowspan="1">${info.trim}</td>
+		<td colspan="2" rowspan="1">${summary_info.outputArray[0].item_trim}</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
 	</tr>
 	<tr>
 		<td width="25%"><b>Packaging and Barcodes:</b></td>
-		<td colspan="2" rowspan="1">${info.packaging}</td>
+		<td colspan="2" rowspan="1">${summary_info.outputArray[0].item_packaging}</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
 	</tr>
 	<tr>
 		<td width="25%"><b>Outer Packaging:</b></td>
-		<td colspan="2" rowspan="1">${info.outerpackaging}</td>
+		<td colspan="2" rowspan="1">${summary_info.outputArray[0].item_outer_packaging}</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
 	</tr>
 	<tr>
 		<td width="25%"><b>Terms:</b></td>
-		<td colspan="2" rowspan="1">${info.terms}</td>
+		<td colspan="2" rowspan="1">${summary_info.outputArray[0].item_purchase_terms}</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
@@ -339,8 +343,8 @@
 		<td>&nbsp;</td>
 		<td>${record.trandate}</td>
 	</tr>
-</#list>
 </table>
 
+  
 </body>
 </pdf>

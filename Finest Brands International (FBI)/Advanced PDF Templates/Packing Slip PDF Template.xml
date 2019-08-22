@@ -1,0 +1,277 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+        <#assign regInfo>?????</#assign>
+        <#assign emailInfo>?????</#assign>
+        <#assign telInfo>?????</#assign>
+        <#assign vatInfo>?????</#assign>
+        <#assign logoInfo>?????</#assign>
+        <#assign logoChampion>?????</#assign>
+        <#assign logoToggi>?????</#assign>
+        <#assign footerMsg>?????</#assign>
+        <#assign subsidiary>${record.subsidiary.id}</#assign>
+  
+          <#if subsidiary=="2">
+              <#assign regInfo>Company Registration No: 02545569. Registered Office: Laurel House, 146-148 Garnet Road, Leeds, LS11 5HP, United Kingdom.</#assign>
+              <#assign emailInfo>info@finestbrands.co.uk</#assign>
+              <#assign telInfo>0113 270 7007</#assign>
+              <#assign footerMsg>All goods remain the property of Finest Brands International until paid in full.</#assign>
+              <#assign vatInfo>GB 927 5446 01</#assign>
+              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=11&amp;c=5293281_SB1&amp;h=fe2ea6b8bad94150217e</#assign>
+              <#assign logoChampion>https://5293281-sb1.app.netsuite.com/core/media/media.nl?id=1308&amp;c=5293281_SB1&amp;h=e81a9c06d74f143fcbfa</#assign>
+              <#assign logoToggi>https://5293281-sb1.app.netsuite.com/core/media/media.nl?id=1310&amp;c=5293281_SB1&amp;h=cd567fd4c49356911ee1</#assign>
+        </#if>
+       
+    <macrolist>
+        <macro id="nlheader">
+          
+    <table class="header" style="width: 100%;">
+    <tr>
+	<td align="left"><p align="left"><span style="font-size:24px;">Despatch Note</span></p></td>
+	<td align="center" colspan="6">
+      <table style="width: 100%;">
+        <tr>
+          <td align="left" rowspan="5"><img src="${logoChampion}" style="float: left; width:80px; height:80px;" /></td>
+          <td align="center" colspan="5"><b>Finest Brands International Ltd Laurel House, 146 - 148 Garnet Road, Leeds, LS11 5HP</b></td>
+          <td align="right" rowspan="5"><img src="${logoToggi}" style="float: right; width:80px; height:80px;" /></td>
+        </tr>
+        <tr>
+          <td align="center" colspan="5">Tel: 0113 270 7000 Fax: 0113 270 6890 Email: info@finestbrands.co.uk</td>
+        </tr>
+        <tr>
+          <td align="center" colspan="5">Company Registration No: 02545569. VAT Registration No: GB 927 5446 01</td>
+        </tr>
+        <tr>
+          <td align="center" colspan="5">&nbsp;</td>
+        </tr>
+        <tr>
+          <td align="center" colspan="5">&nbsp;</td>
+        </tr>
+      </table>
+    </td>
+	<td align="right"><img src="${logoInfo}" style="float: right; width:80px; height:80px;" /></td>
+    </tr>
+    </table>
+
+          
+<table style="width: 100%; margin-top: 20px;">
+    <tr>
+	<td>	
+      <table style="width: 100%; border: 1px solid black; margin-right: 2px; height: 130px;">
+        <tr>
+          <td style="font-size: 12pt; padding-left: 5px;"><b>Deliver To</b></td>
+        </tr>
+        <tr>
+		<td style="padding-left: 5px;">${record.shipaddress}</td>
+		</tr>
+        <tr>
+		<td>&nbsp;</td>
+		</tr>
+        <tr>
+		<td>&nbsp;</td>
+		</tr>
+                <tr>
+		<td>&nbsp;</td>
+		</tr>
+      </table>
+    </td>
+    <td>
+      <table style="width: 100%; border: 1px solid black; margin-right: 2px; height: 130px;">
+		<tr>
+          <td align="left" style="padding-left: 5px; font-size: 8pt;"><b>Despatch Note</b></td>
+          <td>&nbsp;</td>
+          <td colspan="2" align="left" style="font-size: 8pt;">${record.tranid}</td>
+        </tr>
+        <tr>
+          <td align="left" style="padding-left: 5px; font-size: 8pt;"><b>Order No</b></td>
+          <td>&nbsp;</td>
+          <td colspan="2" align="left" style="font-size: 8pt;">${record.createdfrom?replace("Sales Order #", "")}</td>
+        </tr>
+        <tr>
+          <td align="left" style="padding-left: 5px; font-size: 8pt;"><b>Reference</b></td>
+          <td>&nbsp;</td>
+          <td colspan="2" align="left" style="font-size: 8pt;">${record.createdfrom.otherrefnum}</td>
+        </tr>
+        <tr>
+          <td align="left" style="padding-left: 5px; font-size: 8pt;"><b>Order Date</b></td>
+          <td>&nbsp;</td>
+          <td colspan="2" align="left" style="font-size: 8pt;">${record.createdfrom.trandate?string["dd MMM yyyy"]}</td>
+        </tr>
+         <tr>
+          <td align="left" style="padding-left: 5px; font-size: 8pt;"><b>Despatch Date</b></td>
+          <td>&nbsp;</td>
+          <td colspan="2" align="left" style="font-size: 8pt;">${record.trandate?string["dd MMM yyyy"]}</td>
+        </tr>       
+        <tr>
+          <td align="left" style="padding-left: 5px; font-size: 8pt;"><b>Customer</b></td>
+          <td>&nbsp;</td>
+          <td colspan="2" align="left" style="font-size: 8pt;">${record.entity}</td>
+        </tr>
+      </table>
+    </td>
+    <td>
+    &nbsp;
+    </td>
+	</tr>
+
+</table>
+
+        </macro>
+
+        <macro id="nlfooter">
+		<table class="footer" style="width: 100%;">
+          <tr>
+			<td align="right"><pagenumber/> of <totalpages/></td>
+		</tr>
+        </table>
+
+        </macro>
+    </macrolist>
+
+    <style type="text/css">
+    	table {
+            <!--font-family: sans-serif;-->
+      		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            <!--background-color: #e3e3e3;-->
+            border-bottom: 1px solid black;
+    		border-collapse: collapse;
+            <!--color: #333333;-->
+        }
+        td {
+            padding: 0px;
+            vertical-align: top;
+            font-size:10px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 6pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      	table.message{
+        border: 1px solid #dddddd;
+      	}
+        tr.totalrow {
+            <!--background-color: #e3e3e3;-->
+            line-height: 200%;
+        }
+      	tr.messagerow{
+        font-size: 6pt;
+      	}
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 10pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+          font-size: 10pt;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalcell {
+          border-bottom: 1px solid black;
+    		border-collapse: collapse;
+        }
+      	td.message{
+        font-size: 8pt;
+      	}
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="250px" footer="nlfooter" footer-height="5px" padding="0.5in 0.5in 0.5in 0.5in" size="A4-LANDSCAPE">
+
+  
+
+<#assign summary_total = 0>
+<#assign summary_info = record.custbody_bbs_item_summary_json?eval>
+<table class="itemtable" cellpadding="2px" style="width: 100%; margin-top: 10px;">
+<#list summary_info as info>
+  <#if info_index==0>
+<thead>
+	<tr>
+	<th align="left" colspan="2" style="background-color: #000000; color: #ffffff;">Product</th>
+	<th align="left" colspan="2" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Description</th>
+	<th align="left" colspan="2" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Colour</th>
+	<th align="left" colspan="5" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Quantity (Size)</th>
+	<th align="center" colspan="1" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Total</th>
+	</tr>
+</thead>
+</#if>
+  <tr style="line-height: 200%;">
+      <td align="left" colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.product}</td>
+      <td align="left" colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.description}</td>
+      <td align="left" colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.colour}</td>
+      <td align="left" colspan="5" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.quantitysize}</td>
+      <td align="center" colspan="1" style="border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">${info.total}</td>
+  </tr>
+  
+  	<#assign summary_total += info.total>
+	</#list>
+  </table>
+
+  <table class="total" align="right" style="width: 25%; margin-top: 10px;">
+    <tr style="line-height: 200%;">
+      <td align="center" colspan="3" style="font-size: 8pt; font-weight: bold; background-color: #000000; color: #ffffff;">Total</td>
+      <td align="center" colspan="2" style="border-right: 1px solid black; border-top: 1px solid black;  border-bottom: 1px solid black;">${summary_total}</td>
+  </tr>
+  </table>
+  
+<table style="width: 100%; margin-top: 10px;">
+	<tr>
+		<td><p align="center"><span style="font-size:14px; font-weight:bold;">Any discrepancies must be advised in writing within 48 hours of the goods being received</span></p></td>
+	</tr>
+</table>
+  
+</body>
+</pdf>
