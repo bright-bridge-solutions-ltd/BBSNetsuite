@@ -4,6 +4,7 @@
  * Version    	Date            Author			Remarks
  * 1.00       	24 Jul 2019     sambatten		Initial version
  * 1.10			09 Aug 2019		sambatten		Added lineInit and saveRecord functions and added additional actions to pageInit and fieldChanged functions
+ * 1.20			22 Aug 2019		sambatten		Added action to disable grossamt line field instead of amount field
  */
 
 function pageInit(type)
@@ -13,7 +14,7 @@ function pageInit(type)
 		nlapiDisableLineItemField('expense', 'category', true);
 		nlapiDisableLineItemField('expense', 'taxcode', true);
 		nlapiDisableLineItemField('expense', 'foreignamount', true);
-		nlapiDisableLineItemField('expense', 'amount', true);
+      	nlapiDisableLineItemField('expense', 'grossamt', true);
 		
 		// get the value of the custbody_bbs_exp_default_cost_centre field
 		var defaultCostCentre = nlapiGetFieldValue('custbody_bbs_exp_default_cost_centre');
@@ -35,7 +36,7 @@ function lineInit(type)
 		
 		// disable line item fields
 		nlapiDisableLineItemField('expense', 'foreignamount', true);
-		nlapiDisableLineItemField('expense', 'amount', true);
+		nlapiDisableLineItemField('expense', 'grossamt', true);
 		
 		// get the value of the custbody_bbs_exp_default_cost_centre field
 		var defaultCostCentre = nlapiGetFieldValue('custbody_bbs_exp_default_cost_centre');
@@ -64,8 +65,8 @@ function fieldChanged(type, name)
 						nlapiDisableLineItemField('expense', 'foreignamount', false);
 					}
 				
-				// disable the net amount field
-				nlapiDisableLineItemField('expense', 'amount', true);
+				// disable the gross amount field
+				nlapiDisableLineItemField('expense', 'grossamt', true);
 			}
 		
 		// determine if the expense category field has been changed
@@ -102,8 +103,8 @@ function fieldChanged(type, name)
 						nlapiDisableLineItemField('expense', 'foreignamount', false);
 					}
 						
-				// disable the net amount field
-				nlapiDisableLineItemField('expense', 'amount', true);
+				// disable the gross amount field
+				nlapiDisableLineItemField('expense', 'grossamt', true);
 			}
 		
 		// determine if the expense tax code field has been changed
