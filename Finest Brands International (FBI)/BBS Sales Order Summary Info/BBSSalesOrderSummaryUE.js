@@ -189,13 +189,20 @@ function salesOrderSummaryAS(type)
 					        	//Update the size & quantity in the summary
 					        	//
 					        	summary[key].updateSizeQuantity	(
-					        									itemInfo.custitem_fbi_item_size1, 
-					        									lineQuantity, 
-					        									itemInfoText.custitem_fbi_item_size1, 
-					        									lineAmount, 
-					        									lineVatAmount
-					        									);
+							        							itemInfo.custitem_fbi_item_size1, 
+							        							lineQuantity, 
+							        							itemInfoText.custitem_fbi_item_size1, 
+							        							lineAmount, 
+							        							lineVatAmount
+							        							);
 					        	
+					        	summary[key].updateSizeQuantityCommitted	(
+										        							itemInfo.custitem_fbi_item_size1, 
+										        							lineCommitted, 
+										        							itemInfoText.custitem_fbi_item_size1, 
+										        							lineAmount, 
+										        							lineVatAmount
+										        							);
 						}
 				}
 			
@@ -220,7 +227,9 @@ function salesOrderSummaryAS(type)
 														summary[key].getAmountTotal(),
 														summary[key].getVatAmountTotal(),
 														summary[key].vatCode,
-														summary[key].discount
+														summary[key].discount,
+														summary[key].getQuantitySizeSummaryCommitted(),
+														summary[key].getQuantitySizeCommittedTotal()
 														)
 									);
 				}
@@ -235,42 +244,81 @@ function salesOrderSummaryAS(type)
 //Objects
 //=============================================================================
 //
-function outputSummary(_product, _description, _location, _colour, _quantitySize, _total, _unitPrice, _amount, _vatAmount, _vatCode, _discount)
+function outputSummary(_product, _description, _location, _colour, _quantitySize, _total, _unitPrice, _amount, _vatAmount, _vatCode, _discount, _quantitySizeCommitted, _totalCommitted)
 {
 	//Properties
 	//
-	this.product 		= _product;
-	this.description 	= _description;
-	this.location 		= _location;
-	this.colour 		= _colour;
-	this.quantitysize 	= _quantitySize;
-	this.total 			= Number(_total);
-	this.amount 		= Number(_amount);
-	this.unitPrice 		= Number(_unitPrice);
-	this.vatAmount 		= Number(_vatAmount);
-	this.vatCode 		= _vatCode;
-	this.discount		= _discount;
+	this.product 				= _product;
+	this.description 			= _description;
+	this.location 				= _location;
+	this.colour 				= _colour;
+	this.quantitysize 			= _quantitySize;
+	this.quantitysizeCommitted 	= _quantitySizeCommitted;
+	this.total 					= Number(_total);
+	this.totalCommitted			= Number(_totalCommitted);
+	this.amount 				= Number(_amount);
+	this.unitPrice 				= Number(_unitPrice);
+	this.vatAmount 				= Number(_vatAmount);
+	this.vatCode 				= _vatCode;
+	this.discount				= _discount;
 }
 
 function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdescription, _itemColourText, _itemSize2Text, _locationText, _unitPrice, _vatCode, _discount)
 {
 	//Properties
 	//
-	this.itemId 			= _itemid;
-	this.itemColourId 		= _itemColour;
-	this.itemSize2Id 		= _itemSize2;
-	this.locationId 		= _location;
-	this.salesDescription 	= _salesdescription;
-	this.itemColourText 	= _itemColourText;
-	this.itemSize2Text 		= _itemSize2Text;
-	this.locationText 		= _locationText;
-	this.unitPrice 			= Number(_unitPrice);
-	this.vatCode 			= _vatCode;
-	this.discount			= _discount;
-	this.sizeQuantity 		= [];
+	this.itemId 				= _itemid;
+	this.itemColourId 			= _itemColour;
+	this.itemSize2Id 			= _itemSize2;
+	this.locationId 			= _location;
+	this.salesDescription 		= _salesdescription;
+	this.itemColourText 		= _itemColourText;
+	this.itemSize2Text 			= _itemSize2Text;
+	this.locationText 			= _locationText;
+	this.unitPrice 				= Number(_unitPrice);
+	this.vatCode 				= _vatCode;
+	this.discount				= _discount;
+	this.sizeQuantity 			= [];
+	this.sizeQuantityCommitted 	= [];
 	
 	//Methods
 	//
+	this.updateSizeQuantityCommitted = function(_size, _quantity, _sizeText, _amount, _vatAmount)
+	{
+		if(this.sizeQuantityCommitted.length == 0) 
+			{
+				//If no elements in the array then this is the first, so just push it on
+				//
+				this.sizeQuantityCommitted.push(new sizeQuantityCell(_size, _quantity, _sizeText, _amount, _vatAmount));
+			}
+		else
+			{
+				//See if we can find the size in the array of sizes
+				//
+				var updated = false;
+				
+				for (var int2 = 0; int2 < this.sizeQuantityCommitted.length; int2++) 
+					{
+						if(this.sizeQuantityCommitted[int2].sizeId == _size)
+							{
+								this.sizeQuantityCommitted[int2].quantity  += Number(_quantity);
+								this.sizeQuantityCommitted[int2].amount    += Number(_amount);
+								this.sizeQuantityCommitted[int2].vatAmount += Number(_vatAmount);
+								
+								updated = true;
+								break;
+							}
+					}
+				
+				//If we couldn't find the size in the array, then add a new one
+				//
+				if(!updated)
+					{
+						this.sizeQuantityCommitted.push(new sizeQuantityCell(_size, _quantity, _sizeText, _amount, _vatAmount));
+					}
+			}
+	}
+	
 	this.updateSizeQuantity = function(_size, _quantity, _sizeText, _amount, _vatAmount)
 		{
 			if(this.sizeQuantity.length == 0) 
@@ -307,17 +355,29 @@ function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdesc
 				}
 		}
 	
-	this.getQuantitySizeTotal = function()
+	this.getQuantitySizeCommittedTotal = function()
 		{
 			var totalQuantity = Number(0);
 			
-			for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
+			for (var int2 = 0; int2 < this.sizeQuantityCommitted.length; int2++) 
 				{
-					totalQuantity += Number(this.sizeQuantity[int2].quantity);
+					totalQuantity += Number(this.sizeQuantityCommitted[int2].quantity);
 				}
 			
 			return totalQuantity;
 		}
+	
+	this.getQuantitySizeTotal = function()
+	{
+		var totalQuantity = Number(0);
+		
+		for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
+			{
+				totalQuantity += Number(this.sizeQuantity[int2].quantity);
+			}
+		
+		return totalQuantity;
+	}
 	
 	this.getAmountTotal = function()
 		{
@@ -349,26 +409,47 @@ function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdesc
 			
 			for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
 				{
-					if(this.sizeQuantity[int2].sizeText != '')
+					if(this.sizeQuantity[int2].quantity != 0)
 						{
-							// check if this is the last item in the array
-							if (int2 == (this.sizeQuantity.length-1))
-								{
-									summaryText += this.sizeQuantity[int2].quantity.toString() + ' x ' + this.sizeQuantity[int2].sizeText;
-								}
-							else
+							if(this.sizeQuantity[int2].sizeText != '')
 								{
 									summaryText += this.sizeQuantity[int2].quantity.toString() + ' x ' + this.sizeQuantity[int2].sizeText + ', ';
 								}
-						}
-					else
-						{
-							summaryText += this.sizeQuantity[int2].quantity.toString() + ' ';
+							else
+								{
+									summaryText += this.sizeQuantity[int2].quantity.toString() + ' ';
+								}
 						}
 				}
 			
-			return summaryText;
+			//return the string minus any trailing comma & space
+			//
+			return summaryText.replace(new RegExp(', $'), '');
 		}
+	
+	this.getQuantitySizeSummaryCommitted = function()
+	{
+		var summaryText = '';
+		
+		for (var int2 = 0; int2 < this.sizeQuantityCommitted.length; int2++) 
+			{
+				if(this.sizeQuantityCommitted[int2].quantity != 0)
+					{
+						if(this.sizeQuantityCommitted[int2].sizeText != '')
+							{
+								summaryText += this.sizeQuantityCommitted[int2].quantity.toString() + ' x ' + this.sizeQuantityCommitted[int2].sizeText + ', ';
+							}
+						else
+							{
+								summaryText += this.sizeQuantityCommitted[int2].quantity.toString() + ' ';
+							}
+					}
+			}
+		
+		//return the string minus any trailing comma & space
+		//
+		return summaryText.replace(new RegExp(', $'), '');
+	}
 }
 
 function sizeQuantityCell(_size, _quantity, _sizeText, _amount, _vatAmount)
