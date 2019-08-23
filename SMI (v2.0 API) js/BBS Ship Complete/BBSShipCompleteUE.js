@@ -20,7 +20,7 @@ function(runtime) {
 		var subtotal = currentRecord.getValue({
 			fieldId: 'subtotal'
 		});
-		
+
 		// check if the subtotal variable is less than the priceLevel variable
 		if (subtotal < priceLevel)
 			{
