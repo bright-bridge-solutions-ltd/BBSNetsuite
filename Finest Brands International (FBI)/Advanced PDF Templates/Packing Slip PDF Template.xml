@@ -78,35 +78,40 @@
     <td>
       <table style="width: 100%; border: 1px solid black; margin-right: 2px; height: 130px;">
 		<tr>
-          <td align="left" style="padding-left: 5px; font-size: 8pt;"><b>Despatch Note</b></td>
+          <td align="left" style="padding-left: 5px; font-size: 6pt;"><b>Despatch Note</b></td>
           <td>&nbsp;</td>
-          <td colspan="2" align="left" style="font-size: 8pt;">${record.tranid}</td>
+          <td colspan="2" align="left" style="font-size: 6pt;">${record.tranid}</td>
         </tr>
         <tr>
-          <td align="left" style="padding-left: 5px; font-size: 8pt;"><b>Order No</b></td>
+          <td align="left" style="padding-left: 5px; font-size: 6pt;"><b>Order No</b></td>
           <td>&nbsp;</td>
-          <td colspan="2" align="left" style="font-size: 8pt;">${record.createdfrom?replace("Sales Order #", "")}</td>
+          <td colspan="2" align="left" style="font-size: 6pt;">${record.createdfrom?replace("Sales Order #", "")}</td>
         </tr>
         <tr>
-          <td align="left" style="padding-left: 5px; font-size: 8pt;"><b>Reference</b></td>
+          <td align="left" style="padding-left: 5px; font-size: 6pt;"><b>Reference</b></td>
           <td>&nbsp;</td>
-          <td colspan="2" align="left" style="font-size: 8pt;">${record.createdfrom.otherrefnum}</td>
+          <td colspan="2" align="left" style="font-size: 6pt;">${record.createdfrom.otherrefnum}</td>
         </tr>
         <tr>
-          <td align="left" style="padding-left: 5px; font-size: 8pt;"><b>Order Date</b></td>
+          <td align="left" style="padding-left: 5px; font-size: 6pt;"><b>Order Date</b></td>
           <td>&nbsp;</td>
-          <td colspan="2" align="left" style="font-size: 8pt;">${record.createdfrom.trandate?string["dd MMM yyyy"]}</td>
+          <td colspan="2" align="left" style="font-size: 6pt;">${record.createdfrom.trandate?string["dd MMM yyyy"]}</td>
         </tr>
          <tr>
-          <td align="left" style="padding-left: 5px; font-size: 8pt;"><b>Despatch Date</b></td>
+          <td align="left" style="padding-left: 5px; font-size: 6pt;"><b>Despatch Date</b></td>
           <td>&nbsp;</td>
-          <td colspan="2" align="left" style="font-size: 8pt;">${record.trandate?string["dd MMM yyyy"]}</td>
+          <td colspan="2" align="left" style="font-size: 6pt;">${record.trandate?string["dd MMM yyyy"]}</td>
         </tr>       
         <tr>
-          <td align="left" style="padding-left: 5px; font-size: 8pt;"><b>Customer</b></td>
+          <td align="left" style="padding-left: 5px; font-size: 6pt;"><b>Customer</b></td>
           <td>&nbsp;</td>
-          <td colspan="2" align="left" style="font-size: 8pt;">${record.entity}</td>
+          <td colspan="2" align="left" style="font-size: 6pt;">${record.entity}</td>
         </tr>
+         <tr>
+          <td align="left" style="padding-left: 5px; font-size: 6pt;"><b>Dispatch Method</b></td>
+          <td>&nbsp;</td>
+          <td colspan="2" align="left" style="font-size: 6pt;">${record.shipmethod}</td>
+        </tr>       
       </table>
     </td>
     <td>
