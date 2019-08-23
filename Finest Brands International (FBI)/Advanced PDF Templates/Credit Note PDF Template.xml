@@ -269,13 +269,13 @@
 <table style="width: 100%;">
 <thead>
 	<tr >
-	<th align="center" style="background-color: #000000; color: #ffffff; font-size: 10pt;">Order No</th>
-    <th align="center" style="background-color: #000000; color: #ffffff; border-left: 1px solid white; font-size: 10pt;">Customer Order Reference</th>
+	<th align="center" style="background-color: #000000; color: #ffffff; font-size: 10pt;">Credit Note No.</th>
+    <th align="center" style="background-color: #000000; color: #ffffff; border-left: 1px solid white; font-size: 10pt;">Credit Note Reference</th>
 	</tr>
 </thead>
   <tr>
-  <td align="center" style="border-left: 1px solid black; border-bottom: 1px solid black; font-size: 10pt;">${record.createdfrom.tranid}</td>
-  <td align="center" style="border-left: 1px solid black; border-bottom: 1px solid black; font-size: 10pt;">${record.createdfrom.otherrefnum}</td>
+  <td align="center" style="border-left: 1px solid black; border-bottom: 1px solid black; font-size: 10pt;">${record.tranid}</td>
+  <td align="center" style="border-left: 1px solid black; border-bottom: 1px solid black; font-size: 10pt;">${record.otherrefnum}</td>
   </tr>
   </table>
  
@@ -599,13 +599,13 @@
 <table style="width: 100%;">
 <thead>
 	<tr >
-	<th align="center" style="background-color: #000000; color: #ffffff; font-size: 10pt;">Order No</th>
-    <th align="center" style="background-color: #000000; color: #ffffff; border-left: 1px solid white; font-size: 10pt;">Customer Order Reference</th>
+	<th align="center" style="background-color: #000000; color: #ffffff; font-size: 10pt;">Credit Note No.</th>
+    <th align="center" style="background-color: #000000; color: #ffffff; border-left: 1px solid white; font-size: 10pt;">Credit Note Reference</th>
 	</tr>
 </thead>
   <tr>
-  <td align="center" style="border-left: 1px solid black; border-bottom: 1px solid black; font-size: 10pt;">${record.createdfrom.tranid}</td>
-  <td align="center" style="border-left: 1px solid black; border-bottom: 1px solid black; font-size: 10pt;">${record.createdfrom.otherrefnum}</td>
+  <td align="center" style="border-left: 1px solid black; border-bottom: 1px solid black; font-size: 10pt;">${record.tranid}</td>
+  <td align="center" style="border-left: 1px solid black; border-bottom: 1px solid black; font-size: 10pt;">${record.otherrefnum}</td>
   </tr>
   </table>
   
