@@ -6,33 +6,50 @@
 </#if>
      <macrolist>
        <macro id="nlheader">
-         
+
     <table class="header" style="width: 100%;">
     <tr style="margin-top: 20px;">
-		<td align="left" rowspan="5"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: left; width: 170px; height: 50px;" /> </#if></td>
-		<td align="left" rowspan="5" style="color: #00aeed"><span class="nameandaddress">${companyInformation.addressText}</span></td>
-		<td align="left" rowspan="5" style="color: #00aeed"><span class="nameandaddress">T: 01962 88 44 44<br/>E: sales@ventauk.com<br/>W: www.ventauk.com</span></td>
+		<td align="left" rowspan="5"><#if companyInformation.logoUrl?length != 0><img src="https://4133410.app.netsuite.com/core/media/media.nl?id=16385&amp;c=4133410&amp;h=9aa37afd6d8b85e35555" style="float: left; width: 250px; height: 60px;" /> </#if></td>
 	</tr>
     </table>
 <hr/>
-    <table class="header" style="width: 100%; margin-top: 10px;">
-    <tr style="color: #00aeed">
-		<td align="left" ><span class="nameandaddress">For The Attention Of:</span></td>
-		<td align="left" ><span class="nameandaddress">Deliver Address:</span></td>
-		<td align="right"><span class="nameandaddress">Proposal No:</span></td>
-        <td align="right" style="color: #000000"><span class="nameandaddress">${record.tranid}</span></td>
-	</tr>
-    <tr>
-		<td align="left" rowspan="5"><span class="nameandaddress">${record.billaddress}</span></td>
-		<td align="left" rowspan="5"><span class="nameandaddress">${record.shipaddress}</span></td>
-		<td align="right" style="color: #00aeed"><span class="nameandaddress">Created:</span></td>
-        <td align="right"><span class="nameandaddress">${record.trandate}</span></td>
-	</tr>
-    </table>
+    	<!-- parent table with two child tables -->
+		<table style="width: 100%; margin-top: 10px;">
+          <tr>
+            <td>
+              <table style="width: 100%;">
+    			<tr>
+          			<td align="left" colspan="3"><span style="color: #00aeed">For The Attention Of:</span></td>
+          			<td align="left" colspan="3"><span style="color: #00aeed">Delivery Address:</span></td>
+        		</tr>
+        		<tr>
+          			<td align="left" colspan="3" rowspan="5"><span style="color:#000000">${record.billaddress}</span></td>
+          			<td align="left" colspan="3" rowspan="5"><span style="color:#000000">${record.shipaddress}</span></td>
+        		</tr>
+    		</table>
+           </td>
+           <td>
+            	<table style="width: 100%;">
+					<tr>
+          					<td align="right"><span style="color: #00aeed">Created:</span></td>
+          					<td align="right"><span style="color:#000000">${record.trandate}</span></td>
+        			</tr>
+             		<tr>
+                      		<td align="right"><span style="color: #00aeed">Proposal No:</span></td>
+                      		<td align="right"><span style="color:#000000">${record.tranid}</span></td>
+        			</tr>
+        			<tr>
+          					<td align="right"><span style="color: #00aeed">Version No:</span></td>
+          					<td align="right"><span style="color:#000000">${record.custbody_cle_pro_version}</span></td>
+        			</tr>
+    			</table>
+           </td>
+          </tr>
+         </table>
+
     <table class="header" style="width: 100%; margin-top: 10px;">
       <tr>
-        <td align="left" style="color: #00aeed">Contact:</td>
-        <td align="left" colspan="3">${record.salesrep} - ${record.salesrep.email}</td>
+        <td align="left"><span style="color: #00aeed">Contact: </span>${record.salesrep} - ${record.salesrep.email} - ${record.salesrep.phone}</td>
       </tr>
     </table>
     <hr/>
@@ -141,19 +158,19 @@
 </style>
 </head>
   
-<body style="background-image: url(https://system.eu2.netsuite.com/core/media/media.nl?id=12144&amp;c=4133410&amp;h=68b622a881aafe783795)" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+<body style="background-image: url(https://4133410.app.netsuite.com/core/media/media.nl?id=16384&amp;c=4133410&amp;h=c43162ec353193753b87)" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 
   
     <table style="width: 100%;">
-    <tr>
-      <td align="center" style="margin-top: 200px; font-size: 20pt; color:#ffffff">Proposal</td>
-    </tr>
-    <tr>
-      <td align="center" style="margin-top: 10px; font-size: 20pt; color:#ffffff">${record.tranid}</td>
-    </tr>
-    <tr>
-      <td align="center" style="margin-top: 10px; font-size: 20pt; color:#ffffff">${record.entity}</td>
-    </tr>
+    	<tr>
+      		<td align="right" style="margin-top: 10px; margin-right: 20px; font-size: 20pt; color:#000000;">${record.entity}</td>
+    	</tr>
+    	<tr>
+      		<td align="right" style="margin-right: 20px; font-size: 20pt; font-weight:bold; color:#000000;">${record.tranid}</td>
+    	</tr>
+    	<tr>
+      		<td align="right" style="margin-right: 20px; font-size: 20pt; color:#000000;">Version: ${record.custbody_cle_pro_version}</td>
+    	</tr>
   </table>
   
   
@@ -164,27 +181,26 @@
 
 <#if record.item?has_content>
 
-<table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
+<table class="itemtable" style="width: 100%; border-left: thin; border-right: thin; border-color: #00aeed;"><!-- start items --><#list record.item as item><#if item_index==0>
 <thead>
 	<tr>
-	<th  style="color: #ffffff; background-color: #00aeed" colspan="2" align="left">Product</th>
-	<th  style="color: #ffffff; background-color: #00aeed" colspan="2" align="center">Image</th>
-	<th  style="color: #ffffff; background-color: #00aeed" colspan="3" align="left">Description</th>
-	<th  style="color: #ffffff; background-color: #00aeed" colspan="1" align="center">Quantity</th>
-	<th  style="color: #ffffff; background-color: #00aeed" colspan="1" align="center">Unit Price</th>
+	<th style="color: #ffffff; background-color: #00aeed" colspan="4" align="left">Part Code</th>
+	<th style="color: #ffffff; background-color: #00aeed" colspan="4" align="center">Image</th>
+	<th style="color: #ffffff; background-color: #00aeed" colspan="8" align="left">Description</th>
+	<th style="color: #ffffff; background-color: #00aeed" colspan="2" align="center">Quantity</th>
+	<th style="color: #ffffff; background-color: #00aeed" colspan="2" align="center">Unit Price</th>
 	</tr>
 </thead>
-</#if><tr>
-  	<td colspan="2" align="left">${item.custcol_bbs_venta_sku}</td>
-  <#if item.custcol_bbs_item_image?length gt 0>
-    	<td colspan="2" align="center"><img src="${item.custcol_bbs_item_image}" style="width: 50px; height: 50px;"/></td>
+</#if><tr style="border-bottom: thin; border-color: #00aeed;">
+  	<td colspan="4" align="left">${item.custcol_bbs_venta_sku}</td>
+  	<#if item.custcol_bbs_item_image?length gt 0>
+    	<td colspan="4" align="center"><img src="${item.custcol_bbs_item_image}" style="width: 50px; height: 50px;"/></td>
     <#else>
-      	<td colspan="2" align="left">&nbsp;</td>
+      	<td colspan="4" align="left">&nbsp;</td>
     </#if>
-
-	<td colspan="3" align="left">${item.description}</td>
-	<td colspan="1" align="center">${item.quantity}</td>
-	<td colspan="1" align="right">${item.rate}</td>
+	<td colspan="8" align="left">${item.description}</td>
+	<td colspan="2" align="center">${item.quantity}</td>
+	<td colspan="2" align="right">${item.rate}</td>
 	</tr>
 	</#list><!-- end items --></table>
 
@@ -197,10 +213,19 @@
 	</tr></table> -->
 <table style="width: 100%;">
   <tr>
-	<td align="center" style="font-size: 8pt;"><b>All prices are subject to VAT and availability and does not include carriage charges.</b></td>
+    <td style="font-size: 8pt;"><p align="center"><b>All prices are subject to VAT and availability and does not include carriage charges.</b></p></td>
 	</tr>  
     <tr>
-	<td align="center" style="font-size: 8pt;"><b>Prices on this proposal stand for 30 days from the date shown above.</b></td>
+	<td style="font-size: 8pt;"><p align="center"><b>Prices on this proposal stand for 30 days from the date shown above.</b></p></td>
+	</tr>
+  	<tr>
+	<td style="font-size: 8pt;"><p align="center"><b>This proposal is made under our standard Terms and Conditions of Sale, a copy of which is available on request. No other terms and conditions of sale shall apply.</b></p></td>
+	</tr>
+  	<tr>
+	<td style="font-size: 8pt;"><p align="center"><b>This proposal is an invitation for the customer to make an offer.</b></p></td>
+	</tr>
+  	<tr>
+	<td style="font-size: 8pt;"><p align="center"><b>No contract will come into effect unless and until an order is placed by the customer and accepted by Venta Global Ltd.</b></p></td>
 	</tr>
 	</table>
 </body>
