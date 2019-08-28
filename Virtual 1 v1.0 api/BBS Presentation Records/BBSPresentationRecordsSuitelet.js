@@ -725,6 +725,8 @@ function presentationRecordsSuitelet(request, response)
 				//
 				for (var woKey in woArray) 
 					{
+						prPrefix = '';
+						
 						//Create the PR record
 						//
 						var prodBatchRecord = nlapiCreateRecord('customrecord_bbs_presentation_record');   // 2GU's
@@ -743,6 +745,7 @@ function presentationRecordsSuitelet(request, response)
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_billing_type', keyElements[2]);
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_proc_by_dd','0');
 								prodBatchRecord.setFieldValue('customform', PR_INVOICE_FORM_ID);
+								prPrefix = 'SINV';
 							}
 						else
 							{
@@ -750,6 +753,7 @@ function presentationRecordsSuitelet(request, response)
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner', keyElements[1]);
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner_contact', keyElements[2]);
 								prodBatchRecord.setFieldValue('customform', PR_CREDIT_FORM_ID);
+								prPrefix = 'SCRE';
 							}
 						
 						prodBatchRecord.setFieldValue('custrecord_bbs_pr_status', '1'); //Status = 1 (Open)
@@ -761,7 +765,12 @@ function presentationRecordsSuitelet(request, response)
 						//
 						prodBatchId = nlapiSubmitRecord(prodBatchRecord, true, true);  // 4GU's
 						batchesCreated.push(prodBatchId);
-								
+						
+						//Fixup the PR name
+						//
+						var prName = prPrefix + nlapiLookupField('customrecord_bbs_presentation_record', prodBatchId, 'name', false);
+						nlapiSubmitField('customrecord_bbs_presentation_record', prodBatchId, 'name', prName, false);
+
 						//Loop round the w/o id's associated with this batch
 						//
 						woIds = woArray[woKey];
