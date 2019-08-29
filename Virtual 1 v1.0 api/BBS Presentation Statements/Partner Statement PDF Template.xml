@@ -252,6 +252,8 @@
 			</tr>
 		</table>
 	</div>
+<#else>
+	<p>&nbsp;</p>	
 </#if>
 
 </body>
