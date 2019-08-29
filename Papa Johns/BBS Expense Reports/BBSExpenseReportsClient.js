@@ -9,22 +9,22 @@
 
 function pageInit(type)
 	{
-	   	// disable line item fields
+		// disable line item fields
 		nlapiDisableLineItemField('expense', 'department', true);
 		nlapiDisableLineItemField('expense', 'category', true);
 		nlapiDisableLineItemField('expense', 'taxcode', true);
 		nlapiDisableLineItemField('expense', 'foreignamount', true);
-      	nlapiDisableLineItemField('expense', 'grossamt', true);
+		nlapiDisableLineItemField('expense', 'grossamt', true);
 		
 		// get the value of the custbody_bbs_exp_default_cost_centre field
 		var defaultCostCentre = nlapiGetFieldValue('custbody_bbs_exp_default_cost_centre');
-		
+				
 		// set the value of the custcol_bbs_expense_department field for the current line using the defaultCostCentre variable
 		nlapiSetCurrentLineItemValue('expense', 'custcol_bbs_expense_department', defaultCostCentre, false, true); // type, fldnam, value, firefieldchanged, synchronous
-		
+				
 		// set the value of the currency field to GBP (internal ID 1)
 		nlapiSetFieldValue('expensereportcurrency', 1);
-		
+				
 		// set the value of the currency field for the current line to GBP (internal ID 1)
 		nlapiSetCurrentLineItemValue('expense', 'currency', 1, false, true); // type, fldnam, value, firefieldchanged, synchronous
 	}
