@@ -69,7 +69,9 @@ function findTransaction(_memo)
 			[
 			   ["mainline","is","T"], 
 			   "AND", 
-			   ["numbertext","is",_memo]
+			   ["numbertext","is",_memo], 
+			   "AND", 
+			   ["type","anyof","Journal","CustCred","CustInvc"]
 			], 
 			[
 			   new nlobjSearchColumn("type"), 

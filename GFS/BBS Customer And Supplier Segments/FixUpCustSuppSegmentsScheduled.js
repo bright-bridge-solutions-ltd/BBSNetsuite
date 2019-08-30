@@ -2,7 +2,7 @@
  * Module Description
  * 
  * Version    Date            Author           Remarks
- * 1.00       28 Aug 2019     cedricgriffiths
+ * 1.00       28 Aug 2019     cedricgriffiths	Script to create the relevant custom segment values from customers & suppliers
  *
  */
 
