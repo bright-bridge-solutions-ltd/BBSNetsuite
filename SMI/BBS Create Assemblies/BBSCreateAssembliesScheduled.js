@@ -136,8 +136,8 @@ function createAssembliesScheduled(type)
 									var parentItemCategoryId = parentRecord.getFieldValue('custitem_bbs_item_category');
 									var newParentName = customerRef + '-' + parentItemCategory + '-' + parentName + '-' + colourAbbreviation;
 									var parentSalesDescription = parentRecord.getFieldValue('salesdescription');
-									var parentSize2 = parentRecord.getFieldValues('custitem_bbs_item_size2');
-									var parentClass = parentRecord.getFieldValues('class');
+									var parentSize2 = parentRecord.getFieldValue('custitem_bbs_item_size2');
+									var parentClass = parentRecord.getFieldValue('class');
 									
 									//Get data from the finish item
 									//
