@@ -1,48 +1,284 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
 <pdf>
 <head>
-        <#assign regInfo>?????</#assign>
-        <#assign emailInfo>?????</#assign>
-        <#assign telInfo>?????</#assign>
-        <#assign vatInfo>?????</#assign>
-        <#assign logoInfo>?????</#assign>
-        <#assign footerMsg>?????</#assign>
-        <#assign subsidiary>${record.subsidiary.id}</#assign>
-  
-        <#if subsidiary=="4">
-              <#assign regInfo>Company Registration No: 06863317. Registered Office: Venture Park, Selborne Road, Alton, Hampshire, GU34 3HL, United Kingdom.</#assign>
-              <#assign emailInfo>sales@swiftindustrial.co.uk</#assign>
-              <#assign telInfo>01420 592500</#assign>
-              <#assign vatInfo>GB 730 047 570</#assign>
-              <#assign footerMsg>All goods remain the property of Swift Industrial Supplies Ltd until paid in full.</#assign>
-              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=12&amp;c=3865332_SB1&amp;h=8c7ade4a997e5c95e9aa</#assign>
-        </#if>
-  
-        <#if subsidiary=="9">
-              <#assign regInfo>Company Registration No: 06683211. Registered Office: Maxx House, Western Road, Bracknell, Berkshire, RG12 1QP, United Kingdom.</#assign>
-              <#assign emailInfo>accounts@traffiglove.com</#assign>
-              <#assign telInfo>01344 207090</#assign>
-              <#assign vatInfo>GB 938 0690 02</#assign>
-              <#assign footerMsg>All goods remain the property of Traffi Safe Ltd until paid in full.</#assign>
-              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=11&amp;c=3865332_SB1&amp;h=e0957c1448ab1bfcd5af</#assign>
-        </#if>
+<#assign subsidiary>${record.subsidiary.id}</#assign>
+<#assign regInfo>${record.subsidiary.custrecord_sw_reg_info}</#assign>
+<#assign emailInfo>${record.subsidiary.custrecord_sw_form_email_info}</#assign>
+<#assign telInfo>${record.subsidiary.custrecord_sw_form_tel_no}</#assign>
+<#assign vatInfo>${record.subsidiary.custrecord_sw_form_tax_no}</#assign>
+<#assign logoInfo>${record.subsidiary.custrecord_sw_form_image}</#assign>
+<#assign coname>${record.subsidiary.custrecord_sw_form_co_name}</#assign>
+<#assign footerMsg>${record.subsidiary.custrecord_sw_form_footer_message}</#assign>
+<#assign footerMsg2>${record.subsidiary.custrecord_sw_form_footer_message_2}</#assign>
+<#assign footerMsg3>${record.subsidiary.custrecord_sw_form_footer_3}</#assign>
+<#assign footerMsg4>${record.subsidiary.custrecord_sw_form_footer_4}</#assign>
+<#assign AllMonies>${record.subsidiary.custrecord_sw_all_monies_clause}</#assign>
+<#assign CreditLogo>${record.subsidiary.custrecord_sw_form_credit_logo}</#assign>
+
+<#if record.custbody_sw_language?has_content>
+<#if record.custbody_sw_language=="English (UK)">
+  <#assign AccNo>Account Number</#assign>
+  <#assign AltRef>Alt ref</#assign>
+  <#assign BackOrd>Products on backorder from this Sales Order</#assign>
+  <#assign BankD>Bank details for payments in</#assign>
+  <#assign CarChar>Carriage Charge</#assign>
+  <#assign Check>Check</#assign>
+  <#assign COfO>Country of Origin</#assign>
+  <#assign Cont>Contact</#assign>
+  <#assign Creg>Company registration Number</#assign>
+  <#assign Comp>Company</#assign>
+  <#assign CustIt>Cust Item</#assign>
+  <#if subsidiary=="8"><#assign CustRef>Purchase Order</#assign><#else><#assign CustRef>Customer Reference</#assign></#if>
+  <#assign CuAcc>Account No</#assign>
+  <#assign Date>Date</#assign>
+  <#assign Day>Days</#assign>
+  <#assign DelAdd>Delivery Address</#assign>
+  <#assign DelName>Delivery Note</#assign>
+  <#assign DelNo>Delivery Note Number</#assign>
+  <#assign DiscAv>Discount available if paid within</#assign>
+  <#assign Email>Email</#assign>
+  <#assign ExDec>The exporter of the products covered by this document declares that, except where otherwise clearly indicated,<br />these products are of EC preferential origin</#assign>
+  <#assign ExFac>Ex-Factory Date</#assign>
+  <#assign EUCom>EU Commodity Code</#assign>
+  <#assign GroAm>Gross<br/>Amount</#assign>
+  <#assign Gross>Gross</#assign>
+  <#assign GroTot>Gross Total</#assign>
+  <#assign Iban>Iban</#assign>
+  <#assign InvAdd>Invoice Address</#assign>
+  <#assign InvName>Invoice</#assign>
+  <#assign InvNo>Invoice Number</#assign>
+  <#assign Item>Item</#assign>
+  <#assign LineNo>Line</#assign>
+  <#assign ManP>Manpack<br/>Name</#assign>
+  <#assign MessA>Standard Terms and Conditions apply</#assign>
+  <#assign MessB>Invoices should quote the PO number above. Any difference may result in delays in payment</#assign>
+  <#assign NetAm>Net<br/>Amount</#assign>
+  <#assign Nett>Nett</#assign>
+  <#assign NetTot>Net Total</#assign>
+  <#assign Notes>Notes</#assign>
+  <#assign Pack>Pack</#assign>
+  <#assign Page>Page</#assign>
+  <#assign PagOf>of</#assign>
+  <#assign PayDue>Payment Due</#assign>
+  <#assign PicBin>Picking<br/>Bin</#assign>
+  <#assign Pick>Pick</#assign>
+  <#assign PicName>Picking Ticket</#assign>
+  <#assign PicNo>No of Items to Pick</#assign>
+  <#assign PrintTime>Printed Date/Time</#assign>
+  <#assign PurName>Purchase Order</#assign>
+  <#assign QtyBack>Qty<br/>BackOrdered</#assign>
+  <#assign QtyOrd>Qty<br/>Ordered</#assign>
+  <#assign QtyPic>Pick<br/>Qty</#assign>
+  <#assign QtyShip>Qty<br/>Shipped</#assign>
+  <#assign Qty>Quantity</#assign>
+  <#assign QteName>Quotation</#assign>
+  <#assign QteNo>Quotation No</#assign>
+  <#assign QteRef>Quote Ref</#assign>
+  <#assign RegOff>Registered Office</#assign>
+  <#assign Sample>Sample Order</#assign>
+  <#assign ShipMeth>Shipping Method</#assign>
+  <#assign Shipped>Shipped on this Delivery</#assign>
+  <#assign SOName>Sales Order Confirmation</#assign>
+  <#assign SONo>Sales Order Number</#assign>
+  <#assign Sort>Sort Code</#assign>
+  <#assign StaName>Statement</#assign>
+  <#assign SuAcc>Account No</#assign>
+  <#assign SupAdd>Supplier Address</#assign>
+  <#assign SupItem>Supplier Code</#assign>
+  <#assign SubT>Subtotal</#assign>
+  <#assign Swift>Swift No</#assign>
+  <#if subsidiary=="8"><#assign TaxAm>Federal Tax<br/>ID 61-1845595</#assign><#else><#assign TaxAm>VAT<br/>Amount</#assign></#if>
+  <#assign TaxNo>VAT No</#assign>
+  <#if subsidiary=="8"><#assign TaxTot>Sales Tax Total</#assign><#else><#assign TaxTot>VAT Total</#assign></#if>
+  <#assign Tel>Tel</#assign>
+  <#assign Terms>Payment Terms</#assign>
+  <#assign Total>Total</#assign>
+  <#assign TracNo>Consignment No</#assign>
+  <#assign Unit>Units</#assign>
+  <#assign UP>Unit<br/>Price</#assign>
+  <#assign USCom>US Commodity Code</#assign>
+</#if>
+<#if record.custbody_sw_language=="Italian">
+  <#assign AccNo>N. Conto Corrente</#assign>
+  <#assign AltRef>Altro Riferimento</#assign>
+  <#assign BackOrd>Prodotti non evasi da questo Ordine di Vendita</#assign>
+  <#assign BankD>Coordinate bancarie per pagamenti in</#assign>
+  <#assign CarChar>Costi di Trasporto</#assign>
+  <#assign Check>Controllo</#assign>
+  <#assign COfO>Paese di origine</#assign>
+  <#assign Cont>Referente</#assign>
+  <#assign Creg>P. IVA</#assign>
+  <#assign Comp>Azienda</#assign>
+  <#assign CustIt>Prodotto Personalizzato</#assign>
+  <#assign CustRef>N. Ordine Cliente</#assign>
+  <#assign CuAcc>Codice Cliente</#assign>
+  <#assign Date>Data</#assign>
+  <#assign Day>Giorni</#assign>
+  <#assign DelAdd>Indirizzo di Consegna</#assign>
+  <#assign DelName>Documento<br/>di Trasporto</#assign>
+  <#assign DelNo>N. Documento</#assign>
+  <#assign DiscAv>Sconto Disponibile se pagato entro</#assign>
+  <#assign Email>Email</#assign>
+  <#assign ExDec>L'esportatore dei prodotti descritti in questo documento dichiara che, eccetto dove espressamente indicato,<br/>tali prodotti sono di origine dell'Unione Europea</#assign>
+  <#assign ExFac>Data di Consegna</#assign>
+  <#assign EUCom>Codice Merceologico EU</#assign>
+  <#assign GroAm>Totale<br/>Lordo</#assign>
+  <#assign Gross>Lordo</#assign>
+  <#assign GroTot>Totale Lordo</#assign>
+  <#assign Iban>Codice IBAN</#assign>
+  <#assign InvAdd>Indirizzo di Fatturazione</#assign>
+  <#assign InvName>Fattura</#assign>
+  <#assign InvNo>Numero Fattura</#assign>
+  <#assign Item>Articoli</#assign>
+  <#assign LineNo>N. Linea</#assign>
+  <#assign ManP>Responsabile<br/>Confezionamento</#assign>
+  <#assign MessA>Si applicano termini e condizioni standard</#assign>
+  <#assign MessB>Fare sempre riferimento al nostro numero d'ordine. Si prega di riportare sempre, in bolla ed in fattura il nostro numero d'ordine, codice articolo e descrizione esatta. Qualsiasi differenza comporterebbe il non poter procedere alla contabilizzazione ed al relativo pagamento degli importi dovuti.</#assign>
+  <#assign NetAm>Totale<br/>Netto</#assign>
+  <#assign Nett>Netto</#assign>
+  <#assign NetTot>Totale Netto</#assign>
+  <#assign Notes>Note</#assign>
+  <#assign Pack>Confezionamento</#assign>
+  <#assign Page>Pagina</#assign>
+  <#assign PagOf>di</#assign>
+  <#assign PayDue>Scadenza Pagamento</#assign>
+  <#assign PicBin>Picking<br/>Bin</#assign>
+  <#assign Pick>Pick</#assign>
+  <#assign PicName>Lista di Stock Picking</#assign>
+  <#assign PicNo>N. di prodotti da prelevare</#assign>
+  <#assign PrintTime>Data/ora di stampa</#assign>
+  <#assign PurName>Ordine D'Acquisto</#assign>
+  <#assign QtyBack>Quantità non<br/>disponibile</#assign>
+  <#assign QtyOrd>Quantità<br/>ordinata</#assign>
+  <#assign QtyPic>Quantità<br/>picking</#assign>
+  <#assign QtyShip>Quantità<br/>spedita</#assign>
+  <#assign Qty>Quantità</#assign>
+  <#assign QteName>Quotation</#assign>
+  <#assign QteNo>Quotation No</#assign>
+  <#assign QteRef>Titolo</#assign>
+  <#assign RegOff>Sede Legale</#assign>
+  <#assign Sample>Campionatura</#assign>
+  <#assign ShipMeth>Modalità di Trasporto</#assign>
+  <#assign Shipped>Inviati in questa spedizione</#assign>
+  <#assign SOName>Conferma<br/>d'Ordine</#assign>
+  <#assign SONo>N. Ordine</#assign>
+  <#assign Sort>ABI/CAB</#assign>
+  <#assign StaName>Estratto Conto</#assign>
+  <#assign SuAcc>Codice Fornitore</#assign>
+  <#assign SupAdd>Indirizzo Fornitore</#assign>
+  <#assign SupItem>Codici del Fornitore</#assign>
+  <#assign SubT>Totale</#assign>
+  <#assign Swift>Codice Swift</#assign>
+  <#assign TaxAm>Totale<br/>IVA</#assign>
+  <#assign TaxNo>P.IVA No</#assign>
+  <#assign TaxTot>Totale IVA</#assign>
+  <#assign Tel>Tel</#assign>
+  <#assign Terms>Termini di Pagamento</#assign>
+  <#assign Total>Totale</#assign>
+  <#assign TracNo>Vettore - Conducente</#assign>
+  <#assign Unit>Unità</#assign>
+  <#assign UP>Prezzo<br/>Unitario</#assign>
+  <#assign USCom>Codice Merceologico US</#assign>
+</#if>
+<#else>
+  <#assign AccNo>Account Number</#assign>
+  <#assign AltRef>Alt ref</#assign>
+  <#assign BackOrd>Products on backorder from this Sales Order</#assign>
+  <#assign BankD>Bank details for payments in</#assign>
+  <#assign CarChar>Carriage Charge</#assign>
+  <#assign Check>Check</#assign>
+  <#assign COfO>Country of Origin</#assign>
+  <#assign Cont>Contact</#assign>
+  <#assign Creg>Company registration Number</#assign>
+  <#assign Comp>Company</#assign>
+  <#assign CustIt>Cust Item</#assign>
+  <#if subsidiary=="8"><#assign CustRef>Purchase Order</#assign><#else><#assign CustRef>Customer Reference</#assign></#if>
+  <#assign CuAcc>Account No</#assign>
+  <#assign Date>Date</#assign>
+  <#assign Day>Days</#assign>
+  <#assign DelAdd>Delivery Address</#assign>
+  <#assign DelName>Delivery Note</#assign>
+  <#assign DelNo>Delivery Note Number</#assign>
+  <#assign DiscAv>Discount available if paid within</#assign>
+  <#assign Email>Email</#assign>
+  <#assign ExDec>The exporter of the products covered by this document declares that, except where otherwise clearly indicated,<br />these products are of EC preferential origin</#assign>
+  <#assign ExFac>Ex-Factory Date</#assign>
+  <#assign EUCom>EU Commodity Code</#assign>
+  <#assign GroAm>Gross<br/>Amount</#assign>
+  <#assign Gross>Gross</#assign>
+  <#assign GroTot>Gross Total</#assign>
+  <#assign Iban>Iban</#assign>
+  <#assign InvAdd>Invoice Address</#assign>
+  <#assign InvName>Invoice</#assign>
+  <#assign InvNo>Invoice Number</#assign>
+  <#assign Item>Item</#assign>
+  <#assign LineNo>Line</#assign>
+  <#assign ManP>Manpack<br/>Name</#assign>
+  <#assign MessA>Standard Terms and Conditions apply</#assign>
+  <#assign MessB>Invoices should quote the PO number above. Any difference may result in delays in payment</#assign>
+  <#assign NetAm>Net<br/>Amount</#assign>
+  <#assign Nett>Nett</#assign>
+  <#assign NetTot>Net Total</#assign>
+  <#assign Notes>Notes</#assign>
+  <#assign Pack>Pack</#assign>
+  <#assign Page>Page</#assign>
+  <#assign PagOf>of</#assign>
+  <#assign PayDue>Payment Due</#assign>
+  <#assign PicBin>Picking<br/>Bin</#assign>
+  <#assign Pick>Pick</#assign>
+  <#assign PicName>Picking Ticket</#assign>
+  <#assign PicNo>No of Items to Pick</#assign>
+  <#assign PrintTime>Printed Date/Time</#assign>
+  <#assign PurName>Purchase Order</#assign>
+  <#assign QtyBack>Qty<br/>BackOrdered</#assign>
+  <#assign QtyOrd>Qty<br/>Ordered</#assign>
+  <#assign QtyPic>Pick<br/>Qty</#assign>
+  <#assign QtyShip>Qty<br/>Shipped</#assign>
+  <#assign Qty>Quantity</#assign>
+  <#assign QteName>Quotation</#assign>
+  <#assign QteNo>Quotation No</#assign>
+  <#assign QteRef>Quote Ref</#assign>
+  <#assign RegOff>Registered Office</#assign>
+  <#assign Sample>Sample Order</#assign>
+  <#assign ShipMeth>Shipping Method</#assign>
+  <#assign Shipped>Shipped on this Delivery</#assign>
+  <#assign SOName>Sales Order Confirmation</#assign>
+  <#assign SONo>Sales Order Number</#assign>
+  <#assign Sort>Sort Code</#assign>
+  <#assign StaName>Statement</#assign>
+  <#assign SuAcc>Account No</#assign>
+  <#assign SupAdd>Supplier Address</#assign>
+  <#assign SupItem>Supplier Code</#assign>
+  <#assign SubT>Subtotal</#assign>
+  <#assign Swift>Swift No</#assign>
+  <#if subsidiary=="8"><#assign TaxAm>Federal Tax<br/>ID 61-1845595</#assign><#else><#assign TaxAm>VAT<br/>Amount</#assign></#if>
+  <#assign TaxNo>VAT No</#assign>
+  <#if subsidiary=="8"><#assign TaxTot>Sales Tax Total</#assign><#else><#assign TaxTot>VAT Total</#assign></#if>
+  <#assign Tel>Tel</#assign>
+  <#assign Terms>Payment Terms</#assign>
+  <#assign Total>Total</#assign>
+  <#assign TracNo>Consignment No</#assign>
+  <#assign Unit>Units</#assign>
+  <#assign UP>Unit<br/>Price</#assign>
+  <#assign USCom>US Commodity Code</#assign>
+</#if>
+
     <macrolist>
-        <macro id="nlheader">
-            <table class="header" style="width: 100%;">
+    <macro id="nlheader">
+    <table class="header" style="width: 100%;">
     <tr>
 	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
+    <td align="right">&nbsp;</td>
 	<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /></td>
     </tr>
     <!--<tr><td>&nbsp;</td></tr>-->
     <tr>
-	<td><span style="font-size:24px;">${record@title}</span></td>
-	<td align="right">&nbsp;</td>
+      <td style="font-size:24px">${SOName}</td></tr>
+      <tr>
 	<td align="right">&nbsp;</td>
 	</tr>
-          </table>
+    </table>
     <table class="header" style="width: 100%;">
-
 	<tr>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
@@ -50,10 +286,10 @@
 	<td align="right">&nbsp;</td>
 	</tr>
 	<tr>
-        <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.vatregnum}</span></td>
+    <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>${InvAdd}:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>${TaxNo}: ${record.vatregnum}</span></td>
 	<td align="right" style="font-size:10pt"></td>
       
-    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custbody_subsidiary_address}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.subsidiary.custrecord_sw_subsidiary_address}</span><#if vatInfo?has_content><br/>${TaxNo} ${vatInfo}<br /></#if><br/><b>${Email}:</b> ${emailInfo}<br /><b>${Tel}:</b> ${telInfo}</td>
 	</tr>
           </table>
         </macro>
@@ -61,21 +297,24 @@
         <macro id="nlfooter">
 
        
-       <table style="width: 100%;">
+         <table style="width: 100%;">
          <tr class="messagerow">
-              <td align="left" class="message"><b>${footerMsg}</b></td>
-		  </tr>
+         <td align="left" class="message"><b>${footerMsg}</b></td>
+		 </tr>
          <tr class="messagerow">
-              <td align="left" class="message">&nbsp;</td>
-		  </tr>
-          <tr class="messagerow">
-              <td align="left" class="message">${regInfo}</td>
-		  </tr>
-        </table>
+         <td align="left" class="message"><b>${footerMsg2}</b></td>
+		 </tr>
+         <tr class="messagerow">
+         <td align="left" class="message">&nbsp;</td>
+		 </tr>
+         <tr class="messagerow">
+         <td align="left" class="message">${regInfo}</td>
+		 </tr>
+         </table>
 
 		<table class="footer" style="width: 100%;">
           <tr>
-			<td align="right"><pagenumber/> of <totalpages/></td>
+			<td align="right">${Page} <pagenumber/> ${PagOf} <totalpages/></td>
 		</tr>
         </table>
 
@@ -182,32 +421,32 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="26%" footer="nlfooter" footer-height="4%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="30%" footer="nlfooter" footer-height="4%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
     <table style="width: 100%;">
     <tr>
-	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
+	<td colspan="2" class="addressheader"><B>${DelAdd}:</B></td><td></td><td></td><td></td>
 	</tr>
 	<tr>
 	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
 	</tr>
 	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>${record.tranid@label}</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>${SONo}</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
     </tr>
 	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>${record.trandate@label}</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>${Date}</b></td><td align="right" style="font-size:10pt"><#if record.custbody_sw_language=="Italian">${record.trandate?string["dd-MM-YYYY"]}<#elseif subsidiary=="8">${record.trandate?string["MM/dd/YYYY"]}<#else>${record.trandate?string["dd/MM/YYYY"]}</#if></td>
     </tr>
   <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Your Po #</b></td><td align="right" style="font-size:10pt">${record.otherrefnum}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>${CustRef}</b></td><td align="right" style="font-size:10pt">${record.otherrefnum}</td>
+    </tr>
+    <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>${AltRef}</b></td><td align="right" style="font-size:10pt">${record.custbody_sw_alt_ref}</td>
     </tr>
       <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No</b></td><td align="right" style="font-size:10pt">${record.entity.entityid}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>${CuAcc}</b></td><td align="right" style="font-size:10pt">${record.entity.entityid}</td>
     </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
+     <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>${Cont}</b></td><td align="right" style="font-size:10pt">${record.custbody_bbs_so_requested_by.entityid}</td>
     </tr>
       <tr>
 	<td class="address">&nbsp;</td><td></td><td></td>
@@ -216,52 +455,117 @@
 	<td class="address">&nbsp;</td><td></td><td></td>
     </tr>
   </table>
-<#if record.item?has_content>
+  
+     <#if record.custbodysomarkassample == true>
+    <table style="width: 100%;"><tr class="messagerow">
+      <td  align="center" colspan="31" style="font-size:15pt">${Sample}<br/></td>
+	<td>&nbsp;</td><td></td><td></td>
+	</tr>
+	</table>
+     </#if>
 
+<#if record.item?has_content>
 <table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
 <thead >
+  <#if record.custbody_sw_manpack_qty gt 0>
 	<tr >
-	<th colspan="12">Description</th>
-    <th align="center" colspan="2"><br/>Quantity</th>
-	<th align="right" colspan="2">Unit<br/>Price</th>
-    <th align="right" colspan="3">Net<br/>Amount</th>
-    <th align="center" colspan="3">VAT<br/>Code</th>
-    <th align="right" colspan="3">VAT<br/>Amount</th>
-	<th align="right" colspan="3">Gross<br/>Amount</th>
+    <th colspan="9"><br/>${Item}</th>
+    <th align="center" colspan="2"><br/>${Qty}</th>
+    <th align="center" colspan="4">${QtyBack}</th>
+	<th align="right" colspan="2">${UP}</th>
+    <th align="right" colspan="3">${NetAm}</th>
+    <th align="right" colspan="3">${TaxAm}</th>
+	<th align="right" colspan="3">${GroAm}</th>
+    <th align="right" colspan="1"></th>
+    <th align="left" colspan="3">${ManP}</th>
 	</tr>
+<#else>
+  	<tr >
+    <th colspan="14"><br/>${Item}</th>
+    <th align="center" colspan="2"><br/>${Qty}</th>
+    <th align="center" colspan="4">${QtyBack}</th>
+	<th align="right" colspan="2">${UP}</th>
+    <th align="right" colspan="3">${NetAm}</th>
+    <th align="right" colspan="3">${TaxAm}</th>
+	<th align="right" colspan="3">${GroAm}</th>
+	</tr>
+</#if>
 </thead>
 </#if>
 
   <tr>
-	<td colspan="12">${item.description}</td>
+        <#if subsidiary=="6">
+      <#assign itemInfo>${item.item}</#assign>
+    <#else>
+      <#if item.custcol_sw_alt_item_number?has_content>
+        <#assign itemInfo>${item.custcol_sw_alt_item_number}</#assign>
+      <#else>
+        <#assign itemInfo>${item.item}</#assign>
+      </#if>
+    </#if>
+
+
+<#if record.custbody_sw_language?has_content>
+<#if record.custbody_sw_language=="English (UK)"><#assign Descrip>${item.description}</#assign></#if>
+<#if record.custbody_sw_language=="Italian"><#if item.custcol_sw_italian_description?has_content><#assign Descrip>${item.custcol_sw_italian_description}</#assign><#else><#assign Descrip>${item.description}</#assign></#if></#if>
+<#else><#assign Descrip>${item.description}</#assign></#if>
+      
+      
+    <#if record.taxtotal==0><#assign VatAmount>0.00</#assign><#else><#assign VatAmount>${item.tax1amt}</#assign></#if>
+    <#if record.taxtotal==0><#assign GrossAmount>${item.amount}</#assign><#else><#assign GrossAmount>${item.grossamt}</#assign></#if>
+    <#if record.custbody_sw_manpack_qty gt 0>
+     
+
+  
+    <td colspan="9"><span class="itemname">${itemInfo}<#if item.custcol_scm_customerpartnumber?has_content>  ${CustIt} - ${item.custcol_scm_customerpartnumber}</#if></span><br /><span font-size="7pt">${Descrip}</span><br/></td>
     <td align="center" colspan="2">${item.quantity}</td>
+    <td align="center" colspan="4">${item.quantitybackordered}</td>
 	<td align="right" colspan="2">${item.rate}</td>
     <td align="right" colspan="3">${item.amount}</td>
-    <td align="center" colspan="3">${item.taxcode}</td>
-	<td align="right" colspan="3">${item.tax1amt}</td>
-	<td align="right" colspan="3">${item.grossamt}</td>
+	<td align="right" colspan="3">${VatAmount}</td>
+	<td align="right" colspan="3">${GrossAmount}</td>
+    <td align="right" colspan="1"></td>
+    <td align="left" colspan="3"><p style="text-align: left;">${item.custcol_sw_manpack_entity}</p></td>
+    <#else>
+    <td colspan="14"><span class="itemname">${itemInfo}<#if item.custcol_scm_customerpartnumber?has_content>  ${CustIt} - ${item.custcol_scm_customerpartnumber}</#if></span><br /><span font-size="7pt">${Descrip}</span><br/></td>
+    <td align="center" colspan="2">${item.quantity}</td>
+    <td align="center" colspan="4">${item.quantitybackordered}</td>
+	<td align="right" colspan="2">${item.rate}</td>
+    <td align="right" colspan="3">${item.amount}</td>
+	<td align="right" colspan="3">${VatAmount}</td>
+	<td align="right" colspan="3">${GrossAmount}</td></#if>
 	</tr>
 	</#list><!-- end items --></table>
 </#if>
-
 <hr />
-<table class="total" style="width: 100%;"><tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
-	<td class="totalcell" align="right"><b>Net Total</b></td>
-	<td class="totalcell" align="right">${record.subtotal}</td>
+
+<table class="total" style="width: 100%;">
+	<tr class="totalrow">
+		<td colspan="4">&nbsp;</td>
+		<td class="totalcell" align="right"><b>${NetTot}</b></td>
+		<td class="totalcell" align="right">${record.subtotal}</td>
+	</tr>
+    <#if record.shippingcost?has_content>
+    <tr class="totalrow">
+		<td colspan="4">&nbsp;</td>
+		<td class="totalcell" align="right"><b>${CarChar}</b></td>
+		<td class="totalcell" align="right">${record.shippingcost}</td>
+    </tr>
+    </#if>
+	<tr class="totalrow">
+		<td colspan="4">&nbsp;</td>
+    	<td class="totalcell" align="right"><b>${TaxTot}</b></td>
+		<td class="totalcell" align="right">${record.taxtotal}</td>
 	</tr>
 	<tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
-    <td class="totalcell" align="right"><b>VAT Total</b></td>
-	<td class="totalcell" align="right">${record.taxtotal}</td>
-	</tr>
-	<tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
-	<td class="totalcell" align="right"><b>Gross Total</b></td>
-	<td class="totalcell" align="right">${record.total}</td>
+		<td colspan="4">&nbsp;</td>
+		<td class="totalcell" align="right"><b>${GroTot}</b></td>
+		<td class="totalcell" align="right">${record.total}</td>
 	</tr>
 	<tr>
-	<td>&nbsp;</td>
-	</tr></table>
+		<td>&nbsp;</td>
+	</tr>
+</table>
+
 </body>
 </pdf>
