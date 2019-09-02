@@ -5,6 +5,7 @@
  * 1.00       	02 Aug 2019     sambatten		Initial Version
  * 1.10			05 Aug 2019		sambatten		Added if statement to check custom form being used is 'SMI Standard Sales Order'
  * 1.20			09 Aug 2019		sambatten		Added if statement to check order doesn't contain any items with product codes starting 'CPHS'
+ * 1.30			30 Aug 2019		sambatten		Added if statement to check the order status is 'Pending Approval' or 'Pending Fulfillment'
  */
 
 function saveRecord(type)
@@ -12,8 +13,11 @@ function saveRecord(type)
 		// get the internal ID of the form being used
 		var customForm = nlapiGetFieldValue('customform');
 		
-		// only run below code when the customForm is 103 'SMI Standard Sales Order'
-		if (customForm == 103)
+		// get the internal ID of the transaction status
+		var status = nlapiGetFieldValue('status');
+		
+		// only continue with script when status is any of the below AND the custom form is 103 'SMI Standard Sales Order'
+		if ((status == 'Pending Approval' || status == 'Pending Fulfillment') && customForm == 103)
 			{
 				// retrieve script parameters
 				var biscuits = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_biscuits_client');
@@ -21,7 +25,7 @@ function saveRecord(type)
 				var biscuitsLevel = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_biscuits_level_client');
 				biscuitsLevel = parseInt(biscuitsLevel); // convert to integer number
 				var chocolatesLevel = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_chocolates_level_client');
-				chocolatesLevel = parseInt(chocolatesLevel) // convert to integer number
+				chocolatesLevel = parseInt(chocolatesLevel); // convert to integer number
 					
 				// get the internal ID of the customer from the current record
 				var customerID = nlapiGetFieldValue('entity');
