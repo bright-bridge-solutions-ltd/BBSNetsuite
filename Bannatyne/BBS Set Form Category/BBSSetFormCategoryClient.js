@@ -21,12 +21,12 @@ function formCategoryPageInit(type)
 	   		
 	   		var formId = nlapiGetFieldValue('customform');
 	   		
-	   		if(formId == '140') //TBG Site (Capex)
+	   		if(formId == '142') // TBG Site (Capex)
 	   			{
 	   				nlapiSetFieldValue('custbody_bbs_form_category', '1', true, true);
 	   			}
 	   		
-	   		if(formId == '130') //TBG Site (Non Capex)
+	   		if(formId == '135') // TBG Site (Non Capex)
 	   			{
 	   				nlapiSetFieldValue('custbody_bbs_form_category', '2', true, true);
 	   			}
