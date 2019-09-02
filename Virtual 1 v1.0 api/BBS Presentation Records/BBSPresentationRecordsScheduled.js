@@ -114,6 +114,18 @@ function prUpdate(type)
 									transactionRecord.setFieldValue('trandate', prBillingDate); 				//new transaction date
 									//transactionRecord.setFieldValue('trandate', nlapiDateToString(today)); 	//new transaction date
 									
+									switch(transactionRecordType)
+										{
+											case 'invoice':
+												transactionRecord.setFieldValue('custbody_bbs_pre_rec_fil_inv', prKey);
+												break;
+												
+											case 'creditmemo':
+												transactionRecord.setFieldValue('custbody_bbs_pre_rec_fil_cre', prKey);
+												break;	
+										}
+									
+									
 									//Get field values from the transaction record
 									//
 									var transactionDisputed = transactionRecord.getFieldValue('custbody_bbs_disputed');
@@ -145,33 +157,50 @@ function prUpdate(type)
 								}
 						}
 					
-					//Now we have to update the PR record with the results
-					//		
-					prRecord.setFieldValue('custrecord_bbs_pr_internal_status', '2'); //Transactions allocated
-					
-					switch(prRecordType)
-						{
-							case 'Invoice':
-								prRecord.setFieldValue('custrecord_bbs_pr_inv_total', prTotalAmount);
-								prRecord.setFieldValue('custrecord_bbs_pr_inv_disputed', prDisputedAmount);
-								prRecord.setFieldValue('custrecord_bbs_pr_inv_tax_total', prTotalTaxAmount);
-										
-								break;
-								
-							case 'Credit Memo':
-								prRecord.setFieldValue('custrecord_bbs_pr_cn_total', prTotalAmount);
-								prRecord.setFieldValue('custrecord_bbs_pr_cn_tax_total', prTotalTaxAmount);
-								
-								break;		
-						}
-					
+					//Reload the PR record
+					//
 					try
 						{
-							nlapiSubmitRecord(prRecord, false, true); //2GU's
+							prRecord = nlapiLoadRecord('customrecord_bbs_presentation_record', prKey); //2GU;s
 						}
 					catch(err)
 						{
-							nlapiLogExecution('DEBUG', 'Error updating presentation record - ' + err.message, prKey);
+							prRecord = null;
+							nlapiLogExecution('ERROR', 'Error loading PR record id = ' + prKey, err.message);
+						}
+					
+					if(prRecord != null)
+						{
+							//Now we have to update the PR record with the results
+							//		
+							prRecord.setFieldValue('custrecord_bbs_pr_internal_status', '2'); //Transactions allocated
+							
+							/*
+							 * Not needed as the UE script on invoices & credit notes updates the vaklues on the PR record
+							switch(prRecordType)
+								{
+									case 'Invoice':
+										prRecord.setFieldValue('custrecord_bbs_pr_inv_total', prTotalAmount);
+										prRecord.setFieldValue('custrecord_bbs_pr_inv_disputed', prDisputedAmount);
+										prRecord.setFieldValue('custrecord_bbs_pr_inv_tax_total', prTotalTaxAmount);
+												
+										break;
+										
+									case 'Credit Memo':
+										prRecord.setFieldValue('custrecord_bbs_pr_cn_total', prTotalAmount);
+										prRecord.setFieldValue('custrecord_bbs_pr_cn_tax_total', prTotalTaxAmount);
+										
+										break;		
+								}
+							*/
+							try
+								{
+									nlapiSubmitRecord(prRecord, false, true); //2GU's
+								}
+							catch(err)
+								{
+									nlapiLogExecution('DEBUG', 'Error updating presentation record - ' + err.message, prKey);
+								}
 						}
 				}
 		}
@@ -183,6 +212,7 @@ function prUpdate(type)
 	//=============================================================================================
 	//
 	
+
 	//Get the company config info
 	//
 	var companyInformationRecord = nlapiLoadConfiguration('companyinformation');

@@ -355,6 +355,18 @@ function presentationRecordsSuitelet(request, response)
 					//
 					var partnerSelectField = form.addField('custpage_select_partner', 'select', 'Partner', null, 'custpage_tab_items');
 					
+					//Add a field to show the count of records returned
+					//
+					var resultsTotalField = form.addField('custpage_select_total', 'integer', 'Initial Record Count', null, 'custpage_tab_items');
+					resultsTotalField.setDisplayType('disabled');
+					resultsTotalField.setDefaultValue(0);
+					resultsTotalField.setBreakType('startcol');
+					
+					var resultsTickedField = form.addField('custpage_select_ticked', 'integer', 'Total Records Selected', null, 'custpage_tab_items');
+					resultsTickedField.setDisplayType('disabled');
+					resultsTickedField.setDefaultValue(0);
+					
+					
 					//Add required buttons to sublist and form
 					//
 					subList.addMarkAllButtons();
@@ -527,8 +539,17 @@ function presentationRecordsSuitelet(request, response)
 												}
 										}
 								}
+							
+							//Update the count field
+							//
+							resultsTotalField.setDefaultValue(recordSearchResults.length);
+							if(PR_AUTO_MARK_ALL)
+								{
+									resultsTickedField.setDefaultValue(recordSearchResults.length);
+								}
 						}
 
+					
 					//Fill in the partner select list
 					//
 					partnerSelectField.addSelectOption('', '-- All --', true);
@@ -740,7 +761,8 @@ function presentationRecordsSuitelet(request, response)
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_type', '2');
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner', keyElements[1]);
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_pay_term', keyElements[3]);
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_due_date', calculateDueDate(todaysDate, keyElements[3]));
+								//prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_due_date', calculateDueDate(todaysDate, keyElements[3]));
+								prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_due_date', calculateDueDate(nlapiStringToDate(billingDate), keyElements[3]));
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner_contact', keyElements[4]);
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_billing_type', keyElements[2]);
 								prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_proc_by_dd','0');
