@@ -103,7 +103,8 @@ function prUpdate(type)
 									//Get field values from the PR record
 									//
 									var prName = prRecord.getFieldValue('name');
-								
+									var prNameForFilter = prNAme;
+									
 									prName = prName + '-' + padding_left((int2 + 1).toString(), '0', 4);
 									
 									//Set the new field values on the transaction record
@@ -114,16 +115,8 @@ function prUpdate(type)
 									transactionRecord.setFieldValue('trandate', prBillingDate); 				//new transaction date
 									//transactionRecord.setFieldValue('trandate', nlapiDateToString(today)); 	//new transaction date
 									
-									switch(transactionRecordType)
-										{
-											case 'invoice':
-												transactionRecord.setFieldValue('custbody_bbs_pre_rec_fil_inv', prKey);
-												break;
-												
-											case 'creditmemo':
-												transactionRecord.setFieldValue('custbody_bbs_pre_rec_fil_cre', prKey);
-												break;	
-										}
+									transactionRecord.setFieldValue('custbody_bbs_pre_rec_filter', prNameForFilter);
+
 									
 									
 									//Get field values from the transaction record
