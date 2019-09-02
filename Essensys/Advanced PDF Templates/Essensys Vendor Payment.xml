@@ -1,0 +1,187 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+<macrolist>
+
+	<macro id="nlheader">
+		<table class="header">
+			<tr>
+			<td><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: left; margin: 7px; width: 200px; height: 50px;" /></td>
+			<td></#if><span style="font-size: 10pt;">${subsidiary.mainaddress_text}</span></td>
+			<td align="right"><span class="title">Payment Voucher</span></td>
+			</tr>
+		</table>	
+	</macro>
+
+	<macro id="nlfooter">	
+		<table class="footer">
+		
+			<tr>
+			<td align="right"><pagenumber/><totalpages/></td>
+			</tr>		
+		</table>
+	</macro>
+
+</macrolist>
+
+<style type="text/css">
+            table {
+				font-family: sans-serif;
+				/*For Chinese, Japanese and Korean font, use this line instead:
+				font-family: hygothic, sans-serif;*/
+				font-size: 10pt;
+				margin-top: 10px;
+				table-layout: fixed;
+				width: 100%;
+                border-collapse:collapse;
+			}
+			th {
+				font-weight: bold;
+				font-size: 10pt;
+				vertical-align: middle;
+				padding-right: 6px;
+				padding-left: 6px;
+				padding-bottom: 3px;
+				padding-top: 3px;
+				background-color: #cfdde7;
+				color: #0c547b;
+			}
+            td.header{
+				font-weight: bold;
+				font-size: 9pt;
+				vertical-align: middle;
+                text-align: left;
+				padding-right: 6px;
+				padding-left: 6px;
+				padding-bottom: 3px;
+				padding-top: 3px;				
+				color: #0c547b;            
+            }
+			td {
+				padding-right: 6px;
+				padding-left: 6px;
+				padding-bottom: 4px;
+				padding-top: 4px;
+			}
+			table.header td {
+				padding: 0px;
+				font-size: 10pt;
+			}
+			table.footer td {
+				padding: 0px;
+				font-size: 8pt;
+			}
+            table.itemtable{
+                page-break-inside: avoid;
+            }
+			table.itemtable th {
+				padding-bottom: 2px;
+				padding-top: 2px;
+			}
+			table.body td {
+				padding-top: 2px;
+                padding-bottom: 2px;
+			}
+			td.totalcell {
+                font-size: 10pt;
+                font-weight: bold;
+                color: #0c547b;
+				background-color: #cfdde7;
+                text-align: right;
+			}
+			td.totalboxtop {
+				font-weight: bold;
+				color: #0c547b;
+				font-size: 12pt;
+				background-color: #cfdde7;
+			}           
+			td.totalboxmid {
+				font-size: 28pt;
+				padding-top: 3px;
+				padding-bottom: 3px;
+				background-color: #cfdde7;
+                text-align: right;
+			}
+			td.totalboxbot {
+				background-color: #cfdde7;
+				font-weight: bold;
+			}
+			span.title {
+				font-size: 28pt;
+			}
+			span.number {
+				font-size: 16pt;
+			}
+			span.itemname {
+				font-weight: bold;				
+			}</style>
+</head><body header="nlheader" header-height="10%" footer="nlfooter" footer-height="10pt">
+
+<table class="itemtable">
+	<tr>
+	<td class="header">Paid To</td>
+	<td class="header">Remittance Note</td>
+	<td class="totalboxtop">AMOUNT</td>
+	</tr>
+	<tr>
+	<td style="vertical-align: top"><span style="font-size: 10pt;">${record.address}</span></td>
+	<td style="vertical-align: top">Payment will be credited to your bank account after 2 - 3 banking days.</td>
+	<td class="totalboxmid">${record.total}</td>
+	</tr>
+</table>
+<br />
+<table class="itemtable">
+	<tr>
+	<th style="text-align: left">Reference Number</th>
+	<th style="text-align: left">Payment Date</th>
+	<th style="text-align: left">Currency</th>
+	</tr>
+	<tr>
+	<td>${record.tranid}</td>
+	<td>${record.trandate}</td>
+	<td>${record.currencysymbol}</td>
+	</tr>
+</table>
+<br /><#if record.apply?has_content>
+<table class="itemtable" style="height: 43px; width: 99.85%"><!-- start apply sublist --><#list record.apply as apply><#if apply_index==0>
+<thead>
+	<tr>
+	<th align="left">Date</th>
+	<th align="left">Description</th>
+	<th align="right">Due Date</th>
+	<th align="right">Amount Due</th>
+	<th align="right">Payment Amount</th>
+	</tr>
+</thead>
+</#if>
+
+    <!-- display only applied payments, 3 character length for "yes" -->
+    <#if apply.apply?length == 3>  
+	<tr>
+	<td align="left">${apply.applydate}</td>
+	<td align="left">${apply.type}<#if apply.refnum?length != 0> #${apply.refnum}</#if></td>
+	<td align="right">${apply.duedate}</td>
+	<td align="right">${apply.due}</td>
+	<td align="right">${apply.amount}</td>
+	</tr>
+    </#if>
+    
+	</#list><!-- end apply -->
+
+	<tr>
+	<td colspan="3">&nbsp;</td>
+	<td class="totalcell">Amount</td>
+	<td class="totalcell">${record.total}</td>
+	</tr>    
+</table>
+</#if><br />
+<br />
+<table>
+
+	<tr>
+    <td>For inquiries, <#if subsidiary.addrphone?has_content>please call ${subsidiary.addrphone} or </#if>email <#if subsidiary.internalid == '3'><!--  Essensys Inc --><a href="mailto:apus@essensys.tech">apus@essensys.tech</a><#else><!--  Essensys UK/Plc --><a href="mailto:apuk@essensys.tech">apuk@essensys.tech</a></#if></td>	
+	</tr>
+
+</table>
+</body>
+</pdf>
