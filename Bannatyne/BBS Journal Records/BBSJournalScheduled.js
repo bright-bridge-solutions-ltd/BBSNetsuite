@@ -32,41 +32,56 @@ function updateJournals(type)
 		nlapiLogExecution('DEBUG', 'Locations Found', 'There were ' + locationSearch.length + ' found');
 		
 		// run search to find records to be updated
-		// define search filters
-		var journalSearchFilters = new Array();
-		journalSearchFilters[0] = new nlobjSearchFilter('type', null, 'anyof', 'Journal');
-		journalSearchFilters[1] = new nlobjSearchFilter('trandate', null, 'within', '01/07/2019', '31/07/2019');
-		
-		// define search columns
-		var journalSearchColumns = new Array();
-		journalSearchColumns[0] = new nlobjSearchColumn('internalid', null, 'GROUP');
-		
-		// run search
-		var journalSearch = getResults(nlapiCreateSearch('journalentry', journalSearchFilters, journalSearchColumns));
-		nlapiLogExecution('DEBUG', 'Records to be updated', 'There are ' + journalSearch.length + ' records to be updated');
+		var transactionSearch = getResults(nlapiLoadSearch('transaction', 'customsearch_bbs_journals_for_update'));
+		nlapiLogExecution('DEBUG', 'Records to be updated', 'There are ' + transactionSearch.length + ' records to be updated');
 		
 		// loop through search results
-		for (var i = 0; i < journalSearch.length; i++)
+		for (var i = 0; i < transactionSearch.length; i++)
 			{
 				// reset lines variable to 0
 				lines = 0;
 			
-				// retrieve the internal ID of the journal record
-				var recordID = journalSearch[i].getValue('internalid', null, 'GROUP');
+				// retrieve the internal ID of the transaction record
+				var recordID = transactionSearch[i].getValue('internalid', null, 'GROUP');
+				
+				// retrieve the record type from the search
+				var recordType = transactionSearch[i].getValue('type', null, 'MAX');
+				
+				switch (recordType) {
+		            case 'Cheque':
+		            	recordType = 'check';
+		                break;
+		            case 'Credit Note':
+		            	recordType = 'creditmemo';
+		                break;
+		            case 'Purchase Order':
+		            	recordType = 'purchaseorder';
+		                break;
+		            case 'Requisition':
+		            	recordType = 'purchaserequisition';
+		                break;
+		            case 'Sales Invoice':
+		            	recordType = 'invoice';
+		                break;							                
+		            case 'Invoice':
+		            	recordType = 'vendorbill';
+		                break;						                
+		            default:
+				}
 				
 				try
 					{
-						// load the journal record
-						var journalRecord = nlapiLoadRecord('journalentry', recordID);
+						// load the transaction record
+						var transactionRecord = nlapiLoadRecord(recordType, recordID);
 						
-						// get count of sublist lines on the journal record
-						var lineCount = journalRecord.getLineItemCount('line');
+						// get count of sublist lines on the transaction record
+						var lineCount = transactionRecord.getLineItemCount('item');
 						
 						// loop through line count
 						for (var x = 1; x <= lineCount; x++)
 							{
 								// get the internal ID of the location from the sublist line
-								var recLocID = journalRecord.getLineItemValue('line', 'location', x);
+								var recLocID = transactionRecord.getLineItemValue('item', 'location', x);
 						
 								// check if the recLocID variable returns a value
 								if (recLocID)
@@ -93,12 +108,12 @@ function updateJournals(type)
 													}
 											}
 								
-										// set line item fields on journal record
-										journalRecord.setLineItemValue('line', 'custcol_cseg2', x, clubRegion);
-										journalRecord.setLineItemValue('line', 'custcol_cseg1', x, spaRegion);
-										journalRecord.setLineItemValue('line', 'custcol_cseg3', x, salesRegion);
-										journalRecord.setLineItemValue('line', 'custcol_cseg4', x, estatesRegion);
-										journalRecord.commitLineItem('line');
+										// set line item fields on transaction record
+										transactionRecord.setLineItemValue('item', 'custcol_cseg2', x, clubRegion);
+										transactionRecord.setLineItemValue('item', 'custcol_cseg1', x, spaRegion);
+										transactionRecord.setLineItemValue('item', 'custcol_cseg3', x, salesRegion);
+										transactionRecord.setLineItemValue('item', 'custcol_cseg4', x, estatesRegion);
+										transactionRecord.commitLineItem('item');
 									}
 								else
 									{
@@ -106,9 +121,9 @@ function updateJournals(type)
 									}
 							}
 						
-						// submit the journal record
-						var submittedRecord = nlapiSubmitRecord(journalRecord, false, true); // record, doSourcing, ignoreMandatoryFields
-						nlapiLogExecution('DEBUG', 'Record Updated', 'Record ' + submittedRecord + ' has been updated. There are ' + (journalSearch.length - (i+1)) + ' records still to be updated');
+						// submit the invoice record
+						var submittedRecord = nlapiSubmitRecord(transactionRecord, false, true); // record, doSourcing, ignoreMandatoryFields
+						nlapiLogExecution('DEBUG', 'Record Updated', 'Record ' + submittedRecord + ' has been updated. There are ' + (transactionSearch.length - (i+1)) + ' records still to be updated');
 						success++; // increase success variable
 					}
 				catch(e)
@@ -122,7 +137,7 @@ function updateJournals(type)
 				checkResources();
 			}
 		
-		nlapiLogExecution('DEBUG', 'Script Complete', journalSearch.length + ' records to update | ' + success + ' records updated successfully | ' + error + ' errors');
+		nlapiLogExecution('DEBUG', 'Script Complete', transactionSearch.length + ' records to update | ' + success + ' records updated successfully | ' + error + ' errors');
 		nlapiLogExecution('DEBUG', 'Errors', 'There were errors updating the following records: ' + errors);
 	}
 
