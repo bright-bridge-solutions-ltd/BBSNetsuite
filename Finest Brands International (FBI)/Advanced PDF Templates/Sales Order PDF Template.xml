@@ -15,9 +15,9 @@
               <#assign emailInfo>info@finestbrands.co.uk</#assign>
               <#assign telInfo>0113 270 7007</#assign>
               <#assign vatInfo>GB 927 5446 012</#assign>
-              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=11&amp;c=5293281_SB1&amp;h=fe2ea6b8bad94150217e</#assign>
-              <#assign logoChampion>https://5293281-sb1.app.netsuite.com/core/media/media.nl?id=1308&amp;c=5293281_SB1&amp;h=e81a9c06d74f143fcbfa</#assign>
-              <#assign logoToggi>https://5293281-sb1.app.netsuite.com/core/media/media.nl?id=1310&amp;c=5293281_SB1&amp;h=cd567fd4c49356911ee1</#assign>
+              <#assign logoInfo>https://5293281.app.netsuite.com/core/media/media.nl?id=11&amp;c=5293281&amp;h=2b7176c27723e1027d25</#assign>
+              <#assign logoChampion>https://5293281.app.netsuite.com/core/media/media.nl?id=1472&amp;c=5293281&amp;h=9b8bddf91d0681f44dc5</#assign>
+              <#assign logoToggi>https://5293281.app.netsuite.com/core/media/media.nl?id=1471&amp;c=5293281&amp;h=48b3f1b4af8e0100bd6b</#assign>
         </#if>
  
  <#if record.custbody_bbs_prof_6_month == true || record.custbody_bbs_prof_always == true || record.custbody_bbs_bad_payment_history == true>

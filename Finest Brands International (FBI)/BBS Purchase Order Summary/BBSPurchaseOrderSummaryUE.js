@@ -52,8 +52,7 @@ function purchaseOrderSummaryAS(type)
 					var lineAmount = nlapiGetLineItemValue('item', 'amount', int);
 					var lineVatAmount = nlapiGetLineItemValue('item', 'tax1amt', int);
 					var linevatCode = nlapiGetLineItemValue('item', 'taxrate1', int);
-					linevatCode = parseFloat(linevatCode).toFixed(2) + '%';
-					
+					linevatCode = parseFloat(linevatCode).toFixed(2) + '%';				
 					
 					//Only interested in inventory & non-inventory items
 					//
@@ -92,19 +91,19 @@ function purchaseOrderSummaryAS(type)
 					        	{
 					        		//Parent info
 					        		//
-						        	parentInfo = nlapiLookupField(recordType, itemInfo.parent, ['itemid','location','salesdescription','custitem_bbs_item_specification','custitem_bbs_item_trim','custitem_bbs_item_packaging','custitem_bbs_item_outer_packaging','custitem_bbs_item_purchase_terms','custitem_fbi_item_size1'], false);
+						        	parentInfo = nlapiLookupField(recordType, itemInfo.parent, ['itemid','location','purchasedescription','custitem_bbs_item_specification','custitem_bbs_item_trim','custitem_bbs_item_packaging','custitem_bbs_item_outer_packaging','custitem_bbs_item_purchase_terms','custitem_fbi_item_size1'], false);
 						        	parentInfoText = nlapiLookupField(recordType, itemInfo.parent, ['location','custitem_fbi_item_size1'], true);
 						        	
 					        	}
 					        else
 					        	{
-					        		parentInfo = nlapiLookupField(recordType, lineItem, ['itemid','location','salesdescription'], false);
+					        		parentInfo = nlapiLookupField(recordType, lineItem, ['itemid','location','purchasedescription'], false);
 					        		parentInfo.custitem_bbs_item_specification = '';
 					        		parentInfo.custitem_bbs_item_trim = '';
 					        		parentInfo.custitem_bbs_item_packaging = '';
 					        		parentInfo.custitem_bbs_item_outer_packaging = '';
 					        		parentInfo.custitem_bbs_item_purchase_terms = '';
-					        		parentInfo.salesdescription = parentInfo.itemid;
+					        		parentInfo.purchasedescription = parentInfo.itemid;
 					        		parentInfo.custitem_fbi_item_size1 = [];
 					        		
 					        		parentInfoText.location = nlapiLookupField(recordType, lineItem, ['location'], true);
@@ -137,7 +136,7 @@ function purchaseOrderSummaryAS(type)
 					        												itemInfo.custitem_fbi_item_colour, 
 					        												itemInfo.custitem_fbi_item_size2, 
 					        												parentInfo.location, 
-					        												parentInfo.salesdescription,
+					        												parentInfo.purchasedescription,
 					        												itemInfoText.custitem_fbi_item_colour,
 					        												itemInfoText.custitem_fbi_item_size2,
 					        												parentInfoText.location,
@@ -180,7 +179,7 @@ function purchaseOrderSummaryAS(type)
 					//
 					outputArray.push(new outputSummary	(	
 														summary[key].itemId, 
-														summary[key].salesDescription, 
+														summary[key].purchaseDescription, 
 														summary[key].locationText, 
 														summary[key].itemColourText + ' ' + summary[key].itemSize2Text, 
 														summary[key].getQuantitySizeSummary(), 
@@ -252,7 +251,7 @@ function outputSummary(_product, _description, _location, _colour, _quantitySize
 	
 }
 
-function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdescription, _itemColourText, _itemSize2Text, _locationText, _unitPrice, _vatCode, _item_specification, _item_trim, _item_packaging, _item_outer_packaging, _item_purchase_terms, _sizeList, _sizeListText)
+function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _purchasedescription, _itemColourText, _itemSize2Text, _locationText, _unitPrice, _vatCode, _item_specification, _item_trim, _item_packaging, _item_outer_packaging, _item_purchase_terms, _sizeList, _sizeListText)
 {
 	//Properties
 	//
@@ -260,7 +259,7 @@ function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _salesdesc
 	this.itemColourId 			= _itemColour;
 	this.itemSize2Id 			= _itemSize2;
 	this.locationId 			= _location;
-	this.salesDescription 		= _salesdescription;
+	this.purchaseDescription 		= _purchasedescription;
 	this.itemColourText 		= _itemColourText;
 	this.itemSize2Text 			= _itemSize2Text;
 	this.locationText 			= _locationText;
