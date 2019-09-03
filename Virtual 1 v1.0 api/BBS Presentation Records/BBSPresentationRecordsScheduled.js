@@ -103,7 +103,7 @@ function prUpdate(type)
 									//Get field values from the PR record
 									//
 									var prName = prRecord.getFieldValue('name');
-									var prNameForFilter = prNAme;
+									var prNameForFilter = prName;
 									
 									prName = prName + '-' + padding_left((int2 + 1).toString(), '0', 4);
 									
@@ -276,7 +276,9 @@ function prUpdate(type)
 							   new nlobjSearchColumn("amount"),
 							   new nlobjSearchColumn("custcol_bbs_site_post_code"),
 							   new nlobjSearchColumn("custcol_bbs_billing_frequency"), 
-							   new nlobjSearchColumn("custcol_bbs_pe_reference")
+							   new nlobjSearchColumn("custcol_bbs_pe_reference"),
+							   new nlobjSearchColumn("custcol_bbs_revenue_rec_start_date"),
+							   new nlobjSearchColumn("custcol_bbs_revenue_rec_end_date")
 							]
 							));
 					
@@ -304,11 +306,13 @@ function prUpdate(type)
 									var lineTranPostCode = invoiceLines[int].getValue('custcol_bbs_site_post_code');
 									var lineTranCustFrequency = invoiceLines[int].getText("custcol_bbs_billing_frequency");
 									var lineTranPeReference = invoiceLines[int].getValue("custcol_bbs_pe_reference");
+									var lineTranRevRecStart = invoiceLines[int].getValue("custcol_bbs_revenue_rec_start_date");
+									var lineTranRevRecEnd = invoiceLines[int].getValue("custcol_bbs_revenue_rec_end_date");
 									
 									csvText += lineTranEndUserName + ' - ' + lineTranPostCode + ',' + 
 										lineTranV1c + ',' +
-										',' +
-										',' +
+										lineTranRevRecStart + ',' +
+										lineTranRevRecEnd + ',' +
 										lineTranCustFrequency + ',' +
 										lineTranAmount + ',' + 
 										lineTranDecscription + ','  + 
