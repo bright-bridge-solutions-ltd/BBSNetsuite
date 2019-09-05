@@ -90,6 +90,8 @@ function ddUpdate(type)
 	//
 	for (var ddKey in ddArray) 
 		{
+			checkResources();
+			
 			//Try to load the DD record
 			//
 			try
