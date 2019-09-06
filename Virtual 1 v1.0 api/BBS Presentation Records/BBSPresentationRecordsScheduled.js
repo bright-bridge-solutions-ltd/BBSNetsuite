@@ -103,7 +103,8 @@ function prUpdate(type)
 									//Get field values from the PR record
 									//
 									var prName = prRecord.getFieldValue('name');
-								
+									var prNameForFilter = prName;
+									
 									prName = prName + '-' + padding_left((int2 + 1).toString(), '0', 4);
 									
 									//Set the new field values on the transaction record
@@ -113,6 +114,10 @@ function prUpdate(type)
 									transactionRecord.setFieldValue('tranid', prName);							//new document number
 									transactionRecord.setFieldValue('trandate', prBillingDate); 				//new transaction date
 									//transactionRecord.setFieldValue('trandate', nlapiDateToString(today)); 	//new transaction date
+									
+									transactionRecord.setFieldValue('custbody_bbs_pre_rec_filter', prNameForFilter);
+
+									
 									
 									//Get field values from the transaction record
 									//
@@ -145,33 +150,50 @@ function prUpdate(type)
 								}
 						}
 					
-					//Now we have to update the PR record with the results
-					//		
-					prRecord.setFieldValue('custrecord_bbs_pr_internal_status', '2'); //Transactions allocated
-					
-					switch(prRecordType)
-						{
-							case 'Invoice':
-								prRecord.setFieldValue('custrecord_bbs_pr_inv_total', prTotalAmount);
-								prRecord.setFieldValue('custrecord_bbs_pr_inv_disputed', prDisputedAmount);
-								prRecord.setFieldValue('custrecord_bbs_pr_inv_tax_total', prTotalTaxAmount);
-										
-								break;
-								
-							case 'Credit Memo':
-								prRecord.setFieldValue('custrecord_bbs_pr_cn_total', prTotalAmount);
-								prRecord.setFieldValue('custrecord_bbs_pr_cn_tax_total', prTotalTaxAmount);
-								
-								break;		
-						}
-					
+					//Reload the PR record
+					//
 					try
 						{
-							nlapiSubmitRecord(prRecord, false, true); //2GU's
+							prRecord = nlapiLoadRecord('customrecord_bbs_presentation_record', prKey); //2GU;s
 						}
 					catch(err)
 						{
-							nlapiLogExecution('DEBUG', 'Error updating presentation record - ' + err.message, prKey);
+							prRecord = null;
+							nlapiLogExecution('ERROR', 'Error loading PR record id = ' + prKey, err.message);
+						}
+					
+					if(prRecord != null)
+						{
+							//Now we have to update the PR record with the results
+							//		
+							prRecord.setFieldValue('custrecord_bbs_pr_internal_status', '2'); //Transactions allocated
+							
+							/*
+							 * Not needed as the UE script on invoices & credit notes updates the vaklues on the PR record
+							switch(prRecordType)
+								{
+									case 'Invoice':
+										prRecord.setFieldValue('custrecord_bbs_pr_inv_total', prTotalAmount);
+										prRecord.setFieldValue('custrecord_bbs_pr_inv_disputed', prDisputedAmount);
+										prRecord.setFieldValue('custrecord_bbs_pr_inv_tax_total', prTotalTaxAmount);
+												
+										break;
+										
+									case 'Credit Memo':
+										prRecord.setFieldValue('custrecord_bbs_pr_cn_total', prTotalAmount);
+										prRecord.setFieldValue('custrecord_bbs_pr_cn_tax_total', prTotalTaxAmount);
+										
+										break;		
+								}
+							*/
+							try
+								{
+									nlapiSubmitRecord(prRecord, false, true); //2GU's
+								}
+							catch(err)
+								{
+									nlapiLogExecution('DEBUG', 'Error updating presentation record - ' + err.message, prKey);
+								}
 						}
 				}
 		}
@@ -183,6 +205,7 @@ function prUpdate(type)
 	//=============================================================================================
 	//
 	
+
 	//Get the company config info
 	//
 	var companyInformationRecord = nlapiLoadConfiguration('companyinformation');
@@ -253,7 +276,9 @@ function prUpdate(type)
 							   new nlobjSearchColumn("amount"),
 							   new nlobjSearchColumn("custcol_bbs_site_post_code"),
 							   new nlobjSearchColumn("custcol_bbs_billing_frequency"), 
-							   new nlobjSearchColumn("custcol_bbs_pe_reference")
+							   new nlobjSearchColumn("custcol_bbs_pe_reference"),
+							   new nlobjSearchColumn("custcol_bbs_revenue_rec_start_date"),
+							   new nlobjSearchColumn("custcol_bbs_revenue_rec_end_date")
 							]
 							));
 					
@@ -281,11 +306,13 @@ function prUpdate(type)
 									var lineTranPostCode = invoiceLines[int].getValue('custcol_bbs_site_post_code');
 									var lineTranCustFrequency = invoiceLines[int].getText("custcol_bbs_billing_frequency");
 									var lineTranPeReference = invoiceLines[int].getValue("custcol_bbs_pe_reference");
+									var lineTranRevRecStart = invoiceLines[int].getValue("custcol_bbs_revenue_rec_start_date");
+									var lineTranRevRecEnd = invoiceLines[int].getValue("custcol_bbs_revenue_rec_end_date");
 									
 									csvText += lineTranEndUserName + ' - ' + lineTranPostCode + ',' + 
 										lineTranV1c + ',' +
-										',' +
-										',' +
+										lineTranRevRecStart + ',' +
+										lineTranRevRecEnd + ',' +
 										lineTranCustFrequency + ',' +
 										lineTranAmount + ',' + 
 										lineTranDecscription + ','  + 

@@ -24,7 +24,27 @@ function clientFieldChanged(type, name, linenum)
 			
 			libSetSessionData(sessionId, sessionData);
 		}
+	
+	if(type == 'custpage_sublist_items' && name == 'custpage_sublist_tick')
+		{
+			var count = nlapiGetLineItemCount('custpage_sublist_items');
+			var ticked = Number(0);
+			
+			for (var int = 1; int <= count; int++) 
+				{
+					var tick = nlapiGetLineItemValue('custpage_sublist_items', 'custpage_sublist_tick', int);
+					
+					if(tick == 'T')
+						{
+							ticked++;
+						}
+				}
+			
+			nlapiSetFieldValue('custpage_select_ticked', ticked, false, true);
+		}
 }
+
+
 
 function clientSaveRecord()
 {

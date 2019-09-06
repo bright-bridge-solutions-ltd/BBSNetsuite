@@ -17,25 +17,120 @@
  *                      paybills (vendor payments)
  * @returns {Void}
  */
-function userEventAfterSubmit(type)
+function createCaseFromQuoteAS(type)
 {
 	if(type == 'create')
 		{
-			//Get who created the record
-			//
-			var createdBy = nlapiGetFieldValue('recordcreatedby');
+			var quoteRecord = null;
 			
-			//See if they are a sales rep
-			//
-			var isSalesRep = nlapiLookupField('employee', createdBy, 'issalesrep', false);
-			
-			if(isSalesRep == 'T')
+			try
 				{
-					//Create a case
-					//
-					var caseRecord = nlapiCreateRecord('supportcase', {recordmode: 'dynamic'});
-					
+					quoteRecord = nlapiLoadRecord('estimate', nlapiGetRecordId());
 				}
-		
+			catch(err)
+				{
+					quoteRecord = null;
+				}
+			
+			if(quoteRecord != null)
+				{
+					//Get who created the record & the subsidiary
+					//
+					var createdBy = quoteRecord.getFieldValue('recordcreatedby');
+					var subsidiary = quoteRecord.getFieldValue('subsidiary');
+					
+					//make sure we have a created by & that the subsidiary is Accora Limited or Accora IE
+					//
+					if(createdBy != null && createdBy != '' & (subsidiary == '5' || subsidiary == '7'))
+						{
+							//See if they are a sales rep
+							//
+							var isSalesRep = nlapiLookupField('employee', createdBy, 'issalesrep', false);
+							
+							if(isSalesRep == 'T')
+								{
+									//Create a case
+									//
+									var caseRecord = nlapiCreateRecord('supportcase'); 
+									
+									//Get the customer from the quote
+									//
+									var customerId = quoteRecord.getFieldValue('entity');
+									var customerName = quoteRecord.getFieldText('entity');
+									var quoteNo = quoteRecord.getFieldValue('tranid');
+									var quoteId = quoteRecord.getId();
+									
+									//Update the case record
+									//
+									caseRecord.setFieldValue('company', customerId);
+									
+									var caseProfile = null;
+									
+									switch(subsidiary)
+										{
+											case '5':				//Accora Limited
+												caseProfile = '6';
+												break;
+												
+											case '7':				//Accora IE
+												caseProfile = '7';
+												break;
+										}
+									
+									caseRecord.setFieldValue('profile', caseProfile);
+									caseRecord.setFieldValue('customform', 56);
+									caseRecord.setFieldValue('category', 21);
+									caseRecord.setFieldValue('title', 'CPQ Quote ' + quoteNo);
+									
+									//Create the case record
+									//
+									var caseId = null;
+									
+									try
+										{
+											caseId = nlapiSubmitRecord(caseRecord, true, true);
+										}
+									catch(err)
+										{
+											caseId = null;
+											nlapiLogExecution('ERROR', 'error creating case record from quote ' + quoteNo, err.message);
+										}
+									
+									if(caseId != null)
+										{
+											//Add a message to the case
+											//
+											var newMessage = nlapiCreateRecord('message');
+											
+											newMessage.setFieldValue('activity', caseId);
+											newMessage.setFieldValue('author', customerId);
+											newMessage.setFieldValue('incoming', 'T');
+											newMessage.setFieldValue('emailed', 'F');
+											newMessage.setFieldValue('message', 'CPQ Quote ' + quoteNo);
+											newMessage.setFieldValue('subject', 'Case created from quotation');
+										
+											try
+												{
+													nlapiSubmitRecord(newMessage, true, false);
+												}
+											catch(err)
+												{
+													nlapiLogExecution('ERROR', 'Error creating message for case id ' + caseId, err.message);
+												}
+											
+											//Attach the quote to the case
+											//
+											//try
+											//	{
+											//		nlapiAttachRecord('estimate', quoteId, 'supportcase', caseId);
+											//	}
+											//catch(err)
+											//	{
+											//		nlapiLogExecution('ERROR', 'Error attaching quote to case id ' + caseId, err.message);
+											//	}
+										}
+								}
+						}
+				}
 		}
 }

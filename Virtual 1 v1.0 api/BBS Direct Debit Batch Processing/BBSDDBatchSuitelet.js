@@ -373,7 +373,8 @@ function ddBatchRecordsSuitelet(request, response)
 						}
 					
 					var amountToPayField = subList.addField('custpage_amount_to_pay', 'currency', 'Amount To Pay', null);
-					amountToPayField.setDisplayType('entry');
+					//amountToPayField.setDisplayType('entry');
+					amountToPayField.setDisplayType('disabled');
 					
 					//Get the session record to see if we are filtering by due date and add filter if needed
 					//
