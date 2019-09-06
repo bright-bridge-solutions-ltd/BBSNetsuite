@@ -387,7 +387,7 @@ function processBillingEndDates()
 			   "AND", 
 			   ["status","anyof","SalesOrd:F","SalesOrd:E"], 				//Pending Billing, Pending Billing/Partially Fulfilled
 			   "AND", 
-			   ["custbody_bbs_billing_end_date","onorbefore",todayString],
+			   ["custbody_bbs_sales_order_close_date","onorbefore",todayString],
 			   "AND",
 			   ["custbody_bbs_billing_end_date_proc","is","F"]
 			], 
