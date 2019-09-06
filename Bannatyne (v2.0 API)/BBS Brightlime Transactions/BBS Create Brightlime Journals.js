@@ -137,6 +137,11 @@ function(search, record, task) {
 					value: 'Brightlime Transaction Journal'
 				});
 				
+				journalRec.setValue({
+					fieldID: 'approvalstatus',
+					value: 2 // 2 = Approved
+				});
+				
 				// loop through lineCount
 				for (var i = 0; i < lineCount; i++)
 					{
@@ -176,25 +181,19 @@ function(search, record, task) {
 							value: account
 						});
 						
-						// check if the debit variable returns a value
-						if (debit)
-							{
-								// set the debit column on the new journal line
-								journalRec.setCurrentSublistValue({
-									sublistId: 'line',
-									fieldId: 'debit',
-									value: debit
-								});
-							}
-						else // debit variable does NOT return a value
-							{
-								// set the credit column on the new journal line
-								journalRec.setCurrentSublistValue({
-									sublistId: 'line',
-									fieldId: 'credit',
-									value: credit
-								});
-							}
+						// set the debit column on the new journal line
+						journalRec.setCurrentSublistValue({
+							sublistId: 'line',
+							fieldId: 'debit',
+							value: debit
+						});
+
+						// set the credit column on the new journal line
+						journalRec.setCurrentSublistValue({
+							sublistId: 'line',
+							fieldId: 'credit',
+							value: credit
+						});
 						
 						journalRec.setCurrentSublistValue({
 							sublistId: 'line',
