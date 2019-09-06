@@ -3,45 +3,49 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/format'],
-function(format) {
+define(['N/runtime','N/format'],
+function(runtime,format) {
 
     function beforeSubmit(scriptContext) {
-
-    	// initialize variables
-    	var days;
-    	var shippingDate = new Date();
     	
-    	// load the current record so it can be manipulated
-    	var currentRecord = scriptContext.newRecord;
-    	
-    	// get the internal ID of the customform field
-        var customForm = currentRecord.getValue({
-        	fieldId: 'customform'
-        });
-        		
-        // check if the customForm variable returns 103 (SMI Standard Sales Order)
-        if (customForm == 103)
-        	{
-        		// set value of days variable
-        		days = 4;				
-        	}
-        		
-        // check if the customForm variable returns 123 (SMI Manpack Sales Order)
-        else if (customForm == 123)
-        	{
-        		// set value of days variable
-    			days = 5;	
-        	}
-        		
-        // call addWorkDays function and pass shippingDate object and days variable to the function
-		shippingDate = addWorkDays(shippingDate, days);
-        		
-        // set the shipdate field on the record
-        currentRecord.setValue({
-        	fieldId: 'shipdate',
-        	value: shippingDate
-        });
+    	// if statement to check the execution context is Web Services
+    	if (runtime.executionContext == runtime.ContextType.WEBSERVICES)
+    		{
+		    	// initialize variables
+		    	var days;
+		    	var shippingDate = new Date();
+		    	
+		    	// load the current record so it can be manipulated
+		    	var currentRecord = scriptContext.newRecord;
+		    	
+		    	// get the internal ID of the customform field
+		        var customForm = currentRecord.getValue({
+		        	fieldId: 'customform'
+		        });
+		        		
+		        // check if the customForm variable returns 103 (SMI Standard Sales Order)
+		        if (customForm == 103)
+		        	{
+		        		// set value of days variable
+		        		days = 4;				
+		        	}
+		        		
+		        // check if the customForm variable returns 123 (SMI Manpack Sales Order)
+		        else if (customForm == 123)
+		        	{
+		        		// set value of days variable
+		    			days = 5;	
+		        	}
+		        		
+		        // call addWorkDays function and pass shippingDate object and days variable to the function
+				shippingDate = addWorkDays(shippingDate, days);
+		        		
+		        // set the shipdate field on the record
+		        currentRecord.setValue({
+		        	fieldId: 'shipdate',
+		        	value: shippingDate
+		        });
+    		}
     }
     
     function addWorkDays(shippingDate, days) 
