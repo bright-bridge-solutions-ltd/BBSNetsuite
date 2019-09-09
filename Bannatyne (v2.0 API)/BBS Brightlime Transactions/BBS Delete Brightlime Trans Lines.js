@@ -38,8 +38,11 @@ function(search, record, task) {
     	// declare variables
     	var recordID;
     	
-    	// run each result and get ID and push it to array
-    	brightlimeTransactionLinesSearch.run().each(function(result) {
+    	// get search results using the getAllResults function
+    	var searchResutSet = getAllResults(brightlimeTransactionLinesSearch);
+
+    	// process search results push record ID to the array
+    	searchResutSet.forEach(function(result) {
     		
     		// get the record ID from the search results
     		recordID = result.getValue ({
@@ -123,6 +126,21 @@ function(search, record, task) {
     		title: 'Script scheduled',
     		details: 'BBS Delete Brightlime Trans script has been scheduled. Job ID ' + mapReduceTaskID
     	});
+    }
+ 
+    function getAllResults(s) {
+    	var results = s.run();
+        var searchResults = [];
+        var searchid = 0;
+        do {
+            var resultslice = results.getRange({start:searchid,end:searchid+1000});
+            resultslice.forEach(function(slice) {
+                searchResults.push(slice);
+                searchid++;
+                }
+            );
+        } while (resultslice.length >=1000);
+        return searchResults;
     }
 
     return {
