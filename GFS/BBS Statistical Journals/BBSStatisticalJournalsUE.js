@@ -19,7 +19,78 @@
  */
 function statisticalJournalsAS(type)
 {
-	//Only interested in create or edit mode
+	
+	if(type == 'create' || type == 'edit')
+		{
+			var processedRecord = nlapiGetNewRecord();
+			var processedRecordType = processedRecord.getRecordType();
+			
+			//Pre-processing of credit notes to make the parcel & consignment values -ve
+			//
+			if(processedRecordType == 'creditmemo')
+				{
+					var itemLineCount = processedRecord.getLineItemCount('item');
+					
+					for (var int = 1; int <= itemLineCount; int++) 
+						{
+							var parcels = Number(processedRecord.getLineItemValue('item', 'custcol_bbs_parcels', int));
+							var consignments = Number(processedRecord.getLineItemValue('item', 'custcol_bbs_consignments', int));
+						
+							parcels = Math.abs(parcels) * -1.0;
+							consignments = Math.abs(consignments) * -1.0;
+							
+							processedRecord.setLineItemValue('item', custcol_bbs_parcels, int, parcels);
+							processedRecord.setLineItemValue('item', custcol_bbs_consignments, int, parcels);
+						}
+					
+					nlapiSubmitRecord(processedRecord, false, true);
+				}
+
+			//Pre-processing of journals to make the parcel & consignment values -ve
+			//
+			if(processedRecordType == 'journalentry')
+				{
+					var itemLineCount = processedRecord.getLineItemCount('line');
+					var reversingJournal = processedRecord.getFieldValue('isreversal');
+					
+					var updated = false;
+					
+					for (var int = 1; int <= itemLineCount; int++) 
+						{
+							var parcels = Number(processedRecord.getLineItemValue('line', 'custcol_bbs_parcels', int));
+							var consignments = Number(processedRecord.getLineItemValue('line', 'custcol_bbs_consignments', int));
+							var accountType = processedRecord.getLineItemValue('line', 'accounttype', int);
+							var debitValue = processedRecord.getLineItemValue('line', 'debit', int);
+							var creditValue = processedRecord.getLineItemValue('line', 'credit', int);
+							
+							//Make the parcels & consigments -ve if we are on an income account & the value on the line is a debit
+							//or if the journal is a reversal, we are on an income account & the value is a credit
+							//
+							if(	(accountType = 'Income' && reversingJournal != 'T' && debitValue != null && debitValue != '')
+								|| 
+								(accountType = 'Income' && reversingJournal != 'F' && creditValue != null && creditValue != '')
+								)
+								{
+									updated = true;
+									
+									parcels = Math.abs(parcels) * -1.0;
+									consignments = Math.abs(consignments) * -1.0;
+									
+									processedRecord.setLineItemValue('line', custcol_bbs_parcels, int, parcels);
+									processedRecord.setLineItemValue('line', custcol_bbs_consignments, int, parcels);
+								}
+						}
+					
+					if(updated)
+						{
+							nlapiSubmitRecord(processedRecord, false, true);
+						}
+				}
+		}
+	
+	
+	
+	//Only interested in create, edit or delete mode
 	//
 	if(type == 'create' || type == 'edit' || type == 'delete')
 		{
@@ -170,11 +241,13 @@ function statisticalJournalsAS(type)
 							if(summaryValues[summaryValue][0] != 0)
 								{
 									var postingValue = summaryValues[summaryValue][0];
-									
-									if(recordType == 'creditmemo')
-										{
-											postingValue = postingValue * Number(-1.0);
-										}
+							
+							// Not needed now as credit memos will have -ve values 
+							//
+							//		if(recordType == 'creditmemo')
+							//			{
+							//				postingValue = postingValue * Number(-1.0);
+							//			}
 
 									lineNo++;
 									statisticalJournal.setLineItemValue('line', 'account', lineNo, accountParcels);
@@ -190,7 +263,6 @@ function statisticalJournalsAS(type)
 									statisticalJournal.setLineItemValue('line', 'department', lineNo, departmentId);
 									statisticalJournal.setLineItemValue('line', 'cseg_bbs_supplier', lineNo, supplierId);
 									statisticalJournal.setLineItemValue('line', 'cseg_bbs_customer', lineNo, customerId);
-									
 								}
 							
 							//See if we need to create a consignments line
@@ -199,10 +271,12 @@ function statisticalJournalsAS(type)
 								{
 									var postingValue = summaryValues[summaryValue][1];
 									
-									if(recordType == 'creditmemo')
-										{
-											postingValue = postingValue * Number(-1.0);
-										}
+							// Not needed now as credit memos will have -ve values 
+							//
+							//		if(recordType == 'creditmemo')
+							//			{
+							//				postingValue = postingValue * Number(-1.0);
+							//			}
 
 									lineNo++;
 									statisticalJournal.setLineItemValue('line', 'account', lineNo, accountConsignments);
@@ -218,7 +292,6 @@ function statisticalJournalsAS(type)
 									statisticalJournal.setLineItemValue('line', 'department', lineNo, departmentId);
 									statisticalJournal.setLineItemValue('line', 'cseg_bbs_supplier', lineNo, supplierId);
 									statisticalJournal.setLineItemValue('line', 'cseg_bbs_customer', lineNo, customerId);
-									
 								}
 						}
 					
