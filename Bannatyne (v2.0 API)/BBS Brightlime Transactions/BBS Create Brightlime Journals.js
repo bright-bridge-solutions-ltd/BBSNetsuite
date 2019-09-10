@@ -103,7 +103,7 @@ function(search, record, task) {
 				
 				// get the subsidiary from the loaded record
 				var subsidiary = blTranRec.getValue({
-					fieldID: 'custrecord_bbs_bl_trans_subsidiary'
+					fieldId: 'custrecord_bbs_bl_trans_subsidiary'
 				});
 				
 				log.audit ({
@@ -128,6 +128,11 @@ function(search, record, task) {
 				
 				// set header fields on the journal record
 				journalRec.setValue({
+					fieldId: 'customform',
+					value: 121 // 121 = Brightlime Transaction JL Entry
+				});
+				
+				journalRec.setValue({
 					fieldId: 'subsidiary',
 					value: subsidiary
 				});
@@ -138,7 +143,7 @@ function(search, record, task) {
 				});
 				
 				journalRec.setValue({
-					fieldID: 'approvalstatus',
+					fieldId: 'approvalstatus',
 					value: 2 // 2 = Approved
 				});
 				

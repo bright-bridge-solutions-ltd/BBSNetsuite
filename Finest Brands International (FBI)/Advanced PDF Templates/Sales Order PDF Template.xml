@@ -210,23 +210,22 @@
         table.itemtable th {
             padding-bottom: 0px;
             padding-top: 0px;
-
         }
         table.body td {
             padding-top: 0px;
         }
         table.total {
-            page-break-inside: avoid;
+            page-break-inside: auto;
         }
       	table.message{
-        border: 1px solid #dddddd;
+        	border: 1px solid #dddddd;
       	}
         tr.totalrow {
             <!--background-color: #e3e3e3;-->
             line-height: 200%;
         }
       	tr.messagerow{
-        font-size: 6pt;
+        	font-size: 6pt;
       	}
         td.totalboxtop {
             font-size: 12pt;
@@ -239,7 +238,7 @@
         }
         td.address {
             padding-top: 0;
-          font-size: 10pt;
+          	font-size: 10pt;
         }
         td.totalboxmid {
             font-size: 28pt;
@@ -251,7 +250,7 @@
     		border-collapse: collapse;
         }
       	td.message{
-        font-size: 8pt;
+        	font-size: 8pt;
       	}
         td.totalboxbot {
             background-color: #e3e3e3;
@@ -594,23 +593,22 @@
         table.itemtable th {
             padding-bottom: 0px;
             padding-top: 0px;
-
         }
         table.body td {
             padding-top: 0px;
         }
         table.total {
-            page-break-inside: avoid;
+            page-break-inside: auto;
         }
       	table.message{
-        border: 1px solid #dddddd;
+        	border: 1px solid #dddddd;
       	}
         tr.totalrow {
             <!--background-color: #e3e3e3;-->
             line-height: 200%;
         }
       	tr.messagerow{
-        font-size: 6pt;
+        	font-size: 6pt;
       	}
         td.totalboxtop {
             font-size: 12pt;
@@ -635,7 +633,7 @@
     		border-collapse: collapse;
         }
       	td.message{
-        font-size: 8pt;
+        	font-size: 8pt;
       	}
         td.totalboxbot {
             background-color: #e3e3e3;
@@ -980,13 +978,12 @@
         table.itemtable th {
             padding-bottom: 0px;
             padding-top: 0px;
-
         }
         table.body td {
             padding-top: 0px;
         }
         table.total {
-            page-break-inside: avoid;
+            page-break-inside: auto;
         }
       	table.message{
         border: 1px solid #dddddd;
@@ -1360,7 +1357,7 @@
             padding-top: 0px;
         }
         table.total {
-            page-break-inside: avoid;
+            page-break-inside: auto;
         }
       	table.message{
         border: 1px solid #dddddd;

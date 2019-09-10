@@ -18,8 +18,7 @@ function(record,search) {
      * @param {Form} scriptContext.form - Current form
      * @Since 2015.2
      */
-    function contractBL(scriptContext) 
-    {
+    function contractBL(scriptContext) {
 
     }
 
@@ -32,9 +31,8 @@ function(record,search) {
      * @param {string} scriptContext.type - Trigger type
      * @Since 2015.2
      */
-    function contractBS(scriptContext) 
-    {
-
+    function contractBS(scriptContext) {
+ 
     }
 
     /**
@@ -46,15 +44,14 @@ function(record,search) {
      * @param {string} scriptContext.type - Trigger type
      * @Since 2015.2
      */
-    function contractAS(scriptContext) 
-    {
+    function contractAS(scriptContext) {
 
     }
 
     return {
         beforeLoad: contractBL,
         beforeSubmit: contractBS,
-        contractAS: contractAS
+        afterSubmit: contractAS
     };
     
 });
