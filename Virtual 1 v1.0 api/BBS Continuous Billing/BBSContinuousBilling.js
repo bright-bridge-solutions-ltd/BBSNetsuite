@@ -407,6 +407,8 @@ function processBillingEndDates()
 					
 					var salesOrderId = salesorderSearch[int].getId();
 					
+					checkForProRataInvoice(salesOrderId);
+					
 					//Load the old sales order
 					//
 					var oldSalesOrder = null;
@@ -501,3 +503,118 @@ function checkResources()
 		}
 }
 
+function checkForProRataInvoice(_salesOrderId)
+{
+	var salesOrderRecord = null;
+	
+	//Load the sales order record
+	//
+	try
+		{
+			salesOrderRecord = nlapiLoadRecord('salesorder', _salesOrderId)
+		}
+	catch(err)
+		{
+			salesOrderRecord = null;
+		}
+
+	//Do we have a sales orderrecord
+	//
+	if(salesOrderRecord != null)
+		{
+			var billingEndDate = salesOrderRecord.getFieldValue('custbody_bbs_billing_end_date');
+			
+			//Make sure we have a billing end date
+			//
+			if(billingEndDate != null && billingEndDate != '')
+				{
+					var lineCount = salesOrderRecord.getLineItemCount('item');
+					var billingFrequency = null;
+					
+					//Get the billing frequency from the line(s)
+					//
+					for (var int = 1; int <= lineCount; int++) 
+						{
+							var lineFrequency = salesOrderRecord.getLineItemValue('item', 'custcol_bbs_billing_frequency', int);
+							
+							if(lineFrequency != null && lineFrequency != '')
+								{
+									billingFrequency = lineFrequency;
+									break;
+								}
+						}
+				
+					if(billingFrequency == 1)	//Monthly
+						{
+							var today = new Date();
+							var thisMonthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+							var nextMonthStart = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+							
+							//Billing end date is on or before this month
+							//
+							if(billingEndDate.getTime() <= thisMonthEnd.getTime())
+								{
+									//No need for a pro rata invoice, just update the credit note required checkbox
+									//
+									nlapiSubmitField('salesorder', _salesOrderId, 'custbody_bbs_cre_not_req', 'T', false);
+								}
+							
+							//Billing end date is on or after next month
+							//
+							if(billingEndDate.getTime() >= nextMonthStart.getTime())
+								{
+									//Need a pro rata invoice creating
+									//
+									createProRataInvoice(salesOrderRecord);
+								}
+						}
+					
+					if(billingFrequency == 2)	//Quarterly
+						{
+							if(billingOffCycle == 'F')
+								{
+									//Processing for normal quarterly frequency
+									//
+								}
+							else
+								{
+									//Processing for off cycle quarterly frequency
+									//
+								}
+						}
+				}
+		}
+}
+
+function createProRataInvoice(_salesOrderRecord)
+{
+	
+	var salesOrderCloseDate = nlapiStringToDate(_salesOrderRecord.getfieldValue('custbody_bbs_sales_order_close_date'));
+	var billingEndDate = nlapiStringToDate(_salesOrderRecord.getfieldValue('custbody_bbs_billing_end_date'));
+	var invoiceDate new Date(salesOrderCloseDate.getFullYear(), salesOrderCloseDate.getMonth() + 1, 1); 	//1st day on month after the close date
+	var salesOrderValue = Number(_salesOrderRecord.getfieldValue('total'));
+	var daysToInvoice = Math.abs(billingEndDate.getTime() - invoiceDate.getTime()) / (1000 * 3600 * 24);
+	
+	var invoiceRecord = null;
+	
+	try
+		{
+			invoiceRecord = nlapiTransformRecord('salesorder', _salesOrderRecord.getId(), 'invoice');
+		}
+	catch(err)
+		{
+			invoiceRecord = null;
+			nlapiLogExecution('ERROR', 'Error transforming sales order to invoice id = ' + _salesOrderRecord.getId(), err.message);
+		}
+	
+	if(invoiceRecord != null)
+		{
+			//Set the invoice date
+			//
+			invoiceRecord.setFieldValue('trandate', nlapiDateToString(invoiceDate));
+		
+			
+			
+		}
+	
+}

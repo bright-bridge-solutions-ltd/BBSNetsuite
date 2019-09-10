@@ -46,8 +46,8 @@ function salesOrderFieldChanged(type, name, linenum)
 							if(billingFrequency == 1)	//Monthly
 								{
 									var closeDate = billingEndDate;
-									closeDate.setMonth(closeDate.getMonth() - 1);
 									closeDate.setDate(15);
+									closeDate.setMonth(closeDate.getMonth() - 1);
 									
 									nlapiSetFieldValue('custbody_bbs_sales_order_close_date', nlapiDateToString(closeDate), false, true);
 								}

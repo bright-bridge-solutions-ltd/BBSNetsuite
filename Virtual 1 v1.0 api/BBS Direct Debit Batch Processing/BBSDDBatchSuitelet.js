@@ -323,6 +323,10 @@ function ddBatchRecordsSuitelet(request, response)
 					//
 					var dateFilterField = form.addField('custpage_filter_due_date', 'date', 'Due Date (on or before)', null, 'custpage_tab_items');
 					
+					//Add a field to the sub tab to refine the partner
+					//
+					var partnerSelectField = form.addField('custpage_filter_partner', 'select', 'Partner', null, 'custpage_tab_items');
+					
 					//Add required buttons to sublist and form
 					//
 					subList.addMarkAllButtons();
@@ -378,17 +382,28 @@ function ddBatchRecordsSuitelet(request, response)
 					
 					//Get the session record to see if we are filtering by due date and add filter if needed
 					//
-					var selectedDueDate = libGetSessionData(sessionId);
+					var sessionData = JSON.parse(libGetSessionData(sessionId));
 					
-					if(selectedDueDate != null && selectedDueDate != '')
+					if(sessionData != null && sessionData != '')
 						{
-							recordSearch.addFilter(new nlobjSearchFilter( 'custrecord_bbs_pr_inv_due_date', null, 'onorbefore', selectedDueDate ));
+							var selectedDueDate = sessionData['date'];
+							var selectedCustomer = sessionData['customer'];
+							
+							if(selectedDueDate != null && selectedDueDate != '')
+								{
+									recordSearch.addFilter(new nlobjSearchFilter( 'custrecord_bbs_pr_inv_due_date', null, 'onorbefore', selectedDueDate ));
+								}
+						
+							if(selectedCustomer != null && selectedCustomer != '')
+								{
+									recordSearch.addFilter(new nlobjSearchFilter( 'custrecord_bbs_pr_partner', null, 'anyof', selectedCustomer ));
+								}
 						}
-					
-					
+				
 					//Get the search results
 					//
 					var recordSearchResults = getResults(recordSearch);
+					var partnerList = {};
 					
 					//Do we have any results to process
 					//
@@ -442,6 +457,16 @@ function ddBatchRecordsSuitelet(request, response)
 											//Assign the value to the column
 											//
 											subList.setLineItemValue(columnId, lineNo, rowColumnData);
+											
+											//See if we have a result column called 'Partner' then we need to add this to the list of partners to filter by
+											//
+											if(recordColumns[int3]['label'] == 'Partner')
+												{
+													var partnerId = recordSearchResults[int2].getValue(recordColumns[int3]);
+													var partnerText = recordSearchResults[int2].getText(recordColumns[int3]);
+													
+													partnerList[partnerId] = partnerText;
+												}
 										}
 									
 									//See if we have a result column for amount outstanding
@@ -455,6 +480,15 @@ function ddBatchRecordsSuitelet(request, response)
 								}
 						}
 
+					//Fill in the partner select list
+					//
+					partnerSelectField.addSelectOption('', '-- All --', true);
+					
+					for ( var partner in partnerList) 
+						{
+							partnerSelectField.addSelectOption(partner, partnerList[partner], false);
+						}
+					
 					break;
 					
 				case 3:

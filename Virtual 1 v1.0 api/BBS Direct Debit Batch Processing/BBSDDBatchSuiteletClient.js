@@ -36,12 +36,17 @@ function clientFieldChanged(type, name, linenum)
 			}
 	}
 	
-	if (name == 'custpage_filter_due_date')
+	if (name == 'custpage_filter_due_date' || name == 'custpage_filter_partner')
 		{
 			var sessionId = nlapiGetFieldValue('custpage_param_session_id');
-			var sessionData = nlapiGetFieldValue(name);
+			var filterDueDate = nlapiGetFieldValue('custpage_filter_due_date');
+			var filterCustomer = nlapiGetFieldValue('custpage_filter_partner');
 			
-			libSetSessionData(sessionId, sessionData);
+			var sessionData = {};
+			sessionData['date'] = filterDueDate;
+			sessionData['customer'] = filterCustomer;
+			
+			libSetSessionData(sessionId, JSON.stringify(sessionData));
 		}
 	
 	if(type == 'custpage_sublist_items' && name == 'custpage_amount_to_pay')

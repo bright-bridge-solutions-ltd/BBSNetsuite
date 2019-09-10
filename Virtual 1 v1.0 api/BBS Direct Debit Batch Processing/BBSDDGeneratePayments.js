@@ -416,6 +416,9 @@ function updatePrValues(prId, amountToPayDD)
 	//Get the outstanding amount & the current status
 	//
 	var oustandingAmount = Number(nlapiLookupField('customrecord_bbs_presentation_record', prId, 'custrecord_bbs_pr_inv_outstanding', false));
+	var ddAmount = Number(nlapiLookupField('customrecord_bbs_presentation_record', prId, 'custrecord_bbs_pr_inv_proc_by_dd', false));
+	var disputedAmount = Number(nlapiLookupField('customrecord_bbs_presentation_record', prId, 'custrecord_bbs_pr_inv_disputed', false));
+	
 	var unAppliedAmount = Number(nlapiLookupField('customrecord_bbs_presentation_record', prId, 'custrecord_bbs_pr_cn_unapplied', false));
 	
 	var status = nlapiLookupField('customrecord_bbs_presentation_record', prId, 'custrecord_bbs_pr_status', false);
@@ -423,14 +426,14 @@ function updatePrValues(prId, amountToPayDD)
 	
 	//If the PR record is an invoice & the outstanding amount is zero & the current status is 'open', then mark it as paid in full
 	//
-	if(recordType == 2 && oustandingAmount == 0 && status != 2)
+	if(recordType == 2 && oustandingAmount == 0 && ddAmount == 0 && disputedAmount == 0 && status != 2)
 		{
 			nlapiSubmitField('customrecord_bbs_presentation_record', prId, 'custrecord_bbs_pr_status', '2', false);
 		}
 
 	//If the PR record is an invoice & the outstanding amount is not zero & the current status is 'paid in full', then mark it as open
 	//
-	if(recordType == 2 && oustandingAmount != 0 && status != 1)
+	if(recordType == 2 && status != 1 && (oustandingAmount != 0 || ddAmount != 0 || disputedAmount != 0))
 		{
 			nlapiSubmitField('customrecord_bbs_presentation_record', prId, 'custrecord_bbs_pr_status', '1', false);
 		}
