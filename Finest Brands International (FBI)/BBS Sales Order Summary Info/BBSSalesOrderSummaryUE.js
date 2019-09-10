@@ -31,212 +31,223 @@ function salesOrderSummaryAS(type)
 			//
 			var lines = nlapiGetLineItemCount('item');
 			
-			//Loop through the item lines
-			//
-			for (var int = 1; int <= lines; int++) 
+			if(lines > 30)
 				{
-					//Get values from the item line
+					//Submit a scheduled job
 					//
-					var lineItem = nlapiGetLineItemValue('item', 'item', int);
-					var lineQuantity = nlapiGetLineItemValue('item', 'quantity', int);
-					var lineCommitted = nlapiGetLineItemValue('item', 'quantitycommitted', int);
-					var lineFulfilled = nlapiGetLineItemValue('item', 'quantityfulfilled', int);
-					var linePicked = nlapiGetLineItemValue('item', 'itempicked', int);
-					var lineType = nlapiGetLineItemValue('item', 'itemtype', int);
-					var lineUnitPrice = nlapiGetLineItemValue('item', 'rate', int);
-					var lineAmount = nlapiGetLineItemValue('item', 'amount', int);
-					var lineVatAmount = nlapiGetLineItemValue('item', 'tax1amt', int);
-					var linevatCode = nlapiGetLineItemValue('item', 'taxrate1', int);
-					linevatCode = parseFloat(linevatCode).toFixed(2) + '%';
-					
-					//Get the price level for the line
+					var scheduleParams = {custscript_record_id: salesOrderId, custscript_record_type: thisRecordType};
+					nlapiScheduleScript('customscript_bbs_order_summary_scheduled', null, scheduleParams);
+				
+				}
+			else
+				{
+					//Loop through the item lines
 					//
-					var priceLevel = nlapiGetLineItemValue('item', 'custcol_bbs_old_price_level', int);
-					
-					//Check if the priceLevel variable returns a value
-					//
-					if (priceLevel)
+					for (var int = 1; int <= lines; int++) 
 						{
-							// check that the priceLevel is not -1 (custom) or 1 (base price)
-							if (priceLevel > 1)
-								{
-									// lookup the discount percentage on the price level record
-									var discount = nlapiLookupField('pricelevel', priceLevel, 'discountpct');
-									discount = (parseFloat(discount) * -1);
-									discount = discount.toFixed(2) + '%';
-								}
-							else
-								{
-									// set the discount variable to '0.00%'
-									var discount = '0.00%';
-								}
-						}
-					else //custcol_bbs_old_price_level field is empty
-						{
-							priceLevel = nlapiGetLineItemValue('item', 'price', int);
-							
-							// check that the priceLevel is not -1 (custom) or 1 (base price)
-							if (priceLevel > 1)
-								{
-									// lookup the discount percentage on the price level record
-									var discount = nlapiLookupField('pricelevel', priceLevel, 'discountpct');
-									discount = (parseFloat(discount) * -1);
-									discount = discount.toFixed(2) + '%';
-								}
-							else
-								{
-									// set the discount variable to '0.00%'
-									var discount = '0.00%';
-								}
-						}
-
-					// check that the priceLevel is not -1 (custom) or 1 (base price)
-					if (priceLevel > 1)
-						{
-							// lookup the discount percentage on the price level record
-							var discount = nlapiLookupField('pricelevel', priceLevel, 'discountpct');
-							discount = (parseFloat(discount) * -1);
-							discount = discount.toFixed(2) + '%';
-						}
-					else
-						{
-							// set the discount variable to '0.00%'
-							var discount = '0.00%';
-						}
-					
-					//Only interested in inventory & non-inventory items
-					//
-					if(lineType == 'InvtPart' || lineType == 'NonInvtPart' || lineType == 'Discount')
-						{
-							var recordType = '';	
-				  	        
-							//Translate the record type so it can be used in the api calls
+							//Get values from the item line
 							//
-					        switch (lineType) 
-					        	{ 
-						            case 'InvtPart':
-						            	recordType = 'inventoryitem';
-						                break;
-						                
-						            case 'NonInvtPart':
-						            	recordType = 'noninventoryitem';
-						                break;
-						            
-						            case 'Discount':
-						            	recordType = 'discountitem';
-						                break;
-					        	}
-						
-					        //Get info about current product & parent etc.
-					        //
-					        var itemInfo = nlapiLookupField(recordType, lineItem, ['parent','custitem_fbi_item_colour','custitem_fbi_item_size1','custitem_fbi_item_size2'], false)
-					        var itemInfoText = nlapiLookupField(recordType, lineItem, ['parent','custitem_fbi_item_colour','custitem_fbi_item_size1','custitem_fbi_item_size2'], true)
-					        
-					        //If we have a parent then proceed
-					        //
-					        var parentInfo = {};
-					        var parentInfoText = {};
-					        
-					        if(itemInfo.parent != null && itemInfo.parent != '')
-					        	{
-					        		//Parent info
-					        		//
-						        	parentInfo = nlapiLookupField(recordType, itemInfo.parent, ['itemid','location','salesdescription'], false);
-						        	parentInfoText = nlapiLookupField(recordType, itemInfo.parent, ['location'], true);
-					        	}
-					        else
-					        	{
-					        		parentInfo = nlapiLookupField(recordType, lineItem, ['itemid','location','salesdescription'], false);
-					        		parentInfoText = nlapiLookupField(recordType, lineItem, ['location'], true);
-					        		
-					        		parentInfo.salesdescription = parentInfo.itemid;
-					        		itemInfo.parent = lineItem;
-					        		itemInfo.custitem_fbi_item_colour = '0';
-					        		itemInfo.custitem_fbi_item_size1 = '0';
-					        		itemInfo.custitem_fbi_item_size2 = '0';
-					        		
-					        		itemInfoText.parent = parentInfo.itemid;
-					        		itemInfoText.custitem_fbi_item_colour = '';
-					        		itemInfoText.custitem_fbi_item_size1 = '';
-					        		itemInfoText.custitem_fbi_item_size2 = '';
-					        	}
-					        
-					        	//Build up the key for the summary
-					        	//Parent id + colour id + size2 id
-					        	//
-					        	var key = padding_left(itemInfo.parent, '0', 6) + 
-					        		padding_left(itemInfo.custitem_fbi_item_colour, '0', 6) + 
-					        		padding_left((itemInfo.custitem_fbi_item_size2 == '' ? '0' : itemInfo.custitem_fbi_item_size2), '0', 6);
-					        		
-					        	//Does the key exist in the summary, if not create a new entry
-					        	//
-					        	if(!summary[key])
-					        		{
-					        			summary[key] = new itemSummaryInfo(	parentInfo.itemid, 
-					        												itemInfo.custitem_fbi_item_colour, 
-					        												itemInfo.custitem_fbi_item_size2, 
-					        												parentInfo.location, 
-					        												parentInfo.salesdescription,
-					        												itemInfoText.custitem_fbi_item_colour,
-					        												itemInfoText.custitem_fbi_item_size2,
-					        												parentInfoText.location,
-					        												lineUnitPrice,
-					        												linevatCode,
-					        												discount
-					        												);
-					        		}
-					        		
-					        	//Update the size & quantity in the summary
-					        	//
-					        	summary[key].updateSizeQuantity	(
-							        							itemInfo.custitem_fbi_item_size1, 
-							        							lineQuantity, 
-							        							itemInfoText.custitem_fbi_item_size1, 
-							        							lineAmount, 
-							        							lineVatAmount
-							        							);
-					        	
-					        	summary[key].updateSizeQuantityCommitted	(
-										        							itemInfo.custitem_fbi_item_size1, 
-										        							lineCommitted, 
-										        							itemInfoText.custitem_fbi_item_size1, 
-										        							lineAmount, 
-										        							lineVatAmount
-										        							);
+							var lineItem = nlapiGetLineItemValue('item', 'item', int);
+							var lineQuantity = nlapiGetLineItemValue('item', 'quantity', int);
+							var lineCommitted = nlapiGetLineItemValue('item', 'quantitycommitted', int);
+							var lineFulfilled = nlapiGetLineItemValue('item', 'quantityfulfilled', int);
+							var linePicked = nlapiGetLineItemValue('item', 'itempicked', int);
+							var lineType = nlapiGetLineItemValue('item', 'itemtype', int);
+							var lineUnitPrice = nlapiGetLineItemValue('item', 'rate', int);
+							var lineAmount = nlapiGetLineItemValue('item', 'amount', int);
+							var lineVatAmount = nlapiGetLineItemValue('item', 'tax1amt', int);
+							var linevatCode = nlapiGetLineItemValue('item', 'taxrate1', int);
+							linevatCode = parseFloat(linevatCode).toFixed(2) + '%';
+							
+							//Get the price level for the line
+							//
+							var priceLevel = nlapiGetLineItemValue('item', 'custcol_bbs_old_price_level', int);
+							
+							//Check if the priceLevel variable returns a value
+							//
+							if (priceLevel)
+								{
+									// check that the priceLevel is not -1 (custom) or 1 (base price)
+									if (priceLevel > 1)
+										{
+											// lookup the discount percentage on the price level record
+											var discount = nlapiLookupField('pricelevel', priceLevel, 'discountpct');
+											discount = (parseFloat(discount) * -1);
+											discount = discount.toFixed(2) + '%';
+										}
+									else
+										{
+											// set the discount variable to '0.00%'
+											var discount = '0.00%';
+										}
+								}
+							else //custcol_bbs_old_price_level field is empty
+								{
+									priceLevel = nlapiGetLineItemValue('item', 'price', int);
+									
+									// check that the priceLevel is not -1 (custom) or 1 (base price)
+									if (priceLevel > 1)
+										{
+											// lookup the discount percentage on the price level record
+											var discount = nlapiLookupField('pricelevel', priceLevel, 'discountpct');
+											discount = (parseFloat(discount) * -1);
+											discount = discount.toFixed(2) + '%';
+										}
+									else
+										{
+											// set the discount variable to '0.00%'
+											var discount = '0.00%';
+										}
+								}
+		
+							// check that the priceLevel is not -1 (custom) or 1 (base price)
+							if (priceLevel > 1)
+								{
+									// lookup the discount percentage on the price level record
+									var discount = nlapiLookupField('pricelevel', priceLevel, 'discountpct');
+									discount = (parseFloat(discount) * -1);
+									discount = discount.toFixed(2) + '%';
+								}
+							else
+								{
+									// set the discount variable to '0.00%'
+									var discount = '0.00%';
+								}
+							
+							//Only interested in inventory & non-inventory items
+							//
+							if(lineType == 'InvtPart' || lineType == 'NonInvtPart' || lineType == 'Discount')
+								{
+									var recordType = '';	
+						  	        
+									//Translate the record type so it can be used in the api calls
+									//
+							        switch (lineType) 
+							        	{ 
+								            case 'InvtPart':
+								            	recordType = 'inventoryitem';
+								                break;
+								                
+								            case 'NonInvtPart':
+								            	recordType = 'noninventoryitem';
+								                break;
+								            
+								            case 'Discount':
+								            	recordType = 'discountitem';
+								                break;
+							        	}
+								
+							        //Get info about current product & parent etc.
+							        //
+							        var itemInfo = nlapiLookupField(recordType, lineItem, ['parent','custitem_fbi_item_colour','custitem_fbi_item_size1','custitem_fbi_item_size2'], false)
+							        var itemInfoText = nlapiLookupField(recordType, lineItem, ['parent','custitem_fbi_item_colour','custitem_fbi_item_size1','custitem_fbi_item_size2'], true)
+							        
+							        //If we have a parent then proceed
+							        //
+							        var parentInfo = {};
+							        var parentInfoText = {};
+							        
+							        if(itemInfo.parent != null && itemInfo.parent != '')
+							        	{
+							        		//Parent info
+							        		//
+								        	parentInfo = nlapiLookupField(recordType, itemInfo.parent, ['itemid','location','salesdescription'], false);
+								        	parentInfoText = nlapiLookupField(recordType, itemInfo.parent, ['location'], true);
+							        	}
+							        else
+							        	{
+							        		parentInfo = nlapiLookupField(recordType, lineItem, ['itemid','location','salesdescription'], false);
+							        		parentInfoText = nlapiLookupField(recordType, lineItem, ['location'], true);
+							        		
+							        		parentInfo.salesdescription = parentInfo.itemid;
+							        		itemInfo.parent = lineItem;
+							        		itemInfo.custitem_fbi_item_colour = '0';
+							        		itemInfo.custitem_fbi_item_size1 = '0';
+							        		itemInfo.custitem_fbi_item_size2 = '0';
+							        		
+							        		itemInfoText.parent = parentInfo.itemid;
+							        		itemInfoText.custitem_fbi_item_colour = '';
+							        		itemInfoText.custitem_fbi_item_size1 = '';
+							        		itemInfoText.custitem_fbi_item_size2 = '';
+							        	}
+							        
+							        	//Build up the key for the summary
+							        	//Parent id + colour id + size2 id
+							        	//
+							        	var key = padding_left(itemInfo.parent, '0', 6) + 
+							        		padding_left(itemInfo.custitem_fbi_item_colour, '0', 6) + 
+							        		padding_left((itemInfo.custitem_fbi_item_size2 == '' ? '0' : itemInfo.custitem_fbi_item_size2), '0', 6);
+							        		
+							        	//Does the key exist in the summary, if not create a new entry
+							        	//
+							        	if(!summary[key])
+							        		{
+							        			summary[key] = new itemSummaryInfo(	parentInfo.itemid, 
+							        												itemInfo.custitem_fbi_item_colour, 
+							        												itemInfo.custitem_fbi_item_size2, 
+							        												parentInfo.location, 
+							        												parentInfo.salesdescription,
+							        												itemInfoText.custitem_fbi_item_colour,
+							        												itemInfoText.custitem_fbi_item_size2,
+							        												parentInfoText.location,
+							        												lineUnitPrice,
+							        												linevatCode,
+							        												discount
+							        												);
+							        		}
+							        		
+							        	//Update the size & quantity in the summary
+							        	//
+							        	summary[key].updateSizeQuantity	(
+									        							itemInfo.custitem_fbi_item_size1, 
+									        							lineQuantity, 
+									        							itemInfoText.custitem_fbi_item_size1, 
+									        							lineAmount, 
+									        							lineVatAmount
+									        							);
+							        	
+							        	summary[key].updateSizeQuantityCommitted	(
+												        							itemInfo.custitem_fbi_item_size1, 
+												        							lineCommitted, 
+												        							itemInfoText.custitem_fbi_item_size1, 
+												        							lineAmount, 
+												        							lineVatAmount
+												        							);
+								}
 						}
-				}
-			
-			//Now we have done all summarising, we need to generate the output format 
-			//
-			var outputArray = [];
-			
-			//Loop through the summaries
-			//
-			for ( var key in summary) 
-				{
-					//Push a new instance of the output summary object onto the output array
+					
+					//Now we have done all summarising, we need to generate the output format 
 					//
-					outputArray.push(new outputSummary	(	
-														summary[key].itemId, 
-														summary[key].salesDescription, 
-														summary[key].locationText, 
-														summary[key].itemColourText + ' ' + summary[key].itemSize2Text, 
-														summary[key].getQuantitySizeSummary(), 
-														summary[key].getQuantitySizeTotal(),
-														summary[key].unitPrice,
-														summary[key].getAmountTotal(),
-														summary[key].getVatAmountTotal(),
-														summary[key].vatCode,
-														summary[key].discount,
-														summary[key].getQuantitySizeSummaryCommitted(),
-														summary[key].getQuantitySizeCommittedTotal()
-														)
-									);
+					var outputArray = [];
+					
+					//Loop through the summaries
+					//
+					for ( var key in summary) 
+						{
+							//Push a new instance of the output summary object onto the output array
+							//
+							outputArray.push(new outputSummary	(	
+																summary[key].itemId, 
+																summary[key].salesDescription, 
+																summary[key].locationText, 
+																summary[key].itemColourText + ' ' + summary[key].itemSize2Text, 
+																summary[key].getQuantitySizeSummary(), 
+																summary[key].getQuantitySizeTotal(),
+																summary[key].unitPrice,
+																summary[key].getAmountTotal(),
+																summary[key].getVatAmountTotal(),
+																summary[key].vatCode,
+																summary[key].discount,
+																summary[key].getQuantitySizeSummaryCommitted(),
+																summary[key].getQuantitySizeCommittedTotal()
+																)
+											);
+						}
+					
+					//Save the output array to the sales order
+					//
+					nlapiSubmitField(thisRecordType, salesOrderId, ['custbody_bbs_item_summary_json','custbody_bbs_item_suumary_created'], [JSON.stringify(outputArray),'T'], false);
 				}
-			
-			//Save the output array to the sales order
-			//
-			nlapiSubmitField(thisRecordType, salesOrderId, 'custbody_bbs_item_summary_json', JSON.stringify(outputArray), false);
 		}
 }
 
