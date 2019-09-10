@@ -221,7 +221,7 @@ function processFullyBilledOrders()
 {
 	var today = new Date();
 	var todayString = today.format('d/m/Y');
-	
+
 	//Find any relevant sales orders
 	//
 	var salesorderSearch = getResults(nlapiCreateSearch("salesorder",
@@ -522,7 +522,7 @@ function checkForProRataInvoice(_salesOrderId)
 	//
 	if(salesOrderRecord != null)
 		{
-			var billingEndDate = salesOrderRecord.getFieldValue('custbody_bbs_billing_end_date');
+			var billingEndDate = nlapiStringToDate(salesOrderRecord.getFieldValue('custbody_bbs_billing_end_date'));
 			
 			//Make sure we have a billing end date
 			//
@@ -571,15 +571,93 @@ function checkForProRataInvoice(_salesOrderId)
 					
 					if(billingFrequency == 2)	//Quarterly
 						{
-							if(billingOffCycle == 'F')
+							//Get the end date of this current quarter
+							//
+							var thisDate = nlapiDateToString(new Date());
+							
+							var accountingperiodSearch = nlapiSearchRecord("accountingperiod",null,
+									[
+									   ["isquarter","is","T"], 
+									   "AND", 
+									   ["isinactive","is","F"], 
+									   "AND", 
+									   ["enddate","onorafter",thisDate], 
+									   "AND", 
+									   ["startdate","onorbefore",thisDate]
+									], 
+									[
+									   new nlobjSearchColumn("enddate").setSort(false)
+									]
+									);
+							
+							if(accountingperiodSearch != null && accountingperiodSearch.length > 0)
 								{
+									var thisQuarterEndDate = nlapiStringToDate(accountingperiodSearch[0].getValue('enddate'));
+									
 									//Processing for normal quarterly frequency
 									//
-								}
-							else
-								{
-									//Processing for off cycle quarterly frequency
-									//
+									if(billingOffCycle == 'F')
+										{
+											//Create a pro rata invoice if the billing end date is after the last day of the current quarter
+											//
+											if(billingEndDate.getTime() > thisQuarterEndDate.getTime())
+												{
+													createProRataInvoice(salesOrderRecord);
+												}
+										}
+									else
+										{
+											//Processing for off cycle quarterly frequency
+											//
+											var thisDate = new Date();
+											var thisYear = thisDate.getFullYear();
+											
+											var offBillingQ1Start = new Date(thisYear, 11, 1);	//1st Dec
+											var offBillingQ1End = new Date(thisYear, 1, 28);		//28th Feb
+											
+											var offBillingQ2Start = new Date(thisYear, 2, 1);	//1st Mar
+											var offBillingQ2End = new Date(thisYear, 4, 31);		//31st May
+											
+											var offBillingQ3Start = new Date(thisYear, 5, 1);	//1st Jun
+											var offBillingQ3End = new Date(thisYear, 7, 31);		//31st Aug
+											
+											var offBillingQ4Start = new Date(thisYear, 8, 1);	//1st Sep
+											var offBillingQ4End = new Date(thisYear, 10, 30);	//30th Nov
+										
+											var offBillingQuarterEndDate = null;
+											
+											if(thisDate.getTime() >= offBillingQ1Start)
+												{
+													offBillingQuarterEndDate = new Date(invoiceYear + 1, 1, 28);	//28th Feb next year
+												}
+											
+											if(thisDate.getTime() <= offBillingQ1End)
+												{
+													offBillingQuarterEndDate = offBillingQ1End; 						//28th Feb this year
+												}
+								
+											if(thisDate.getTime() >= offBillingQ2Start && thisDate.getTime() <= offBillingQ2End)
+												{
+													offBillingQuarterEndDate = offBillingQ2End;
+												}
+										
+											if(thisDate.getTime() >= offBillingQ3Start && thisDate.getTime() <= offBillingQ3End)
+												{
+													offBillingQuarterEndDate = offBillingQ3End;
+												}
+										
+											if(thisDate.getTime() >= offBillingQ4Start && thisDate.getTime() <= offBillingQ4End)
+												{
+													offBillingQuarterEndDate = offBillingQ4End;
+												}
+									
+											//Create a pro rata invoice if the billing end date is after the last day of the off cycle current quarter
+											//
+											if(billingEndDate.getTime() > offBillingQuarterEndDate.getTime())
+												{
+													createProRataInvoice(salesOrderRecord);
+												}
+										}
 								}
 						}
 				}
@@ -588,18 +666,18 @@ function checkForProRataInvoice(_salesOrderId)
 
 function createProRataInvoice(_salesOrderRecord)
 {
-	
-	var salesOrderCloseDate = nlapiStringToDate(_salesOrderRecord.getfieldValue('custbody_bbs_sales_order_close_date'));
-	var billingEndDate = nlapiStringToDate(_salesOrderRecord.getfieldValue('custbody_bbs_billing_end_date'));
-	var invoiceDate new Date(salesOrderCloseDate.getFullYear(), salesOrderCloseDate.getMonth() + 1, 1); 	//1st day on month after the close date
-	var salesOrderValue = Number(_salesOrderRecord.getfieldValue('total'));
-	var daysToInvoice = Math.abs(billingEndDate.getTime() - invoiceDate.getTime()) / (1000 * 3600 * 24);
+	var salesOrderCloseDate = nlapiStringToDate(_salesOrderRecord.getFieldValue('custbody_bbs_sales_order_close_date'));
+	var billingEndDate = nlapiStringToDate(_salesOrderRecord.getFieldValue('custbody_bbs_billing_end_date'));
+	var invoiceDate = new Date(salesOrderCloseDate.getFullYear(), salesOrderCloseDate.getMonth() + 1, 1); 	//1st day on month after the close date
+	var salesOrderValue = Number(_salesOrderRecord.getFieldValue('subtotal'));
+	var daysToInvoice = (Math.abs(billingEndDate.getTime() - invoiceDate.getTime()) / (1000 * 3600 * 24)) + 1;
+	var invoiceValue = ((salesOrderValue / 365) * daysToInvoice).toFixed(2);
 	
 	var invoiceRecord = null;
 	
 	try
 		{
-			invoiceRecord = nlapiTransformRecord('salesorder', _salesOrderRecord.getId(), 'invoice');
+			invoiceRecord = nlapiTransformRecord('salesorder', _salesOrderRecord.getId(), 'invoice', {recordmode: 'dynamic'});
 		}
 	catch(err)
 		{
@@ -613,8 +691,70 @@ function createProRataInvoice(_salesOrderRecord)
 			//
 			invoiceRecord.setFieldValue('trandate', nlapiDateToString(invoiceDate));
 		
+			//Remove any lines on the invoice
+			//
+			var invoiceLines = invoiceRecord.getLineItemCount('item');
 			
+			for (var int = invoiceLines; int >= 1; int--) 
+				{
+					invoiceRecord.removeLineItem('item', int);
+				}
 			
+			//Add the pro rata item line
+			//
+			var proRataItemId = getProRataItem();
+			
+			if(proRataItemId != null)
+				{
+					invoiceRecord.selectNewLineItem('item');
+					invoiceRecord.setCurrentLineItemValue('item','item', proRataItemId); 
+					invoiceRecord.setCurrentLineItemValue('item','quantity', 1); 
+					invoiceRecord.setCurrentLineItemValue('item','rate', invoiceValue); 
+					invoiceRecord.setCurrentLineItemValue('item','custcol_bbs_revenue_rec_start_date', nlapiDateToString(invoiceDate)); 
+					invoiceRecord.setCurrentLineItemValue('item','custcol_bbs_revenue_rec_end_date', nlapiDateToString(billingEndDate)); 
+					invoiceRecord.commitLineItem('item'); 
+					
+					var invoiceId = null;
+					
+					try
+						{
+							invoiceId = nlapiSubmitRecord(invoiceRecord, true);
+						}
+					catch(err)
+						{
+							invoiceId = null;
+							nlapiLogExecution('ERROR', 'Error saving invoice for sales order id = ' + _salesOrderRecord.getId(), err.message);
+						}
+					
+					if(invoiceId != null)
+						{
+							nlapiSubmitField('salesorder', _salesOrderRecord.getId(), 'custbody_bbs_clo_inv_pro_rata', invoiceId, false);
+						}
+				}
+			else
+				{
+					nlapiLogExecution('ERROR', 'Error getting pro rata item id from external id', '');
+				}
+		}
+}
+
+function getProRataItem()
+{
+	var proRataItem = null;
+	
+	var itemSearch = nlapiSearchRecord("item",null,
+			[
+			   ["externalidstring","is","Rental - Pro Rata"]
+			], 
+			[
+			   new nlobjSearchColumn("itemid").setSort(false)
+			]
+			);
+
+	if(itemSearch != null && itemSearch.length > 0)
+		{
+			proRataItem = itemSearch[0].getId();
 		}
 	
+	return proRataItem;
 }
