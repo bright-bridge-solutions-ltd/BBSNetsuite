@@ -159,7 +159,8 @@ function scheduled(type)
 			        	//
 			        	var key = padding_left(itemInfo.parent, '0', 6) + 
 			        		padding_left(itemInfo.custitem_fbi_item_colour, '0', 6) + 
-			        		padding_left((itemInfo.custitem_fbi_item_size2 == '' ? '0' : itemInfo.custitem_fbi_item_size2), '0', 6);
+			        		padding_left((itemInfo.custitem_fbi_item_size2 == '' ? '0' : itemInfo.custitem_fbi_item_size2), '0', 6) + 
+			        		padding_left(lineUnitPrice, '0', 6);
 			        		
 			        	//Does the key exist in the summary, if not create a new entry
 			        	//
@@ -203,26 +204,33 @@ function scheduled(type)
 	//
 	var outputArray = [];
 	
+	//Sort outputSummary
+	//
+	const sortedSummary = {};
+    Object.keys(summary).sort().forEach(function(key) {
+    	sortedSummary[key] = summary[key];
+    });
+	
 	//Loop through the summaries
 	//
-	for ( var key in summary) 
+	for ( var key in sortedSummary) 
 		{
 			//Push a new instance of the output summary object onto the output array
 			//
 			outputArray.push(new outputSummary	(	
-												summary[key].itemId, 
-												summary[key].salesDescription, 
-												summary[key].locationText, 
-												summary[key].itemColourText + ' ' + summary[key].itemSize2Text, 
-												summary[key].getQuantitySizeSummary(), 
-												summary[key].getQuantitySizeTotal(),
-												summary[key].unitPrice,
-												summary[key].getAmountTotal(),
-												summary[key].getVatAmountTotal(),
-												summary[key].vatCode,
-												summary[key].discount,
-												summary[key].getQuantitySizeSummaryCommitted(),
-												summary[key].getQuantitySizeCommittedTotal()
+												sortedSummary[key].itemId, 
+												sortedSummary[key].salesDescription, 
+												sortedSummary[key].locationText, 
+												sortedSummary[key].itemColourText + ' ' + summary[key].itemSize2Text, 
+												sortedSummary[key].getQuantitySizeSummary(), 
+												sortedSummary[key].getQuantitySizeTotal(),
+												sortedSummary[key].unitPrice,
+												sortedSummary[key].getAmountTotal(),
+												sortedSummary[key].getVatAmountTotal(),
+												sortedSummary[key].vatCode,
+												sortedSummary[key].discount,
+												sortedSummary[key].getQuantitySizeSummaryCommitted(),
+												sortedSummary[key].getQuantitySizeCommittedTotal()
 												)
 							);
 		}
