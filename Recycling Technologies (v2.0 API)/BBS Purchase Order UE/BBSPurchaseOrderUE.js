@@ -22,7 +22,7 @@ function() {
     	var newRecord = scriptContext.newRecord;
     	
     	// get line count on the new record image
-    	var lineCount = newRecord.getLineCount({
+    	var lineCount = oldRecord.getLineCount({
     		sublistId: 'item'
     	});
     	

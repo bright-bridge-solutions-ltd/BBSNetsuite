@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/format'],
-function(format) {
+define([],
+function() {
     
     /**
      * Function to be executed after page is initialized.
@@ -39,8 +39,8 @@ function(format) {
     	// get the field that was changed
     	var fieldId = scriptContext.fieldId;
     	
-    	// if statement to check that the start date field has been changed
-    	if (fieldId == 'custrecord_bbs_contract_start_date')
+    	// if statement to check that the start date or contract term fields have been changed
+    	if (fieldId == 'custrecord_bbs_contract_start_date' || fieldId == 'custrecord_bbs_contract_term')
     		{
 	    		// get the value of the start date field
 				var startDate = currentRecord.getValue({
@@ -62,22 +62,12 @@ function(format) {
 		    			
 		    			// get the day from the date object
 		    			var day = startDate.getDate();
-		    			console.log(day);
 		    			
-		    			// if statement to check if the day variable is equal to 1
-		    			if (day == 1)
-		    				{
-		    					// increase the contract term variable by 1
-		    					contractTerm++;
-		    				}
-		    			else // day variable returns a value greater than 1
-		    				{
-		    					// increase the contractTerm variable by 2
-		    					contractTerm = contractTerm+2;
-		    				}
+		    			// decrease the day variable by 1
+		    			day--;
 		    			
 						// create a new date object and set it's value. This will be the last day of the month
-						var endDate = new Date(startDate.getFullYear(), startDate.getMonth()+contractTerm, 0);
+						var endDate = new Date(startDate.getFullYear(), startDate.getMonth()+contractTerm, day);
 		    			
 		    			// set the end date field on the record
 		    			currentRecord.setValue({

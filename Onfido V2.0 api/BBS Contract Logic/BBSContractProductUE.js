@@ -53,17 +53,13 @@ function(record,search) {
     	var contractStartDate = new Date();
     	var contractEndDate = new Date();
     	var quarterEndDate = new Date();
+    	var quarter = 0;
     	var nextMonth = 0;
       	var month = 0;
       	var year = 0;
     	
     	// get the ID of the submitted record
     	var currentRecordID = scriptContext.newRecord.id;
-    	
-    	log.debug({
-    		title: 'Current Record ID',
-    		details: currentRecordID
-    	});
     	
     	// load the current record
     	var currentRecord = record.load({
@@ -74,11 +70,6 @@ function(record,search) {
     	// get the value of the parent record field
     	var contractRecordID = currentRecord.getValue({
     		fieldId: 'custrecord_contract_product_parent'
-    	});
-    	
-    	log.debug({
-    		title: 'Contract Record ID',
-    		details: contractRecordID
     	});
     	
     	// lookup fields on the parent record
@@ -104,11 +95,6 @@ function(record,search) {
     	// get the contract term from the parent record
     	var contractTerm = contractRecordLookup.custrecord_bbs_contract_term;   	
     	contractTerm = parseInt(contractTerm); // convert to integer number
-    	
-    	log.debug({
-    		title: 'Contract Term',
-    		details: contractTerm
-    	});
     	
     	// check if the day of the start day is greater than the 1st of the month
     	if (dd > 1)
@@ -163,19 +149,27 @@ function(record,search) {
     				}
     			else
     				{
-    					// increase the mm variable
+    					// increase the mm variable by 1
     					mm++;
     					
-    					log.debug({
-    						title: 'Line ' + ct,
-    						details: mm
-    					});
+    					// set startDate. This will always be the first of the month
+    					contractStartDate = new Date(mm + '/' + 1 + '/' + yy);
     					
-    					// set startDate and endDate variables
-    					contractStartDate = new Date(mm + '/' + dd + '/' + yy);
-	    				
-	    				nextMonth = mm+1; // add one to the month variable to make it the following month
-	    				contractEndDate = new Date(nextMonth + '/' + 0 + '/' + yy); // last day of month
+    					// if this is the last contract period and and the start day is not 1
+    	    			if (ct == contractTerm && dd != 1)
+    						{
+	    						// decrease the dd variable by 1
+    							dd--;
+    						
+    							// set end date
+    							contractEndDate = new Date(nextMonth + '/' + dd + '/' + yy);
+    						}
+    					else
+    						{
+	    						// set end date
+	    	    				nextMonth = mm+1; // add one to the mm variable to make it the following month
+	    	    				contractEndDate = new Date(nextMonth + '/' + 0 + '/' + yy); // last day of month
+    						}
 	    				
 	    				// set the start and end dates on the new record
     					newRecord.setValue({
@@ -190,80 +184,40 @@ function(record,search) {
 	    				
     				}
     			
-    			// if statement to check if the contract term is between 1 and 3
-    			if (ct >=1 && ct <= 3)
-    				{
-    					// set the contract quarter field on the new record to quarter 1
-    					newRecord.setValue({
-    						fieldId: 'custrecord_bbs_contract_period_quarter',
-    						value: 1
-    					});
-
-    					// calculate the quarter end date
-    					quarterEndDate = new Date(month+3 + '/' + 0 + '/' + yy);
+    			// if statement to check this is the 3rd contract period and not the last contract period
+    			if (ct % 3 === 1 && ct != contractTerm)
+    				{	
+	        			// increase quarter variable by 1
+		    			quarter++;
+	        			
+		    			// if the quarter variable is 5
+	        			if (quarter == 5)
+	        				{
+		        				// reset quarter variable to 1
+		    					quarter = 1;
+	        				}
     					
-    					// set quarter end date field on the new record using the quarter end date object
-    					newRecord.setValue({
-    						fieldId: 'custrecord_bbs_contract_period_qu_end',
-    						value: quarterEndDate
-    					});  					
+    					// add 3 months to the month variable
+    					month = month+3;
     				}
-    			else if (ct >=4 && ct <= 6) // else if the contract term is between 4 and 6
-    				{
-	    				// set the contract quarter field on the new record to quarter 2
-						newRecord.setValue({
-							fieldId: 'custrecord_bbs_contract_period_quarter',
-							value: 2
-						});
-		
-    					quarterEndDate = new Date(month+6 + '/' + 0 + '/' + yy);
-    					
-    					// set quarter end date field on the new record using the quarter end date object
-    					newRecord.setValue({
-    						fieldId: 'custrecord_bbs_contract_period_qu_end',
-    						value: quarterEndDate
-    					});
-    				}
-    			else if (ct >=7 && ct <= 9) // else if the contract term is between 7 and 9
-    				{
-	    				// set the contract quarter field on the new record to quarter 3
-						newRecord.setValue({
-							fieldId: 'custrecord_bbs_contract_period_quarter',
-							value: 3
-						});
-
-    					quarterEndDate = new Date(month+9 + '/' + 0 + '/' + yy);
-    					
-    					// set quarter end date field on the new record using the quarter end date object
-    					newRecord.setValue({
-    						fieldId: 'custrecord_bbs_contract_period_qu_end',
-    						value: quarterEndDate
-    					});
-    				}
-    			else if (ct >=10 && ct <= 12) // else if the contract term is between 10 and 12
-    				{
-	    				// set the contract quarter field on the new record to quarter 4
-						newRecord.setValue({
-							fieldId: 'custrecord_bbs_contract_period_quarter',
-							value: 4
-						});
-
-    					quarterEndDate = new Date(month+12 + '/' + 0 + '/' + yy);
-    					
-    					// set quarter end date field on the new record using the quarter end date object
-    					newRecord.setValue({
-    						fieldId: 'custrecord_bbs_contract_period_qu_end',
-    						value: quarterEndDate
-    					});
-    				}
+    			
+    			// calculate the quarter end date
+	    		quarterEndDate = new Date(month + '/' + 0 + '/' + yy);
+	        			
+	        	// set the contract quarter field on the new record
+	    		newRecord.setValue({
+	    			fieldId: 'custrecord_bbs_contract_period_quarter',
+	    			value: quarter
+	    		});
+	    				
+	    		// set quarter end date field on the new record using the quarter end date object
+	    		newRecord.setValue({
+	    			fieldId: 'custrecord_bbs_contract_period_qu_end',
+	    			value: quarterEndDate
+	    		});
     					
     			// submit the new record
     			newRecordID = newRecord.save();
-    					
-    			log.debug({
-    				title: 'New Record Saved',
-    				details: newRecordID
-    			});
     		}
     }
 
