@@ -59,6 +59,7 @@ function createCaseFromQuoteAS(type)
 									var customerName = quoteRecord.getFieldText('entity');
 									var quoteNo = quoteRecord.getFieldValue('tranid');
 									var quoteId = quoteRecord.getId();
+									var contactId = quoteRecord.getFieldValue('custbody_acc_tran_contact');
 									
 									//Update the case record
 									//
@@ -81,6 +82,7 @@ function createCaseFromQuoteAS(type)
 									caseRecord.setFieldValue('customform', 56);
 									caseRecord.setFieldValue('category', 21);
 									caseRecord.setFieldValue('title', 'CPQ Quote ' + quoteNo);
+									caseRecord.setFieldValue('contact', contactId);
 									
 									//Create the case record
 									//
