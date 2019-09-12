@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define([],
-function() {
+define(['N/search'],
+function(search) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -29,9 +29,6 @@ function() {
      * @Since 2015.2
      */
     function beforeSubmit(scriptContext) {
-    
-    	// initialize variables
-    	var taxCode;
     	
     	// get the new record
     	var currentRecord = scriptContext.newRecord;
@@ -44,23 +41,25 @@ function() {
     	// if statement to check the currency variable does not return 1 (GBP)
     	if (currency != 1)
     		{
-	    		// get a count of item lines on the record
+	    		// get the internal ID of the supplier
+    			var supplierID = currentRecord.getValue({
+    				fieldId: 'entity'
+    			});
+    			
+    			// lookup fields on the supplier record
+    			var supplierLookup = search.lookupFields({
+    				type: search.Type.VENDOR,
+    				id: supplierID,
+    				columns: ['custentity_bbs_default_taxcode']
+    			});
+    			
+    			// get the default tax code from the supplierLookup
+    			var defaultTaxCode = supplierLookup.custentity_bbs_default_taxcode[0].value;
+    			
+    			// get a count of item lines on the record
 	        	var lineCount = currentRecord.getLineCount({
 	        		sublistId: 'item'
 	        	});
-	        	
-	        	// if the currency is 2 (USD)
-	        	if (currency == 2)
-	        		{
-	        			// set the taxCode variable to 8 (T0 Zero rate)
-	        			taxCode = 8;
-	        		}
-	        	// if the currency is 4 (EUR) or 5 (PLN)
-	        	else if (currency == 4 || currency == 5)
-	        		{
-	        			// set the taxCode variable to 14 (T8 EU Purchases)
-	        			taxCode = 14;
-	        		}
 	        	
 	        	// loop through line count
 	        	for (var x = 0; x < lineCount; x++)
@@ -69,7 +68,7 @@ function() {
 		    			currentRecord.setSublistValue({
 		    				sublistId: 'item',
 		    				fieldId: 'taxcode',
-		    				value: taxCode,
+		    				value: defaultTaxCode,
 		    				line: x
 		    			});
 	        		}
