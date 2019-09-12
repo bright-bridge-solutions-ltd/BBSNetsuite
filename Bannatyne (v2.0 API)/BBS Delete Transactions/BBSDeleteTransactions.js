@@ -33,12 +33,12 @@ function(search, record) {
 			filters: [{
 				name: 'type',
 				operator: 'anyof',
-				values: ['SalesOrd']
+				values: ['CashSale']
 			},
 					{
 				name: 'customform',
 				operator: 'anyof',
-				values: ['123'] // 125 = Booking Portal Cash Sale, 123 = Booking Portal Sales Order
+				values: ['125'] // 125 = Booking Portal Cash Sale, 123 = Booking Portal Sales Order
 			},
 					{
 				name: 'mainline',
@@ -105,7 +105,7 @@ function(search, record) {
 			{
 				// delete the record
 	    		record.delete({
-	    			type: record.Type.SALES_ORDER,
+	    			type: record.Type.CASH_SALE,
 	    			id: recordID
 	    		});
 	    		
