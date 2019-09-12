@@ -96,7 +96,7 @@ function(record,search) {
     	var contractTerm = contractRecordLookup.custrecord_bbs_contract_term;   	
     	contractTerm = parseInt(contractTerm); // convert to integer number
     	
-    	// check if the day of the start day is greater than the 1st of the month
+    	// check if the day of the start date is greater than the 1st of the month
     	if (dd > 1)
     		{
     			// increase the contractTerm variable by 1
