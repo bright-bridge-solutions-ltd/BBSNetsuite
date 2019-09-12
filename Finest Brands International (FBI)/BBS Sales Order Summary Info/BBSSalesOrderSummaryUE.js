@@ -114,6 +114,27 @@ function salesOrderSummaryAS(type)
 									var discount = '0.00%';
 								}
 							
+							//Check that the discount variable is not equal to 0.00%
+							//
+							if (discount != '0.00%')
+								{
+									//Remove % from discount variable
+									//
+									var discountSubstring = discount.slice(0, -1);
+									
+									//Divide the discountSubstring by 100 to get a decimal number
+									//
+									discountSubstring = (discountSubstring / 100);
+								
+									//Calculate the lineUnitPrice
+									//
+									lineUnitPrice = (lineUnitPrice / (1 - discountSubstring));
+									
+									//Round to two decimal places
+									//
+									lineUnitPrice = Math.floor(lineUnitPrice * 100) / 100;
+								}
+							
 							//Only interested in inventory & non-inventory items
 							//
 							if(lineType == 'InvtPart' || lineType == 'NonInvtPart' || lineType == 'Discount')
