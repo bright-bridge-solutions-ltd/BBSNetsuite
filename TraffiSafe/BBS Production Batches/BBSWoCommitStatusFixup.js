@@ -27,7 +27,7 @@ function scheduled(type)
 			   ["custbody_bbs_commitment_status","noneof","2"]
 			], 
 			[
-			   new nlobjSearchColumn("trandate",null,null).setSort(false), 
+			   new nlobjSearchColumn("trandate",null,null).setSort(true), 
 			   new nlobjSearchColumn("tranid",null,null), 
 			   new nlobjSearchColumn("entity",null,null), 
 			   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null)
@@ -73,7 +73,7 @@ function scheduled(type)
 			   ["custbody_bbs_commitment_status","anyof","2"]
 			], 
 			[
-			   new nlobjSearchColumn("trandate").setSort(false), 
+			   new nlobjSearchColumn("trandate").setSort(true), 
 			   new nlobjSearchColumn("tranid"), 
 			   new nlobjSearchColumn("entity"), 
 			   new nlobjSearchColumn("custbody_bbs_commitment_status")
@@ -105,21 +105,14 @@ function scheduled(type)
 					//nlapiLogExecution('DEBUG', 'W/O id to process', woSearchId);
 					//nlapiLogExecution('DEBUG', 'W/O count', int2);
 					
-					//Get the new record & also its status
-					//
-					var newRecord = null;
-					
 					try
 						{
-							newRecord = nlapiLoadRecord('workorder', woSearchId );
-						}
-					catch(err)
-						{
-							newRecord = null;
-						}
-					
-					if(newRecord)
-						{
+							//Get the new record & also its status
+							//
+							var newRecord = nlapiLoadRecord('workorder', woSearchId );
+							
+							nlapiLogExecution('DEBUG', 'Record Loaded', woSearchId + ' has been loaded');
+
 							var newStatus = newRecord.getFieldValue('status');
 							var itemCount = newRecord.getLineItemCount('item');
 							var linesToCommit = Number(0);
@@ -247,7 +240,12 @@ function scheduled(type)
 											}
 									}
 							
-							nlapiSubmitRecord(newRecord, false, true);
+							var newRecordID = nlapiSubmitRecord(newRecord, false, true);
+							nlapiLogExecution('DEBUG', 'Record Updated', 'Record submitted with ID ' + newRecordID + '. There are still ' + (workorderSearch.length - (int2+1)) + ' records still to be updated');
+						}
+					catch(e)
+						{
+							nlapiLogExecution('ERROR', 'An error occured updating record ' + woSearchId, 'Error: ' + e);
 						}
 				}
 		}
@@ -258,7 +256,7 @@ function scheduled(type)
 	//Code to check status of associated sales order
 	//=============================================================================================
 	//
-	//nlapiLogExecution('DEBUG', 'S/O to process', Object.keys(salesOrders).length);
+	nlapiLogExecution('DEBUG', 'S/O to process', Object.keys(salesOrders).length);
 	nlapiLogExecution('DEBUG', 'S/O to process', JSON.stringify(salesOrders));
 	var counter = Number(0);
 	
@@ -270,7 +268,7 @@ function scheduled(type)
 			//
 			if(newCreatedFrom != null && newCreatedFrom != '')
 				{
-					var salesOrderRecord = null;
+
 								
 					//nlapiLogExecution('DEBUG', 'S/O id processing', newCreatedFrom);
 					//nlapiLogExecution('DEBUG', 'S/O count', counter);
@@ -279,15 +277,9 @@ function scheduled(type)
 									
 					try
 						{
-							salesOrderRecord = nlapiLoadRecord('salesorder', newCreatedFrom);
-						}
-					catch(error)
-						{
-							salesOrderRecord = null;
-						}
-									
-					if(salesOrderRecord)
-						{
+							var salesOrderRecord = nlapiLoadRecord('salesorder', newCreatedFrom);
+							nlapiLogExecution('DEBUG', 'Sales Order Loaded', salesOrderRecord + 'has been loaded')
+
 							//We need to check the other works orders
 							//
 							var workorderSearch = nlapiCreateSearch("workorder",
@@ -364,7 +356,13 @@ function scheduled(type)
 										}
 															
 									//nlapiSubmitRecord(salesOrderRecord, false, true);
-								}			
+								}
+							
+							nlapiLogExecution('DEBUG', 'Record Saved', 'Record ' + newCreatedFrom + ' has been saved');
+						}
+					catch(e)
+						{
+							nlapiLogExecution('ERROR', 'An error occured updating record ' + newCreatedFrom, e);
 						}
 				}
 		}
