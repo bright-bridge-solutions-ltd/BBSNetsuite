@@ -219,7 +219,7 @@ function statisticalJournalsAS(type)
 					statisticalJournal.setFieldValue('memo', originatingTransaction);
 					statisticalJournal.setFieldValue('trandate', transactionDate);
 					statisticalJournal.setFieldValue('postingperiod', postingPeriod);
-
+					statisticalJournal.setFieldValue('custbody_bbs_originating_transaction',recordId);
 					
 					//Loop through the summary values
 					//
