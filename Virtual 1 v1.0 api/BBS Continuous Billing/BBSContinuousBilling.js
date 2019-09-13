@@ -434,7 +434,16 @@ function processBillingEndDates()
 								{
 									var invoicedQuantity = oldSalesOrder.getLineItemValue('item', 'quantitybilled', int2);
 									
-									oldSalesOrder.setLineItemValue('item', 'quantity', int2, invoicedQuantity);
+									//If the invoice quantity is zero, then just mark the line as closed
+									//
+									if(invoicedQuantity == null || invoicedQuantity == '' || invoicedQuantity == 0)
+										{
+											oldSalesOrder.setLineItemValue('item', 'isclosed', int2, 'T');
+										}
+									else	
+										{
+											oldSalesOrder.setLineItemValue('item', 'quantity', int2, invoicedQuantity);
+										}
 								}
 							
 							//Mark the order as processed

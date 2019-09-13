@@ -208,7 +208,26 @@ function scheduled(type)
 	var paymentFileDate = context.getSetting('SCRIPT', 'custscript_pay_file_date');
 	var ddBatches = JSON.parse(ddBatchesString);
 	var usersEmail = context.getUser();
-	var emailText = 'The payment records have now been created';
+	var emailText = '';
+	
+	//Get company configuration
+	//
+	var configRecord = null;
+	var urlPrefix = null;
+	
+	try
+		{
+		configRecord = nlapiLoadConfiguration('companyinformation');
+		}
+	catch(err)
+		{
+			configRecord = null;
+		}
+	
+	if(configRecord != null)
+		{
+			urlPrefix = 'https://' + configRecord.getFieldValue('companyid').replace('_','-') + '.app.netsuite.com';
+		}
 	
 	var today = new Date();
 	var todayString = today.format('d/m/Y');
@@ -394,6 +413,16 @@ function scheduled(type)
 							if(paymentId != null)
 								{
 									nlapiSubmitField('customrecord_bbs_dd_batch', batchId, ['custrecord_bbs_dd_payment_record','custrecord_bbs_dd_status'], [paymentId,'2'], false);
+									
+									//Add info to the email message
+									//
+									if(emailText == '')
+										{
+											emailText += 'The following payment records have now been created \n\n';
+										}
+									
+									var newUrl = urlPrefix + nlapiResolveURL('RECORD', 'customerpayment', paymentId, 'view');
+									emailText += 'Customer Payment (' + paymentId.toString() + ') - ' + newUrl + '\n';
 								}
 						}
 					
@@ -411,6 +440,11 @@ function scheduled(type)
 	
 	//Send the email to the user to say that we have finished
 	//
+	if(emailText == '')
+		{
+			emailText += 'No customer payment records have been created\n\n';
+		}
+	
 	nlapiSendEmail(usersEmail, usersEmail, 'Payment Records Generation', emailText);
 }
 
