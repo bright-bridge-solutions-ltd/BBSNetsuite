@@ -42,8 +42,23 @@ function statisticalJournalsAS(type)
 							var parcels = Number(processedRecord.getLineItemValue('item', 'custcol_bbs_parcels', int));
 							var consignments = Number(processedRecord.getLineItemValue('item', 'custcol_bbs_consignments', int));
 						
-							parcels = Math.abs(parcels) * -1.0;
-							consignments = Math.abs(consignments) * -1.0;
+							//Check if the parcels variable is a negative value
+							//
+							if (parcels > 0)
+								{
+									//Convert parcels to a positive number
+									//
+									parcels = Math.abs(parcels) * -1.0;
+								}
+							
+							//Check if the consignments variable is a negative value
+							//
+							if (consignments > 0)
+								{
+									//Convert consignments to a positive number
+									//
+									consignments = Math.abs(consignments) * -1.0;
+								}
 							
 							processedRecord.setLineItemValue('item', 'custcol_bbs_parcels', int, parcels);
 							processedRecord.setLineItemValue('item', 'custcol_bbs_consignments', int, consignments);
@@ -79,8 +94,23 @@ function statisticalJournalsAS(type)
 								{
 									updated = true;
 									
-									parcels = Math.abs(parcels) * -1.0;
-									consignments = Math.abs(consignments) * -1.0;
+									//Check if the parcels variable is a positive value
+									//
+									if (parcels > 0)
+										{
+											//Convert parcels to a negative number
+											//
+											parcels = Math.abs(parcels) * -1.0;
+										}
+									
+									//Check if the consignments variable is a positive value
+									//
+									if (consignments > 0)
+										{
+											//Convert consignments to a positive number
+											//
+											consignments = Math.abs(consignments) * -1.0;
+										}
 									
 									processedRecord.setLineItemValue('line', 'custcol_bbs_parcels', int, parcels);
 									processedRecord.setLineItemValue('line', 'custcol_bbs_consignments', int, consignments);
@@ -248,8 +278,12 @@ function statisticalJournalsAS(type)
 								{
 									var postingValue = summaryValues[summaryValue][0];
 
-									if(recordType == 'creditmemo')
+									//Check if the postingValue variable is a positive value
+									//
+									if (postingValue > 0)
 										{
+											//Convert postingValue to a negative number
+											//
 											postingValue = postingValue * Number(-1.0);
 										}
 
@@ -273,10 +307,14 @@ function statisticalJournalsAS(type)
 							//
 							if(summaryValues[summaryValue][1] != 0)
 								{
-									var postingValue = summaryValues[summaryValue][1];	
-							
-									if(recordType == 'creditmemo')
+									var postingValue = summaryValues[summaryValue][1];
+
+									//Check if the postingValue variable is a positive value
+									//
+									if (postingValue > 0)
 										{
+											//Convert postingValue to a negative number
+											//
 											postingValue = postingValue * Number(-1.0);
 										}
 
