@@ -22,8 +22,14 @@ function statisticalJournalsAS(type)
 	
 	if(type == 'create' || type == 'edit')
 		{
-			var processedRecord = nlapiGetNewRecord();
-			var processedRecordType = processedRecord.getRecordType();
+			//Get the record type and ID
+			//
+			var processedRecordType = nlapiGetRecordType();
+			var processedRecordId = nlapiGetRecordId();
+			
+			//Load the processed record
+			//
+			var processedRecord = nlapiLoadRecord(processedRecordType, processedRecordId);
 			
 			//Pre-processing of credit notes to make the parcel & consignment values -ve
 			//
@@ -39,8 +45,8 @@ function statisticalJournalsAS(type)
 							parcels = Math.abs(parcels) * -1.0;
 							consignments = Math.abs(consignments) * -1.0;
 							
-							processedRecord.setLineItemValue('item', custcol_bbs_parcels, int, parcels);
-							processedRecord.setLineItemValue('item', custcol_bbs_consignments, int, parcels);
+							processedRecord.setLineItemValue('item', 'custcol_bbs_parcels', int, parcels);
+							processedRecord.setLineItemValue('item', 'custcol_bbs_consignments', int, parcels);
 						}
 					
 					nlapiSubmitRecord(processedRecord, false, true);
@@ -76,8 +82,8 @@ function statisticalJournalsAS(type)
 									parcels = Math.abs(parcels) * -1.0;
 									consignments = Math.abs(consignments) * -1.0;
 									
-									processedRecord.setLineItemValue('line', custcol_bbs_parcels, int, parcels);
-									processedRecord.setLineItemValue('line', custcol_bbs_consignments, int, parcels);
+									processedRecord.setLineItemValue('line', 'custcol_bbs_parcels', int, parcels);
+									processedRecord.setLineItemValue('line', 'custcol_bbs_consignments', int, parcels);
 								}
 						}
 					
