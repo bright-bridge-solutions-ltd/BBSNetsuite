@@ -46,7 +46,7 @@ function statisticalJournalsAS(type)
 							consignments = Math.abs(consignments) * -1.0;
 							
 							processedRecord.setLineItemValue('item', 'custcol_bbs_parcels', int, parcels);
-							processedRecord.setLineItemValue('item', 'custcol_bbs_consignments', int, parcels);
+							processedRecord.setLineItemValue('item', 'custcol_bbs_consignments', int, consignments);
 						}
 					
 					nlapiSubmitRecord(processedRecord, false, true);
@@ -83,7 +83,7 @@ function statisticalJournalsAS(type)
 									consignments = Math.abs(consignments) * -1.0;
 									
 									processedRecord.setLineItemValue('line', 'custcol_bbs_parcels', int, parcels);
-									processedRecord.setLineItemValue('line', 'custcol_bbs_consignments', int, parcels);
+									processedRecord.setLineItemValue('line', 'custcol_bbs_consignments', int, consignments);
 								}
 						}
 					
