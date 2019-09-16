@@ -247,13 +247,11 @@ function statisticalJournalsAS(type)
 							if(summaryValues[summaryValue][0] != 0)
 								{
 									var postingValue = summaryValues[summaryValue][0];
-							
-							// Not needed now as credit memos will have -ve values 
-							//
-							//		if(recordType == 'creditmemo')
-							//			{
-							//				postingValue = postingValue * Number(-1.0);
-							//			}
+
+									if(recordType == 'creditmemo')
+										{
+											postingValue = postingValue * Number(-1.0);
+										}
 
 									lineNo++;
 									statisticalJournal.setLineItemValue('line', 'account', lineNo, accountParcels);
@@ -275,14 +273,12 @@ function statisticalJournalsAS(type)
 							//
 							if(summaryValues[summaryValue][1] != 0)
 								{
-									var postingValue = summaryValues[summaryValue][1];
-									
-							// Not needed now as credit memos will have -ve values 
-							//
-							//		if(recordType == 'creditmemo')
-							//			{
-							//				postingValue = postingValue * Number(-1.0);
-							//			}
+									var postingValue = summaryValues[summaryValue][1];	
+							
+									if(recordType == 'creditmemo')
+										{
+											postingValue = postingValue * Number(-1.0);
+										}
 
 									lineNo++;
 									statisticalJournal.setLineItemValue('line', 'account', lineNo, accountConsignments);
