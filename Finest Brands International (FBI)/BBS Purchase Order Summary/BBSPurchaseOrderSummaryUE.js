@@ -1,9 +1,9 @@
 /**
  * Module Description
  * 
- * Version    Date            Author           Remarks
- * 1.00       25 Jul 2019     cedricgriffiths
- *
+ * 	Version    	Date            	Author           	Remarks
+ * 	1.00       	10 Sep 2019     	cedricgriffiths
+ * 	1.10		18 Sep 2019			sambatten			added action to call scheduled script if more than 30 lines
  */
 
 /**
@@ -27,7 +27,7 @@ function purchaseOrderSummaryAS(type)
 	//Start of main code
 	//
 	var summary = {};
-	var salesOrderId = nlapiGetRecordId();
+	var purchaseOrderId = nlapiGetRecordId();
 	var thisRecordType = nlapiGetRecordType();
 	var thisCurrency = nlapiGetFieldValue('currency');
 	
@@ -38,183 +38,194 @@ function purchaseOrderSummaryAS(type)
 			//Get the count of item lines
 			//
 			var lines = nlapiGetLineItemCount('item');
-			
-			//Loop through the item lines
-			//
-			for (var int = 1; int <= lines; int++) 
-				{
-					//Get values from the item line
-					//
-					var lineItem = nlapiGetLineItemValue('item', 'item', int);
-					var lineQuantity = nlapiGetLineItemValue('item', 'quantity', int);
-					var lineType = nlapiGetLineItemValue('item', 'itemtype', int);
-					var lineUnitPrice = nlapiGetLineItemValue('item', 'rate', int);
-					var lineAmount = nlapiGetLineItemValue('item', 'amount', int);
-					var lineVatAmount = nlapiGetLineItemValue('item', 'tax1amt', int);
-					var linevatCode = nlapiGetLineItemValue('item', 'taxrate1', int);
-					linevatCode = parseFloat(linevatCode).toFixed(2) + '%';				
 					
-					//Only interested in inventory & non-inventory items
+			// check if the order contains more than 30 lines		
+			if (lines > 30)
+				{
+					//Submit a scheduled job
 					//
-					if(lineType == 'InvtPart' || lineType == 'NonInvtPart' || lineType == 'Discount')
+					var scheduleParams = {custscript_po_summary_record_id: purchaseOrderId, custscript_po_summary_record_type: thisRecordType, custscript_po_summary_currency: thisCurrency};
+					nlapiScheduleScript('customscript_bbs_po_summary_scheduled', null, scheduleParams);
+				}
+			else
+				{
+					//Loop through the item lines
+					//
+					for (var int = 1; int <= lines; int++) 
 						{
-							var recordType = '';	
-				  	        
-							//Translate the record type so it can be used in the api calls
+							//Get values from the item line
 							//
-					        switch (lineType) 
-					        	{ 
-						            case 'InvtPart':
-						            	recordType = 'inventoryitem';
-						                break;
-						                
-						            case 'NonInvtPart':
-						            	recordType = 'noninventoryitem';
-						                break;
-						            
-						            case 'Discount':
-						            	recordType = 'discountitem';
-						                break;
-					        	}
-						
-					        //Get info about current product & parent etc.
-					        //
-					        var itemInfo = nlapiLookupField(recordType, lineItem, ['parent','custitem_fbi_item_colour','custitem_fbi_item_size1','custitem_fbi_item_size2'], false)
-					        var itemInfoText = nlapiLookupField(recordType, lineItem, ['parent','custitem_fbi_item_colour','custitem_fbi_item_size1','custitem_fbi_item_size2'], true)
-					        
-					        //If we have a parent then proceed
-					        //
-					        var parentInfo = {};
-					        var parentInfoText = {};
-					        
-					        if(itemInfo.parent != null && itemInfo.parent != '')
-					        	{
-					        		//Parent info
-					        		//
-						        	parentInfo = nlapiLookupField(recordType, itemInfo.parent, ['itemid','location','purchasedescription','custitem_bbs_item_specification','custitem_bbs_item_trim','custitem_bbs_item_packaging','custitem_bbs_item_outer_packaging','custitem_bbs_item_purchase_terms','custitem_fbi_item_size1'], false);
-						        	parentInfoText = nlapiLookupField(recordType, itemInfo.parent, ['location','custitem_fbi_item_size1'], true);
-						        	
-					        	}
-					        else
-					        	{
-					        		parentInfo = nlapiLookupField(recordType, lineItem, ['itemid','location','purchasedescription'], false);
-					        		parentInfo.custitem_bbs_item_specification = '';
-					        		parentInfo.custitem_bbs_item_trim = '';
-					        		parentInfo.custitem_bbs_item_packaging = '';
-					        		parentInfo.custitem_bbs_item_outer_packaging = '';
-					        		parentInfo.custitem_bbs_item_purchase_terms = '';
-					        		parentInfo.purchasedescription = parentInfo.itemid;
-					        		parentInfo.custitem_fbi_item_size1 = [];
-					        		
-					        		parentInfoText.location = nlapiLookupField(recordType, lineItem, ['location'], true);
-					        		parentInfoText.custitem_fbi_item_size1 = [];
-					        		
-					        		itemInfo.parent = lineItem;
-					        		itemInfo.custitem_fbi_item_colour = '0';
-					        		itemInfo.custitem_fbi_item_size1 = '0';
-					        		itemInfo.custitem_fbi_item_size2 = '0';
-
-					        		itemInfoText.parent = parentInfo.itemid;
-					        		itemInfoText.custitem_fbi_item_colour = '';
-					        		itemInfoText.custitem_fbi_item_size1 = '';
-					        		itemInfoText.custitem_fbi_item_size2 = '';
-					 
-					        	}
-					        
-					        	//Build up the key for the summary
-					        	//Parent id + colour id + size2 id
-					        	//
-					        	var key = padding_left(itemInfo.parent, '0', 6) + 
-					        		padding_left(itemInfo.custitem_fbi_item_colour, '0', 6) + 
-					        		padding_left((itemInfo.custitem_fbi_item_size2 == '' ? '0' : itemInfo.custitem_fbi_item_size2), '0', 6);
-					        		
-					        	//Does the key exist in the summary, if not create a new entry
-					        	//
-					        	if(!summary[key])
-					        		{
-					        			summary[key] = new itemSummaryInfo(	parentInfo.itemid, 
-					        												itemInfo.custitem_fbi_item_colour, 
-					        												itemInfo.custitem_fbi_item_size2, 
-					        												parentInfo.location, 
-					        												parentInfo.purchasedescription,
-					        												itemInfoText.custitem_fbi_item_colour,
-					        												itemInfoText.custitem_fbi_item_size2,
-					        												parentInfoText.location,
-					        												lineUnitPrice,
-					        												linevatCode,
-					        												parentInfo.custitem_bbs_item_specification,
-					        												parentInfo.custitem_bbs_item_trim,
-					        												parentInfo.custitem_bbs_item_packaging,
-					        												parentInfo.custitem_bbs_item_outer_packaging,
-					        												parentInfo.custitem_bbs_item_purchase_terms,
-					        												parentInfo.custitem_fbi_item_size1.split(','),
-					        												parentInfoText.custitem_fbi_item_size1.split(',')
-					        												);
-					        		}
-					        		
-					        	//Update the size & quantity in the summary
-					        	//
-					        	summary[key].updateSizeQuantity	(
-					        									itemInfo.custitem_fbi_item_size1, 
-					        									lineQuantity, 
-					        									itemInfoText.custitem_fbi_item_size1, 
-					        									lineAmount, 
-					        									lineVatAmount
-					        									);
-					        	
+							var lineItem = nlapiGetLineItemValue('item', 'item', int);
+							var lineQuantity = nlapiGetLineItemValue('item', 'quantity', int);
+							var lineType = nlapiGetLineItemValue('item', 'itemtype', int);
+							var lineUnitPrice = nlapiGetLineItemValue('item', 'rate', int);
+							var lineAmount = nlapiGetLineItemValue('item', 'amount', int);
+							var lineVatAmount = nlapiGetLineItemValue('item', 'tax1amt', int);
+							var linevatCode = nlapiGetLineItemValue('item', 'taxrate1', int);
+							linevatCode = parseFloat(linevatCode).toFixed(2) + '%';				
+							
+							//Only interested in inventory & non-inventory items
+							//
+							if(lineType == 'InvtPart' || lineType == 'NonInvtPart' || lineType == 'Discount')
+								{
+									var recordType = '';	
+						  	        
+									//Translate the record type so it can be used in the api calls
+									//
+							        switch (lineType) 
+							        	{ 
+								            case 'InvtPart':
+								            	recordType = 'inventoryitem';
+								                break;
+								                
+								            case 'NonInvtPart':
+								            	recordType = 'noninventoryitem';
+								                break;
+								            
+								            case 'Discount':
+								            	recordType = 'discountitem';
+								                break;
+							        	}
+								
+							        //Get info about current product & parent etc.
+							        //
+							        var itemInfo = nlapiLookupField(recordType, lineItem, ['parent','custitem_fbi_item_colour','custitem_fbi_item_size1','custitem_fbi_item_size2'], false)
+							        var itemInfoText = nlapiLookupField(recordType, lineItem, ['parent','custitem_fbi_item_colour','custitem_fbi_item_size1','custitem_fbi_item_size2'], true)
+							        
+							        //If we have a parent then proceed
+							        //
+							        var parentInfo = {};
+							        var parentInfoText = {};
+							        
+							        if(itemInfo.parent != null && itemInfo.parent != '')
+							        	{
+							        		//Parent info
+							        		//
+								        	parentInfo = nlapiLookupField(recordType, itemInfo.parent, ['itemid','location','purchasedescription','custitem_bbs_item_specification','custitem_bbs_item_trim','custitem_bbs_item_packaging','custitem_bbs_item_outer_packaging','custitem_bbs_item_purchase_terms','custitem_fbi_item_size1'], false);
+								        	parentInfoText = nlapiLookupField(recordType, itemInfo.parent, ['location','custitem_fbi_item_size1'], true);
+								        	
+							        	}
+							        else
+							        	{
+							        		parentInfo = nlapiLookupField(recordType, lineItem, ['itemid','location','purchasedescription'], false);
+							        		parentInfo.custitem_bbs_item_specification = '';
+							        		parentInfo.custitem_bbs_item_trim = '';
+							        		parentInfo.custitem_bbs_item_packaging = '';
+							        		parentInfo.custitem_bbs_item_outer_packaging = '';
+							        		parentInfo.custitem_bbs_item_purchase_terms = '';
+							        		parentInfo.purchasedescription = parentInfo.itemid;
+							        		parentInfo.custitem_fbi_item_size1 = [];
+							        		
+							        		parentInfoText.location = nlapiLookupField(recordType, lineItem, ['location'], true);
+							        		parentInfoText.custitem_fbi_item_size1 = [];
+							        		
+							        		itemInfo.parent = lineItem;
+							        		itemInfo.custitem_fbi_item_colour = '0';
+							        		itemInfo.custitem_fbi_item_size1 = '0';
+							        		itemInfo.custitem_fbi_item_size2 = '0';
+		
+							        		itemInfoText.parent = parentInfo.itemid;
+							        		itemInfoText.custitem_fbi_item_colour = '';
+							        		itemInfoText.custitem_fbi_item_size1 = '';
+							        		itemInfoText.custitem_fbi_item_size2 = '';
+							 
+							        	}
+							        
+							        	//Build up the key for the summary
+							        	//Parent id + colour id + size2 id
+							        	//
+							        	var key = padding_left(itemInfo.parent, '0', 6) + 
+							        		padding_left(itemInfo.custitem_fbi_item_colour, '0', 6) + 
+							        		padding_left((itemInfo.custitem_fbi_item_size2 == '' ? '0' : itemInfo.custitem_fbi_item_size2), '0', 6);
+							        		
+							        	//Does the key exist in the summary, if not create a new entry
+							        	//
+							        	if(!summary[key])
+							        		{
+							        			summary[key] = new itemSummaryInfo(	parentInfo.itemid, 
+							        												itemInfo.custitem_fbi_item_colour, 
+							        												itemInfo.custitem_fbi_item_size2, 
+							        												parentInfo.location, 
+							        												parentInfo.purchasedescription,
+							        												itemInfoText.custitem_fbi_item_colour,
+							        												itemInfoText.custitem_fbi_item_size2,
+							        												parentInfoText.location,
+							        												lineUnitPrice,
+							        												linevatCode,
+							        												parentInfo.custitem_bbs_item_specification,
+							        												parentInfo.custitem_bbs_item_trim,
+							        												parentInfo.custitem_bbs_item_packaging,
+							        												parentInfo.custitem_bbs_item_outer_packaging,
+							        												parentInfo.custitem_bbs_item_purchase_terms,
+							        												parentInfo.custitem_fbi_item_size1.split(','),
+							        												parentInfoText.custitem_fbi_item_size1.split(',')
+							        												);
+							        		}
+							        		
+							        	//Update the size & quantity in the summary
+							        	//
+							        	summary[key].updateSizeQuantity	(
+							        									itemInfo.custitem_fbi_item_size1, 
+							        									lineQuantity, 
+							        									itemInfoText.custitem_fbi_item_size1, 
+							        									lineAmount, 
+							        									lineVatAmount
+							        									);
+							        	
+								}
 						}
-				}
-			
-			//Now we have done all summarising, we need to generate the output format 
-			//
-			var outputArray = [];
-			var totalQuantity = Number(0);
-			var totalAmount = Number(0);
-			
-			//Loop through the summaries
-			//
-			for ( var key in summary) 
-				{
-					//Push a new instance of the output summary object onto the output array
+					
+					//Now we have done all summarising, we need to generate the output format 
 					//
-					outputArray.push(new outputSummary	(	
-														summary[key].itemId, 
-														summary[key].purchaseDescription, 
-														summary[key].locationText, 
-														summary[key].itemColourText + ' ' + summary[key].itemSize2Text, 
-														summary[key].getQuantitySizeSummary(), 
-														summary[key].getQuantitySizeTotal(),
-														summary[key].unitPrice,
-														summary[key].getAmountTotal(),
-														summary[key].getVatAmountTotal(),
-														summary[key].vatCode,
-														summary[key].item_specification,
-														summary[key].item_trim,
-														summary[key].item_packaging,
-														summary[key].item_outer_packaging,
-														summary[key].item_purchase_terms
-														)
-									);
+					var outputArray = [];
+					var totalQuantity = Number(0);
+					var totalAmount = Number(0);
 					
-					totalQuantity += summary[key].getQuantitySizeTotal();
-					totalAmount += summary[key].getAmountTotal();
+					//Loop through the summaries
+					//
+					for ( var key in summary) 
+						{
+							//Push a new instance of the output summary object onto the output array
+							//
+							outputArray.push(new outputSummary	(	
+																summary[key].itemId, 
+																summary[key].purchaseDescription, 
+																summary[key].locationText, 
+																summary[key].itemColourText + ' ' + summary[key].itemSize2Text, 
+																summary[key].getQuantitySizeSummary(), 
+																summary[key].getQuantitySizeTotal(),
+																summary[key].unitPrice,
+																summary[key].getAmountTotal(),
+																summary[key].getVatAmountTotal(),
+																summary[key].vatCode,
+																summary[key].item_specification,
+																summary[key].item_trim,
+																summary[key].item_packaging,
+																summary[key].item_outer_packaging,
+																summary[key].item_purchase_terms
+																)
+											);
+							
+							totalQuantity += summary[key].getQuantitySizeTotal();
+							totalAmount += summary[key].getAmountTotal();
+							
+						}
 					
+					//Get the currency symbol
+					//
+					var currencyRecord = nlapiLoadRecord('currency', thisCurrency);
+					
+					var currencySymbol = currencyRecord.getFieldValue('displaysymbol');
+					
+					//Consolidate header & line info into one object
+					//
+					var output = new poOutput(outputArray, currencySymbol + outputArray[0].unitPrice.numberFormat('###,###.00'), totalQuantity, currencySymbol + totalAmount.numberFormat('###,###.00'));
+					
+					//Save the output array to the purchase order
+					//
+					nlapiSubmitField(thisRecordType, purchaseOrderId, 'custbody_po_matrix_item_json', JSON.stringify(output), false);
 				}
-			
-			//Get the currency symbol
-			//
-			var currencyRecord = nlapiLoadRecord('currency', thisCurrency);
-			
-			var currencySymbol = currencyRecord.getFieldValue('displaysymbol');
-			
-			//Consolidate header & line info into one object
-			//
-			var output = new poOutput(outputArray, currencySymbol + outputArray[0].unitPrice.numberFormat('###,###.00'), totalQuantity, currencySymbol + totalAmount.numberFormat('###,###.00'));
-			
-			//Save the output array to the sales order
-			//
-			nlapiSubmitField(thisRecordType, salesOrderId, 'custbody_po_matrix_item_json', JSON.stringify(output), false);
-		}
+}
 }
 
 //=============================================================================
