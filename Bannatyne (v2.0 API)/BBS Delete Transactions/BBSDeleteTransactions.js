@@ -22,23 +22,18 @@ function(search, record) {
      */
     function getInputData() {
     	
-    	// create search to find BBS Brightlime Transactions records
+    	// create search to find transactions to be deleted
     	var transactionSearch = search.create({
-			type: 'transaction',
+			type: search.Type.CASH_SALE,
 			
 			columns: [{
 				name: 'internalid'
 			}],
 			
 			filters: [{
-				name: 'type',
-				operator: 'anyof',
-				values: ['CashSale']
-			},
-					{
 				name: 'customform',
 				operator: 'anyof',
-				values: ['125'] // 125 = Booking Portal Cash Sale, 123 = Booking Portal Sales Order
+				values: ['128'] // 128 = Clover Cash Sale
 			},
 					{
 				name: 'mainline',
@@ -48,7 +43,12 @@ function(search, record) {
 					{
 				name: 'trandate',
 				operator: 'within',
-				values: ['1/8/2019','31/8/2019']
+				values: ['1/9/2019','16/9/2019']
+			},
+					{
+				name: 'location',
+				operator: 'anyof',
+				values: ['88'] // 88 = Cookridge Closed
 			}],
 		});
     	
@@ -57,12 +57,9 @@ function(search, record) {
     	
     	// declare variables
     	var recordID;
-    	
-    	// get search results using the getAllResults function
-    	var searchResutSet = getAllResults(transactionSearch);
 
     	// process search results push results to the array
-    	searchResutSet.forEach(function(result) {
+    	transactionSearch.run().each(function(result) {
     		
     		// get the record ID from the search results
     		recordID = result.getValue({
@@ -97,31 +94,84 @@ function(search, record) {
      */
     function map(context) {
     	
+    	// initialize variables
+    	var cashSaleInfoRecordID;
+    	
     	// retrieve record ID from the search
     	var searchResults = JSON.parse(context.value);    	
-		var recordID = searchResults.id;
+		var cashSaleRecordID = searchResults.id;
+		
+		// run search to find Cash Sale Information records
+		var cashSaleInfoSearch = search.create({
+			type: 'customrecordbbs_cash_sale_information',
+					
+			columns: [{
+				name: 'internalid'
+			}],
+					
+			filters: [{
+				name: 'custrecord_bbs_cash_sale',
+				operator: 'anyof',
+				values: [cashSaleRecordID]
+			}],
+		});
+				
+		// process search results
+		cashSaleInfoSearch.run().each(function(result) {
+    	    		
+    	    // get the record ID from the search results
+    	    cashSaleInfoRecordID = result.getValue({
+    	    	name: 'internalid'
+    	    });
+    	    
+    	    try
+    	    	{
+    	    		// delete the cash sale info record
+	    	    	record.delete({
+		    			type: 'customrecordbbs_cash_sale_information',
+		    			id: cashSaleInfoRecordID
+		    		});
+	    	    	
+	    	    	log.audit({
+		    			title: 'Cash Sale Info Record Deleted',
+		    			details: 'Record ' + cashSaleInfoRecordID + ' has been deleted'
+		    		});	    	    	
+    	    	}
+    	    catch (error)
+    	    	{
+    	    		// log the error
+    	    		log.error({
+    	    			title: 'Error Deleting Cash Sale Info Record ' + cashSaleInfoRecordID,
+    	    			details: error
+    	    		});
+    	    	}
+    	    		
+    	    // continue processing results
+    	    return true;
+		
+		});
 		
 		try
 			{
-				// delete the record
+				// delete the cash sale record
 	    		record.delete({
 	    			type: record.Type.CASH_SALE,
-	    			id: recordID
+	    			id: cashSaleRecordID
 	    		});
 	    		
 	    		log.audit({
-	    			title: 'Record Deleted',
-	    			details: 'Record ' + recordID + ' has been deleted'
+	    			title: 'Cash Sale Record Deleted',
+	    			details: 'Record ' + cashSaleRecordID + ' has been deleted'
 	    		});
 			}
-		catch (e)
+		catch (error)
 			{
-				log.audit({
-					title: 'Error deleting record ' + recordID,
-					details: 'Error: ' + e
-				});
+				// log the error
+	    		log.error({
+	    			title: 'Error Deleting Cash Sale Record ' + cashSaleRecordID,
+	    			details: error
+	    		});
 			}
-
     }
 
     /**
@@ -134,7 +184,6 @@ function(search, record) {
 
     }
 
-
     /**
      * Executes when the summarize entry point is triggered and applies to the result set.
      *
@@ -143,21 +192,6 @@ function(search, record) {
      */
     function summarize(summary) {
 
-    }
-    
-    function getAllResults(s) {
-    	var results = s.run();
-        var searchResults = [];
-        var searchid = 0;
-        do {
-            var resultslice = results.getRange({start:searchid,end:searchid+1000});
-            resultslice.forEach(function(slice) {
-                searchResults.push(slice);
-                searchid++;
-                }
-            );
-        } while (resultslice.length >=1000);
-        return searchResults;
     }
 
     return {

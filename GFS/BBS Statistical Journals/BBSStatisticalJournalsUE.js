@@ -22,8 +22,14 @@ function statisticalJournalsAS(type)
 	
 	if(type == 'create' || type == 'edit')
 		{
-			var processedRecord = nlapiGetNewRecord();
-			var processedRecordType = processedRecord.getRecordType();
+			//Get the record type and ID
+			//
+			var processedRecordType = nlapiGetRecordType();
+			var processedRecordId = nlapiGetRecordId();
+			
+			//Load the processed record
+			//
+			var processedRecord = nlapiLoadRecord(processedRecordType, processedRecordId);
 			
 			//Pre-processing of credit notes to make the parcel & consignment values -ve
 			//
@@ -36,11 +42,26 @@ function statisticalJournalsAS(type)
 							var parcels = Number(processedRecord.getLineItemValue('item', 'custcol_bbs_parcels', int));
 							var consignments = Number(processedRecord.getLineItemValue('item', 'custcol_bbs_consignments', int));
 						
-							parcels = Math.abs(parcels) * -1.0;
-							consignments = Math.abs(consignments) * -1.0;
+							//Check if the parcels variable is a negative value
+							//
+							if (parcels > 0)
+								{
+									//Convert parcels to a positive number
+									//
+									parcels = Math.abs(parcels) * -1.0;
+								}
 							
-							processedRecord.setLineItemValue('item', custcol_bbs_parcels, int, parcels);
-							processedRecord.setLineItemValue('item', custcol_bbs_consignments, int, parcels);
+							//Check if the consignments variable is a negative value
+							//
+							if (consignments > 0)
+								{
+									//Convert consignments to a positive number
+									//
+									consignments = Math.abs(consignments) * -1.0;
+								}
+							
+							processedRecord.setLineItemValue('item', 'custcol_bbs_parcels', int, parcels);
+							processedRecord.setLineItemValue('item', 'custcol_bbs_consignments', int, consignments);
 						}
 					
 					nlapiSubmitRecord(processedRecord, false, true);
@@ -73,11 +94,26 @@ function statisticalJournalsAS(type)
 								{
 									updated = true;
 									
-									parcels = Math.abs(parcels) * -1.0;
-									consignments = Math.abs(consignments) * -1.0;
+									//Check if the parcels variable is a positive value
+									//
+									if (parcels > 0)
+										{
+											//Convert parcels to a negative number
+											//
+											parcels = Math.abs(parcels) * -1.0;
+										}
 									
-									processedRecord.setLineItemValue('line', custcol_bbs_parcels, int, parcels);
-									processedRecord.setLineItemValue('line', custcol_bbs_consignments, int, parcels);
+									//Check if the consignments variable is a positive value
+									//
+									if (consignments > 0)
+										{
+											//Convert consignments to a positive number
+											//
+											consignments = Math.abs(consignments) * -1.0;
+										}
+									
+									processedRecord.setLineItemValue('line', 'custcol_bbs_parcels', int, parcels);
+									processedRecord.setLineItemValue('line', 'custcol_bbs_consignments', int, consignments);
 								}
 						}
 					
@@ -241,13 +277,15 @@ function statisticalJournalsAS(type)
 							if(summaryValues[summaryValue][0] != 0)
 								{
 									var postingValue = summaryValues[summaryValue][0];
-							
-							// Not needed now as credit memos will have -ve values 
-							//
-							//		if(recordType == 'creditmemo')
-							//			{
-							//				postingValue = postingValue * Number(-1.0);
-							//			}
+
+									//Check if the postingValue variable is a positive value
+									//
+									if (postingValue > 0)
+										{
+											//Convert postingValue to a negative number
+											//
+											postingValue = postingValue * Number(-1.0);
+										}
 
 									lineNo++;
 									statisticalJournal.setLineItemValue('line', 'account', lineNo, accountParcels);
@@ -270,13 +308,15 @@ function statisticalJournalsAS(type)
 							if(summaryValues[summaryValue][1] != 0)
 								{
 									var postingValue = summaryValues[summaryValue][1];
-									
-							// Not needed now as credit memos will have -ve values 
-							//
-							//		if(recordType == 'creditmemo')
-							//			{
-							//				postingValue = postingValue * Number(-1.0);
-							//			}
+
+									//Check if the postingValue variable is a positive value
+									//
+									if (postingValue > 0)
+										{
+											//Convert postingValue to a negative number
+											//
+											postingValue = postingValue * Number(-1.0);
+										}
 
 									lineNo++;
 									statisticalJournal.setLineItemValue('line', 'account', lineNo, accountConsignments);

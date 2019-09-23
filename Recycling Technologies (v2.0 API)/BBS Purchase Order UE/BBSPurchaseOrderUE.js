@@ -16,6 +16,15 @@ function() {
      * @Since 2015.2
      */
     function beforeSubmit(scriptContext) {
+    	
+    	// declare variables
+    	var description;
+    	var unitPrice;
+    	var quantity;
+    	var oldLineNo;
+    	var newLineNo;
+    	var oldItem;
+    	var newItem;
 
     	// get the old and new record images
     	var oldRecord = scriptContext.oldRecord;
@@ -29,20 +38,81 @@ function() {
     	// loop through the line count
     	for (var x = 0; x < lineCount; x++)
 			{
-    			// get the item description from the old record image
-    			var description = oldRecord.getSublistValue({
+    			// get the line number from the old and new record images
+    			oldLineNo = oldRecord.getSublistValue({
     				sublistId: 'item',
-    				fieldId: 'description',
+    				fieldId: 'line',
     				line: x
     			});
     			
-    			// set the description on the line on the new record image using the description from the old record image
-    			newRecord.setSublistValue({
+    			newLineNo = newRecord.getSublistValue({
     				sublistId: 'item',
-    				fieldId: 'description',
-    				value: description,
+    				fieldId: 'line',
     				line: x
     			});
+    			
+    			// check that the oldLineNo and newLineNo variables are the same
+    			if (oldLineNo == newLineNo)
+    				{
+    					// get the item from the old and new record images
+    					oldItem = oldRecord.getSublistValue({
+    						sublistId: 'item',
+    						fieldId: 'item',
+    						line: x
+    					});
+    					
+    					newItem = newRecord.getSublistValue({
+    						sublistId: 'item',
+    						fieldId: 'item',
+    						line: x
+    					});
+    					
+    					// check that the oldItem and newItem variables are NOT the same
+    					if (oldItem != newItem)
+    						{
+					    		// get line fields from the old record image
+					    		description = oldRecord.getSublistValue({
+					    			sublistId: 'item',
+					    			fieldId: 'description',
+					    			line: x
+					    		});
+		    			
+				    			unitPrice = oldRecord.getSublistValue({
+				    				sublistId: 'item',
+				    				fieldId: 'rate',
+				    				line: x
+				    			});
+		    			
+				    			quantity = oldRecord.getSublistValue({
+				    				sublistId: 'item',
+				    				fieldId: 'quantity',
+				    				line: x
+				    			});
+		    			
+				    			// set line fields on the new record image using values from the old record image
+				    			newRecord.setSublistValue({
+				    				sublistId: 'item',
+				    				fieldId: 'description',
+				    				value: description,
+				    				line: x
+				    			});
+		    			
+				    			newRecord.setSublistValue({
+				    				sublistId: 'item',
+				    				fieldId: 'rate',
+				    				value: unitPrice,
+				    				line: x
+				    			});
+		    			
+				    			newRecord.setSublistValue({
+				    				sublistId: 'item',
+				    				fieldId: 'quantity',
+				    				value: quantity,
+				    				line: x
+				    			});
+				    			
+    						}
+    				}
 			}
     }
 

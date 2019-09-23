@@ -25,12 +25,12 @@
   
   <table class="header" style="width: 100%;">
   <tr>
-  <td align="left"  rowspan="5" colspan="1" style="padding-top: 5px;" class="addressheader"><span style="font-size:10pt"><b>Supplier Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/></span></td>
+  <td align="left"  rowspan="5" colspan="1" style="padding-top: 5px;" class="addressheader"><span style="font-size:10pt"><b>Supplier Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt"><!-- if the supplier is 'Miscellaneous Supplier' --><#if record.entity == 'Miscellaneous Supplier'>${record.custbody_bbs_act_supp_add}<#else>${record.billaddress}</#if><br/></span></td>
   <td align="left"  rowspan="5" colspan="1">&nbsp;</td>
   <td align="left"  rowspan="5" colspan="1" style="padding-top: 5px;" class="addressheader"><span style="font-size:10pt"><b>Deliver To:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.shipaddress}<br/></span></td>
   <td align="left"  rowspan="5" colspan="1">&nbsp;</td>
   <td align="left"  rowspan="5" colspan="1" style="font-size: 10pt; padding-top: 5px;"><b>PO No.</b><br/><b>PO Date</b><br/><b>Quote Reference</b><br/><b>Account No.</b><br/><b>Delivery Date</b></td>
-  <td align="right" rowspan="5" colspan="1" style="font-size: 10pt; padding-top: 5px;">${record.tranid}<br/>${record.trandate?string["dd MMM yyyy"]}<br/>${record.custbody_bbs_po_quotation}<br/>${record.entity.entityid}<br/>
+  <td align="right" rowspan="5" colspan="1" style="font-size: 10pt; padding-top: 5px;">${record.tranid}<br/>${record.trandate?string["dd MMM yyyy"]}<br/>${record.custbody_bbs_po_quotation}<br/><!-- if the supplier is 'Miscellaneous Supplier' --><#if record.entity == 'Miscellaneous Supplier'>${record.memo}<#else>${record.entity.entityid}</#if><br/>
   <#if record.duedate?has_content>${record.duedate?string["dd MMM yyyy"]}<#else>&nbsp;</#if>
   </td>
   </tr>

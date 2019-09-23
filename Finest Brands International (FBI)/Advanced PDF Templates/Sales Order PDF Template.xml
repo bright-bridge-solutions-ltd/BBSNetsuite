@@ -695,7 +695,7 @@
 					<th align="center" colspan="6" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;"><br/>Quantity (Size)</th>
 					<th align="center" colspan="1" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Total<br/>Qty</th>
 					<th align="center" colspan="1" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Unit<br/>Price</th>
-					<th colspan="2" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;"><p align="center">Discount<br/>%</p></th>
+					<th colspan="1" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;"><p align="center">Discount<br/>%</p></th>
 					<th align="center" colspan="1" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;"><br/>Amount</th>
 					<th align="center" colspan="1" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">VAT<br/>Rate</th>
 				</tr>
@@ -708,7 +708,7 @@
 			      <td align="left" colspan="6" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.quantitysize}</td>
 			      <td align="center" colspan="1" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.total}</td>
 			      <td align="right" colspan="1" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.unitPrice?string.currency}</td>
-			      <td align="center" colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.discount}</td>
+			      <td align="center" colspan="1" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.discount}</td>
 			      <td align="right" colspan="1" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.amount?string.currency}</td>
 			      <td align="center" colspan="1" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.vatCode}</td>   
 			   </tr>
