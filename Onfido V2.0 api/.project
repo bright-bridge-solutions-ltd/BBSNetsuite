@@ -3,6 +3,7 @@
 	<name>Onfido (v2.0 API)</name>
 	<comment></comment>
 	<projects>
+		<project>_SS2.0</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
