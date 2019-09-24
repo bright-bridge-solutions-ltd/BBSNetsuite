@@ -30,13 +30,14 @@ function(file, record, render, runtime)
     		
     		if(attachmentsFolder != null && attachmentsFolder != '')
     			{
-    				if(scriptContext.type == scriptContext.UserEventType.CREATE)
+    				if(scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
     					{
     						var thisRecord = scriptContext.newRecord;
     						var thisRecordId = thisRecord.id;
     						var thisContract = thisRecord.getText({fieldId: 'custbody_bbs_contract_record'});
     						var thisContractId = thisRecord.getValue({fieldId: 'custbody_bbs_contract_record'});
     						var thisCustomer = thisRecord.getText({fieldId: 'entity'});
+    						var thisInvoiceNumber = thisRecord.getText({fieldId: 'tranid'});
     						
     						//If we have the contract on the invoice, then go ahead
     						//
@@ -58,7 +59,11 @@ function(file, record, render, runtime)
 		    						
 		    						//Set the file name
 		    						//
-		    						transactionFile.name = 'Invoice_' + thisContract + '_' + today.toUTCString() + '.pdf'
+		    						transactionFile.name = 'Invoice_' + thisContract + '_' + thisInvoiceNumber + '.pdf'
+		    						
+		    						//Make available without login
+		    						//
+		    						transactionFile.isOnline = true;
 		    						
 		    						//Try to save the file to the filing cabinet
 		    						//
