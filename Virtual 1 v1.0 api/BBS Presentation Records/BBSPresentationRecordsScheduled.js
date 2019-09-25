@@ -214,6 +214,9 @@ function prUpdate(type)
 	//
 	for (var prKey in prArray) 
 		{
+		
+			checkResources();
+		
 			//Try to load the PR record
 			//
 			try
@@ -420,7 +423,7 @@ function checkResources()
 {
 	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
 	
-	if(remaining < 200)
+	if(remaining < 400)
 		{
 			nlapiYieldScript();
 		}

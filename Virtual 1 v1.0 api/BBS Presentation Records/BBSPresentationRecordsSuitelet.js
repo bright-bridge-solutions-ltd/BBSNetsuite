@@ -565,7 +565,7 @@ function presentationRecordsSuitelet(request, response)
 				
 					//Show the generated list of PR records and their current status
 					//
-					var batchesField = form.addField('custpage_batches', 'text', 'Batches', null, null);
+					var batchesField = form.addField('custpage_batches', 'longtext', 'Batches', null, null);
 					batchesField.setDisplayType('hidden');
 					batchesField.setDefaultValue(batches);
 					
