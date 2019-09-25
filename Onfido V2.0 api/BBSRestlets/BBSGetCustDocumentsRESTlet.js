@@ -39,13 +39,16 @@ function(search,config) {
 							});
     		}
     	
+    	//If we got the config, then work out the url prefix
+    	//
     	if(configRecord != null)
     		{
     			var accountId = configRecord.getValue({fieldId: 'companyid'});
     			urlPrefix = 'https://' + accountId.replace('_','-') + '.app.netsuite.com/';
     		}
     	
-    	
+    	//Search for contracts for the customer or custmomer's parent where there are files attached
+    	//
     	var customrecord_bbs_contractSearchObj = search.create({
     		   type: "customrecord_bbs_contract",
     		   filters:
@@ -54,7 +57,9 @@ function(search,config) {
     		      "AND", 
     		      ["custrecord_bbs_contract_customer","anyof",customer], 
     		      "AND", 
-    		      ["file.availablewithoutlogin","is","T"]
+    		      ["file.availablewithoutlogin","is","T"], 
+    		      "AND", 
+    		      ["custrecord_bbs_contract_customer.parent","anyof",customer]
     		   ],
     		   columns:
     		   [
@@ -85,9 +90,9 @@ function(search,config) {
     		});
     	
     		var searchResultCount = customrecord_bbs_contractSearchObj.runPaged().count;
-    		
-    		//log.debug("customrecord_bbs_contractSearchObj result count",searchResultCount);
-    		
+
+    		//Loop round the search results
+    		//
     		customrecord_bbs_contractSearchObj.run().each(function(result)
     			{
     				var fileName = result.getValue({name: 'name', join: 'file'});
@@ -95,14 +100,20 @@ function(search,config) {
     				var fileDate = result.getValue({name: 'created', join: 'file'});
     				var fileUrl = urlPrefix + result.getValue({name: 'url', join: 'file'});
     				
+    				//Add an entry to the output array
+    				//
     				resultSet.push(new fileDescriptor(fileName, fileDescription, fileDate, fileUrl));
     				
     				return true;
     			});
     		
+    		//Return the results
+    		//
     		return JSON.stringify(resultSet);
     }
 
+    //Object to hold the result data
+    //
     function fileDescriptor(_name, _description, _date, _url)
     {
     	this.name = _name;

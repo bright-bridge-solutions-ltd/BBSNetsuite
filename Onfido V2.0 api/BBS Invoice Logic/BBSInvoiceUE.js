@@ -65,6 +65,10 @@ function(file, record, render, runtime)
 		    						//
 		    						transactionFile.isOnline = true;
 		    						
+		    						//Set the file description
+		    						//
+		    						transactionFile.description = "Invoice # " + thisInvoiceNumber + " For Contract # " + thisContract;
+		    						
 		    						//Try to save the file to the filing cabinet
 		    						//
 		    						try
