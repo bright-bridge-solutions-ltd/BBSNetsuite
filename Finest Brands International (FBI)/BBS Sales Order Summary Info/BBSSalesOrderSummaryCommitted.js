@@ -2,66 +2,71 @@
  * Module Description
  * 
  * Version    Date            Author           Remarks
- * 1.00       25 Jul 2019     cedricgriffiths
+ * 1.00       10 Sep 2019     cedricgriffiths
  *
  */
 
 /**
- * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
- * @appliedtorecord recordType
- * 
- * @param {String} type Operation types: create, edit, delete, xedit,
- *                      approve, cancel, reject (SO, ER, Time Bill, PO & RMA only)
- *                      pack, ship (IF only)
- *                      dropship, specialorder, orderitems (PO only) 
- *                      paybills (vendor payments)
+ * @param {String} type Context Types: scheduled, ondemand, userinterface, aborted, skipped
  * @returns {Void}
  */
-function salesOrderSummaryAS(type)
+function scheduled(type) 
 {
-	var summary = {};
-	var salesOrderId = nlapiGetRecordId();
-	var thisRecordType = nlapiGetRecordType();
+	var thisRecordType = 'salesorder';
 	
-	//Only on create or edit of the sales order
+	//Run a saved search to find all orders that have a committed quantity on them
 	//
-	if(type == 'create' || type == 'edit')
+	var salesorderSearch = nlapiSearchRecord("salesorder",null,
+			[
+			   ["type","anyof","SalesOrd"], 
+			   "AND", 
+			   ["mainline","is","F"], 
+			   "AND", 
+			   ["taxline","is","F"], 
+			   "AND", 
+			   ["shipping","is","F"], 
+			   "AND", 
+			   ["quantitycommitted","greaterthan","0"]
+			], 
+			[
+			   new nlobjSearchColumn("tranid",null,"GROUP"), 
+			   new nlobjSearchColumn("internalid",null,"GROUP")
+			]
+			);
+	
+	if(salesorderSearch != null && salesorderSearch.length > 0)
 		{
-			//Get the count of item lines
-			//
-			var lines = nlapiGetLineItemCount('item');
-			
-			if(lines > 30)
+			for (var searchCount = 0; searchCount < salesorderSearch.length; searchCount++) 
 				{
-					//Submit a scheduled job
-					//
-					var scheduleParams = {custscript_record_id: salesOrderId, custscript_record_type: thisRecordType};
-					nlapiScheduleScript('customscript_bbs_order_summary_scheduled', null, scheduleParams);
+					checkResources();
+					
+					var summary = {};
 				
-				}
-			else
-				{
+					var salesOrderId = salesorderSearch[searchCount].getValue("internalid",null,"GROUP");
+					var thisRecord = nlapiLoadRecord(thisRecordType, salesOrderId);
+					var lines = thisRecord.getLineItemCount('item');
+					
 					//Loop through the item lines
 					//
 					for (var int = 1; int <= lines; int++) 
 						{
 							//Get values from the item line
 							//
-							var lineItem = nlapiGetLineItemValue('item', 'item', int);
-							var lineQuantity = nlapiGetLineItemValue('item', 'quantity', int);
-							var lineCommitted = nlapiGetLineItemValue('item', 'quantitycommitted', int);
-							var lineFulfilled = nlapiGetLineItemValue('item', 'quantityfulfilled', int);
-							var linePicked = nlapiGetLineItemValue('item', 'itempicked', int);
-							var lineType = nlapiGetLineItemValue('item', 'itemtype', int);
-							var lineUnitPrice = nlapiGetLineItemValue('item', 'rate', int);
-							var lineAmount = nlapiGetLineItemValue('item', 'amount', int);
-							var lineVatAmount = nlapiGetLineItemValue('item', 'tax1amt', int);
-							var linevatCode = nlapiGetLineItemValue('item', 'taxrate1', int);
+							var lineItem = thisRecord.getLineItemValue('item', 'item', int);
+							var lineQuantity = thisRecord.getLineItemValue('item', 'quantity', int);
+							var lineCommitted = thisRecord.getLineItemValue('item', 'quantitycommitted', int);
+							var lineFulfilled = thisRecord.getLineItemValue('item', 'quantityfulfilled', int);
+							var linePicked = thisRecord.getLineItemValue('item', 'itempicked', int);
+							var lineType = thisRecord.getLineItemValue('item', 'itemtype', int);
+							var lineUnitPrice = thisRecord.getLineItemValue('item', 'rate', int);
+							var lineAmount = thisRecord.getLineItemValue('item', 'amount', int);
+							var lineVatAmount = thisRecord.getLineItemValue('item', 'tax1amt', int);
+							var linevatCode = thisRecord.getLineItemValue('item', 'taxrate1', int);
 							linevatCode = parseFloat(linevatCode).toFixed(2) + '%';
 							
 							//Get the price level for the line
 							//
-							var priceLevel = nlapiGetLineItemValue('item', 'custcol_bbs_old_price_level', int);
+							var priceLevel = thisRecord.getLineItemValue('item', 'custcol_bbs_old_price_level', int);
 							
 							//Check if the priceLevel variable returns a value
 							//
@@ -83,7 +88,7 @@ function salesOrderSummaryAS(type)
 								}
 							else //custcol_bbs_old_price_level field is empty
 								{
-									priceLevel = nlapiGetLineItemValue('item', 'price', int);
+									priceLevel = thisRecord.getLineItemValue('item', 'price', int);
 									
 									// check that the priceLevel is not -1 (custom) or 1 (base price)
 									if (priceLevel > 1)
@@ -99,7 +104,7 @@ function salesOrderSummaryAS(type)
 											var discount = '0.00%';
 										}
 								}
-		
+				
 							// check that the priceLevel is not -1 (custom) or 1 (base price)
 							if (priceLevel > 1)
 								{
@@ -143,7 +148,7 @@ function salesOrderSummaryAS(type)
 						  	        
 									//Translate the record type so it can be used in the api calls
 									//
-							        switch (lineType)
+							        switch (lineType) 
 							        	{ 
 								            case 'InvtPart':
 								            	recordType = 'inventoryitem';
@@ -196,7 +201,7 @@ function salesOrderSummaryAS(type)
 							        	//Parent id + colour id + size2 id
 							        	//
 							        	var key = padding_left(itemInfo.parent, '0', 6) + 
-							        		padding_left(itemInfo.custitem_fbi_item_colour, '0', 6) + 							
+							        		padding_left(itemInfo.custitem_fbi_item_colour, '0', 6) + 
 							        		padding_left((itemInfo.custitem_fbi_item_size2 == '' ? '0' : itemInfo.custitem_fbi_item_size2), '0', 6) + 
 							        		padding_left(lineUnitPrice, '0', 6);
 							        		
@@ -279,6 +284,8 @@ function salesOrderSummaryAS(type)
 				}
 		}
 }
+
+
 
 //=============================================================================
 //Objects
@@ -508,6 +515,15 @@ function sizeQuantityCell(_size, _quantity, _sizeText, _amount, _vatAmount)
 //Functions
 //=============================================================================
 //
+function checkResources()
+{
+	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
+	
+	if(remaining < 200)
+		{
+			nlapiYieldScript();
+		}
+}
 
 //Left padding s with c to a total of n chars
 //
@@ -527,4 +543,3 @@ function padding_left(s, c, n)
 	
 	return s;
 }
-
