@@ -162,9 +162,16 @@ function getResults(search)
 						end += pageSize;
 		
 						var moreSearchResultSet = searchResult.getResults(start, end);
-						resultlen = moreSearchResultSet.length;
-		
-						searchResultSet = searchResultSet.concat(moreSearchResultSet);
+						
+						if(moreSearchResultSet == null)
+							{
+								resultlen = 0;
+							}
+						else
+							{
+								resultlen = moreSearchResultSet.length;
+								searchResultSet = searchResultSet.concat(moreSearchResultSet);
+							}
 				}
 		}
 	return searchResultSet;
