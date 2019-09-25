@@ -67,7 +67,10 @@ function() {
 		    			day--;
 		    			
 						// create a new date object and set it's value. This will be the last day of the month
-						var endDate = new Date(startDate.getFullYear(), startDate.getMonth()+contractTerm, day);
+						var endDate = new Date().
+						endDate.setDate(day);
+						endDate.setMonth(startDate.getMonth()+contractTerm);
+						endDate.setFullYear(startDate.getFullYear());
 		    			
 		    			// set the end date field on the record
 		    			currentRecord.setValue({
