@@ -4,7 +4,9 @@
  * @NModuleScope SameAccount
  */
 define(['N/search', 'N/record', 'N/format'],
-
+/**
+ * @param {record} record
+*/		
 function(search, record, format) {
    
     /**
@@ -54,11 +56,13 @@ function(search, record, format) {
     	// create a new Date object and set it's value to be the tranDate
     	tranDate = new Date(tranDate);
     	
-    	// get the month from the tranDate object
-    	var mm = parseInt(tranDate.getMonth()+1);
+    	// create a new Date object
+    	var startDate = new Date();
     	
-    	// create a new Date object and set it's value to be the start of the tranDate's month
-    	var startDate = new Date(mm + '/' + 1 + '/' + tranDate.getFullYear());
+    	// set the date of the startDate object
+    	startDate.setMonth(tranDate.getMonth()+1);
+    	startDate.setDate(0);
+    	startDate.setFullYear(tranDate.getFullYear());
     	
     	// format startDate so it can be used as a search filter
     	startDate = format.format({
@@ -66,14 +70,29 @@ function(search, record, format) {
 				type: format.Type.DATE
 		});
     	
-    	// create a new Date object and set it's value to be the end of the tranDate's month
-    	var endDate = new Date(mm+1 + '/' + 0 + '/' + tranDate.getFullYear());
+    	log.debug({
+    		title: 'Start Date',
+    		details: startDate
+    	});
+    	
+    	// create a new Date object
+    	var endDate = new Date();
+    	
+    	// set the date of the endDate object
+    	endDate.setMonth(tranDate.getMonth()+2);
+    	endDate.setDate(0);
+    	endDate.setFullYear(tranDate.getFullYear());   	
     	
     	// format endDate so it can be used as a search filter
     	endDate = format.format({
 				value: endDate,
 				type: format.Type.DATE
 		});
+    	
+    	log.debug({
+    		title: 'End Date',
+    		details: endDate
+    	});
     	
     	// get count of item lines
     	var lineCount = currentRecord.getLineCount({
