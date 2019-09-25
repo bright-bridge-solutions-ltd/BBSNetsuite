@@ -242,7 +242,7 @@ function scheduled(type)
 												sortedSummary[key].itemId, 
 												sortedSummary[key].salesDescription, 
 												sortedSummary[key].locationText, 
-												sortedSummary[key].itemColourText + ' ' + summary[key].itemSize2Text, 
+												sortedSummary[key].itemColourText + ' ' + sortedSummary[key].itemSize2Text, 
 												sortedSummary[key].getQuantitySizeSummary(), 
 												sortedSummary[key].getQuantitySizeTotal(),
 												sortedSummary[key].unitPrice,
