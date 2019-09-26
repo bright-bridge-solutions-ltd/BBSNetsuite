@@ -13,8 +13,6 @@
 var PR_AUTO_SEND_DOCS = (nlapiGetContext().getPreference('custscript_bbs_pr_auto_send') == 'T' ? true : false);
 var PR_DOC_TEMPLATE_ID = nlapiGetContext().getPreference('custscript_bbs_pr_doc_template');
 var PR_DOC_FOLDER_ID = nlapiGetContext().getPreference('custscript_bbs_pr_doc_folder');
-var PR_INVOICE_FORM_ID = nlapiGetContext().getPreference('custscript_bbs_pr_inv_form_id');
-var PR_CREDIT_FORM_ID = nlapiGetContext().getPreference('custscript_bbs_pr_cn_form_id');
 
 /**
  * @param {String} type Context Types: scheduled, ondemand, userinterface, aborted, skipped
@@ -28,17 +26,12 @@ function prUpdate(type)
 	var prArrayString = context.getSetting('SCRIPT', 'custscript_pr_array');
 	var prRecordType = context.getSetting('SCRIPT', 'custscript_pr_type');
 	var prBillingDate = context.getSetting('SCRIPT', 'custscript_pr_date');
-	var prBillingGroup = context.getSetting('SCRIPT', 'custscript_pr_billing_group');
 	
 	var transactionRecordType = '';
 	var today = new Date();
-	var prArray = {};
-	
 	
 	nlapiLogExecution('DEBUG', 'PR JSON String', prArrayString);
 	nlapiLogExecution('DEBUG', 'Type', prRecordType);
-	nlapiLogExecution('DEBUG', 'Date', prBillingDate);
-	nlapiLogExecution('DEBUG', 'Group', prBillingGroup);
 	
 	//Work out what type of transactions we are processing
 	//
@@ -53,76 +46,7 @@ function prUpdate(type)
 				break;		
 		}
 	
-	//Process the passed in array & create the PR records
-	//
-	var woArray = JSON.parse(prArrayString);
-	
-	//Loop round the batch keys to create the batches
-	//
-	for (var woKey in woArray) 
-		{
-			checkResources();
-			
-			prPrefix = '';
-			
-			//Create the PR record
-			//
-			var prodBatchRecord = nlapiCreateRecord('customrecord_bbs_presentation_record');   // 2GU's
-			
-			//Update the basic fields on the PR record
-			//
-			var keyElements = woKey.split(':');
-			
-			if(keyElements[0] == 'Invoice')
-				{
-					prodBatchRecord.setFieldValue('custrecord_bbs_pr_type', '2');
-					prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner', keyElements[1]);
-					prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_pay_term', keyElements[3]);
-					//prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_due_date', calculateDueDate(todaysDate, keyElements[3]));
-					prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_due_date', calculateDueDate(nlapiStringToDate(prBillingDate), keyElements[3]));
-					prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner_contact', keyElements[4]);
-					prodBatchRecord.setFieldValue('custrecord_bbs_pr_billing_type', keyElements[2]);
-					prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_proc_by_dd','0');
-					prodBatchRecord.setFieldValue('customform', PR_INVOICE_FORM_ID);
-					prPrefix = 'SINV';
-				}
-			else
-				{
-					prodBatchRecord.setFieldValue('custrecord_bbs_pr_type', '1');
-					prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner', keyElements[1]);
-					prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner_contact', keyElements[2]);
-					prodBatchRecord.setFieldValue('customform', PR_CREDIT_FORM_ID);
-					prPrefix = 'SCRE';
-				}
-			
-			prodBatchRecord.setFieldValue('custrecord_bbs_pr_status', '1'); //Status = 1 (Open)
-			prodBatchRecord.setFieldValue('custrecord_bbs_pr_internal_status', '1'); //Status = 1 (Awaiting Transaction Allocation)
-			prodBatchRecord.setFieldValue('custrecord_bbs_presentation_record_date', prBillingDate); //Transaction date
-			
-			
-			//Save the batch record & get the id
-			//
-			prodBatchId = nlapiSubmitRecord(prodBatchRecord, true, true);  // 4GU's
-			//batchesCreated.push(prodBatchId);
-			
-			//Fixup the PR name
-			//
-			var prName = prPrefix + nlapiLookupField('customrecord_bbs_presentation_record', prodBatchId, 'name', false);
-			nlapiSubmitField('customrecord_bbs_presentation_record', prodBatchId, 'name', prName, false);
-			
-			//Loop round the w/o id's associated with this batch
-			//
-			woIds = woArray[woKey];
-					
-			//Save the id of the created batch along with the works orders that go with it
-			//
-			prArray[prodBatchId] = woIds;
-				
-		}
-
-	checkResources();
-	
-	//var prArray = JSON.parse(prArrayString);
+	var prArray = JSON.parse(prArrayString);
 
 	//Loop through the array of PR records to allocate transactions
 	//
@@ -273,33 +197,6 @@ function prUpdate(type)
 						}
 				}
 		}
-	
-	//Unlock the billing group
-	//
-	if(prBillingGroup != null && prBillingGroup != '')
-		{
-			nlapiSubmitField('customrecord_billing_group_list', prBillingGroup, 'custrecord_bbs_billing_group_locked', 'F', false);
-		}
-//	else
-//		{
-//			var customrecord_billing_group_listSearch = nlapiSearchRecord("customrecord_billing_group_list",null,
-//					[
-//					], 
-//					[
-//					   new nlobjSearchColumn("name").setSort(false)
-//					]
-//					);
-//			
-//			if(customrecord_billing_group_listSearch != null && customrecord_billing_group_listSearch.length > 0)
-//				{
-//					for (var int2 = 0; int2 < customrecord_billing_group_listSearch.length; int2++) 
-//						{
-//							var billingGroupId = customrecord_billing_group_listSearch[int2].getId();
-//							
-//							nlapiSubmitField('customrecord_billing_group_list', billingGroupId, 'custrecord_bbs_billing_group_locked', 'F', false);
-//						}
-//				}
-//		}
 	
 	//=============================================================================================
 	//=============================================================================================
@@ -522,37 +419,6 @@ function prUpdate(type)
 //=============================================================================================
 //=============================================================================================
 //
-function calculateDueDate(_startDate, _payTerms)
-{
-	var payTermsRecord = null;
-	var dueDate = _startDate;
-	
-	try
-		{
-			payTermsRecord = nlapiLoadRecord('term', _payTerms);
-		}
-	catch(err)
-		{
-			payTermsRecord = null;
-		}
-	
-	if(payTermsRecord != null)
-		{
-			var days = Number(payTermsRecord.getFieldValue('daysuntilnetdue'));
-			
-			try
-				{
-					dueDate = nlapiAddDays(_startDate, days);
-				}
-			catch(err)
-				{
-					dueDate = _startDate;
-				}
-		}
-	
-	return(nlapiDateToString(dueDate));
-}
-
 function checkResources()
 {
 	var remaining = parseInt(nlapiGetContext().getRemainingUsage());

@@ -15,6 +15,7 @@ var PR_AUTO_SEND_DOCS = (nlapiGetContext().getPreference('custscript_bbs_pr_auto
 var PR_SAVED_SEARCH = nlapiGetContext().getPreference('custscript_bbs_pr_saved_search');
 var PR_INVOICE_FORM_ID = nlapiGetContext().getPreference('custscript_bbs_pr_inv_form_id');
 var PR_CREDIT_FORM_ID = nlapiGetContext().getPreference('custscript_bbs_pr_cn_form_id');
+var PR_DASHBOARD_ID = nlapiGetContext().getPreference('custscript_bbs_pr_dashboard_id');
 
 
 /**
@@ -215,610 +216,589 @@ function presentationRecordsSuitelet(request, response)
 	//=============================================================================================
 	//
 	if (request.getMethod() == 'GET') 
-	{
-		//Get request - so return a form for the user to process
-		//
-		
-		//Get parameters
-		//
-		var stage = Number(request.getParameter('stage'));		//The stage the suitelet is in
-		var sessionId = request.getParameter('session');		//The session id  which is used when refreshing a page with the 'refresh' button
-		var recordType = request.getParameter('recordtype');	//Record Type C=Credit Notes, I=Invoices
-		var billingType = request.getParameter('billingtype'); 	//Billing type (class)
-		var billingFreq = request.getParameter('billingfreq'); 	//Billing frequency
-		var billingGroup = request.getParameter('billinggroup'); //Billing group
-		var batches = request.getParameter('batches'); 			//Batches (PR records)
-		var billingDate = request.getParameter('billingdate'); 	//Billing date
-		
-		stage = (stage == null || stage == '' ? 1 : stage);
-
-		// Create a form
-		//
-		var form = nlapiCreateForm('Create Presentation Records');
-		form.setScript('customscript_bbs_pr_suitelet_client');
-		form.setTitle('Create Presentation Records');
-		
-		//Store the current stage in a field in the form so that it can be retrieved in the POST section of the code
-		//
-		var stageParamField = form.addField('custpage_param_stage', 'integer', 'Stage');
-		stageParamField.setDisplayType('hidden');
-		stageParamField.setDefaultValue(stage);
-		
-		//Store the session id in a field in the form so that it can be retrieved in the POST section of the code
-		//
-		var sessionIdParamField = form.addField('custpage_param_session_id', 'text', 'Session Id');
-		sessionIdParamField.setDisplayType('hidden');
-		sessionIdParamField.setDefaultValue(sessionId);
-		
-		//Store the record type in a field in the form so that it can be retrieved in the POST section of the code
-		//
-		var recordTypeParamField = form.addField('custpage_param_rec_type', 'text', 'Record Type');
-		recordTypeParamField.setDisplayType('hidden');
-		recordTypeParamField.setDefaultValue(recordType);
-		
-		//Store the billing type in a field in the form so that it can be retrieved in the POST section of the code
-		//
-		var billingTypeParamField = form.addField('custpage_param_billing_type', 'text', 'Billing Type');
-		billingTypeParamField.setDisplayType('hidden');
-		billingTypeParamField.setDefaultValue(billingType);
-		
-		//Store the billing frequency in a field in the form so that it can be retrieved in the POST section of the code
-		//
-		var billingFreqParamField = form.addField('custpage_param_billing_freq', 'text', 'Billing Frequency');
-		billingFreqParamField.setDisplayType('hidden');
-		billingFreqParamField.setDefaultValue(billingFreq);
-		
-		//Store the billing group in a field in the form so that it can be retrieved in the POST section of the code
-		//
-		var billingGroupParamField = form.addField('custpage_param_billing_group', 'text', 'Billing Group');
-		billingGroupParamField.setDisplayType('hidden');
-		billingGroupParamField.setDefaultValue(billingGroup);
-		
-		//Store the billing date in a field in the form so that it can be retrieved in the POST section of the code
-		//
-		var billingDateParamField = form.addField('custpage_param_billing_date', 'text', 'Billing Date');
-		billingDateParamField.setDisplayType('hidden');
-		billingDateParamField.setDefaultValue(billingDate);
-		
-		//Work out what the form layout should look like based on the stage number
-		//
-		switch(stage)
-			{
-				case 1:	
-					
-					//Get a session & save it away
-					//
-					var sessionId = libCreateSession();
-					sessionIdParamField.setDefaultValue(sessionId);
-					
-					//Add a select field to pick the record type from
-					//
-					var recordTypeSelectField = form.addField('custpage_select_rec_type', 'select', 'Record Type', null, null);
-					recordTypeSelectField.addSelectOption('', '', false);
-					recordTypeSelectField.addSelectOption('C', 'Credit Notes', false);
-					recordTypeSelectField.addSelectOption('I', 'Invoices', false);
-					recordTypeSelectField.setMandatory(true);
-					
-					//Add a field for the billing type
-					//
-					var billingTypeSelectField = form.addField('custpage_select_bill_type', 'select', 'Billing Type', 'classification', null);
-					
-					//Add a field for the billing frequency
-					//
-					var billingTypeSelectField = form.addField('custpage_select_bill_freq', 'select', 'Billing Frequency', 'customlist_bbs_billing_frequency', null);
-					
-					//Add a field for the billing group
-					//
-					var billingTypeSelectField = form.addField('custpage_select_bill_group', 'select', 'Billing Group', 'customlist_billing_group_list', null);
-					
-					//Add a field for the billing date
-					//
-					var billingDateSelectField = form.addField('custpage_select_bill_date', 'date', 'Billing Date', null, null);
-					billingDateSelectField.setMandatory(true);
-					
-					//Add a submit button to the form
-					//
-					form.addSubmitButton('Select Records');
-					
-					break;
+		{
+			//Get request - so return a form for the user to process
+			//
 			
-					
-				case 2:	
-					
-					//Work out what the title of the form/sub list should be
-					//
-					var titleText = '';
-					switch(recordType)
-						{
-							case 'C':
-								titleText = 'Credit Notes to Select';
-								
-								break;
-								
-							case 'I':
-								titleText = 'Invoices to Select';
-								
-								break;
-						}
-					
-					var tab = form.addTab('custpage_tab_items', titleText);
-					tab.setLabel(titleText);
-					
-					var tab2 = form.addTab('custpage_tab_items2', '');
-					form.addField('custpage_tab2', 'text', 'test', null, 'custpage_tab_items2');
-					
-					var subList = form.addSubList('custpage_sublist_items', 'list', titleText, 'custpage_tab_items');
-					
-					subList.setLabel(titleText);
-					
-					//Add a field to the sub tab to refine the partner
-					//
-					var partnerSelectField = form.addField('custpage_select_partner', 'select', 'Partner', null, 'custpage_tab_items');
-					
-					//Add a field to show the count of records returned
-					//
-					var resultsTotalField = form.addField('custpage_select_total', 'integer', 'Initial Record Count', null, 'custpage_tab_items');
-					resultsTotalField.setDisplayType('disabled');
-					resultsTotalField.setDefaultValue(0);
-					resultsTotalField.setBreakType('startcol');
-					
-					var resultsTickedField = form.addField('custpage_select_ticked', 'integer', 'Total Records Selected', null, 'custpage_tab_items');
-					resultsTickedField.setDisplayType('disabled');
-					resultsTickedField.setDefaultValue(0);
-					
-					
-					//Add required buttons to sublist and form
-					//
-					subList.addMarkAllButtons();
-					subList.addRefreshButton();
-					form.addSubmitButton('Create Presentation Records');
-					
-					//Load up the custom saved search
-					//
-					var recordSearch = nlapiLoadSearch(null, PR_SAVED_SEARCH);
-					var recordColumns = recordSearch.getColumns();
-					
-					//Add a tick box as the first column
-					//
-					subList.addField('custpage_sublist_tick', 'checkbox', 'Select', null);
-					
-					//Add the record id as the second column
-					//
-					var sublistField = subList.addField('custpage_sublist_pr_id', 'text', 'ID', null);
-					sublistField.setDisplayType('disabled');
-					
-					
-					//Now add all of the other columns from the saved search
-					//
-					for(var int = 0; int < recordColumns.length; int++)
-						{
-							var columnLabel = recordColumns[int].getLabel();
-							var columnType = recordColumns[int]['type'];
-							var columnSearchType = recordColumns[int]['searchtype'];
-							var columnName = recordColumns[int]['name'];
-							
-							//If the column type is 'select' then we would want to display it as a text field, but also have a column to hold its id value as well
-							//
-							if(columnType == 'select')
+			//Get parameters
+			//
+			var stage = Number(request.getParameter('stage'));		//The stage the suitelet is in
+			var sessionId = request.getParameter('session');		//The session id  which is used when refreshing a page with the 'refresh' button
+			var recordType = request.getParameter('recordtype');	//Record Type C=Credit Notes, I=Invoices
+			var billingType = request.getParameter('billingtype'); 	//Billing type (class)
+			var billingFreq = request.getParameter('billingfreq'); 	//Billing frequency
+			var billingGroup = request.getParameter('billinggroup'); //Billing group
+			var batches = request.getParameter('batches'); 			//Batches (PR records)
+			var billingDate = request.getParameter('billingdate'); 	//Billing date
+			
+			stage = (stage == null || stage == '' ? 1 : stage);
+	
+			// Create a form
+			//
+			var form = nlapiCreateForm('Create Presentation Records');
+			form.setScript('customscript_bbs_pr_suitelet_client');
+			form.setTitle('Create Presentation Records');
+			
+			//Store the current stage in a field in the form so that it can be retrieved in the POST section of the code
+			//
+			var stageParamField = form.addField('custpage_param_stage', 'integer', 'Stage');
+			stageParamField.setDisplayType('hidden');
+			stageParamField.setDefaultValue(stage);
+			
+			//Store the session id in a field in the form so that it can be retrieved in the POST section of the code
+			//
+			var sessionIdParamField = form.addField('custpage_param_session_id', 'text', 'Session Id');
+			sessionIdParamField.setDisplayType('hidden');
+			sessionIdParamField.setDefaultValue(sessionId);
+			
+			//Store the record type in a field in the form so that it can be retrieved in the POST section of the code
+			//
+			var recordTypeParamField = form.addField('custpage_param_rec_type', 'text', 'Record Type');
+			recordTypeParamField.setDisplayType('hidden');
+			recordTypeParamField.setDefaultValue(recordType);
+			
+			//Store the billing type in a field in the form so that it can be retrieved in the POST section of the code
+			//
+			var billingTypeParamField = form.addField('custpage_param_billing_type', 'text', 'Billing Type');
+			billingTypeParamField.setDisplayType('hidden');
+			billingTypeParamField.setDefaultValue(billingType);
+			
+			//Store the billing frequency in a field in the form so that it can be retrieved in the POST section of the code
+			//
+			var billingFreqParamField = form.addField('custpage_param_billing_freq', 'text', 'Billing Frequency');
+			billingFreqParamField.setDisplayType('hidden');
+			billingFreqParamField.setDefaultValue(billingFreq);
+			
+			//Store the billing group in a field in the form so that it can be retrieved in the POST section of the code
+			//
+			var billingGroupParamField = form.addField('custpage_param_billing_group', 'text', 'Billing Group');
+			billingGroupParamField.setDisplayType('hidden');
+			billingGroupParamField.setDefaultValue(billingGroup);
+			
+			//Store the billing date in a field in the form so that it can be retrieved in the POST section of the code
+			//
+			var billingDateParamField = form.addField('custpage_param_billing_date', 'text', 'Billing Date');
+			billingDateParamField.setDisplayType('hidden');
+			billingDateParamField.setDefaultValue(billingDate);
+			
+			//Work out what the form layout should look like based on the stage number
+			//
+			switch(stage)
+				{
+					case 1:	
+						
+						//Get a session & save it away
+						//
+						var sessionId = libCreateSession();
+						sessionIdParamField.setDefaultValue(sessionId);
+						
+						//Add a select field to pick the record type from
+						//
+						var recordTypeSelectField = form.addField('custpage_select_rec_type', 'select', 'Record Type', null, null);
+						recordTypeSelectField.addSelectOption('', '', false);
+						recordTypeSelectField.addSelectOption('C', 'Credit Notes', false);
+						recordTypeSelectField.addSelectOption('I', 'Invoices', false);
+						recordTypeSelectField.setMandatory(true);
+						
+						//Add a field for the billing type
+						//
+						var billingTypeSelectField = form.addField('custpage_select_bill_type', 'select', 'Billing Type', 'classification', null);
+						
+						//Add a field for the billing frequency
+						//
+						var billingTypeSelectField = form.addField('custpage_select_bill_freq', 'select', 'Billing Frequency', 'customlist_bbs_billing_frequency', null);
+						
+						//Add a field for the billing group
+						//
+						var billingTypeSelectField = form.addField('custpage_select_bill_group', 'select', 'Billing Group', null, null);
+						
+						var customrecord_billing_group_listSearch = nlapiSearchRecord("customrecord_billing_group_list",null,
+								[
+								   ["custrecord_bbs_billing_group_locked","is","F"]
+								], 
+								[
+								   new nlobjSearchColumn("name").setSort(false)
+								]
+								);
+						
+						billingTypeSelectField.addSelectOption('','',false);
+						
+						if(customrecord_billing_group_listSearch != null && customrecord_billing_group_listSearch.length > 0)
 							{
-								var sublistField = subList.addField('custpage_sublist_id_' + columnName, 'text', 'custpage_sublist_id_' + columnName, null);
-								sublistField.setDisplayType('hidden');
+								for (var int2 = 0; int2 < customrecord_billing_group_listSearch.length; int2++) 
+									{
+										var billingGroupId = customrecord_billing_group_listSearch[int2].getId();
+										var billingGroupName = customrecord_billing_group_listSearch[int2].getValue('name');
+									
+										billingTypeSelectField.addSelectOption(billingGroupId,billingGroupName,false);
+									}
 							}
 						
-							if(columnType == 'select' && columnSearchType == null)
-								{
-									columnType = 'text';
-								}
-							
-							var columnId = 'custpage_sublist_' + columnName; //int.toString();
-							
-							var sublistField = subList.addField(columnId, columnType, columnLabel, columnSearchType);
-							sublistField.setDisplayType('disabled');
-						}
-
-					
-					//Add filter based on invoice/credit notes
-					//
-					if(recordType != null && recordType != '')
-						{
-							switch(recordType)
-								{
-									case 'C':
-										recordSearch.addFilter(new nlobjSearchFilter( 'type', null, 'anyof', 'CustCred'));
-										break;
-										
-									case 'I':
-										recordSearch.addFilter(new nlobjSearchFilter( 'type', null, 'anyof', 'CustInvc' ));
-										break;
-								}
-						}
-				
-					//Add filter based on billing type
-					//
-					if(billingType != null && billingType != '')
-						{
-							recordSearch.addFilter(new nlobjSearchFilter( 'class', null, 'anyof', billingType ));
-						}
-					
-					//Add filter based on billing frequency
-					//
-					if(billingFreq != null && billingFreq != '')
-						{
-							recordSearch.addFilter(new nlobjSearchFilter( 'custcol_bbs_billing_frequency', null, 'anyof', billingFreq ));
-						}
-					
-					//Add filter based on billing group
-					//
-					if(billingGroup != null && billingGroup != '')
-						{
-							recordSearch.addFilter(new nlobjSearchFilter( 'custentity_bbs_billing_group', 'customer', 'anyof', billingGroup ));
-						}
-					
-					
-					//Get the session record to see if we are filtering by partner and add filter if needed
-					//
-					var selectedPartner = libGetSessionData(sessionId);
-					
-					if(selectedPartner != null && selectedPartner != '')
-						{
-							recordSearch.addFilter(new nlobjSearchFilter( 'entity', null, 'anyof', selectedPartner ));
-						}
-					
-					
-					//Get the search results
-					//
-					var recordSearchResults = getResults(recordSearch);
-					var partnerList = {};
-					
-					//Do we have any results to process
-					//
-					if(recordSearchResults != null && recordSearchResults.length > 0)
-						{
-							var lineNo = Number(0);
+						//Add a field for the billing date
+						//
+						var billingDateSelectField = form.addField('custpage_select_bill_date', 'date', 'Billing Date', null, null);
+						billingDateSelectField.setMandatory(true);
 						
-							//Loop through the results
-							//
-							for (var int2 = 0; int2 < recordSearchResults.length; int2++) 
-								{
-									lineNo++;
-								
-									//See if we need to set the ticked option by default
-									//
-									if(PR_AUTO_MARK_ALL)
-										{
-											subList.setLineItemValue('custpage_sublist_tick', lineNo, 'T');
-										}
-								
-									//Populate the internal id column
-									//
-									var resultLineId = recordSearchResults[int2].getId();
-									subList.setLineItemValue('custpage_sublist_pr_id', lineNo, resultLineId);
-									
-									//Loop through the columns
-									//
-									for (var int3 = 0; int3 < recordColumns.length; int3++) 
-										{
-											var rowColumnData = '';
-											
-											//See if the column has a text equivalent
-											//
-											rowColumnData = recordSearchResults[int2].getText(recordColumns[int3]);
-											
-											//If no text is returned, i.e. the column is not a lookup or list
-											//
-											if(rowColumnData == null)
-												{
-													rowColumnData = recordSearchResults[int2].getValue(recordColumns[int3]);
-												}
-											else
-												{
-													//If it did have a text value, then we need to save the id value as well
-													//
-													var tempColumnId = 'custpage_sublist_id_' + recordColumns[int3]['name'];
-													var tempColumnData = recordSearchResults[int2].getValue(recordColumns[int3]);
-													
-													subList.setLineItemValue(tempColumnId, lineNo, tempColumnData);
-												}
-											
-											//Get the column name in the sublist
-											//
-											var columnId = 'custpage_sublist_' + recordColumns[int3]['name']; //int3.toString();
-											
-											//Assign the value to the column
-											//
-											subList.setLineItemValue(columnId, lineNo, rowColumnData);
-											
-											//See if we have a result column called 'Partner' then we need to add this to the list of partners to filter by
-											//
-											if(recordColumns[int3]['label'] == 'Partner')
-												{
-													var partnerId = recordSearchResults[int2].getValue(recordColumns[int3]);
-													var partnerText = recordSearchResults[int2].getText(recordColumns[int3]);
-													
-													partnerList[partnerId] = partnerText;
-												}
-										}
-								}
-							
-							//Update the count field
-							//
-							resultsTotalField.setDefaultValue(recordSearchResults.length);
-							if(PR_AUTO_MARK_ALL)
-								{
-									resultsTickedField.setDefaultValue(recordSearchResults.length);
-								}
-						}
-
-					
-					//Fill in the partner select list
-					//
-					partnerSelectField.addSelectOption('', '-- All --', true);
-					
-					for ( var partner in partnerList) 
-						{
-							partnerSelectField.addSelectOption(partner, partnerList[partner], false);
-						}
-			
-					break;
-					
-				case 3:
-				
-					//Show the generated list of PR records and their current status
-					//
-					var batchesField = form.addField('custpage_batches', 'longtext', 'Batches', null, null);
-					batchesField.setDisplayType('hidden');
-					batchesField.setDefaultValue(batches);
-					
-					var warningField = form.addField('custpage_warning', 'inlinehtml', null, null, null);
-					warningField.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Refresh the screen to view the progress of the presentation records<p/>');
-					warningField.setDisplayType('disabled');
-					
-					var tab = form.addTab('custpage_tab_items', 'Presentation Records Created');
-					tab.setLabel('Presentation Records Created');
-					
-					var tab2 = form.addTab('custpage_tab_items2', '');
-					
-					form.addField('custpage_tab2', 'text', 'test', null, 'custpage_tab_items2');
-					
-					var subList = form.addSubList('custpage_sublist_items', 'list', 'Presentation Records Created', 'custpage_tab_items');
-					
-					subList.setLabel('Presentation Records Created');
-					
-					var listView = subList.addField('custpage_sublist_view', 'url', 'View', null);
-					listView.setLinkText('View');
-					
-					var listId = subList.addField('custpage_sublist_id', 'text', 'Internal Id', null);
-					var listType = subList.addField('custpage_sublist_type', 'text', 'Record Type', null);
-					var listName = subList.addField('custpage_sublist_name', 'text', 'Name', null);
-					var listPartner = subList.addField('custpage_sublist_partner', 'text', 'Partner', null);
-					var listStatus = subList.addField('custpage_sublist_status', 'text', 'Status', null);
-					var listUpdated = subList.addField('custpage_sublist_updated', 'text', 'Update Status', null);
-					
-					if(batches != '')
-						{
-							var lineNo = Number(0);
-							
-							var batchesArray = JSON.parse(batches);
-							
-							if(batchesArray.length > 0)
-								{
-									var filters = new Array();
-									filters[0] = new nlobjSearchFilter('internalid', null, 'anyof', batchesArray);
-									
-									var columns = new Array();
-									columns[0] = new nlobjSearchColumn('custrecord_bbs_pr_type');
-									columns[1] = new nlobjSearchColumn('custrecord_bbs_pr_partner');
-									columns[2] = new nlobjSearchColumn('custrecord_bbs_pr_inv_pay_term');
-									columns[3] = new nlobjSearchColumn('name');
-									columns[4] = new nlobjSearchColumn('custrecord_bbs_pr_status');
-									columns[5] = new nlobjSearchColumn('custrecord_bbs_pr_internal_status');
-									
-									var batchResults = nlapiSearchRecord('customrecord_bbs_presentation_record', null, filters, columns);
-									
-									for (var int2 = 0; int2 < batchResults.length; int2++) 
-										{
-											lineNo++;
-											
-											subList.setLineItemValue('custpage_sublist_view', lineNo, nlapiResolveURL('RECORD', 'customrecord_bbs_presentation_record', batchResults[int2].getId(), 'VIEW'));
-											subList.setLineItemValue('custpage_sublist_id', lineNo, batchResults[int2].getId());
-											subList.setLineItemValue('custpage_sublist_type', lineNo, batchResults[int2].getText('custrecord_bbs_pr_type'));
-											subList.setLineItemValue('custpage_sublist_name', lineNo, batchResults[int2].getValue('name'));
-											subList.setLineItemValue('custpage_sublist_partner', lineNo, batchResults[int2].getText('custrecord_bbs_pr_partner'));
-											subList.setLineItemValue('custpage_sublist_status', lineNo, batchResults[int2].getText('custrecord_bbs_pr_status'));
-											subList.setLineItemValue('custpage_sublist_updated', lineNo, batchResults[int2].getText('custrecord_bbs_pr_internal_status'));
-										}
-								}
-						}
-					
-					//Add a refresh button
-					//
-					subList.addRefreshButton();
-					
-					break;
-
-				}
-		
-		//Write the response
-		//
-		response.writePage(form);
-
-	}
-	else
-	{
-		//Post request - so process the returned form
-		//
-		
-		//Get the stage of the processing we are at
-		//
-		var stage = Number(request.getParameter('custpage_param_stage'));
-		
-		switch(stage)
-		{
-			case 1:
-				var sessionId = request.getParameter('custpage_param_session_id');		//The session id  which is used when refreshing a page with the 'refresh' button
-				var recordType = request.getParameter('custpage_select_rec_type');	//Record Type C=Credit Notes, I=Invoices
-				var billingType = request.getParameter('custpage_select_bill_type'); 	//Billing type (class)
-				var billingFreq = request.getParameter('custpage_select_bill_freq'); 	//Billing frequency
-				var billingGroup = request.getParameter('custpage_select_bill_group'); 	//Billing group
-				var billingDate = request.getParameter('custpage_select_bill_date'); 	//Billing datwe
-
-				
-				//Build up the parameters so we can call this suitelet again, but move it on to the next stage
-				//
-				var params = new Array();
-				params['stage'] = ++stage;
-				params['session'] = sessionId;
-				params['recordtype'] = recordType;
-				params['billingtype'] = billingType;
-				params['billingfreq'] = billingFreq;
-				params['billinggroup'] = billingGroup;
-				params['billingdate'] = billingDate;
-				
-				
-				response.sendRedirect('SUITELET', nlapiGetContext().getScriptId(), nlapiGetContext().getDeploymentId(), null, params);
-				
-				break;
-				
-			case 2:
-				
-				var lineCount = request.getLineItemCount('custpage_sublist_items');
-				var recordType = request.getParameter('custpage_param_rec_type');
-				var billingDate = request.getParameter('custpage_param_billing_date');
-				var sessionId = request.getParameter('custpage_param_session_id');		//The session id  which is used when refreshing a page with the 'refresh' button
-				
-				libClearSessionData(sessionId);
-				
-				var woArray = {};
-				var now = new Date();
-				var nowFormatted = new Date(now.getTime() + (now.getTimezoneOffset() * 60000)).format('Ymd:Hi');
-				var batchesCreated = [];
-				var todaysDate = new Date();
+						//Add a submit button to the form
+						//
+						form.addSubmitButton('Select Records');
 						
-				//Loop round the sublist to find rows that are ticked
-				//
-				for (var int = 1; int <= lineCount; int++) 
-					{
-						var ticked = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_tick', int);
+						break;
+				
 						
-						if (ticked == 'T')
+					case 2:	
+						
+						
+						//Work out what the title of the form/sub list should be
+						//
+						var titleText = '';
+						switch(recordType)
 							{
-								var woId = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_pr_id', int);
-								var recordType = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_type', int);
-								var billingType = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_class', int);
-								var partner = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_entity', int);
-								var partnerContact = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_contact', int);
-								var paymentTerms = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_terms', int);
-										
-								//Build the batch key (which is used as the batch description)
+								case 'C':
+									titleText = 'Credit Notes to Select';
+									
+									break;
+									
+								case 'I':
+									titleText = 'Invoices to Select';
+									
+									break;
+							}
+						
+						var tab = form.addTab('custpage_tab_items', titleText);
+						tab.setLabel(titleText);
+						
+						var tab2 = form.addTab('custpage_tab_items2', '');
+						form.addField('custpage_tab2', 'text', 'test', null, 'custpage_tab_items2');
+						
+						var subList = form.addSubList('custpage_sublist_items', 'list', titleText, 'custpage_tab_items');
+						
+						subList.setLabel(titleText);
+						
+						//Add a field to the sub tab to refine the partner
+						//
+						var partnerSelectField = form.addField('custpage_select_partner', 'select', 'Partner', null, 'custpage_tab_items');
+						
+						//Add a field to show the count of records returned
+						//
+						var resultsTotalField = form.addField('custpage_select_total', 'integer', 'Initial Record Count', null, 'custpage_tab_items');
+						resultsTotalField.setDisplayType('disabled');
+						resultsTotalField.setDefaultValue(0);
+						resultsTotalField.setBreakType('startcol');
+						
+						var resultsTickedField = form.addField('custpage_select_ticked', 'integer', 'Total Records Selected', null, 'custpage_tab_items');
+						resultsTickedField.setDisplayType('disabled');
+						resultsTickedField.setDefaultValue(0);
+						
+						
+						//Add required buttons to sublist and form
+						//
+						subList.addMarkAllButtons();
+						subList.addRefreshButton();
+						form.addSubmitButton('Create Presentation Records');
+						
+						//Load up the custom saved search
+						//
+						var recordSearch = nlapiLoadSearch(null, PR_SAVED_SEARCH);
+						var recordColumns = recordSearch.getColumns();
+						
+						//Add a tick box as the first column
+						//
+						subList.addField('custpage_sublist_tick', 'checkbox', 'Select', null);
+						
+						//Add the record id as the second column
+						//
+						var sublistField = subList.addField('custpage_sublist_pr_id', 'text', 'ID', null);
+						sublistField.setDisplayType('disabled');
+						
+						
+						//Now add all of the other columns from the saved search
+						//
+						for(var int = 0; int < recordColumns.length; int++)
+							{
+								var columnLabel = recordColumns[int].getLabel();
+								var columnType = recordColumns[int]['type'];
+								var columnSearchType = recordColumns[int]['searchtype'];
+								var columnName = recordColumns[int]['name'];
+								
+								//If the column type is 'select' then we would want to display it as a text field, but also have a column to hold its id value as well
 								//
-								var key = '';
-
+								if(columnType == 'select')
+								{
+									var sublistField = subList.addField('custpage_sublist_id_' + columnName, 'text', 'custpage_sublist_id_' + columnName, null);
+									sublistField.setDisplayType('hidden');
+								}
+							
+								if(columnType == 'select' && columnSearchType == null)
+									{
+										columnType = 'text';
+									}
+								
+								var columnId = 'custpage_sublist_' + columnName; //int.toString();
+								
+								var sublistField = subList.addField(columnId, columnType, columnLabel, columnSearchType);
+								sublistField.setDisplayType('disabled');
+							}
+	
+						
+						//Add filter based on invoice/credit notes
+						//
+						if(recordType != null && recordType != '')
+							{
 								switch(recordType)
 									{
-										case 'Invoice':
-											key = recordType + ':' + partner + ':' + billingType + ':' + paymentTerms + ':' + partnerContact;
+										case 'C':
+											recordSearch.addFilter(new nlobjSearchFilter( 'type', null, 'anyof', 'CustCred'));
 											break;
 											
-										case 'Credit Memo':
-											key = recordType + ':' + partner + ':' + partnerContact;
+										case 'I':
+											recordSearch.addFilter(new nlobjSearchFilter( 'type', null, 'anyof', 'CustInvc' ));
 											break;
 									}
-	
-								if(!woArray[key])
-									{
-										woArray[key] = [woId];
-									}
-								else
-									{
-										woArray[key].push(woId);
-									}
 							}
-					}
 					
-						
-				var prodBatchId = '';
-						
-				nlapiLogExecution('DEBUG', 'Count of presentation batches', (Object.keys(woArray).length).toString());
-						
-				var woToProcessArray = {};
-						
-				//Loop round the batch keys to create the batches
-				//
-				for (var woKey in woArray) 
-					{
-						prPrefix = '';
-						
-						//Create the PR record
+						//Add filter based on billing type
 						//
-						var prodBatchRecord = nlapiCreateRecord('customrecord_bbs_presentation_record');   // 2GU's
-						
-						//Update the basic fields on the PR record
-						//
-						var keyElements = woKey.split(':');
-						
-						if(keyElements[0] == 'Invoice')
+						if(billingType != null && billingType != '')
 							{
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_type', '2');
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner', keyElements[1]);
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_pay_term', keyElements[3]);
-								//prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_due_date', calculateDueDate(todaysDate, keyElements[3]));
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_due_date', calculateDueDate(nlapiStringToDate(billingDate), keyElements[3]));
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner_contact', keyElements[4]);
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_billing_type', keyElements[2]);
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_proc_by_dd','0');
-								prodBatchRecord.setFieldValue('customform', PR_INVOICE_FORM_ID);
-								prPrefix = 'SINV';
-							}
-						else
-							{
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_type', '1');
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner', keyElements[1]);
-								prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner_contact', keyElements[2]);
-								prodBatchRecord.setFieldValue('customform', PR_CREDIT_FORM_ID);
-								prPrefix = 'SCRE';
+								recordSearch.addFilter(new nlobjSearchFilter( 'class', null, 'anyof', billingType ));
 							}
 						
-						prodBatchRecord.setFieldValue('custrecord_bbs_pr_status', '1'); //Status = 1 (Open)
-						prodBatchRecord.setFieldValue('custrecord_bbs_pr_internal_status', '1'); //Status = 1 (Awaiting Transaction Allocation)
-						prodBatchRecord.setFieldValue('custrecord_bbs_presentation_record_date', billingDate); //Transaction date
+						//Add filter based on billing frequency
+						//
+						if(billingFreq != null && billingFreq != '')
+							{
+								recordSearch.addFilter(new nlobjSearchFilter( 'custcol_bbs_billing_frequency', null, 'anyof', billingFreq ));
+							}
+						
+						//Add filter based on billing group
+						//
+						if(billingGroup != null && billingGroup != '')
+							{
+								recordSearch.addFilter(new nlobjSearchFilter( 'custentity_bbs_billing_group', 'customer', 'anyof', billingGroup ));
+							}
 						
 						
-						//Save the batch record & get the id
+						//Get the session record to see if we are filtering by partner and add filter if needed
 						//
-						prodBatchId = nlapiSubmitRecord(prodBatchRecord, true, true);  // 4GU's
-						batchesCreated.push(prodBatchId);
+						var selectedPartner = libGetSessionData(sessionId);
 						
-						//Fixup the PR name
+						if(selectedPartner != null && selectedPartner != '')
+							{
+								recordSearch.addFilter(new nlobjSearchFilter( 'entity', null, 'anyof', selectedPartner ));
+							}
+						
+						
+						//Get the search results
 						//
-						var prName = prPrefix + nlapiLookupField('customrecord_bbs_presentation_record', prodBatchId, 'name', false);
-						nlapiSubmitField('customrecord_bbs_presentation_record', prodBatchId, 'name', prName, false);
-
-						//Loop round the w/o id's associated with this batch
+						var recordSearchResults = getResults(recordSearch);
+						var partnerList = {};
+						
+						//Do we have any results to process
 						//
-						woIds = woArray[woKey];
+						if(recordSearchResults != null && recordSearchResults.length > 0)
+							{
+								var lineNo = Number(0);
+							
+								//Loop through the results
+								//
+								for (var int2 = 0; int2 < recordSearchResults.length; int2++) 
+									{
+										lineNo++;
+									
+										//See if we need to set the ticked option by default
+										//
+										if(PR_AUTO_MARK_ALL)
+											{
+												subList.setLineItemValue('custpage_sublist_tick', lineNo, 'T');
+											}
+									
+										//Populate the internal id column
+										//
+										var resultLineId = recordSearchResults[int2].getId();
+										subList.setLineItemValue('custpage_sublist_pr_id', lineNo, resultLineId);
+										
+										//Loop through the columns
+										//
+										for (var int3 = 0; int3 < recordColumns.length; int3++) 
+											{
+												var rowColumnData = '';
+												
+												//See if the column has a text equivalent
+												//
+												rowColumnData = recordSearchResults[int2].getText(recordColumns[int3]);
+												
+												//If no text is returned, i.e. the column is not a lookup or list
+												//
+												if(rowColumnData == null)
+													{
+														rowColumnData = recordSearchResults[int2].getValue(recordColumns[int3]);
+													}
+												else
+													{
+														//If it did have a text value, then we need to save the id value as well
+														//
+														var tempColumnId = 'custpage_sublist_id_' + recordColumns[int3]['name'];
+														var tempColumnData = recordSearchResults[int2].getValue(recordColumns[int3]);
+														
+														subList.setLineItemValue(tempColumnId, lineNo, tempColumnData);
+													}
+												
+												//Get the column name in the sublist
+												//
+												var columnId = 'custpage_sublist_' + recordColumns[int3]['name']; //int3.toString();
+												
+												//Assign the value to the column
+												//
+												subList.setLineItemValue(columnId, lineNo, rowColumnData);
+												
+												//See if we have a result column called 'Partner' then we need to add this to the list of partners to filter by
+												//
+												if(recordColumns[int3]['label'] == 'Partner')
+													{
+														var partnerId = recordSearchResults[int2].getValue(recordColumns[int3]);
+														var partnerText = recordSearchResults[int2].getText(recordColumns[int3]);
+														
+														partnerList[partnerId] = partnerText;
+													}
+											}
+									}
 								
-						//Save the id of the created batch along with the works orders that go with it
+								//Update the count field
+								//
+								resultsTotalField.setDefaultValue(recordSearchResults.length);
+								if(PR_AUTO_MARK_ALL)
+									{
+										resultsTickedField.setDefaultValue(recordSearchResults.length);
+									}
+							}
+	
+						
+						//Fill in the partner select list
 						//
-						woToProcessArray[prodBatchId] = woIds;
-								
-					}
+						partnerSelectField.addSelectOption('', '-- All --', true);
 						
-				var scheduleParams = {custscript_pr_array: JSON.stringify(woToProcessArray), custscript_pr_type: recordType, custscript_pr_date: billingDate};
-				nlapiScheduleScript('customscript_pr_scheduled', null, scheduleParams);
-						
-				var batchesCreatedText = JSON.stringify(batchesCreated);
-				var params = new Array();
-						
-				params['stage'] = ++stage;
-				params['batches'] = batchesCreatedText;
-				params['billingdate'] = billingDate;
-						
-				response.sendRedirect('SUITELET', nlapiGetContext().getScriptId(), nlapiGetContext().getDeploymentId(), null, params);
-						
+						for ( var partner in partnerList) 
+							{
+								partnerSelectField.addSelectOption(partner, partnerList[partner], false);
+							}
 				
-				break;
+						break;
+						
+					case 3:
+					
+						//Show the generated list of PR records and their current status
+						//
+						var batchesField = form.addField('custpage_batches', 'longtext', 'Batches', null, null);
+						batchesField.setDisplayType('hidden');
+						batchesField.setDefaultValue(batches);
+						
+						var warningField = form.addField('custpage_warning', 'inlinehtml', null, null, null);
+						warningField.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Refresh the screen to view the progress of the presentation records<p/>');
+						warningField.setDisplayType('disabled');
+						
+						var tab = form.addTab('custpage_tab_items', 'Presentation Records Created');
+						tab.setLabel('Presentation Records Created');
+						
+						var tab2 = form.addTab('custpage_tab_items2', '');
+						
+						form.addField('custpage_tab2', 'text', 'test', null, 'custpage_tab_items2');
+						
+						var subList = form.addSubList('custpage_sublist_items', 'list', 'Presentation Records Created', 'custpage_tab_items');
+						
+						subList.setLabel('Presentation Records Created');
+						
+						var listView = subList.addField('custpage_sublist_view', 'url', 'View', null);
+						listView.setLinkText('View');
+						
+						var listId = subList.addField('custpage_sublist_id', 'text', 'Internal Id', null);
+						var listType = subList.addField('custpage_sublist_type', 'text', 'Record Type', null);
+						var listName = subList.addField('custpage_sublist_name', 'text', 'Name', null);
+						var listPartner = subList.addField('custpage_sublist_partner', 'text', 'Partner', null);
+						var listStatus = subList.addField('custpage_sublist_status', 'text', 'Status', null);
+						var listUpdated = subList.addField('custpage_sublist_updated', 'text', 'Update Status', null);
+						
+						if(batches != '')
+							{
+								var lineNo = Number(0);
+								
+								var batchesArray = JSON.parse(batches);
+								
+								if(batchesArray.length > 0)
+									{
+										var filters = new Array();
+										filters[0] = new nlobjSearchFilter('internalid', null, 'anyof', batchesArray);
+										
+										var columns = new Array();
+										columns[0] = new nlobjSearchColumn('custrecord_bbs_pr_type');
+										columns[1] = new nlobjSearchColumn('custrecord_bbs_pr_partner');
+										columns[2] = new nlobjSearchColumn('custrecord_bbs_pr_inv_pay_term');
+										columns[3] = new nlobjSearchColumn('name');
+										columns[4] = new nlobjSearchColumn('custrecord_bbs_pr_status');
+										columns[5] = new nlobjSearchColumn('custrecord_bbs_pr_internal_status');
+										
+										var batchResults = nlapiSearchRecord('customrecord_bbs_presentation_record', null, filters, columns);
+										
+										for (var int2 = 0; int2 < batchResults.length; int2++) 
+											{
+												lineNo++;
+												
+												subList.setLineItemValue('custpage_sublist_view', lineNo, nlapiResolveURL('RECORD', 'customrecord_bbs_presentation_record', batchResults[int2].getId(), 'VIEW'));
+												subList.setLineItemValue('custpage_sublist_id', lineNo, batchResults[int2].getId());
+												subList.setLineItemValue('custpage_sublist_type', lineNo, batchResults[int2].getText('custrecord_bbs_pr_type'));
+												subList.setLineItemValue('custpage_sublist_name', lineNo, batchResults[int2].getValue('name'));
+												subList.setLineItemValue('custpage_sublist_partner', lineNo, batchResults[int2].getText('custrecord_bbs_pr_partner'));
+												subList.setLineItemValue('custpage_sublist_status', lineNo, batchResults[int2].getText('custrecord_bbs_pr_status'));
+												subList.setLineItemValue('custpage_sublist_updated', lineNo, batchResults[int2].getText('custrecord_bbs_pr_internal_status'));
+											}
+									}
+							}
+						
+						//Add a refresh button
+						//
+						subList.addRefreshButton();
+						
+						break;
+	
+					}
+			
+			//Write the response
+			//
+			response.writePage(form);
+	
 		}
-	}
+	else
+		{
+			//Post request - so process the returned form
+			//
+			
+			//Get the stage of the processing we are at
+			//
+			var stage = Number(request.getParameter('custpage_param_stage'));
+			
+			switch(stage)
+				{
+					case 1:
+						var sessionId = request.getParameter('custpage_param_session_id');		//The session id  which is used when refreshing a page with the 'refresh' button
+						var recordType = request.getParameter('custpage_select_rec_type');	//Record Type C=Credit Notes, I=Invoices
+						var billingType = request.getParameter('custpage_select_bill_type'); 	//Billing type (class)
+						var billingFreq = request.getParameter('custpage_select_bill_freq'); 	//Billing frequency
+						var billingGroup = request.getParameter('custpage_select_bill_group'); 	//Billing group
+						var billingDate = request.getParameter('custpage_select_bill_date'); 	//Billing datwe
+		
+						
+						//Build up the parameters so we can call this suitelet again, but move it on to the next stage
+						//
+						var params = new Array();
+						params['stage'] = ++stage;
+						params['session'] = sessionId;
+						params['recordtype'] = recordType;
+						params['billingtype'] = billingType;
+						params['billingfreq'] = billingFreq;
+						params['billinggroup'] = billingGroup;
+						params['billingdate'] = billingDate;
+						
+						
+						response.sendRedirect('SUITELET', nlapiGetContext().getScriptId(), nlapiGetContext().getDeploymentId(), null, params);
+						
+						break;
+						
+					case 2:
+						
+						var lineCount = request.getLineItemCount('custpage_sublist_items');
+						var recordType = request.getParameter('custpage_param_rec_type');
+						var billingDate = request.getParameter('custpage_param_billing_date');
+						var sessionId = request.getParameter('custpage_param_session_id');		//The session id  which is used when refreshing a page with the 'refresh' button
+						var billingGroup = request.getParameter('custpage_param_billing_group');
+						
+						libClearSessionData(sessionId);
+						
+						var woArray = {};
+						var now = new Date();
+						var nowFormatted = new Date(now.getTime() + (now.getTimezoneOffset() * 60000)).format('Ymd:Hi');
+						var batchesCreated = [];
+						var todaysDate = new Date();
+								
+						//Loop round the sublist to find rows that are ticked
+						//
+						for (var int = 1; int <= lineCount; int++) 
+							{
+								var ticked = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_tick', int);
+								
+								if (ticked == 'T')
+									{
+										var woId = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_pr_id', int);
+										var recordType = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_type', int);
+										var billingType = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_class', int);
+										var partner = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_entity', int);
+										var partnerContact = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_contact', int);
+										var paymentTerms = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id_terms', int);
+												
+										//Build the batch key (which is used as the batch description)
+										//
+										var key = '';
+		
+										switch(recordType)
+											{
+												case 'Invoice':
+													key = recordType + ':' + partner + ':' + billingType + ':' + paymentTerms + ':' + partnerContact;
+													break;
+													
+												case 'Credit Memo':
+													key = recordType + ':' + partner + ':' + partnerContact;
+													break;
+											}
+			
+										if(!woArray[key])
+											{
+												woArray[key] = [woId];
+											}
+										else
+											{
+												woArray[key].push(woId);
+											}
+									}
+							}
+						
+						//Lock the billing group
+						//
+						if(billingGroup != null && billingGroup != '')
+							{
+								nlapiSubmitField('customrecord_billing_group_list', billingGroup, 'custrecord_bbs_billing_group_locked', 'T', false);
+							}
+					//	else
+					//		{
+					//			var customrecord_billing_group_listSearch = nlapiSearchRecord("customrecord_billing_group_list",null,
+					//					[
+					//					], 
+					//					[
+					//					   new nlobjSearchColumn("name").setSort(false)
+					//					]
+					//					);
+					//			
+					//			if(customrecord_billing_group_listSearch != null && customrecord_billing_group_listSearch.length > 0)
+					//				{
+					//					for (var int2 = 0; int2 < customrecord_billing_group_listSearch.length; int2++) 
+					//						{
+					//							var billingGroupId = customrecord_billing_group_listSearch[int2].getId();
+					//							
+					//							nlapiSubmitField('customrecord_billing_group_list', billingGroupId, 'custrecord_bbs_billing_group_locked', 'T', false);
+					//						}
+					//				}
+					//		}
+						
+						//Submit the scheduled job to create the PR records and allocate invoices/credits
+						//
+						var scheduleParams = {custscript_pr_array: JSON.stringify(woArray), custscript_pr_type: recordType, custscript_pr_date: billingDate, custscript_pr_billing_group: billingGroup};
+						nlapiScheduleScript('customscript_pr_scheduled', null, scheduleParams);
+							
+						//Redirect to the specified dashboard
+						//
+						response.sendRedirect('TASKLINK', 'CARD_' + (PR_DASHBOARD_ID == null || PR_DASHBOARD_ID == '' ? '-29' : PR_DASHBOARD_ID), null, null, null);	
+						
+						break;
+				}
+		}
 }
 
 //=====================================================================
