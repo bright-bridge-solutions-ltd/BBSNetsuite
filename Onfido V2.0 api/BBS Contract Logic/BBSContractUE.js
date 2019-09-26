@@ -94,119 +94,134 @@ function(url, runtime, record) {
      */
     function contractAS(scriptContext) {
     	
-    	// check if the record is being created
-    	if (scriptContext.type == scriptContext.UserEventType.CREATE)
+    	// check if the record is being edited
+    	if (scriptContext.type == scriptContext.UserEventType.EDIT)
     		{    	
-		       	// get the currentRecord object
-		    	var currentRecord = scriptContext.newRecord;
-		    	
-		    	// get the value of the 'setup fee' field from the record
-		    	var setupFee = currentRecord.getValue({
-		    		fieldId: 'custrecord_bbs_contract_setup_fee'
-		    	});
-		    	
-		    	// check if the setupFee variable returns true (checkbox is ticked)
-		    	if (setupFee == true)
-		    		{
-		    			// get the ID of the current record
-		        		var currentRecordID = scriptContext.newRecord.id;
-		    		
-		    			// retrieve script parameters
-			        	var currentScript = runtime.getCurrentScript();
-			
-			        	var setupFeeItem = currentScript.getParameter({
-			    	    	name: 'custscript_bbs_setup_fee_item'
-			    	    });
-			        	
-		    			// get fields values from the current record
-		    			var customer = currentRecord.getValue({
-		    				fieldId: 'custrecord_bbs_contract_customer'
-		    			});
-		    			
-		    			var setupFeeAmount = currentRecord.getValue({
-		    				fieldId: 'custrecord_bbs_contract_setup_fee_amount'
-		    			});
-		    			
-		    			setupFeeAmount = parseFloat(setupFeeAmount);
-		    			
-		    			try
-		    				{
-				    			// create a new invoice record
-				    			var invoice = record.create({
-				    				type: record.Type.INVOICE,
-				    				isDynamic: true
+		       	// get the oldrecord and newrecord objects
+    			var oldRecord = scriptContext.oldRecord;
+    			var currentRecord = scriptContext.newRecord;
+    			
+    			// get the value of the status field from the oldrecord
+    			var oldStatus = oldRecord.getValue({
+    				fieldId: 'custrecord_bbs_contract_status'
+    			});
+    			
+    			// get the value of the status field from the newrecord
+    			var newStatus = currentRecord.getValue({
+    				fieldId: 'custrecord_bbs_contract_status'
+    			});
+    			
+    			// check that oldStatus variable does NOT return 1 and the newStatus variable DOES return 1 (IE contract has been edited and status changed to approved)
+    			if (oldStatus != 1 && newStatus == 1) // 1 = Approved
+    				{
+				    	// get the value of the 'setup fee' field from the record
+				    	var setupFee = currentRecord.getValue({
+				    		fieldId: 'custrecord_bbs_contract_setup_fee'
+				    	});
+				    	
+				    	// check if the setupFee variable returns true (checkbox is ticked)
+				    	if (setupFee == true)
+				    		{
+				    			// get the ID of the current record
+				        		var currentRecordID = scriptContext.newRecord.id;
+				    		
+				    			// retrieve script parameters
+					        	var currentScript = runtime.getCurrentScript();
+					
+					        	var setupFeeItem = currentScript.getParameter({
+					    	    	name: 'custscript_bbs_setup_fee_item'
+					    	    });
+					        	
+				    			// get fields values from the current record
+				    			var customer = currentRecord.getValue({
+				    				fieldId: 'custrecord_bbs_contract_customer'
 				    			});
 				    			
-				    			// set header fields on the invoice record
-				    			invoice.setValue({
-				    				fieldId: 'entity',
-				    				value: customer
+				    			var setupFeeAmount = currentRecord.getValue({
+				    				fieldId: 'custrecord_bbs_contract_setup_fee_amount'
 				    			});
 				    			
-				    			invoice.setValue({
-				    				fieldId: 'custbody_bbs_contract_setup_invoice',
-				    				value: true
-				    			});
+				    			setupFeeAmount = parseFloat(setupFeeAmount);
 				    			
-				    			invoice.setValue({
-				    				fieldId: 'custbody_bbs_contract_record',
-				    				value: currentRecordID
-				    			});
-				    			
-				    			// add a new line to the invoice
-				    			invoice.selectNewLine({
-				    				sublistId: 'item'
-				    			});
-				    			
-				    			// set fields on the new line
-				    			invoice.setCurrentSublistValue({
-				    				sublistId: 'item',
-				    				fieldId: 'item',
-				    				value: setupFeeItem
-				    			});
-				    			
-				    			invoice.setCurrentSublistValue({
-				    				sublistId: 'item',
-				    				fieldId: 'quantity',
-				    				value: 1
-				    			});
-				    			
-				    			invoice.setCurrentSublistValue({
-				    				sublistId: 'item',
-				    				fieldId: 'rate',
-				    				value: setupFeeAmount
-				    			});
-				    			
-				    			// commit the line
-				    			invoice.commitLine({
-									sublistId: 'item'
-								});
-				    			
-				    			// submit the invoice record
-				    			var invoiceID = invoice.save();
-				    			
-				    			log.audit({
-				    				title: 'Invoice Created',
-				    				details: invoiceID
-				    			});
-				    			
-				    			// update the 'Setup Fee Billed' checkbox on the contract record
-				    			record.submitFields({
-				    				type: 'customrecord_bbs_contract',
-				    				id: currentRecordID,
-				    				values: {
-				    					custrecord_bbs_contract_setup_fee_billed: true
+				    			try
+				    				{
+						    			// create a new invoice record
+						    			var invoice = record.create({
+						    				type: record.Type.INVOICE,
+						    				isDynamic: true
+						    			});
+						    			
+						    			// set header fields on the invoice record
+						    			invoice.setValue({
+						    				fieldId: 'entity',
+						    				value: customer
+						    			});
+						    			
+						    			invoice.setValue({
+						    				fieldId: 'custbody_bbs_contract_setup_invoice',
+						    				value: true
+						    			});
+						    			
+						    			invoice.setValue({
+						    				fieldId: 'custbody_bbs_contract_record',
+						    				value: currentRecordID
+						    			});
+						    			
+						    			// add a new line to the invoice
+						    			invoice.selectNewLine({
+						    				sublistId: 'item'
+						    			});
+						    			
+						    			// set fields on the new line
+						    			invoice.setCurrentSublistValue({
+						    				sublistId: 'item',
+						    				fieldId: 'item',
+						    				value: setupFeeItem
+						    			});
+						    			
+						    			invoice.setCurrentSublistValue({
+						    				sublistId: 'item',
+						    				fieldId: 'quantity',
+						    				value: 1
+						    			});
+						    			
+						    			invoice.setCurrentSublistValue({
+						    				sublistId: 'item',
+						    				fieldId: 'rate',
+						    				value: setupFeeAmount
+						    			});
+						    			
+						    			// commit the line
+						    			invoice.commitLine({
+											sublistId: 'item'
+										});
+						    			
+						    			// submit the invoice record
+						    			var invoiceID = invoice.save();
+						    			
+						    			log.audit({
+						    				title: 'Invoice Created',
+						    				details: invoiceID
+						    			});
+						    			
+						    			// update the 'Setup Fee Billed' checkbox on the contract record
+						    			record.submitFields({
+						    				type: 'customrecord_bbs_contract',
+						    				id: currentRecordID,
+						    				values: {
+						    					custrecord_bbs_contract_setup_fee_billed: true
+						    				}
+						    			});
 				    				}
-				    			});
-		    				}
-		    			catch(e)
-			    			{
-			    				log.error({
-			    					title: 'Error creating invoice for record ' + currentRecordID,
-			    					details: e
-			    				});
-			    			}    		
-		    		}
+				    			catch(e)
+					    			{
+					    				log.error({
+					    					title: 'Error creating invoice for record ' + currentRecordID,
+					    					details: e
+					    				});
+					    			}    		
+				    		}
+    				}
     		}
     }
 
