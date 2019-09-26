@@ -60,7 +60,7 @@ function(search, record, format) {
     	var startDate = new Date();
     	
     	// set the date of the startDate object
-    	startDate.setMonth(tranDate.getMonth()+1);
+    	startDate.setMonth(tranDate.getMonth());
     	startDate.setDate(0);
     	startDate.setFullYear(tranDate.getFullYear());
     	
@@ -79,7 +79,7 @@ function(search, record, format) {
     	var endDate = new Date();
     	
     	// set the date of the endDate object
-    	endDate.setMonth(tranDate.getMonth()+2);
+    	endDate.setMonth(tranDate.getMonth()+1);
     	endDate.setDate(0);
     	endDate.setFullYear(tranDate.getFullYear());   	
     	
@@ -117,12 +117,12 @@ function(search, record, format) {
 			},
 					{
 				name: 'custrecord_bbs_contract_period_start',
-				operator: 'on',
+				operator: 'onorafter',
 				values: [startDate]
 			},
 					{
 				name: 'custrecord_bbs_contract_period_end',
-				operator: 'on',
+				operator: 'onorbefore',
 				values: [endDate]
     		}],
 		});
