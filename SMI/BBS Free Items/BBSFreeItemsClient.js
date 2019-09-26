@@ -6,6 +6,7 @@
  * 1.10			05 Aug 2019		sambatten		Added if statement to check custom form being used is 'SMI Standard Sales Order'
  * 1.20			09 Aug 2019		sambatten		Added if statement to check order doesn't contain any items with product codes starting 'CPHS'
  * 1.30			30 Aug 2019		sambatten		Added if statement to check the order status is 'Pending Approval' or 'Pending Fulfillment'
+ * 1.40			26 Sep 2019		sambatten		Removed if statement to check order status as this wasn't working correctly when order is created (only working on edit)
  */
 
 function saveRecord(type)
@@ -13,11 +14,8 @@ function saveRecord(type)
 		// get the internal ID of the form being used
 		var customForm = nlapiGetFieldValue('customform');
 		
-		// get the internal ID of the transaction status
-		var status = nlapiGetFieldValue('status');
-		
-		// only continue with script when status is any of the below AND the custom form is 103 'SMI Standard Sales Order'
-		if ((status == 'Pending Approval' || status == 'Pending Fulfillment') && customForm == 103)
+		// only continue with script when the custom form is 103 'SMI Standard Sales Order'
+		if (customForm == 103)
 			{
 				// retrieve script parameters
 				var biscuits = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_biscuits_client');
