@@ -23,14 +23,21 @@ function(runtime, search, record, format) {
     	var billingType;
     	var billingTypeFunction;
     	var contractRecord;
+    	var mgmtFee;
+    	var customer;
+    	var mgmtFeeAmt;
     	
     	// retrieve script parameters
     	var currentScript = runtime.getCurrentScript();
     	
-    	// adjustmentItem is a global variable so it can be accessed throughout the script
+    	// adjustmentItem and mgmtFeeItem are global variables so can be accessed throughout the script
     	adjustmentItem = currentScript.getParameter({
 	    	name: 'custscript_bbs_min_usage_adj_item'
 	    });
+    	
+    	mgmtFeeItem = currentScript.getParameter({
+    		name: 'custscript_bbs_monthly_mgtmt_fee_item'
+    	});
     	
     	// run search to find sales orders to be billed
     	var soSearch = search.create({
@@ -40,11 +47,22 @@ function(runtime, search, record, format) {
 				name: 'internalid'
 			},
 					{
+				name: 'entity',
+			},
+					{
+				name: 'custbody_bbs_contract_record'
+			},
+					{
 				name: 'custrecord_bbs_contract_billing_type',
 				join: 'custbody_bbs_contract_record'
 			},
 					{
-				name: 'custbody_bbs_contract_record'
+				name: 'custrecord_bbs_contract_mgmt_fee',
+				join: 'custbody_bbs_contract_record'
+			},
+					{
+				name: 'custrecord_bbs_contract_mgmt_fee_amt',
+				join: 'custbody_bbs_contract_record'
 			}],
 			
 			filters: [{
@@ -82,6 +100,11 @@ function(runtime, search, record, format) {
 			// get the internal ID of the item from the search results
 			recordID = result.getValue({
 				name: 'internalid'
+			});
+			
+			// get the internal ID of the contract record from the search results
+			contractRecord = result.getValue({
+				name: 'custbody_bbs_contract_record'
 			});
 			
 			// get the billing type from the search results
@@ -136,6 +159,30 @@ function(runtime, search, record, format) {
 			
 			// call function to update period detail records (to tick the Usage Invoice Issued checkbox). Pass in ID of sales order.
 			updatePeriodDetail(recordID);
+			
+			// get the value of the management fee checkbox from the search results
+			mgmtFee = result.getValue({
+				name: 'custrecord_bbs_contract_mgmt_fee',
+				join: 'custbody_bbs_contract_record'
+			});
+			
+			// if the mgmtFee variable returns 1 (Mgmt Fee is Yes)
+			if (mgmtFee == 1)
+				{
+					// get the customer from the search results
+					customer = result.getValue({
+						name: 'entity'
+					});
+					
+					// get the management fee amount from the search results
+					mgmtFeeAmt = result.getValue({
+						name: 'custrecord_bbs_contract_mgmt_fee_amt',
+						join: 'custbody_bbs_contract_record'
+					});
+				
+					// call function to create invoice for monthly management fee. Pass in ID of contract record, customer and mgmtFeeAmt
+					createMgmtFeeInvoice(contractRecord, customer, mgmtFeeAmt);
+				}
 			
 			// continue processing additional records
 			return true;
@@ -287,6 +334,82 @@ function(runtime, search, record, format) {
 	    				details: error
 	    			});
 	    		}
+    	}
+    
+    //===================================================================
+	// FUNCTION TO CREATE A STANDALONE INVOICE FOR MONTHLY MANAGEMENT FEE
+	//===================================================================
+    
+    function createMgmtFeeInvoice(contractRecord, customer, mgmtFeeAmt)
+    	{
+    		try
+    			{
+    				// create a new invoice record
+    				var invoice = record.create({
+    					type: record.Type.INVOICE,
+    					isDynamic: true
+    				});
+    				
+    				// set header fields on the invoice record
+	    			invoice.setValue({
+	    				fieldId: 'entity',
+	    				value: customer
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'custbodybbs_monthly_mgmt_fee_invoice',
+	    				value: true
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'custbody_bbs_contract_record',
+	    				value: contractRecord
+	    			});
+	    			
+	    			// add a new line to the invoice
+	    			invoice.selectNewLine({
+	    				sublistId: 'item'
+	    			});
+	    			
+	    			// set fields on the new line
+	    			invoice.setCurrentSublistValue({
+	    				sublistId: 'item',
+	    				fieldId: 'item',
+	    				value: mgmtFeeItem
+	    			});
+	    			
+	    			invoice.setCurrentSublistValue({
+	    				sublistId: 'item',
+	    				fieldId: 'quantity',
+	    				value: 1
+	    			});
+	    			
+	    			invoice.setCurrentSublistValue({
+	    				sublistId: 'item',
+	    				fieldId: 'rate',
+	    				value: mgmtFeeAmt
+	    			});
+	    			
+	    			// commit the line
+	    			invoice.commitLine({
+						sublistId: 'item'
+					});
+	    			
+	    			// submit the invoice record
+	    			var invoiceID = invoice.save();
+	    			
+	    			log.audit({
+	    				title: 'Management Fee Invoice Created',
+	    				details: 'Invoice ID: ' + invoiceID + ' | Contract ID: ' + contractRecord
+	    			});   				
+    			}
+    		catch(error)
+    			{
+    				log.error({
+    					title: 'Error Creating Mgmt Fee Invoice for Contract ID: ' + contractRecord,
+    					details: error
+    				});
+    			}
     	}
     
     //===============================================================
