@@ -47,16 +47,10 @@ function(record, search, format) {
     function contractProductAS(scriptContext) {
     	
     	// declare and initiate variables
-    	var product;
-    	var newRecord;
-    	var newRecordID;
-    	var contractStartDate = new Date();
-    	var contractEndDate = new Date();
     	var quarterEndDate = new Date();
     	var quarter = 0;
     	var nextMonth = 0;
       	var month = 0;
-      	var year = 0;
     	
     	// get the ID of the submitted record
     	var currentRecordID = scriptContext.newRecord.id;
@@ -79,25 +73,25 @@ function(record, search, format) {
 			columns: ['custrecord_bbs_contract_term','custrecord_bbs_contract_start_date']
 		});
 		
-		// get the start date from the parent record
-    	var startDate = contractRecordLookup.custrecord_bbs_contract_start_date;
+		// get the contract start date from the parent record
+    	var contractStartDate = contractRecordLookup.custrecord_bbs_contract_start_date;
     	
-    	// format startDate as a date object
-    	startDate = format.parse({
+    	// format contractStartDate as a date object
+    	contractStartDate = format.parse({
     		type: format.Type.DATE,
-    		value: startDate
+    		value: contractStartDate
     	});
     	
-    	log.debug({
-    		title: 'Start Date',
-    		details: startDate
+    	// set contractEndDate
+    	var contractEndDate = format.parse({
+    		type: format.Type.DATE,
+    		value: contractStartDate
     	});
     	
     	// split the start date into date parts which can later be used to construct dates
-		var dd = startDate.getDate();
-		var mm = startDate.getMonth();
+		var dd = contractStartDate.getDate();
+		var mm = contractStartDate.getMonth();
 		month = mm; // set value of month variable
-		var yy = startDate.getFullYear();
     	
     	// get the contract term from the parent record
     	var contractTerm = contractRecordLookup.custrecord_bbs_contract_term;   	
@@ -114,7 +108,7 @@ function(record, search, format) {
     	for (var ct = 1; ct <= contractTerm; ct++)
     		{
     			// create a new BBS Contract Period Detail record
-    			newRecord = record.create({
+    			var newRecord = record.create({
     				type: 'customrecord_bbs_contract_period'
     			});
     					
@@ -138,17 +132,19 @@ function(record, search, format) {
     			if (ct == 1)
     				{
     					// set contract start date
-    					contractStartDate.setMonth(mm);
-    					contractStartDate.setDate(dd);
-    					contractStartDate.setFullYear(yy);
+    					contractStartDate.setMonth(contractStartDate.getMonth());
     					
     					// add one to the month variable to make it the following month
 	    				nextMonth = mm+1;
 	    				
 	    				// set contract end date
-	    				contractEndDate.setMonth(nextMonth);
+	    				contractEndDate.setMonth(contractEndDate.getMonth()+1);
 	    				contractEndDate.setDate(0); // last day of month
-	    				contractEndDate.setFullYear(yy);
+	    				
+	    				log.debug({
+    						title: 'End Date check',
+    						details: nextMonth + '/' + '0'
+    					});
     				
 	    				// set the start and end dates on the new record
     					newRecord.setValue({
@@ -163,13 +159,8 @@ function(record, search, format) {
     				}
     			else
     				{
-    					// increase the mm variable by 1
-    					mm++;
-    					
-    					// set contact start date
-    					contractStartDate.setMonth(mm);
-    					contractStartDate.setDate(1); // 1st of the month
-    					contractStartDate.setFullYear(yy);
+    					// set contract start date
+    					contractStartDate.setMonth(contractStartDate.getMonth()+1); // increase date by 1
     					
     					// if this is the last contract period and and the start day is not 1
     	    			if (ct == contractTerm && dd != 1)
@@ -177,20 +168,18 @@ function(record, search, format) {
 	    						// decrease the dd variable by 1
     							dd--;
     							
-    							// calculate the contract end date
-	    	    				contractEndDate.setMonth(nextMonth);
-	    	    				contractEndDate.setDate(dd);
-	    	    				contractEndDate.setFullYear(yy);
+    							// set contract end date
+    		    				contractEndDate.setMonth(contractEndDate.getMonth()+1);
+    		    				contractEndDate.setDate(dd);
     						}
     					else
     						{
 	    						// set end date
 	    	    				nextMonth = mm+1; // add one to the mm variable to make it the following month
 	    	    				
-	    	    				// calculate the contract end date
-	    	    				contractEndDate.setMonth(nextMonth);
-	    	    				contractEndDate.setDate(0); // last day of month
-	    	    				contractEndDate.setFullYear(yy);
+	    	    				// set contract end date
+    		    				contractEndDate.setMonth(contractEndDate.getMonth()+1);
+    		    				contractEndDate.setDate(0); // last day of month
     						}
 	    				
 	    				// set the start and end dates on the new record
@@ -226,7 +215,12 @@ function(record, search, format) {
     			// calculate the quarter end date
 	    		quarterEndDate.setMonth(month);
 	    		quarterEndDate.setDate(0); // last day of month
-	    		quarterEndDate.setFullYear(yy);
+	    		//quarterEndDate.setFullYear(yy);
+	    		
+	    		log.debug({
+					title: 'Quarter End Date check',
+					details: month + '/' + '0'
+				});
 	        			
 	        	// set the contract quarter field on the new record
 	    		newRecord.setValue({
@@ -241,7 +235,7 @@ function(record, search, format) {
 	    		});
     					
     			// submit the new record
-    			newRecordID = newRecord.save();
+    			var newRecordID = newRecord.save();
     		}
     }
 
