@@ -41,7 +41,12 @@ function scheduled(type)
 					checkResources();
 					
 					var summary = {};
-				
+                  
+					for(key in summary)
+	                    {
+	                      delete summary[key]
+	                    }
+                  
 					var salesOrderId = salesorderSearch[searchCount].getValue("internalid",null,"GROUP");
 					var thisRecord = nlapiLoadRecord(thisRecordType, salesOrderId);
 					var lines = thisRecord.getLineItemCount('item');
@@ -245,11 +250,18 @@ function scheduled(type)
 					
 					//Now we have done all summarising, we need to generate the output format 
 					//
-					var outputArray = [];
+					var outputArray = null;
+					outputArray = [];
 					
 					//Sort outputSummary
 					//
 					const sortedSummary = {};
+                  
+					for(key in sortedSummary)
+	                    {
+	                      delete sortedSummary[key]
+	                    }
+                  
 				    Object.keys(summary).sort().forEach(function(key) {
 				    	sortedSummary[key] = summary[key];
 				    });
