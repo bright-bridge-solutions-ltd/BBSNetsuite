@@ -15,6 +15,9 @@ function(runtime,format) {
 		    	var days;
 		    	var shippingDate = new Date();
 		    	
+		    	// get the current script so parameters can be retrieved
+		    	var currentScript = runtime.getCurrentScript();		    	
+		    	
 		    	// load the current record so it can be manipulated
 		    	var currentRecord = scriptContext.newRecord;
 		    	
@@ -26,15 +29,19 @@ function(runtime,format) {
 		        // check if the customForm variable returns 103 (SMI Standard Sales Order)
 		        if (customForm == 103)
 		        	{
-		        		// set value of days variable
-		        		days = 4;				
+		        		// set value of days variable. This is a script parameter
+		        		days = currentScript.getParameter({
+		        			name: 'custscript_bbs_smi_std_so_ship_date'
+		        	    });				
 		        	}
 		        		
 		        // check if the customForm variable returns 123 (SMI Manpack Sales Order)
 		        else if (customForm == 123)
 		        	{
-		        		// set value of days variable
-		    			days = 5;	
+			        	// set value of days variable. This is a script parameter
+		        		days = currentScript.getParameter({
+		        			name: 'custscript_bbs_smi_manpack_so_ship_date'
+		        	    });
 		        	}
 		        		
 		        // call addWorkDays function and pass shippingDate object and days variable to the function
