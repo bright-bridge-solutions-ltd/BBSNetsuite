@@ -26,6 +26,7 @@ function(runtime, search, record, format) {
     	var mgmtFee;
     	var customer;
     	var mgmtFeeAmt;
+    	var currency;
     	
     	// retrieve script parameters
     	var currentScript = runtime.getCurrentScript();
@@ -62,6 +63,10 @@ function(runtime, search, record, format) {
 			},
 					{
 				name: 'custrecord_bbs_contract_mgmt_fee_amt',
+				join: 'custbody_bbs_contract_record'
+			},
+				{
+				name: 'custrecord_bbs_contract_currency',
 				join: 'custbody_bbs_contract_record'
 			}],
 			
@@ -179,9 +184,15 @@ function(runtime, search, record, format) {
 						name: 'custrecord_bbs_contract_mgmt_fee_amt',
 						join: 'custbody_bbs_contract_record'
 					});
+					
+					// get the currency from the search results
+					currency = result.getValue({
+						name: 'custrecord_bbs_contract_currency',
+						join: 'custbody_bbs_contract_record'
+					});
 				
-					// call function to create invoice for monthly management fee. Pass in ID of contract record, customer and mgmtFeeAmt
-					createMgmtFeeInvoice(contractRecord, customer, mgmtFeeAmt);
+					// call function to create invoice for monthly management fee. Pass in ID of contract record, customer, mgmtFeeAmt, currency
+					createMgmtFeeInvoice(contractRecord, customer, mgmtFeeAmt, currency);
 				}
 			
 			// continue processing additional records
@@ -280,6 +291,12 @@ function(runtime, search, record, format) {
 								value: difference
 							});
 							
+							soRecord.setCurrentSublistValue({
+								sublistId: 'item',
+								fieldId: 'custcol_bbs_contract_record',
+								value: contractRecord
+							});
+							
 							// commit the new line
 							soRecord.commitLine({
 								sublistId: 'item'
@@ -340,7 +357,7 @@ function(runtime, search, record, format) {
 	// FUNCTION TO CREATE A STANDALONE INVOICE FOR MONTHLY MANAGEMENT FEE
 	//===================================================================
     
-    function createMgmtFeeInvoice(contractRecord, customer, mgmtFeeAmt)
+    function createMgmtFeeInvoice(contractRecord, customer, mgmtFeeAmt, currency)
     	{
     		try
     			{
@@ -366,6 +383,11 @@ function(runtime, search, record, format) {
 	    				value: contractRecord
 	    			});
 	    			
+	    			invoice.setValue({
+	    				fieldId: 'currency',
+	    				value: currency
+	    			});
+	    			
 	    			// add a new line to the invoice
 	    			invoice.selectNewLine({
 	    				sublistId: 'item'
@@ -388,6 +410,12 @@ function(runtime, search, record, format) {
 	    				sublistId: 'item',
 	    				fieldId: 'rate',
 	    				value: mgmtFeeAmt
+	    			});
+	    			
+	    			invoice.setCurrentSublistValue({
+	    				sublistId: 'item',
+	    				fieldId: 'custcol_bbs_contract_record',
+	    				value: contractRecord
 	    			});
 	    			
 	    			// commit the line
