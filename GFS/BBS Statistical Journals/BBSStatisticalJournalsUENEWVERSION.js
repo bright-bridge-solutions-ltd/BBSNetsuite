@@ -38,20 +38,20 @@ function statisticalJournalsBS(type)
 							var parcels = Number(nlapiGetLineItemValue('item', 'custcol_bbs_parcels', int));
 							var consignments = Number(nlapiGetLineItemValue('item', 'custcol_bbs_consignments', int));
 						
-							//Check if the parcels variable is a negative value
+							//Check if the parcels variable is a positive value
 							//
 							if (parcels > 0)
 								{
-									//Convert parcels to a positive number
+									//Convert parcels to a negative number
 									//
 									parcels = Math.abs(parcels) * -1.0;
 								}
 							
-							//Check if the consignments variable is a negative value
+							//Check if the consignments variable is a positive value
 							//
 							if (consignments > 0)
 								{
-									//Convert consignments to a positive number
+									//Convert consignments to a negative number
 									//
 									consignments = Math.abs(consignments) * -1.0;
 								}
