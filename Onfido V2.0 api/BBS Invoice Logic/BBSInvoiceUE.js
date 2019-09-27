@@ -32,69 +32,84 @@ function(file, record, render, runtime)
     			{
     				if(scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
     					{
-    						var thisRecord = scriptContext.newRecord;
-    						var thisRecordId = thisRecord.id;
-    						var thisContract = thisRecord.getText({fieldId: 'custbody_bbs_contract_record'});
-    						var thisContractId = thisRecord.getValue({fieldId: 'custbody_bbs_contract_record'});
-    						var thisCustomer = thisRecord.getText({fieldId: 'entity'});
-    						var thisInvoiceNumber = thisRecord.getText({fieldId: 'tranid'});
+    						var newRecord = scriptContext.newRecord;
+    						var newRecordId = newRecord.id;
     						
-    						//If we have the contract on the invoice, then go ahead
-    						//
-    						if(thisContract != null && thisContract != '')
+    						var thisRecord = null;
+    						
+    						try 
     							{
-		    						var fileId = null;
-		    						
-		    						//Generate the pdf file
-		    						//
-		    						var transactionFile = render.transaction({
-					    						    							entityId: thisRecordId,
-					    						    							printMode: render.PrintMode.PDF,
-					    						    							inCustLocale: false
-		    						    									});
-		    						
-		    						//Set the attachments folder
-		    						//
-		    						transactionFile.folder = attachmentsFolder;
-		    						
-		    						//Set the file name
-		    						//
-		    						transactionFile.name = 'Invoice_' + thisContract + '_' + thisInvoiceNumber + '.pdf'
-		    						
-		    						//Make available without login
-		    						//
-		    						transactionFile.isOnline = true;
-		    						
-		    						//Set the file description
-		    						//
-		    						transactionFile.description = "Invoice # " + thisInvoiceNumber + " For Contract # " + thisContract;
-		    						
-		    						//Try to save the file to the filing cabinet
-		    						//
-		    						try
-		    							{
-		    								fileId = transactionFile.save();
-		    							}
-		    						catch(err)
-		    							{
-		    								log.error({
-		    											title: 'Error Saving PDF To File Cabinet ' + attachmentsFolder,
-		    											details: error
-		    											});
-		    								
-		    								fileId = null;
-		    							}
-		    						
-		    						//If we have saved the file ok, then we need to attach the pdf
-		    						//
-		    						if(fileId != null)
-		    							{
-		    								record.attach({
-		    												record: {type: 'file', id: fileId},
-		    												to: {type: 'customrecord_bbs_contract', id: thisContractId}
-		    												});
-		    							}
+    								thisRecord = record.load({type: record.Type.INVOICE, id: newRecordId, isDynamic: true});
+								} 
+    						catch (error) 
+    							{
+    								thisRecord = null;
     							}
+    						
+    						if(thisRecord != null)
+		    					{
+		    						var thisContract = thisRecord.getText({fieldId: 'custbody_bbs_contract_record'});
+		    						var thisContractId = thisRecord.getValue({fieldId: 'custbody_bbs_contract_record'});
+		    						var thisCustomer = thisRecord.getText({fieldId: 'entity'});
+		    						var thisInvoiceNumber = thisRecord.getText({fieldId: 'tranid'});
+		    						
+		    						//If we have the contract on the invoice, then go ahead
+		    						//
+		    						if(thisContract != null && thisContract != '')
+		    							{
+				    						var fileId = null;
+				    						
+				    						//Generate the pdf file
+				    						//
+				    						var transactionFile = render.transaction({
+							    						    							entityId: newRecordId,
+							    						    							printMode: render.PrintMode.PDF,
+							    						    							inCustLocale: false
+				    						    									});
+				    						
+				    						//Set the attachments folder
+				    						//
+				    						transactionFile.folder = attachmentsFolder;
+				    						
+				    						//Set the file name
+				    						//
+				    						transactionFile.name = 'Invoice_' + thisContract + '_' + thisInvoiceNumber + '.pdf'
+				    						
+				    						//Make available without login
+				    						//
+				    						transactionFile.isOnline = true;
+				    						
+				    						//Set the file description
+				    						//
+				    						transactionFile.description = "Invoice # " + thisInvoiceNumber + " For Contract # " + thisContract;
+				    						
+				    						//Try to save the file to the filing cabinet
+				    						//
+				    						try
+				    							{
+				    								fileId = transactionFile.save();
+				    							}
+				    						catch(err)
+				    							{
+				    								log.error({
+				    											title: 'Error Saving PDF To File Cabinet ' + attachmentsFolder,
+				    											details: error
+				    											});
+				    								
+				    								fileId = null;
+				    							}
+				    						
+				    						//If we have saved the file ok, then we need to attach the pdf
+				    						//
+				    						if(fileId != null)
+				    							{
+				    								record.attach({
+				    												record: {type: 'file', id: fileId},
+				    												to: {type: 'customrecord_bbs_contract', id: thisContractId}
+				    												});
+				    							}
+		    							}
+		    					}
     					}
     			}
 	    }
