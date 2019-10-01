@@ -49,6 +49,10 @@ function purchaseOrderSummaryAS(type)
 				}
 			else
 				{
+					//Load in the size 1 list
+					//
+					var size1ListRecord = nlapiLoadRecord('customlist', 101);
+					
 					//Loop through the item lines
 					//
 					for (var int = 1; int <= lines; int++) 
@@ -103,6 +107,8 @@ function purchaseOrderSummaryAS(type)
 							        		//
 								        	parentInfo = nlapiLookupField(recordType, itemInfo.parent, ['itemid','location','purchasedescription','custitem_bbs_item_specification','custitem_bbs_item_trim','custitem_bbs_item_packaging','custitem_bbs_item_outer_packaging','custitem_bbs_item_purchase_terms','custitem_fbi_item_size1'], false);
 								        	parentInfoText = nlapiLookupField(recordType, itemInfo.parent, ['location','custitem_fbi_item_size1'], true);
+								        	
+								        	parentInfoText.custitem_fbi_item_size1 =  getSize1Text(size1ListRecord, parentInfo.custitem_fbi_item_size1)
 								        	
 							        	}
 							        else
@@ -223,7 +229,7 @@ function purchaseOrderSummaryAS(type)
 					
 					//Save the output array to the purchase order
 					//
-					nlapiSubmitField(thisRecordType, purchaseOrderId, 'custbody_po_matrix_item_json', JSON.stringify(output), false);
+					nlapiSubmitField(thisRecordType, purchaseOrderId, ['custbody_po_matrix_item_json','custbody_bbs_item_suumary_created'], [JSON.stringify(output), 'T'], false);
 				}
 }
 }
@@ -384,6 +390,34 @@ function sizeQuantityCell(_size, _quantity, _sizeText, _amount, _vatAmount)
 //Functions
 //=============================================================================
 //
+
+//Get the size1 text from internal id
+//
+function getSize1Text(_listRecord, idString)
+{
+	var size1Values = _listRecord.getLineItemCount('customvalue');
+	var returnedString = '';
+	var idArray = idString.split(',');
+	
+	for (var int5 = 0; int5 < idArray.length; int5++) 
+		{
+			for (var int4 = 1; int4 <= size1Values; int4++) 
+				{
+					var ValueId = _listRecord.getLineItemValue('customvalue', 'valueid', int4);
+					var ValueText = _listRecord.getLineItemValue('customvalue', 'value', int4);
+					
+					if(ValueId == idArray[int5])
+						{
+							returnedString += ValueText + ',';
+							break;
+						}
+				}
+		}
+	
+	returnedString = returnedString.replace(/,\s*$/, "");
+	
+	return returnedString;
+}
 
 //Left padding s with c to a total of n chars
 //
