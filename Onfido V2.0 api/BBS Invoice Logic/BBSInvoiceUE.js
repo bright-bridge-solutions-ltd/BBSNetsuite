@@ -24,30 +24,50 @@ function(file, record, render, runtime)
      */
     function invoiceAS(scriptContext) 
 	    {
+    		//Get runtime parameters
+    		//
     		var currentScript = runtime.getCurrentScript();
     		var attachmentsFolder = currentScript.getParameter({name: 'custscript_bbs_attachments_folder'});
+    		
     		var today = new Date();
     		
+    		var newRecord = scriptContext.newRecord;
+			var newRecordId = newRecord.id;
+			var newRecordType = newRecord.type;
+			
+			//Update the record with the JSON summary of the products by unit price
+			//
+			updateTransactionSummary(newRecord);
+			
+			
+    		//Have we got an attachments folder defined
+    		//
     		if(attachmentsFolder != null && attachmentsFolder != '')
     			{
+    				//We only want to work on create or edit
+    				//
     				if(scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
     					{
-    						var newRecord = scriptContext.newRecord;
-    						var newRecordId = newRecord.id;
     						
     						var thisRecord = null;
     						
+    						//Read in the invoice record
+    						//
     						try 
     							{
-    								thisRecord = record.load({type: record.Type.INVOICE, id: newRecordId, isDynamic: true});
+    								thisRecord = record.load({type: newRecordType, id: newRecordId, isDynamic: true});
 								} 
     						catch (error) 
     							{
     								thisRecord = null;
     							}
     						
+    						//Do we have the invoice record
+    						//
     						if(thisRecord != null)
 		    					{
+    								//Get data from the invoice record
+    								//
 		    						var thisContract = thisRecord.getText({fieldId: 'custbody_bbs_contract_record'});
 		    						var thisContractId = thisRecord.getValue({fieldId: 'custbody_bbs_contract_record'});
 		    						var thisCustomer = thisRecord.getText({fieldId: 'entity'});
@@ -71,9 +91,25 @@ function(file, record, render, runtime)
 				    						//
 				    						transactionFile.folder = attachmentsFolder;
 				    						
+				    						//Build up the file name & description
+				    						//
+				    						var recordName = '';
+				    						
+				    						switch(newRecordType)
+				    							{
+				    								case record.Type.INVOICE:
+				    									recordName = 'Invoice';
+				    									break;
+				    									
+				    								case record.Type.CREDIT_MEMO:
+				    									recordName = 'Credit';
+				    									break;
+				    										
+				    							}
+				    						
 				    						//Set the file name
 				    						//
-				    						transactionFile.name = 'Invoice_' + thisContract + '_' + thisInvoiceNumber + '.pdf'
+				    						transactionFile.name = recordName + '_' + thisContract + '_' + thisInvoiceNumber + '.pdf'
 				    						
 				    						//Make available without login
 				    						//
@@ -81,7 +117,7 @@ function(file, record, render, runtime)
 				    						
 				    						//Set the file description
 				    						//
-				    						transactionFile.description = "Invoice # " + thisInvoiceNumber + " For Contract # " + thisContract;
+				    						transactionFile.description = recordName + " # " + thisInvoiceNumber + " For Contract # " + thisContract;
 				    						
 				    						//Try to save the file to the filing cabinet
 				    						//
@@ -114,6 +150,131 @@ function(file, record, render, runtime)
     			}
 	    }
 
+    //=========================================================================
+    // FUNCTIONS
+    //=========================================================================
+    //
+    function updateTransactionSummary(_thisRecord)
+	    {
+    		var summary = {};
+    		
+    		var newRecordId = _thisRecord.id;
+			var newRecordType = _thisRecord.type;
+			var thisRecord = null;
+			
+    		//Read in the invoice record
+			//
+			try 
+				{
+					thisRecord = record.load({type: newRecordType, id: newRecordId, isDynamic: true});
+				} 
+			catch (error) 
+				{
+					thisRecord = null;
+				}
+			
+			if(thisRecord != null)
+				{
+		    		var itemLines = thisRecord.getLineCount({sublistId: 'item'});
+		    		
+		    		//Loop through the item lines
+			    	//
+			    	for (var int = 0; int < itemLines; int++) 
+				    	{
+				    		var itemId = thisRecord.getSublistValue({
+							    sublistId: 'item',
+							    fieldId: 'item',
+							    line: int
+							});
+		
+							var itemDescription = thisRecord.getSublistText({
+							    sublistId: 'item',
+							    fieldId: 'item',
+							    line: int
+							});
+		
+							var itemUnitPrice = Number(thisRecord.getSublistValue({
+							    sublistId: 'item',
+							    fieldId: 'rate',
+							    line: int
+							}));
+		
+							var itemQuantity = Number(thisRecord.getSublistValue({
+							    sublistId: 'item',
+							    fieldId: 'quantity',
+							    line: int
+							}));
+		
+							var itemAmount = Number(thisRecord.getSublistValue({
+							    sublistId: 'item',
+							    fieldId: 'amount',
+							    line: int
+							}));
+		
+							var itemVatAmount = Number(thisRecord.getSublistValue({
+							    sublistId: 'item',
+							    fieldId: 'taxamount',
+							    line: int
+							}));
+		
+							//See if we have this product in the summary yet
+							//
+							if(!summary[itemId])
+								{
+									//Add it to the summary
+									summary[itemId] = new itemSummaryInfo(itemId, itemDescription, itemUnitPrice, itemQuantity, itemAmount, itemVatAmount);
+								}
+							else
+								{
+									//Update the summary
+									//
+									summary[itemId].quantity += itemQuantity;
+									summary[itemId].amount += itemAmount;
+									summary[itemId].vatAmount += itemVatAmount;
+								}
+						}
+		    	
+			    	//Update the record with the new summary info
+			    	//
+			    	try
+			    		{
+			    			record.submitFields({
+			    				type: thisRecord.type,
+			    				id: thisRecord.id,
+			    				values: {
+			    					custbody_bbs_json_summary: JSON.stringify(summary)
+			    				}
+			    			})
+			    		}
+			    	catch(err)
+			    		{
+			    		
+			    		}
+				}
+	    }
+    
+    
+  //=============================================================================
+  //Objects
+  //=============================================================================
+  //
+  function itemSummaryInfo(_itemid, _salesdescription, _unitPrice, _quantity, _amount, _vatAmount)
+	  {
+	  	//Properties
+	  	//
+	  	this.itemId 				= _itemid;
+	  	this.salesDescription 		= _salesdescription;
+	  	this.unitPrice 				= Number(_unitPrice);
+	  	this.quantity 				= Number(_amount);
+	  	this.amount 				= Number(_amount);
+	  	this.vatAmount				= Number(_vatAmount);
+	
+	  }
+
+  
+  
+  
+  
     return {afterSubmit: invoiceAS};
     
 });
