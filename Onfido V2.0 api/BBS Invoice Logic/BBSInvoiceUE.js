@@ -3,14 +3,14 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/file', 'N/record', 'N/render', 'N/runtime'],
+define(['N/file', 'N/record', 'N/render', 'N/runtime', 'N/search', 'N/email'],
 /**
  * @param {file} file
  * @param {record} record
  * @param {render} render
  * @param {runtime} runtime
  */
-function(file, record, render, runtime) 
+function(file, record, render, runtime, search, email) 
 {
    
     /**
@@ -28,6 +28,7 @@ function(file, record, render, runtime)
     		//
     		var currentScript = runtime.getCurrentScript();
     		var attachmentsFolder = currentScript.getParameter({name: 'custscript_bbs_attachments_folder'});
+    		var emailTemplate = currentScript.getParameter({name: 'custscript_bbs_email_template'});
     		
     		var today = new Date();
     		
@@ -71,6 +72,7 @@ function(file, record, render, runtime)
 		    						var thisContract = thisRecord.getText({fieldId: 'custbody_bbs_contract_record'});
 		    						var thisContractId = thisRecord.getValue({fieldId: 'custbody_bbs_contract_record'});
 		    						var thisCustomer = thisRecord.getText({fieldId: 'entity'});
+		    						var thisCustomerId = thisRecord.getValue({fieldId: 'entity'});
 		    						var thisInvoiceNumber = thisRecord.getText({fieldId: 'tranid'});
 		    						
 		    						//If we have the contract on the invoice, then go ahead
@@ -143,6 +145,92 @@ function(file, record, render, runtime)
 				    												record: {type: 'file', id: fileId},
 				    												to: {type: 'customrecord_bbs_contract', id: thisContractId}
 				    												});
+				    							}
+				    						
+				    						//Read the contract record to see who we send the email version of the pdf to
+				    						//
+				    						var emailAddress = '';
+				    						
+				    						var billingLevel = search.lookupFields({
+													    				            type: 'customrecord_bbs_contract',
+													    				            id: thisContractId,
+													    				            columns: ['custrecord_bbs_contract_billing_level']
+													    				        })['custrecord_bbs_contract_billing_level'][0].value;
+				    						
+				    						if(billingLevel == 1)	//Parent level
+				    							{
+				    								//Find the parent id
+				    								//
+					    							var parentCustomerId = search.lookupFields({
+																    				            type: search.Type.CUSTOMER,
+																    				            id: thisCustomerId,
+																    				            columns: ['parent']
+																    				        })['parent'][0].value;
+					    							
+					    							//If we have a parent set on the customer, then find the email address from that parent
+					    							//
+					    							if(parentCustomerId != null && parentCustomerId != '')
+					    								{
+					    									emailAddress = search.lookupFields({
+																    				            type: search.Type.CUSTOMER,
+																    				            id: parentCustomerId,
+																    				            columns: ['custentity_bbs_invoice_email']
+																    				        })['custentity_bbs_invoice_email'];
+					    								}
+					    						}
+				    						else	//Child level
+				    							{
+					    							emailAddress = search.lookupFields({
+														    				            type: search.Type.CUSTOMER,
+														    				            id: thisCustomerId,
+														    				            columns: ['custentity_bbs_invoice_email']
+														    				        })['custentity_bbs_invoice_email'];
+				    							
+				    							}
+				    						
+				    						//Have we actually got an email address?
+				    						//
+				    						if(emailAddress != null && emailAddress != '')
+				    							{
+				    								//Build up the attachments array
+				    								//
+				    								var emailAttachments = [];
+				    								emailAttachments.push(file.load({id: fileId}));
+				    							
+				    								//Create an email merger
+				    								//
+				    								var mergeResult = render.mergeEmail({
+												    								    templateId: emailTemplate,
+												    								    customRecord: {
+															    								        type: 'customrecord_bbs_contract',
+															    								        id: Number(thisContractId)
+															    								        }
+												    								    });
+				    								
+				    								if(mergeResult != null)
+					    								{
+					    									var emailSubject = mergeResult.subject;
+					    									var emailBody = mergeResult.body;
+					    									
+					    									try
+																{
+					    											email.send({
+					    														author: 		runtime.getCurrentUser().id,
+					    														recipients:		emailAddress,
+					    														subject:		emailSubject,
+					    														body:			emailBody,
+					    														attachments:	emailAttachments
+					    														})		
+																	
+																}
+															catch(err)
+																{
+																	log.debug({
+																			    title: 'Error sending email', 
+																			    details: err.message
+																			    });
+																}
+					    								}
 				    							}
 		    							}
 		    					}
