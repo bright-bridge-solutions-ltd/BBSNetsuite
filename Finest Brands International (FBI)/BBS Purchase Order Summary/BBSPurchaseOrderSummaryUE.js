@@ -31,10 +31,22 @@ function purchaseOrderSummaryAS(type)
 	var thisRecordType = nlapiGetRecordType();
 	var thisCurrency = nlapiGetFieldValue('currency');
 	
+	nlapiLogExecution('DEBUG', 'PO Id', purchaseOrderId);
+	nlapiLogExecution('DEBUG', 'Record Type', thisRecordType);
+	nlapiLogExecution('DEBUG', 'Currency', thisCurrency);
+	
+	
+	
 	//Only on create or edit of the sales order
 	//
 	if(type == 'create' || type == 'edit')
 		{
+			//Get the currency symbol
+			//
+			var currencyRecord = nlapiLoadRecord('currency', thisCurrency);
+			
+			var currencySymbol = currencyRecord.getFieldValue('displaysymbol');
+			
 			//Get the count of item lines
 			//
 			var lines = nlapiGetLineItemCount('item');
@@ -187,41 +199,77 @@ function purchaseOrderSummaryAS(type)
 					var totalQuantity = Number(0);
 					var totalAmount = Number(0);
 					
+					//Sort outputSummary
+					//
+					const sortedSummary = {};
+				    Object.keys(summary).sort().forEach(function(key) {
+				    	sortedSummary[key] = summary[key];
+				    });
+				    
 					//Loop through the summaries
 					//
-					for ( var key in summary) 
+				    var lastProduct = '';
+				    var firstTime = true;
+				    var groupQuantity = Number(0);
+				    var groupValue = Number(0);
+				    
+					for ( var key in sortedSummary) 
 						{
+							if(firstTime)
+								{
+									lastProduct = sortedSummary[key].itemId;
+									firstTime = false;
+								}
+						
+							if(lastProduct != sortedSummary[key].itemId && outputArray.length > 0)
+								{
+									//If we have changed product, update the last entry in the output array to say we need a page break
+									//
+									outputArray[outputArray.length -1].pageBreak = 'Y';
+									outputArray[outputArray.length -1].groupQuantity = groupQuantity;
+									outputArray[outputArray.length -1].groupValue = currencySymbol + groupValue.numberFormat('###,###.00');
+								
+									lastProduct = sortedSummary[key].itemId;
+									groupQuantity = Number(0);
+								    groupValue = Number(0);
+								}
+							
 							//Push a new instance of the output summary object onto the output array
 							//
 							outputArray.push(new outputSummary	(	
-																summary[key].itemId, 
-																summary[key].purchaseDescription, 
-																summary[key].locationText, 
-																summary[key].itemColourText + ' ' + summary[key].itemSize2Text, 
-																summary[key].getQuantitySizeSummary(), 
-																summary[key].getQuantitySizeTotal(),
-																summary[key].unitPrice,
-																summary[key].getAmountTotal(),
-																summary[key].getVatAmountTotal(),
-																summary[key].vatCode,
-																summary[key].item_specification,
-																summary[key].item_trim,
-																summary[key].item_packaging,
-																summary[key].item_outer_packaging,
-																summary[key].item_purchase_terms
+																sortedSummary[key].itemId, 
+																sortedSummary[key].purchaseDescription, 
+																sortedSummary[key].locationText, 
+																sortedSummary[key].itemColourText + ' ' + sortedSummary[key].itemSize2Text, 
+																sortedSummary[key].getQuantitySizeSummary(), 
+																sortedSummary[key].getQuantitySizeTotal(),
+																sortedSummary[key].unitPrice,
+																sortedSummary[key].getAmountTotal(),
+																sortedSummary[key].getVatAmountTotal(),
+																sortedSummary[key].vatCode,
+																sortedSummary[key].item_specification,
+																sortedSummary[key].item_trim,
+																sortedSummary[key].item_packaging,
+																sortedSummary[key].item_outer_packaging,
+																sortedSummary[key].item_purchase_terms,
+																'N',
+																0,
+																0,
+																currencySymbol + sortedSummary[key].unitPrice.numberFormat('###,###.00')
 																)
 											);
 							
-							totalQuantity += summary[key].getQuantitySizeTotal();
-							totalAmount += summary[key].getAmountTotal();
+							totalQuantity += sortedSummary[key].getQuantitySizeTotal();
+							totalAmount += sortedSummary[key].getAmountTotal();
 							
+							groupQuantity += sortedSummary[key].getQuantitySizeTotal();
+							groupValue += sortedSummary[key].getAmountTotal();
 						}
 					
-					//Get the currency symbol
+					//Update the last group totals
 					//
-					var currencyRecord = nlapiLoadRecord('currency', thisCurrency);
-					
-					var currencySymbol = currencyRecord.getFieldValue('displaysymbol');
+					outputArray[outputArray.length -1].groupQuantity = groupQuantity;
+					outputArray[outputArray.length -1].groupValue = currencySymbol + groupValue.numberFormat('###,###.00');
 					
 					//Consolidate header & line info into one object
 					//
@@ -246,7 +294,7 @@ function poOutput(_outputArray, _unitPrice, _totalQuantity, _totalAmount)
 	this.totalAmount	= _totalAmount;
 }
 
-function outputSummary(_product, _description, _location, _colour, _quantitySize, _total, _unitPrice, _amount, _vatAmount, _vatCode, _item_specification, _item_trim, _item_packaging, _item_outer_packaging, _item_purchase_terms)
+function outputSummary(_product, _description, _location, _colour, _quantitySize, _total, _unitPrice, _amount, _vatAmount, _vatCode, _item_specification, _item_trim, _item_packaging, _item_outer_packaging, _item_purchase_terms, _pageBreak, _groupQuantity, _groupValue, _groupUnitPrice)
 {
 	//Properties
 	//
@@ -260,12 +308,15 @@ function outputSummary(_product, _description, _location, _colour, _quantitySize
 	this.unitPrice 				= Number(_unitPrice);
 	this.vatAmount 				= Number(_vatAmount);
 	this.vatCode 				= _vatCode;
-	this.item_specification		= _item_specification
-	this.item_trim				= _item_trim
-	this.item_packaging			= _item_packaging
-	this.item_outer_packaging	= _item_outer_packaging
-	this.item_purchase_terms	= _item_purchase_terms
-	
+	this.item_specification		= _item_specification;
+	this.item_trim				= _item_trim;
+	this.item_packaging			= _item_packaging;
+	this.item_outer_packaging	= _item_outer_packaging;
+	this.item_purchase_terms	= _item_purchase_terms;
+	this.pageBreak 				= _pageBreak;
+	this.groupQuantity			= _groupQuantity;
+	this.groupValue				= _groupValue;
+	this.groupUnitPrice			= _groupUnitPrice;
 }
 
 function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _purchasedescription, _itemColourText, _itemSize2Text, _locationText, _unitPrice, _vatCode, _item_specification, _item_trim, _item_packaging, _item_outer_packaging, _item_purchase_terms, _sizeList, _sizeListText)
