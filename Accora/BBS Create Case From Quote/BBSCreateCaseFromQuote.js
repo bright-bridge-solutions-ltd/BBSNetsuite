@@ -3,7 +3,7 @@
  * 
  * Version    Date            Author           Remarks
  * 1.00       30 Aug 2019     cedricgriffiths
- *
+ * 1.01		  01 Oct 2019	  markanderson
  */
 
 /**
@@ -37,6 +37,7 @@ function createCaseFromQuoteAS(type)
 					//Get who created the record & the subsidiary
 					//
 					var createdBy = quoteRecord.getFieldValue('recordcreatedby');
+					var createdByText = quoteRecord.getFieldText('recordcreatedby');
 					var subsidiary = quoteRecord.getFieldValue('subsidiary');
 					
 					//make sure we have a created by & that the subsidiary is Accora Limited or Accora IE
@@ -81,7 +82,7 @@ function createCaseFromQuoteAS(type)
 									caseRecord.setFieldValue('profile', caseProfile);
 									caseRecord.setFieldValue('customform', 56);
 									caseRecord.setFieldValue('category', 21);
-									caseRecord.setFieldValue('title', 'CPQ Quote ' + quoteNo);
+									caseRecord.setFieldValue('title', 'Sales Rep Quote Created ' + quoteNo);
 									caseRecord.setFieldValue('contact', contactId);
 									
 									//Create the case record
@@ -108,7 +109,7 @@ function createCaseFromQuoteAS(type)
 											newMessage.setFieldValue('author', customerId);
 											newMessage.setFieldValue('incoming', 'T');
 											newMessage.setFieldValue('emailed', 'F');
-											newMessage.setFieldValue('message', 'CPQ Quote ' + quoteNo);
+											newMessage.setFieldValue('message', createdByText + ' has created ' + quoteNo + '. Please double check, process and send onto the Customer. Thank you');
 											newMessage.setFieldValue('subject', 'Case created from quotation');
 										
 											try
@@ -136,3 +137,4 @@ function createCaseFromQuoteAS(type)
 				}
 		}
 }
+
