@@ -159,24 +159,11 @@ function(file, record, render, runtime, search, email)
 				    						
 				    						if(billingLevel == 1)	//Parent level
 				    							{
-				    								//Find the parent id
-				    								//
-					    							var parentCustomerId = search.lookupFields({
-																    				            type: search.Type.CUSTOMER,
-																    				            id: thisCustomerId,
-																    				            columns: ['parent']
-																    				        })['parent'][0].value;
-					    							
-					    							//If we have a parent set on the customer, then find the email address from that parent
-					    							//
-					    							if(parentCustomerId != null && parentCustomerId != '')
-					    								{
-					    									emailAddress = search.lookupFields({
-																    				            type: search.Type.CUSTOMER,
-																    				            id: parentCustomerId,
-																    				            columns: ['custentity_bbs_invoice_email']
-																    				        })['custentity_bbs_invoice_email'];
-					    								}
+					    							emailAddress = search.lookupFields({
+														    				            type: search.Type.CUSTOMER,
+														    				            id: thisCustomerId,
+														    				            columns: ['parentcustomer.custentity_bbs_invoice_email']
+														    				        })['parentcustomer.custentity_bbs_invoice_email'];
 					    						}
 				    						else	//Child level
 				    							{
@@ -185,7 +172,6 @@ function(file, record, render, runtime, search, email)
 														    				            id: thisCustomerId,
 														    				            columns: ['custentity_bbs_invoice_email']
 														    				        })['custentity_bbs_invoice_email'];
-				    							
 				    							}
 				    						
 				    						//Have we actually got an email address?
@@ -207,11 +193,17 @@ function(file, record, render, runtime, search, email)
 															    								        }
 												    								    });
 				    								
+				    								//Was the merge ok?
+				    								//
 				    								if(mergeResult != null)
 					    								{
+				    										//Get the body & subject from the merge to pass on to the email
+				    										//
 					    									var emailSubject = mergeResult.subject;
 					    									var emailBody = mergeResult.body;
 					    									
+					    									//Send the email
+					    									//
 					    									try
 																{
 					    											email.send({
