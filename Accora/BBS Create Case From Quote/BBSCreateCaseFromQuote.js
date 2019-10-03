@@ -37,7 +37,8 @@ function createCaseFromQuoteAS(type)
 					//Get who created the record & the subsidiary
 					//
 					var createdBy = quoteRecord.getFieldValue('recordcreatedby');
-					var createdByText = quoteRecord.getFieldText('recordcreatedby');
+					//var createdByText = quoteRecord.getFieldText('recordcreatedby');
+					var createdByText = nlapiLookupField('employee',createdBy, 'entityid');
 					var subsidiary = quoteRecord.getFieldValue('subsidiary');
 					
 					//make sure we have a created by & that the subsidiary is Accora Limited or Accora IE
