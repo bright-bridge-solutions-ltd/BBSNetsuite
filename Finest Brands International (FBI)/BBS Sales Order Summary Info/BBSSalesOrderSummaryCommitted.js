@@ -147,7 +147,11 @@ function scheduled(type)
 							
 							//Only interested in inventory & non-inventory items
 							//
+<<<<<<< HEAD
+							if(lineType == 'InvtPart' || lineType == 'NonInvtPart')
+=======
 							if(lineType == 'InvtPart' || lineType == 'NonInvtPart' ) //|| lineType == 'Discount')
+>>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite.git
 								{
 									var recordType = '';	
 						  	        
@@ -167,11 +171,16 @@ function scheduled(type)
 								            	recordType = 'discountitem';
 								                break;
 							        	}
+							        
+							        nlapiLogExecution('DEBUG', 'Record Type', recordType);
 								
 							        //Get info about current product & parent etc.
 							        //
-							        var itemInfo = nlapiLookupField(recordType, lineItem, ['parent','custitem_fbi_item_colour','custitem_fbi_item_size1','custitem_fbi_item_size2'], false)
-							        var itemInfoText = nlapiLookupField(recordType, lineItem, ['parent','custitem_fbi_item_colour','custitem_fbi_item_size1','custitem_fbi_item_size2'], true)
+							        var itemInfo = nlapiLookupField(recordType, lineItem, ['parent','custitem_fbi_item_colour','custitem_fbi_item_size1','custitem_fbi_item_size2'], false);
+							        var itemInfoText = nlapiLookupField(recordType, lineItem, ['parent','custitem_fbi_item_colour','custitem_fbi_item_size1','custitem_fbi_item_size2'], true);
+							        
+							        nlapiLogExecution('DEBUG', 'Item Info', itemInfo);
+							        nlapiLogExecution('DEBUG', 'Item Info Text', itemInfoText);
 							        
 							        //If we have a parent then proceed
 							        //
