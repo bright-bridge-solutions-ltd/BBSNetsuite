@@ -290,12 +290,26 @@
   	<#assign summary_total += info.totalCommitted>
 	</#list>
   </table>
-
-  <table class="total" align="right" style="width: 25%; margin-top: 10px;">
-    <tr style="line-height: 200%;">
-      <td align="center" colspan="3" style="font-size: 8pt; font-weight: bold; background-color: #000000; color: #ffffff;">Total</td>
-      <td align="center" colspan="2" style="border-right: 1px solid black; border-top: 1px solid black;  border-bottom: 1px solid black;">${summary_total}</td>
-  </tr>
+  
+  <table class="total" align="left" style="width: 100%; margin-top: 10px;">
+  	<tr>
+  		<td>
+  			<table class="total" align="left" style="width: 70%; margin-top: 10px;">
+  				<tr>
+  					<td colspan="2"><strong>Notes:</strong></td>
+  					<td colspan="10">${record.custbody_bbs_so_picking_notes}</td>
+  				</tr>
+  			</table>
+  		</td>
+  		<td>
+  			  <table class="total" align="right" style="width: 30%; margin-top: 10px;">
+    			<tr style="line-height: 200%;">
+      				<td align="center" colspan="3" style="font-size: 8pt; font-weight: bold; background-color: #000000; color: #ffffff;">Total</td>
+      				<td align="center" colspan="2" style="border-right: 1px solid black; border-top: 1px solid black;  border-bottom: 1px solid black;">${summary_total}</td>
+  				</tr>
+  			</table>
+  		</td>
+  	</tr>  
   </table>
   
 <table style="width: 100%; margin-top: 10px;">
