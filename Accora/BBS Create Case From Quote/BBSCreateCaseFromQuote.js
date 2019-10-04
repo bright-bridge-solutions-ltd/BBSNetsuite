@@ -3,7 +3,7 @@
  * 
  * Version    Date            Author           Remarks
  * 1.00       30 Aug 2019     cedricgriffiths
- *
+ * 1.01		  01 Oct 2019	  markanderson
  */
 
 /**
@@ -37,11 +37,15 @@ function createCaseFromQuoteAS(type)
 					//Get who created the record & the subsidiary
 					//
 					var createdBy = quoteRecord.getFieldValue('recordcreatedby');
-					var subsidiary = quoteRecord.getFieldValue('subsidiary');
-					
+					//var createdByText = quoteRecord.getFieldText('recordcreatedby');
+					var createdByText = nlapiLookupField('employee',createdBy, 'entityid');
+                    var subsidiary = quoteRecord.getFieldValue('subsidiary');
+                    var salesRep = quoteRecord.getFieldValue('salesrep');
+                    var salesRepText = nlapiLookupField('employee',salesRep, 'entityid');
+                  
 					//make sure we have a created by & that the subsidiary is Accora Limited or Accora IE
 					//
-					if(createdBy != null && createdBy != '' & (subsidiary == '5' || subsidiary == '7'))
+					if(createdBy != null && createdBy != '' && (subsidiary == '5' || subsidiary == '7'))
 						{
 							//See if they are a sales rep
 							//
@@ -81,8 +85,9 @@ function createCaseFromQuoteAS(type)
 									caseRecord.setFieldValue('profile', caseProfile);
 									caseRecord.setFieldValue('customform', 56);
 									caseRecord.setFieldValue('category', 21);
-									caseRecord.setFieldValue('title', 'CPQ Quote ' + quoteNo);
+									caseRecord.setFieldValue('title', 'Sales Rep Quote Created ' + quoteNo);
 									caseRecord.setFieldValue('contact', contactId);
+                                    caseRecord.setFieldValue('custevent_acc_qso_ref', quoteNo);
 									
 									//Create the case record
 									//
@@ -108,7 +113,7 @@ function createCaseFromQuoteAS(type)
 											newMessage.setFieldValue('author', customerId);
 											newMessage.setFieldValue('incoming', 'T');
 											newMessage.setFieldValue('emailed', 'F');
-											newMessage.setFieldValue('message', 'CPQ Quote ' + quoteNo);
+											newMessage.setFieldValue('message', quoteNo + '<br><br> Quote created by '+ createdByText + '.<br><br>The Sales Rep on this transaction has been set as ' + salesRepText + '.<br><br>Please double check the transaction, relate it to this case, process, then send on to the Customer.<br><br>If there are any queries, please contact the Sales Rep.<br><br> Thank you');
 											newMessage.setFieldValue('subject', 'Case created from quotation');
 										
 											try
@@ -136,3 +141,4 @@ function createCaseFromQuoteAS(type)
 				}
 		}
 }
+

@@ -147,7 +147,11 @@ function scheduled(type)
 							
 							//Only interested in inventory & non-inventory items
 							//
+<<<<<<< HEAD
 							if(lineType == 'InvtPart' || lineType == 'NonInvtPart')
+=======
+							if(lineType == 'InvtPart' || lineType == 'NonInvtPart' ) //|| lineType == 'Discount')
+>>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite.git
 								{
 									var recordType = '';	
 						  	        
@@ -536,7 +540,7 @@ function checkResources()
 {
 	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
 	
-	if(remaining < 200)
+	if(remaining < 400)
 		{
 			nlapiYieldScript();
 		}

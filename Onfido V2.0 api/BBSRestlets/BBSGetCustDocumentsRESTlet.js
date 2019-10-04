@@ -52,13 +52,13 @@ function(search,config) {
 		    		   type: "customrecord_bbs_contract",
 		    		   filters:
 		    		   [
-		    		      ["custrecord_bbs_contract_status","anyof","1"], 
+		    		      ["custrecord_bbs_contract_status","anyof","1"], 				//Approved
 		    		      "AND", 
-		    		      ["custrecord_bbs_contract_customer","anyof",customer], 
+		    		      ["file.availablewithoutlogin","is","T"], 						//Available without login
 		    		      "AND", 
-		    		      ["file.availablewithoutlogin","is","T"], 
-		    		      "AND", 
-		    		      ["custrecord_bbs_contract_customer.parent","anyof",customer]
+		    		      [["custrecord_bbs_contract_customer","anyof",customer], 		//Contract customer is the customer in question
+		    		      "OR", 
+		    		      ["custrecord_bbs_contract_customer.parent","anyof",customer]]	//Or the contract customer's parent is the customer in question
 		    		   ],
 		    		   columns:
 		    		   [

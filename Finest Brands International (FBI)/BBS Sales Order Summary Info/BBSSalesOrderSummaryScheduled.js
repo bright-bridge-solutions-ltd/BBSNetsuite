@@ -120,7 +120,7 @@ function scheduled(type)
 			
 			//Only interested in inventory & non-inventory items
 			//
-			if(lineType == 'InvtPart' || lineType == 'NonInvtPart' || lineType == 'Discount')
+			if(lineType == 'InvtPart' || lineType == 'NonInvtPart' ) //|| lineType == 'Discount')
 				{
 					var recordType = '';	
 		  	        

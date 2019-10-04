@@ -147,6 +147,8 @@ function statisticalJournalsAS(type)
 			var originatingTransaction = null;
 			var transactionDate = null;
 			var postingPeriod = null;
+			var supplierSegment = null;
+			var customerSegment = null;
 			
 			if(type == 'edit' || type == 'delete')
 				{
@@ -247,6 +249,7 @@ function statisticalJournalsAS(type)
 					statisticalJournal.setFieldValue('memo', originatingTransaction);
 					statisticalJournal.setFieldValue('trandate', transactionDate);
 					statisticalJournal.setFieldValue('postingperiod', postingPeriod);
+					statisticalJournal.setFieldValue('custbody_bbs_originating_transaction',recordId);
 					
 					//Loop through the summary values
 					//
@@ -260,6 +263,8 @@ function statisticalJournalsAS(type)
 							var chargeId = summaryParts[4];
 							var operationsId = summaryParts[5];
 							var departmentId = summaryParts[6];
+							var supplierId = summaryParts[7];
+							var customerId = summaryParts[8];
 							
 							//See if we need to create a parcels line
 							//
@@ -284,6 +289,8 @@ function statisticalJournalsAS(type)
 									statisticalJournal.setLineItemValue('line', 'cseg_bbs_ops_method', lineNo, operationsId);
 									statisticalJournal.setLineItemValue('line', 'entity', lineNo, entityId);
 									statisticalJournal.setLineItemValue('line', 'department', lineNo, departmentId);
+									statisticalJournal.setLineItemValue('line', 'cseg_bbs_supplier', lineNo, supplierId);
+									statisticalJournal.setLineItemValue('line', 'cseg_bbs_customer', lineNo, customerId);
 								}
 							
 							//See if we need to create a consignments line
@@ -309,6 +316,8 @@ function statisticalJournalsAS(type)
 									statisticalJournal.setLineItemValue('line', 'cseg_bbs_ops_method', lineNo, operationsId);
 									statisticalJournal.setLineItemValue('line', 'entity', lineNo, entityId);
 									statisticalJournal.setLineItemValue('line', 'department', lineNo, departmentId);
+									statisticalJournal.setLineItemValue('line', 'cseg_bbs_supplier', lineNo, supplierId);
+									statisticalJournal.setLineItemValue('line', 'cseg_bbs_customer', lineNo, customerId);
 								}
 						}
 					
@@ -339,8 +348,10 @@ function getSummaryValues(_record, _type, _summaryValues, _sublistName)
 			var charge = isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_chrgetype', int), '');
 			var operations = isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_ops_method', int), '');
 			var department = isNull(_record.getLineItemValue(_sublistName, 'department', int), '');
+			var supplier = isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_supplier', int), '');
+			var customer = isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_customer', int), '');
 			
-			var summaryKey = carrier + '|' + contract + '|' + group + '|' + service + '|' + charge + '|' + operations + '|' + department;
+			var summaryKey = carrier + '|' + contract + '|' + group + '|' + service + '|' + charge + '|' + operations + '|' + department + '|' + supplier + '|' + customer;
 			
 			var parcels = Number(_record.getLineItemValue(_sublistName, 'custcol_bbs_parcels', int));
 			var consignments = Number(_record.getLineItemValue(_sublistName, 'custcol_bbs_consignments', int));
