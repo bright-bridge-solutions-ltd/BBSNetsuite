@@ -147,7 +147,7 @@ function scheduled(type)
 							
 							//Only interested in inventory & non-inventory items
 							//
-							if(lineType == 'InvtPart' || lineType == 'NonInvtPart' || lineType == 'Discount')
+							if(lineType == 'InvtPart' || lineType == 'NonInvtPart' ) //|| lineType == 'Discount')
 								{
 									var recordType = '';	
 						  	        
@@ -531,7 +531,7 @@ function checkResources()
 {
 	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
 	
-	if(remaining < 200)
+	if(remaining < 400)
 		{
 			nlapiYieldScript();
 		}

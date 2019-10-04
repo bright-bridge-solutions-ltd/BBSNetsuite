@@ -137,7 +137,7 @@ function salesOrderSummaryAS(type)
 							
 							//Only interested in inventory & non-inventory items
 							//
-							if(lineType == 'InvtPart' || lineType == 'NonInvtPart' || lineType == 'Discount')
+							if(lineType == 'InvtPart' || lineType == 'NonInvtPart' ) //|| lineType == 'Discount')
 								{
 									var recordType = '';	
 						  	        
@@ -160,8 +160,8 @@ function salesOrderSummaryAS(type)
 								
 							        //Get info about current product & parent etc.
 							        //
-							        var itemInfo = nlapiLookupField(recordType, lineItem, ['parent','custitem_fbi_item_colour','custitem_fbi_item_size1','custitem_fbi_item_size2'], false)
-							        var itemInfoText = nlapiLookupField(recordType, lineItem, ['parent','custitem_fbi_item_colour','custitem_fbi_item_size1','custitem_fbi_item_size2'], true)
+							        var itemInfo = nlapiLookupField(recordType, lineItem, ['parent','custitem_fbi_item_colour','custitem_fbi_item_size1','custitem_fbi_item_size2'], false);
+							        var itemInfoText = nlapiLookupField(recordType, lineItem, ['parent','custitem_fbi_item_colour','custitem_fbi_item_size1','custitem_fbi_item_size2'], true);
 							        
 							        //If we have a parent then proceed
 							        //
