@@ -421,7 +421,27 @@ function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _purchased
 
 	this.getQuantitySizeSummary = function()
 		{
-			return this.sizeQuantity;
+			//return this.sizeQuantity;
+			return this.sizeQuantity.sort(compare);
+		
+			function compare(a, b)
+				{
+					var textA = a.sizeText;
+					var textB = b.sizeText;
+					
+					var comparison = 0;
+					
+					if(textA > textB)
+						{
+							comparison = 1;
+						}
+					else
+						{
+							comparison = -1;
+						}
+					
+					return comparison;
+				}
 		}
 }
 

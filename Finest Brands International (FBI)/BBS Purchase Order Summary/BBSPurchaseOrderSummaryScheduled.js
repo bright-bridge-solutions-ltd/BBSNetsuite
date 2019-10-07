@@ -323,93 +323,113 @@ function itemSummaryInfo(_itemid, _itemColour, _itemSize2, _location, _purchased
 
 //Methods
 //
-this.updateSizeQuantity = function(_size, _quantity, _sizeText, _amount, _vatAmount)
-{
-if(this.sizeQuantity.length == 0) 
-{
-	//If no elements in the array then this is the first, so just push it on
-	//
-	this.sizeQuantity.push(new sizeQuantityCell(_size, _quantity, _sizeText, _amount, _vatAmount));
-}
-else
-{
-	//See if we can find the size in the array of sizes
-	//
-	var updated = false;
+	this.updateSizeQuantity = function(_size, _quantity, _sizeText, _amount, _vatAmount)
+	{
+		if(this.sizeQuantity.length == 0) 
+			{
+				//If no elements in the array then this is the first, so just push it on
+				//
+				this.sizeQuantity.push(new sizeQuantityCell(_size, _quantity, _sizeText, _amount, _vatAmount));
+			}
+		else
+			{
+				//See if we can find the size in the array of sizes
+				//
+				var updated = false;
+				
+				for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
+					{
+						if(this.sizeQuantity[int2].sizeId == _size)
+							{
+								this.sizeQuantity[int2].quantity  += Number(_quantity);
+								this.sizeQuantity[int2].amount    += Number(_amount);
+								this.sizeQuantity[int2].vatAmount += Number(_vatAmount);
+								
+								updated = true;
+								break;
+							}
+					}
+				
+				//If we couldn't find the size in the array, then add a new one
+				//
+				if(!updated)
+					{
+						this.sizeQuantity.push(new sizeQuantityCell(_size, _quantity, _sizeText, _amount, _vatAmount));
+					}
+			}
+	}
 	
-	for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
-		{
-			if(this.sizeQuantity[int2].sizeId == _size)
-				{
-					this.sizeQuantity[int2].quantity  += Number(_quantity);
-					this.sizeQuantity[int2].amount    += Number(_amount);
-					this.sizeQuantity[int2].vatAmount += Number(_vatAmount);
-					
-					updated = true;
-					break;
-				}
-		}
+	this.getQuantitySizeTotal = function()
+	{
+		var totalQuantity = Number(0);
 	
-	//If we couldn't find the size in the array, then add a new one
-	//
-	if(!updated)
-		{
-			this.sizeQuantity.push(new sizeQuantityCell(_size, _quantity, _sizeText, _amount, _vatAmount));
-		}
-}
-}
-
-this.getQuantitySizeTotal = function()
-{
-var totalQuantity = Number(0);
-
-for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
-{
-	totalQuantity += Number(this.sizeQuantity[int2].quantity);
-}
-
-return totalQuantity;
-}
-
-this.getAmountTotal = function()
-{
-var totalAmount = Number(0);
-
-for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
-{
-	totalAmount += Number(this.sizeQuantity[int2].amount);
-}
-
-return totalAmount;
-}
-
-this.getVatAmountTotal = function()
-{
-var totalVatAmount = Number(0);
-
-for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
-{
-	totalVatAmount += Number(this.sizeQuantity[int2].vatAmount);
-}
-
-return totalVatAmount;
-}
-
-this.getQuantitySizeSummary = function()
-{
-return this.sizeQuantity;
-}
+		for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
+			{
+				totalQuantity += Number(this.sizeQuantity[int2].quantity);
+			}
+	
+		return totalQuantity;
+	}
+	
+	this.getAmountTotal = function()
+	{
+		var totalAmount = Number(0);
+		
+		for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
+			{
+				totalAmount += Number(this.sizeQuantity[int2].amount);
+			}
+	
+		return totalAmount;
+	}
+	
+	this.getVatAmountTotal = function()
+	{
+		var totalVatAmount = Number(0);
+		
+		for (var int2 = 0; int2 < this.sizeQuantity.length; int2++) 
+			{
+				totalVatAmount += Number(this.sizeQuantity[int2].vatAmount);
+			}
+	
+		return totalVatAmount;
+	}
+	
+	this.getQuantitySizeSummary = function()
+	{
+		//return this.sizeQuantity;
+		return this.sizeQuantity.sort(compare);
+		
+		function compare(a, b)
+			{
+				var textA = a.sizeText;
+				var textB = b.sizeText;
+				
+				var comparison = 0;
+				
+				if(textA > textB)
+					{
+						comparison = 1;
+					}
+				else
+					{
+						comparison = -1;
+					}
+				
+				return comparison;
+			}
+	}
 }
 
 function sizeQuantityCell(_size, _quantity, _sizeText, _amount, _vatAmount)
 {
-//Properties
-//
-this.sizeId 	= _size;
-this.quantity 	= Number(_quantity);
-this.amount 	= Number(_amount);
-this.vatAmount 	= Number(_vatAmount);
-this.sizeText 	= _sizeText;	
+	//Properties
+	//
+	this.sizeId 	= _size;
+	this.quantity 	= Number(_quantity);
+	this.amount 	= Number(_amount);
+	this.vatAmount 	= Number(_vatAmount);
+	this.sizeText 	= _sizeText;	
 }
 
 
