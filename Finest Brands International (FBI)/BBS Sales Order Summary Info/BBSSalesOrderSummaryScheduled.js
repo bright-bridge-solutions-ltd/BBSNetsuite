@@ -55,8 +55,18 @@ function scheduled(type)
 						{
 							// lookup the discount percentage on the price level record
 							var discount = nlapiLookupField('pricelevel', priceLevel, 'discountpct');
-							discount = (parseFloat(discount) * -1);
-							discount = discount.toFixed(2) + '%';
+							
+							// check if the discount variable returns a value
+							if (discount)
+								{
+									discount = (parseFloat(discount) * -1);
+									discount = discount.toFixed(2) + '%';
+								}
+							else
+								{
+									// set the discount variable to '0.00%'
+									var discount = '0.00%';
+								}
 						}
 					else
 						{
@@ -73,8 +83,18 @@ function scheduled(type)
 						{
 							// lookup the discount percentage on the price level record
 							var discount = nlapiLookupField('pricelevel', priceLevel, 'discountpct');
-							discount = (parseFloat(discount) * -1);
-							discount = discount.toFixed(2) + '%';
+							
+							// check if the discount variable returns a value
+							if (discount)
+								{
+									discount = (parseFloat(discount) * -1);
+									discount = discount.toFixed(2) + '%';
+								}
+							else
+								{
+									// set the discount variable to '0.00%'
+									var discount = '0.00%';
+								}
 						}
 					else
 						{
@@ -83,13 +103,23 @@ function scheduled(type)
 						}
 				}
 
-			// check that the priceLevel is not -1 (custom) or 1 (base price)
+			/// check that the priceLevel is not -1 (custom) or 1 (base price)
 			if (priceLevel > 1)
 				{
 					// lookup the discount percentage on the price level record
 					var discount = nlapiLookupField('pricelevel', priceLevel, 'discountpct');
-					discount = (parseFloat(discount) * -1);
-					discount = discount.toFixed(2) + '%';
+					
+					// check if the discount variable returns a value
+					if (discount)
+						{
+							discount = (parseFloat(discount) * -1);
+							discount = discount.toFixed(2) + '%';
+						}
+					else
+						{
+							// set the discount variable to '0.00%'
+							var discount = '0.00%';
+						}
 				}
 			else
 				{

@@ -82,8 +82,18 @@ function scheduled(type)
 										{
 											// lookup the discount percentage on the price level record
 											var discount = nlapiLookupField('pricelevel', priceLevel, 'discountpct');
-											discount = (parseFloat(discount) * -1);
-											discount = discount.toFixed(2) + '%';
+											
+											// check if the discount variable returns a value
+											if (discount)
+												{
+													discount = (parseFloat(discount) * -1);
+													discount = discount.toFixed(2) + '%';
+												}
+											else
+												{
+													// set the discount variable to '0.00%'
+													var discount = '0.00%';
+												}
 										}
 									else
 										{
@@ -100,8 +110,18 @@ function scheduled(type)
 										{
 											// lookup the discount percentage on the price level record
 											var discount = nlapiLookupField('pricelevel', priceLevel, 'discountpct');
-											discount = (parseFloat(discount) * -1);
-											discount = discount.toFixed(2) + '%';
+											
+											// check if the discount variable returns a value
+											if (discount)
+												{
+													discount = (parseFloat(discount) * -1);
+													discount = discount.toFixed(2) + '%';
+												}
+											else
+												{
+													// set the discount variable to '0.00%'
+													var discount = '0.00%';
+												}
 										}
 									else
 										{
@@ -115,8 +135,18 @@ function scheduled(type)
 								{
 									// lookup the discount percentage on the price level record
 									var discount = nlapiLookupField('pricelevel', priceLevel, 'discountpct');
-									discount = (parseFloat(discount) * -1);
-									discount = discount.toFixed(2) + '%';
+									
+									// check if the discount variable returns a value
+									if (discount)
+										{
+											discount = (parseFloat(discount) * -1);
+											discount = discount.toFixed(2) + '%';
+										}
+									else
+										{
+											// set the discount variable to '0.00%'
+											var discount = '0.00%';
+										}
 								}
 							else
 								{
@@ -147,11 +177,7 @@ function scheduled(type)
 							
 							//Only interested in inventory & non-inventory items
 							//
-<<<<<<< HEAD
 							if(lineType == 'InvtPart' || lineType == 'NonInvtPart')
-=======
-							if(lineType == 'InvtPart' || lineType == 'NonInvtPart' ) //|| lineType == 'Discount')
->>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite.git
 								{
 									var recordType = '';	
 						  	        
