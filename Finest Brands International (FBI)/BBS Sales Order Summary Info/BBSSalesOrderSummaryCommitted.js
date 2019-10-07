@@ -55,6 +55,8 @@ function scheduled(type)
 					//
 					for (var int = 1; int <= lines; int++) 
 						{
+							checkResources();
+						
 							//Get values from the item line
 							//
 							var lineItem = thisRecord.getLineItemValue('item', 'item', int);
@@ -179,6 +181,8 @@ function scheduled(type)
 							//
 							if(lineType == 'InvtPart' || lineType == 'NonInvtPart')
 								{
+									checkResources();
+								
 									var recordType = '';	
 						  	        
 									//Translate the record type so it can be used in the api calls
@@ -566,7 +570,7 @@ function checkResources()
 {
 	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
 	
-	if(remaining < 400)
+	if(remaining < 200)
 		{
 			nlapiYieldScript();
 		}
