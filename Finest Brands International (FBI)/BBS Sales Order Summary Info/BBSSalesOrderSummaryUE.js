@@ -72,8 +72,18 @@ function salesOrderSummaryAS(type)
 										{
 											// lookup the discount percentage on the price level record
 											var discount = nlapiLookupField('pricelevel', priceLevel, 'discountpct');
-											discount = (parseFloat(discount) * -1);
-											discount = discount.toFixed(2) + '%';
+											
+											// check if the discount variable returns a value
+											if (discount)
+												{
+													discount = (parseFloat(discount) * -1);
+													discount = discount.toFixed(2) + '%';
+												}
+											else
+												{
+													// set the discount variable to '0.00%'
+													var discount = '0.00%';
+												}
 										}
 									else
 										{
@@ -90,8 +100,18 @@ function salesOrderSummaryAS(type)
 										{
 											// lookup the discount percentage on the price level record
 											var discount = nlapiLookupField('pricelevel', priceLevel, 'discountpct');
-											discount = (parseFloat(discount) * -1);
-											discount = discount.toFixed(2) + '%';
+											
+											// check if the discount variable returns a value
+											if (discount)
+												{
+													discount = (parseFloat(discount) * -1);
+													discount = discount.toFixed(2) + '%';
+												}
+											else
+												{
+													// set the discount variable to '0.00%'
+													var discount = '0.00%';
+												}
 										}
 									else
 										{
@@ -105,8 +125,18 @@ function salesOrderSummaryAS(type)
 								{
 									// lookup the discount percentage on the price level record
 									var discount = nlapiLookupField('pricelevel', priceLevel, 'discountpct');
-									discount = (parseFloat(discount) * -1);
-									discount = discount.toFixed(2) + '%';
+									
+									// check if the discount variable returns a value
+									if (discount)
+										{
+											discount = (parseFloat(discount) * -1);
+											discount = discount.toFixed(2) + '%';
+										}
+									else
+										{
+											// set the discount variable to '0.00%'
+											var discount = '0.00%';
+										}
 								}
 							else
 								{
