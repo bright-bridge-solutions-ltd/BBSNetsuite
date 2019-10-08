@@ -29,11 +29,11 @@ function updateJournals(type)
 		
 		// run search
 		var locationSearch = nlapiSearchRecord('location', null, locationSearchFilters, locationSearchColumns);
-		nlapiLogExecution('DEBUG', 'Locations Found', 'There were ' + locationSearch.length + ' found');
+		nlapiLogExecution('AUDIT', 'Locations Found', 'There were ' + locationSearch.length + ' found');
 		
 		// run search to find records to be updated
 		var transactionSearch = getResults(nlapiLoadSearch('transaction', 'customsearch_bbs_journals_for_update'));
-		nlapiLogExecution('DEBUG', 'Records to be updated', 'There are ' + transactionSearch.length + ' records to be updated');
+		nlapiLogExecution('AUDIT', 'Records to be updated', 'There are ' + transactionSearch.length + ' records to be updated');
 		
 		// loop through search results
 		for (var i = 0; i < transactionSearch.length; i++)
@@ -44,35 +44,12 @@ function updateJournals(type)
 				// retrieve the internal ID of the transaction record
 				var recordID = transactionSearch[i].getValue('internalid', null, 'GROUP');
 				
-				// retrieve the record type from the search
-				var recordType = transactionSearch[i].getValue('type', null, 'MAX');
-				
-				switch (recordType) {
-		            case 'Cheque':
-		            	recordType = 'check';
-		                break;
-		            case 'Credit Note':
-		            	recordType = 'creditmemo';
-		                break;
-		            case 'Purchase Order':
-		            	recordType = 'purchaseorder';
-		                break;
-		            case 'Requisition':
-		            	recordType = 'purchaserequisition';
-		                break;
-		            case 'Sales Invoice':
-		            	recordType = 'invoice';
-		                break;							                
-		            case 'Invoice':
-		            	recordType = 'vendorbill';
-		                break;						                
-		            default:
-				}
-				
 				try
 					{
 						// load the transaction record
-						var transactionRecord = nlapiLoadRecord(recordType, recordID);
+						var transactionRecord = nlapiLoadRecord('cashrefund', recordID);
+						
+						// get the location from the 
 						
 						// get count of sublist lines on the transaction record
 						var lineCount = transactionRecord.getLineItemCount('item');
@@ -117,13 +94,13 @@ function updateJournals(type)
 									}
 								else
 									{
-										nlapiLogExecution('DEBUG', 'Code Check', 'Line ' + x + ' could not be updated as the location field was not populated');
+										nlapiLogExecution('AUDIT', 'Code Check', 'Line ' + x + ' could not be updated as the location field was not populated');
 									}
 							}
 						
 						// submit the invoice record
 						var submittedRecord = nlapiSubmitRecord(transactionRecord, false, true); // record, doSourcing, ignoreMandatoryFields
-						nlapiLogExecution('DEBUG', 'Record Updated', 'Record ' + submittedRecord + ' has been updated. There are ' + (transactionSearch.length - (i+1)) + ' records still to be updated');
+						nlapiLogExecution('AUDIT', 'Record Updated', 'Record ' + submittedRecord + ' has been updated. There are ' + (transactionSearch.length - (i+1)) + ' records still to be updated');
 						success++; // increase success variable
 					}
 				catch(e)
@@ -137,14 +114,14 @@ function updateJournals(type)
 				checkResources();
 			}
 		
-		nlapiLogExecution('DEBUG', 'Script Complete', transactionSearch.length + ' records to update | ' + success + ' records updated successfully | ' + error + ' errors');
-		nlapiLogExecution('DEBUG', 'Errors', 'There were errors updating the following records: ' + errors);
+		nlapiLogExecution('AUDIT', 'Script Complete', transactionSearch.length + ' records to update | ' + success + ' records updated successfully | ' + error + ' errors');
+		nlapiLogExecution('AUDIT', 'Errors', 'There were errors updating the following records: ' + errors);
 	}
 
 function checkResources()
 	{
 		var remaining = parseInt(nlapiGetContext().getRemainingUsage());
-		nlapiLogExecution('DEBUG', 'Remaining Units', remaining + ' units remaining out of 10,000');
+		nlapiLogExecution('AUDIT', 'Remaining Units', remaining + ' units remaining out of 10,000');
 		
 		if (remaining < 50)
 			{
