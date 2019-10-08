@@ -9,7 +9,7 @@
 /**
  * @returns {Void} Any or no return value
  */
-function workflowAction() 
+function poBugetCheckWA() 
 {
 	//Get the current purchase order record
 	//
@@ -19,9 +19,13 @@ function workflowAction()
 	//Init variables
 	//
 	var poRecord = null;
+	var accountBalances = {};
+	var poOverBudget = false;
 	var warningSymbol = '⚠️';
 	var okSymbol = '✅';
 	var errorSymbol = '🚫';
+	var noBudgetSymbol = '❗';
+	var noBudgetValue = Number(999999);
 	
 	//Read the PO record
 	//
@@ -44,9 +48,22 @@ function workflowAction()
 			var poCostCentre = poRecord.getFieldValue('class');
 			var poDate = poRecord.getFieldValue('trandate');
 			var poItemLines = poRecord.getLineItemCount('item');
-			var accountBalances = {};
+			var poCurrency = poRecord.getLineItemCount('currency');
+			poCurrency = (poCurrency == -1 ? 1 : poCurrency);
+			
+			//Get the data from the subsidiary, fiscal calendar & currency
+			//
 			var fiscalCalendar = nlapiLookupField('subsidiary', poSubsidiary, 'fiscalcalendar', false);
-			var poOverBudget = false;
+			var subsidiaryCurrency = nlapiLookupField('subsidiary', poSubsidiary, 'currency', false);
+			
+			//Work out what the exchange rate is between the po currency & the subsidiary currency
+			//
+			var exchangeRate = Number(1);
+			
+			if(poCurrency != subsidiaryCurrency)
+				{
+					exchangeRate = nlapiExchangeRate(poCurrency, subsidiaryCurrency, poDate);
+				}
 			
 			//Find the start and end dates for the relevant financial year based on the tran date of the PO
 			//
@@ -63,7 +80,7 @@ function workflowAction()
 							var poLineItem = poRecord.getLineItemValue('item', 'item', int);
 							var poLineItemType = poRecord.getLineItemValue('item', 'itemtype', int);
 							var poLineItemAccount = nlapiLookupField(getItemRecType(poLineItemType), poLineItem, 'expenseaccount', false);
-							var poLineAmount = Number(poRecord.getLineItemValue('item', 'amount', int));
+							var poLineAmount = Number(poRecord.getLineItemValue('item', 'amount', int)) * exchangeRate;
 									
 							//Find the ytd spend on the account
 							//
@@ -71,7 +88,7 @@ function workflowAction()
 									
 							//Find the ytd budget for the account
 							//
-							var accountBudget = findYTDBudget(poCostCentre, poSubsidiary, poLineItemAccount, finCalDates.id)
+							var accountBudget = findYTDBudget(poCostCentre, poSubsidiary, poLineItemAccount, finCalDates.id, noBudgetValue)
 									
 							//Calc the remaining budget
 							//
@@ -94,20 +111,40 @@ function workflowAction()
 									
 							if(remaining - poLineAmount >= 0)
 								{
+									//Remaining budget less the current line is positive, so we are ok
+									//
 									lineIcon = okSymbol;
 								}
 									
 							if(remaining - poLineAmount < 0)
 								{
+									//Remaining budget less the current line is negative, so this line is definitely bad
+									//
 									lineIcon = errorSymbol;
 									poOverBudget = true;
 								}
 								
+							if(accountBudget == noBudgetValue)
+								{
+									//If there was no budget found, then we should flag a warning
+									//
+									lineIcon = noBudgetSymbol;
+								}
+							
 							//Update the line with the relevant fields
 							//
-							poRecord.setLineItemValue('item', 'custcol_bbs_budget_ytd', int, accountBudget);
+							if(accountBudget != noBudgetValue)
+								{
+									poRecord.setLineItemValue('item', 'custcol_bbs_budget_ytd', int, accountBudget);
+									poRecord.setLineItemValue('item', 'custcol_bbs_available_budget', int, remaining);
+									
+								}
+							else
+								{
+									poRecord.setLineItemValue('item', 'custcol_bbs_budget_ytd', int, null);
+									poRecord.setLineItemValue('item', 'custcol_bbs_available_budget', int, null);
+								}
 							poRecord.setLineItemValue('item', 'custcol_bbs_actual_spend', int, accountSpend);
-							poRecord.setLineItemValue('item', 'custcol_bbs_available_budget', int, remaining);
 							poRecord.setLineItemValue('item', 'custcol_bbs_budget_check', int, lineIcon);
 						}
 					
@@ -124,7 +161,7 @@ function workflowAction()
 							//
 							if(accountBalances[poLineItemAccount] <= 0 && poLineIcon != errorSymbol)
 								{
-									//Update the linbe with the warning symbol for cumulative over budget scenarios
+									//Update the line with the warning symbol for cumulative over budget scenarios, but only if the line was previously 'ok'
 									//
 									poRecord.setLineItemValue('item', 'custcol_bbs_budget_check', int, warningSymbol);
 									
@@ -183,11 +220,11 @@ function findFinCalDates(_trandate, _fiscalCalendar)
 	return returnedData;
 }
 
-function findYTDBudget(_costCentre, _subsidiary, _account, _year)
+function findYTDBudget(_costCentre, _subsidiary, _account, _year, _noBudgetValue)
 {
 	//Start of with a max budget figure
 	//
-	var ytdBudget = Number(999999);
+	var ytdBudget = _noBudgetValue;
 	
 	//Search for a budget
 	//
