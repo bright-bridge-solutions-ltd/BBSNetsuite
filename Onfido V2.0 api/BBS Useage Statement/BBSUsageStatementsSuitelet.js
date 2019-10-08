@@ -379,13 +379,16 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								 
 								//Submit the scheduled job to produce usage statements
 								//
-								var taskId = task.create({
-														taskType:	task.TaskType.SCHEDULED_SCRIPT,
-														scriptId:	'customscript_bbs_usage_stmts_sched',	
-														params:		{
-																		custscript_contracy_array:	JSON.stringify(contractIds)
-																	}
+								var mrTask = task.create({
+														taskType:		task.TaskType.MAP_REDUCE,
+														scriptId:		'customscript_bbs_usage_stmts_sched',	
+														deploymentid:	null,
+														params:			{
+																			custscript_contract_array:	JSON.stringify(contractIds)
+																		}
 								});
+								
+								mrTask.submit();
 								
 								//Return to the main dashboard
 								//

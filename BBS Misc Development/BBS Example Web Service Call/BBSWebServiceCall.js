@@ -1,11 +1,11 @@
 
 //Authentication Data
 //
-var appId = '8D0B253D-77AA-494E-AC6A-5F149716CA3E';
+var appId = 'EA65757D-8D4E-42C3-A453-012A543EC505';
 var email = 'cedric.griffiths@brightbridgesolutions.com';
-var password = 'Horsey1234';
-var account = 'TSTDRV1918005';
-var role = '3';
+var password = 'Ponyclub123';
+var account = '5554661_SB1';
+var role = '1013';
 
 //Works Order Data
 var customerId = '4';
@@ -24,7 +24,8 @@ var loginStatus = webServiceLogin(appId, email, password, account, role, session
 
 if(loginStatus)
 	{
-		var addWoStatus = webServiceCreateSpecialWo(sessionInfo, appId, customerId, assemblyId, quantity, sourceTranId, sourceTranLine, subsidiaryId)
+		var a = webServiceReadBudget(sessionInfo, appId, budgetId)
+		//var addWoStatus = webServiceCreateSpecialWo(sessionInfo, appId, customerId, assemblyId, quantity, sourceTranId, sourceTranLine, subsidiaryId)
 	}
 
 

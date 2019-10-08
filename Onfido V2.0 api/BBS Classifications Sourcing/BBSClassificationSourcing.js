@@ -195,8 +195,9 @@ function(currentRecord, runtime, dialog, message) {
     }
 
     return {
-        fieldChanged: classSourcingFieldChanged,
-        lineInit: classSourcingLineInit
+        fieldChanged: 	classSourcingFieldChanged,
+        postSourcing: 	classSourcingFieldChanged,
+        lineInit: 		classSourcingLineInit
     };
     
 });
