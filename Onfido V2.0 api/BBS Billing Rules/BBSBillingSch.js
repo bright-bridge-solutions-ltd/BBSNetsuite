@@ -21,17 +21,18 @@ function(runtime, search, record, format) {
     	// initiate variables
     	var recordID;
     	var billingType;
-    	var billingTypeFunction;
     	var contractRecord;
     	var mgmtFee;
     	var customer;
     	var mgmtFeeAmt;
     	var currency;
+    	var netAmt;
+    	var monthlyMinimum;
     	
     	// retrieve script parameters
     	var currentScript = runtime.getCurrentScript();
     	
-    	// adjustmentItem and mgmtFeeItem are global variables so can be accessed throughout the script
+    	// script parameters are global variables so can be accessed throughout the script
     	adjustmentItem = currentScript.getParameter({
 	    	name: 'custscript_bbs_min_usage_adj_item'
 	    });
@@ -39,6 +40,22 @@ function(runtime, search, record, format) {
     	mgmtFeeItem = currentScript.getParameter({
     		name: 'custscript_bbs_monthly_mgtmt_fee_item'
     	});
+    	
+    	qmpCreditItem = currentScript.getParameter({
+    		name: 'custscript_bbs_credit_qmp_item'
+    	});
+    	
+    	ampCreditItem = currentScript.getParameter({
+    		name: 'custscript_bbs_credit_amp_item'
+    	});
+    	
+    	qmpItem = currentScript.getParameter({
+    		name: 'custscript_bbs_quarterly_min_prepay_item'
+    	});
+    	
+    	// declare new date object. Global variable so can be accessed throughout the script
+    	invoiceDate = new Date();
+    	invoiceDate.setDate(0); // set date to be the last day of the previous month
     	
     	// run search to find sales orders to be billed
     	var soSearch = search.create({
@@ -125,45 +142,39 @@ function(runtime, search, record, format) {
 			// AMBMA billing type
 			if (billingType == 6)
 				{
-					// call the AMBMA function
-					AMBMA();
+					// call the AMBMA function. Pass in the internal ID of the sales order record
+					AMBMA(recordID);
 				}
 			// AMP billing type
 			else if (billingType == 4)
 				{
-					// call the AMP function
-					AMP();
+					// call the AMP function. Pass in the internal ID of the sales order record
+					AMP(recordID);
 				}
 			// PAYG billing type
 			else if (billingType == 1)
 				{
-					// call the PAYG function
-					PAYG();
+					// call the PAYG function. Pass in the internal ID of the sales order record
+					PAYG(recordID);
 				}
 			// QMP billing type
 			else if (billingType == 3)
 				{
-					// call the QMP function
-					QMP();
+					// call the QMP function. Pass in the internal ID of the sales order record
+					QMP(recordID);
 				}
 			// QUR billing type
 			else if (billingType == 5)
 				{
-					// call the QUR function
-					QUR();
+					// call the QUR function. Pass in the internal ID of the sales order record
+					QUR(recordID);
 				}
 			// UIOLI billing type
 			else if (billingType == 2)
 				{
 					// call the UIOLI function. Pass in the internal ID of the sales order record
 					UIOLI(recordID);
-				}		
-			
-			// call function to transform the sales order to an invoice. Pass in ID of sales order. ID of created invoice record will be returned
-			invoiceID = createInvoice(recordID);
-			
-			// call function to update period detail records (to tick the Usage Invoice Issued checkbox). Pass in ID of sales order.
-			updatePeriodDetail(recordID);
+				}
 			
 			// get the value of the management fee checkbox from the search results
 			mgmtFee = result.getValue({
@@ -174,6 +185,12 @@ function(runtime, search, record, format) {
 			// if the mgmtFee variable returns 1 (Mgmt Fee is Yes)
 			if (mgmtFee == 1)
 				{
+					// get the billing level from the search results
+					billingLevel = result.getValue({
+						name: 'custrecord_bbs_contract_billing_level',
+						join: 'custbody_bbs_contract_record'
+					});
+					
 					// get the customer from the search results
 					customer = result.getValue({
 						name: 'entity'
@@ -195,6 +212,9 @@ function(runtime, search, record, format) {
 					createMgmtFeeInvoice(contractRecord, customer, mgmtFeeAmt, currency);
 				}
 			
+			// call function to update period detail records (to tick the Usage Invoice Issued checkbox). Pass in ID of sales order.
+			updatePeriodDetail(recordID);
+			
 			// continue processing additional records
 			return true;
 		
@@ -206,33 +226,430 @@ function(runtime, search, record, format) {
 	// SEPARATE FUNCTIONS FOR EACH BILLING TYPE
 	//=========================================
     
-    function AMBMA()
+    function AMBMA(recordID)
 	    {
+    		// set the billingType variable to AMBMA
+    		billingType = 'AMBMA';
     		
 	    }
     
-    function AMP()
+    function AMP(recordID)
     	{
-	    	
+    		// set the billingType variable to AMP
+			billingType = 'AMP';
+    	
+    		try
+    			{
+    				// load the sales order record
+    				var soRecord = record.load({
+		    			type: record.Type.SALES_ORDER,
+		    			id: recordID,
+		    			isDynamic: true
+		    		});
+    		
+    				// get the ID of the contract record from the sales order record
+		    		var contractRecord = soRecord.getValue({
+		    			fieldId: 'custbody_bbs_contract_record'
+		    		});
+    	
+		    		// get the minimum usage from the contract record
+		    		var contractRecordLookup = search.lookupFields({
+		    			type: 'customrecord_bbs_contract',
+		    			id: contractRecord,
+		    			columns: ['custrecord_bbs_contract_min_ann_use']
+		    		});
+    		
+		    		var minimumUsage = contractRecordLookup.custrecord_bbs_contract_min_ann_use;
+    		
+		    		// get the total usage from the soRecord
+		    		var totalUsage = soRecord.getValue({
+		    			fieldId: 'subtotal'
+		    		});
+    		
+		    		// check if the totalUsage is less than the minimumUsage
+		    		if (totalUsage <= minimumUsage)
+			    		{
+		    				// get count of item lines
+		    				var lineCount = soRecord.getLineCount({
+		    					sublistId: 'item'
+		    				});
+		    				
+		    				// loop through line count
+		    				for (var x = 0; x < lineCount; x++)
+		    					{
+		    						// select the line
+		    						soRecord.selectLine({
+		    							sublistId: 'item',
+		    							line: x
+		    						});
+		    						
+		    						// set the 'isclosed' flag to true
+		    						soRecord.setCurrentSublistValue({
+		    							sublistId: 'item',
+		    							fieldId: 'isclosed',
+		    							value: true
+		    						});
+		    						
+		    						// commit the new line
+									soRecord.commitLine({
+										sublistId: 'item'
+									});
+		    					}
+		    				
+		    				// submit the sales order record
+		    				soRecord.save();
+		    				
+		    				log.audit({
+		    					title: 'Sales Order Closed',
+		    					details: recordID
+		    				});
+			    		}
+		    		// if the totalUsage is greater than the minimumUsage
+		    		else
+		    			{
+		    				// select a new line on the sales order record
+		    				soRecord.selectNewLine({
+		    					sublistId: 'item'
+		    				});
+					
+		    				// set fields on the new line
+		    				soRecord.setCurrentSublistValue({
+					            sublistId: 'item',
+					            fieldId: 'item',
+					            value: ampCreditItem
+		    				});
+					
+							soRecord.setCurrentSublistValue({
+								sublistId: 'item',
+								fieldId: 'quantity',
+								value: 1
+							});
+					
+							soRecord.setCurrentSublistValue({
+								sublistId: 'item',
+								fieldId: 'rate',
+								value: (minimumUsage * -1) // multiply the minimumUsage by -1 to convert to a negative number
+							});
+							
+							soRecord.setCurrentSublistValue({
+								sublistId: 'item',
+								fieldId: 'custcol_bbs_contract_record',
+								value: contractRecord
+							});
+							
+							// commit the new line
+							soRecord.commitLine({
+								sublistId: 'item'
+							});
+							
+							// submit the sales order record
+							soRecord.save();
+							
+							log.audit({
+								title: 'New line added to sales order record',
+								details: recordID
+							});
+							
+							// call function to transform the sales order to an invoice. Pass in ID of sales order.
+							createInvoice(recordID);					
+		    			}
+				}
+			catch(error)
+				{
+					log.error({
+						title: 'Error Updating Sales Order ' + recordID,
+						details: error
+					});
+				}
     	}
     
-    function PAYG()
+    function PAYG(recordID)
 	    {
-	    	
+    		// call function to transform the sales order to an invoice. Pass in ID of sales order
+			createInvoice(recordID);
 	    }
     
-    function QMP()
+    function QMP(recordID)
     	{
+    		// set the billingType variable to QMP
+			billingType = 'QMP';
+    	
+    		try
+				{
+		    		// load the sales order record
+		    		var soRecord = record.load({
+		    			type: record.Type.SALES_ORDER,
+		    			id: recordID,
+		    			isDynamic: true
+		    		});
+		    		
+		    		// get the ID of the contract record from the sales order record
+		    		var contractRecord = soRecord.getValue({
+		    			fieldId: 'custbody_bbs_contract_record'
+		    		});
+		    	
+		    		// get the minimum usage from the contract record
+		    		var contractRecordLookup = search.lookupFields({
+		    			type: 'customrecord_bbs_contract',
+		    			id: contractRecord,
+		    			columns: ['custrecord_bbs_contract_qu_min_use']
+		    		});
+		    		
+		    		var minimumUsage = contractRecordLookup.custrecord_bbs_contract_qu_min_use;
+		    		
+		    		// get the total usage from the soRecord
+		    		var totalUsage = soRecord.getValue({
+		    			fieldId: 'subtotal'
+		    		});
+		    		
+		    		// check if the totalUsage is less than the minimumUsage
+		    		if (totalUsage <= minimumUsage)
+			    		{
+		    				// get count of item lines
+		    				var lineCount = soRecord.getLineCount({
+		    					sublistId: 'item'
+		    				});
+		    				
+		    				// loop through line count
+		    				for (var x = 0; x < lineCount; x++)
+		    					{
+		    						// select the line
+		    						soRecord.selectLine({
+		    							sublistId: 'item',
+		    							line: x
+		    						});
+		    						
+		    						// set the 'isclosed' flag to true
+		    						soRecord.setCurrentSublistValue({
+		    							sublistId: 'item',
+		    							fieldId: 'isclosed',
+		    							value: true
+		    						});
+		    						
+		    						// commit the new line
+									soRecord.commitLine({
+										sublistId: 'item'
+									});
+		    					}
+		    				
+		    				// submit the sales order record
+		    				soRecord.save();
+		    				
+		    				log.audit({
+		    					title: 'Sales Order Closed',
+		    					details: recordID
+		    				});
+			    		}
+		    		// if the totalUsage is greater than the minimumUsage
+		    		else
+		    			{
+		    				// select a new line on the sales order record
+		    				soRecord.selectNewLine({
+		    					sublistId: 'item'
+		    				});
+					
+		    				// set fields on the new line
+		    				soRecord.setCurrentSublistValue({
+					            sublistId: 'item',
+					            fieldId: 'item',
+					            value: qmpCreditItem
+		    				});
+					
+							soRecord.setCurrentSublistValue({
+								sublistId: 'item',
+								fieldId: 'quantity',
+								value: 1
+							});
+					
+							soRecord.setCurrentSublistValue({
+								sublistId: 'item',
+								fieldId: 'rate',
+								value: (minimumUsage * -1) // multiply the minimumUsage by -1 to convert to a negative number
+							});
+							
+							soRecord.setCurrentSublistValue({
+								sublistId: 'item',
+								fieldId: 'custcol_bbs_contract_record',
+								value: contractRecord
+							});
+							
+							// commit the new line
+							soRecord.commitLine({
+								sublistId: 'item'
+							});
+							
+							// submit the sales order record
+							soRecord.save();
+							
+							log.audit({
+								title: 'New line added to sales order record',
+								details: recordID
+							});
+							
+							// call function to transform the sales order to an invoice. Pass in ID of sales order.
+							createInvoice(recordID);					
+		    			}
+				}
+	    	catch(error)
+	    		{
+	    			log.error({
+	    				title: 'Error Updating Sales Order ' + recordID,
+	    				details: error
+	    			});
+	    		}
 	    	
+	    	// call function to create a Revenue Recognition Journal. Pass in ID of sales order and billingType variable
+    		createRevRecJournal(recordID, billingType);
     	}
     
-    function QUR()
+    function QUR(recordID)
 	    {
+    		// set the billingType variable to QUR
+			billingType = 'QUR';
+    	
+    		try
+    			{
+    				// load the sales order record
+    				var soRecord = record.load({
+		    			type: record.Type.SALES_ORDER,
+		    			id: recordID,
+		    			isDynamic: true
+		    		});
+    		
+		    		// get the ID of the contract record from the sales order record
+		    		var contractRecord = soRecord.getValue({
+		    			fieldId: 'custbody_bbs_contract_record'
+		    		});
+    	
+		    		// get the minimum usage from the contract record
+		    		var contractRecordLookup = search.lookupFields({
+		    			type: 'customrecord_bbs_contract',
+		    			id: contractRecord,
+		    			columns: ['custrecord_bbs_contract_qu_min_use']
+		    		});
+    		
+		    		var minimumUsage = contractRecordLookup.custrecord_bbs_contract_qu_min_use;
+    		
+		    		// get the total usage from the soRecord
+		    		var totalUsage = soRecord.getValue({
+		    			fieldId: 'subtotal'
+		    		});
+    		
+		    		// check if the totalUsage is less than the minimumUsage
+		    		if (totalUsage <= minimumUsage)
+			    		{
+			    			// lookup the customer and currency fields on the soRecord
+		    				var customer = soRecord.getValue({
+		    					fieldId: 'entity'
+		    				});
+		    				
+		    				var currency = soRecord.getValue({
+		    					fieldId: 'currency'
+		    				});
+		    			
+		    				// get count of item lines
+		    				var lineCount = soRecord.getLineCount({
+		    					sublistId: 'item'
+		    				});
+		    				
+		    				// loop through line count
+		    				for (var x = 0; x < lineCount; x++)
+		    					{
+		    						// select the line
+		    						soRecord.selectLine({
+		    							sublistId: 'item',
+		    							line: x
+		    						});
+		    						
+		    						// set the 'isclosed' flag to true
+		    						soRecord.setCurrentSublistValue({
+		    							sublistId: 'item',
+		    							fieldId: 'isclosed',
+		    							value: true
+		    						});
+		    						
+		    						// commit the new line
+									soRecord.commitLine({
+										sublistId: 'item'
+									});
+		    					}
+		    				
+		    				// submit the sales order record
+		    				soRecord.save();
+		    				
+		    				log.audit({
+		    					title: 'Sales Order Closed',
+		    					details: recordID
+		    				});
+		    				
+		    				// call function to create quarterly pre-payment invoice. Pass in contractRecord, customer, minimumUsage and currency
+		    				createQuarterlyInvoice(contractRecord, customer, minimumUsage, currency);				
+			    		}
+		    		// if the totalUsage is greater than the minimumUsage
+		    		else
+		    			{
+		    				// select a new line on the sales order record
+		    				soRecord.selectNewLine({
+		    					sublistId: 'item'
+		    				});
+					
+		    				// set fields on the new line
+		    				soRecord.setCurrentSublistValue({
+					            sublistId: 'item',
+					            fieldId: 'item',
+					            value: qmpCreditItem
+		    				});
+					
+							soRecord.setCurrentSublistValue({
+								sublistId: 'item',
+								fieldId: 'quantity',
+								value: 1
+							});
+					
+							soRecord.setCurrentSublistValue({
+								sublistId: 'item',
+								fieldId: 'rate',
+								value: (minimumUsage * -1) // multiply the minimumUsage by -1 to convert to a negative number
+							});
+							
+							soRecord.setCurrentSublistValue({
+								sublistId: 'item',
+								fieldId: 'custcol_bbs_contract_record',
+								value: contractRecord
+							});
+							
+							// commit the new line
+							soRecord.commitLine({
+								sublistId: 'item'
+							});
+							
+							// submit the sales order record
+							soRecord.save();
+							
+							log.audit({
+								title: 'New line added to sales order record',
+								details: recordID
+							});
+							
+							// call function to transform the sales order to an invoice. Pass in ID of sales order.
+							createInvoice(recordID);					
+		    			}
+				}
+			catch(error)
+				{
+					log.error({
+						title: 'Error Updating Sales Order ' + recordID,
+						details: error
+					});
+				}
 	    	
 	    }
     
     function UIOLI(recordID)
     	{
+    		// set the billingType variable to UIOLI
+			billingType = 'UIOLI';
+    	
     		try
     			{
 		    		// load the sales order record
@@ -318,6 +735,9 @@ function(runtime, search, record, format) {
 	    				details: error
 	    			});
 	    		}
+    		
+    		// call function to transform the sales order to an invoice. Pass in ID of sales order
+			createInvoice(recordID);
     	}
     
     //====================================================
@@ -334,6 +754,12 @@ function(runtime, search, record, format) {
 		    			   fromId: recordID, 
 		    			   toType: record.Type.INVOICE,
 		    			   isDynamic: true
+		    		});
+		    		
+		    		// set the tranDate on the invoiceRecord using the invoiceDate variable
+		    		invoiceRecord.setValue({
+		    			fieldId: 'trandate',
+		    			value: invoiceDate
 		    		});
 		
 		    		// save the new invoice record
@@ -368,7 +794,12 @@ function(runtime, search, record, format) {
     				});
     				
     				// set header fields on the invoice record
-	    			invoice.setValue({
+		    		invoice.setValue({
+		    			fieldId: 'trandate',
+		    			value: invoiceDate
+		    		});
+    				
+    				invoice.setValue({
 	    				fieldId: 'entity',
 	    				value: customer
 	    			});
@@ -439,6 +870,327 @@ function(runtime, search, record, format) {
     				});
     			}
     	}
+    
+    //=================================================================
+	// FUNCTION TO CREATE A STANDALONE INVOICE FOR QUARTERLY PREPAYMENT
+	//=================================================================
+    
+    function createQuarterlyInvoice(contractRecord, customer, minimumUsage, currency)
+		{
+			try
+				{
+					// create a new invoice record
+					var invoice = record.create({
+						type: record.Type.INVOICE,
+						isDynamic: true
+					});
+					
+					// set header fields on the invoice record
+					invoiceRecord.setValue({
+		    			fieldId: 'trandate',
+		    			value: invoiceDate
+		    		});
+					
+	    			invoice.setValue({
+	    				fieldId: 'entity',
+	    				value: customer
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'custbody_bbs_contract_record',
+	    				value: contractRecord
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'currency',
+	    				value: currency
+	    			});
+	    			
+	    			// add a new line to the invoice
+	    			invoice.selectNewLine({
+	    				sublistId: 'item'
+	    			});
+	    			
+	    			// set fields on the new line
+	    			invoice.setCurrentSublistValue({
+	    				sublistId: 'item',
+	    				fieldId: 'item',
+	    				value: qmpItem
+	    			});
+	    			
+	    			invoice.setCurrentSublistValue({
+	    				sublistId: 'item',
+	    				fieldId: 'quantity',
+	    				value: 1
+	    			});
+	    			
+	    			invoice.setCurrentSublistValue({
+	    				sublistId: 'item',
+	    				fieldId: 'rate',
+	    				value: minimumUsage
+	    			});
+	    			
+	    			invoice.setCurrentSublistValue({
+	    				sublistId: 'item',
+	    				fieldId: 'custcol_bbs_contract_record',
+	    				value: contractRecord
+	    			});
+	    			
+	    			// commit the line
+	    			invoice.commitLine({
+						sublistId: 'item'
+					});
+	    			
+	    			// submit the invoice record
+	    			var invoiceID = invoice.save();
+	    			
+	    			log.audit({
+	    				title: 'Quarterly Minimum Prepayment Invoice Created',
+	    				details: 'Invoice ID: ' + invoiceID + ' | Contract ID: ' + contractRecord
+	    			});   				
+				}
+			catch(error)
+				{
+					log.error({
+						title: 'Error Creating Quarterly Minimum Prepayment Invoice for Contract ID: ' + contractRecord,
+						details: error
+					});
+				}
+		}
+    
+    //=================================================
+	// FUNCTION TO CREATE A REVENUE RECOGNITION JOURNAL
+	//=================================================
+    
+    function createRevRecJournal(recordID, billingType)
+	    {
+	    	// declare and initialize variables
+    		var itemID;
+    		var itemLookup;
+    		var postingAccount;
+    		var rate;
+    		var quantity;
+    		var lineTotal;
+    		
+    		// format the invoiceDate object to a date (DD/MM/YYYY)
+    		var journalDate = format.format({
+    			type: format.Type.DATE,
+    			value: invoiceDate
+    		});
+    	
+    		// load the sales order record
+    		var soRecord = record.load({
+    			type: record.Type.SALES_ORDER,
+    			id: recordID
+    		});
+    		
+    		// get field values from the soRecord
+    		var customer = soRecord.getValue({
+    			fieldId: 'entity'
+    		});
+    		
+    		var contractRecord = soRecord.getValue({
+    			fieldId: 'custbody_bbs_contract_record'
+    		});
+    		
+    		var subtotal = soRecord.getValue({
+    			fieldId: 'subtotal'
+    		});
+    		
+    		// get line count from the soRecord
+    		var lineCount = soRecord.getLineCount({
+    			sublistId: 'item'
+    		});
+    		
+    		// lookup fields on the customer record
+    		var customerLookup = search.lookupFields({
+    			type: search.Type.CUSTOMER,
+    			id: customer,
+    			columns: ['subsidiary', 'custentity_bbs_location']
+    		});
+    		
+    		// get the subsidiary and location from the customerLookup
+    		var subsidiary = customerLookup.subsidiary[0].value;
+    		var location = customerLookup.custentity_bbs_location[0].value;
+    		
+    		// lookup fields on the subsidiary record
+    		var subsidiaryLookup = search.lookupFields({
+    			type: search.Type.SUBSIDIARY,
+    			id: subsidiary,
+    			columns: ['currency']
+    		});
+    		
+    		// get the currency from the subsidiaryLookup
+    		var currency = subsidiaryLookup.currency[0].value;
+    	
+    		// create a new journal record
+    		var journalRecord = record.create({
+    			type: record.Type.JOURNAL_ENTRY,
+    			isDynamic: true
+    		});
+    		
+    		// set header fields on the journal record
+    		journalRecord.setValue({
+    			fieldId: 'trandate',
+    			value: invoiceDate
+    		});
+    		
+    		journalRecord.setValue({
+    			fieldId: 'memo',
+    			value: billingType + ' + ' + journalDate
+    		});
+    		
+    		journalRecord.setValue({
+    			fieldId: 'custbody_bbs_contract_record',
+    			value: contractRecord
+    		});
+    		
+    		journalRecord.setValue({
+    			fieldId: 'custbody_bbs_rev_rec_journal',
+    			value: true
+    		});
+    		
+    		journalRecord.setValue({
+    			fieldId: 'subsidiary',
+    			value: subsidiary
+    		});
+    		
+    		journalRecord.setValue({
+    			fieldId: 'location',
+    			value: location
+    		});
+    		
+    		journalRecord.setValue({
+    			fieldId: 'currency',
+    			value: currency
+    		});
+    		
+    		// select a new line on the journal record
+    		journalRecord.selectNewLine({
+    			sublistId: 'line'
+    		});
+    		
+    		// set fields on the new line
+    		journalRecord.setCurrentSublistValue({
+    			sublistId: 'line',
+    			fieldId: 'account',
+    			value: 538 // 538 = 1210010	Deferred Income (Upfront)
+    		});
+    		
+    		journalRecord.setCurrentSublistValue({
+    			sublistId: 'line',
+    			fieldId: 'custcol_bbs_journal_customer',
+    			value: customer
+    		});
+    		
+    		journalRecord.setCurrentSublistValue({
+    			sublistId: 'line',
+    			fieldId: 'custcol_bbs_contract_record',
+    			value: contractRecord
+    		});
+    		
+    		journalRecord.setCurrentSublistValue({
+    			sublistId: 'line',
+    			fieldId: 'memo',
+    			value: billingType + ' + ' + journalDate
+    		});
+    		
+    		journalRecord.setCurrentSublistValue({
+    			sublistId: 'line',
+    			fieldId: 'debit',
+    			value: subtotal // SO subtotal
+    		});
+    		
+    		// commit the line
+    		journalRecord.commitLine({
+				sublistId: 'line'
+			});
+    		
+    		// loop through soRecord lineCount
+    		for (var x = 0; x < lineCount; x++)
+    			{	        		
+	        		// get the internal ID of the item from the so line
+	        		itemID = soRecord.getSublistValue({
+	        			sublistId: 'item',
+	        			fieldId: 'item',
+	        			line: x
+	        		});
+	        		
+	        		// lookup the posting account on the item record
+	        		itemLookup = search.lookupFields({
+	        			type: search.Type.ITEM,
+	        			id: itemID,
+	        			columns: ['incomeaccount']
+	        		});
+	        		
+	        		postingAccount = itemLookup.incomeaccount[0].value;
+	        		
+	        		// get the quantity and rate for the line
+	        		quantity = soRecord.getSublistValue({
+	        			sublistId: 'item',
+	        			fieldId: 'quantity',
+	        			line: x
+	        		});
+	        		
+	        		rate = soRecord.getSublistValue({
+	        			sublistId: 'item',
+	        			fieldId: 'rate',
+	        			line: x
+	        		});
+	        		
+	        		// multiply the quantity by the rate to calculate the lineTotal
+	        		lineTotal = parseFloat(quantity * rate);
+	        		
+	        		// select a new line on the journal record
+	        		journalRecord.selectNewLine({
+	        			sublistId: 'line'
+	        		});
+	        		
+	        		// set fields on the new journal line
+	        		journalRecord.setCurrentSublistValue({
+	        			sublistId: 'line',
+	        			fieldId: 'account',
+	        			value: postingAccount
+	        		});
+	        		
+	        		journalRecord.setCurrentSublistValue({
+	        			sublistId: 'line',
+	        			fieldId: 'credit',
+	        			value: lineTotal
+	        		});
+	        		
+	        		journalRecord.setCurrentSublistValue({
+	        			sublistId: 'line',
+	        			fieldId: 'custcol_bbs_journal_customer',
+	        			value: customer
+	        		});
+	        		
+	        		journalRecord.setCurrentSublistValue({
+	        			sublistId: 'line',
+	        			fieldId: 'memo',
+	        			value: billingType + ' + ' + journalDate
+	        		});
+	        		
+	        		journalRecord.setCurrentSublistValue({
+	        			sublistId: 'line',
+	        			fieldId: 'custcol_bbs_contract_record',
+	        			value: contractRecord
+	        		});
+	        		
+	        		// commit the line
+	        		journalRecord.commitLine({
+	    				sublistId: 'line'
+	    			});	
+    			}
+    		
+    		// submit the journal record record
+			var journalID = journalRecord.save();
+			
+			log.audit({
+				title: 'Journal Created',
+				details: 'Journal ID: ' + journalID + ' | Sales Order ID: ' + recordID
+			});   				
+	    }
     
     //===============================================================
 	// FUNCTION TO UPDATE FIELDS ON THE RELEVANT PERIOD DETAIL RECORD	
