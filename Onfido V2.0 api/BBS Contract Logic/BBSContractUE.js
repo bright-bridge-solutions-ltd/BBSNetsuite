@@ -3,11 +3,11 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/url', 'N/runtime', 'N/record'],
+define(['N/url', 'N/runtime', 'N/record', 'N/search'],
 /**
  * @param {record} record
  */
-function(url, runtime, record) {
+function(url, runtime, record, search) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -169,20 +169,28 @@ function(url, runtime, record) {
 		    	name: 'custscript_bbs_setup_fee_item'
 		    });
 	    	
-			// get fields values from the current record
-			var customer = currentRecord.getValue({
+			// get the billing level from the current record
+	    	var billingLevel = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_billing_level'
+	    	});
+	    	
+	    	// get the customer from the current record
+		    var customer = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_customer'
 			});
 			
-			var currency = currentRecord.getValue({
+	    	// get the currency from the current record
+	    	var currency = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_currency'
 			});
 			
-			var setupFeeAmount = currentRecord.getValue({
+	    	// get the setup fee from the current record
+	    	var setupFeeAmount = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_setup_fee_amount'
 			});
 			
-			setupFeeAmount = parseFloat(setupFeeAmount);
+	    	// use parseFloat to convert to decimal number
+	    	setupFeeAmount = parseFloat(setupFeeAmount);
 			
 			try
 				{
@@ -196,6 +204,11 @@ function(url, runtime, record) {
 	    			invoice.setValue({
 	    				fieldId: 'entity',
 	    				value: customer
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'account',
+	    				value: 476 // 476 = 1115020	Trade Receivables Credit Sales
 	    			});
 	    			
 	    			invoice.setValue({
@@ -287,19 +300,27 @@ function(url, runtime, record) {
 		    	name: 'custscript_bbs_qmp_item'
 		    });
 	    	
-			// get fields values from the current record
-			var customer = currentRecord.getValue({
+	    	// get the billing level from the current record
+	    	var billingLevel = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_billing_level'
+	    	});
+	    	
+	    	// get the customer from the current record
+		    var customer = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_customer'
 			});
-			
+	    	
+	    	// get the currency from the current record			
 			var currency = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_currency'
 			});
 			
+			// get the minimum usage from the current record			
 			var qmpAmt = currentRecord.getValue({
-				fieldId: 'custrecord_bbs_contract_qu_mim_use'
+				fieldId: 'custrecord_bbs_contract_qu_min_use'
 			});
 			
+			// use parseFloat to convert to decimal number
 			qmpAmt = parseFloat(qmpAmt);
 			
 			try
@@ -314,6 +335,11 @@ function(url, runtime, record) {
 	    			invoice.setValue({
 	    				fieldId: 'entity',
 	    				value: customer
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'account',
+	    				value: 475 // 475 = 1115010	Trade Receivables Prepayment
 	    			});
 	    			
 	    			invoice.setValue({
@@ -390,20 +416,23 @@ function(url, runtime, record) {
 	    	var ampItem = currentScript.getParameter({
 		    	name: 'custscript_bbs_amp_item'
 		    });
-
-			// get fields values from the current record
-			var customer = currentRecord.getValue({
+	    	
+	    	// get the customer from the current record
+		    var customer = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_customer'
 			});
-			
+
+			// get he currency from the current record
 			var currency = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_currency'
 			});
 			
+			// get the minimum usage from the current record	
 			var ampAmt = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_min_ann_use'
 			});
 			
+			// use parseFloat to convert to decimal number
 			ampAmt = parseFloat(ampAmt);
 			
 			try
@@ -418,6 +447,11 @@ function(url, runtime, record) {
 	    			invoice.setValue({
 	    				fieldId: 'entity',
 	    				value: customer
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'account',
+	    				value: 475 // 475 = 1115010	Trade Receivables Prepayment
 	    			});
 	    			
 	    			invoice.setValue({
@@ -495,19 +529,22 @@ function(url, runtime, record) {
 		    	name: 'custscript_bbs_qmp_item'
 		    });
 	    	
-			// get fields values from the current record
-			var customer = currentRecord.getValue({
+	    	// get the customer from the current record
+		    var customer = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_customer'
 			});
-			
+	    	
+			// get the currency from the current record
 			var currency = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_currency'
 			});
 			
+			// get the minimum usage from the current record			
 			var qmpAmt = currentRecord.getValue({
-				fieldId: 'custrecord_bbs_contract_qu_mim_use'
+				fieldId: 'custrecord_bbs_contract_qu_min_use'
 			});
 			
+			// use parseFloat to convert to decimal number
 			qmpAmt = parseFloat(qmpAmt);
 			
 			try
@@ -522,6 +559,11 @@ function(url, runtime, record) {
 	    			invoice.setValue({
 	    				fieldId: 'entity',
 	    				value: customer
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'account',
+	    				value: 475 // 475 = 1115010	Trade Receivables Prepayment
 	    			});
 	    			
 	    			invoice.setValue({
