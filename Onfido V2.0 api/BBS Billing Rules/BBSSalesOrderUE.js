@@ -33,160 +33,199 @@ function(search, record, format) {
      */
     function beforeSubmit(scriptContext) {
     	
-    	// declare variables
-    	var itemID;
-    	var unitPrice;
-    	var quantity;
-    	var usage;
-    	var searchItem;
+    	// only run script when the record is being created or edited
+    	if (scriptContext.type == 'create' || scriptContext.type == 'edit')
+    		{    		
+    			// get the current record
+    			var soRecord = scriptContext.newRecord;
     	
-    	// get the current record
-    	var currentRecord = scriptContext.newRecord;
-    	
-    	// get the ID of the associated contract record
-    	var contractRecord = currentRecord.getValue({
-    		fieldId: 'custbody_bbs_contract_record'
-    	});
-    	
-    	// get the transaction date
-    	var tranDate = currentRecord.getValue({
-    		fieldId: 'trandate'
-    	});
-    	
-    	// create a new Date object and set it's value to be the tranDate
-    	tranDate = new Date(tranDate);
-    	
-    	// create a new Date object
-    	var startDate = new Date();
-    	
-    	// set the date of the startDate object
-    	startDate.setMonth(tranDate.getMonth());
-    	startDate.setDate(0);
-    	startDate.setFullYear(tranDate.getFullYear());
-    	
-    	// format startDate so it can be used as a search filter
-    	startDate = format.format({
-				value: startDate,
-				type: format.Type.DATE
-		});
-    	
-    	log.debug({
-    		title: 'Start Date',
-    		details: startDate
-    	});
-    	
-    	// create a new Date object
-    	var endDate = new Date();
-    	
-    	// set the date of the endDate object
-    	endDate.setMonth(tranDate.getMonth()+1);
-    	endDate.setDate(0);
-    	endDate.setFullYear(tranDate.getFullYear());   	
-    	
-    	// format endDate so it can be used as a search filter
-    	endDate = format.format({
-				value: endDate,
-				type: format.Type.DATE
-		});
-    	
-    	log.debug({
-    		title: 'End Date',
-    		details: endDate
-    	});
-    	
-    	// get count of item lines
-    	var lineCount = currentRecord.getLineCount({
-    		sublistId: 'item'
-    	});
-    	
-    	// run search to find contract period detail records to be updated
-    	var periodDetailSearch = search.create({
-			type: 'customrecord_bbs_contract_period',
-			
-			columns: [{
-				name: 'internalid'
-			},
-					{
-				name: 'custrecord_bbs_contract_period_product'
-			}],
-			
-			filters: [{
-				name: 'custrecord_bbs_contract_period_contract',
-				operator: 'anyof',
-				values: [contractRecord]
-			},
-					{
-				name: 'custrecord_bbs_contract_period_start',
-				operator: 'onorafter',
-				values: [startDate]
-			},
-					{
-				name: 'custrecord_bbs_contract_period_end',
-				operator: 'onorbefore',
-				values: [endDate]
-    		}],
-		});
-    	
-    	// process search results
-		periodDetailSearch.run().each(function(result) {
-			
-			// get the internal ID of the item from the search results
-			searchItem = result.getValue({
-				name: 'custrecord_bbs_contract_period_product'
-			});
-			
-			// loop through line count
-	    	for (var i = 0; i < lineCount; i++)
-	    		{
-		    		// get the internal ID of the item for the line
-	    			itemID = currentRecord.getSublistValue({
-	    				sublistId: 'item',
-	    				fieldId: 'item',
-	    				line: i
-	    			});
-	    			
-	    			// check if the itemID and searchItem variables are the same
-	    			if (itemID == searchItem)
-	    				{
-		    				// get the record ID from the search results
-		    	    		recordID = result.getValue({
-		    	    			name: 'internalid'
-		    	    		});
-		    	    		
-		    	    		// get the unit price for the line
-		        			unitPrice = currentRecord.getSublistValue({
-		        				sublistId: 'item',
-		        				fieldId: 'rate',
-		        				line: i
-		        			});
-		        			
-		        			// get the quantity for the line
-		        			quantity = currentRecord.getSublistValue({
-		        				sublistId: 'item',
-		        				fieldId: 'quantity',
-		        				line: i	
-		        			});
-		        			
-		        			// multiply the unitPrice by the quantity to calculate the usage
-		        			usage = unitPrice * quantity;
-		        			
-		        			// update the usage on the period detail record
-		        			record.submitFields({
-		        				type: 'customrecord_bbs_contract_period',
-		        				id: recordID,
-		        				values: {
-		        					custrecord_bbs_contract_period_prod_use: usage
-		        				}
-		        			});
-		        			
-		        			// break the loop
-		        			break;		    	    		
-	    				}
-	    		}
-	    	
-	    	// continue processing search results
-	    	return true;
-		});
+		    	// get count of item lines
+		    	var lineCount = soRecord.getLineCount({
+		    		sublistId: 'item'
+		    	});
+		    	
+		    	// loop through line count
+		    	for (var i = 0; i < lineCount; i++)
+		    		{
+			    		// get the value of the 'Usage Updated' checkbox for the line
+		    			var usageUpdated = soRecord.getSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'custcol_bbs_usage_updated',
+		    				line: i
+		    			});
+		    			
+		    			// get the search date for the line
+		    			var searchDate = soRecord.getSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'custcol_bbs_so_search_date',
+		    				line: i
+		    			});
+		    			
+		    			// check that the usageUpdated variable returns false (checkbox is NOT ticked) and the searchDate variable returns a value
+		    			if (usageUpdated == false && searchDate != '')
+		    				{
+		    					// get the internal ID of the item for the line
+				    			var itemID = soRecord.getSublistValue({
+				    				sublistId: 'item',
+				    				fieldId: 'item',
+				    				line: i
+				    			});
+		    			
+				    			// get the internal ID of the contract record for the line
+				    			var contractRecord = soRecord.getSublistValue({
+				    				sublistId: 'item',
+				    				fieldId: 'custcol_bbs_contract_record',
+				    				line: i
+				    			});
+				    			
+				    			// format searchDate as a date object
+				            	var searchDate = format.parse({
+				        				value: searchDate,
+				        				type: format.Type.DATE
+				        		});
+				            	
+				            	// set the startDate to be the first day of the searchDate month
+				    			var startDate = new Date(searchDate.getFullYear(), searchDate.getMonth(), 1);
+				    			
+				    			// set the endDate to be the last day of the startDate month
+				    			var endDate = new Date(startDate.getFullYear(), startDate.getMonth()+1, 0);
+				    			
+				    			// format startDate so it can be used as a search filter
+				    			startDate = format.format({
+				    				value: startDate,
+				    				type: format.Type.DATE
+				    			});
+				    			
+				    			// format endDate so it can be used as a search filter
+				    			endDate = format.format({
+				    				value: endDate,
+				    				type: format.Type.DATE
+				    			});
+				    			
+				    			// run search to find period detail records to be updated
+				    			var periodDetailSearch = search.create({
+				        			type: 'customrecord_bbs_contract_period',
+				        			
+				        			columns: [{
+				        				name: 'internalid'
+				        			},
+				        					{
+				        				name: 'custrecord_bbs_contract_period_prod_use'
+				        			},
+				        					{
+				        				name: 'custrecord_bbs_contract_period_quantity'
+				        			}],
+				        			
+				        			filters: [{
+				        				name: 'custrecord_bbs_contract_period_contract',
+				        				operator: 'anyof',
+				        				values: [contractRecord]
+				        			},
+				        					{
+				        				name: 'custrecord_bbs_contract_period_product',
+				        				operator: 'anyof',
+				        				values: [itemID]
+				        			},
+				        					{
+				        				name: 'custrecord_bbs_contract_period_start',
+				        				operator: 'onorafter',
+				        				values: [startDate]
+				        			},
+				        					{
+				        				name: 'custrecord_bbs_contract_period_end',
+				        				operator: 'onorbefore',
+				        				values: [endDate]
+				            		}],
+				        		});
+				    			
+				    			// process search results
+				        		periodDetailSearch.run().each(function(result) {
+				        			
+				        			// get the record ID from the search results
+				    	    		var recordID = result.getValue({
+				    	    			name: 'internalid'
+				    	    		});
+				    	    		
+				    	    		// get the product usage from the search results
+				    	    		var currentUsage = result.getValue({
+				    	    			name: 'custrecord_bbs_contract_period_prod_use'
+				    	    		});
+				    	    		
+				    	    		// check if the currentUsage variable returns a value
+				    	    		if (currentUsage)
+				    	    			{
+				    	    				// use parseFloat to convert to floating point number
+				    	    				currentUsage = parseFloat(currentUsage);
+				    	    			}
+				    	    		else
+				    	    			{
+				    	    				// set the currentUsage variable to 0.00
+				    	    				currentUsage = 0.00;
+				    	    			}
+				    	    		
+				    	    		// get the current quantity from the search results
+				    	    		var currentQuantity = result.getValue({
+				    	    			name: 'custrecord_bbs_contract_period_quantity'
+				    	    		});
+				    	    		
+				    	    		// check if the currentQuantity variable returns a value
+				    	    		if (currentQuantity)
+				    	    			{
+				    	    				// use parseInt to convert to an integer number
+				    	    				currentQuantity = parseInt(currentQuantity);
+				    	    			}
+				    	    		else
+				    	    			{
+				    	    				// set the currentQuantity variable to 0
+				    	    				currentQuantity = 0;
+				    	    			}
+				    	    		
+				    	    		// get the unit price for the line
+				    	    		var unitPrice = soRecord.getSublistValue({
+				        				sublistId: 'item',
+				        				fieldId: 'rate',
+				        				line: i
+				        			});
+				        			
+				        			// get the quantity for the line
+				    	    		var quantity = soRecord.getSublistValue({
+				        				sublistId: 'item',
+				        				fieldId: 'quantity',
+				        				line: i
+				        			});
+				        			
+				        			// multiply the unitPrice by the quantity to calculate the usage
+				    	    		var usage = unitPrice * quantity;
+				    	    		
+				    	    		// add the usage to the currentUsage to calculate the updatedUsage
+				    	    		var updatedUsage = currentUsage + usage;
+				    	    		
+				    	    		// add the quantity to the currentQuantity to calculate the updatedQuantity
+				    	    		var updatedQuantity = currentQuantity + quantity;
+				        			
+				        			// update the usage on the period detail record
+				        			record.submitFields({
+				        				type: 'customrecord_bbs_contract_period',
+				        				id: recordID,
+				        				values: {
+				        					custrecord_bbs_contract_period_prod_use: updatedUsage,
+				        					custrecord_bbs_contract_period_quantity: updatedQuantity,
+				        					custrecord_bbs_contract_period_rate: unitPrice
+				        				}
+				        			});
+				
+				        		});
+				        		
+				        		// tick the 'Usage Updated' checkbox on the line
+				        		soRecord.setSublistValue({
+				        			sublistId: 'item',
+				        			fieldId: 'custcol_bbs_usage_updated',
+				        			value: true,
+				        			line: i
+				        		});
+		    				}
+		    		}
+    		}
     }
 
     /**
