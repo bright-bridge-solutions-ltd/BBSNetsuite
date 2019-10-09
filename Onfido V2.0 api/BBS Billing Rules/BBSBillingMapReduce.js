@@ -41,6 +41,14 @@ function(runtime, search, record, format) {
 	trcsAcc = currentScript.getParameter({
 		name: 'custscript_bbs_trcs_account'
 	});
+	
+	deferredIncomeUpfront = currentScript.getParameter({
+		name: 'custscript_bbs_def_inc_upfront'
+	});
+	
+	deferredIncomeMonthly = currentScript.getParameter({
+		name: 'custscript_bbs_def_inc_monthly'
+	});
 
 	// declare new date object. Global variable so can be accessed throughout the script
 	invoiceDate = new Date();
@@ -1117,13 +1125,23 @@ function(runtime, search, record, format) {
     	}
     
     //=================================================================
-	// FUNCTION TO CREATE A STANDALONE INVOICE FOR NEXT MONTHLY/QUARTERLY INVOICE
+	// FUNCTION TO CREATE THE NEXT MONTHLY/QUARTERLY PREPAYMENT INVOICE
 	//=================================================================
     
     function createNextInvoice(billingType, contractRecord, customer, amount, currency, overage)
 		{
-    		// set the invoice date to be the first of the month
-    		invoiceDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth()+1, 1);
+    		// if the billingType returns 'QMP'
+    		if (billingType == 'QMP')
+    			{
+    				// set the invoice date to be the first of the month
+        			invoiceDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth(), 1);
+    			}
+    		// if the billingType is QUR
+    		else if (billingType == 'QUR')
+    			{
+    				// set the invoice date to be the first of the next month
+        			invoiceDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth()+1, 1);
+    			}
     	
     		try
 				{
@@ -1164,7 +1182,7 @@ function(runtime, search, record, format) {
 	    				sublistId: 'item'
 	    			});
 	    			
-	    			// check if the billingType variable returns 'AMBMA'
+	    			// if the billingType variable returns 'AMBMA'
 	    			if (billingType == 'AMBMA')
 	    				{
 	    					// set the item on the new line using the ambmaItem
@@ -1445,235 +1463,309 @@ function(runtime, search, record, format) {
     
     function createRevRecJournal(recordID, billingType)
 	    {
-    		// declare and initialize variables
-    		var itemID;
-    		var itemLookup;
-    		var postingAccount;
-    		var rate;
-    		var quantity;
-    		var lineTotal;
-    		
-    		// format the invoiceDate object to a date (DD/MM/YYYY)
-    		var journalDate = format.format({
-    			type: format.Type.DATE,
-    			value: invoiceDate
-    		});
-    		
-    		// load the sales order record
-		    var soRecord = record.load({
-		    	type: record.Type.SALES_ORDER,
-		    	id: recordID
-		    });
+    		try
+    			{
+		    		// declare and initialize variables
+		    		var itemID;
+		    		var lineAmount;
+		    		var itemLookup;
+		    		var postingAccount;
+		    		var total = 0;
 		    		
-		    // get field values from the soRecord
-		    var customer = soRecord.getValue({
-		    	fieldId: 'entity'
-		    });
+		    		// lookup fields on the sales order
+		    		var salesOrderLookup = search.lookupFields({
+		    			type: search.Type.SALES_ORDER,
+		    			id: recordID,
+		    			columns: ['custbody_bbs_contract_record', 'entity']
+		    		});
 		    		
-		    var contractRecord = soRecord.getValue({
-		    	fieldId: 'custbody_bbs_contract_record'
-		    });
+		    		// retrieve values from the salesOrderLookup
+		    		var contractRecord = salesOrderLookup.custbody_bbs_contract_record[0].value;
+		    		var customer = salesOrderLookup.entity[0].value;
 		    		
-		    var subtotal = soRecord.getValue({
-		    	fieldId: 'subtotal'
-		    });
+		    		// lookup fields on the customer record
+				    var customerLookup = search.lookupFields({
+				    	type: search.Type.CUSTOMER,
+				    	id: customer,
+				    	columns: ['subsidiary', 'custentity_bbs_location', 'custentity_bbs_client_tier']
+				    });
+				    		
+				    // get the subsidiary, location and tier from the customerLookup
+				    var subsidiary = customerLookup.subsidiary[0].value;
+				    var location = customerLookup.custentity_bbs_location[0].value;
+				    var tier = customerLookup.custentity_bbs_client_tier[0].value;
+				    
+				    // lookup fields on the subsidiary record
+				    var subsidiaryLookup = search.lookupFields({
+				    	type: search.Type.SUBSIDIARY,
+				    	id: subsidiary,
+				    	columns: ['currency']
+				    });
+				    		
+				    // get the currency from the subsidiaryLookup
+				    var currency = subsidiaryLookup.currency[0].value;
+				    
+				    // create a new journal record
+				    var journalRecord = record.create({
+				    	type: record.Type.JOURNAL_ENTRY,
+				    	isDynamic: true
+				    });
+				    		
+				    // set header fields on the journal record
+				    journalRecord.setValue({
+				    	fieldId: 'trandate',
+				    	value: invoiceDate
+				    });
+				    		
+				    journalRecord.setValue({
+				    	fieldId: 'memo',
+				    	value: billingType + ' + ' + journalDate
+				    });
+				    		
+				    journalRecord.setValue({
+				    	fieldId: 'custbody_bbs_contract_record',
+				    	value: contractRecord
+				    });
+				    		
+				    journalRecord.setValue({
+				    	fieldId: 'custbody_bbs_rev_rec_journal',
+				    	value: true
+				    });
+				    		
+				    journalRecord.setValue({
+				    	fieldId: 'subsidiary',
+				    	value: subsidiary
+				    });
+				    		
+				    journalRecord.setValue({
+				    	fieldId: 'location',
+				    	value: location
+				    });
+				    		
+				    journalRecord.setValue({
+				    	fieldId: 'currency',
+				    	value: currency
+				    });
+				    
+				    // format the invoiceDate object to a date (DD/MM/YYYY)
+		    		var journalDate = format.format({
+		    			type: format.Type.DATE,
+		    			value: invoiceDate
+		    		});
 		    		
-		    // get line count from the soRecord
-		    var lineCount = soRecord.getLineCount({
-		    	sublistId: 'item'
-		    });
-		    		
-		    // lookup fields on the customer record
-		    var customerLookup = search.lookupFields({
-		    	type: search.Type.CUSTOMER,
-		    	id: customer,
-		    	columns: ['subsidiary', 'custentity_bbs_location']
-		    });
-		    		
-		    // get the subsidiary and location from the customerLookup
-		    var subsidiary = customerLookup.subsidiary[0].value;
-		    var location = customerLookup.custentity_bbs_location[0].value;
-		    		
-		    // lookup fields on the subsidiary record
-		    var subsidiaryLookup = search.lookupFields({
-		    	type: search.Type.SUBSIDIARY,
-		    	id: subsidiary,
-		    	columns: ['currency']
-		    });
-		    		
-		    // get the currency from the subsidiaryLookup
-		    var currency = subsidiaryLookup.currency[0].value;
-		    	
-		    // create a new journal record
-		   var journalRecord = record.create({
-		    	type: record.Type.JOURNAL_ENTRY,
-		    	isDynamic: true
-		    });
-		    		
-		    // set header fields on the journal record
-		    journalRecord.setValue({
-		    	fieldId: 'trandate',
-		    	value: invoiceDate
-		    });
-		    		
-		    journalRecord.setValue({
-		    	fieldId: 'memo',
-		    	value: billingType + ' + ' + journalDate
-		    });
-		    		
-		    journalRecord.setValue({
-		    	fieldId: 'custbody_bbs_contract_record',
-		    	value: contractRecord
-		    });
-		    		
-		    journalRecord.setValue({
-		    	fieldId: 'custbody_bbs_rev_rec_journal',
-		    	value: true
-		    });
-		    		
-		    journalRecord.setValue({
-		    	fieldId: 'subsidiary',
-		    	value: subsidiary
-		    });
-		    		
-		    journalRecord.setValue({
-		    	fieldId: 'location',
-		    	value: location
-		    });
-		    		
-		    journalRecord.setValue({
-		    	fieldId: 'currency',
-		    	value: currency
-		    });
-		    		
-		    // select a new line on the journal record
-		    journalRecord.selectNewLine({
-		    	sublistId: 'line'
-		    });
-		    		
-		    // set fields on the new line
-		    journalRecord.setCurrentSublistValue({
-		    	sublistId: 'line',
-		    	fieldId: 'account',
-		    	value: 538 // 538 = 1210010	Deferred Income (Upfront)
-		    });
-		    		
-		    journalRecord.setCurrentSublistValue({
-		    	sublistId: 'line',
-		    	fieldId: 'custcol_bbs_journal_customer',
-		    	value: customer
-		    });
-		    		
-		    journalRecord.setCurrentSublistValue({
-		    	sublistId: 'line',
-		    	fieldId: 'custcol_bbs_contract_record',
-		    	value: contractRecord
-		    });
-		    		
-		    journalRecord.setCurrentSublistValue({
-		    	sublistId: 'line',
-		    	fieldId: 'memo',
-		    	value: billingType + ' + ' + journalDate
-		    });
-		    		
-		    journalRecord.setCurrentSublistValue({
-		    	sublistId: 'line',
-		    	fieldId: 'debit',
-		    	value: subtotal // SO subtotal
-		    });
-		    		
-		    // commit the line
-		    journalRecord.commitLine({
-				sublistId: 'line'
-			});
-		    		
-		    // loop through soRecord lineCount
-		    for (var x = 0; x < lineCount; x++)
-		    	{	        		
-			        // get the internal ID of the item from the so line
-			        itemID = soRecord.getSublistValue({
-			        	sublistId: 'item',
-			        	fieldId: 'item',
-			        	line: x
-			        });
-			        		
-			        // lookup the posting account on the item record
-			        itemLookup = search.lookupFields({
-			        	type: search.Type.ITEM,
-			        	id: itemID,
-			        	columns: ['incomeaccount']
-			        });
-			        		
-			        postingAccount = itemLookup.incomeaccount[0].value;
-			        		
-			        // get the quantity and rate for the line
-			        quantity = soRecord.getSublistValue({
-			        	sublistId: 'item',
-			        	fieldId: 'quantity',
-			        	line: x
-			        });
-			        		
-			        rate = soRecord.getSublistValue({
-			        	sublistId: 'item',
-			        	fieldId: 'rate',
-			        	line: x
-			        });
-			        		
-			        // multiply the quantity by the rate to calculate the lineTotal
-			        lineTotal = parseFloat(quantity * rate);
-			        		
-			        // select a new line on the journal record
-			        journalRecord.selectNewLine({
-			        	sublistId: 'line'
-			        });
-			        		
-			        // set fields on the new journal line
-			        journalRecord.setCurrentSublistValue({
-			        	sublistId: 'line',
-			        	fieldId: 'account',
-			        	value: postingAccount
-			        });
-			        		
-			        journalRecord.setCurrentSublistValue({
-			        	sublistId: 'line',
-			        	fieldId: 'credit',
-			        	value: lineTotal
-			        });
-			        		
-			        journalRecord.setCurrentSublistValue({
-			        	sublistId: 'line',
-			        	fieldId: 'custcol_bbs_journal_customer',
-			        	value: customer
-			        });
-			        		
-			        journalRecord.setCurrentSublistValue({
-			        	sublistId: 'line',
-			        	fieldId: 'memo',
-			        	value: billingType + ' + ' + journalDate
-			        });
-			        		
-			        journalRecord.setCurrentSublistValue({
-			        	sublistId: 'line',
-			        	fieldId: 'custcol_bbs_contract_record',
-			        	value: contractRecord
-			        });
-			        		
-			        // commit the line
-			        journalRecord.commitLine({
-			    		sublistId: 'line'
-			    	});	
-		    	}
-		    		
-		    // submit the journal record record
-			var journalID = journalRecord.save({
-				enableSourcing: false,
-	    		ignoreMandatoryFields: true
-			});
-					
-			log.audit({
-				title: 'Journal Created',
-				details: 'Journal ID: ' + journalID + ' | Sales Order ID: ' + recordID
-			});
+		    		// create a new date object and set it's value to be the start of the invoiceDate month
+				    var startDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth(), 1);
+			
+				    // create a new date object and set it's value to be the end of the startDate month
+				    var endDate = new Date(startDate.getFullYear(), startDate.getMonth()+1, 0);
+				    
+				    // format startDate so it can be used as a search filter
+				    startDate = format.format({
+				    	type: format.Type.DATE,
+				    	value: startDate
+				    });
+				    
+				    // format endDate so it can be used as a search filter
+				    endDate = format.format({
+				    	type: format.Type.DATE,
+				    	value: endDate
+				    });
+				    
+				    // create search to find sales order lines for the current month
+				    var soSearch = search.create({
+				    	type: search.Type.SALES_ORDER,
+				    	
+				    	columns: [{
+				    		name: 'incomeaccount',
+				    		join: 'item'
+				    	},
+				    			{
+				    		name: 'amount'
+				    	}],
+				    	
+				    	filters: [{
+				    		name: 'mainline',
+				    		operator: 'is',
+				    		values: ['F']
+				    	},
+				    			{
+				    		name: 'internalid',
+				    		operator: 'anyof',
+				    		values: [recordID]
+				    	},
+				    			{
+				    		name: 'custcol_bbs_so_search_date',
+				    		operator: 'within',
+				    		values: [startDate, endDate]
+				    	}],
+		
+				    });
+		
+				    // run search and process search results
+				    soSearch.run().each(function(result) {
+				    	
+				    	// get the line amount from the search results
+				    	lineAmount = result.getValue({
+				    		name: 'amount'
+				    	});
+				    	
+				    	lineAmount = parseFloat(lineAmount); // use parseFloat to convert to floating point number
+				    	
+				    	// add the lineAmount to the total variable
+				    	total += lineAmount;
+				    	
+				    	// get the income account for the item from the search results
+				    	postingAccount = result.getValue({
+				    		name: 'incomeaccount',
+				    		join:'item'
+				    	});
+				        
+				        // select a new line on the journal record
+					    journalRecord.selectNewLine({
+					    	sublistId: 'line'
+					    });
+					    
+					    // set fields on the new journal line
+				        journalRecord.setCurrentSublistValue({
+				        	sublistId: 'line',
+				        	fieldId: 'account',
+				        	value: postingAccount
+				        });
+				        		
+				        journalRecord.setCurrentSublistValue({
+				        	sublistId: 'line',
+				        	fieldId: 'credit',
+				        	value: lineAmount
+				        });
+				        		
+				        journalRecord.setCurrentSublistValue({
+				        	sublistId: 'line',
+				        	fieldId: 'entity',
+				        	value: customer
+				        });
+				        
+				        journalRecord.setCurrentSublistValue({
+				        	sublistId: 'line',
+				        	fieldId: 'location',
+				        	value: location
+				        });
+				        
+				        journalRecord.setCurrentSublistValue({
+				        	sublistId: 'line',
+				        	fieldId: 'custcol_bbs_journal_client_tier',
+				        	value: tier
+				        });
+				        		
+				        journalRecord.setCurrentSublistValue({
+				        	sublistId: 'line',
+				        	fieldId: 'memo',
+				        	value: billingType + ' + ' + journalDate
+				        });
+				        		
+				        journalRecord.setCurrentSublistValue({
+				        	sublistId: 'line',
+				        	fieldId: 'custcol_bbs_contract_record',
+				        	value: contractRecord
+				        });
+				        		
+				        // commit the line
+				        journalRecord.commitLine({
+				    		sublistId: 'line'
+				    	});
+		
+					});
+				    
+				    // ============================================================================================
+				    // NOW WE NEED TO ADD A LINE TO SUBTRACT BALANCES FROM THE APPROPRIATE DEFERRED REVENUE ACCOUNT
+				    // ============================================================================================
+		 
+					// select a new line on the journal record
+				    journalRecord.selectNewLine({
+				    	sublistId: 'line'
+				    });
+				    		
+			    	// if the billingType is 'AMBMA'
+			    	if (billingType == 'AMBMA')
+			    		{
+			    			// set the account on the new line using the deferredIncomeMonthly variable
+			    			journalRecord.setCurrentSublistValue({
+			    				sublistId: 'line',
+			    				fieldId: 'account',
+			    				value: deferredIncomeMonthly
+			    			});
+			    		}
+			    	// if the billingType is 'QMP, AMP or QUR'
+			    	else
+			    		{
+				    		// set the account on the new line using the deferredIncomeUpfront variable
+			    			journalRecord.setCurrentSublistValue({
+			    				sublistId: 'line',
+			    				fieldId: 'account',
+			    				value: deferredIncomeUpfront
+			    			});
+			    		}
+				    		
+				    // set fields on the new line
+				    journalRecord.setCurrentSublistValue({
+				    	sublistId: 'line',
+				    	fieldId: 'entity',
+				    	value: customer
+				    });
+				    
+				    journalRecord.setCurrentSublistValue({
+				    	sublistId: 'line',
+				    	fieldId: 'location',
+				    	value: location
+				    });
+				    
+				    journalRecord.setCurrentSublistValue({
+				    	sublistId: 'line',
+				    	fieldId: 'custcol_bbs_journal_client_tier',
+				    	value: tier
+				    });
+				    		
+				    journalRecord.setCurrentSublistValue({
+				    	sublistId: 'line',
+				    	fieldId: 'custcol_bbs_contract_record',
+				    	value: contractRecord
+				    });
+				    		
+				    journalRecord.setCurrentSublistValue({
+				    	sublistId: 'line',
+				    	fieldId: 'memo',
+				    	value: billingType + ' + ' + journalDate
+				    });
+				    		
+				    journalRecord.setCurrentSublistValue({
+				    	sublistId: 'line',
+				    	fieldId: 'debit',
+				    	value: total
+				    });
+				    		
+				    // commit the line
+				    journalRecord.commitLine({
+						sublistId: 'line'
+					});
+				    
+				    
+					// submit the journal record record
+					var journalID = journalRecord.save({
+						enableSourcing: false,
+					   ignoreMandatoryFields: true
+					});
+									
+					log.audit({
+						title: 'Journal Created',
+						details: 'Journal ID: ' + journalID + ' | Sales Order ID: ' + recordID
+					});
+    			}
+		    catch(error)
+			    {
+			    	log.error({
+						title: 'Error Creating Journal for Sales Order ID: ' + recordID,
+						details: error
+					});
+			    }
 	    }
     
     //===============================================================
