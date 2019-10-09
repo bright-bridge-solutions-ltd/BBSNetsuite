@@ -315,7 +315,7 @@ function(runtime, search, record, format) {
 		    var contractRecordLookup = search.lookupFields({
 		    	type: 'customrecord_bbs_contract',
 		    	id: contractRecord,
-		    	columns: ['custrecord_bbs_contract_min_ann_use', 'custrecord_bbs_contract_term', 'custrecord_bbs_contract_currency']
+		    	columns: ['custrecord_bbs_contract_min_ann_use', 'custrecord_bbs_contract_term', 'custrecord_bbs_contract_currency', 'custrecord_bbs_contract_end_date']
 		    });
 		    
 		    // return values from the contractRecordLookup
@@ -324,6 +324,13 @@ function(runtime, search, record, format) {
 		    var contractTerm = contractRecordLookup.custrecord_bbs_contract_term;
 		    contractTerm = parseInt(contractTerm); // use parseInt to convert to integer number
 		    var currency = contractRecordLookup.custrecord_bbs_contract_currency[0].value;
+		    var contractEnd = contractRecordLookup.custrecord_bbs_contract_end_date;
+		    
+		    // format contractEnd as a date object
+		    contractEnd = format.parse({
+		    	type: format.Type.DATE,
+		    	value: contractEnd
+		    });
 		    	
 		    // divide annualMinimum by the contractTerm to calculate the monthly minimum
 		    var monthlyMinimum = (annualMinimum / contractTerm);
@@ -478,7 +485,19 @@ function(runtime, search, record, format) {
     			{
     				// create the next monthly invoice. Amount will be the monthly minimum less the balance of deferred revenue associated to the contract
     			}
-
+    		
+    		// check if the invoiceDate is equal to the contractEnd
+			if (invoiceDate.getTime() == contractEnd.getTime())
+				{
+					/*
+		    		 * CREATE JOURNAL RECOGNISING ALL REMAINING DEFERRED REVENUE
+		    		 */
+				}
+			else
+				{
+					// call function to create journal recognising all revenue for the current contract period. Pass in recordID and billingType
+	    			createRevRecJournal(recordID, billingType);
+				}
 	    }
     
     function AMP(recordID)
@@ -547,19 +566,33 @@ function(runtime, search, record, format) {
 			    			// call function to update period detail records (to tick the Usage Invoice Issued checkbox). Pass in recordID and soRecord
 							updatePeriodDetail(recordID, soRecord);
 				    	}
-		    	}		    
-		    // check if the totalUsage is greater than the minimumUsage
-		    else if (totalUsage > minimumUsage)
-			    {
-		    		// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, minimumUsage  and contractRecord
-    				addCreditLine(soRecord, billingType, minimumUsage, contractRecord);
-		    	
-		    		// call function to transform the sales order to an invoice. Pass in ID of sales order
-	    			createInvoice(recordID);
-	    			
-	    			// call function to update period detail records (to tick the Usage Invoice Issued checkbox). Pass in recordID and soRecord
-					updatePeriodDetail(recordID, soRecord);
-			    }
+				    
+				    // check if the totalUsage is less than the minimumUsage
+	    		    if (totalUsage < minimumUsage)
+	    		    	{
+	    		    		/*
+	    		    		 * CREATE JOURNAL RECOGNISING ALL REMAINING DEFERRED REVENUE
+	    		    		 */
+	    		    	}
+	    		    // if the totalUsage is equal to the minimumUsage
+	    		    else if (totalUsage == minimumUsage)
+	    		    	{
+	    		    		// call function to create journal recognising all revenue for the final contract period. Pass in recordID and billingType
+	    		    		createRevRecJournal(recordID, billingType);
+	    		    	}
+	    		    // if the totalUsage is greater than the minimumUsage
+	    		    else if (totalUsage > minimumUsage)
+	    		    	{
+	    		    		/*
+	    		    		 * CREATE JOURNAL RECOGNISING ALL REVENUE FOR THE FINAL CONTRACT PERIOD PLUS UNUSED
+	    		    		 */
+	    		    	}
+		    	}
+		    else // this is calendar month end and NOT the end of the contract
+		    	{
+			    	// call function to create journal recognising all revenue for the current contract period. Pass in recordID and billingType
+		    		createRevRecJournal(recordID, billingType);
+		    	}
     	}
     
     function PAYG(recordID)
@@ -680,8 +713,7 @@ function(runtime, search, record, format) {
 	    		    		// call function to close the sales order. Pass in soRecord object
 	    	    			closeSalesOrder(soRecord);
 	    			    }
-	    		    // if the totalUsage is greater than the minimumUsage
-	    		    else
+	    		    else // totalUsage is greater than the minimumUsage
 	    		    	{
 	    		    		// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
 	    		    		addCreditLine(soRecord, recordID, billingType, minimumUsage, contractRecord);
@@ -693,21 +725,35 @@ function(runtime, search, record, format) {
 	    					updatePeriodDetail(recordID, soRecord);
 	    		    	}
 	    		    
+	    		    // check if the totalUsage is less than the minimumUsage
+	    		    if (totalUsage < minimumUsage)
+	    		    	{
+	    		    		/*
+	    		    		 * CREATE JOURNAL RECOGNISING ALL REMAINING DEFERRED REVENUE
+	    		    		 */
+	    		    	}
+	    		    // if the totalUsage is equal to the minimumUsage
+	    		    else if (totalUsage == minimumUsage)
+	    		    	{
+	    		    		// call function to create journal recognising all revenue for the final contract period. Pass in recordID and billingType
+    		    			createRevRecJournal(recordID, billingType);
+	    		    	}
+	    		    // if the totalUsage is greater than the minimumUsage
+	    		    else if (totalUsage > minimumUsage)
+	    		    	{
+	    		    		/*
+	    		    		 * CREATE JOURNAL RECOGNISING ALL REVENUE FOR THE FINAL CONTRACT PERIOD PLUS UNUSED
+	    		    		 */
+	    		    	}
+	    		    
 	    		    // call function to create the next quarterly invoice. Pass in billingType, contractRecord, customer, minimumUsage and currency
 					createNextInvoice(billingType, contractRecord, customer, minimumUsage, currency);
 				}
-    		// check if the totalUsage is greater than the minimumUsage
-    		else if (totalUsage > minimumUsage)
-			    {
-		    		// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, minimumUsage and contractRecord
-    				addCreditLine(soRecord, billingType, minimumUsage, contractRecord);
-		    	
-		    		// call function to transform the sales order to an invoice. Pass in ID of sales order
-	    			createInvoice(recordID);
-	    			
-	    			// call function to update period detail records (to tick the Usage Invoice Issued checkbox). Pass in recordID and soRecord
-					updatePeriodDetail(recordID, soRecord);
-			    }
+			else // this is calendar month end and NOT the end of the quarter
+				{
+					// call function to create journal recognising all revenue for the current contract period. Pass in recordID and billingType
+	    			createRevRecJournal(recordID, billingType);
+				}
     	}
     
     function QUR(recordID)
@@ -736,15 +782,22 @@ function(runtime, search, record, format) {
 				fieldId: 'custbody_bbs_contract_record'
 			});
 	    	
-			// get the minimum usage and currency from the contract record
+			// get the minimum usage, currency and contract end date from the contract record
 			var contractRecordLookup = search.lookupFields({
 				type: 'customrecord_bbs_contract',
 				id: contractRecord,
-				columns: ['custrecord_bbs_contract_qu_min_use', 'custrecord_bbs_contract_currency']
+				columns: ['custrecord_bbs_contract_qu_min_use', 'custrecord_bbs_contract_currency', 'custrecord_bbs_contract_end_date']
 			});
 	    		
 			var minimumUsage = contractRecordLookup.custrecord_bbs_contract_qu_min_use;
 			var currency = contractRecordLookup.custrecord_bbs_contract_currency[0].value;
+			var contractEnd = contractRecordLookup.custrecord_bbs_contract_end_date;
+			
+			// format contractEnd as a date object
+			contractEnd = format.parse({
+				type: format.Type.DATE,
+				value: contractEnd
+			});
 	    		
 			// get the total usage from the soRecord
 			var totalUsage = soRecord.getValue({
@@ -811,10 +864,33 @@ function(runtime, search, record, format) {
 				value: quarterEnd
 			});
 		
-			// check if the invoiceDate is equal to the quarterEnd
-			if (invoiceDate.getTime() == quarterEnd.getTime())
+			// check if the invoiceDate is equal to the contractEnd
+			if (invoiceDate.getTime() == contractEnd.getTime())
 				{
-	    			// check if the totalUsage is less than the minimumUsage
+					// check if the totalUsage is less than or equal to the minimumUsage
+	    		    if (totalUsage <= minimumUsage)
+	    			    {
+	    		    		// call function to close the sales order. Pass in soRecord object
+	    	    			closeSalesOrder(soRecord);
+	    			    }
+	    		    // if the totalUsage is greater than the minimumUsage
+	    		    else if (totalUsage > minimumUsage)
+			    		{
+	    		    		// ?
+			    		}
+	    		    
+	    		    // check if there is any deferred revenue remaining
+	    		    if (deferredRevenue > 0)
+	    		    	{
+	    		    		/*
+	    		    		 * CREATE JOURNAL RECOGNISING REMAINING DEFERRED REVENUE BALANCE
+	    		    		 */
+	    		    	}
+				}
+			// if the invoiceDate is equal to the quarterEnd
+			else if (invoiceDate.getTime() == quarterEnd.getTime())
+				{
+	    			// check if the totalUsage is less than or equal to the minimumUsage
 	    		    if (totalUsage <= minimumUsage)
 	    			    {
 	    		    		// call function to close the sales order. Pass in soRecord object
@@ -838,19 +914,17 @@ function(runtime, search, record, format) {
 	    		    
 	    		    // call function to create the next quarterly invoice. Pass in billingType, contractRecord, customer, minimumUsage, currency and overage
 					createNextInvoice(billingType, contractRecord, customer, minimumUsage, currency, overage);
+					
+					// call function to create journal recognising all revenue for the current contract period. Pass in recordID and billingType
+    				createRevRecJournal(recordID, billingType);
 				}
-			// check if the totalUsage is greater than the minimumUsage
-			else if (totalUsage > minimumUsage)
-	    		{
-					// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, minimumUsage and contractRecord
-					addCreditLine(soRecord, billingType, minimumUsage, contractRecord);
-		    	
-		    		// call function to transform the sales order to an invoice. Pass in ID of sales order
-	    			createInvoice(recordID);
-	    			
-	    			// call function to update period detail records (to tick the Usage Invoice Issued checkbox). Pass in recordID and soRecord
-					updatePeriodDetail(recordID, soRecord);
-			    }    	
+			// if this is calendar month end
+			else
+				{
+					// call function to create journal recognising all revenue for the current contract period. Pass in recordID and billingType
+    				createRevRecJournal(recordID, billingType);
+				}
+			
 	    }
     
     function UIOLI(recordID)
