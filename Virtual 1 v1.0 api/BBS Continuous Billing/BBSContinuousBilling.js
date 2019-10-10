@@ -202,13 +202,28 @@ function scheduled(type)
 	//=============================================================================================
 	//
 	
+	//Get a specific processing date from the script parameter if required
+	//
+	var processingDateString = nlapiGetContext().getPreference('custscript_bbs_processing_date');
+	var processingDate = null;
+	
+	if(specificDate != null && specificDate != '')
+		{
+			processingDate = nlapiStringToDate(processingDateString);
+		}
+	else
+		{
+			processingDate = new Date();
+		}
+	
+	
 	//Find any sales orders with a billing end date that have not yet been processed
 	//
-	processBillingEndDates();
+	processBillingEndDates(processingDate);
 	
 	//Find any fully billed sales orders & create new sales orders from them
 	//
-	processFullyBilledOrders();
+	processFullyBilledOrders(processingDate);
 }
 
 //=============================================================================================
@@ -217,10 +232,9 @@ function scheduled(type)
 //=============================================================================================
 //=============================================================================================
 //
-function processFullyBilledOrders()
+function processFullyBilledOrders(_processingDate)
 {
-	var today = new Date();
-	var todayString = today.format('d/m/Y');
+	var todayString = _processingDate.format('d/m/Y');
 
 	//Find any relevant sales orders
 	//
@@ -372,10 +386,9 @@ function processFullyBilledOrders()
 		}
 }
 
-function processBillingEndDates()
+function processBillingEndDates(_processingDate)
 {
-	var today = new Date();
-	var todayString = today.format('d/m/Y');
+	var todayString = _processingDate.format('d/m/Y');
 	
 	//Find any relevant sales orders
 	//
