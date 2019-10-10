@@ -207,7 +207,7 @@ function scheduled(type)
 	var processingDateString = nlapiGetContext().getPreference('custscript_bbs_processing_date');
 	var processingDate = null;
 	
-	if(specificDate != null && specificDate != '')
+	if(processingDateString != null && processingDateString != '')
 		{
 			processingDate = nlapiStringToDate(processingDateString);
 		}
