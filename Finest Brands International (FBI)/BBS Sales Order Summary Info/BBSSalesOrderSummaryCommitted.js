@@ -13,6 +13,7 @@
 function scheduled(type) 
 {
 	var thisRecordType = 'salesorder';
+	var orderIds = {};
 	
 	//Run a saved search to find all orders that have a committed quantity on them
 	//
@@ -34,10 +35,47 @@ function scheduled(type)
 			]
 			);
 	
+	//Process the results into an object
+	//
 	if(salesorderSearch != null && salesorderSearch.length > 0)
 		{
 			for (var searchCount = 0; searchCount < salesorderSearch.length; searchCount++) 
 				{
+					var orderId = salesorderSearch[searchCount].getValue("internalid",null,"GROUP");
+					orderIds[orderId] = orderId;
+				}
+		}
+	
+	//Look for all orders that are partially fulfilled
+	//
+	var salesorderSearch = nlapiSearchRecord("salesorder",null,
+			[
+			   ["type","anyof","SalesOrd"], 
+			   "AND", 
+			   ["mainline","is","T"], 
+			   "AND", 
+			   ["status","anyof","SalesOrd:D","SalesOrd:E"]
+			], 
+			[
+			   new nlobjSearchColumn("tranid")
+			]
+			);
+	
+	//Process the results into an object
+	//
+	if(salesorderSearch != null && salesorderSearch.length > 0)
+		{
+			for (var searchCount = 0; searchCount < salesorderSearch.length; searchCount++) 
+				{
+					var orderId = salesorderSearch[searchCount].getId();
+					orderIds[orderId] = orderId;
+				}
+		}
+	
+	//Process all of the relevant sales orders
+	//
+	for ( var salesOrderId in orderIds) 
+		{
 					checkResources();
 					
 					var summary = {};
@@ -47,7 +85,7 @@ function scheduled(type)
 	                      delete summary[key]
 	                    }
                   
-					var salesOrderId = salesorderSearch[searchCount].getValue("internalid",null,"GROUP");
+					
 					var thisRecord = nlapiLoadRecord(thisRecordType, salesOrderId);
 					var lines = thisRecord.getLineItemCount('item');
 					
@@ -332,7 +370,6 @@ function scheduled(type)
 					//Save the output array to the sales order
 					//
 					nlapiSubmitField(thisRecordType, salesOrderId, ['custbody_bbs_item_summary_json','custbody_bbs_item_suumary_created'], [JSON.stringify(outputArray),'T'], false);
-				}
 		}
 }
 

@@ -14,7 +14,7 @@ function poBugetCheckWA()
 	//Get the current purchase order record
 	//
 	var newRecord = nlapiGetNewRecord();
-	var poId = purchaseOrderRecord.getId();
+	var poId = newRecord.getId();
 	
 	//Init variables
 	//
