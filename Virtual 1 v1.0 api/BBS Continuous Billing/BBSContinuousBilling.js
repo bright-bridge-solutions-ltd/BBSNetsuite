@@ -540,11 +540,12 @@ function checkForProRataInvoice(_salesOrderId)
 			salesOrderRecord = null;
 		}
 
-	//Do we have a sales orderrecord
+	//Do we have a sales order record
 	//
 	if(salesOrderRecord != null)
 		{
 			var billingEndDate = nlapiStringToDate(salesOrderRecord.getFieldValue('custbody_bbs_billing_end_date'));
+			var billingOffCycle = salesOrderRecord.getFieldValue('custbody_bbs_off_billing_cycle');
 			
 			//Make sure we have a billing end date
 			//

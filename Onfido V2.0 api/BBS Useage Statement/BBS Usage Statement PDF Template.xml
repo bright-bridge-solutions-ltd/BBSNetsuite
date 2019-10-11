@@ -1,0 +1,202 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+
+	<#assign logoInfo>https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=9544&amp;c=5554661_SB1&amp;h=3c1a74753ea9e8671a1c</#assign>
+  	<#assign todaysDate = .now>
+	<#assign summary_info = contract.custrecord_bbs_contract_usage_json?eval>
+	
+    <macrolist>
+    
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;">
+    			<tr>
+					<td style="padding-top: 40px;"><span style="font-size:18px;">Contract Usage Statement</span></td>
+					<td align="right">&nbsp;</td>
+					<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:105px;" /></td>
+    			</tr>
+          	</table>
+          	
+		    <table class="header" style="width: 100%; margin-top: 10px;">
+				<tr>
+					<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Statement Date</td>
+					<td align="right" style="padding-right: 2px;border-top: 1px solid black; border-right: 1px solid black;">${todaysDate?string["dd/MM/yyyy"]}</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+				</tr>
+				<tr>
+					<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Client Name</td>
+					<td align="right" style="padding-right: 2px; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_customer}</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+				</tr>
+				<tr>
+					<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Contract Start Date</td>
+					<td align="right" style="padding-right: 2px; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_start_date}</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+				</tr>
+				<tr>
+					<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Contract End Date</td>
+					<td align="right" style="padding-right: 2px; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_end_date}</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+				</tr>
+				<tr>
+					<td align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Annual Commitment</td>
+					<#if contract.custrecord_bbs_contract_annual_commit?length == 0>
+						<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;">N/A</td>
+					<#else>				
+						<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_annual_commit}</td>
+					</#if>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+				</tr>
+		   	</table>
+		   	
+		   	<table class="header" style="width: 100%; margin-top: 10px;">
+		   		<#list summary_info.invoiceSummary as inv>
+				   	<#if inv_index==0>
+				    	<tr>
+				        	<td align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"><b>Invoices</b></td>
+							<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;"><b>Amount</b></td>
+				            <td align="left">&nbsp;</td>
+							<td align="left">&nbsp;</td>
+							<td align="left">&nbsp;</td>
+				            </tr>
+		        	</#if>
+		        	
+		        	<tr>
+						<td align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">${inv.description}</td>
+						<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-right: 1px solid black;">${inv.value}</td>
+						<td align="left">&nbsp;</td>
+						<td align="left">&nbsp;</td>
+						<td align="left">&nbsp;</td>
+					</tr>
+		        	
+				</#list>
+		   	</table>
+
+        </macro>
+
+        <macro id="nlfooter">
+			<table class="footer" style="width: 100%;">
+	          	<tr>
+					<td align="right"><pagenumber/> of <totalpages/></td>
+				</tr>
+	        </table>
+        </macro>
+        
+    </macrolist>
+
+    <style type="text/css">table {
+            font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            <!--background-color: #e3e3e3;-->
+            border-bottom: 1px solid black;
+    		border-collapse: collapse;
+            <!--color: #333333;-->
+        }
+        td {
+            padding: 0px;
+            vertical-align: top;
+            font-size:10px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 6pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      table.message{
+        border: 1px solid #dddddd;
+      }
+        tr.totalrow {
+            <!--background-color: #e3e3e3;-->
+            line-height: 200%;
+        }
+      tr.messagerow{
+        font-size: 6pt;
+      }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 10pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+          font-size: 10pt;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalcell {
+          border-bottom: 1px solid black;
+    		border-collapse: collapse;
+        }
+      td.message{
+        font-size: 8pt;
+      }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="10px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+
+
+	<p>No Data To Show</p>
+    
+</body>
+</pdf>
