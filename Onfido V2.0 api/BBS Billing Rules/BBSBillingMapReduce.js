@@ -171,50 +171,12 @@ function(runtime, search, record, format) {
 			{
 				// call the AMBMA function. Pass in the internal ID of the sales order record
 				AMBMA(recordID);
-				
-				// get the value of the management fee checkbox from the search results
-				mgmtFee = searchResult.values["custrecord_bbs_contract_mgmt_fee.custbody_bbs_contract_record"].value;
-				
-				// if the mgmtFee variable returns 1 (Mgmt Fee is Yes)
-				if (mgmtFee == 1)
-					{
-						// get the customer from the search results
-						customer = searchResult.values["entity"].value;
-						
-						// get the management fee amount from the search results
-						mgmtFeeAmt = searchResult.values["custrecord_bbs_contract_mgmt_fee_amt.custbody_bbs_contract_record"];
-						
-						// get the currency from the search results
-						currency = searchResult.values["custrecord_bbs_contract_currency.custbody_bbs_contract_record"].value;
-					
-						// call function to create invoice for monthly management fee. Pass in ID of contract record, customer, mgmtFeeAmt, currency
-						createMgmtFeeInvoice(contractRecord, customer, mgmtFeeAmt, currency);
-					}
 			}
 		// AMP billing type
 		else if (billingType == 4)
 			{
 				// call the AMP function. Pass in the internal ID of the sales order record
 				AMP(recordID);
-				
-				// get the value of the management fee checkbox from the search results
-				mgmtFee = searchResult.values["custrecord_bbs_contract_mgmt_fee.custbody_bbs_contract_record"].value;
-				
-				// if the mgmtFee variable returns 1 (Mgmt Fee is Yes)
-				if (mgmtFee == 1)
-					{
-						// get the customer from the search results
-						customer = searchResult.values["entity"].value;
-						
-						// get the management fee amount from the search results
-						mgmtFeeAmt = searchResult.values["custrecord_bbs_contract_mgmt_fee_amt.custbody_bbs_contract_record"];
-						
-						// get the currency from the search results
-						currency = searchResult.values["custrecord_bbs_contract_currency.custbody_bbs_contract_record"].value;
-					
-						// call function to create invoice for monthly management fee. Pass in ID of contract record, customer, mgmtFeeAmt, currency
-						createMgmtFeeInvoice(contractRecord, customer, mgmtFeeAmt, currency);
-					}
 			}
 		// PAYG billing type
 		else if (billingType == 1)
@@ -227,56 +189,37 @@ function(runtime, search, record, format) {
 			{
 				// call the QMP function. Pass in the internal ID of the sales order record
 				QMP(recordID);
-				
-				// get the value of the management fee checkbox from the search results
-				mgmtFee = searchResult.values["custrecord_bbs_contract_mgmt_fee.custbody_bbs_contract_record"].value;
-				
-				// if the mgmtFee variable returns 1 (Mgmt Fee is Yes)
-				if (mgmtFee == 1)
-					{
-						// get the customer from the search results
-						customer = searchResult.values["entity"].value;
-						
-						// get the management fee amount from the search results
-						mgmtFeeAmt = searchResult.values["custrecord_bbs_contract_mgmt_fee_amt.custbody_bbs_contract_record"];
-						
-						// get the currency from the search results
-						currency = searchResult.values["custrecord_bbs_contract_currency.custbody_bbs_contract_record"].value;
-					
-						// call function to create invoice for monthly management fee. Pass in ID of contract record, customer, mgmtFeeAmt, currency
-						createMgmtFeeInvoice(contractRecord, customer, mgmtFeeAmt, currency);
-					}
 			}
 		// QUR billing type
 		else if (billingType == 5)
 			{
 				// call the QUR function. Pass in the internal ID of the sales order record
 				QUR(recordID);
-				
-				// get the value of the management fee checkbox from the search results
-				mgmtFee = searchResult.values["custrecord_bbs_contract_mgmt_fee.custbody_bbs_contract_record"].value;
-				
-				// if the mgmtFee variable returns 1 (Mgmt Fee is Yes)
-				if (mgmtFee == 1)
-					{
-						// get the customer from the search results
-						customer = searchResult.values["entity"].value;
-						
-						// get the management fee amount from the search results
-						mgmtFeeAmt = searchResult.values["custrecord_bbs_contract_mgmt_fee_amt.custbody_bbs_contract_record"];
-						
-						// get the currency from the search results
-						currency = searchResult.values["custrecord_bbs_contract_currency.custbody_bbs_contract_record"].value;
-					
-						// call function to create invoice for monthly management fee. Pass in ID of contract record, customer, mgmtFeeAmt, currency
-						createMgmtFeeInvoice(contractRecord, customer, mgmtFeeAmt, currency);
-					}
 			}
 		// UIOLI billing type
 		else if (billingType == 2)
 			{
 				// call the UIOLI function. Pass in the internal ID of the sales order record
 				UIOLI(recordID);
+			}
+		
+		// get the value of the management fee checkbox from the search results
+		mgmtFee = searchResult.values["custrecord_bbs_contract_mgmt_fee.custbody_bbs_contract_record"].value;
+		
+		// if the mgmtFee variable returns 1 (Mgmt Fee is Yes)
+		if (mgmtFee == 1)
+			{
+				// get the customer from the search results
+				customer = searchResult.values["entity"].value;
+				
+				// get the management fee amount from the search results
+				mgmtFeeAmt = searchResult.values["custrecord_bbs_contract_mgmt_fee_amt.custbody_bbs_contract_record"];
+				
+				// get the currency from the search results
+				currency = searchResult.values["custrecord_bbs_contract_currency.custbody_bbs_contract_record"].value;
+			
+				// call function to create invoice for monthly management fee. Pass in ID of contract record, customer, mgmtFeeAmt, currency
+				createMgmtFeeInvoice(contractRecord, customer, mgmtFeeAmt, currency);
 			}
     }
     
@@ -286,7 +229,7 @@ function(runtime, search, record, format) {
     
     function AMBMA(recordID)
 	    {
-    		// set the billingType variable to AMBMA
+	    	// set the billingType variable to AMBMA
     		billingType = 'AMBMA';
     		
     		// declare and initialize variables
@@ -412,18 +355,32 @@ function(runtime, search, record, format) {
     		var periodStartDay = periodStart.getDate();
     		var periodEndDay = periodEnd.getDate();
     		
-    		// create a new date object. Set date to be the end of the periodEnd's month
-    		var testDate = new Date(periodEnd.getFullYear(), periodEnd.getMonth()+1, 0);
-    		
-    		// get the day of the month from the testDate object
-    		var testDateDay = testDate.getDate();
-    		
-    		// check if the periodStartDay variable is not equal to 1 OR periodEndDay variable is not equal to the testDateDay variable (IE contract period starts or ends mid month)
-    		if (periodStartDay != 1 || periodEndDay != testDateDay)
-    			{
-    				// divide the monthlyMinimum by 2
-    				monthlyMinimum = (monthlyMinimum / 2);
-    			}
+    		// call function to calculate number of days in the current month
+			var daysInMonth = getDaysInMonth(periodStartDate.getMonth(), periodStartDate.getFullYear());
+			
+			// check if the periodStartDay is NOT equal to 1 (IE starts mid month)
+			if (periodStartDay != 1)
+				{
+					// calculate the days remaining in the month
+					var daysRemaining = daysInMonth - periodStartDay;
+					
+					// divide monthlyMinimum by daysInMonth to calculate the dailyMinimum
+					var dailyMinimum = monthlyMinimum / daysInMonth;
+					
+					// multiply the dailyMinimum by daysRemaining to calculate the pro rate minimum usage
+					monthlyMinimum = parseFloat(dailyMinimum * daysRemaining);
+					monthlyMinimum = monthlyMinimum.toFixed(2);
+				}
+			// check that the endDay is NOT equal to the end of the month (IE ends mid month)
+			else if (endDay != daysInMonth)
+				{
+					// divide monthlyMinimum by daysInMonth to calculate the dailyMinimum
+					var dailyMinimum = monthlyMinimum / daysInMonth;
+					
+					// multiply monthlyMinimum by periodEndDay to calculate the pro rate minimum usage
+					monthlyMinimum = parseFloat(dailyMinimum * periodEndDay);
+					monthlyMinimum = monthlyMinimum.toFixed(2);
+				}
     		
     		// run search to find monthly minimum invoices for this contract record
     		var invoiceSearch = search.create({
@@ -475,8 +432,14 @@ function(runtime, search, record, format) {
     			fieldId: 'subtotal'
     		});
     		
+    		// check if the invoicedTotal variable is either blank or 0
+    		if (invoicedTotal != '' || invoicedTotal == 0)
+    			{
+    				// call function to create the next monthly invoice. Pass in billingType, contractRecord, customer, monthlyMinimum and currency
+					createNextInvoice(billingType, contractRecord, customer, monthlyMinimum, currency);
+    			}
     		// check if the invoicedTotal variable is greater than or equal to the soSubtotal variable
-    		if (invoicedTotal >= soSubtotal)
+    		else if (invoicedTotal >= soSubtotal)
     			{
     				// call function to create the next monthly invoice. Pass in billingType, contractRecord, customer, monthlyMinimum and currency
 					createNextInvoice(billingType, contractRecord, customer, monthlyMinimum, currency);    			
@@ -502,7 +465,7 @@ function(runtime, search, record, format) {
     
     function AMP(recordID)
     	{
-    		// set the billingType variable to AMP
+	    	// set the billingType variable to AMP
 			billingType = 'AMP';
     	
     		// load the sales order record
@@ -557,8 +520,8 @@ function(runtime, search, record, format) {
 				    // if the totalUsage is greater than the minimumUsage
 				    else
 				    	{
-				    		// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, minimumUsage  and contractRecord
-			    			addCreditLine(soRecord, billingType, minimumUsage, contractRecord);
+				    		// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage  and contractRecord
+			    			addCreditLine(soRecord, recordID, billingType, minimumUsage, contractRecord);
 			    		
 			    			// call function to transform the sales order to an invoice. Pass in ID of sales order.
 			    			createInvoice(recordID);
@@ -597,7 +560,7 @@ function(runtime, search, record, format) {
     
     function PAYG(recordID)
 	    {
-    		// call function to transform the sales order to an invoice. Pass in ID of sales order
+	    	// call function to transform the sales order to an invoice. Pass in ID of sales order
 			createInvoice(recordID);
 			
 			// call function to update period detail records (to tick the Usage Invoice Issued checkbox). Pass in ID of sales order
@@ -606,7 +569,7 @@ function(runtime, search, record, format) {
     
     function QMP(recordID)
     	{
-    		// declare and initiate variables
+	    	// declare and initiate variables
     		var quarterEnd;
     	
     		// set the billingType variable to QMP
@@ -762,8 +725,8 @@ function(runtime, search, record, format) {
 			var quarterEnd;
 			var overage;
 	
-			// set the billingType variable to QMP
-			billingType = 'QMP';
+			// set the billingType variable to QUR
+			billingType = 'QUR';
 	
 			// load the sales order record
 			var soRecord = record.load({
@@ -876,7 +839,7 @@ function(runtime, search, record, format) {
 	    		    // if the totalUsage is greater than the minimumUsage
 	    		    else if (totalUsage > minimumUsage)
 			    		{
-	    		    		// ?
+	    		    		// create last invoice
 			    		}
 	    		    
 	    		    // check if there is any deferred revenue remaining
@@ -929,7 +892,7 @@ function(runtime, search, record, format) {
     
     function UIOLI(recordID)
     	{
-    		// set the billingType variable to UIOLI
+	    	// set the billingType variable to UIOLI
 			billingType = 'UIOLI';
 			
 			// load the sales order record
@@ -952,6 +915,112 @@ function(runtime, search, record, format) {
 			});
 			
 			var minimumUsage = contractRecordLookup.custrecord_bbs_contract_mon_min_use;
+			
+			// create a new date object and set it's value to be the start of the invoiceDate month
+		    var startDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth(), 1);
+	
+		    // create a new date object and set it's value to be the end of the startDate month
+		    var endDate = new Date(startDate.getFullYear(), startDate.getMonth()+1, 0);
+		    
+		    // format startDate so it can be used as a search filter
+		    startDate = format.format({
+		    	type: format.Type.DATE,
+		    	value: startDate
+		    });
+		    
+		    // format endDate so it can be used as a search filter
+		    endDate = format.format({
+		    	type: format.Type.DATE,
+		    	value: endDate
+		    });
+		    
+		    // run search to find period detail records for this billing month
+		    var periodDetailSearch = search.create({
+		    	type: 'customrecord_bbs_contract_period',
+		    	
+		    	columns: [{
+		    		name: 'custrecord_bbs_contract_period_start'
+		    	},
+		    			{
+		    		name: 'custrecord_bbs_contract_period_end'
+		    	}],
+		    	
+		    	filters: [{
+					name: 'custrecord_bbs_contract_period_contract',
+					operator: 'anyof',
+					values: [contractRecord]
+				},
+						{
+					name: 'custrecord_bbs_contract_period_start',
+					operator: 'onorafter',
+					values: [startDate]
+				},
+						{
+					name: 'custrecord_bbs_contract_period_end',
+					operator: 'onorbefore',
+					values: [endDate]
+	    		}],
+		    });
+		    
+		    // process search results
+		    periodDetailSearch.run().each(function(result) {
+			
+		    	// get the start date from the search results
+		    	periodStartDate = result.getValue({
+		    		name: 'custrecord_bbs_contract_period_start'
+		    	});
+		    	
+		    	// get the end date from the search results
+		    	periodEndDate = result.getValue({
+		    		name: 'custrecord_bbs_contract_period_end'
+		    	});
+    		
+		    });
+		
+		    // format periodStartDate as a date object
+			periodStartDate = format.parse({
+				type: format.Type.DATE,
+				value: periodStartDate
+			});
+			
+			// format periodEndDate as a date object
+			periodEndDate = format.parse({
+				type: format.Type.DATE,
+				value: periodEndDate
+			});
+		
+			// get the day of the month from the periodStartDate object
+			var startDay = periodStartDate.getDate();
+			
+			// get the day of the month from the periodEndDate object
+			var endDay = periodEndDate.getDate();
+			
+			// call function to calculate number of days in the current month
+			var daysInMonth = getDaysInMonth(periodStartDate.getMonth(), periodStartDate.getFullYear());
+			
+			// check if the startDay is NOT equal to 1 (IE starts mid month)
+			if (startDay != 1)
+				{
+					// calculate the pro rata minimum usage
+					var dailyMinimum = minimumUsage / daysInMonth;
+					
+					// calculate the days remaining in the month
+					var daysRemaining = daysInMonth - startDay;
+					
+					// multiply the dailyMinimum by the daysRemaining to calculate the pro rate minimum usage
+					minimumUsage = parseFloat(dailyMinimum * daysRemaining);
+					minimumUsage = minimumUsage.toFixed(2);
+				}
+			// check that the endDay is NOT equal to the end of the month (IE ends mid month)
+			else if (endDay != daysInMonth)
+				{
+					// calculate the pro rata minimum usage
+					var dailyMinimum = minimumUsage / daysInMonth;
+					
+					// multiply the dailyMinimum by the endDay to calculate the pro rate minimum usage
+					minimumUsage = parseFloat(dailyMinimum * endDay);
+					minimumUsage = minimumUsage.toFixed(2);
+				}
 			
 			// get the total usage from the soRecord
 			var totalUsage = soRecord.getValue({
@@ -1002,6 +1071,11 @@ function(runtime, search, record, format) {
 		    			fieldId: 'account',
 		    			value: trcsAcc
 		    		});
+		    		
+		    		invoiceRecord.setValue({
+	    				fieldId: 'custbody_bbs_invoice_type',
+	    				value: 5 // 5 = Usage
+	    			});
 		
 		    		// save the new invoice record
 		    		var invoiceID = invoiceRecord.save({
@@ -1053,6 +1127,9 @@ function(runtime, search, record, format) {
 		    	
 		    	columns: [{
 		    		name: 'custrecord_bbs_contract_period_start'
+		    	},
+		    			{
+		    		name: 'custrecord_bbs_contract_period_end'
 		    	}],
 		    	
 		    	filters: [{
@@ -1079,6 +1156,11 @@ function(runtime, search, record, format) {
 		    	periodStartDate = result.getValue({
 		    		name: 'custrecord_bbs_contract_period_start'
 		    	});
+		    	
+		    	// get the end date from the search results
+		    	periodEndDate = result.getValue({
+		    		name: 'custrecord_bbs_contract_period_end'
+		    	});
     		
 		    });
 		
@@ -1087,22 +1169,55 @@ function(runtime, search, record, format) {
 				type: format.Type.DATE,
 				value: periodStartDate
 			});
+			
+			// format periodEndDate as a date object
+			periodEndDate = format.parse({
+				type: format.Type.DATE,
+				value: periodEndDate
+			});
 		
 			// get the day of the month from the periodStartDate object
-			var dayOfMonth = periodStartDate.getDate();
+			var startDay = periodStartDate.getDate();
 			
-			// check if the dayOfMonth is NOT equal to 1 (IE starts mid month)
-			if (dayOfMonth != 1)
+			// get the day of the month from the periodEndDate object
+			var endDay = periodEndDate.getDate();
+			
+			// call function to calculate number of days in the current month
+			var daysInMonth = getDaysInMonth(periodStartDate.getMonth(), periodStartDate.getFullYear());
+			
+			// check if the startDay is NOT equal to 1 (IE starts mid month)
+			if (startDay != 1)
 				{
-					// call function to calculate how many days are in the month
-					var daysInMonth = getDaysInMonth(periodStartDate.getMonth(), periodStartDate.getFullYear());
-					
 					// calculate the pro rata management fee amount
 					var dailyFee = mgmtFeeAmt / daysInMonth;
 					
-					// multiply the dailyFee by the dayOfMonth to calculate the pro rata management fee amount
-					mgmtFeeAmt = parseFloat(dailyFee * dayOfMonth);
-				}    	
+					// calculate the days remaining in the month
+					var daysRemaining = daysInMonth - startDay;
+					
+					// multiply the dailyFee by the daysRemaining to calculate the pro rate management fee
+					mgmtFeeAmt = parseFloat(dailyFee * daysRemaining);
+					mgmtFeeAmt = mgmtFeeAmt.toFixed(2);
+				}
+			// check that the endDay is NOT equal to the end of the month (IE ends mid month)
+			else if (endDay != daysInMonth)
+				{
+					// calculate the pro rata management fee amount
+					var dailyFee = mgmtFeeAmt / daysInMonth;
+					
+					// multiply the dailyFee by the endDay to calculate the pro rate management fee
+					mgmtFeeAmt = parseFloat(dailyFee * endDay);
+					mgmtFeeAmt = mgmtFeeAmt.toFixed(2);
+				}
+			
+			// lookup fields on the customer record
+			var customerLookup = search.lookupFields({
+				type: search.Type.CUSTOMER,
+				id: customer,
+				columns: ['custentity_bbs_location']
+			});
+			
+			// retrieve values from the customerLookup
+			var location = customerLookup.custentity_bbs_location[0].value;
 
 	    	try
 	    		{
@@ -1122,11 +1237,11 @@ function(runtime, search, record, format) {
 	    				fieldId: 'entity',
 	    				value: customer
 	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'custbodybbs_monthly_mgmt_fee_invoice',
-	    				value: true
-	    			});
+    				
+    				invoice.setValue({
+    					fieldId: 'location',
+    					value: location
+    				});
 	    			
 	    			invoice.setValue({
 	    				fieldId: 'custbody_bbs_contract_record',
@@ -1142,6 +1257,11 @@ function(runtime, search, record, format) {
 		    			fieldId: 'account',
 		    			value: trcsAcc
 		    		});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'custbody_bbs_invoice_type',
+	    				value: 2 // 2 = Management Fee
+	    			});
 	    			
 	    			// add a new line to the invoice
 	    			invoice.selectNewLine({
@@ -1171,6 +1291,12 @@ function(runtime, search, record, format) {
 	    				sublistId: 'item',
 	    				fieldId: 'custcol_bbs_contract_record',
 	    				value: contractRecord
+	    			});
+	    			
+	    			invoice.setCurrentSublistValue({
+	    				sublistId: 'item',
+	    				fieldId: 'location',
+	    				value: location
 	    			});
 	    			
 	    			// commit the line
@@ -1216,6 +1342,16 @@ function(runtime, search, record, format) {
     				// set the invoice date to be the first of the next month
         			invoiceDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth()+1, 1);
     			}
+    		
+    		// lookup fields on the customer record
+			var customerLookup = search.lookupFields({
+				type: search.Type.CUSTOMER,
+				id: customer,
+				columns: ['custentity_bbs_location']
+			});
+			
+			// retrieve values from the customerLookup
+			var location = customerLookup.custentity_bbs_location[0].value;
     	
     		try
 				{
@@ -1242,6 +1378,11 @@ function(runtime, search, record, format) {
 	    			});
 	    			
 	    			invoice.setValue({
+	    				fieldId: 'location',
+	    				value: location
+	    			});
+	    			
+	    			invoice.setValue({
 	    				fieldId: 'currency',
 	    				value: currency
 	    			});
@@ -1250,6 +1391,11 @@ function(runtime, search, record, format) {
 						fieldId: 'account',
 						value: trpAcc
 					});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'custbody_bbs_invoice_type',
+	    				value: 3 // 3 = Prepayment
+	    			});
 	    			
 	    			// add a new line to the invoice
 	    			invoice.selectNewLine({
@@ -1307,6 +1453,12 @@ function(runtime, search, record, format) {
 	    				sublistId: 'item',
 	    				fieldId: 'custcol_bbs_contract_record',
 	    				value: contractRecord
+	    			});
+	    			
+	    			invoice.setCurrentSublistValue({
+	    				sublistId: 'item',
+	    				fieldId: 'location',
+	    				value: location
 	    			});
 	    			
 	    			// commit the line
@@ -1621,6 +1773,11 @@ function(runtime, search, record, format) {
 				    	value: currency
 				    });
 				    
+				    journalRecord.setValue({
+				    	fieldId: 'custbody_bbs_related_sales_order',
+				    	value: recordID
+				    });
+				    
 				    // format the invoiceDate object to a date (DD/MM/YYYY)
 		    		var journalDate = format.format({
 		    			type: format.Type.DATE,
@@ -1741,6 +1898,12 @@ function(runtime, search, record, format) {
 				        	fieldId: 'custcol_bbs_contract_record',
 				        	value: contractRecord
 				        });
+				        
+				        journalRecord.setCurrentSublistValue({
+				        	sublistId: 'line',
+				        	fieldId: 'custcol_bbs_related_sales_order',
+				        	value: recordID
+				        });
 				        		
 				        // commit the line
 				        journalRecord.commitLine({
@@ -1802,6 +1965,12 @@ function(runtime, search, record, format) {
 				    	sublistId: 'line',
 				    	fieldId: 'custcol_bbs_contract_record',
 				    	value: contractRecord
+				    });
+				    
+				    journalRecord.setCurrentSublistValue({
+				    	sublistId: 'line',
+				    	fieldId: 'custcol_bbs_related_sales_order',
+				    	value: recordID
 				    });
 				    		
 				    journalRecord.setCurrentSublistValue({

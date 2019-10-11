@@ -19,6 +19,42 @@ function(search, record, format) {
      * @Since 2015.2
      */
     function beforeLoad(scriptContext) {
+    	
+    	// check if the record is being copied
+    	if (scriptContext.type == 'copy')
+    		{
+    			// get the current record
+    			var currentRecord = scriptContext.newRecord;
+    		
+    			// get a count of item lines on the record
+		    	var lineCount = currentRecord.getLineCount({
+		    		sublistId: 'item'
+		    	});
+		    	
+		    	// loop through item lines
+		    	for (var x = 0; x < lineCount; x++)
+		    		{
+			    		// untick the 'Usage Updated' checkbox on the line
+		        		currentRecord.setSublistValue({
+		        			sublistId: 'item',
+		        			fieldId: 'custcol_bbs_usage_updated',
+		        			value: false,
+		        			line: x
+		        		});
+		    		}
+    		}
+    }
+    
+    /**
+     * Function definition to be triggered before record is loaded.
+     *
+     * @param {Object} scriptContext
+     * @param {Record} scriptContext.newRecord - New record
+     * @param {Record} scriptContext.oldRecord - Old record
+     * @param {string} scriptContext.type - Trigger type
+     * @Since 2015.2
+     */
+    function beforeSubmit(scriptContext) {	 	
 
     }
 
@@ -31,13 +67,20 @@ function(search, record, format) {
      * @param {string} scriptContext.type - Trigger type
      * @Since 2015.2
      */
-    function beforeSubmit(scriptContext) {
+    function afterSubmit(scriptContext) {
     	
     	// only run script when the record is being created or edited
     	if (scriptContext.type == 'create' || scriptContext.type == 'edit')
     		{    		
-    			// get the current record
-    			var soRecord = scriptContext.newRecord;
+    			// get the ID of the current record
+    			var recordID = scriptContext.newRecord.id;
+    			
+    			// reload the record
+    			var soRecord = record.load({
+    				type: record.Type.SALES_ORDER,
+    				id: recordID,
+    				isDynamic: true
+    			});
     	
 		    	// get count of item lines
 		    	var lineCount = soRecord.getLineCount({
@@ -47,7 +90,13 @@ function(search, record, format) {
 		    	// loop through line count
 		    	for (var i = 0; i < lineCount; i++)
 		    		{
-			    		// get the value of the 'Usage Updated' checkbox for the line
+			    		// select the line
+		    			soRecord.selectLine({
+		    				sublistId: 'item',
+		    				line: i
+		    			});
+		    		
+		    			// get the value of the 'Usage Updated' checkbox for the line
 		    			var usageUpdated = soRecord.getSublistValue({
 		    				sublistId: 'item',
 		    				fieldId: 'custcol_bbs_usage_updated',
@@ -55,27 +104,24 @@ function(search, record, format) {
 		    			});
 		    			
 		    			// get the search date for the line
-		    			var searchDate = soRecord.getSublistValue({
+		    			var searchDate = soRecord.getCurrentSublistValue({
 		    				sublistId: 'item',
-		    				fieldId: 'custcol_bbs_so_search_date',
-		    				line: i
+		    				fieldId: 'custcol_bbs_so_search_date'
 		    			});
 		    			
 		    			// check that the usageUpdated variable returns false (checkbox is NOT ticked) and the searchDate variable returns a value
 		    			if (usageUpdated == false && searchDate != '')
 		    				{
 		    					// get the internal ID of the item for the line
-				    			var itemID = soRecord.getSublistValue({
+				    			var itemID = soRecord.getCurrentSublistValue({
 				    				sublistId: 'item',
-				    				fieldId: 'item',
-				    				line: i
+				    				fieldId: 'item'
 				    			});
 		    			
 				    			// get the internal ID of the contract record for the line
-				    			var contractRecord = soRecord.getSublistValue({
+				    			var contractRecord = soRecord.getCurrentSublistValue({
 				    				sublistId: 'item',
-				    				fieldId: 'custcol_bbs_contract_record',
-				    				line: i
+				    				fieldId: 'custcol_bbs_contract_record'
 				    			});
 				    			
 				    			// format searchDate as a date object
@@ -181,17 +227,15 @@ function(search, record, format) {
 				    	    			}
 				    	    		
 				    	    		// get the unit price for the line
-				    	    		var unitPrice = soRecord.getSublistValue({
+				    	    		var unitPrice = soRecord.getCurrentSublistValue({
 				        				sublistId: 'item',
-				        				fieldId: 'rate',
-				        				line: i
+				        				fieldId: 'rate'
 				        			});
 				        			
 				        			// get the quantity for the line
-				    	    		var quantity = soRecord.getSublistValue({
+				    	    		var quantity = soRecord.getCurrentSublistValue({
 				        				sublistId: 'item',
-				        				fieldId: 'quantity',
-				        				line: i
+				        				fieldId: 'quantity'
 				        			});
 				        			
 				        			// multiply the unitPrice by the quantity to calculate the usage
@@ -217,28 +261,22 @@ function(search, record, format) {
 				        		});
 				        		
 				        		// tick the 'Usage Updated' checkbox on the line
-				        		soRecord.setSublistValue({
+				        		soRecord.setCurrentSublistValue({
 				        			sublistId: 'item',
 				        			fieldId: 'custcol_bbs_usage_updated',
-				        			value: true,
-				        			line: i
+				        			value: true
 				        		});
+				        		
+				        		// commit the line
+				        		soRecord.commitLine({
+									sublistId: 'item'
+								});
 		    				}
 		    		}
+		    	
+		    	// save the record
+		    	soRecord.save();
     		}
-    }
-
-    /**
-     * Function definition to be triggered before record is loaded.
-     *
-     * @param {Object} scriptContext
-     * @param {Record} scriptContext.newRecord - New record
-     * @param {Record} scriptContext.oldRecord - Old record
-     * @param {string} scriptContext.type - Trigger type
-     * @Since 2015.2
-     */
-    function afterSubmit(scriptContext) {
-
     }
 
     return {
