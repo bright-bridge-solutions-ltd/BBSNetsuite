@@ -1,63 +1,111 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
 <pdf>
 <head>
-
     <macrolist>
 
-    <macro id="nlheader">
-    <table class="header" style="width: 100%;">
-    <tr>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right"><img src="${companyInformation.logoUrl}" style="float: right; width:250px; height:75px;" /></td>
-    </tr>
-    <!--<tr><td>&nbsp;</td></tr>-->
-    <tr>
-	<td><span style="font-size:24px;">${record@title}</span></td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	</tr>
-          </table>
-    <table class="header" style="width: 100%;">
+		<macro id="nlheader">
+		    <table class="header" style="width: 100%;">
+			    <tr>
+					<td align="left"><img src="${companyInformation.logoUrl}"  /></td>
+                  	<td>
+                      	<table class="header" style="width: 100%;">
+                        	<tr>
+                              <td>&nbsp;</td>
+                              <td align="left" style="font-size:16px;">WO End Date:</td>
+                              <#if record.custbody_bbs_wo_orig_date?length gt 0>
+                              	<td align="right"><span style="font-size:16px;">${record.custbody_bbs_wo_orig_date?string["dd MMM yyyy"]}</span></td>
+                              <#else>
+                                <td align="right"><span style="font-size:16px;">&nbsp;</span></td>
+                              </#if>
+                          	</tr>
+                      	</table>
+                  	</td>
+				</tr>
+          	</table>
+          	
+		    <table class="header" style="width: 100%; margin-top: 20px;">
+				<tr>
+					<td align="left">
+                    	<table class="header" style="width: 100%;">
+                        	<tr>
+                            	<td align="left" colspan="2"><b>Special Instructions:</b></td>
+                              	<td>&nbsp;</td>
+                          	</tr>
+                          	<tr>
+                              	<td colspan="2" rowspan="6" style="padding-right: 10px;">${record.memo}</td>
+                              	<td>&nbsp;</td>
+                          	</tr>
+                          	<tr><td>&nbsp;</td></tr>
+                          	<tr><td>&nbsp;</td></tr>
+                          	<tr><td>&nbsp;</td></tr>
+                          	<tr><td>&nbsp;</td></tr>
+                          	<tr><td>&nbsp;</td></tr>
+                          
+							<tr>
+                            	<td align="left"><b>BOM Notes:</b></td>
+                              	<td>&nbsp;</td>
+                              	<td>&nbsp;</td>
+                          	</tr>
+                          	<tr>
+                              	<td colspan="2" style="padding-right: 10px;">${record.custbodycustitem2}</td>
+                              	<td>&nbsp;</td>
+                          	</tr>
+                      	</table>
+                  	</td>
+					<td align="left">
+                    	<table class="header" style="width: 100%;">
+                          	<tr>
+                            	<td align="left" style="font-size: 12pt;"><b>Works Order No:</b></td>
+                              	<td align="left" style="font-size: 12pt;"><b>${record.tranid}</b></td>
+                          	</tr>
+                          	<tr>
+                            	<td align="left"  style="font-size: 10pt;"><b>Assembly:</b></td>
+                              	<td align="left" style="font-size: 10pt;">${record.assemblyitem}</td>
+                          	</tr>
+                          	<tr>
+                            	<td align="left" style="font-size: 10pt;"><b>Assembly Description:</b></td>
+                              	<td align="left" rowspan="4" style="font-size: 10pt;">${record.custbody_cibassdesc}</td>
+                          	</tr>
+                          	<tr>
+                            	<td align="left"  style="font-size: 10pt;">&nbsp;</td>
+                          	</tr>
+                          	<tr>
+                            	<td align="left"  style="font-size: 10pt;">&nbsp;</td>
+                          	</tr>
+                          	<tr>
+                            	<td align="left"  style="font-size: 10pt;">&nbsp;</td>
+                          	</tr>
+                          	<tr>
+                            	<td align="left"  style="font-size: 10pt;"><b>Quantity:</b></td>
+                              	<td align="left" style="font-size: 10pt;">${record.quantity}</td>
+                          	</tr>
+                          	<tr>
+                            	<td align="left"  style="font-size: 10pt;"><b>Customer:</b></td>
+                              	<td align="left" style="font-size: 10pt;">${record.entity}</td>
+                          	</tr>
+                          	<tr>
+                            	<td align="left"  style="font-size: 10pt;"><b>Revision:</b></td>
+                              	<td align="left" style="font-size: 10pt;">${record.revision}</td>
+                          	</tr>
+                      	</table>
+                  	</td>
+				</tr>
+          	</table>
+        </macro>
 
-	<tr>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	</tr>
-	<tr>
-        <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"></span></td>
-	<td align="right" style="font-size:10pt"></td>
-      
-    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${companyInformation.addressText}</span></td>
-	</tr>
-          </table>
+    	<macro id="nlfooter">
+            <table class="footer" style="width: 100%;">
+            	<tr>
+					<td align="right"><pagenumber/> of <totalpages/></td>
+				</tr>
+			</table>
         </macro>
-      
-        <macro id="nlfooter">
-            <table class="footer" style="width: 100%;"><tr>
-	<td align="right"><pagenumber/> of <totalpages/></td>
-	</tr></table>
-        </macro>
-      
+
     </macrolist>
   
   
     <style type="text/css">table {
-        <#if .locale == "zh_CN">
-            font-family: stsong, sans-serif;
-        <#elseif .locale == "zh_TW">
-            font-family: msung, sans-serif;
-        <#elseif .locale == "ja_JP">
-            font-family: heiseimin, sans-serif;
-        <#elseif .locale == "ko_KR">
-            font-family: hygothic, sans-serif;
-        <#elseif .locale == "ru_RU">
-            font-family: verdana;
-        <#else>
             font-family: sans-serif;
-        </#if>
             font-size: 9pt;
             table-layout: fixed;
         }
@@ -65,9 +113,8 @@
             font-weight: bold;
             font-size: 8pt;
             vertical-align: middle;
-            padding: 5px 6px 3px;
-            background-color: #e3e3e3;
-            color: #333333;
+            background-color: #000000;
+            color: #ffffff;
         }
         td {
             padding: 4px 6px;
@@ -84,10 +131,7 @@
             padding: 0;
             font-size: 8pt;
         }
-        table.itemtable th {
-            padding-bottom: 10px;
-            padding-top: 10px;
-        }
+        
         table.body td {
             padding-top: 2px;
         }
@@ -109,60 +153,35 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="20%" footer="nlfooter" footer-height="1%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
-  <hr />
-    <table class="body" style="width: 100%; margin-top: 10px;"><tr>
-	<th>${record.tranid@label}</th>
-	<th>${record.trandate@label}</th>
-	<th>${record.entity@label}</th>
-	<th>${record.assemblyitem@label}</th>
-	<th>${record.quantity@label}</th>
-	<th>${record.revision@label}</th>
-	<th>${record.units@label}</th>
-	</tr>
-	<tr>
-	<td>${record.tranid}</td>
-	<td>${record.trandate}</td>
-	<td>${record.entity}</td>
-	<td>${record.assemblyitem}</td>
-	<td>${record.quantity}</td>
-	<td>${record.revision}</td>
-	<td>${record.units}</td>
-	</tr></table>
+<body header="nlheader" header-height="250px" footer="nlfooter" footer-height="10px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
 <#if record.item?has_content>
-
-<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list record.item as item><#if item_index==0>
-<thead>
-	<tr>
-	<th align="center" colspan="3">${item.quantity@label}</th>
-	<th colspan="8">${item.item@label}</th>
-	<th align="right" colspan="4">${item.options@label}</th>
-	<th align="right" colspan="8">${item.inventorydetail@label}</th>
-	</tr>
-</thead>
-</#if><tr>
-	<td align="center" colspan="3" line-height="150%">${item.quantity}</td>
-	<td colspan="8"><span class="itemname">${item.item}</span><br />${item.description}<br />${item.custcol_bbs_bom_spec_inst}</td>
-	<td align="right" colspan="4">${item.options}</td>
-	<td align="right" colspan="8">${item.inventorydetail}</td>
-	</tr>
-	</#list><!-- end items --></table>
-
-<hr /></#if><#if record.assemblydetail?has_content>
-<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list record.assemblydetail as assembly><#if assembly_index==0>
-<thead>
-	<tr>
-	<th align="center" colspan="2">${assembly.quantity@label}</th>
-	<th colspan="12">${assembly.item@label}</th>
-	<th align="right" colspan="3">${assembly.issubassembly@label}</th>
-	</tr>
-</thead>
-</#if><tr>
-	<td align="center" colspan="2">${assembly.quantity}</td>
-	<td colspan="12"><span class="itemname">${assembly.item}</span><br />${assembly.description}</td>
-	<td align="right" colspan="3">${assembly.issubassembly}</td>
-	</tr>
-	</#list><!-- end items --></table>
+  	<table class="itemtable" style="width: 100%;">
+      	<#list record.item as item>
+          	<#assign qty1=item.quantity/record.quantity>
+        	<#if item_index==0>
+              	<thead>
+                  	<tr>
+                      <th align="left" colspan="2" style="padding-left: 5px;">Part No.</th>
+                      <th align="left" colspan="3" style="padding-left: 20px;">Barcode</th>
+                      <th align="left" colspan="1">Qty/1</th>
+                      <th align="left" colspan="1">UOM</th>
+                      <th align="left" colspan="1">Tot Qty</th>
+                      <th align="left" colspan="8" style="padding-left: 5px;">Part Description</th>
+                  	</tr>
+              	</thead>
+    		</#if>
+          <tr>
+            <td align="left" colspan="2" line-height="200%" style="padding-left: 5px; border-left: 1px solid black; border-bottom: 1px solid black;">${item.item}</td>
+            <td align="left" colspan="3" line-height="200%" style="border-bottom: 1px solid black;"><barcode codetype="code128" showtext="false" bar-width="0.7" value="${item.item}"> </barcode></td>
+            <td align="left" colspan="1" line-height="200%" style="border-bottom: 1px solid black;">${qty1}</td>
+            <td align="left" colspan="1" line-height="200%" style="border-bottom: 1px solid black;">${item.units}</td>
+            <td align="left" colspan="1" line-height="200%" style="border-bottom: 1px solid black;">${item.quantity}</td>
+            <td align="left" colspan="8" line-height="200%" style="border-right: 1px solid black; border-bottom: 1px solid black;">${item.description}</td>
+          </tr>
+		</#list>
+	</table>
 </#if>
+
 </body>
 </pdf>

@@ -845,7 +845,18 @@ function saveJournal(_journalRecord, _transactionType, _transactionNumber, _uniq
 			catch(err)
 				{
 					sourceTransactionRecord = null;
-					nlapiLogExecution('ERROR', 'Error loading source transaction', err.message);
+					nlapiLogExecution('ERROR', 'Error loading source transaction (' + _transactionType + ', ' + _transactionNumber + '), deleting created journal (' + journalId + ')', err.message);
+					
+					//Failed to load source transaction, so we need to delete the journal
+					//
+					try
+						{
+							nlapiDeleteRecord('journalentry', journalId);
+						}
+					catch(err)
+						{
+							nlapiLogExecution('ERROR', 'Cannot remove newly create journal', err.message);
+						}
 				}
 			
 			//Have we got the source transaction record?
@@ -924,14 +935,11 @@ function saveJournal(_journalRecord, _transactionType, _transactionNumber, _uniq
 								}
 							catch(err)
 								{
-									nlapiLogExecution('ERROR', 'Cannot remove newly create journal', err.message);
+									nlapiLogExecution('ERROR', 'Cannot remove newly created journal', err.message);
 								}
 						}
 				}
 		}	
-	
-
-	
 }
 
 function translateType(_transactionType)
