@@ -19,35 +19,35 @@
           	
 		    <table class="header" style="width: 100%; margin-top: 10px;">
 				<tr>
-					<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Statement Date</td>
+					<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Statement Date</td>
 					<td align="right" style="padding-right: 2px;border-top: 1px solid black; border-right: 1px solid black;">${todaysDate?string["dd/MM/yyyy"]}</td>
 					<td align="left">&nbsp;</td>
 					<td align="left">&nbsp;</td>
 					<td align="left">&nbsp;</td>
 				</tr>
 				<tr>
-					<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Client Name</td>
+					<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Client Name</td>
 					<td align="right" style="padding-right: 2px; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_customer}</td>
 					<td align="left">&nbsp;</td>
 					<td align="left">&nbsp;</td>
 					<td align="left">&nbsp;</td>
 				</tr>
 				<tr>
-					<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Contract Start Date</td>
+					<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Contract Start Date</td>
 					<td align="right" style="padding-right: 2px; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_start_date}</td>
 					<td align="left">&nbsp;</td>
 					<td align="left">&nbsp;</td>
 					<td align="left">&nbsp;</td>
 				</tr>
 				<tr>
-					<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Contract End Date</td>
+					<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Contract End Date</td>
 					<td align="right" style="padding-right: 2px; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_end_date}</td>
 					<td align="left">&nbsp;</td>
 					<td align="left">&nbsp;</td>
 					<td align="left">&nbsp;</td>
 				</tr>
 				<tr>
-					<td align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Annual Commitment</td>
+					<td align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Annual Commitment</td>
 					<#if contract.custrecord_bbs_contract_annual_commit?length == 0>
 						<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;">N/A</td>
 					<#else>				
@@ -63,22 +63,31 @@
 		   		<#list summary_info.invoiceSummary as inv>
 				   	<#if inv_index==0>
 				    	<tr>
-				        	<td align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"><b>Invoices</b></td>
-							<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;"><b>Amount</b></td>
-				            <td align="left">&nbsp;</td>
+				        	<td align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ff0000;"><b>Invoices</b></td>
+							<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black; background-color: #ff0000;"><b>Amount</b></td>
+				            <td align="center" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black; background-color: #ff0000;"><b>Status</b></td>
 							<td align="left">&nbsp;</td>
 							<td align="left">&nbsp;</td>
 				            </tr>
 		        	</#if>
 		        	
-		        	<tr>
-						<td align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">${inv.description}</td>
-						<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-right: 1px solid black;">${inv.value}</td>
-						<td align="left">&nbsp;</td>
-						<td align="left">&nbsp;</td>
-						<td align="left">&nbsp;</td>
-					</tr>
-		        	
+		        	<#if inv_index==5>
+			        	<tr>
+							<td align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ff0000;">${inv.description}</td>
+							<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-right: 1px solid black; background-color: #ff0000;">${inv.value}</td>
+							<td align="left" style="padding-right: 2px; border-bottom: 1px solid black; border-right: 1px solid black; background-color: #ff0000;">${inv.status}</td>
+							<td align="left">&nbsp;</td>
+							<td align="left">&nbsp;</td>
+						</tr>
+					<#else>	
+						<tr>
+							<td align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ff9999;">${inv.description}</td>
+							<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-right: 1px solid black;">${inv.value}</td>
+							<td align="left" style="padding-right: 2px; border-bottom: 1px solid black; border-right: 1px solid black;">${inv.status}</td>
+							<td align="left">&nbsp;</td>
+							<td align="left">&nbsp;</td>
+						</tr>
+		        	</#if>
 				</#list>
 		   	</table>
 
@@ -195,8 +204,64 @@
 </head>
 <body header="nlheader" header-height="350px" footer="nlfooter" footer-height="10px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 
+	<#if summary_info.periodSummary?has_content>
+		<#list summary_info.periodSummary as period>
+			<table class="header" style="width: 100%; margin-top: 20px; page-break-inside: avoid;">
+		   		<tr>
+					<td align="left" colspan="2" style="padding-left: 2px; background-color: #19334d; color: #ffffff;">Period</td>
+					<td align="left" colspan="3" style="padding-left: 2px;  background-color: #19334d; color: #ffffff;">${period.periodStartDate} to ${period.periodEndDate}</td>
+				</tr>
+				
+				<#if period.productArray?has_content>
+					<#list period.productArray as prod>
+					<#if prod_index==0>
+						<tr>
+		                  	<td align="left"  colspan="2" style="padding-left: 2px; background-color: #0052cc; color: #ffffff;">Product</td>
+							<td align="right" style="padding-left: 2px; background-color: #0052cc; color: #ffffff;">Volume</td>
+							<td align="right" style="padding-left: 2px; background-color: #0052cc; color: #ffffff;">Price Per Check</td>
+							<td align="right" style="padding-left: 2px; background-color: #0052cc; color: #ffffff;">Total</td>
+						</tr>
 
-	<p>No Data To Show</p>
-    
+		    		</#if>
+						<tr>
+							<td align="left" colspan="2">${prod.description}</td>
+							<td align="right">${prod.value}</td>
+							<td align="right">${prod.rate}</td>
+							<td align="right">${prod.amount}</td>
+						</tr>
+					</#list>
+				</#if>
+				
+				<tr>
+					<td align="left" colspan="2">&nbsp;</td>
+					<td align="right">&nbsp;</td>
+					<td align="right">&nbsp;</td>
+					<td align="right">&nbsp;</td>
+				</tr>
+			
+				<tr>
+					<td align="left" colspan="2">&nbsp;</td>
+					<td align="right">&nbsp;</td>
+					<td align="right"><b>Grand Total</b></td>
+					<td align="right"><b>${period.productTotal}</b></td>
+				</tr>
+				
+			</table>	
+		</#list>
+	<#else>
+		<p>No Period Data To Show</p>
+	</#if>
+	
+	<#if contract.custrecord_bbs_contract_billing_type == "QMP" || contract.custrecord_bbs_contract_billing_type == "AMP" || contract.custrecord_bbs_contract_billing_type == "QUR">
+		<table class="header" style="width: 100%; margin-top: 20px;">
+			<tr>
+				<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; background-color: #ffa31a;">Credit Amount</td>
+				<td align="right" style="padding-right: 2px;border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${contract.custrecord_bbs_contract_def_inc_bal}</td>
+				<td align="left">&nbsp;</td>
+				<td align="left">&nbsp;</td>
+				<td align="left">&nbsp;</td>
+			</tr>
+		</table>
+    </#if>
 </body>
 </pdf>

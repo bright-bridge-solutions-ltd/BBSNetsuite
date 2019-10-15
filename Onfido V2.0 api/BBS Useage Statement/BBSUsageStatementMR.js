@@ -18,12 +18,20 @@ function(config, email, error, file, record, render, runtime, search, format) {
    
 	//Enumerations
 	//
-	var invoiceType = {};
-	invoiceType.SETUP_FEE = 1;
-	invoiceType.MONTHLY_MANAGEMENT_FEE = 2;
-	invoiceType.PREPAYMENT = 3;
-	invoiceType.OVERAGE = 4;
-	invoiceType.USAGE = 5;
+	var invoiceTypeEnum = {};
+	invoiceTypeEnum.SETUP_FEE 				= 1;
+	invoiceTypeEnum.MONTHLY_MANAGEMENT_FEE 	= 2;
+	invoiceTypeEnum.PREPAYMENT 				= 3;
+	invoiceTypeEnum.OVERAGE 				= 4;
+	invoiceTypeEnum.USAGE 					= 5;
+	
+	var billingTypeEnum = {};
+	billingTypeEnum.PAYG 	= 1;
+	billingTypeEnum.UIOLI 	= 2;
+	billingTypeEnum.QMP		= 3;
+	billingTypeEnum.AMP		= 4;
+	billingTypeEnum.QUR		= 5;
+	billingTypeEnum.AMBMA	= 6;
 	
     /**
      * Marks the beginning of the Map/Reduce process and generates input data.
@@ -63,22 +71,6 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    		   columns:
 	    		   [
 	    		      search.createColumn({name: "name", label: "Contract Name"}),
-	    		      search.createColumn({name: "custrecord_bbs_contract_billing_level", label: "Billing Level"}),
-	    		      search.createColumn({name: "custrecord_bbs_contract_billing_type", label: "Billing Type"}),
-	    		      search.createColumn({name: "custrecord_bbs_contract_end_date", label: "Contract End Date"}),
-	    		      search.createColumn({name: "custrecord_bbs_contract_start_date", label: "Contract Start Date"}),
-	    		      search.createColumn({name: "custrecord_bbs_contract_term", label: "Contract Term in Months"}),
-	    		      search.createColumn({name: "custrecord_bbs_contract_currency", label: "Currency"}),
-	    		      search.createColumn({name: "custrecord_bbs_contract_customer", label: "Customer"}),
-	    		      search.createColumn({name: "created", label: "Date Created"}),
-	    		      search.createColumn({name: "custrecord_bbs_contract_min_ann_use", label: "Minimum Annual Usage"}),
-	    		      search.createColumn({name: "custrecord_bbs_contract_mon_min_use", label: "Minimum Monthly Usage"}),
-	    		      search.createColumn({name: "custrecord_bbs_contract_qu_min_use", label: "Minimum Quarterly Usage"}),
-	    		      search.createColumn({name: "custrecord_bbs_contract_mgmt_fee_amt", label: "Monthly Management Fee Amount"}),
-	    		      search.createColumn({name: "custrecord_bbs_contract_setup_fee_amount", label: "Setup Fee Amount"}),
-	    		      search.createColumn({name: "custrecord_bbs_contract_status", label: "Status"}),
-	    		      search.createColumn({name: "custrecord_bbs_contract_total_usage", label: "Total Contract Usage - To Date"}),
-	    		      search.createColumn({name: "custrecord_bbs_contract_annual_commit", label: "Annual Commitment"}),
 	    		      search.createColumn({name: "custentity_bbs_usage_statement_email",join: "CUSTRECORD_BBS_CONTRACT_CUSTOMER",label: "Email Address For Usage Statement"})
 	    		   ]
 	    		});
@@ -97,6 +89,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    	var pdfTemplateId = runtime.getCurrentScript().getParameter({name: 'custscript_pdf_template_id'});
 	    	var emailTemplateId = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_usage_email_template'});
 	    	var attachmentsFolderId = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_attachments_folder'});
+	    	var statementDate = runtime.getCurrentScript().getParameter({name: 'custscript_statement_date'});
 	    	
 	    	//Only continue if we have a pdf & email template
 	    	//
@@ -104,32 +97,21 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    		{
 			    	//Convert the value to a result set
 			    	//
-			    	result = JSON.parse(context.value);
+			    	var result = JSON.parse(context.value);
 			    	
 			    	//Get the results
-			    	//
-			    	var resultBillingLevel 					= result.getText({name: "custrecord_bbs_contract_billing_level"});
-			    	var resultBillingType					= result.getText({name: "custrecord_bbs_contract_billing_type"});
-			    	var resultContractEndDate 				= result.getValue({name: "custrecord_bbs_contract_end_date"});
-			    	var resultContractStartDate 			= result.getValue({name: "custrecord_bbs_contract_start_date"});
-			    	var resultContractTerm 					= result.getValue({name: "custrecord_bbs_contract_term"});
-			    	var resultContractCurrency 				= result.getText({name: "custrecord_bbs_contract_currency"});
-			    	var resultContractCustomer 				= result.getText({name: "custrecord_bbs_contract_customer"});
-			    	var resultContractMinAnnualUsage		= Number(result.getValue({name: "custrecord_bbs_contract_min_ann_use"}));
-			    	var resultContractMinMonthlyUsage 		= Number(result.getValue({name: "custrecord_bbs_contract_mon_min_use"}));
-			    	var resultContractMinQuarterlyUsage 	= Number(result.getValue({name: "custrecord_bbs_contract_qu_min_use"}));
-			    	var resultContractManagementFee 		= Number(result.getValue({name: "custrecord_bbs_contract_mgmt_fee_amt"}));
-			    	var resultContractSetupFee 				= Number(result.getValue({name: "custrecord_bbs_contract_setup_fee_amount"}));
-			    	var resultContractStatus 				= result.getText({name: "custrecord_bbs_contract_status"});
-			    	var resultContractTotalUsage 			= Number(result.getValue({name: "custrecord_bbs_contract_total_usage"}));
+			    	//	
 			    	var resultContractId					= result.id;
-			    	var resultContractName					= result.getValue({name: "name"});
-			    	var resultContractMinAnnualCommitment	= Number(result.getValue({name: "custrecord_bbs_contract_annual_commit"}));
-			    	var resultContractEmailAddress			= result.getValue({name: "custentity_bbs_usage_statement_email", join: "CUSTRECORD_BBS_CONTRACT_CUSTOMER"});
-			    	
-			    	//Only carry on if we have an email address
+			    	var resultContractName					= result.values["name"];
+			    	var resultContractEmailAddress			= result.values["custentity_bbs_usage_statement_email.CUSTRECORD_BBS_CONTRACT_CUSTOMER"];
+
+			    	//Get the contract record
+	    			//
+	    			var contractRecord = getContract(resultContractId);
+	    			
+			    	//Only carry on if we have an email address & the contract record
 			    	//
-			    	if(resultContractEmailAddress != null && resultContractEmailAddress != '')
+			    	if(resultContractEmailAddress != null && resultContractEmailAddress != '' && contractRecord != null)
 			    		{
 					    	//Get the pre-payments
 					    	//
@@ -145,33 +127,90 @@ function(config, email, error, file, record, render, runtime, search, format) {
 					    	
 					    	//Build a JSON string to hold the summary data for the template
 					    	//
-					    	var jsonSummary = buildJson(periodRecords, prePayments, overageValue);
+					    	var jsonSummary = buildJson(periodRecords, prePayments, overageValue, contractRecord);
 					    	
 					    	//Merge data with the template
 					    	//
-					    	var pdfFile = mergeTemplate(resultContractId, pdfTemplateId, jsonSummary);
+					    	var pdfFile = mergeTemplate(resultContractId, pdfTemplateId, jsonSummary, contractRecord);
+					    	
+					    	//Save file to the filing cabinet 
+					    	//
+					    	var fileId = savePdf(pdfFile, resultContractId, attachmentsFolderId, resultContractName);
+					    	log.debug({title: 'File id' ,details: fileId});
 					    	
 					    	//Email the pdf to the customer
 					    	//
 					    	emailPdf(pdfFile, resultContractEmailAddress, resultContractId, emailTemplateId);
 					    	
-					    	//Save file to the filing cabinet 
+					    	//Attach the statement to the contract
 					    	//
-					    	savePdf(pdfFile, resultContractId, attachmentsFolderId);
+					    	if(fileId != null)
+					    		{
+					    			attachStatement(fileId, resultContractId);
+					    		}
 			    		}
 	    		}
 	    }
 
-
-    //Function to save the PDF to the filking cabinet
+    //Function to get the contract record
     //
-    function savePdf(_pdfFile, _resultContractId, _attachmentsFolderId)
+    function getContract(_contractId)
+    	{
+    		var contractRecord = null;
+    		
+    		try
+    			{
+    			contractRecord = record.load({
+											type: 		'customrecord_bbs_contract', 
+											id: 		_contractId, 
+											isDynamic: 	true
+											});	
+    			}
+    		catch(err)
+    			{
+	    			log.error({
+								title: 	'Error loading the contract record id =  ' + _contractId,
+								details: err
+								});
+    			}
+    		
+    		return contractRecord;
+    	}
+
+    //Function to attach the statement to the contract record
+    //
+    function attachStatement(_fileId, _contractId)
+    	{
+    		try
+    			{
+				    record.attach({
+									record: {type: 'file', id: _fileId},
+									to: 	{type: 'customrecord_bbs_contract', id: _contractId}
+									});
+    			}
+    		catch(err)
+    			{
+	    			log.error({
+								title: 	'Error attaching file to contract file id =  ' + _fileId + ' contract id = ' + _contractId,
+								details: err
+								});
+    			}
+    	}
+    
+    //Function to save the PDF to the filing cabinet
+    //
+    function savePdf(_pdfFile, _resultContractId, _attachmentsFolderId, _contractName)
 	    {
+    		var today = new Date();
     		var fileId = null;
     		
 	    	//Set the folder
 			//
     		_pdfFile.folder = _attachmentsFolderId;
+    		
+    		//Set the file name
+    		//
+    		_pdfFile.name = 'Usage Statement_' + _contractName + '_' + today.toUTCString() +'.pdf';
 		
 	    	//Try to save the file to the filing cabinet
 			//
@@ -182,17 +221,19 @@ function(config, email, error, file, record, render, runtime, search, format) {
 			catch(err)
 				{
 					log.error({
-								title: 'Error Saving PDF To File Cabinet ' + attachmentsFolder,
+								title: 	'Error Saving PDF To File Cabinet ' + attachmentsFolder,
 								details: error
 								});
 					
 					fileId = null;
 				}
+			
+			return fileId;
 	    }
     
     //Function to build the JSON string from the period usage records
     //
-    function buildJson(_periodRecords, _prePayments, _overageValue)
+    function buildJson(_periodRecords, _prePayments, _overageValue, _contractRecord)
 	    {
 	    	var returnedJson = '';
 	    	var summaryTotal = Number(0);
@@ -207,9 +248,45 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    		{
 	    			for(int = 0; int < _prePayments.length && int < 4; int++)
 	    				{
+	    					//Get the amount of the pre-payment
+	    					//
 	    					var amount = Number(_prePayments[int].getValue({name: 'amount'}));
 	    					summaryObject.invoiceSummary[int].value = format.format({value: amount, type: format.Type.CURRENCY});
 	    					summaryTotal += amount;
+	    					
+	    					//Work out the status field
+	    					//
+	    					var billingType = _contractRecord.getValue({fieldId: 'custrecord_bbs_contract_billing_type'});
+	    					
+	    					//Processing for AMP
+	    					//
+	    					if(billingType == billingTypeEnum.AMP)
+	    						{
+	    							var totalContractUsage = Number(_contractRecord.getValue({fieldId: 'custrecord_bbs_contract_total_usage'}));
+	    							var minimumAnnual = Number(_contractRecord.getValue({fieldId: 'custrecord_bbs_contract_min_ann_use'}));
+	    							var statusText = 'Still available to use';
+	    							
+	    							if(totalContractUsage > minimumAnnual)
+	    								{
+	    									statusText = 'Expired';
+	    								}
+	    							
+	    							summaryObject.invoiceSummary[int].status;
+	    						}
+	    					
+	    					//Processing for QMP
+	    					//
+	    					if(billingType == billingTypeEnum.QMP)
+	    						{
+	    							
+	    						}
+	    					
+	    					//Processing for QUR
+	    					//
+	    					if(billingType == billingTypeEnum.QUR)
+	    						{
+	    							
+	    						}
 	    				}
 	    		}
 	    	
@@ -230,17 +307,57 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    	//
 	    	if(_periodRecords != null && _periodRecords.length > 0)
 	    		{
-	    			for (var int = 0; int < array.length; int++) 
+	    			var lastPeriod = '';
+	    			var currentSummary = null;
+	    			
+	    			//Loop through the period usage data
+	    			//
+	    			for (var int = 0; int < _periodRecords.length; int++) 
 		    			{
-	    					var product = _periodRecords[int]getText({name: "custrecord_bbs_contract_period_product"});
-	    					var endDate = _periodRecords[int]getValue({name: "custrecord_bbs_contract_period_end"});
-	    					var startDate = _periodRecords[int]getValue({name: "custrecord_bbs_contract_period_start"});
-	    					var usage = _periodRecords[int]getValue({name: "custrecord_bbs_contract_period_prod_use"});
-	    					var quantity = _periodRecords[int]getValue({name: "custrecord_bbs_contract_period_quantity"});
-	    					var rate = _periodRecords[int]getValue({name: "custrecord_bbs_contract_period_rate"});
+	    					var product 	= _periodRecords[int].getText({name: "custrecord_bbs_contract_period_product"});
+	    					var endDate 	= _periodRecords[int].getValue({name: "custrecord_bbs_contract_period_end"});
+	    					var startDate 	= _periodRecords[int].getValue({name: "custrecord_bbs_contract_period_start"});
+	    					var usage 		= _periodRecords[int].getValue({name: "custrecord_bbs_contract_period_prod_use"});
+	    					var quantity 	= _periodRecords[int].getValue({name: "custrecord_bbs_contract_period_quantity"});
+	    					var rate 		= _periodRecords[int].getValue({name: "custrecord_bbs_contract_period_rate"});
+	    					var period 		= _periodRecords[int].getValue({name: "custrecord_bbs_contract_period_period"});
 	    					
-	    					summaryObject.periodSummary.push();
+	    					//Have we changed period number?
+	    					//
+	    					if(lastPeriod != period)
+	    						{
+	    							//If this is not the first time through, then push the period summary onto the output summary
+	    							//
+	    							if(lastPeriod != '')
+	    								{
+	    									currentSummary.productTotal = format.format({value: Number(currentSummary.productTotal), type: format.Type.CURRENCY});
+	    									summaryObject.periodSummary.push(currentSummary);
+	    								}
+	    							
+	    							//Create a new summary record
+	    							//
+	    							currentSummary = new periodSummaryObject(startDate, endDate);
+	    							
+		    						//Save the last period
+	    							//
+	    							lastPeriod = period;
+	    						}
+
+	    					//Add a new product summary to the current period summary
+	    					//
+	    					currentSummary.productArray.push(new productDetails(
+	    																		product, 
+	    																		(quantity == '' ? '' : format.format({value: quantity, type: format.Type.CURRENCY})), 
+	    																		(rate == '' ? '' : format.format({value: rate, type: format.Type.CURRENCY})), 
+	    																		(usage == '' ? '' : format.format({value: usage, type: format.Type.CURRENCY}))
+	    																		));
+	    					currentSummary.productTotal += Number(usage);
 						}
+	    			
+	    			//Save the last summary to the output object
+	    			//
+	    			currentSummary.productTotal = format.format({value: Number(currentSummary.productTotal), type: format.Type.CURRENCY});
+	    			summaryObject.periodSummary.push(currentSummary);
 	    		}
 	    	
 	    	
@@ -293,7 +410,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
 						}
 					catch(err)
 						{
-							log.debug({
+							log.error({
 									    title: 'Error sending email', 
 									    details: err.message
 									    });
@@ -316,7 +433,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    		      "AND", 
 	    		      ["mainline","is","T"], 
 	    		      "AND", 
-	    		      ["custbody_bbs_invoice_type","anyof",invoiceType.PREPAYMENT], 
+	    		      ["custbody_bbs_invoice_type","anyof",invoiceTypeEnum.PREPAYMENT], 
 	    		      "AND", 
 	    		      ["custbody_bbs_contract_record","anyof",_contractId]
 	    		   ],
@@ -345,7 +462,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    		      "AND", 
 	    		      ["mainline","is","T"], 
 	    		      "AND", 
-	    		      ["custbody_bbs_invoice_type","anyof",invoiceType.OVERAGE], 
+	    		      ["custbody_bbs_invoice_type","anyof",invoiceTypeEnum.OVERAGE], 
 	    		      "AND", 
 	    		      ["custbody_bbs_contract_record","anyof",_contractId]
 	    		   ],
@@ -403,36 +520,28 @@ function(config, email, error, file, record, render, runtime, search, format) {
     
     //Merge the pdf template with the data elements
     //
-    function mergeTemplate(_contractId, _pdfTemplateId, _jsonSummary)
+    function mergeTemplate(_contractId, _pdfTemplateId, _jsonSummary, _contractRecord)
     	{
-    		var contractRecord = null;
     		var pdfFile = null;
     		
-    		//Load the contract record
-    		//
-    		try
-    			{
-    				contractRecord = record.load({
-    											type: 		'customrecord_bbs_contract', 
-    											id: 		_contractId, 
-    											isDynamic: 	true
-    											});
-    			}
-    		catch(err)
-    			{
-    				contractRecord = null;
-    			}
-    		
-    		if(contractRecord != null)
+    		if(_contractRecord != null)
     			{
     				//Copy the json object into a temp field on the contract record
     				//
-    				contractRecord.setValue({
-    										fieldId:			'custrecord_bbs_contract_usage_json',
-    										value:				_jsonSummary,
-    										ignoreFieldChange:	true
-    										});
-    				
+    				try
+    					{
+	    				_contractRecord.setValue({
+	    										fieldId:			'custrecord_bbs_contract_usage_json',
+	    										value:				_jsonSummary,
+	    										ignoreFieldChange:	true
+	    										});
+    					}
+    				catch(err)
+    					{
+    						log.error({title: 'contract record',details: err});
+    		    		
+    					}
+
     				//Load the template file & get contents
     				//
     				var templateFile = null;
@@ -446,12 +555,18 @@ function(config, email, error, file, record, render, runtime, search, format) {
     				catch(err)
     					{
     						templateFile = null;
+    						log.error({
+									    title: 'Error loading pdf template file', 
+									    details: err
+									    });
     					}
+    				
     				
     				//Did the file load ok
     				//
     				if(templateFile != null)
     					{
+        				
     						//Get the contents
     						//
     						var templateContents = templateFile.getContents();
@@ -462,7 +577,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
     						renderer.templateContent = templateContents;
     						renderer.addRecord({
     											templateName:	'contract',
-    											record:			contractRecord
+    											record:			_contractRecord
     											});		
     						
     						//Render as PDF
@@ -474,8 +589,11 @@ function(config, email, error, file, record, render, runtime, search, format) {
     						catch(err)
     							{
     								pdfFile = null;
+    								log.error({
+											    title: 'Error rendering', 
+											    details: err
+											    });
     							}
-    						
     					}
     			}
     		
@@ -509,12 +627,12 @@ function(config, email, error, file, record, render, runtime, search, format) {
     		//Instantiate the invoice summary array
     		//
     		this.invoiceSummary = [];
-    		this.invoiceSummary.push(new invoiceSummaryObject('Prepayment 1', 'N/A'));
-    		this.invoiceSummary.push(new invoiceSummaryObject('Prepayment 2', 'N/A'));
-    		this.invoiceSummary.push(new invoiceSummaryObject('Prepayment 3', 'N/A'));
-    		this.invoiceSummary.push(new invoiceSummaryObject('Prepayment 4', 'N/A'));
-    		this.invoiceSummary.push(new invoiceSummaryObject('Overages', 'N/A'));
-    		this.invoiceSummary.push(new invoiceSummaryObject('Total', 'N/A'));
+    		this.invoiceSummary.push(new invoiceSummaryObject('Prepayment 1', 'N/A', ''));
+    		this.invoiceSummary.push(new invoiceSummaryObject('Prepayment 2', 'N/A', ''));
+    		this.invoiceSummary.push(new invoiceSummaryObject('Prepayment 3', 'N/A', ''));
+    		this.invoiceSummary.push(new invoiceSummaryObject('Prepayment 4', 'N/A', ''));
+    		this.invoiceSummary.push(new invoiceSummaryObject('Overages', 'N/A', ''));
+    		this.invoiceSummary.push(new invoiceSummaryObject('Total', 'N/A', ''));
     		
     		//Instantiate the period summary
     		//
@@ -525,26 +643,29 @@ function(config, email, error, file, record, render, runtime, search, format) {
     //
     function periodSummaryObject(_start, _end)
     	{
-    		this.periodStartDate = _start;
-    		this.periodEndDate = _end;
-    		this.productArray = [];
+    		this.periodStartDate 	= _start;
+    		this.periodEndDate 		= _end;
+    		this.productArray 		= [];
+    		this.productTotal 		= Number(0);
     	}
+    
     //Object to hold the product details
     //
     function productDetails(_description, _value, _rate, _amount)
     	{
-    		this.description = _description;
-    		this.value = _value;
-    		this.rate = _rate;
-    		this.amount = _amout;
+    		this.description 	= _description;
+    		this.value 			= _value;
+    		this.rate 			= _rate;
+    		this.amount 		= _amount;
     	}
     
     //Object to hold the invoice summary data
     //
-    function invoiceSummaryObject(_description, _value)
+    function invoiceSummaryObject(_description, _value, _status)
     	{
-    		this.description = _description;
-    		this.value =  _value;
+    		this.description 	= _description;
+    		this.value 			=  _value;
+    		this.status			= _status;
     	}
     
     //Return the function definitions back to Netsuite

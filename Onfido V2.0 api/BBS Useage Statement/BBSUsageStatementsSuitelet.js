@@ -56,6 +56,22 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					
 					stageParamField.defaultValue = stage;
 					
+					
+					//Store the statement date in a field in the form so that it can be retrieved in the POST section of the code
+					//
+					var dateParamField = form.addField({
+											                id: 	'custpage_param_date',
+											                type: 	serverWidget.FieldType.TEXT,
+											                label: 	'Date'
+										            	});
+
+					dateParamField.updateDisplayType({
+														displayType: 	serverWidget.FieldDisplayType.HIDDEN
+														});
+					
+					dateParamField.defaultValue = paramStatementDate;
+					
+					
 					//Work out what the form layout should look like based on the stage number
 					//
 					switch(stage)
@@ -350,6 +366,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 							case 2:
 								
 								var contractIds = [];
+								var statementDate = context.request.parameters['custpage_param_date'];
 								
 								//Find all of the lines that are ticked 
 								//
@@ -384,7 +401,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 														scriptId:		'customscript_bbs_usage_stmts_sched',	
 														deploymentid:	null,
 														params:			{
-																			custscript_contract_array:	JSON.stringify(contractIds)
+																			custscript_contract_array:	JSON.stringify(contractIds),
+																			custscript_statement_date: statementDate
 																		}
 								});
 								
