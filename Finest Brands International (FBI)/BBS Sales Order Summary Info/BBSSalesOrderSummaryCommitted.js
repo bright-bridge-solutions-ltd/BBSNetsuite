@@ -86,6 +86,32 @@ function scheduled(type)
 	                    }
                   
 					
+					//Run a search to find the picked values
+					//
+					var salesorderLineSearch = nlapiSearchRecord("salesorder",null,
+							[
+							   ["type","anyof","SalesOrd"], 
+							   "AND", 
+							   ["mainline","is","F"], 
+							   "AND", 
+							   ["taxline","is","F"], 
+							   "AND", 
+							   ["cogs","is","F"], 
+							   "AND", 
+							   ["shipping","is","F"], 
+							   "AND", 
+							   ["internalid","anyof",salesOrderId]
+							], 
+							[
+							   new nlobjSearchColumn("item"), 
+							   new nlobjSearchColumn("lineuniquekey"), 
+							   new nlobjSearchColumn("line"), 
+							   new nlobjSearchColumn("linesequencenumber"), 
+							   new nlobjSearchColumn("quantitypicked"), 
+							   new nlobjSearchColumn("quantitypacked")
+							]
+							);
+					
 					var thisRecord = nlapiLoadRecord(thisRecordType, salesOrderId);
 					var lines = thisRecord.getLineItemCount('item');
 					
@@ -107,6 +133,12 @@ function scheduled(type)
 							var lineAmount = thisRecord.getLineItemValue('item', 'amount', int);
 							var lineVatAmount = thisRecord.getLineItemValue('item', 'tax1amt', int);
 							var linevatCode = thisRecord.getLineItemValue('item', 'taxrate1', int);
+							var lineUniqueKey = nlapiGetLineItemValue('item', 'lineuniquekey', int);
+							var linePicked = getPickedQty(salesorderLineSearch, lineUniqueKey);
+							
+							var tempQty = Number(lineCommitted) - Number(linePicked) + Number(lineFulfilled);
+							lineCommitted = (tempQty > Number(lineCommitted) ? Number(lineCommitted) : tempQty);
+							
 							linevatCode = parseFloat(linevatCode).toFixed(2) + '%';
 							
 							//Get the price level for the line
@@ -603,6 +635,27 @@ function sizeQuantityCell(_size, _quantity, _sizeText, _amount, _vatAmount)
 //Functions
 //=============================================================================
 //
+function getPickedQty(_salesorderLineSearch, _lineUniqueKey)
+{
+	var pickedQty = Number(0);
+	
+	if(_salesorderLineSearch != null && _salesorderLineSearch.length > 0)
+		{
+			for (var int2 = 0; int2 < _salesorderLineSearch.length; int2++) 
+				{
+					var lineKey = _salesorderLineSearch[int2].getValue("lineuniquekey");
+					
+					if(lineKey == _lineUniqueKey)
+						{
+							pickedQty = Number(_salesorderLineSearch[int2].getValue("quantitypicked"));
+							break;
+						}
+				}
+		}
+	
+	return pickedQty;
+}
+
 function checkResources()
 {
 	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
