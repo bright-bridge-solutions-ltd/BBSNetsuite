@@ -64,7 +64,7 @@
                           	</tr>
                           	<tr>
                             	<td align="left" style="font-size: 10pt;"><b>Assembly Description:</b></td>
-                              	<td align="left" rowspan="4" style="font-size: 10pt;">${record.custbody_cibassdesc}</td>
+                              	<td align="left" rowspan="3" style="font-size: 10pt;">${record.custbody_cibassdesc}</td>
                           	</tr>
                           	<tr>
                             	<td align="left"  style="font-size: 10pt;">&nbsp;</td>
@@ -73,7 +73,8 @@
                             	<td align="left"  style="font-size: 10pt;">&nbsp;</td>
                           	</tr>
                           	<tr>
-                            	<td align="left"  style="font-size: 10pt;">&nbsp;</td>
+                            	<td align="left"  style="font-size: 10pt;"><b>Sales Order:</b></td>
+                              	<td align="left" style="font-size: 10pt;">${record.createdfrom}</td>
                           	</tr>
                           	<tr>
                             	<td align="left"  style="font-size: 10pt;"><b>Quantity:</b></td>
