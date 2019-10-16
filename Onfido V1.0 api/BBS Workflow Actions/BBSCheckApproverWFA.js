@@ -20,24 +20,27 @@ function checkApprover(id, type, form)
 	var opexMatrix = poRecord.getFieldValue('custbody_bbs_ope_app_mat');
 	var matrixRecord = null;
 	var matrixRecordId = '';
+	var poMatrixField = '';
 	
 	//Process CAPEX approvals
 	//
 	if(capexMatrix != null && capexMatrix != '')
 		{
 			matrixRecordId = 'customrecord_capex_app_rout_grid';
+			poMatrixField = capexMatrix;
 		}
 	
 	if(opexMatrix != null && opexMatrix != '')
 		{
 			matrixRecordId = 'customrecord_bbs_opex_app_matrix';
+			poMatrixField = opexMatrix;
 		}
 
 		//Read the matrix record
 		//
 		try
 			{
-				matrixRecord = nlapiLoadRecord(matrixRecordId, capexMatrix);
+				matrixRecord = nlapiLoadRecord(matrixRecordId, poMatrixField);
 			}
 		catch(err)
 			{
