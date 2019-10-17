@@ -154,7 +154,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="250px" footer="nlfooter" footer-height="10px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="250px" footer="nlfooter" footer-height="10px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 
 <#if record.item?has_content>
   	<table class="itemtable" style="width: 100%;">
@@ -163,12 +163,12 @@
         	<#if item_index==0>
               	<thead>
                   	<tr>
-                      <th align="left" colspan="2" style="padding-left: 5px;">Part No.</th>
-                      <th align="left" colspan="3" style="padding-left: 20px;">Barcode</th>
-                      <th align="left" colspan="1">Qty/1</th>
-                      <th align="left" colspan="1">UOM</th>
-                      <th align="left" colspan="1">Tot Qty</th>
-                      <th align="left" colspan="8" style="padding-left: 5px;">Part Description</th>
+                      <th align="left" colspan="2" style="padding-left: 5px;">Part<br/>No.</th>
+                      <th align="left" colspan="3" style="padding-left: 20px;"><br/>Barcode</th>
+                      <th align="left" colspan="1"><br/>Qty/1</th>
+                      <th align="left" colspan="1"><br/>UOM</th>
+                      <th align="left" colspan="1">Tot<br/>Qty</th>
+                      <th align="left" colspan="12" style="padding-left: 5px;"><br/>Part Description</th>
                   	</tr>
               	</thead>
     		</#if>
@@ -178,7 +178,7 @@
             <td align="left" colspan="1" line-height="200%" style="border-bottom: 1px solid black;">${qty1?string["0.##"]}</td>
             <td align="left" colspan="1" line-height="200%" style="border-bottom: 1px solid black;">${item.units}</td>
             <td align="left" colspan="1" line-height="200%" style="border-bottom: 1px solid black;">${item.quantity}</td>
-            <td align="left" colspan="8" line-height="200%" style="border-right: 1px solid black; border-bottom: 1px solid black;">${item.description}</td>
+            <td align="left" colspan="12" line-height="200%" style="border-right: 1px solid black; border-bottom: 1px solid black;">${item.description}</td>
           </tr>
 		</#list>
 	</table>
