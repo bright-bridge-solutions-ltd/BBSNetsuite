@@ -1482,7 +1482,8 @@ function generateProdBatchDocs(batchesArray, solink)
 						   new nlobjSearchColumn("custbody_bbs_wo_logo_type",null,null),
 						   new nlobjSearchColumn("custbody_bbs_wo_machine",null,null),
                            new nlobjSearchColumn("binnumber","item",null),
-                           new nlobjSearchColumn("parent","item",null)
+                           new nlobjSearchColumn("parent","item",null),
+                           new nlobjSearchColumn("quantityshiprecv",null,null)
 						]
 						);
 
@@ -1734,7 +1735,9 @@ function generateProdBatchDocs(batchesArray, solink)
 							var woAssemblyProcessType 		= searchResultSet[int3].getText("custitem_bbs_item_process_type","item");
 							var woAssemblyProcessTypeId		= searchResultSet[int3].getValue("custitem_bbs_item_process_type","item");
                             var woBinNumber					= searchResultSet[int3].getValue("binnumber","item");
-                            var woAssemblyParent					= searchResultSet[int3].getValue("parent","item");
+                            var woAssemblyParent			= searchResultSet[int3].getValue("parent","item");
+                            var woAssemblyItemBuilt			= Number(searchResultSet[int3].getValue('quantityshiprecv'));
+                            
 							if(woAssemblyItemSequence == null || woAssemblyItemSequence == '')
 								{
 									woAssemblyItemSequence = padding_left(woAssemblyItemId, '0', 6);
@@ -1804,11 +1807,11 @@ function generateProdBatchDocs(batchesArray, solink)
 										{
 											var committedValue = Number(0);
 											
-											//For non inventory parts, show the quantity rather than the committed qty as this will be zero
+											//For non inventory parts, show the quantity - built rather than the committed qty as this will be zero
                                           	//
                                           	if(woItemType == 'NonInvtPart')
 	                                      		{
-													committedValue = Number(woAssemblyItemQty);
+													committedValue = Number(woAssemblyItemQty) - Number(woAssemblyItemBuilt);
 	                                      		}
 											else
 												{
