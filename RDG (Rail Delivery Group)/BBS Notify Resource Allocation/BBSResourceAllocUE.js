@@ -29,7 +29,7 @@ function resourceAllocAS(type)
 			var startDate 		= newRecord.getFieldValue('startdate');
 			var endDate 		= newRecord.getFieldValue('enddate');
 			var allocAmount 	= newRecord.getFieldValue('allocationamount');
-			var project 		= newRecord.getFieldValue('companyname');
+			var project 		= newRecord.getFieldText('project');
 			var projectId 		= newRecord.getFieldValue('project');
 			var allocUnit 		= newRecord.getFieldValue('allocationunit');
 			var projectLink		= nlapiResolveURL('RECORD', 'resourceallocation', projectId, 'VIEW');
