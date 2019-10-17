@@ -21,6 +21,11 @@ function poCheckBudgetAS(type)
 {
 	if(type == 'create')
 		{
+			//Get environment
+			//
+			var context = nlapiGetContext();
+			var amoritizationAccount = context.getSetting('SCRIPT', 'custscript_bbs_amortization_account');
+			
 			//Get the current purchase order record
 			//
 			var newRecord = nlapiGetNewRecord();
@@ -97,7 +102,7 @@ function poCheckBudgetAS(type)
 													
 											//Find the ytd spend on the account
 											//
-											var accountSpend = findYTD(poLineItemAccount, poSubsidiary, poCostCentre, finCalDates);
+											var accountSpend = findYTD(poLineItemAccount, poSubsidiary, poCostCentre, finCalDates, amoritizationAccount);
 													
 											//Find the ytd budget for the account
 											//
@@ -269,7 +274,7 @@ function poCheckBudgetAS(type)
 		}
 
 
-		function findYTD(_account, _subsidiary, _costCentre, _calDates)
+		function findYTD(_account, _subsidiary, _costCentre, _calDates, _amortizationAccount)
 		{
 			var ytdValue = Number(0);
 			
@@ -299,6 +304,37 @@ function poCheckBudgetAS(type)
 					ytdValue = Number(transactionSearch[0].getValue("amount",null,"SUM"));	
 				}
 
+			//Find the total value of all transactions for the amoritization account
+			//
+			if(_amortizationAccount != null && _amortizationAccount != '')
+				{
+					var transactionSearch = nlapiSearchRecord("transaction",null,
+							[
+							   ["posting","is","T"], 
+							   "AND", 
+							   ["subsidiary","anyof",_subsidiary], 
+							   "AND", 
+							   ["class","anyof",_costCentre], 
+							   "AND", 
+							   ["trandate","within",_calDates.startDate,_calDates.endDate], 
+							   "AND", 
+							   ["account","anyof",_amortizationAccount],
+							   "AND", 
+							   ["item.account","anyof",_account],
+							], 
+							[
+							   new nlobjSearchColumn("amount",null,"SUM")
+							]
+							);
+		
+					//Did we get any results?
+					//
+					if(transactionSearch != null && transactionSearch.length == 1)
+						{
+							ytdValue += Math.abs(Number(transactionSearch[0].getValue("amount",null,"SUM")));	
+						}
+				}
+			
 			return ytdValue;
 		}
 
