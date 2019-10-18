@@ -32,13 +32,19 @@ function resourceAllocAS(type)
 			var project 		= newRecord.getFieldText('project');
 			var projectId 		= newRecord.getFieldValue('project');
 			var allocUnit 		= newRecord.getFieldValue('allocationunit');
-			var projectLink		= nlapiResolveURL('RECORD', 'resourceallocation', projectId, 'VIEW');
+			var pmoId 			= nlapiLookupField('job', projectId, 'custentity_bbs_pmo_project', false);
+			var pmo 			= nlapiLookupField('job', projectId, 'custentity_bbs_pmo_project', true);
+			var objective 		= nlapiLookupField('job', projectId, 'custentity_bbs_objective_project', false);
+			var projectLink		= nlapiResolveURL('RECORD', 'job', projectId, 'VIEW');
 			var employeeEmail 	= '';
+			var pmoEmail 		= '';
 			var context 		= nlapiGetContext();
 			var sender			= context.getUser();
 			var companyConfig 	= null;
 			allocUnit			= (allocUnit == 'H' ? 'Hours' : 'Percentage of Time');
 			
+			//Read the company config
+			//
 			try 
 				{
 					companyConfig = nlapiLoadConfiguration('companyinformation');
@@ -48,10 +54,23 @@ function resourceAllocAS(type)
 					companyConfig 	= null;
 				}
 			
+			//Get the prefix to the url
+			//
 			if(companyConfig != null)
 				{
 					var accountNunber = companyConfig.getFieldValue('companyid');
 					projectLink = 'https://' + accountNunber.replace('_','-') + '.app.netsuite.com' + projectLink;
+				}
+			
+			//Try to read the email address from the pmo
+			//
+			try
+				{
+					pmoEmail = nlapiLookupField('employee', pmoId, 'email', false);
+				}
+			catch(err)
+				{
+					pmoEmail = '';
 				}
 			
 			//Try to read the email address from the employee
@@ -65,7 +84,7 @@ function resourceAllocAS(type)
 					employeeEmail = '';
 				}
 			
-			//Have we got an email address?
+			//Have we got an employee email address?
 			//
 			if(employeeEmail != '')
 				{
@@ -88,6 +107,38 @@ function resourceAllocAS(type)
 					try
 						{
 							nlapiSendEmail(sender, employeeEmail, 'Resource Allocation To Project', emailText, null, null, null, null, false, false, null);
+						}
+					catch(err)
+						{
+							nlapiLogExecution('ERROR', 'Failed to send email', err.message);
+						}
+				}
+			
+			//Have we got a pmo email address?
+			//
+			if(pmoEmail != '')
+				{
+					//Build up the email text
+					//
+					var emailText = '';
+					emailText +=	'Dear ' + pmo + ',\n\n\n';
+					emailText +=	'This is to inform you that the following resource has been allocated to project "' + project + '"\n\n';
+					emailText +=	'Resource - ' + employee + '\n';
+					emailText +=	'Project Task - "' + projectTask + '"\n';
+					emailText +=	'Start Date - ' + startDate + '\n';
+					emailText +=	'End Date - ' + endDate + '\n';
+					emailText +=	'Allocation - ' + allocAmount + ' ' + allocUnit + '\n\n';
+					emailText +=	'Additional Notes - ' + notes + '\n\n';
+					emailText +=	'Objective - ' + objective + '\n\n';
+					emailText +=	'To see the project record in Netsuite, please click on the following link; ' + projectLink + '\n\n\n';
+					emailText +=	'Regards,\n\n';
+					emailText +=	'Netsuite';
+					
+					//Send email
+					//
+					try
+						{
+							nlapiSendEmail(sender, pmoEmail, 'Resource Allocation To Project', emailText, null, null, null, null, false, false, null);
 						}
 					catch(err)
 						{
