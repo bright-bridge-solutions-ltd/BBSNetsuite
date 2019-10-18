@@ -21,29 +21,54 @@ function(runtime,format) {
 		    	// load the current record so it can be manipulated
 		    	var currentRecord = scriptContext.newRecord;
 		    	
-		    	// get the internal ID of the customform field
-		        var customForm = currentRecord.getValue({
-		        	fieldId: 'customform'
-		        });
-		        		
-		        // check if the customForm variable returns 103 (SMI Standard Sales Order)
-		        if (customForm == 103)
-		        	{
-		        		// set value of days variable. This is a script parameter
-		        		days = currentScript.getParameter({
-		        			name: 'custscript_bbs_smi_std_so_ship_date'
-		        	    });				
-		        	}
-		        		
-		        // check if the customForm variable returns 123 (SMI Manpack Sales Order)
-		        else if (customForm == 123)
-		        	{
-			        	// set value of days variable. This is a script parameter
-		        		days = currentScript.getParameter({
-		        			name: 'custscript_bbs_smi_manpack_so_ship_date'
-		        	    });
-		        	}
-		        		
+		    	//Get the customer from the record
+		    	//
+		    	var customerId = currentRecord.getValue({
+		        										fieldId: 'entity'
+		        										});
+		    	
+		    	//Get the special customer parameters from the company general preferences
+		    	//
+		    	var specialCustomerId = currentScript.getParameter({
+												        			name: 'custscript_bbs_smi_override_ship_cust'
+												        	    	});			
+		    	
+		    	var specialCustomerDays = currentScript.getParameter({
+												        			name: 'custscript_bbs_smi_override_ship_date'
+												        	    	});			
+
+		    	//See if we are doing any special handling for the customer
+		    	//
+		    	if(customerId == specialCustomerId)
+		    		{
+		    			days = specialCustomerDays;
+		    		}
+		    	else
+		    		{
+				    	// get the internal ID of the customform field
+				        var customForm = currentRecord.getValue({
+				        	fieldId: 'customform'
+				        });
+				        		
+				        // check if the customForm variable returns 103 (SMI Standard Sales Order)
+				        if (customForm == 103)
+				        	{
+				        		// set value of days variable. This is a script parameter
+				        		days = currentScript.getParameter({
+				        			name: 'custscript_bbs_smi_std_so_ship_date'
+				        	    });				
+				        	}
+				        		
+				        // check if the customForm variable returns 123 (SMI Manpack Sales Order)
+				        else if (customForm == 123)
+				        	{
+					        	// set value of days variable. This is a script parameter
+				        		days = currentScript.getParameter({
+				        			name: 'custscript_bbs_smi_manpack_so_ship_date'
+				        	    });
+				        	}
+		    		}
+		    	
 		        // call addWorkDays function and pass shippingDate object and days variable to the function
 				shippingDate = addWorkDays(shippingDate, days);
 		        		
