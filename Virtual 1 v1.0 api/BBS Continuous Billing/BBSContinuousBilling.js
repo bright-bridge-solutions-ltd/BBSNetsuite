@@ -420,7 +420,7 @@ function processBillingEndDates(_processingDate)
 					
 					var salesOrderId = salesorderSearch[int].getId();
 					
-					checkForProRataInvoice(salesOrderId);
+					checkForProRataInvoice(salesOrderId, _processingDate);
 					
 					//Load the old sales order
 					//
@@ -525,7 +525,7 @@ function checkResources()
 		}
 }
 
-function checkForProRataInvoice(_salesOrderId)
+function checkForProRataInvoice(_salesOrderId, _processingDate)
 {
 	var salesOrderRecord = null;
 	
@@ -569,9 +569,8 @@ function checkForProRataInvoice(_salesOrderId)
 				
 					if(billingFrequency == 1)	//Monthly
 						{
-							var today = new Date();
-							var thisMonthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-							var nextMonthStart = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+							var thisMonthEnd = new Date(_processingDate.getFullYear(), _processingDate.getMonth() + 1, 0);
+							var nextMonthStart = new Date(_processingDate.getFullYear(), _processingDate.getMonth() + 1, 1);
 							
 							//Billing end date is on or before this month
 							//
@@ -596,7 +595,7 @@ function checkForProRataInvoice(_salesOrderId)
 						{
 							//Get the end date of this current quarter
 							//
-							var thisDate = nlapiDateToString(new Date());
+							var thisDate = nlapiDateToString(_processingDate);
 							
 							var accountingperiodSearch = nlapiSearchRecord("accountingperiod",null,
 									[
@@ -632,7 +631,7 @@ function checkForProRataInvoice(_salesOrderId)
 										{
 											//Processing for off cycle quarterly frequency
 											//
-											var thisDate = new Date();
+											var thisDate = _processingDate;
 											var thisYear = thisDate.getFullYear();
 											
 											var offBillingQ1Start = new Date(thisYear, 11, 1);	//1st Dec
