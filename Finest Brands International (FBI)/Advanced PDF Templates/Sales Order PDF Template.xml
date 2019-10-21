@@ -20,7 +20,7 @@
               <#assign logoToggi>https://5293281.app.netsuite.com/core/media/media.nl?id=1471&amp;c=5293281&amp;h=48b3f1b4af8e0100bd6b</#assign>
         </#if>
  
- <#if record.custbody_bbs_prof_6_month == true || record.custbody_bbs_prof_always == true || record.custbody_bbs_bad_payment_history == true>
+ <#if record.custbody_bbs_prof_6_month == true || record.custbody_bbs_prof_always == true || record.custbody_bbs_bad_payment_history == true || record.custbody_bbs_cust_req_pro == true>
 <!--Proforma Invoice Layout-->
 
 <!-- check if the 'Customer Receives Portrait Documents' checkbox on the customer record is ticked -->
@@ -696,7 +696,7 @@
 					<th align="center" colspan="1" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Total<br/>Qty</th>
 					<th align="center" colspan="1" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">Unit<br/>Price</th>
 					<th colspan="1" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;"><p align="center">Discount<br/>%</p></th>
-					<th align="center" colspan="1" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;"><br/>Amount</th>
+					<th align="center" colspan="2" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;"><br/>Amount</th>
 					<th align="center" colspan="1" style="background-color: #000000; color: #ffffff; border-left: 1px solid white;">VAT<br/>Rate</th>
 				</tr>
 			</thead>
@@ -709,7 +709,7 @@
 			      <td align="center" colspan="1" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.total}</td>
 			      <td align="right" colspan="1" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.unitPrice?string.currency}</td>
 			      <td align="center" colspan="1" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.discount}</td>
-			      <td align="right" colspan="1" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.amount?string.currency}</td>
+			      <td align="right" colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.amount?string.currency}</td>
 			      <td align="center" colspan="1" style="border-left: 1px solid black; border-bottom: 1px solid black;">${info.vatCode}</td>   
 			   </tr>
 		<#else>
@@ -1439,7 +1439,7 @@
 <#assign show_discount = 0>
 <#list summary_info as infoTest>
 	<#if infoTest.discount != "0.00%">
-		<#assign show_discount = 1>
+      <#assign show_discount = 1>
 	</#if>
 </#list>
 
