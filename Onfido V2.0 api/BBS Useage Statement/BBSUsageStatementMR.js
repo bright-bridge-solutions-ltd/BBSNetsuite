@@ -326,7 +326,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
 					    	
 					    	//Build a JSON string to hold the summary data for the template
 					    	//
-					    	var jsonSummary = buildJson(periodRecords, prePayments, overageValue, contractRecord);
+					    	var jsonSummary = buildJson(periodRecords, prePayments, overageValue, contractRecord, today);
 					    	
 					    	//Merge data with the template
 					    	//
@@ -335,7 +335,6 @@ function(config, email, error, file, record, render, runtime, search, format) {
 					    	//Save file to the filing cabinet 
 					    	//
 					    	var fileId = savePdf(pdfFile, resultContractId, attachmentsFolderId, resultContractName, today);
-					    	log.debug({title: 'File id' ,details: fileId});
 					    	
 					    	//Email the pdf to the customer
 					    	//
@@ -350,6 +349,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
 			    		}
 	    		}
 	    }
+    
     //=============================================================================================
     //Function to get the contract record
     //=============================================================================================
@@ -439,7 +439,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
     //Function to build the JSON string from the period usage records
     //=============================================================================================
     //
-    function buildJson(_periodRecords, _prePayments, _overageValue, _contractRecord)
+    function buildJson(_periodRecords, _prePayments, _overageValue, _contractRecord, _today)
 	    {
 	    	var returnedJson = '';
 	    	var summaryTotal = Number(0);
@@ -494,7 +494,34 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    					//
 	    					if(billingType == billingTypeEnum.QMP)
 	    						{
-	    							///TODO
+	    							var statusText = 'Still available to use';
+    							
+	    							//Get the date from the invoice
+	    							//
+	    							var invoiceDate = _prePayments[int].getValue({name: 'trandate'});
+	    							
+	    							//Find the quarterly usage based on the pre-payment invoice date
+	    							//
+	    							var quarterlyUsage = getUsageBasedOnDate(invoiceDate, _contractRecord);
+	    							
+	    							//Find the end date of the quarter that the pre-payment invoice belongs to by searching the usage data
+	    							//
+	    							var quarterEndDateString = getUsageQuarterEndBasedOnDate(invoiceDate, _contractRecord);
+	    							var quarterEndDate = format.parse({
+	    																value: quarterEndDateString, 
+	    																type: format.Type.DATE
+	    															});
+	    							
+	    							//If quarter usage exceeds pre-payment or the quarter has expired, then change to expired
+	    							//
+	    							if(quarterlyUsage > amount || _today.getTime() > quarterEndDate.getTime())
+	    								{
+	    									statusText = 'Expired';
+	    								}
+	    							
+	    							//Update the status text
+	    							//
+	    							summaryObject.invoiceSummary[int].status = statusText;
 	    						}
 	    					
 	    					//Processing for QUR
@@ -602,7 +629,51 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    	
 	    	return returnedJson;
 	    }
-   
+
+    //=============================================================================================
+    //Function to find the quarter end date on the usage records based on the invoice date of 
+    //the pre-payment invoice
+    //=============================================================================================
+    //
+    function getUsageQuarterEndBasedOnDate(_invoiceDate, _contractRecord)
+    	{
+    		var quarterEndDate = null;
+    		
+    		//Get the contract id from the contract record
+    		//
+    		var contractId = _contractRecord.id;
+    		
+    		//First find a usage record that encompasses the invoice date
+    		//
+    		var customrecord_bbs_contract_periodSearch = getResults(search.create({
+    			   type: "customrecord_bbs_contract_period",
+    			   filters:
+    			   [
+    			      ["custrecord_bbs_contract_period_contract","anyof",contractId], 
+    			      "AND", 
+    			      ["custrecord_bbs_contract_period_start","onorbefore",_invoiceDate], 
+    			      "AND", 
+    			      ["custrecord_bbs_contract_period_end","onorafter",_invoiceDate]
+    			   ],
+    			   columns:
+    			   [
+    			      search.createColumn({name: "custrecord_bbs_contract_period_qu_end", label: "Quarter End Date"})
+    			   ]
+    			}));
+    			
+    		//Check to see if we have any results
+    		//
+    		if(customrecord_bbs_contract_periodSearch != null && customrecord_bbs_contract_periodSearch.length > 0)
+				{
+    				//Get the usage quarter end date
+    				//
+    				quarterEndDate = customrecord_bbs_contract_periodSearch[0].getValue({name: "custrecord_bbs_contract_period_qu_end"});
+    				
+				}
+    		
+    		return quarterEndDate;
+    	}
+
     //=============================================================================================
     //Function to find the usage based on the invoice date of the pre-payment invoice
     //=============================================================================================
@@ -637,7 +708,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
     		//
     		if(customrecord_bbs_contract_periodSearch != null && customrecord_bbs_contract_periodSearch.length > 0)
 				{
-    				//Get the usage period
+    				//Get the usage quarter
     				//
     				var usageQuarter = customrecord_bbs_contract_periodSearch[0].getValue({name: "custrecord_bbs_contract_period_quarter"});
     				
@@ -720,11 +791,10 @@ function(config, email, error, file, record, render, runtime, search, format) {
 						{
 							log.error({
 									    title: 'Error sending email', 
-									    details: err.message
+									    details: err
 									    });
 						}
 				}
-	
     	}
     
     //=============================================================================================
@@ -858,7 +928,10 @@ function(config, email, error, file, record, render, runtime, search, format) {
     					}
     				catch(err)
     					{
-    						log.error({title: 'contract record',details: err});
+    						log.error({
+    									title: 'contract record',
+    									details: err
+    								});
     		    		
     					}
 
@@ -878,7 +951,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
     						log.error({
 									    title: 'Error loading pdf template file', 
 									    details: err
-									    });
+									   });
     					}
     				
     				
@@ -912,7 +985,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
     								log.error({
 											    title: 'Error rendering', 
 											    details: err
-											    });
+											   });
     							}
     					}
     			}
@@ -941,7 +1014,6 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    	return results;
 	    }
 
-    
     //=============================================================================================
     //Object to hold the summary info
     //=============================================================================================
