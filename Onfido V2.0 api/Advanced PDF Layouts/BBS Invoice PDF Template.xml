@@ -1,0 +1,258 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+  	<#assign logoInfo>https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=9544&amp;c=5554661_SB1&amp;h=3c1a74753ea9e8671a1c</#assign>
+  	<#assign regInfo>Company Registration No: 07479524.  Registered Office: 3 Finsbury Avenue, 5th Floor, London, EC2M 2PA, United Kingdom.</#assign>
+	<#assign emailInfo>creditcontrol@onfido.com</#assign>
+	<#assign telInfo>02081333628</#assign>
+	<#assign vatInfo>GB 159 2397 76</#assign>
+  
+    <macrolist>
+        <macro id="nlheader">
+			<table class="header" style="width: 100%;">
+    			<tr>
+					<td style="font-size:22px; padding-top: 45px;">TAX INVOICE</td>
+					<td align="right">&nbsp;</td>
+                  	<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:105px;"/></td>
+    			</tr>
+          	</table>
+          
+			<table class="header" style="width: 100%; margin-top: 10px;">
+        		<tr>
+        			<td rowspan="7" colspan="2" style="font-size:8pt">${record.billaddress}<br/><br/>VAT Number: ${record.vatregnum}</td>
+        			<td>&nbsp;</td>
+        			<td>&nbsp;</td>
+        			<td colspan="2" ><b>Invoice Date</b></td>
+        			<td rowspan="7" colspan="2" style="font-size:8pt">${subsidiary.mainaddress_text}<br/><br/>VAT No: ${vatInfo}</td>
+        		</tr>
+        		<tr>
+        			<td>&nbsp;</td>
+        			<td>&nbsp;</td>
+        			<td colspan="2" style="font-size:8pt">${record.trandate?string.long}</td>
+        		</tr>
+        		<tr>
+        			<td>&nbsp;</td>
+        			<td>&nbsp;</td>
+        			<td colspan="2">&nbsp;</td>
+        		</tr>        		
+        		<tr>
+        			<td>&nbsp;</td>
+        			<td>&nbsp;</td>
+        			<td colspan="2" style="font-size:8pt"><b>Invoice Number</b></td>
+        		</tr>        		
+        		<tr>
+        			<td>&nbsp;</td>
+        			<td>&nbsp;</td>
+        			<td colspan="2" style="font-size:8pt">${record.tranid}</td>
+        		</tr>        		
+        		<tr>
+        			<td>&nbsp;</td>
+        			<td>&nbsp;</td>
+        			<td colspan="2">&nbsp;</td>
+        		</tr>
+              	<tr>
+        			<td>&nbsp;</td>
+        			<td>&nbsp;</td>
+        			<td colspan="2" style="font-size:8pt"><b>Reference</b></td>
+        		</tr>
+        		<tr>
+        			<td colspan="2">&nbsp;</td>
+        			<td>&nbsp;</td>
+        			<td>&nbsp;</td>
+        			<td colspan="2" style="font-size:8pt">${record.otherrefnum}</td>
+        			<td colspan="2">&nbsp;</td>
+        		</tr>
+              	<tr>
+        			<td colspan="2">&nbsp;</td>
+        			<td>&nbsp;</td>
+        			<td>&nbsp;</td>
+        			<td colspan="2">&nbsp;</td>
+        			<td colspan="2">&nbsp;</td>
+        		</tr>       		
+        		<tr>
+        			<td colspan="2">&nbsp;</td>
+        			<td>&nbsp;</td>
+        			<td>&nbsp;</td>
+        			<td colspan="2" style="font-size:8pt"><b>Period</b></td>
+        			<td colspan="2">&nbsp;</td>
+        		</tr>
+              	<tr>
+        			<td colspan="2">&nbsp;</td>
+        			<td>&nbsp;</td>
+        			<td>&nbsp;</td>
+        			<td colspan="2" style="font-size:8pt">${record.postingperiod}</td>
+        			<td colspan="2" style="font-size:8pt">&nbsp;</td>
+        		</tr>
+          	</table>
+        </macro>
+
+        <macro id="nlfooter">
+
+			<table class="footer" style="width: 100%;">
+          		<tr>
+                  	<td colspan="8" style="font-size: 6pt;">${regInfo}</td>
+					<td align="right" style="font-size: 6pt;">Page <pagenumber/> of <totalpages/></td>
+				</tr>
+        	</table>
+        </macro>
+    </macrolist>
+
+    <style type="text/css">* {
+			font-family: NotoSans, sans-serif;
+		}
+		table {
+			font-size: 9pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+          	border-bottom: 1px solid black;
+            <!--background-color: #e3e3e3;-->
+            color: #333333;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { align:left }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+      td.itemtable {
+        border-bottom: 1px solid lightgrey;
+      	}
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="300px" footer="nlfooter" footer-height="10px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+
+<#if record.item?has_content>
+  <table class="itemtable" style="width: 100%;">
+      <#list record.item as item>
+          <#if item_index==0>
+              <thead>
+                  <tr>
+                      <th colspan="12">Description</th>
+                      <th align="center" colspan="3">Quantity</th>
+                      <th align="right" colspan="4">Unit Price</th>
+                      <th align="right" colspan="4" style="padding: 10px 6px; white-space: nowrap;">Tax Rate</th>
+                      <th align="right" colspan="4">Amount</th>
+                  </tr>
+              </thead>
+          </#if>
+          <tr>
+              <td class="itemtable" colspan="12">${item.description}</td>
+              <td class="itemtable" align="center" colspan="3" line-height="150%">${item.quantity}</td>
+              <td class="itemtable" align="right" colspan="4">${item.rate}</td>
+              <td class="itemtable" align="right" colspan="4">${item.taxrate}</td>
+              <td class="itemtable" align="right" colspan="4">${item.amount}</td>
+          </tr>
+      </#list>
+  </table>
+</#if>
+
+
+<table class="total" style="width: 100%; margin-top: 10px;">
+	<tr>
+      <td colspan="4">&nbsp;</td>
+      <td align="right"><b>${record.subtotal@label}</b></td>
+      <td align="right">${record.subtotal}</td>
+      </tr>
+      <tr>
+      <td colspan="4">&nbsp;</td>
+      <td align="right"><b>${record.taxtotal@label}</b></td>
+      <td align="right">${record.taxtotal}</td>
+      </tr>
+      <tr>
+      <td colspan="4">&nbsp;</td>
+      <td align="right" style="border-top: 1px solid black;"><b>${record.total@label}</b></td>
+      <td align="right" style="border-top: 1px solid black;"><b>${record.total}</b></td>
+	</tr>
+</table>
+
+<table class="total" style="width: 100%; margin-top: 20px; page-break-inside: avoid;">
+	<tr>
+      <td style="font-size: 12pt; font-weight: bold;">Due Date: ${record.duedate?string.long}</td>
+    </tr>
+  	<tr>
+      <td>Bank: ${record.custbody_bbs_bank_name}</td>
+    </tr>
+    <tr>
+      <td>Sort Code: ${record.custbody_bbs_bank_sort_code}</td>
+    </tr>
+    <tr>
+      <td>Account Number: ${record.custbody_bbs_bank_account_number}</td>
+    </tr>
+    <tr>
+      <td>IBAN: ${record.custbody_bbs_bank_iban}</td>
+    </tr>
+    <tr>
+      <td>SWIFT: ${record.custbody_bbs_bank_bic}</td>
+    </tr>
+</table>
+
+  
+</body>
+</pdf>
