@@ -393,6 +393,16 @@
 			</table>
 			</#if>
 		</td>
+		<#if record.custbody_bbs_so_invoice_notes?has_content>
+		<table class="total" style="width: 100%; margin-top: 10px; border-right: 1px solid black;">
+			<tr>
+				<td>Invoice Notes:</td>
+			</tr>
+			<tr>
+				<td>${record.custbody_bbs_so_invoice_notes}</td>
+			</tr>
+		</table>
+		</#if>
 		<td align="left">
 			<table class="total" cellpadding="2px" style="width: 100%; margin-top: 10px;">
 				<tr class="totalrow">
@@ -785,6 +795,16 @@
 						<td align="right" style="border-bottom: 1px solid black; border-left: 1px solid black;">£${customrecord_line.amtconverted}</td>
 					</tr>
 			</#list>
+			</table>
+			</#if>
+			<#if record.custbody_bbs_so_invoice_notes?has_content>
+			<table class="total" style="width: 100%; margin-top: 10px; border-right: 1px solid black;">
+				<tr>
+					<td>Invoice Notes:</td>
+				</tr>
+				<tr>
+					<td>${record.custbody_bbs_so_invoice_notes}</td>
+				</tr>
 			</table>
 			</#if>
 		</td>
