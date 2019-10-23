@@ -275,7 +275,10 @@ function(search, record, format) {
 		    		}
 		    	
 		    	// save the record
-		    	soRecord.save();
+		    	soRecord.save({
+		    		enableSourcing: false,
+					ignoreMandatoryFields: true
+		    	});
     		}
     }
 
