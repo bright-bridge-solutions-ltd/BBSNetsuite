@@ -49,6 +49,10 @@ function(runtime, search, record, format) {
 	deferredIncomeMonthly = currentScript.getParameter({
 		name: 'custscript_bbs_def_inc_monthly'
 	});
+	
+	unusedIncomeAccount = currentScript.getParameter({
+		name: 'custscript_bbs_unused_income_account'
+	});
 
 	// declare new date object. Global variable so can be accessed throughout the script
 	invoiceDate = new Date();
@@ -432,6 +436,9 @@ function(runtime, search, record, format) {
     			fieldId: 'subtotal'
     		});
     		
+    		// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
+			var deferredRevAmt = calculateDeferredRev(contractRecord);
+    		
     		// check if the invoicedTotal variable is either blank or 0
     		if (invoicedTotal != '' || invoicedTotal == 0)
     			{
@@ -446,15 +453,18 @@ function(runtime, search, record, format) {
     			}
     		else // invoicedTotal variable is less than the soSubtotal variable
     			{
-    				// create the next monthly invoice. Amount will be the monthly minimum less the balance of deferred revenue associated to the contract
+    				// calculate the next invoice amount. This is monthlyMinimum - deferredRevAmt
+    				var nextInvAmt = (monthlyMinimum - deferredRevAmt);
+    			
+    				// call function to create the next monthly invoice. Pass in billingType, contractRecord, customer, nextInvAmt and currency
+    				createNextInvoice(billingType, contractRecord, customer, nextInvAmt, currency);
     			}
     		
     		// check if the invoiceDate is equal to the contractEnd
 			if (invoiceDate.getTime() == contractEnd.getTime())
 				{
-					/*
-		    		 * CREATE JOURNAL RECOGNISING ALL REMAINING DEFERRED REVENUE
-		    		 */
+					// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance. Pass in recordID, billingType and deferredRevAmt
+	    			createRevRecJournal(recordID, billingType, deferredRevAmt);
 				}
 			else
 				{
@@ -515,7 +525,7 @@ function(runtime, search, record, format) {
 				    if (totalUsage <= minimumUsage)
 					    {
 				    		// call function to close the sales order. Pass in soRecord object
-				    		closeSalesOrder(soRecord);
+				    		//closeSalesOrder(soRecord);
 					    }
 				    // if the totalUsage is greater than the minimumUsage
 				    else
@@ -530,12 +540,14 @@ function(runtime, search, record, format) {
 							updatePeriodDetail(recordID, soRecord);
 				    	}
 				    
-				    // check if the totalUsage is less than the minimumUsage
-	    		    if (totalUsage < minimumUsage)
+				    // check if the totalUsage is less than or greater than the minimumUsage
+	    		    if (totalUsage < minimumUsage || totalUsage > minimumUsage)
 	    		    	{
-	    		    		/*
-	    		    		 * CREATE JOURNAL RECOGNISING ALL REMAINING DEFERRED REVENUE
-	    		    		 */
+	    		    		// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
+	    		    		var deferredRevAmt = calculateDeferredRev(contractRecord);
+	    		    			
+	    		    		// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance. Pass in recordID, billingType and deferredRevAmt
+	    		    		createRevRecJournal(recordID, billingType, deferredRevAmt);
 	    		    	}
 	    		    // if the totalUsage is equal to the minimumUsage
 	    		    else if (totalUsage == minimumUsage)
@@ -691,9 +703,11 @@ function(runtime, search, record, format) {
 	    		    // check if the totalUsage is less than the minimumUsage
 	    		    if (totalUsage < minimumUsage)
 	    		    	{
-	    		    		/*
-	    		    		 * CREATE JOURNAL RECOGNISING ALL REMAINING DEFERRED REVENUE
-	    		    		 */
+		    		    	// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
+	    		    		var deferredRevAmt = calculateDeferredRev(contractRecord);
+	    		    			
+	    		    		// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance. Pass in recordID, billingType and deferredRevAmt
+	    		    		createRevRecJournal(recordID, billingType, deferredRevAmt);
 	    		    	}
 	    		    // if the totalUsage is equal to the minimumUsage
 	    		    else if (totalUsage == minimumUsage)
@@ -830,24 +844,53 @@ function(runtime, search, record, format) {
 			// check if the invoiceDate is equal to the contractEnd
 			if (invoiceDate.getTime() == contractEnd.getTime())
 				{
+					// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
+    				var deferredRevAmt = calculateDeferredRev(contractRecord);
+				
 					// check if the totalUsage is less than or equal to the minimumUsage
 	    		    if (totalUsage <= minimumUsage)
 	    			    {
 	    		    		// call function to close the sales order. Pass in soRecord object
 	    	    			closeSalesOrder(soRecord);
+	    	    			
+	    	    			// call function to create journal recognising all revenue for the final contract period. Pass in recordID and billingType
+	    		    		createRevRecJournal(recordID, billingType);
 	    			    }
 	    		    // if the totalUsage is greater than the minimumUsage
 	    		    else if (totalUsage > minimumUsage)
 			    		{
-	    		    		// create last invoice
+	    		    		// get the sales order's subtotal
+	    		    		var soSubtotal = soRecord.getValue({
+	    		    			fieldId: 'subtotal'
+	    		    		});
+	    		    	
+	    		    		// check if deferredRevAmt is less than soSubtotal
+			    			if (deferredRevAmt < soSubtotal)
+			    				{
+				    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, deferredRevAmt and contractRecord
+			    					addCreditLine(soRecord, recordID, billingType, deferredRevAmt, contractRecord);
+			    					
+			    					// call function to transform the sales order to an invoice. Pass in ID of sales order
+			    					createInvoice(recordID);
+			    				}
+			    			else
+			    				{
+				    				// call function to close the sales order. Pass in soRecord object
+			    	    			closeSalesOrder(soRecord);
+			    				}
 			    		}
 	    		    
-	    		    // check if there is any deferred revenue remaining
-	    		    if (deferredRevenue > 0)
+	    		    // check if the totalUsage is less than the minimumUsage
+	    		    if (totalUsage < minimumUsage)
 	    		    	{
-	    		    		/*
-	    		    		 * CREATE JOURNAL RECOGNISING REMAINING DEFERRED REVENUE BALANCE
-	    		    		 */
+		    		    	// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance. Pass in recordID, billingType and deferredRevAmt
+	    		    		createRevRecJournal(recordID, billingType, deferredRevAmt);
+	    		    	}
+	    		    // if the totalUsage is equal to or greater than the minimumUsage
+	    		    else
+	    		    	{
+	    		    		// call function to create journal recognising all revenue for the final contract period. Pass in recordID and billingType
+    		    			createRevRecJournal(recordID, billingType);
 	    		    	}
 				}
 			// if the invoiceDate is equal to the quarterEnd
@@ -1545,7 +1588,7 @@ function(runtime, search, record, format) {
 	// FUNCTION TO ADD A CREDIT LINE TO THE SALES ORDER
 	//=================================================
     
-    function addCreditLine(soRecord, recordID, billingType, minimumUsage, contractRecord)
+    function addCreditLine(soRecord, recordID, billingType, amount, contractRecord)
     	{
 	    	try
 	    		{
@@ -1585,7 +1628,7 @@ function(runtime, search, record, format) {
 			    	soRecord.setCurrentSublistValue({
 			    		sublistId: 'item',
 			    		fieldId: 'rate',
-			    		value: (minimumUsage * -1) // multiply the minimumUsage by -1 to convert to a negative number
+			    		value: (amount * -1) // multiply the minimumUsage by -1 to convert to a negative number
 			    	});
 			    	
 			    	soRecord.setCurrentSublistValue({
@@ -1687,7 +1730,7 @@ function(runtime, search, record, format) {
 	// FUNCTION TO CREATE A REVENUE RECOGNITION JOURNAL
 	//=================================================
     
-    function createRevRecJournal(recordID, billingType)
+    function createRevRecJournal(recordID, billingType, deferredRevAmt)
 	    {
     		try
     			{
@@ -1909,6 +1952,9 @@ function(runtime, search, record, format) {
 				        journalRecord.commitLine({
 				    		sublistId: 'line'
 				    	});
+				        
+				        // continue processing search results
+				        return true;
 		
 					});
 				    
@@ -1978,18 +2024,108 @@ function(runtime, search, record, format) {
 				    	fieldId: 'memo',
 				    	value: billingType + ' + ' + journalDate
 				    });
-				    		
-				    journalRecord.setCurrentSublistValue({
-				    	sublistId: 'line',
-				    	fieldId: 'debit',
-				    	value: total
-				    });
+				    
+				    // check if the deferredRevAmt parameter (passed to function) returns a value
+				    if (deferredRevAmt)
+				    	{
+				    		// set the debit amount to be the deferredRevAmt
+					    	journalRecord.setCurrentSublistValue({
+						    	sublistId: 'line',
+						    	fieldId: 'debit',
+						    	value: deferredRevAmt
+						    });
+				    	}
+				    else
+				    	{
+				    		// set the debit amount to be the total of sales order lines
+					    	journalRecord.setCurrentSublistValue({
+						    	sublistId: 'line',
+						    	fieldId: 'debit',
+						    	value: total
+						    });
+				    	}
 				    		
 				    // commit the line
 				    journalRecord.commitLine({
 						sublistId: 'line'
 					});
 				    
+				    // ==========================================================================================
+				    // NOW WE NEED TO ADD A LINE TO CREDIT BALANCES TO THE UNUSED MINIMUMS ACCOUNT (IF APPLICABLE
+				    // ==========================================================================================
+				    
+				    // check if the deferredRevAmt parameter (passed to function) returns a value
+				    if (deferredRevAmt)
+				    	{
+				    		// check if there is any unused deferred revenue
+				    		var unusedDefRev = (deferredRevAmt - total);
+				    		
+				    		// check if the unusedDefRev is greater than 0
+				    		if (unusedDefRev > 0)
+				    			{
+					    			// select a new line on the journal record
+								    journalRecord.selectNewLine({
+								    	sublistId: 'line'
+								    });
+								    
+								    // set the account on the new line using the unusedIncomeAccount variable
+					    			journalRecord.setCurrentSublistValue({
+					    				sublistId: 'line',
+					    				fieldId: 'account',
+					    				value: unusedIncomeAccount
+					    			});
+					    			
+					    			// set fields on the new line
+								    journalRecord.setCurrentSublistValue({
+								    	sublistId: 'line',
+								    	fieldId: 'entity',
+								    	value: customer
+								    });
+								    
+								    journalRecord.setCurrentSublistValue({
+								    	sublistId: 'line',
+								    	fieldId: 'location',
+								    	value: location
+								    });
+								    
+								    journalRecord.setCurrentSublistValue({
+								    	sublistId: 'line',
+								    	fieldId: 'custcol_bbs_journal_client_tier',
+								    	value: tier
+								    });
+								    		
+								    journalRecord.setCurrentSublistValue({
+								    	sublistId: 'line',
+								    	fieldId: 'custcol_bbs_contract_record',
+								    	value: contractRecord
+								    });
+								    
+								    journalRecord.setCurrentSublistValue({
+								    	sublistId: 'line',
+								    	fieldId: 'custcol_bbs_related_sales_order',
+								    	value: recordID
+								    });
+								    		
+								    journalRecord.setCurrentSublistValue({
+								    	sublistId: 'line',
+								    	fieldId: 'memo',
+								    	value: billingType + ' + ' + journalDate
+								    });
+								    
+								    // set the credit amount to be the unusedDefRev
+							    	journalRecord.setCurrentSublistValue({
+								    	sublistId: 'line',
+								    	fieldId: 'credit',
+								    	value: unusedDefRev
+								    });
+							    	
+							    	// commit the line
+								    journalRecord.commitLine({
+										sublistId: 'line'
+									});
+
+				    			}
+				    	}
 				    
 					// submit the journal record record
 					var journalID = journalRecord.save({
@@ -2170,6 +2306,48 @@ function(runtime, search, record, format) {
     		// day 0 is the last day in the current month
     	 	return new Date(year, month+1, 0).getDate(); // return the last day of the month
 	    }
+    
+    //========================================================
+	// FUNCTION TO CALCULATE REMAINING DEFERRED REVENUE AMOUNT
+	//========================================================
+    
+    function calculateDeferredRev(contractRecord)
+    	{
+	    	// load search to find remaining deferred revenue balance
+	    	var deferredRevSearch = search.load({
+	            id: 'customsearch_bbs_contract_record_def_rev'
+	        });
+	    	
+	    	// get the current search filters from the loaded search object
+	    	var searchFilters = deferredRevSearch.filters;
+	    	
+	    	// create a new search filter
+	    	var newFilter = search.createFilter ({
+	    		name: 'custcol_bbs_contract_record',
+	    	    operator: 'anyof',
+	    	    values: [contractRecord]
+	    	});
+	    	
+	    	// add the filter to the search using .push() method    
+	    	searchFilters.push(newFilter);
+	    	
+	    	// run the search and process results
+	    	deferredRevSearch.run().each(function(result) {
+	    		
+	    		// get the deferred revenue amount from the search results
+	    		deferredRevAmt = result.getValue({
+	    			name: 'amount',
+	    			summary: 'SUM'
+	    		});
+	    		
+	    		// only process the first search result
+	    		return false;
+	    	});
+	    	
+	    	// return deferredRevAmt
+	    	return deferredRevAmt;	
+    	
+    	}
     
     function summarize(context)
 	    {

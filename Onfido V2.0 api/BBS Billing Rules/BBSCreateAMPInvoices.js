@@ -23,11 +23,11 @@ function(runtime, search, record) {
     	var currentScript = runtime.getCurrentScript();
     	
     	var trpAcc = currentScript.getParameter({
-    		name: 'custscript_bbs_amp_billing_trp_account'
+    		name: 'custscript_bbs_trp_account'
     	});
     	
     	var ampItem = currentScript.getParameter({
-        	name: 'custscript_bbs_amp_billing_amp_item'
+        	name: 'custscript_bbs_amp_item'
         });
     	
     	// initialize variables
