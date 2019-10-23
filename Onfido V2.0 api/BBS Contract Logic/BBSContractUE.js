@@ -14,11 +14,11 @@ function(url, runtime, record, search, format) {
 	
 	// script parameters are global variables so can be accessed throughout the script
 	trpAcc = currentScript.getParameter({
-		name: 'custscript_bbs_cont_ue_trp_account'
+		name: 'custscript_bbs_trp_account'
 	});
 	
 	trcsAcc = currentScript.getParameter({
-		name: 'custscript_bbs_cont_ue_trcs_account'
+		name: 'custscript_bbs_trcs_account'
 	});
 	
 	setupFeeItem = currentScript.getParameter({
