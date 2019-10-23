@@ -50,6 +50,18 @@ function salesOrderFieldChanged(type, name, linenum)
 									closeDate.setMonth(closeDate.getMonth() - 1);
 									
 									nlapiSetFieldValue('custbody_bbs_sales_order_close_date', nlapiDateToString(closeDate), false, true);
+									
+									//See if we need to set the credit note flag
+									//
+									var closeDateMonthEnd = new Date(closeDate.getFullYear(), closeDate.getMonth() + 1, 0);
+									var originalBillingEndDate = nlapiStringToDate(billingEndDateString);
+									
+									if(originalBillingEndDate.getTime() <= closeDateMonthEnd.getTime())
+										{
+											//Update the credit note required checkbox
+											//
+											nlapiSetFieldValue('custbody_bbs_cre_not_req', 'T', false, true);
+										}
 								}
 							
 							if(billingFrequency == 2)	//Quarterly

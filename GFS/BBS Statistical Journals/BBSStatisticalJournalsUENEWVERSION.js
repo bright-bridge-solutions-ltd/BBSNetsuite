@@ -105,6 +105,36 @@ function statisticalJournalsBS(type)
 									nlapiSetLineItemValue('line', 'custcol_bbs_parcels', int, parcels);
 									nlapiSetLineItemValue('line', 'custcol_bbs_consignments', int, consignments);
 								}
+							
+							//Make the parcels & consigments +ve if we are on an income account & the value on the line is a credit
+							//or if the journal is a reversal, we are on an income account & the value is a debit
+							//
+							if(	(accountType = 'Income' && reversingJournal != 'T' && creditValue != null && creditValue != '')
+								|| 
+								(accountType = 'Income' && reversingJournal != 'F' && debitValue != null && debitValue != '')
+								)
+								{
+									//Check if the parcels variable is a positive value
+									//
+									if (parcels > 0)
+										{
+											//Convert parcels to a negative number
+											//
+											parcels = Math.abs(parcels);
+										}
+									
+									//Check if the consignments variable is a positive value
+									//
+									if (consignments > 0)
+										{
+											//Convert consignments to a positive number
+											//
+											consignments = Math.abs(consignments);
+										}
+									
+									nlapiSetLineItemValue('line', 'custcol_bbs_parcels', int, parcels);
+									nlapiSetLineItemValue('line', 'custcol_bbs_consignments', int, consignments);
+								}
 						}
 				}
 		}
