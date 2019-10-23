@@ -50,8 +50,6 @@ function(runtime) {
 		    	 * AND
 		    	 * approvalStatus variable returns 1 (Pending Approval)
 		    	 * AND
-		    	 * customForm variable returns 165 (BBS - Papa John's Non Stock Purchase Order)
-		    	 * AND
 		    	 * currentUser variable equals the nextApprover variable
 		    	 * OR
 		    	 * userRole variable returns 3 (Administrator)
@@ -59,7 +57,7 @@ function(runtime) {
 		    	 * userRole variable returns 1039 (PJ A/P Controller)
 		    	 */
 
-		    	if (showButton == false && approvalStatus == '1' && (currentUser == nextApprover || userRole == 3 || userRole == 1039))
+		    	if (showButton == true && approvalStatus == '1' && (currentUser == nextApprover || userRole == 3 || userRole == 1039))
 		    		{
 			    		// get ID of current record
 			        	var recordID = scriptContext.newRecord.id;
