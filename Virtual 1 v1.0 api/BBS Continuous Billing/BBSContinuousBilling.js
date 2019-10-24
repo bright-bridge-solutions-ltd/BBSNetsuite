@@ -578,7 +578,7 @@ function checkForProRataInvoice(_salesOrderId, _processingDate)
 								{
 									//No need for a pro rata invoice, just update the credit note required checkbox
 									//
-									nlapiSubmitField('salesorder', _salesOrderId, 'custbody_bbs_cre_not_req', 'T', false);
+									// NOT USED - NOW DONE CLIENT SIDE   nlapiSubmitField('salesorder', _salesOrderId, 'custbody_bbs_cre_not_req', 'T', false);
 								}
 							
 							//Billing end date is on or after next month

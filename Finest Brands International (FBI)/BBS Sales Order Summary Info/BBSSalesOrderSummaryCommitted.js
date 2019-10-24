@@ -133,7 +133,7 @@ function scheduled(type)
 							var lineAmount = thisRecord.getLineItemValue('item', 'amount', int);
 							var lineVatAmount = thisRecord.getLineItemValue('item', 'tax1amt', int);
 							var linevatCode = thisRecord.getLineItemValue('item', 'taxrate1', int);
-							var lineUniqueKey = nlapiGetLineItemValue('item', 'lineuniquekey', int);
+							var lineUniqueKey = thisRecord.getLineItemValue('item', 'lineuniquekey', int);
 							var linePicked = getPickedQty(salesorderLineSearch, lineUniqueKey);
 							
 							var tempQty = Number(lineCommitted) - Number(linePicked) + Number(lineFulfilled);

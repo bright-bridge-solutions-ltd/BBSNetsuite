@@ -256,6 +256,23 @@ function(file, record, render, runtime, search, email)
 			if(thisRecord != null)
 				{
 		    		var itemLines = thisRecord.getLineCount({sublistId: 'item'});
+		    		var currencyId = thisRecord.getValue({fieldId: 'currency'});
+		    		var currencyRecord = null;
+		    		var currencySymbol = '';
+		    		
+		    		try 
+						{
+		    				currencyRecord = record.load({type: record.Type.CURRENCY, id: currencyId, isDynamic: true});
+						} 
+					catch (error) 
+						{
+							currencyRecord = null;
+						}
+		    		
+					if(currencyRecord != null)
+						{
+							currencySymbol = currencyRecord.getValue({fieldId: 'displaysymbol'});
+						}
 		    		
 		    		//Loop through the item lines
 			    	//
@@ -297,12 +314,18 @@ function(file, record, render, runtime, search, email)
 							    line: int
 							}));
 		
+							var itemVatRate = thisRecord.getSublistValue({
+							    sublistId: 'taxdetails',
+							    fieldId: 'taxrate',
+							    line: int
+							});
+							
 							//See if we have this product in the summary yet
 							//
 							if(!summary[itemId])
 								{
 									//Add it to the summary
-									summary[itemId] = new itemSummaryInfo(itemId, itemDescription, itemUnitPrice, itemQuantity, itemAmount, itemVatAmount);
+									summary[itemId] = new itemSummaryInfo(itemId, itemDescription, itemUnitPrice, itemQuantity, itemAmount, itemVatAmount, itemVatRate, currencySymbol);
 								}
 							else
 								{
@@ -316,13 +339,19 @@ function(file, record, render, runtime, search, email)
 		    	
 			    	//Update the record with the new summary info
 			    	//
+			    	var outputArray = [];
+			    	for ( var summaryKey in summary) 
+				    	{
+			    			outputArray.push(summary[summaryKey]);
+						}
+			    	
 			    	try
 			    		{
 			    			record.submitFields({
 			    				type: thisRecord.type,
 			    				id: thisRecord.id,
 			    				values: {
-			    					custbody_bbs_json_summary: JSON.stringify(summary)
+			    					custbody_bbs_json_summary: JSON.stringify(outputArray)
 			    				}
 			    			})
 			    		}
@@ -334,27 +363,29 @@ function(file, record, render, runtime, search, email)
 	    }
     
     
-  //=============================================================================
-  //Objects
-  //=============================================================================
-  //
-  function itemSummaryInfo(_itemid, _salesdescription, _unitPrice, _quantity, _amount, _vatAmount)
-	  {
-	  	//Properties
-	  	//
-	  	this.itemId 				= _itemid;
-	  	this.salesDescription 		= _salesdescription;
-	  	this.unitPrice 				= Number(_unitPrice);
-	  	this.quantity 				= Number(_amount);
-	  	this.amount 				= Number(_amount);
-	  	this.vatAmount				= Number(_vatAmount);
-	
-	  }
+    //=============================================================================
+    //Objects
+    //=============================================================================
+    //
+    function itemSummaryInfo(_itemid, _salesdescription, _unitPrice, _quantity, _amount, _vatAmount, _itemVatRate, _currencySymbol)
+	  	{
+		  	//Properties
+		  	//
+		  	this.itemId 				= _itemid;
+		  	this.salesDescription 		= _salesdescription;
+		  	this.unitPrice 				= Number(_unitPrice);
+		  	this.quantity 				= Number(_amount);
+		  	this.amount 				= Number(_amount);
+		  	this.vatAmount				= Number(_vatAmount);
+		  	this.vatRate				= _itemVatRate + '%';
+		  	this.symbol					= _currencySymbol;
+		  }
 
   
-  
-  
-  
+    //=============================================================================
+    //Return function definition to NS
+    //=============================================================================
+	//
     return {afterSubmit: invoiceAS};
     
 });
