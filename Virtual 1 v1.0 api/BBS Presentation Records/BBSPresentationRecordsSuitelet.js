@@ -559,7 +559,8 @@ function presentationRecordsSuitelet(request, response)
 														var partnerId = recordSearchResults[int2].getValue(recordColumns[int3]);
 														var partnerText = recordSearchResults[int2].getText(recordColumns[int3]);
 														
-														partnerList[partnerId] = partnerText;
+														//partnerList[partnerId] = partnerText;
+														partnerList[partnerText] = partnerId;
 													}
 											}
 									}
@@ -578,9 +579,21 @@ function presentationRecordsSuitelet(request, response)
 						//
 						partnerSelectField.addSelectOption('', '-- All --', true);
 						
-						for ( var partner in partnerList) 
+						//Sort partners
+						//
+						const sortedPartner = {};
+					    Object.keys(partnerList).sort().forEach(function(key) {
+					    	sortedPartner[key] = partnerList[key];
+					    });
+					    
+					    //for ( var partner in partnerList) 
+						//	{
+						//		partnerSelectField.addSelectOption(partner, partnerList[partner], false);
+						//	}
+					    
+						for ( var partner in sortedPartner) 
 							{
-								partnerSelectField.addSelectOption(partner, partnerList[partner], false);
+								partnerSelectField.addSelectOption(partnerList[partner], partner, false);
 							}
 				
 						break;
