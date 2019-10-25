@@ -223,6 +223,7 @@ function ddBatchRecordsSuitelet(request, response)
 		var processingDate = request.getParameter('processingdate'); 	//Processing date
 		var bankAccount = request.getParameter('bankaccount'); 			//Billing frequency
 		var batches = request.getParameter('batches'); 					//Batches (PR records)
+		var monthly = request.getParameter('monthly'); 					//Monthly Installments
 		
 		stage = (stage == null || stage == '' ? 1 : stage);
 
@@ -255,6 +256,12 @@ function ddBatchRecordsSuitelet(request, response)
 		var bankAccountParamField = form.addField('custpage_param_bank_acc', 'text', 'Bank Account');
 		bankAccountParamField.setDisplayType('hidden');
 		bankAccountParamField.setDefaultValue(bankAccount);
+		
+		//Store the monthly installments in a field in the form so that it can be retrieved in the POST section of the code
+		//
+		var installmentsParamField = form.addField('custpage_param_monthly', 'text', 'Monthly Installments');
+		installmentsParamField.setDisplayType('hidden');
+		installmentsParamField.setDefaultValue(monthly);
 		
 		
 		//Work out what the form layout should look like based on the stage number
@@ -299,6 +306,14 @@ function ddBatchRecordsSuitelet(request, response)
 									bankAccountSelectField.addSelectOption(bankId, bankName, false);
 								}
 						}
+					
+					//Add a field for the monthly installments
+					//
+					var installmentsSelectField = form.addField('custpage_select_monthly', 'select', 'Monthly Installments', null, null);
+					installmentsSelectField.setMandatory(true);
+					installmentsSelectField.addSelectOption('F', 'No', true);
+					installmentsSelectField.addSelectOption('T', 'Yes', false);
+
 					
 					//Add a submit button to the form
 					//
@@ -377,8 +392,16 @@ function ddBatchRecordsSuitelet(request, response)
 						}
 					
 					var amountToPayField = subList.addField('custpage_amount_to_pay', 'currency', 'Amount To Pay', null);
-					//amountToPayField.setDisplayType('entry');
-					amountToPayField.setDisplayType('disabled');
+					amountToPayField.setDisplayType('entry');
+					//amountToPayField.setDisplayType('disabled');
+					
+					//Add the monthly installments criteria
+					//
+					//if(monthly == 'T')
+					//	{
+							recordSearch.addFilter(new nlobjSearchFilter( 'installment', 'custrecord_bbs_pr_inv_pay_term', 'is', monthly));
+					//	}
+					
 					
 					//Get the session record to see if we are filtering by due date and add filter if needed
 					//
@@ -473,9 +496,16 @@ function ddBatchRecordsSuitelet(request, response)
 									//
 									var oustandingAmount = recordSearchResults[int2].getValue('custrecord_bbs_pr_inv_outstanding');
 									
-									if(oustandingAmount != null && oustandingAmount != '')
+									if(monthly == 'T')
 										{
-											subList.setLineItemValue('custpage_amount_to_pay', lineNo, oustandingAmount);
+											subList.setLineItemValue('custpage_amount_to_pay', lineNo, 0);
+										}
+									else
+										{
+											if(oustandingAmount != null && oustandingAmount != '')
+												{
+													subList.setLineItemValue('custpage_amount_to_pay', lineNo, oustandingAmount);
+												}
 										}
 								}
 						}
@@ -584,7 +614,7 @@ function ddBatchRecordsSuitelet(request, response)
 				var sessionId = request.getParameter('custpage_param_session_id');			//The session id  which is used when refreshing a page with the 'refresh' button
 				var processingDate = request.getParameter('custpage_select_proc_date'); 	//Processing date
 				var bankAccount = request.getParameter('custpage_select_bank_acc'); 		//Bank account
-				
+				var monthly = request.getParameter('custpage_select_monthly');				//Monthly Installments
 				
 				//Build up the parameters so we can call this suitelet again, but move it on to the next stage
 				//
@@ -593,6 +623,7 @@ function ddBatchRecordsSuitelet(request, response)
 				params['session'] = sessionId;
 				params['processingdate'] = processingDate;
 				params['bankaccount'] = bankAccount;
+				params['monthly'] = monthly;
 				
 				
 				response.sendRedirect('SUITELET', nlapiGetContext().getScriptId(), nlapiGetContext().getDeploymentId(), null, params);
