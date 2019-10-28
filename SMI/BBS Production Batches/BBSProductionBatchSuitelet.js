@@ -1858,11 +1858,11 @@ function generateProdBatchDocs(batchesArray, solink)
 													xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
 													xmlPb += "<td align=\"right\" colspan=\"2\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(woBinNumber) + "</td>";
 													
-                                                  	//For non inventory parts, show the quantity rather than the committed qty as this will be zero
+                                                  	//For non inventory parts, show the quantity - built rather than the committed qty as this will be zero
                                                   	//
                                                   	if(woItemType == 'NonInvtPart')
                                                   		{
-                                                  			xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(woAssemblyItemQty) + "</td>";                  
+                                                  			xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(Number(woAssemblyItemQty) - Number(woAssemblyItemBuilt)) + "</td>";                  
                                                   		}
                                                   	else
                                                   		{
