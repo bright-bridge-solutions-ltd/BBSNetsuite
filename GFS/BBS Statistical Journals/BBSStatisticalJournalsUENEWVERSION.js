@@ -116,7 +116,7 @@ function statisticalJournalsBS(type)
 								{
 									//Check if the parcels variable is a positive value
 									//
-									if (parcels > 0)
+									if (parcels < 0)
 										{
 											//Convert parcels to a negative number
 											//
@@ -125,7 +125,7 @@ function statisticalJournalsBS(type)
 									
 									//Check if the consignments variable is a positive value
 									//
-									if (consignments > 0)
+									if (consignments < 0)
 										{
 											//Convert consignments to a positive number
 											//

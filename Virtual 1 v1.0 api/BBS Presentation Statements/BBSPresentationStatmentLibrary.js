@@ -48,7 +48,7 @@ function libGenerateStatement(partnerId)
 					if(partnerRecord)
 						{
 							var partnerStatementEmailAddress = partnerRecord.getFieldValue('custentity_bbs_bill_add_list');
-						
+							
 							if(partnerStatementEmailAddress != null && partnerStatementEmailAddress != '')
 								{
 									//Run a search to get the line data for the statement

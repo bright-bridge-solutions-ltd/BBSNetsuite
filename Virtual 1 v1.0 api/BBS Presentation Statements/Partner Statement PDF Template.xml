@@ -2,7 +2,8 @@
 <pdf>
 <head>
 
-  	<link name="Montserrat" type="font" subtype="opentype" src="https://system.eu1.netsuite.com/core/media/media.nl?id=1434&amp;c=5117415_SB1&amp;h=9f0c70eae5232e02168a&amp;_xt=.ttf" src-bold="https://system.eu1.netsuite.com/core/media/media.nl?id=1435&amp;c=5117415_SB1&amp;h=f330fe8bca81f8f2cbeb&amp;_xt=.ttf"  bytes="2" />
+  	<link name="Montserrat" type="font" subtype="opentype" src="https://5117415-sb1.app.netsuite.com/core/media/media.nl?id=31591&amp;c=5117415_SB1&amp;h=2dc552e4f13da67ac132&amp;_xt=.otf" src-bold="https://5117415-sb1.app.netsuite.com/core/media/media.nl?id=31592&amp;c=5117415_SB1&amp;h=a3ae6368ee04a59e5486&amp;_xt=.otf"  bytes="2" />
+	
 	<#assign todaysDate = .now>
 	
 	<macrolist>
@@ -20,43 +21,47 @@
         <macro id="nlheader">
             <table class="header" style="width: 100%;">
 			<tr>
-				<td align="left"><img src="https://system.eu1.netsuite.com/core/media/media.nl?id=1333&amp;c=5117415_SB1&amp;h=fe6f7221ff6a620f5628" style="float: left; width:150px; height:75px;" /></td>
+				<td align="right"><img src="https://5117415-sb1.app.netsuite.com/core/media/media.nl?id=29989&amp;c=5117415_SB1&amp;h=b064430b41b43b655b8f" style="float: left; width:150px; height:75px;" /></td>
 			</tr>
 			</table>
 
 			<table style="width: 100%; margin-top: 20px;">
 			<tr>
-				<td align="left" colspan="2" style="font-size: 10pt; font-weight: bold; color: #393939;">${partner.entityid}</td>
-				<td align="left" style="font-size: 10pt; font-weight: bold; color: #0090d8;">Statement</td>
-			</tr>
-			<tr style="margin-top: 20px;">
-				<td align="left" style="font-size: 10pt; font-weight: bold; color: #393939;">FAO ${partner.contact?keep_after(":")}</td>
-				<td>&nbsp;</td>
-				<td align="left" style="font-size: 10pt;  color: #393939;">Date: ${todaysDate?string["dd MMM yyyy"]}</td>
+				<td align="left" colspan="2" style="font-size: 10pt; font-weight: bold; color: #1d1b45;">${partner.entityid}</td>
+				<td align="right" style="font-size: 10pt; font-weight: bold; color: #ee2d4b;">Statement</td>
 			</tr>
 			<tr>
-				<td align="left"  style="font-size: 10pt; color: #393939;">${partner.defaultaddress}</td>
-				<td >&nbsp;</td>
-				<td align="left"  style="font-size: 10pt; color: #393939;">Virtual1 Ltd<br/>6th Floor Alphabeta<br/>14-18 Finsbury Square<br/>London<br/>EC2A 1BR</td>
+				<td align="left" colspan="2" rowspan="6" style="font-size: 10pt; color: #393939;">${partner.defaultaddress}</td>
+				<td align="right" style="font-size: 10pt;  color: #393939;">Date: ${todaysDate?string["dd MMM yyyy"]}</td>
 			</tr>
 			<tr>
-				<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-				<td >&nbsp;</td>
-				<td align="left" style="font-size: 10pt; color: #393939;">(t) 0344 884 0800</td>
+				<td align="right" style="font-size: 10pt; color: #393939; padding: 4px 6px 0px 0px;">Virtual1 Ltd</td>
 			</tr>
 			<tr>
-				<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px;">6th Floor Alphabeta</td>
+			</tr>
+			<tr>
+				<td align="right" style="font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px">14-18 Finsbury Square</td>
+			</tr>
+			<tr>
+				<td align="right" style="font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px">London</td>
+			</tr>
+			<tr>
+				<td align="right" style="font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px">EC2A 1BR</td>
+			</tr>
+			<tr>
 				<td >&nbsp;</td>
-				<td align="left" style="font-size: 10pt; color: #393939;">billingquery@virtual1.com</td>
+				<td >&nbsp;</td>
+				<td align="right" style="font-size: 10pt; color: #393939;">billingquery@virtual1.com</td>
 			</tr>
 			</table>
 
 			<table class="header" style="width: 100%; margin-top: 20px;">
 			<tr>
-				<td align="center" style="font-size: 10pt; font-weight: bold; color: #0090d8;">Delayed payment of invoices could result in additional interest charges</td>
+				<td align="center" style="font-size: 10pt; font-weight: bold; color: #ee2d4b;">Delayed payment of invoices could result in additional interest charges</td>
 			</tr>
 			<tr>
-				<td align="center" style="font-size: 10pt; font-weight: bold; color: #0090d8;">and/or suspension of services</td>
+				<td align="center" style="font-size: 10pt; font-weight: bold; color: #ee2d4b;">and/or suspension of services</td>
 			</tr>
 			</table>
 			
@@ -148,7 +153,7 @@
 </style>
 </head>
 
-<body header="nlheader" header-height="330px"  footer="nlfooter" footer-height="30px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+<body header="nlheader" header-height="330px"  footer="nlfooter" footer-height="10px" padding="1.5cm 1.5cm 1.5cm 1.5cm" size="A4">
 
 <#if lines?has_content>
 
@@ -158,13 +163,13 @@
 			<#if line_index==0>
 				<thead>
 					<tr>
-						<th align="left"  style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">Document<br/>Date</th>
-						<th align="left"  style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">Document<br/>Reference</th>
-						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">Document<br/>Value</th>
-						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">Outstanding<br/>Debit</th>
-						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">Outstanding<br/>Credit</th>
-						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">In<br/>Query</th>
-						<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">Outstanding<br/>Balance</th>
+						<th align="left"  style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Document<br/>Date</th>
+						<th align="left"  style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Document<br/>Reference</th>
+						<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Document<br/>Value</th>
+						<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Outstanding<br/>Debit</th>
+						<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Outstanding<br/>Credit</th>
+						<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">In<br/>Query</th>
+						<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Outstanding<br/>Balance</th>
 					</tr>
 				</thead>
 			</#if>
@@ -205,11 +210,11 @@
 				<tr>
 					<th align="left">&nbsp;</th>
 					<th align="left">&nbsp;</th>
-					<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">Not Due<br/>&nbsp;</th>
-					<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">1-30 Days<br/>Overdue</th>
-					<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">31-60 Days<br/>Overdue</th>
-					<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">61-90 Days<br/>Overdue</th>
-					<th align="right" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;">91+ Days<br/>Overdue</th>
+					<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Not Due<br/>&nbsp;</th>
+					<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">1-30 Days<br/>Overdue</th>
+					<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">31-60 Days<br/>Overdue</th>
+					<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">61-90 Days<br/>Overdue</th>
+					<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">91+ Days<br/>Overdue</th>
 				</tr>
 			</thead>	
 			
@@ -247,8 +252,8 @@
 				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
 				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
 				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="right" style="font-size: 7pt; color: #393939; font-weight: bold;" colspan="2">Payment Overdue</td>
-				<td align="right" style="font-size: 7pt; color: #393939; font-weight: bold;">${statement.custrecord_bbs_pr_stat_payment_amount}</td>
+				<td align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold;" colspan="2">Payment Overdue</td>
+				<td align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold;">${statement.custrecord_bbs_pr_stat_payment_amount}</td>
 			</tr>
 		</table>
 	</div>

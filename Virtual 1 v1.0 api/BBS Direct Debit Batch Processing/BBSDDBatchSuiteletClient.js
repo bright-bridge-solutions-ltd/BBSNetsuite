@@ -68,6 +68,7 @@ function clientSaveRecord()
 	var stage = nlapiGetFieldValue('custpage_param_stage');
 	var returnStatus = false;
 	var message = '';
+	var paymentMissing = false;
 	
 	switch (Number(stage))
 		{
@@ -83,38 +84,30 @@ function clientSaveRecord()
 				for (var int = 1; int <= count; int++) 
 					{
 						var tick = nlapiGetLineItemValue('custpage_sublist_items', 'custpage_sublist_tick', int);
-						
+						var totalToPay = Number(nlapiGetLineItemValue('custpage_sublist_items', 'custpage_amount_to_pay', int));
+
 						if(tick == 'T')
 							{
 								returnStatus = true;
-								break;
+								
+								if(totalToPay == 0)
+									{
+										paymentMissing = true;
+									}
 							}
+					}
+				
+				if(paymentMissing)
+					{
+						returnStatus = false;
+						message = 'Please make sure that all selected lines have an amount to pay';
 					}
 				
 				if(!returnStatus)
-				{	
-					alert(message);
-				}
-
-				break;
-				
-			case 3:
-				var count = nlapiGetLineItemCount('custpage_sublist_items');
-				message = 'Please refresh the list until all works orders are allocated before continuing';
-				returnStatus = true;
-				
-				for (var int = 1; int <= count; int++) 
-					{
-						var tick = nlapiGetLineItemValue('custpage_sublist_items', 'custpage_sublist_updated', int);
-						
-						if(tick == 'F')
-							{
-								returnStatus = false;
-								alert(message);
-								break;
-							}
+					{	
+						alert(message);
 					}
-				
+
 				break;
 		}
 	
