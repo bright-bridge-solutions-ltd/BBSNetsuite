@@ -35,7 +35,9 @@ function(record, runtime, search, render, email) {
 		    		values:	{
 		    			custbody_bbs_rejection_reason: rejectionReason,
 		    			custbody_bbs_appr_status: '3' // 3 = Rejected
-		    		}
+		    		},
+		    		enableSourcing: false,
+					ignoreMandatoryFields: true
 		    	});
     		}
     	catch(error)
