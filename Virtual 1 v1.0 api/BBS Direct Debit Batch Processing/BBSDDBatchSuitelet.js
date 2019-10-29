@@ -289,7 +289,9 @@ function ddBatchRecordsSuitelet(request, response)
 					
 					var accountSearch = nlapiSearchRecord("account",null,
 							[
-							   ["type","anyof","Bank"]
+							   ["type","anyof","Bank"], 
+							   "AND", 
+							   ["issummary","is","F"]
 							], 
 							[
 							   new nlobjSearchColumn("name").setSort(false)

@@ -1,0 +1,225 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+
+  	<link name="Montserrat" type="font" subtype="opentype" src="https://5117415-sb1.app.netsuite.com/core/media/media.nl?id=31591&amp;c=5117415_SB1&amp;h=2dc552e4f13da67ac132&amp;_xt=.otf" src-bold="https://5117415-sb1.app.netsuite.com/core/media/media.nl?id=31592&amp;c=5117415_SB1&amp;h=a3ae6368ee04a59e5486&amp;_xt=.otf"  bytes="2" />
+	<link name="OpenSans"   type="font" subtype="opentype" src="https://5117415-sb1.app.netsuite.com/core/media/media.nl?id=31190&amp;c=5117415_SB1&amp;h=b36a1bf1dc7c4e9792b5&amp;_xt=.ttf" bytes="2" />
+	
+	<#assign todaysDate = .now>
+	
+	<macrolist>
+        <macro id="nlfooter">		
+            <table class="footer" style="width: 100%; margin-top: 20px;">
+            <tr>
+			<td align="center" style="font-family: OpenSans; font-size: 7pt; color: #393939;">Registered Office: Virtual1 Ltd. 6th Floor Alphabeta, 14-18 Finsbury Square, London, EC2A 1BR</td>
+			</tr>
+			<tr>
+			<td align="center" style="font-family: OpenSans; font-size: 7pt; color: #393939;">Company Registration Number: 6177891. VAT No: GB 911828429</td>
+			</tr>
+			</table>
+        </macro>
+        
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;">
+			<tr>
+				<td align="right"><img src="https://5117415-sb1.app.netsuite.com/core/media/media.nl?id=29989&amp;c=5117415_SB1&amp;h=b064430b41b43b655b8f" style="float: left; width:150px; height:75px;" /></td>
+			</tr>
+			</table>
+
+			<table style="width: 100%; margin-top: 20px;">
+			<tr>
+				<td align="left"  style="font-family: Montserrat; font-size: 10pt; font-weight: bold; color: #1d1b45;">${record.entity}</td>
+				<td align="right" style="font-family: Montserrat; font-size: 14pt; font-weight: bold; color: #ee2d4b;">Purchase Order Ref: ${record.tranid}</td>
+			</tr>
+			<tr>
+				<td align="left"  rowspan="6" style="font-family: OpenSans; font-size: 10pt; color: #393939;">${record.billaddress}</td>
+				<td align="right" style="font-family: Montserrat; font-size: 10pt; font-weight: bold; color: #1d1b45;">Invoice Address:</td>
+			</tr>
+			<tr>
+              	<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 4px 6px 0px 0px;">Virtual1 Ltd</td>
+			</tr>
+
+			<tr>
+				<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px;">6th Floor Alphabeta</td>
+			</tr>
+			<tr>
+				<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px">14-18 Finsbury Square</td>
+			</tr>
+			<tr>
+				<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px">London</td>
+			</tr>
+			<tr>
+				<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px">EC2A 1BR</td>
+			</tr>
+			</table>
+
+          	<table style="width: 100%; margin-top: 10px;">
+              	<tr>
+              		<td align="left"  style="font-family: Montserrat; font-size: 10pt; font-weight: bold; color: #1d1b45;">Shipping Address:</td>
+                  	<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939;">Date: ${record.trandate?string["dd MMM yyyy"]}</td>
+            	</tr>
+              	<tr>
+              		<td align="left"  rowspan="6" style="font-family: OpenSans; font-size: 10pt; color: #393939;">${record.shipaddress}</td>
+                  	<td align="right"             style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 4px 6px 0px 0px;">Requisitioned by: ${record.employee}</td>
+            	</tr>
+               	<tr>
+              		<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 4px 6px 0px 0px;">Contact: ${record.employee.email}</td>
+             	</tr>
+              	<tr>
+              		<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 4px 6px 0px 0px;">&nbsp;</td>
+             	</tr>
+              	<tr>
+              		<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 4px 6px 0px 0px;">&nbsp;</td>
+             	</tr>
+              	<tr>
+              		<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 4px 6px 0px 0px;">&nbsp;</td>
+             	</tr>
+              	<tr>
+              		<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 4px 6px 0px 0px;">&nbsp;</td>
+             	</tr>
+			</table>
+          
+			<table class="header" style="width: 100%; ">
+			<tr>
+				<td align="center" style="font-family: Montserrat; font-size: 10pt; font-weight: bold; color: #1d1b45;">Invoices may be delayed for payment if they do not quote our purchase order</td>
+			</tr>
+			</table>
+			
+        </macro>
+        
+    </macrolist>
+    
+    <style type="text/css">
+		table {
+			font-size: 9pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            color: #333333;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { align:left }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 7pt;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+
+<body header="nlheader" header-height="390px"  footer="nlfooter" footer-height="10px" padding="1.5cm 1.5cm 1.5cm 1.5cm" size="A4">
+
+<#if record.item?has_content>
+  <table class="itemtable" style="width: 100%;">
+    <#list record.item as item>
+        <#if item_index==0>
+          <thead>
+              <tr>
+              <th align="right"  colspan="3"  style="font-family: Montserrat; font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Quantity</th>
+              <th align="center" colspan="12" style="font-family: Montserrat; font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Product Description</th>
+              <th align="right"  colspan="4"  style="font-family: Montserrat; font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Unit Price</th>
+              <th align="right"  colspan="4"  style="font-family: Montserrat; font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Total</th>
+              </tr>
+          </thead>
+        </#if>
+        <tr>
+        <td align="right" colspan="3" line-height="150%" style="font-family: OpenSans; font-size: 7pt; color: #393939;">${item.quantity}</td>
+        <td align="left"  colspan="12"                   style="font-family: OpenSans; font-size: 7pt; color: #393939;">${item.description}</td>
+        <td align="right" colspan="4"                    style="font-family: OpenSans; font-size: 7pt; color: #393939;">${item.rate}</td>
+        <td align="right" colspan="4"                    style="font-family: OpenSans; font-size: 7pt; color: #393939;">${item.amount}</td>
+        </tr>
+  	</#list>
+  </table>
+</#if>
+
+    <table style="width: 100%; page-break-inside: avoid;" padding-top="10px">
+    <tr>
+	<td colspan="4">&nbsp;</td>
+	<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; border-top: 1px; border-color: #ee2d4b;">${record.subtotal@label}</td>
+	<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; border-top: 1px; border-color: #ee2d4b;">${record.subtotal}</td>
+	</tr>
+  <tr>
+	<td colspan="4">&nbsp;</td>
+	<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939;">${record.taxtotal@label}</td>
+	<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939;">${record.taxtotal}</td>
+	</tr>
+  <tr>
+	<td colspan="4">&nbsp;</td>
+	<td align="right" style="font-family: Montserrat; font-size: 10pt; color: #1d1b45; font-weight: bold;">${record.total@label}</td>
+	<td align="right" style="font-family: Montserrat; font-size: 10pt; color: #1d1b45; font-weight: bold;">${record.total}</td>
+	</tr></table>
+  
+  <table width="100%" style="padding-top: 10px;">
+    <tr>
+    <td align="center" style="font-family: Montserrat; font-size: 10pt; font-weight: bold; color: #1d1b45; background-color: #dcdaf1">Special Instructions:</td>
+    </tr>
+    <tr>
+    <td align="left" style="font-family: Montserrat; font-size: 10pt; color: #1d1b45; background-color: #dcdaf1 width: 100%; height: 80px;">${record.memo}</td>
+    </tr>
+  </table>
+</body>
+</pdf>

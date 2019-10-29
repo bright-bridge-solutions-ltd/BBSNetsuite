@@ -99,9 +99,18 @@ function libGenerateStatement(partnerId)
 									var totalDisputed = Number(0);
 									var totalPayment = Number(0);
 									var statementRecord = nlapiCreateRecord('customrecord_bbs_pr_statement');
+									var hasItemsToPrint = false;
 									
+									//Do we have any results to processs
+									//
 									if(customrecord_bbs_presentation_recordSearch !=  null && customrecord_bbs_presentation_recordSearch.length > 0)
 										{
+											//Do we have anything to print
+											//
+											hasItemsToPrint = true;
+										
+											//Loop through the results
+											//
 											for (var int = 0; int < customrecord_bbs_presentation_recordSearch.length; int++) 
 												{
 													var resultsAge = Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_inv_age"));
@@ -142,78 +151,83 @@ function libGenerateStatement(partnerId)
 												}
 										}
 									
-									totalAmount = aging2 + aging3 + aging4 + aging5;
-									totalPayment = totalAmount + totalDisputed;
-									
-									statementRecord.setFieldValue('custrecord_bbs_pr_stat_age_1', aging1);
-									statementRecord.setFieldValue('custrecord_bbs_pr_stat_age_2', aging2);
-									statementRecord.setFieldValue('custrecord_bbs_pr_stat_age_3', aging3);
-									statementRecord.setFieldValue('custrecord_bbs_pr_stat_age_4', aging4);
-									statementRecord.setFieldValue('custrecord_bbs_pr_stat_age_5', aging5);
-									statementRecord.setFieldValue('custrecord_bbs_pr_stat_total_amount', totalAmount);
-									statementRecord.setFieldValue('custrecord_bbs_pr_stat_query_amount', totalDisputed);
-									statementRecord.setFieldValue('custrecord_bbs_pr_stat_payment_amount', totalPayment);
-									
-									
-									//Create a renderer
+									//Only generate the pdf if we have something to show
 									//
-									var renderer = nlapiCreateTemplateRenderer();
-									renderer.setTemplate(templateContents);
-									renderer.addRecord('partner', partnerRecord);
-									renderer.addRecord('statement', statementRecord);
-									renderer.addSearchResults('lines', customrecord_bbs_presentation_recordSearch);
-									
-									//Render the result
-									//
-									var xml = renderer.renderToString();
-									var pdfFile = null;
-									
-									try
+									if(hasItemsToPrint)
 										{
-											pdfFile = nlapiXMLToPDF(xml);
-										}
-									catch(err)
-										{
-											nlapiLogExecution('ERROR', 'Error rendering PDF statement', err.message);
-										}
-
-									//If we created the PDF, we now need to save it & email it
-									//
-									if(pdfFile != null)
-										{
-											//Set the file name & folder
+											totalAmount = aging2 + aging3 + aging4 + aging5;
+											totalPayment = totalAmount + totalDisputed;
+											
+											statementRecord.setFieldValue('custrecord_bbs_pr_stat_age_1', aging1);
+											statementRecord.setFieldValue('custrecord_bbs_pr_stat_age_2', aging2);
+											statementRecord.setFieldValue('custrecord_bbs_pr_stat_age_3', aging3);
+											statementRecord.setFieldValue('custrecord_bbs_pr_stat_age_4', aging4);
+											statementRecord.setFieldValue('custrecord_bbs_pr_stat_age_5', aging5);
+											statementRecord.setFieldValue('custrecord_bbs_pr_stat_total_amount', totalAmount);
+											statementRecord.setFieldValue('custrecord_bbs_pr_stat_query_amount', totalDisputed);
+											statementRecord.setFieldValue('custrecord_bbs_pr_stat_payment_amount', totalPayment);
+											
+											
+											//Create a renderer
 											//
-											var pdfFileName = 'Statement ' + partnerRecord.getFieldValue('entityid') + ' ' + today.toUTCString() + '.pdf';
+											var renderer = nlapiCreateTemplateRenderer();
+											renderer.setTemplate(templateContents);
+											renderer.addRecord('partner', partnerRecord);
+											renderer.addRecord('statement', statementRecord);
+											renderer.addSearchResults('lines', customrecord_bbs_presentation_recordSearch);
 											
-											pdfFile.setName(pdfFileName);
-											pdfFile.setFolder(documentFolderId);
-											
-										    //Upload the file to the file cabinet.
+											//Render the result
 											//
-										    var fileId = nlapiSubmitFile(pdfFile);
-										 
-										    //Attach the file to the partner record
-										    //
-										    nlapiAttachRecord("file", fileId, "customer", partnerId); // 10GU's
+											var xml = renderer.renderToString();
+											var pdfFile = null;
 											
-											//Load up the email template & merge
-											//
-											var emailMerger = nlapiCreateEmailMerger(statementEmailTemplateId);
-											emailMerger.setEntity('customer', partnerId);
-											var mergeResult = emailMerger.merge();
-											
-											if(mergeResult != null)
+											try
 												{
-													var emailSubject = mergeResult.getSubject();
-													var emailBody = mergeResult.getBody();
+													pdfFile = nlapiXMLToPDF(xml);
+												}
+											catch(err)
+												{
+													nlapiLogExecution('ERROR', 'Error rendering PDF statement', err.message);
+												}
 		
-													try
+											//If we created the PDF, we now need to save it & email it
+											//
+											if(pdfFile != null)
+												{
+													//Set the file name & folder
+													//
+													var pdfFileName = 'Statement ' + partnerRecord.getFieldValue('entityid') + ' ' + today.toUTCString() + '.pdf';
+													
+													pdfFile.setName(pdfFileName);
+													pdfFile.setFolder(documentFolderId);
+													
+												    //Upload the file to the file cabinet.
+													//
+												    var fileId = nlapiSubmitFile(pdfFile);
+												 
+												    //Attach the file to the partner record
+												    //
+												    nlapiAttachRecord("file", fileId, "customer", partnerId); // 10GU's
+													
+													//Load up the email template & merge
+													//
+													var emailMerger = nlapiCreateEmailMerger(statementEmailTemplateId);
+													emailMerger.setEntity('customer', partnerId);
+													var mergeResult = emailMerger.merge();
+													
+													if(mergeResult != null)
 														{
-															nlapiSendEmail(currentUser, partnerStatementEmailAddress, emailSubject, emailBody, null, null, null, pdfFile, true, false, returnEmail);
-														}
-													catch(err)
-														{
-															nlapiLogExecution('ERROR', 'Failed to email statement, partner id = ' + presentationId, err.message);
+															var emailSubject = mergeResult.getSubject();
+															var emailBody = mergeResult.getBody();
+				
+															try
+																{
+																	nlapiSendEmail(currentUser, partnerStatementEmailAddress, emailSubject, emailBody, null, null, null, pdfFile, true, false, returnEmail);
+																}
+															catch(err)
+																{
+																	nlapiLogExecution('ERROR', 'Failed to email statement, partner id = ' + presentationId, err.message);
+																}
 														}
 												}
 										}

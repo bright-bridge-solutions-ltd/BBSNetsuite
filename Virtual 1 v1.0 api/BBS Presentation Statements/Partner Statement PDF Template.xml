@@ -3,6 +3,7 @@
 <head>
 
   	<link name="Montserrat" type="font" subtype="opentype" src="https://5117415-sb1.app.netsuite.com/core/media/media.nl?id=31591&amp;c=5117415_SB1&amp;h=2dc552e4f13da67ac132&amp;_xt=.otf" src-bold="https://5117415-sb1.app.netsuite.com/core/media/media.nl?id=31592&amp;c=5117415_SB1&amp;h=a3ae6368ee04a59e5486&amp;_xt=.otf"  bytes="2" />
+	<link name="OpenSans"   type="font" subtype="opentype" src="https://5117415-sb1.app.netsuite.com/core/media/media.nl?id=31190&amp;c=5117415_SB1&amp;h=b36a1bf1dc7c4e9792b5&amp;_xt=.ttf" bytes="2" />
 	
 	<#assign todaysDate = .now>
 	
@@ -10,10 +11,10 @@
         <macro id="nlfooter">		
             <table class="footer" style="width: 100%; margin-top: 20px;">
             <tr>
-			<td align="center" style="font-size: 7pt; color: #393939;">Registered Office: Virtual1 Ltd. 6th Floor Alphabeta, 14-18 Finsbury Square, London, EC2A 1BR</td>
+			<td align="center" style="font-family: OpenSans; font-size: 7pt; color: #393939;">Registered Office: Virtual1 Ltd. 6th Floor Alphabeta, 14-18 Finsbury Square, London, EC2A 1BR</td>
 			</tr>
 			<tr>
-			<td align="center" style="font-size: 7pt; color: #393939;">Company Registration Number: 6177891. VAT No: GB 911828429</td>
+			<td align="center" style="font-family: OpenSans; font-size: 7pt; color: #393939;">Company Registration Number: 6177891. VAT No: GB 911828429</td>
 			</tr>
 			</table>
         </macro>
@@ -27,41 +28,41 @@
 
 			<table style="width: 100%; margin-top: 20px;">
 			<tr>
-				<td align="left" colspan="2" style="font-size: 10pt; font-weight: bold; color: #1d1b45;">${partner.entityid}</td>
-				<td align="right" style="font-size: 10pt; font-weight: bold; color: #ee2d4b;">Statement</td>
+				<td align="left" colspan="2" 	style="font-family: Montserrat; font-size: 10pt; font-weight: bold; color: #1d1b45;">${partner.entityid}</td>
+				<td align="right" 				style="font-family: Montserrat; font-size: 10pt; font-weight: bold; color: #ee2d4b;">Statement</td>
 			</tr>
 			<tr>
-				<td align="left" colspan="2" rowspan="6" style="font-size: 10pt; color: #393939;">${partner.defaultaddress}</td>
-				<td align="right" style="font-size: 10pt;  color: #393939;">Date: ${todaysDate?string["dd MMM yyyy"]}</td>
+				<td align="left" colspan="2" rowspan="6" style="font-family: OpenSans; font-size: 10pt; color: #393939;">${partner.defaultaddress}</td>
+				<td align="right" style="font-family: OpenSans; font-size: 10pt;  color: #393939;">Date: ${todaysDate?string["dd MMM yyyy"]}</td>
 			</tr>
 			<tr>
-				<td align="right" style="font-size: 10pt; color: #393939; padding: 4px 6px 0px 0px;">Virtual1 Ltd</td>
+				<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 4px 6px 0px 0px;">Virtual1 Ltd</td>
 			</tr>
 			<tr>
-				<td align="right" style="font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px;">6th Floor Alphabeta</td>
+				<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px;">6th Floor Alphabeta</td>
 			</tr>
 			<tr>
-				<td align="right" style="font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px">14-18 Finsbury Square</td>
+				<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px">14-18 Finsbury Square</td>
 			</tr>
 			<tr>
-				<td align="right" style="font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px">London</td>
+				<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px">London</td>
 			</tr>
 			<tr>
-				<td align="right" style="font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px">EC2A 1BR</td>
+				<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px">EC2A 1BR</td>
 			</tr>
 			<tr>
 				<td >&nbsp;</td>
 				<td >&nbsp;</td>
-				<td align="right" style="font-size: 10pt; color: #393939;">billingquery@virtual1.com</td>
+				<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939;">billingquery@virtual1.com</td>
 			</tr>
 			</table>
 
 			<table class="header" style="width: 100%; margin-top: 20px;">
 			<tr>
-				<td align="center" style="font-size: 10pt; font-weight: bold; color: #ee2d4b;">Delayed payment of invoices could result in additional interest charges</td>
+				<td align="center" style="font-family: Montserrat; font-size: 10pt; font-weight: bold; color: #ee2d4b;">Delayed payment of invoices could result in additional interest charges</td>
 			</tr>
 			<tr>
-				<td align="center" style="font-size: 10pt; font-weight: bold; color: #ee2d4b;">and/or suspension of services</td>
+				<td align="center" style="font-family: Montserrat; font-size: 10pt; font-weight: bold; color: #ee2d4b;">and/or suspension of services</td>
 			</tr>
 			</table>
 			
@@ -69,9 +70,7 @@
         
     </macrolist>
     
-    <style type="text/css">* {
-			font-family: Montserrat;
-		}
+    <style type="text/css">
 		table {
 			font-size: 9pt;
 			table-layout: fixed;
@@ -163,41 +162,41 @@
 			<#if line_index==0>
 				<thead>
 					<tr>
-						<th align="left"  style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Document<br/>Date</th>
-						<th align="left"  style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Document<br/>Reference</th>
-						<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Document<br/>Value</th>
-						<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Outstanding<br/>Debit</th>
-						<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Outstanding<br/>Credit</th>
-						<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">In<br/>Query</th>
-						<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Outstanding<br/>Balance</th>
+						<th align="left"  style="font-family: Montserrat; font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Document<br/>Date</th>
+						<th align="left"  style="font-family: Montserrat; font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Document<br/>Reference</th>
+						<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Document<br/>Value</th>
+						<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Outstanding<br/>Debit</th>
+						<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Outstanding<br/>Credit</th>
+						<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">In<br/>Query</th>
+						<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Outstanding<br/>Balance</th>
 					</tr>
 				</thead>
 			</#if>
 				<#if line.custrecord_bbs_pr_type == "Invoice">
 					<tr>
-						<td align="left" style="font-size: 7pt; color: #393939;">${line.created?string["dd/MM/yy"]}</td>
-						<td align="left" style="font-size: 7pt; color: #393939;">${line.name}</td>
-						<td align="right" style="font-size: 7pt; color: #393939;">${line.custrecord_bbs_pr_inv_total}</td>
-						<td align="right" style="font-size: 7pt; color: #393939;">${line.formulacurrency}</td>
-						<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
+						<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #393939;">${line.created?string["dd/MM/yy"]}</td>
+						<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #393939;">${line.name}</td>
+						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">${line.custrecord_bbs_pr_inv_total}</td>
+						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">${line.formulacurrency}</td>
+						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">&nbsp;</td>
 						
 						<#if line.custrecord_bbs_pr_inv_disputed gt 0>
-							<td align="right" style="font-size: 7pt; color: #393939;">${line.custrecord_bbs_pr_inv_disputed}</td>
+							<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">${line.custrecord_bbs_pr_inv_disputed}</td>
 						<#else>
-							<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
+							<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">&nbsp;</td>
 						</#if>
 						
-						<td align="right" style="font-size: 7pt; color: #393939;">${line.custrecord_bbs_pr_inv_outstanding}</td>
+						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">${line.custrecord_bbs_pr_inv_outstanding}</td>
 					</tr>
 				<#else>
 					<tr>
-						<td align="left" style="font-size: 7pt; color: #393939;">${line.created?string["dd/MM/yy"]}</td>
-						<td align="left" style="font-size: 7pt; color: #393939;">${line.name}</td>
-						<td align="right" style="font-size: 7pt; color: #393939;">(${line.custrecord_bbs_pr_cn_total})</td>
-						<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
-						<td align="right" style="font-size: 7pt; color: #393939;">(${line.custrecord_bbs_pr_cn_unapplied})</td>
-						<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
-						<td align="right" style="font-size: 7pt; color: #393939;">(${line.custrecord_bbs_pr_cn_unapplied})</td>
+						<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #393939;">${line.created?string["dd/MM/yy"]}</td>
+						<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #393939;">${line.name}</td>
+						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">(${line.custrecord_bbs_pr_cn_total})</td>
+						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">&nbsp;</td>
+						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">(${line.custrecord_bbs_pr_cn_unapplied})</td>
+						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">&nbsp;</td>
+						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">(${line.custrecord_bbs_pr_cn_unapplied})</td>
 					</tr>
 				</#if>
 		</#list>
@@ -210,50 +209,50 @@
 				<tr>
 					<th align="left">&nbsp;</th>
 					<th align="left">&nbsp;</th>
-					<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Not Due<br/>&nbsp;</th>
-					<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">1-30 Days<br/>Overdue</th>
-					<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">31-60 Days<br/>Overdue</th>
-					<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">61-90 Days<br/>Overdue</th>
-					<th align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">91+ Days<br/>Overdue</th>
+					<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Not Due<br/>&nbsp;</th>
+					<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">1-30 Days<br/>Overdue</th>
+					<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">31-60 Days<br/>Overdue</th>
+					<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">61-90 Days<br/>Overdue</th>
+					<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #1d1b45; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">91+ Days<br/>Overdue</th>
 				</tr>
 			</thead>	
 			
 			<tr>
-				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="right" style="font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_age_1}</td>
-				<td align="right" style="font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_age_2}</td>
-				<td align="right" style="font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_age_3}</td>
-				<td align="right" style="font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_age_4}</td>
-				<td align="right" style="font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_age_5}</td>
+				<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_age_1}</td>
+				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_age_2}</td>
+				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_age_3}</td>
+				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_age_4}</td>
+				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_age_5}</td>
 			</tr>
 		</table>
 		
 		<!-- Totals table -->	
 		<table style="width: 100%; margin-top: 10px; page-break-inside: avoid;">			
 			<tr>
-				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="right" style="font-size: 7pt; color: #393939;" colspan="2">Total Amount Overdue</td>
-				<td align="right" style="font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_total_amount}</td>
+				<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;" colspan="2">Total Amount Overdue</td>
+				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_total_amount}</td>
 			</tr>
 			<tr>
-				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="right" style="font-size: 7pt; color: #393939;" colspan="2">Amount Overdue In Query</td>
-				<td align="right" style="font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_query_amount}</td>
+				<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;" colspan="2">Amount Overdue In Query</td>
+				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #393939;">${statement.custrecord_bbs_pr_stat_query_amount}</td>
 			</tr>
 			<tr>
-				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="left"  style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="right" style="font-size: 7pt; color: #393939;">&nbsp;</td>
-				<td align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold;" colspan="2">Payment Overdue</td>
-				<td align="right" style="font-size: 7pt; color: #1d1b45; font-weight: bold;">${statement.custrecord_bbs_pr_stat_payment_amount}</td>
+				<td align="left"  style="font-family: Montserrat; font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="left"  style="font-family: Montserrat; font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-family: Montserrat; font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-family: Montserrat; font-size: 7pt; color: #393939;">&nbsp;</td>
+				<td align="right" style="font-family: Montserrat; font-size: 7pt; color: #1d1b45; font-weight: bold;" colspan="2">Payment Overdue</td>
+				<td align="right" style="font-family: Montserrat; font-size: 7pt; color: #1d1b45; font-weight: bold;">${statement.custrecord_bbs_pr_stat_payment_amount}</td>
 			</tr>
 		</table>
 	</div>

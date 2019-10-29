@@ -415,15 +415,16 @@ function prUpdate(type)
 									var lineTranRevRecStart = invoiceLines[int].getValue("custcol_bbs_revenue_rec_start_date");
 									var lineTranRevRecEnd = invoiceLines[int].getValue("custcol_bbs_revenue_rec_end_date");
 									
-									csvText += lineTranEndUserName + ' - ' + lineTranPostCode + ',' + 
-										lineTranV1c + ',' +
-										lineTranRevRecStart + ',' +
-										lineTranRevRecEnd + ',' +
-										lineTranCustFrequency + ',' +
-										lineTranAmount + ',' + 
-										lineTranDecscription + ','  + 
-										lineTranPartnerPo + ',' + 
-										lineTranPeReference + '\n';
+									csvText += 
+										'"' + lineTranEndUserName 		+ ' - ' + lineTranPostCode + '",' + 
+										'"' + lineTranV1c 				+ '",' +
+										'"' + lineTranRevRecStart 		+ '",' +
+										'"' + lineTranRevRecEnd 		+ '",' +
+										'"' + lineTranCustFrequency 	+ '",' +
+										'"' + lineTranAmount 			+ '",' + 
+										'"' + lineTranDecscription 		+ '",'  + 
+										'"' + lineTranPartnerPo 		+ '",' + 
+										'"' + lineTranPeReference 		+ '"\n';
 								}
 						}
 					
