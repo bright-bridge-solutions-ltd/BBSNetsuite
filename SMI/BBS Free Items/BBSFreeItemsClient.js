@@ -7,6 +7,7 @@
  * 1.20			09 Aug 2019		sambatten		Added if statement to check order doesn't contain any items with product codes starting 'CPHS'
  * 1.30			30 Aug 2019		sambatten		Added if statement to check the order status is 'Pending Approval' or 'Pending Fulfillment'
  * 1.40			26 Sep 2019		sambatten		Removed if statement to check order status as this wasn't working correctly when order is created (only working on edit)
+ * 1.50			31 Oct 2019		sambatten		Amended script parameters
  */
 
 function saveRecord(type)
@@ -18,11 +19,11 @@ function saveRecord(type)
 		if (customForm == 103)
 			{
 				// retrieve script parameters
-				var biscuits = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_biscuits_client');
-				var chocolates = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_chocolates_client');
-				var biscuitsLevel = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_biscuits_level_client');
+				var biscuits = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_biscuits_item');
+				var chocolates = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_chocolates_item');
+				var biscuitsLevel = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_biscuits_level');
 				biscuitsLevel = parseInt(biscuitsLevel); // convert to integer number
-				var chocolatesLevel = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_chocolates_level_client');
+				var chocolatesLevel = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_chocolates_level');
 				chocolatesLevel = parseInt(chocolatesLevel); // convert to integer number
 					
 				// get the internal ID of the customer from the current record
