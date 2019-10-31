@@ -739,7 +739,7 @@ function(runtime, search, record, format) {
 	    {
     		// declare and initiate variables
 			var quarterEnd;
-			var overage;
+			var overage = 0;
 	
 			// set the billingType variable to QUR
 			billingType = 'QUR';
@@ -765,7 +765,7 @@ function(runtime, search, record, format) {
 			var contractRecordLookup = search.lookupFields({
 				type: 'customrecord_bbs_contract',
 				id: contractRecord,
-				columns: ['custrecord_bbs_contract_qu_min_use', 'custrecord_bbs_contract_currency', 'custrecord_bbs_contract_end_date']
+				columns: ['custrecord_bbs_contract_qu_min_use', 'custrecord_bbs_contract_currency', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_term']
 			});
 	    		
 			var minimumUsage = contractRecordLookup.custrecord_bbs_contract_qu_min_use;
@@ -926,16 +926,88 @@ function(runtime, search, record, format) {
 	    		    // call function to create journal recognising all revenue for the current contract period. Pass in recordID and billingType (False = Clearing Journal NO)
     				createRevRecJournal(recordID, billingType, false);
     				
-    				// call function to create the next quarterly invoice. Pass in billingType, contractRecord, customer, minimumUsage, currency and overage
-					createNextInvoice(billingType, contractRecord, customer, minimumUsage, currency, overage);
+    				// multiply the quarterly minimum usage amount by 4 to calculate the annual commitment for a full year
+					var annualCommitment = (minimumUsage * 4);
+					
+					// get the contract term from the contractRecordLookup
+					var contractTerm = contractRecordLookup.custrecord_bbs_contract_term;
+					
+					// divide the annualCommitment by the contractTerm to calculate the monthly minimum usage
+					var monthlyMinimum = (annualCommitment / contractTerm);
+					
+					// multiply the monthlyMinimum by the contractTerm to calculate the annual commitment for the contract term
+					annualCommitment = (monthlyMinimum * contractTerm);
+					
+					// run search to find the total usage to date
+					var usageSearch = search.create({
+						type: 'customrecord_bbs_contract_period',
+						
+						columns: [{
+							name: 'custrecord_bbs_contract_period_prod_use',
+							summary: 'SUM'
+						}],
+						
+						filters: [{
+							name: 'custrecord_bbs_contract_period_contract',
+							operator: 'anyof',
+							values: [contractRecord]
+						}],
+					});
+					
+					// run search and process results
+					usageSearch.run().each(function(result) {
+						
+						// get the cumulative usage from the search
+						cumulativeUsage = result.getValue({
+							name: 'custrecord_bbs_contract_period_prod_use',
+							summary: 'SUM'
+						});
+						
+					});
+					
+					// calculate remaining balance by subtracting cumulativeUsage from annualCommitment
+					var remainingBalance = (annualCommitment - cumulativeUsage);
+					
+					// check if remainingBalance is greater than 0
+					if (remainingBalance > 0)
+						{
+							// check if remainingBalance is less than minimumUsage minus overage
+							if (remainingBalance < (minimumUsage - overage))
+								{
+									// call function to create the next quarterly invoice. Pass in billingType, contractRecord, customer, remainingBalance and currency
+									createNextInvoice(billingType, contractRecord, customer, remainingBalance, currency);
+								}
+							else // remainingBalance is greater than minimumUsage minus overage
+								{
+									// check if minimumUsage minus overage is greater than 0
+									if ((minimumUsage - overage) > 0)
+										{
+											// call function to create the next quarterly invoice. Pass in billingType, contractRecord, customer, minimumUsage, currency and overage
+											createNextInvoice(billingType, contractRecord, customer, minimumUsage, currency, overage);
+										}
+									else
+										{
+											log.audit({
+												title: 'Next Prepayment Invoice NOT Created',
+												details: 'A next prepayment invoice was not created as this would have resulted in an invoice for a negative amount. Contract Record: ' + contractRecord
+											});
+										}
+								}
+						}
+					else
+						{
+							log.audit({
+								title: 'Next Prepayment Invoice NOT Created',
+								details: 'A next prepayment invoice was not created as the contract does not have sufficient remaining balance. Contract Record: ' + contractRecord
+							});
+						}
 				}
 			// if this is calendar month end
 			else
 				{
 					// call function to create journal recognising all revenue for the current contract period. Pass in recordID and billingType (False = Clearing Journal NO)
     				createRevRecJournal(recordID, billingType, false);
-				}
-			
+				}			
 	    }
     
     function UIOLI(recordID)
@@ -1124,12 +1196,13 @@ function(runtime, search, record, format) {
 	    				fieldId: 'custbody_bbs_invoice_type',
 	    				value: 5 // 5 = Usage
 	    			});
-		
+		    		
 		    		// save the new invoice record
 		    		var invoiceID = invoiceRecord.save({
 		    			enableSourcing: false,
 			    		ignoreMandatoryFields: true
 		    		});
+		    		
     		
 		    		log.audit({
 						title: 'Invoice Created',
