@@ -17,12 +17,11 @@ function salesOrderLineInit(type)
 {
 	var subsidiaryId = nlapiGetFieldValue('subsidiary');
 	var location_header_field = 'location';
-	var location_detail_field = 'location';
+	var location_detail_field = 'inventorylocation';
 	
 	if(subsidiaryId == '7')
 		{
 			location_header_field = 'custpage_subsid_location';
-			location_detail_field = 'inventorylocation';
 		}
 		
      var mainLocation = nlapiGetFieldValue(location_header_field);
@@ -39,15 +38,13 @@ function salesOrderFieldChanged(type, name, linenum)
 		 {
 		 	var subsidiaryId = nlapiGetFieldValue('subsidiary');
 			var location_header_field = 'location';
-			var location_detail_field = 'location';
+			var location_detail_field = 'inventorylocation';
 			
 			if(subsidiaryId == '7')
 				{
 					location_header_field = 'custpage_subsid_location';
-					location_detail_field = 'inventorylocation';
 					
 					nlapiSetFieldValue('custbody3', nlapiGetFieldText(location_header_field), false, true);
-					
 				}
 				
 		 	var mainLocation = nlapiGetFieldValue(location_header_field);
@@ -78,12 +75,11 @@ function SalesOrderValidateLine(type)
 {
 	var subsidiaryId = nlapiGetFieldValue('subsidiary');
 	var location_header_field = 'location';
-	var location_detail_field = 'location';
+	var location_detail_field = 'inventorylocation';
 	
 	if(subsidiaryId == '7')
 		{
 			location_header_field = 'custpage_subsid_location';
-			location_detail_field = 'inventorylocation';
 		}
 	
 	var mainLocation = nlapiGetFieldValue(location_header_field);

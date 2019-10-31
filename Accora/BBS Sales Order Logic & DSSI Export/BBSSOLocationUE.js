@@ -27,7 +27,7 @@ function soLocationBeforeLoad(type, form, request)
 	
 	//Is it Accora Ireland
 	//
-	if(subsidiaryId == '7' && formId == '150')
+	if(subsidiaryId == '7' && formId == '151')
 		{
 			var locationsToUse = {};
 			
@@ -55,27 +55,27 @@ function soLocationBeforeLoad(type, form, request)
 			
 			//Now read the global inventory relationship record for the subsidiary
 			//
-			var globalinventoryrelationshipSearch = nlapiSearchRecord("globalinventoryrelationship",null,
-					[
-					   ["originatingsubsidiary","anyof",subsidiaryId]
-					], 
-					[
-					   new nlobjSearchColumn("subsidiary").setSort(false), 
-					   new nlobjSearchColumn("inventorysubsidiary"), 
-					   new nlobjSearchColumn("location")
-					]
-					);
+			//var globalinventoryrelationshipSearch = nlapiSearchRecord("globalinventoryrelationship",null,
+			//		[
+			//		   ["originatingsubsidiary","anyof",subsidiaryId]
+			//		], 
+			//		[
+			//		   new nlobjSearchColumn("subsidiary").setSort(false), 
+			//		   new nlobjSearchColumn("inventorysubsidiary"), 
+			//		   new nlobjSearchColumn("location")
+			//		]
+			//		);
 			
-			if(globalinventoryrelationshipSearch != null && globalinventoryrelationshipSearch.length > 0)
-				{
-					for (var int = 0; int < globalinventoryrelationshipSearch.length; int++) 
-						{
-							var locationId = globalinventoryrelationshipSearch[int].getValue('location');
-							var locationName = globalinventoryrelationshipSearch[int].getText('location');
-							
-							locationsToUse[locationId] = locationName;
-						}
-				}
+			//if(globalinventoryrelationshipSearch != null && globalinventoryrelationshipSearch.length > 0)
+			//	{
+			//		for (var int = 0; int < globalinventoryrelationshipSearch.length; int++) 
+			//			{
+			//				var locationId = globalinventoryrelationshipSearch[int].getValue('location');
+			//				var locationName = globalinventoryrelationshipSearch[int].getText('location');
+			//				
+			//				locationsToUse[locationId] = locationName;
+			//			}
+			//	}
 			
 			//Get the saved fulfil location (if any)
 			//
@@ -96,15 +96,13 @@ function soLocationBeforeLoad(type, form, request)
 			
 			//Now add all the remaining options to the field
 			//
-			for ( var location in locationsToUse) 
-				{
-					subsidLocationField.addSelectOption(location, locationsToUse[location], (locationsToUse[location] == savedFulfilLocation ? true : false));
-				}
+			//for ( var location in locationsToUse) 
+			//	{
+			//		subsidLocationField.addSelectOption(location, locationsToUse[location], (locationsToUse[location] == savedFulfilLocation ? true : false));
+			//	}
 			
-			//subsidLocationField.addSelectOption('129', 'Frank - Demo Stock', false);
-			//subsidLocationField.addSelectOption('130', 'Des - Demo Stock', false);
-			//subsidLocationField.addSelectOption('128', 'IE HQ', false);
-			//subsidLocationField.addSelectOption('14', 'Europa', false);
-			//subsidLocationField.addSelectOption('7', 'Orwell', false);
+			subsidLocationField.addSelectOption('133', 'Ireland Stores', ('Ireland Stores' == savedFulfilLocation ? true : false));
+			subsidLocationField.addSelectOption('14', 'Europa', ('Europa' == savedFulfilLocation ? true : false));
+			subsidLocationField.addSelectOption('7', 'Orwell', ('Orwell' == savedFulfilLocation ? true : false));
 		}
 }
