@@ -25,6 +25,9 @@ function sendEmailWorkflowAction()
 	//
 	var currentUser = context.getUser();
 	
+	var emailSendFromId = nlapiGetContext().getPreference('custscript_bbs_pr_email_from');
+	currentUser = (emailSendFromId != null && emailSendFromId != '' ? emailSendFromId : currentUser);
+	
 	//Set up the link to the pr record for the email
 	//
 	var associatedRecords = {};
@@ -108,7 +111,7 @@ function sendEmailWorkflowAction()
 								
 									try
 										{
-											nlapiSendEmail(currentUser, emailTo, emailSubject, emailBody, null, null, associatedRecords, attachments, true, false, returnEmail);
+											nlapiSendEmail(currentUser, emailTo, emailSubject, emailBody, null, null, associatedRecords, attachments, true, false, null);
 										}
 									catch(err)
 										{

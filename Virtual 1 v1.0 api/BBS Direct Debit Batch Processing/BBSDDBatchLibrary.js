@@ -51,10 +51,13 @@ function libEmailFiles(ddBatchId)
 	
 	//Get the email template id from the general preferences
 	//
-	var ddEmailTemplateId = nlapiGetContext().getPreference('custscript_bbs_dd_email_template');
-	var currentUser = nlapiGetContext().getUser();
-	var executionContext = nlapiGetContext().getExecutionContext();
+	var ddEmailTemplateId 	= nlapiGetContext().getPreference('custscript_bbs_dd_email_template');
+	var currentUser 		= nlapiGetContext().getUser();
+	var executionContext 	= nlapiGetContext().getExecutionContext();
+	var emailSendFromId 	= nlapiGetContext().getPreference('custscript_bbs_pr_email_from');
 	
+	currentUser = (emailSendFromId != null && emailSendFromId != '' ? emailSendFromId : currentUser);
+	  
 	//Get the return email address from company setup page
 	//
 	var companyConfig = null;
@@ -119,7 +122,7 @@ function libEmailFiles(ddBatchId)
 								
 									try
 										{
-											nlapiSendEmail(currentUser, emailTo, emailSubject, emailBody, null, null, null, attachments, true, false, returnEmail);
+											nlapiSendEmail(currentUser, emailTo, emailSubject, emailBody, null, null, null, attachments, true, false, null);
 											
 											var prRecord = nlapiLoadRecord('customrecord_bbs_dd_batch', ddBatchId);
 											

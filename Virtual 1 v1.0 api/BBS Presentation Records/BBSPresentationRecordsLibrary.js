@@ -51,9 +51,12 @@ function libEmailFiles(presentationId)
 	
 	//Get the email template id from the general preferences
 	//
-	var prEmailTemplateId = nlapiGetContext().getPreference('custscript_bbs_pr_email_template');
-	var currentUser = nlapiGetContext().getUser();
-	var executionContext = nlapiGetContext().getExecutionContext();
+	var prEmailTemplateId 	= nlapiGetContext().getPreference('custscript_bbs_pr_email_template');
+	var currentUser 		= nlapiGetContext().getUser();
+	var executionContext 	= nlapiGetContext().getExecutionContext();
+	var emailSendFromId 	= nlapiGetContext().getPreference('custscript_bbs_pr_email_from');
+	
+	currentUser = (emailSendFromId != null && emailSendFromId != '' ? emailSendFromId : currentUser);
 	
 	//Get the return email address from company setup page
 	//
@@ -120,7 +123,7 @@ function libEmailFiles(presentationId)
 								
 									try
 										{
-											nlapiSendEmail(currentUser, emailTo, emailSubject, emailBody, null, null, null, attachments, true, false, returnEmail);
+											nlapiSendEmail(currentUser, emailTo, emailSubject, emailBody, null, null, null, attachments, true, false, null);
 											
 											var prRecord = nlapiLoadRecord('customrecord_bbs_presentation_record', presentationId);
 											

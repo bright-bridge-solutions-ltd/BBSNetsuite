@@ -10,8 +10,10 @@ function libGenerateStatement(partnerId)
 	var pdfTemplateId = nlapiGetContext().getPreference('custscript_bbs_statement_pdf_id');
 	var statementEmailTemplateId = nlapiGetContext().getPreference('custscript_bbs_statement_email_id');
 	var documentFolderId = nlapiGetContext().getPreference('custscript_bbs_pr_doc_folder');
+	var emailSendFromId = nlapiGetContext().getPreference('custscript_bbs_pr_email_from');
 
 	var currentUser = nlapiGetContext().getUser();
+	currentUser = (emailSendFromId != null && emailSendFromId != '' ? emailSendFromId : currentUser);
 	var today = new Date();
 	
 	//Get the return email address from company setup page
@@ -222,7 +224,7 @@ function libGenerateStatement(partnerId)
 				
 															try
 																{
-																	nlapiSendEmail(currentUser, partnerStatementEmailAddress, emailSubject, emailBody, null, null, null, pdfFile, true, false, returnEmail);
+																	nlapiSendEmail(currentUser, partnerStatementEmailAddress, emailSubject, emailBody, null, null, null, pdfFile, true, false, null);
 																}
 															catch(err)
 																{
