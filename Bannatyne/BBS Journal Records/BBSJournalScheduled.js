@@ -47,7 +47,7 @@ function updateJournals(type)
 				try
 					{
 						// load the transaction record
-						var transactionRecord = nlapiLoadRecord('cashrefund', recordID);
+						var transactionRecord = nlapiLoadRecord('journal', recordID);
 						
 						// get the location from the 
 						
