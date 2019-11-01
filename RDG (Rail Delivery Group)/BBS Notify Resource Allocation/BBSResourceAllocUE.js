@@ -168,6 +168,8 @@ function resourceAllocAS(type)
 					//Try to see if the allocated resource is actually a generic resource
 					//If it is, then we actually want to sent the email to the PMO, not the pm
 					//
+					var dynamicWording = 'allocated';
+						
 					try 
 						{
 							var genericRecord = nlapiLoadRecord('genericresource', employeeId);
@@ -176,6 +178,7 @@ function resourceAllocAS(type)
 							//
 							projectManagerEmail = pmoEmail;
 							projectManager = pmo;
+							dynamicWording = 'requested';
 						} 
 					catch(err) 
 						{
@@ -224,7 +227,7 @@ function resourceAllocAS(type)
 							//
 							var emailText = '';
 							emailText +=	'Dear ' + projectManager + ',\n\n\n';
-							emailText +=	'This is to inform you that the following resource has been allocated to project "' + project + '"\n\n';
+							emailText +=	'This is to inform you that the following resource has been ' + dynamicWording + ' to project "' + project + '"\n\n';
 							emailText +=	'Resource - ' + employee + '\n';
 							emailText +=	'Project Task - "' + projectTask + '"\n';
 							emailText +=	'Start Date - ' + startDate + '\n';

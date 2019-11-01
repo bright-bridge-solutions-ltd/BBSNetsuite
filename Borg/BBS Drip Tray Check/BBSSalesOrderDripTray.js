@@ -33,7 +33,10 @@ function dripTrayPostSourcing(type, name)
 			
 			if(itemClass == 19) //Machines - Undercounter Systems
 				{
-					Ext.Msg.alert('❗Alert', 'Please check the drip tray required for this system.', Ext.emptyFn);
+                  //alert('Please check the drip tray required for this system.');
+                  Ext.Msg.minWidth = 400;
+				  Ext.Msg.alert('❗Alert', 'Please check the drip tray required for this system.<br/><br/>If the system code is 601142 add 1 x 192271 to the order.<br/>If the system code is 601162 add 1 x 192260 to the order.', Ext.emptyFn);
+
 				}
 		}
 }
