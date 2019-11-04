@@ -32,6 +32,10 @@ function(url, runtime, record, search, format) {
 	ampItem = currentScript.getParameter({
     	name: 'custscript_bbs_amp_item'
     });
+	
+	invoiceForm = currentScript.getParameter({
+		name: 'custscript_bbs_onfido_invoice_form'
+	});
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -287,38 +291,16 @@ function(url, runtime, record, search, format) {
 	    			// create a new invoice record
 	    			var invoice = record.create({
 	    				type: record.Type.INVOICE,
-	    				isDynamic: true
-	    			});
-	    			
-	    			// set header fields on the invoice record
-	    			invoice.setValue({
-	    				fieldId: 'entity',
-	    				value: customer
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'account',
-	    				value: trcsAcc
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'custbody_bbs_invoice_type',
-	    				value: 1 // 1 = Setup Fee
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'custbody_bbs_contract_record',
-	    				value: currentRecordID
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'location',
-	    				value: location
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'currency',
-	    				value: currency
+	    				isDynamic: true,
+	    				defaultValues: {
+	    					customform: invoiceForm,
+	    					entity: customer,
+	    					account: trcsAcc,
+	    					custbody_bbs_contract_record: currentRecordID,
+	    					location: location,
+	    					currency: currency,
+	    					custbody_bbs_invoice_type: 1 // 1 = Setup Fee
+	    				}
 	    			});
 	    			
 	    			// add a new line to the invoice
@@ -534,6 +516,11 @@ function(url, runtime, record, search, format) {
 					});
 					
 					// set header fields on the invoice record
+					invoice.setValue({
+						fieldId: 'customform',
+						value: invoiceForm
+					});
+					
 					invoice.setValue({
 						fieldId: 'entity',
 						value: customer

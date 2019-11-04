@@ -56,7 +56,7 @@ function(runtime, search, record, format, task) {
     				{
     			name: 'custrecord_bbs_contract_period_contract',
     			operator: 'anyof',
-    			values: ['164']
+    			values: ['165']
     		},
     				{
     			name: 'custrecord_bbs_contract_period_prod_use',

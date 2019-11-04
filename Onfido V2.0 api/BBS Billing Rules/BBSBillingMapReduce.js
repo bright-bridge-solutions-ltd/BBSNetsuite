@@ -57,6 +57,10 @@ function(runtime, search, record, format, task) {
 	checksCompleteAccount = currentScript.getParameter({
 		name: 'custscript_bbs_checks_complete_gl_acc'
 	});
+	
+	invoiceForm = currentScript.getParameter({
+		name: 'custscript_bbs_onfido_invoice_form'
+	});
 
 	// declare new date object. Global variable so can be accessed throughout the script
 	invoiceDate = new Date();
@@ -1120,6 +1124,12 @@ function(runtime, search, record, format, task) {
 		    			   isDynamic: true
 		    		});
 		    		
+		    		// set the customForm on the invoiceRecord using the invoiceForm variable
+		    		invoiceRecord.setValue({
+		    			fieldId: 'customform',
+		    			value: invoiceForm
+		    		});
+		    		
 		    		// set the tranDate on the invoiceRecord using the invoiceDate variable
 		    		invoiceRecord.setValue({
 		    			fieldId: 'trandate',
@@ -1269,22 +1279,27 @@ function(runtime, search, record, format, task) {
 	    				type: record.Type.INVOICE,
 	    				isDynamic: true
 	    			});
-    				
-    				// set header fields on the invoice record
-		    		invoice.setValue({
-		    			fieldId: 'trandate',
-		    			value: invoiceDate
-		    		});
-    				
-    				invoice.setValue({
+	    			
+	    			// set header fields on the invoice
+	    			invoice.setValue({
+	    				fieldId: 'customform',
+	    				value: invoiceForm
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'trandate',
+	    				value: invoiceDate
+	    			});
+	    			
+	    			invoice.setValue({
 	    				fieldId: 'entity',
 	    				value: customer
 	    			});
-    				
-    				invoice.setValue({
-    					fieldId: 'location',
-    					value: location
-    				});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'location',
+	    				value: location
+	    			});
 	    			
 	    			invoice.setValue({
 	    				fieldId: 'custbody_bbs_contract_record',
@@ -1297,9 +1312,9 @@ function(runtime, search, record, format, task) {
 	    			});
 	    			
 	    			invoice.setValue({
-		    			fieldId: 'account',
-		    			value: trcsAcc
-		    		});
+	    				fieldId: 'account',
+	    				value: trcsAcc
+	    			});
 	    			
 	    			invoice.setValue({
 	    				fieldId: 'custbody_bbs_invoice_type',
@@ -1404,43 +1419,48 @@ function(runtime, search, record, format, task) {
 						isDynamic: true
 					});
 					
-					// set header fields on the invoice record
+					// set header fields on the invoice
 					invoice.setValue({
-		    			fieldId: 'trandate',
-		    			value: invoiceDate
-		    		});
+						fieldId: 'customform',
+						value: invoiceForm
+					});
 					
-	    			invoice.setValue({
-	    				fieldId: 'entity',
-	    				value: customer
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'custbody_bbs_contract_record',
-	    				value: contractRecord
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'location',
-	    				value: location
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'currency',
-	    				value: currency
-	    			});
-	    			
-	    			invoice.setValue({
+					invoice.setValue({
+						fieldId: 'trandate',
+						value: invoiceDate
+					});
+					
+					invoice.setValue({
+						fieldId: 'entity',
+						value: customer
+					});
+					
+					invoice.setValue({
+						fieldId: 'custbody_bbs_contract_record',
+						value: contractRecord
+					});
+					
+					invoice.setValue({
+						fieldId: 'location',
+						value: location
+					});
+					
+					invoice.setValue({
+						fieldId: 'currency',
+						value: currency
+					});
+					
+					invoice.setValue({
 						fieldId: 'account',
 						value: trpAcc
 					});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'custbody_bbs_invoice_type',
-	    				value: 3 // 3 = Prepayment
-	    			});
-	    			
-	    			// add a new line to the invoice
+					
+					invoice.setValue({
+						fieldId: 'custbody_bbs_invoice_type',
+						value: 3 // 3 = Prepayment
+					});
+					
+					// add a new line to the invoice
 	    			invoice.selectNewLine({
 	    				sublistId: 'item'
 	    			});
