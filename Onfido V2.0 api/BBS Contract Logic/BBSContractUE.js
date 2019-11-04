@@ -125,6 +125,9 @@ function(url, runtime, record, search, format) {
     			var oldRecord = scriptContext.oldRecord;
     			var currentRecord = scriptContext.newRecord;
     			
+    			// get the ID of the current record
+        		var currentRecordID = scriptContext.newRecord.id;
+    			
     			// get the value of the status field from the oldrecord
     			var oldStatus = oldRecord.getValue({
     				fieldId: 'custrecord_bbs_contract_status'
@@ -135,13 +138,35 @@ function(url, runtime, record, search, format) {
     				fieldId: 'custrecord_bbs_contract_status'
     			});
     			
+    			// get the value of the minimum quarterly usage field from the oldrecord
+    			var oldQtrMin = oldRecord.getValue({
+    				fieldId: 'custrecord_bbs_contract_qu_min_use'
+    			});
+    			
+    			// get the value of the minimum quarterly usage field from the newrecord
+    			var newQtrMin = currentRecord.getValue({
+    				fieldId: 'custrecord_bbs_contract_qu_min_use'
+    			});
+    			
+    			// get the value of the minimum annual usage field from the oldrecord
+    			var oldAnnMin = oldRecord.getValue({
+    				fieldId: 'custrecord_bbs_contract_min_ann_use'
+    			});
+    			
+    			// get the value of the minimum annual usage field from the newrecord
+    			var newAnnMin = currentRecord.getValue({
+    				fieldId: 'custrecord_bbs_contract_min_ann_use'
+    			});
+    			
+    			// get the value of the 'billing type' field from the record
+		    	var billingType = currentRecord.getValue({
+		    		fieldId: 'custrecord_bbs_contract_billing_type'
+		    	});
+    			
     			// check that oldStatus variable does NOT return 1 and the newStatus variable DOES return 1 (IE contract has been edited and status changed to approved)
     			if (oldStatus != 1 && newStatus == 1) // 1 = Approved
     				{
-	    				// get the ID of the current record
-		        		var currentRecordID = scriptContext.newRecord.id;
-    				
-    					// get the value of the 'setup fee' field from the record
+	    				// get the value of the 'setup fee' field from the record
 				    	var setupFee = currentRecord.getValue({
 				    		fieldId: 'custrecord_bbs_contract_setup_fee'
 				    	});
@@ -153,29 +178,72 @@ function(url, runtime, record, search, format) {
 				    			createSetupFeeInvoice(currentRecord, currentRecordID);	
 				    		}
 				    	
-				    	// get the value of the 'billing type' field from the record
-				    	var billingType = currentRecord.getValue({
-				    		fieldId: 'custrecord_bbs_contract_billing_type'
-				    	});
-				    	
 				    	// check if the billingType variable returns 3 (QMP)
 				    	if (billingType == 3)
 				    		{
 				    			// call the QMP function. Pass currentRecord object and currentRecordID variable
-				    			QMP(currentRecord, currentRecordID);
+				    			QMP(billingType, currentRecord, currentRecordID);
 				    		}
 				    	// if the billingType variable returns 4 (AMP)
 				    	else if (billingType == 4)
 				    		{
 				    			// call the AMP function. Pass currentRecord object and currentRecord variable
-				    			AMP(currentRecord, currentRecordID);
+				    			AMP(billingType, currentRecord, currentRecordID);
 				    		}
 				    	// if the billingType variable returns 5 (QUR)
 				    	else if (billingType == 5)
 				    		{
 				    			// call the QUR function. Pass currentRecord object and currentRecord variable
-				    			QUR(currentRecord, currentRecordID);
+				    			QUR(billingType, currentRecord, currentRecordID);
 				    		}
+    				}
+    			
+    			// check if the oldQtrMin and newQtrMin variables are NOT the same (IE contract has been edited and quarterly minimum amount has been changed)
+    			else if (oldQtrMin != newQtrMin)
+    				{
+    					// calculate the difference by subtracting oldQtrMin from newQtrMin
+    					var difference = (newQtrMin - oldQtrMin);
+    					
+    					// check if the difference variable is greater than 0
+    					if (difference > 0)
+    						{
+	    						// get the customer from the current record
+	    					    var customer = currentRecord.getValue({
+	    							fieldId: 'custrecord_bbs_contract_customer'
+	    						});
+	    					    
+	    					    // get the currency from the current record			
+	    						var currency = currentRecord.getValue({
+	    							fieldId: 'custrecord_bbs_contract_currency'
+	    						});
+	    						
+	    						// call function to create a prepayment invoice
+	    						createPrepaymentInvoice(billingType, currentRecordID, customer, currency, difference);
+    						}
+    				}
+    			
+    			// check if the oldAnnMin and newAnnMin variables are NOT the same (IE contract has been edited and annual minimum amount has been changed)
+    			else if (oldAnnMin != newAnnMin)
+    				{
+	    				// calculate the difference by subtracting oldAnnMin from newQtrMin
+						var difference = (newAnnMin - oldAnnMin);
+						
+						// check if the difference variable is greater than 0
+						if (difference > 0)
+							{
+								// get the customer from the current record
+	    					    var customer = currentRecord.getValue({
+	    							fieldId: 'custrecord_bbs_contract_customer'
+	    						});
+	    					    
+	    					    // get the currency from the current record			
+	    						var currency = currentRecord.getValue({
+	    							fieldId: 'custrecord_bbs_contract_currency'
+	    						});
+	    						
+	    						// call function to create a prepayment invoice
+	    						createPrepaymentInvoice(billingType, currentRecordID, customer, currency, difference);
+							}
     				}
     		}
     }
@@ -186,11 +254,6 @@ function(url, runtime, record, search, format) {
     
     function createSetupFeeInvoice(currentRecord, currentRecordID)
 	    {
-	    	// get the billing level from the current record
-	    	var billingLevel = currentRecord.getValue({
-	    		fieldId: 'custrecord_bbs_contract_billing_level'
-	    	});
-	    	
 	    	// get the customer from the current record
 		    var customer = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_customer'
@@ -329,29 +392,14 @@ function(url, runtime, record, search, format) {
 	// FUNCTION FOR THE QMP BILLING TYPE
 	//==================================
     
-    function QMP(currentRecord, currentRecordID)
+    function QMP(billingType, currentRecord, currentRecordID)
     	{
-	    	// get the billing level from the current record
-	    	var billingLevel = currentRecord.getValue({
-	    		fieldId: 'custrecord_bbs_contract_billing_level'
-	    	});
-	    	
 	    	// get the customer from the current record
 		    var customer = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_customer'
 			});
 		    
-		    // lookup fields on the customer record
-			var customerLookup = search.lookupFields({
-				type: search.Type.CUSTOMER,
-				id: customer,
-				columns: ['custentity_bbs_location']
-			});
-			
-			// retrieve values from the customerLookup
-			var location = customerLookup.custentity_bbs_location[0].value;
-	    	
-	    	// get the currency from the current record			
+		    // get the currency from the current record			
 			var currency = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_currency'
 			});
@@ -364,108 +412,15 @@ function(url, runtime, record, search, format) {
 			// use parseFloat to convert to decimal number
 			qmpAmt = parseFloat(qmpAmt);
 			
-			try
-				{
-	    			// create a new invoice record
-	    			var invoice = record.create({
-	    				type: record.Type.INVOICE,
-	    				isDynamic: true
-	    			});
-	    			
-	    			// set header fields on the invoice record
-	    			invoice.setValue({
-	    				fieldId: 'entity',
-	    				value: customer
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'account',
-	    				value: trpAcc
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'custbody_bbs_invoice_type',
-	    				value: 3 // 3 = Prepayment
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'custbody_bbs_contract_record',
-	    				value: currentRecordID
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'location',
-	    				value: location
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'currency',
-	    				value: currency
-	    			});
-	    			
-	    			// add a new line to the invoice
-	    			invoice.selectNewLine({
-	    				sublistId: 'item'
-	    			});
-	    			
-	    			// set fields on the new line
-	    			invoice.setCurrentSublistValue({
-	    				sublistId: 'item',
-	    				fieldId: 'item',
-	    				value: qmpItem
-	    			});
-	    			
-	    			invoice.setCurrentSublistValue({
-	    				sublistId: 'item',
-	    				fieldId: 'quantity',
-	    				value: 1
-	    			});
-	    			
-	    			invoice.setCurrentSublistValue({
-	    				sublistId: 'item',
-	    				fieldId: 'rate',
-	    				value: qmpAmt
-	    			});
-	    			
-	    			invoice.setCurrentSublistValue({
-	    				sublistId: 'item',
-	    				fieldId: 'custcol_bbs_contract_record',
-	    				value: currentRecordID
-	    			});
-	    			
-	    			invoice.setCurrentSublistValue({
-	    				sublistId: 'item',
-	    				fieldId: 'location',
-	    				value: location
-	    			});
-	    			
-	    			// commit the line
-	    			invoice.commitLine({
-						sublistId: 'item'
-					});
-	    			
-	    			// submit the invoice record
-	    			var invoiceID = invoice.save();
-	    			
-	    			log.audit({
-	    				title: 'QMP Invoice Created',
-	    				details: 'Invoice ID: ' + invoiceID + ' | Contract Record ID: ' + currentRecordID
-	    			});
-				}
-			catch(e)
-				{
-					log.error({
-						title: 'Error creating QMP Invoice for Contract Record ' + currentRecordID,
-						details: e
-					});
-				}
+			// call function to create a prepayment invoice
+			createPrepaymentInvoice(billingType, currentRecordID, customer, currency, qmpAmt);
     	}
     
     //==================================
 	// FUNCTION FOR THE AMP BILLING TYPE
 	//==================================
     
-    function AMP(currentRecord, currentRecordID)
+    function AMP(billingType, currentRecord, currentRecordID)
     	{
     		// declare variables
     		var invoiceDate;
@@ -507,139 +462,22 @@ function(url, runtime, record, search, format) {
 				    var customer = currentRecord.getValue({
 						fieldId: 'custrecord_bbs_contract_customer'
 					});
-		    
-				    // lookup fields on the customer record
-					var customerLookup = search.lookupFields({
-						type: search.Type.CUSTOMER,
-						id: customer,
-						columns: ['custentity_bbs_location']
-					});
-					
-					// retrieve values from the customerLookup
-					var location = customerLookup.custentity_bbs_location[0].value;
-		
-					// get he currency from the current record
+				    
+				    // get the currency from the current record			
 					var currency = currentRecord.getValue({
 						fieldId: 'custrecord_bbs_contract_currency'
 					});
 					
-					// get the minimum usage from the current record	
+					// get the minimum usage from the current record			
 					var ampAmt = currentRecord.getValue({
 						fieldId: 'custrecord_bbs_contract_min_ann_use'
 					});
-			
+					
 					// use parseFloat to convert to decimal number
 					ampAmt = parseFloat(ampAmt);
 					
-					try
-						{
-			    			// create a new invoice record
-			    			var invoice = record.create({
-			    				type: record.Type.INVOICE,
-			    				isDynamic: true
-			    			});
-			    			
-			    			// set header fields on the invoice record
-			    			invoice.setValue({
-			    				fieldId: 'entity',
-			    				value: customer
-			    			});
-			    			
-			    			invoice.setValue({
-			    				fieldId: 'trandate',
-			    				value: invoiceDate
-			    			});
-			    			
-			    			invoice.setValue({
-			    				fieldId: 'account',
-			    				value: trpAcc
-			    			});
-			    			
-			    			invoice.setValue({
-			    				fieldId: 'custbody_bbs_invoice_type',
-			    				value: 3 // 3 = Prepayment
-			    			});
-			    			
-			    			invoice.setValue({
-			    				fieldId: 'custbody_bbs_contract_record',
-			    				value: currentRecordID
-			    			});
-			    			
-			    			invoice.setValue({
-			    				fieldId: 'location',
-			    				value: location
-			    			});
-			    			
-			    			invoice.setValue({
-			    				fieldId: 'currency',
-			    				value: currency
-			    			});
-			    			
-			    			// add a new line to the invoice
-			    			invoice.selectNewLine({
-			    				sublistId: 'item'
-			    			});
-			    			
-			    			// set fields on the new line
-			    			invoice.setCurrentSublistValue({
-			    				sublistId: 'item',
-			    				fieldId: 'item',
-			    				value: ampItem
-			    			});
-			    			
-			    			invoice.setCurrentSublistValue({
-			    				sublistId: 'item',
-			    				fieldId: 'quantity',
-			    				value: 1
-			    			});
-			    			
-			    			invoice.setCurrentSublistValue({
-			    				sublistId: 'item',
-			    				fieldId: 'rate',
-			    				value: ampAmt
-			    			});
-			    			
-			    			invoice.setCurrentSublistValue({
-			    				sublistId: 'item',
-			    				fieldId: 'custcol_bbs_contract_record',
-			    				value: currentRecordID
-			    			});
-			    			
-			    			invoice.setCurrentSublistValue({
-			    				sublistId: 'item',
-			    				fieldId: 'location',
-			    				value: location
-			    			});
-			    			
-			    			// commit the line
-			    			invoice.commitLine({
-								sublistId: 'item'
-							});
-			    			
-			    			// submit the invoice record
-			    			var invoiceID = invoice.save();
-			    			
-			    			// tick the 'INITIAL PREPAYMENT INVOICE BILLED' checkbox on the contract record
-			    			record.submitFields({
-			    				type: 'customrecord_bbs_contract',
-			    				id: currentRecordID,
-			    				values: {
-			    					'custrecord_bbs_contract_initial_invoice': true
-			    				}
-			    			});
-			    			
-			    			log.audit({
-			    				title: 'AMP Invoice Created',
-			    				details: 'Invoice ID: ' + invoiceID + ' | Contract Record ID: ' + currentRecordID
-			    			});
-						}
-					catch(e)
-						{
-							log.error({
-								title: 'Error creating AMP Invoice for Contract Record ' + currentRecordID,
-								details: e
-							});
-						}
+					// call function to create a prepayment invoice
+					createPrepaymentInvoice(billingType, currentRecordID, customer, currency, ampAmt);
 				}
     	}
    
@@ -647,24 +485,14 @@ function(url, runtime, record, search, format) {
 	// FUNCTION FOR THE QUR BILLING TYPE
 	//==================================
     
-    function QUR(currentRecord, currentRecordID)
+    function QUR(billingType, currentRecord, currentRecordID)
     	{
 	    	// get the customer from the current record
 		    var customer = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_customer'
 			});
 		    
-		    // lookup fields on the customer record
-			var customerLookup = search.lookupFields({
-				type: search.Type.CUSTOMER,
-				id: customer,
-				columns: ['custentity_bbs_location']
-			});
-			
-			// retrieve values from the customerLookup
-			var location = customerLookup.custentity_bbs_location[0].value;
-	    	
-			// get the currency from the current record
+		    // get the currency from the current record			
 			var currency = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_currency'
 			});
@@ -677,98 +505,132 @@ function(url, runtime, record, search, format) {
 			// use parseFloat to convert to decimal number
 			qmpAmt = parseFloat(qmpAmt);
 			
-			try
+			// call function to create a prepayment invoice
+			createPrepaymentInvoice(billingType, currentRecordID, customer, currency, qmpAmt);
+    	}
+    
+    //========================================
+	// FUNCTION TO CREATE A PREPAYMENT INVOICE
+	//========================================
+    
+    function createPrepaymentInvoice(billingType, contractRecord, customer, currency, amount)
+    	{
+	    	// lookup fields on the customer record
+			var customerLookup = search.lookupFields({
+				type: search.Type.CUSTOMER,
+				id: customer,
+				columns: ['custentity_bbs_location']
+			});
+			
+			// retrieve values from the customerLookup
+			var location = customerLookup.custentity_bbs_location[0].value;
+    	
+    		try
 				{
-	    			// create a new invoice record
-	    			var invoice = record.create({
-	    				type: record.Type.INVOICE,
-	    				isDynamic: true
-	    			});
-	    			
-	    			// set header fields on the invoice record
-	    			invoice.setValue({
-	    				fieldId: 'entity',
-	    				value: customer
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'account',
-	    				value: trpAcc
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'custbody_bbs_invoice_type',
-	    				value: 3 // 3 = Prepayment
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'custbody_bbs_contract_record',
-	    				value: currentRecordID
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'location',
-	    				value: location
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'currency',
-	    				value: currency
-	    			});
-	    			
-	    			// add a new line to the invoice
-	    			invoice.selectNewLine({
-	    				sublistId: 'item'
-	    			});
-	    			
-	    			// set fields on the new line
-	    			invoice.setCurrentSublistValue({
-	    				sublistId: 'item',
-	    				fieldId: 'item',
-	    				value: qmpItem
-	    			});
-	    			
-	    			invoice.setCurrentSublistValue({
-	    				sublistId: 'item',
-	    				fieldId: 'quantity',
-	    				value: 1
-	    			});
-	    			
-	    			invoice.setCurrentSublistValue({
-	    				sublistId: 'item',
-	    				fieldId: 'rate',
-	    				value: qmpAmt
-	    			});
-	    			
-	    			invoice.setCurrentSublistValue({
-	    				sublistId: 'item',
-	    				fieldId: 'custcol_bbs_contract_record',
-	    				value: currentRecordID
-	    			});
-	    			
-	    			invoice.setCurrentSublistValue({
-	    				sublistId: 'item',
-	    				fieldId: 'location',
-	    				value: location
-	    			});
-	    			
-	    			// commit the line
-	    			invoice.commitLine({
+					// create a new invoice record
+					var invoice = record.create({
+						type: record.Type.INVOICE,
+						isDynamic: true
+					});
+					
+					// set header fields on the invoice record
+					invoice.setValue({
+						fieldId: 'entity',
+						value: customer
+					});
+					
+					invoice.setValue({
+						fieldId: 'account',
+						value: trpAcc
+					});
+					
+					invoice.setValue({
+						fieldId: 'custbody_bbs_invoice_type',
+						value: 3 // 3 = Prepayment
+					});
+					
+					invoice.setValue({
+						fieldId: 'custbody_bbs_contract_record',
+						value: contractRecord
+					});
+					
+					invoice.setValue({
+						fieldId: 'location',
+						value: location
+					});
+					
+					invoice.setValue({
+						fieldId: 'currency',
+						value: currency
+					});
+					
+					// add a new line to the invoice
+					invoice.selectNewLine({
 						sublistId: 'item'
 					});
-	    			
-	    			// submit the invoice record
-	    			var invoiceID = invoice.save();
-	    			
-	    			log.audit({
-	    				title: 'QUR Invoice Created',
-	    				details: 'Invoice ID: ' + invoiceID + ' | Contract Record ID: ' + currentRecordID
-	    			});
+					
+					// check if the billingType is 3 (QMP) or 5 (QUR)
+					if (billingType == '3' || billingType == '5')
+						{
+							// set the item on the new line using the qmpItem variable
+							invoice.setCurrentSublistValue({
+								sublistId: 'item',
+								fieldId: 'item',
+								value: qmpItem
+							});
+						}
+					else // billingType is 4 (AMP)
+						{
+							// set the item on the new line using the ampItem variable
+							invoice.setCurrentSublistValue({
+								sublistId: 'item',
+								fieldId: 'item',
+								value: ampItem
+							});
+						}
+						
+					// set fields on the new line
+					invoice.setCurrentSublistValue({
+						sublistId: 'item',
+						fieldId: 'quantity',
+						value: 1
+					});
+					
+					invoice.setCurrentSublistValue({
+						sublistId: 'item',
+						fieldId: 'rate',
+						value: amount
+					});
+					
+					invoice.setCurrentSublistValue({
+						sublistId: 'item',
+						fieldId: 'custcol_bbs_contract_record',
+						value: contractRecord
+					});
+					
+					invoice.setCurrentSublistValue({
+						sublistId: 'item',
+						fieldId: 'location',
+						value: location
+					});
+					
+					// commit the line
+					invoice.commitLine({
+						sublistId: 'item'
+					});
+					
+					// submit the invoice record
+					var invoiceID = invoice.save();
+					
+					log.audit({
+						title: 'QUR Invoice Created',
+						details: 'Invoice ID: ' + invoiceID + ' | Contract Record ID: ' + contractRecord
+					});
 				}
-			catch(e)
+	    	catch(e)
 				{
 					log.error({
-						title: 'Error creating QUR Invoice for Contract Record ' + currentRecordID,
+						title: 'Error creating QUR Invoice for Contract Record ' + contractRecord,
 						details: e
 					});
 				}
