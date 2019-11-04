@@ -79,7 +79,7 @@ function soLocationBeforeLoad(type, form, request)
 			
 			//Get the saved fulfil location (if any)
 			//
-			var savedFulfilLocation = nlapiGetFieldValue('custbody3');
+			var savedFulfilLocation = nlapiGetFieldValue('custbody_bbs_fulfil_location');
 			
 			//Add a new field group to the form
 			//

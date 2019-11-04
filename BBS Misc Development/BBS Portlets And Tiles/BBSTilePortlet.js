@@ -14,11 +14,14 @@
 function portletName(portletObj, column) 
 {
 	var content = '';
-    
+	portletObj.setScript('customscript_bbs_tile_portlet_client');
+	
 	//Get the entity id
 	//
 	var entityId = arguments[2];
 	
+	//var a = document.getElementById('dashboard-column-2');
+
 	//Get the config id from the params
 	//
 	var context = nlapiGetContext();
@@ -28,6 +31,7 @@ function portletName(portletObj, column)
 	//
 	portletObj.setTitle('BBS Tiles (Entity Id = ' + entityId + ')' );
 	
+	var htmlField = portletObj.addField('custpage_hidden', 'inlinehtml', '', null);
 	
 	//Find the list of tiles to process
 	//
@@ -42,7 +46,11 @@ function portletName(portletObj, column)
 			   new nlobjSearchColumn("custrecord_bbs_tile_saved_search"), 
 			   new nlobjSearchColumn("custrecord_bbs_tile_colour"), 
 			   new nlobjSearchColumn("custrecord_bbs_tile_icon"), 
-			   new nlobjSearchColumn("custrecord_bbs_tile_text_colour")
+			   new nlobjSearchColumn("custrecord_bbs_tile_text_colour"),
+			   new nlobjSearchColumn("custrecord_bbs_tile_title"),
+			   new nlobjSearchColumn("custrecord_bbs_tile_prefix"),
+			   new nlobjSearchColumn("custrecord_bbs_tile_suffix"),
+			   new nlobjSearchColumn("custrecord_bbs_tile_link_url"),
 			]
 			);
 	
@@ -51,6 +59,7 @@ function portletName(portletObj, column)
 			//Loop through the results
 			//
 			content = '<table>';
+			content += '<tr style="height: 100px;">';
 			
 			for (var int = 0; int < customrecord_bbs_tile_recordSearch.length; int++) 
 				{
@@ -58,27 +67,94 @@ function portletName(portletObj, column)
 					var tileColour = customrecord_bbs_tile_recordSearch[int].getValue("custrecord_bbs_tile_colour");
 					var textColour = customrecord_bbs_tile_recordSearch[int].getValue("custrecord_bbs_tile_text_colour");
 					var tileIcon = customrecord_bbs_tile_recordSearch[int].getValue("custrecord_bbs_tile_icon");
+					var tileTitle = customrecord_bbs_tile_recordSearch[int].getValue("custrecord_bbs_tile_title");
+					var tilePrefix = customrecord_bbs_tile_recordSearch[int].getValue("custrecord_bbs_tile_prefix");
+					var tileSuffix = customrecord_bbs_tile_recordSearch[int].getValue("custrecord_bbs_tile_suffix");
+					var tileLink = customrecord_bbs_tile_recordSearch[int].getValue("custrecord_bbs_tile_link_url");
+					
+					tilePrefix = (tilePrefix == null ? '' : tilePrefix);
+					tileSuffix = (tileSuffix == null ? '' : tileSuffix);
 					
 					//Load the saved search
 					//
+					var tileSavedSearch = nlapiLoadSearch(null, savedSearch);
+					var tileSearchColumns = tileSavedSearch.getColumns();
 					
 					//Add filter based on entity
 					//
+					tileSavedSearch.addFilter(new nlobjSearchFilter('name', null, 'anyof', entityId, null));
 					
 					//Run the saved search & get value
 					//
+					var results = tileSavedSearch.runSearch();
 					
-					//Build the html
+					//Process the results
 					//
-					
+					if(results != null)
+						{
+							var result = results.getResults(0,1);
+							
+							if(result != null)
+								{
+									var resultValue = result[0].getValue(tileSearchColumns[0]);
+									var resultLabel = tileSearchColumns[0].getLabel();
+									var resultDataType = tileSearchColumns[0]['type'];
+									var tileIconHtml = '';
+									var tileDescriptionHtml = '';
+									
+									if(tileIcon != null && tileIcon != '')
+										{
+											var file = nlapiLoadFile(tileIcon);
+											
+											tileIconHtml = '<img src="' + nlapiEscapeXML(file.getURL()) + '" style="float: left; width:50px; height:50px;" />';
+										}
+									else
+										{
+											tileIconHtml = '&nbsp;';
+										}
+									
+									if(tileLink != null && tileLink != '')
+										{
+											tileDescriptionHtml = '<td align="right" style="padding-right: 10px; font-size: 12pt;"><a align="right" style="padding-right: 10px; font-size: 12pt;"href="' + tileLink + '" target="_blank">' + nlapiEscapeXML(tileTitle) + '</a></td>';
+										}
+									else
+										{
+											tileDescriptionHtml = '<td align="right" style="padding-right: 10px; font-size: 12pt;">' + nlapiEscapeXML(tileTitle) + '</td>';
+										}
+									
+									//Build the html
+									//
+									content += '<td style="width: 400px; background-color: ' + tileColour + '; color: ' + textColour + ';">';
+									
+									content += '<table width="100%">';
+									
+									content += '<tr style="height: 25px;">';
+									content += '<td>&nbsp</td>';
+									content += '<td align="right" style="padding-right: 10px; font-size: 12pt;">' + nlapiEscapeXML(tilePrefix) + nlapiEscapeXML(resultValue) + nlapiEscapeXML(tileSuffix) + '</td>';
+									content += '</tr>';
+									
+									content += '<tr style="height: 25px;">';
+									content += '<td rowspan="2" style="padding-left: 10px;">' + tileIconHtml + '</td>';
+									//content += '<td align="right" style="padding-right: 10px; font-size: 12pt;">' + nlapiEscapeXML(tileDescriptionHtml) + '</td>';
+									content += tileDescriptionHtml;
+									content += '</tr>';
+									
+									content += '<tr style="height: 25px;">';
+									content += '<td align="right" style="padding-right: 10px;">&nbsp</td>';
+									content += '</tr>';
+									
+									content += '</table> ';
+									
+									content += '</td>';
+									
+								}	
+						}
 				}
 			
+			content += '</tr>';
 			content += '</table>';
 		}
 	
-	content += '<tr style="height: 100px;"><td  style="width: 300px; background-color: #ff0000; color: #ffffff;">This is some data</td><td style="width: 300px; background-color: #33cc33; color: #ffffff;">This is other data</td></tr>';
-    content += '<tr style="height: 100px;"><td  style="width: 300px; background-color: #ffff00; color: #ffffff;">This is some data</td><td style="width: 300px; background-color: #0066ff; color: #ffffff;">This is other data</td></tr>';
-    
-    portletObj.setHtml(content);
-    
+	htmlField.setDefaultValue(content);
+    //portletObj.setHtml(content);
 }
