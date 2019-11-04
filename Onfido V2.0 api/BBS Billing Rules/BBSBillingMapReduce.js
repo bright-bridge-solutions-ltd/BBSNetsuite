@@ -3,8 +3,8 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/search', 'N/record', 'N/format'],
-function(runtime, search, record, format) {
+define(['N/runtime', 'N/search', 'N/record', 'N/format', 'N/task'],
+function(runtime, search, record, format, task) {
 	
 	// retrieve script parameters
 	var currentScript = runtime.getCurrentScript();
@@ -286,24 +286,6 @@ function(runtime, search, record, format) {
 		    // divide annualMinimum by the contractTerm to calculate the monthly minimum
 		    var monthlyMinimum = (annualMinimum / contractTerm);
 		    
-		    // create a new date object and set it's value to be the start of the invoiceDate month
-		    var startDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth(), 1);
-		    
-		    // create a new date object and set it's value to be the end of the startDate month
-		    var endDate = new Date(startDate.getFullYear(), startDate.getMonth()+1, 0);
-		    
-		    // format startDate so it can be used as a search filter
-		    startDate = format.format({
-		    	type: format.Type.DATE,
-		    	value: startDate
-		    });
-		    
-		    // format endDate so it can be used as a search filter
-		    endDate = format.format({
-		    	type: format.Type.DATE,
-		    	value: endDate
-		    });
-		    
 		    // run search to find period detail records for this billing month
 		    var periodDetailSearch = search.create({
 		    	type: 'customrecord_bbs_contract_period',
@@ -322,13 +304,13 @@ function(runtime, search, record, format) {
     			},
     					{
     				name: 'custrecord_bbs_contract_period_start',
-    				operator: 'onorafter',
-    				values: [startDate]
+    				operator: 'within',
+    				values: ['lastmonth']
     			},
     					{
     				name: 'custrecord_bbs_contract_period_end',
-    				operator: 'onorbefore',
-    				values: [endDate]
+    				operator: 'within',
+    				values: ['lastmonth']
         		}],
         		
 		    });
@@ -390,7 +372,7 @@ function(runtime, search, record, format) {
 					monthlyMinimum = monthlyMinimum.toFixed(2);
 				}
 			
-			// run search to find monthly minimum invoices for this contract record
+			// create search to find monthly minimum invoices for this contract record
     		var invoiceSearch = search.create({
     			   type: search.Type.INVOICE,
     			   
@@ -402,7 +384,7 @@ function(runtime, search, record, format) {
     			   filters: [{
     				   name: 'mainline',
     				   operator: 'is',
-    				   values: ['F']
+    				   values: ['T']
     			   },
     			   			{
     				   name: 'custbody_bbs_contract_record',
@@ -410,14 +392,14 @@ function(runtime, search, record, format) {
     				   values: [contractRecord]
     			   	},
     			   			{
-    			   		name: 'item',
+    			   		name: 'custbody_bbs_invoice_type',
     			   		operator: 'anyof',
-    			   		values: [ambmaItem]
+    			   		values: ['3'] // 3 = Prepayment
     			   	}],
 
     			});
     		
-    		// process search results
+    		// run search and process results
     		invoiceSearch.run().each(function(result) {
     			
     			// get the total net amount
@@ -435,25 +417,37 @@ function(runtime, search, record, format) {
 	    			invoicedTotal = parseFloat(invoicedTotal);
     			}
     		
-    		// get the subtotal from the soRecord object
+    		// get the sales order subtotal
     		var soSubtotal = soRecord.getValue({
     			fieldId: 'subtotal'
     		});
     		
     		// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
 			var deferredRevAmt = calculateDeferredRev(contractRecord);
-    		
-    		// check if the invoicedTotal variable is either blank or 0
-    		if (invoicedTotal == '' || invoicedTotal == 0)
+			
+			// check if the invoicedTotal is empty of 0
+    		if (invoicedTotal == '' || invoicedTotal == '0')
     			{
-    				// call function to create the next monthly invoice. Pass in billingType, contractRecord, customer, monthlyMinimum and currency
-					createNextInvoice(billingType, contractRecord, customer, monthlyMinimum, currency);
+	    			// check if the soSubtotal is greater than the monthlyMinimum
+    				if (soSubtotal > monthlyMinimum)
+    					{
+    						// calculate any overage by subtracting monthlyMinimum from soSubtotal
+    						var overage = (soSubtotal - monthlyMinimum);
+    						
+    						// call function to create the next monthly invoice. Pass in billingType, contractRecord, customer, monthlyMinimum, currency and overage
+	    					createNextInvoice(billingType, contractRecord, customer, monthlyMinimum, currency, overage);
+    					}
+    				else
+	        			{
+	        				// call function to create the next monthly invoice. Pass in billingType, contractRecord, customer, monthlyMinimum and currency
+	    					createNextInvoice(billingType, contractRecord, customer, monthlyMinimum, currency);
+	        			}
     			}
     		// check if the invoicedTotal variable is greater than or equal to the soSubtotal variable
     		else if (invoicedTotal >= soSubtotal)
     			{
     				// call function to create the next monthly invoice. Pass in billingType, contractRecord, customer, monthlyMinimum and currency
-					createNextInvoice(billingType, contractRecord, customer, monthlyMinimum, currency);    			
+					createNextInvoice(billingType, contractRecord, customer, monthlyMinimum, currency);
     			}
     		else // invoicedTotal variable is less than the soSubtotal variable
     			{
@@ -622,24 +616,6 @@ function(runtime, search, record, format) {
 		    	fieldId: 'subtotal'
 		    });
 		    
-		    // create a new date object and set it's value to be the start of the invoiceDate month
-		    var startDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth(), 1);
-
-		    // create a new date object and set it's value to be the end of the startDate month
-		    var endDate = new Date(startDate.getFullYear(), startDate.getMonth()+1, 0);
-		    
-		    // format startDate so it can be used as a search filter
-		    startDate = format.format({
-		    	type: format.Type.DATE,
-		    	value: startDate
-		    });
-		    
-		    // format endDate so it can be used as a search filter
-		    endDate = format.format({
-		    	type: format.Type.DATE,
-		    	value: endDate
-		    });
-		    
 		    // run search to find period detail records for this billing month
 		    var periodDetailSearch = search.create({
 		    	type: 'customrecord_bbs_contract_period',
@@ -655,13 +631,13 @@ function(runtime, search, record, format) {
     			},
     					{
     				name: 'custrecord_bbs_contract_period_start',
-    				operator: 'onorafter',
-    				values: [startDate]
+    				operator: 'within',
+    				values: ['lastmonth']
     			},
     					{
     				name: 'custrecord_bbs_contract_period_end',
-    				operator: 'onorbefore',
-    				values: [endDate]
+    				operator: 'within',
+    				values: ['lastmonth']
         		}],
         		
 		    });
@@ -783,30 +759,12 @@ function(runtime, search, record, format) {
 				fieldId: 'subtotal'
 			});
 	    
-			// create a new date object and set it's value to be the start of the invoiceDate month
-			var startDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth(), 1);
-
-			// create a new date object and set it's value to be the end of the startDate month
-			var endDate = new Date(startDate.getFullYear(), startDate.getMonth()+1, 0);
-	    
-			// format startDate so it can be used as a search filter
-			startDate = format.format({
-				type: format.Type.DATE,
-				value: startDate
-			});
-	    
-			// format endDate so it can be used as a search filter
-			endDate = format.format({
-				type: format.Type.DATE,
-				value: endDate
-			});
-	    
 			// run search to find period detail records for this billing month
 			var periodDetailSearch = search.create({
 				type: 'customrecord_bbs_contract_period',
 	    	
 				columns: [{
-	    		name: 'custrecord_bbs_contract_period_qu_end'
+					name: 'custrecord_bbs_contract_period_qu_end'
 				}],
 	    	
 				filters: [{
@@ -816,13 +774,13 @@ function(runtime, search, record, format) {
 				},
 						{
 					name: 'custrecord_bbs_contract_period_start',
-					operator: 'onorafter',
-					values: [startDate]
+					operator: 'within',
+					values: ['lastmonth']
 				},
 						{
 					name: 'custrecord_bbs_contract_period_end',
-					operator: 'onorbefore',
-					values: [endDate]
+					operator: 'within',
+					values: ['lastmonth']
 				}],
     		
 			});
@@ -1036,25 +994,7 @@ function(runtime, search, record, format) {
 			
 			var minimumUsage = contractRecordLookup.custrecord_bbs_contract_mon_min_use;
 			
-			// create a new date object and set it's value to be the start of the invoiceDate month
-		    var startDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth(), 1);
-	
-		    // create a new date object and set it's value to be the end of the startDate month
-		    var endDate = new Date(startDate.getFullYear(), startDate.getMonth()+1, 0);
-		    
-		    // format startDate so it can be used as a search filter
-		    startDate = format.format({
-		    	type: format.Type.DATE,
-		    	value: startDate
-		    });
-		    
-		    // format endDate so it can be used as a search filter
-		    endDate = format.format({
-		    	type: format.Type.DATE,
-		    	value: endDate
-		    });
-		    
-		    // run search to find period detail records for this billing month
+			// run search to find period detail records for this billing month
 		    var periodDetailSearch = search.create({
 		    	type: 'customrecord_bbs_contract_period',
 		    	
@@ -1072,13 +1012,13 @@ function(runtime, search, record, format) {
 				},
 						{
 					name: 'custrecord_bbs_contract_period_start',
-					operator: 'onorafter',
-					values: [startDate]
+					operator: 'within',
+					values: ['lastmonth']
 				},
 						{
 					name: 'custrecord_bbs_contract_period_end',
-					operator: 'onorbefore',
-					values: [endDate]
+					operator: 'within',
+					values: ['lastmonth']
 	    		}],
 		    });
 		    
@@ -1224,25 +1164,7 @@ function(runtime, search, record, format) {
     
     function createMgmtFeeInvoice(contractRecord, customer, mgmtFeeAmt, currency)
     	{
-    		// create a new date object and set it's value to be the start of the invoiceDate month
-		    var startDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth(), 1);
-	
-		    // create a new date object and set it's value to be the end of the startDate month
-		    var endDate = new Date(startDate.getFullYear(), startDate.getMonth()+1, 0);
-		    
-		    // format startDate so it can be used as a search filter
-		    startDate = format.format({
-		    	type: format.Type.DATE,
-		    	value: startDate
-		    });
-		    
-		    // format endDate so it can be used as a search filter
-		    endDate = format.format({
-		    	type: format.Type.DATE,
-		    	value: endDate
-		    });
-		    
-		    // run search to find period detail records for this billing month
+    		// run search to find period detail records for this billing month
 		    var periodDetailSearch = search.create({
 		    	type: 'customrecord_bbs_contract_period',
 		    	
@@ -1260,13 +1182,13 @@ function(runtime, search, record, format) {
 				},
 						{
 					name: 'custrecord_bbs_contract_period_start',
-					operator: 'onorafter',
-					values: [startDate]
+					operator: 'within',
+					values: ['lastmonth']
 				},
 						{
 					name: 'custrecord_bbs_contract_period_end',
-					operator: 'onorbefore',
-					values: [endDate]
+					operator: 'within',
+					values: ['lastmonth']
 	    		}],
 		    });
 		    
@@ -1908,25 +1830,7 @@ function(runtime, search, record, format) {
 				    // check if this is NOT a clearing journal
 				    if (clearingJournal == false)
 				    	{
-				    		// create a new date object and set it's value to be the start of the invoiceDate month
-						    var startDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth(), 1);
-					
-						    // create a new date object and set it's value to be the end of the startDate month
-						    var endDate = new Date(startDate.getFullYear(), startDate.getMonth()+1, 0);
-						    
-						    // format startDate so it can be used as a search filter
-						    startDate = format.format({
-						    	type: format.Type.DATE,
-						    	value: startDate
-						    });
-						    
-						    // format endDate so it can be used as a search filter
-						    endDate = format.format({
-						    	type: format.Type.DATE,
-						    	value: endDate
-						    });
-						    
-						    // create search to find sales order lines for the current month
+				    		// create search to find sales order lines for the current billing month
 						    var soSearch = search.create({
 						    	type: search.Type.SALES_ORDER,
 						    	
@@ -1951,7 +1855,7 @@ function(runtime, search, record, format) {
 						    			{
 						    		name: 'custcol_bbs_so_search_date',
 						    		operator: 'within',
-						    		values: [startDate, endDate]
+						    		values: ['lastmonth']
 						    	}],
 				
 						    });
@@ -2300,30 +2204,6 @@ function(runtime, search, record, format) {
 	    			// only process lines where the searchDate variable returns a value
 	    			if (searchDate)
 	    				{
-			    			// format searchDate as a date object
-			            	searchDate = format.parse({
-			        				value: searchDate,
-			        				type: format.Type.DATE
-			        		});
-			            	
-			            	// set the startDate to be the first day of the searchDate month
-			    			startDate = new Date(searchDate.getFullYear(), searchDate.getMonth(), 1);
-			    			
-			    			// set the endDate to be the last day of the startDate month
-			    			endDate = new Date(startDate.getFullYear(), startDate.getMonth()+1, 0);
-			    			
-			    			// format startDate so it can be used as a search filter
-			    			startDate = format.format({
-			    				value: startDate,
-			    				type: format.Type.DATE
-			    			});
-			    			
-			    			// format endDate so it can be used as a search filter
-			    			endDate = format.format({
-			    				value: endDate,
-			    				type: format.Type.DATE
-			    			});
-			    			
 			    			// run search to find period detail records to be updated
 			    			periodDetailSearch = search.create({
 			        			type: 'customrecord_bbs_contract_period',
@@ -2344,13 +2224,13 @@ function(runtime, search, record, format) {
 			        			},
 			        					{
 			        				name: 'custrecord_bbs_contract_period_start',
-			        				operator: 'onorafter',
-			        				values: [startDate]
+			        				operator: 'within',
+			        				values: ['lastmonth']
 			        			},
 			        					{
 			        				name: 'custrecord_bbs_contract_period_end',
-			        				operator: 'onorbefore',
-			        				values: [endDate]
+			        				operator: 'within',
+			        				values: ['lastmonth']
 			            		}],
 			        		});
 			    			
@@ -2440,8 +2320,7 @@ function(runtime, search, record, format) {
 	    	});
 	    	
 	    	// return deferredRevAmt
-	    	return deferredRevAmt;	
-    	
+	    	return deferredRevAmt;	    	
     	}
     
     function summarize(context)
@@ -2455,6 +2334,25 @@ function(runtime, search, record, format) {
 	    		title: 'Number of Yields',
 	    		details: context.yields
 	    	});
+	    	
+	    	// =================================================================================================
+	    	// NOW SCHEDULE ADDITIONAL MAP/REDUCE SCRIPT TO END CONTRACTS WHERE THE CONTRACT END DATE HAS PASSED
+	    	// =================================================================================================
+	    	
+	    	// create a map/reduce task
+	    	var mapReduceTask = task.create({
+	    	    taskType: task.TaskType.MAP_REDUCE,
+	    	    scriptId: 'customscript_bbs_end_contracts_mr',
+	    	    deploymentId: 'customdeploy_bbs_end_contracts_mr'
+	    	});
+	    	
+	    	// submit the map/reduce task
+	    	var mapReduceTaskID = mapReduceTask.submit();
+	    	
+	    	log.audit({
+	    		title: 'Script scheduled',
+	    		details: 'BBS End Contracts Map/Reduce script has been scheduled. Job ID ' + mapReduceTaskID
+	    	});	    	
 	    }
 
     return {
