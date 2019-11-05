@@ -19,6 +19,52 @@
  */
 function resourceAllocAS(type)
 {
+	if(type == 'delete')
+		{
+			var oldRecord 		= nlapiGetOldRecord();
+			var oldEmployeeId 	= oldRecord.getFieldValue('allocationresource');
+			var projectTaskId 	= oldRecord.getFieldValue('projecttask');
+			var projectId 		= oldRecord.getFieldValue('project');
+			
+			//Load the task record
+			//
+			var taskRecord = null;
+			
+			try
+				{
+					taskRecord = nlapiLoadRecord('projecttask', projectTaskId);
+				}
+			catch(err)
+				{
+					taskRecord = null;
+				}
+			
+			if(taskRecord != null)
+				{
+					try
+						{
+							var lines = taskRecord.getLineItemCount('assignee');
+									
+							for (var int = 1; int <= lines; int++) 
+								{
+									var lineResourceId = taskRecord.getLineItemValue('assignee', 'resource', int);
+										
+									if(lineResourceId == oldEmployeeId)
+										{
+											taskRecord.removeLineItem('assignee', int);
+											break;
+										}
+								}
+
+							nlapiSubmitRecord(taskRecord, true, true);
+						}
+					catch(err)
+						{
+						
+						}
+				}
+		}
+	
 	if(type == 'create' || type == 'edit')
 		{
 			var newRecord 		= nlapiGetNewRecord();

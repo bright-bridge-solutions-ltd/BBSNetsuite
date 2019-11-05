@@ -126,6 +126,10 @@ function salesOrderFieldChanged(type, name, linenum)
 								}
 						}
 				}
+			else
+				{
+					nlapiSetFieldValue('custbody_bbs_sales_order_close_date', null, false, true);
+				}
 		}
 }
 

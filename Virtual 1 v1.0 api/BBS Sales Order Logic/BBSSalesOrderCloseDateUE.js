@@ -150,6 +150,10 @@ function salesOrderCloseDateAS(type)
 										}
 								}
 						}
+					else
+						{
+							nlapiSubmitField('salesorder', salesOrderId, 'custbody_bbs_sales_order_close_date', null, false);
+						}
 				}
 		}
 }

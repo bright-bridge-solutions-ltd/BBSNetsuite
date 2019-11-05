@@ -252,7 +252,8 @@ function processFullyBilledOrders(_processingDate)
 			],
 			[
 			   new nlobjSearchColumn("tranid"), 
-			   new nlobjSearchColumn("trandate")
+			   new nlobjSearchColumn("trandate"),
+			   new nlobjSearchColumn("custbody_bbs_pe_reference")
 			]
 			));
 	
@@ -266,6 +267,8 @@ function processFullyBilledOrders(_processingDate)
 				
 					var salesOrderId = salesorderSearch[int].getId();
 					var salesDate = nlapiStringToDate(salesorderSearch[int].getValue('trandate'));
+					var salesPeReference = salesorderSearch[int].getValue('custbody_bbs_pe_reference');
+					
 					var newSalesDate = new Date(salesDate.getFullYear() + 1, salesDate.getMonth(), salesDate.getDate());
 					var newSalesDateString = nlapiDateToString(newSalesDate);
 					
@@ -291,6 +294,11 @@ function processFullyBilledOrders(_processingDate)
 							newSalesOrder.setFieldValue('trandate', newSalesDateString);
 							newSalesOrder.setFieldValue('saleseffectivedate', newSalesDateString);
 							
+							if(salesPeReference != null && salesPeReference != '')
+								{
+									newSalesOrder.setFieldValue('externalid', 'so_' + salesPeReference);
+								}
+							
 							//Update the header with the link to the old sales order
 							//
 							newSalesOrder.setFieldValue('custbody_bbs_prev_sales_order', salesOrderId);
@@ -311,6 +319,11 @@ function processFullyBilledOrders(_processingDate)
 							
 							if(oldSalesOrder != null)
 								{
+									//Blank out the original sales order external id
+									//
+									nlapiSubmitField('salesorder', salesOrderId, 'externalid', 'so_' + salesPeReference + '_' + salesOrderId, false);
+									//oldSalesOrder.setFieldValue('externalid', null);
+								
 									//Loop through the lines on the old sales order to see if there are any billing schedules to copy across
 									//
 									var lines = oldSalesOrder.getLineItemCount('item');
