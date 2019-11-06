@@ -455,11 +455,11 @@ function(runtime, search, record, format, task) {
     			}
     		else // invoicedTotal variable is less than the soSubtotal variable
     			{
-    				// calculate the next invoice amount. This is monthlyMinimum - deferredRevAmt
-    				var nextInvAmt = (monthlyMinimum - deferredRevAmt);
-    			
-    				// call function to create the next monthly invoice. Pass in billingType, contractRecord, customer, nextInvAmt and currency
-    				createNextInvoice(billingType, contractRecord, customer, nextInvAmt, currency);
+	    			// calculate any overage by subtracting invoicedTotal from soSubtotal
+					var overage = (soSubtotal - invoicedTotal);
+					
+					// call function to create the next monthly invoice. Pass in billingType, contractRecord, customer, monthlyMinimum, currency and overage
+					createNextInvoice(billingType, contractRecord, customer, monthlyMinimum, currency, overage);
     			}
     		
     		// check if the invoiceDate is equal to the contractEnd

@@ -19,6 +19,10 @@ function(runtime, search, record, format, task) {
     	name: 'custscript_bbs_min_usage_adj_item'
     });
 	
+	soForm = currentScript.getParameter({
+		name: 'custscript_bbs_sales_order_form'
+	});
+	
 	// declare new date object. Global variable so can be accessed throughout the script
 	processDate = new Date();
 	processDate.setDate(0); // set date to be the last day of the previous month
@@ -567,6 +571,11 @@ function(runtime, search, record, format, task) {
     				});
     				
     				// set header fields on the soRecord
+    				soRecord.setValue({
+    					fieldId: 'customform',
+    					value: soForm
+    				});
+    				
     				soRecord.setValue({
     					fieldId: 'trandate',
     					value: processDate
