@@ -247,7 +247,7 @@ function(runtime, search, record, format, task) {
     		// declare and initialize variables
     		var periodStart;
     		var periodEnd;
-    		var invoicedTotal;
+    		var invoicedTotal = 0;
     		
     		// load the sales order record
     		var soRecord = record.load({
@@ -406,7 +406,7 @@ function(runtime, search, record, format, task) {
     		// run search and process results
     		invoiceSearch.run().each(function(result) {
     			
-    			// get the total net amount
+    			// get the total net amount and set the invoicedTotal variable to be this amount
 	    		invoicedTotal = result.getValue({
 	    			name: 'netamount',
 	    			summary: 'SUM'
@@ -414,12 +414,8 @@ function(runtime, search, record, format, task) {
 
     		});
     		
-    		// check if the invoicedTotal variable returns a value
-    		if (invoicedTotal)
-    			{
-    				// use parseFloat to convert invoicedTotal to a floating point number
-	    			invoicedTotal = parseFloat(invoicedTotal);
-    			}
+    		// add the monthlyMinimum variable to the invoicedTotal variable
+    		invoicedTotal = parseFloat(monthlyMinimum) + parseFloat(invoicedTotal);
     		
     		// get the sales order subtotal
     		var soSubtotal = soRecord.getValue({
@@ -429,37 +425,23 @@ function(runtime, search, record, format, task) {
     		// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
 			var deferredRevAmt = calculateDeferredRev(contractRecord);
 			
-			// check if the invoicedTotal is empty of 0
-    		if (invoicedTotal == '' || invoicedTotal == '0')
+			// check if the invoicedTotal variable is greater than or equal to the soSubtotal variable
+    		if (invoicedTotal >= soSubtotal)
     			{
-	    			// check if the soSubtotal is greater than the monthlyMinimum
-    				if (soSubtotal > monthlyMinimum)
-    					{
-    						// calculate any overage by subtracting monthlyMinimum from soSubtotal
-    						var overage = (soSubtotal - monthlyMinimum);
-    						
-    						// call function to create the next monthly invoice. Pass in billingType, contractRecord, customer, monthlyMinimum, currency and overage
-	    					createNextInvoice(billingType, contractRecord, customer, monthlyMinimum, currency, overage);
-    					}
-    				else
-	        			{
-	        				// call function to create the next monthly invoice. Pass in billingType, contractRecord, customer, monthlyMinimum and currency
-	    					createNextInvoice(billingType, contractRecord, customer, monthlyMinimum, currency);
-	        			}
-    			}
-    		// check if the invoicedTotal variable is greater than or equal to the soSubtotal variable
-    		else if (invoicedTotal >= soSubtotal)
-    			{
-    				// call function to create the next monthly invoice. Pass in billingType, contractRecord, customer, monthlyMinimum and currency
+	    			// call function to create the next monthly invoice. Pass in billingType, contractRecord, customer, monthlyMinimum and currency
 					createNextInvoice(billingType, contractRecord, customer, monthlyMinimum, currency);
     			}
     		else // invoicedTotal variable is less than the soSubtotal variable
     			{
 	    			// calculate any overage by subtracting invoicedTotal from soSubtotal
-					var overage = (soSubtotal - invoicedTotal);
+					var overage = parseFloat(soSubtotal - invoicedTotal);
 					
-					// call function to create the next monthly invoice. Pass in billingType, contractRecord, customer, monthlyMinimum, currency and overage
-					createNextInvoice(billingType, contractRecord, customer, monthlyMinimum, currency, overage);
+					// add overage to monthlyMinimum
+					monthlyMinimum = parseFloat(monthlyMinimum) + parseFloat(overage);
+					monthlyMinimum.toFixed(2);
+					
+					// call function to create the next monthly invoice. Pass in billingType, contractRecord, customer, monthlyMinimum and currency
+					createNextInvoice(billingType, contractRecord, customer, monthlyMinimum, currency);
     			}
     		
     		// check if the invoiceDate is equal to the contractEnd
