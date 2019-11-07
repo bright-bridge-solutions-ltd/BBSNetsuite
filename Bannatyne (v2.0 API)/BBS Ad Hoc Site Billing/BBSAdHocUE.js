@@ -13,6 +13,11 @@ function(runtime, record, format) {
 	depositItem = currentScript.getParameter({
     	name: 'custscript_bbs_deposit_item'
     });
+	
+	// script parameters are global variables so can be access throughout the script
+	descriptionItem = currentScript.getParameter({
+		name: 'custscript_bbs_description_item'
+	});
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -106,9 +111,18 @@ function(runtime, record, format) {
     			
     			if ((oldApprovalStatus != 1 && newApprovalStatus == 1) && ddMandate == true && contractRcvd == true)
     				{
-    					// call function to create a customer record. Pass newRecord object and currentRecordID. ID of created customer will be returned
-    					var customer = createCustomer(newRecord, currentRecordID);
+    					// get the value of the customer field from the newRecord object
+    					var customer = newRecord.getValue({
+    						fieldId: 'custrecord_bbs_ad_hoc_site_customer'
+    					});
     					
+    					// check if the customer variable is null
+    					if (customer == '')
+    						{
+    							// call function to create a customer record. Pass newRecord object and currentRecordID. ID of created customer will be returned
+        						customer = createCustomer(newRecord, currentRecordID);
+    						}
+    				
     					// check that the agreement date is this month and the agreement date is this year
     					if (agreementDate.getMonth()+1 == today.getMonth()+1 && agreementDate.getFullYear() == today.getFullYear())
     						{
@@ -417,6 +431,12 @@ function(runtime, record, format) {
     					value: adHocSiteID
     				});
     				
+    				/*
+    				 * =======================================================================
+    				 * ADD A LINE TO THE ITEMS SUBLIST FOR THE ITEM ASSOCIATED TO THE CONTRACT
+    				 * =======================================================================
+    				 */
+    				
     				// select a new line on the invoiceRecord
     				invoiceRecord.selectNewLine({
     					sublistId: 'item'
@@ -463,6 +483,35 @@ function(runtime, record, format) {
     					sublistId: 'item',
     					fieldId: 'quantity',
     					value: 1
+    				});
+    				
+    				// commit the line
+    				invoiceRecord.commitLine({
+						sublistId: 'item'
+					});
+    				
+    				/*
+    				 * ===========================================
+    				 * ADD A DESCRIPTION LINE TO THE ITEMS SUBLIST
+    				 * ===========================================
+    				 */
+    				
+    				// select a new sublist line
+    				invoiceRecord.selectNewLine({
+    					sublistId: 'item'
+    				});
+    				
+    				// set fields on the new line
+    				invoiceRecord.setCurrentSublistValue({
+    					sublistId: 'item',
+    					fieldId: 'item',
+    					value: descriptionItem
+    				});
+    				
+    				invoiceRecord.setCurrentSublistValue({
+    					sublistId: 'item',
+    					fieldId: 'description',
+    					value: 'Deposit Invoice'
     				});
     				
     				// commit the line
@@ -606,6 +655,12 @@ function(runtime, record, format) {
 						value: adHocSiteID
 					});
 					
+					/*
+    				 * =======================================================================
+    				 * ADD A LINE TO THE ITEMS SUBLIST FOR THE ITEM ASSOCIATED TO THE CONTRACT
+    				 * =======================================================================
+    				 */
+					
 					// select a new line on the invoiceRecord
 					invoiceRecord.selectNewLine({
 						sublistId: 'item'
@@ -662,6 +717,35 @@ function(runtime, record, format) {
 					
 					// commit the line
 					invoiceRecord.commitLine({
+						sublistId: 'item'
+					});
+					
+					/*
+    				 * ===========================================
+    				 * ADD A DESCRIPTION LINE TO THE ITEMS SUBLIST
+    				 * ===========================================
+    				 */
+    				
+    				// select a new sublist line
+    				invoiceRecord.selectNewLine({
+    					sublistId: 'item'
+    				});
+    				
+    				// set fields on the new line
+    				invoiceRecord.setCurrentSublistValue({
+    					sublistId: 'item',
+    					fieldId: 'item',
+    					value: descriptionItem
+    				});
+    				
+    				invoiceRecord.setCurrentSublistValue({
+    					sublistId: 'item',
+    					fieldId: 'description',
+    					value: 'Deposit Invoice'
+    				});
+    				
+    				// commit the line
+    				invoiceRecord.commitLine({
 						sublistId: 'item'
 					});
 	    			

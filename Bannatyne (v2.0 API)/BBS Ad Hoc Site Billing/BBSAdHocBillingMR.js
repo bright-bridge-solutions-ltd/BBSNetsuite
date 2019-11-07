@@ -3,11 +3,24 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/search', 'N/format', 'N/record'],
-
-function(search, format, record) {
+define(['N/runtime', 'N/search', 'N/format', 'N/record'],
+function(runtime, search, format, record) {
    
-    /**
+    // retrieve script parameters
+	var currentScript = runtime.getCurrentScript();
+	
+	// script parameters are global variables so can be access throughout the script
+	descriptionItem = currentScript.getParameter({
+		name: 'custscript_bbs_description_item'
+	});
+	
+	// create new array to hold names of months. Global variable so can be accessed throughout the script
+	monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	
+	// get today's date. Global variable so can be accessed throughout the script
+	today = new Date();
+	
+	/**
      * Marks the beginning of the Map/Reduce process and generates input data.
      *
      * @typedef {Object} ObjectRef
@@ -115,6 +128,9 @@ function(search, format, record) {
      */
     function map(context) {
     	
+    	// declare and initialize variables
+    	var invoiceAmount = 0;
+    	
     	// retrieve search results
     	var searchResult = JSON.parse(context.value);
     	
@@ -169,73 +185,77 @@ function(search, format, record) {
 							type: format.Type.DATE,
 							value: step1Date
 						});
+						
+						// get the step1Amount from the search results and set the invoiceAmont variable using this value
+						invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_1_amt"];
 					
-						// check if today is on or before the step 1 date
-						if (today.getTime() <= step1Date.getTime())
+						// check if today is after the step 1 date
+						if (today.getTime() > step1Date.getTime())
 							{
-								// get the step1Amount from the search results and set the invoiceAmont variable using this value
-								var invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_1_amt"];
-							}
-						// check if the step2Date variable returns a value
-						else if (step2Date)
-							{
-								// format step2Date as a date object
-								step2Date = format.parse({
-									type: format.Type.DATE,
-									value: step2Date
-								});
-							
-								// check if today is on or before the step 2 date
-								if (today.getTime() <= step2Date.getTime())
+								// check if the step2Date variable returns a value
+								if (step2Date)
 									{
-										// get the step2Amount from the search results and set the invoiceAmont variable using this value
-										var invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_2_amt"];
-									}
-								// check if the step3Date variable returns a value
-								else if (step3Date)
-									{
-										// format step3Date as a date object
-										step3Date = format.parse({
+										// format step2Date as a date object
+										step2Date = format.parse({
 											type: format.Type.DATE,
-											value: step3Date
+											value: step2Date
 										});
-									
-										// check if today is on or before the step 3 date
-										if (today.getTime() <= step3Date.getTime())
+										
+										// get the step2Amount from the search results and set the invoiceAmont variable using this value
+										invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_2_amt"];
+										
+										// check if today is after the step 2 date
+										if (today.getTime() > step2Date.getTime())
 											{
-												// get the step3Amount from the search results and set the invoiceAmont variable using this value
-												var invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_3_amt"];
-											}
-										// check if the step4Date variable returns a value
-										else if (step4Date)
-											{
-												// format step4Date as a date object
-												step4Date = format.parse({
-													type: format.Type.DATE,
-													value: step4Date
-												});
+												// check if the step3Date variable returns a value
+												if (step3Date)
+													{
+														// format step3Date as a date object
+														step3Date = format.parse({
+															type: format.Type.DATE,
+															value: step3Date
+														});
+														
+														// get the step3Amount from the search results and set the invoiceAmont variable using this value
+														invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_3_amt"];
+														
+														// check if today is after the step 3 date
+														if (today.getTime() > step3Date.getTime())
+															{
+																// check if the step4Date variable returns a value
+																if (step4Date)
+																	{
+																		// format step4Date as a date object
+																		step4Date = format.parse({
+																			type: format.Type.DATE,
+																			value: step4Date
+																		});
+																		
+																		// get the step4Amount from the search results and set the invoiceAmont variable using this value
+																		invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_4_amt"];
 											
-												// check if today is on or before the step 4 date
-												if (today.getTime() <= step4Date.getTime())
-													{
-														// get the step4Amount from the search results and set the invoiceAmont variable using this value
-														var invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_4_amt"];
-													}
-												// check if the step5Date variable returns a value
-												else if (step5Date)
-													{
-														// get the step5Amount from the search results and set the invoiceAmont variable using this value
-														var invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_5_amt"];
+																		// check if today is after the step 4 date
+																		if (today.getTime() > step4Date.getTime())
+																			{
+																				// check if the step5Date variable returns a value
+																				if (step5Date)
+																					{
+																						// get the step5Amount from the search results and set the invoiceAmont variable using this value
+																						invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_5_amt"];
+																					}
+																			}
+																	}
+															}
 													}
 											}
 									}
 							}
-					}
+					}	
 			}
 		else // steppedRent variable returns 2 (No)
 			{
 				// get the monthly amount from the search results and set the invoiceAmount variable using this value
-				var invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_monthly_amt"];
+				invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_monthly_amt"];
 			}
 		
 		// call function to create an invoice record. Pass recordID, customer, invoiceAmount, lineOfBusiness, location, item, vatRate and description
@@ -268,7 +288,13 @@ function(search, format, record) {
     				invoiceRecord.setValue({
     					fieldId: 'custbody_bbs_ad_hoc_site',
     					value: adHocSiteID
-    				})
+    				});
+    				
+    				/*
+    				 * =======================================================================
+    				 * ADD A LINE TO THE ITEMS SUBLIST FOR THE ITEM ASSOCIATED TO THE CONTRACT
+    				 * =======================================================================
+    				 */
     				
     				// select a new sublist line
     				invoiceRecord.selectNewLine({
@@ -322,6 +348,35 @@ function(search, format, record) {
     					sublistId: 'item',
     					fieldId: 'location',
     					value: location
+    				});
+    				
+    				// commit the line
+    				invoiceRecord.commitLine({
+						sublistId: 'item'
+					});
+    				
+    				/*
+    				 * ===========================================
+    				 * ADD A DESCRIPTION LINE TO THE ITEMS SUBLIST
+    				 * ===========================================
+    				 */
+    				
+    				// select a new sublist line
+    				invoiceRecord.selectNewLine({
+    					sublistId: 'item'
+    				});
+    				
+    				// set fields on the new line
+    				invoiceRecord.setCurrentSublistValue({
+    					sublistId: 'item',
+    					fieldId: 'item',
+    					value: descriptionItem
+    				});
+    				
+    				invoiceRecord.setCurrentSublistValue({
+    					sublistId: 'item',
+    					fieldId: 'description',
+    					value: 'Monthly Invoice for ' + monthNames[today.getMonth()]
     				});
     				
     				// commit the line
