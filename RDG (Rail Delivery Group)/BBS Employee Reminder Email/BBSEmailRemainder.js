@@ -24,7 +24,9 @@ function scheduled(type)
 			[
 			   ["isjobresource","is","T"],
 			   "AND",
-			   ["isinactive","is","F"]
+			   ["isinactive","is","F"],
+			   "AND",
+			   ["timeapprover","noneof","@NONE@"]
 			], 
 			[
 			   new nlobjSearchColumn("entityid").setSort(false), 
@@ -32,17 +34,45 @@ function scheduled(type)
 			]
 			);
 	
+	var vendorSearch = nlapiSearchRecord("vendor",null,
+			[
+			   ["timeapprover","noneof","@NONE@"], 
+			   "AND", 
+			   ["isinactive","is","F"], 
+			   "AND", 
+			   ["email","isnotempty",""], 
+			   "AND", 
+			   ["isjobresourcevend","is","T"]
+			], 
+			[
+			   new nlobjSearchColumn("entityid").setSort(false), 
+			   new nlobjSearchColumn("email")
+			]
+			);
+	
+	var resultsOfSearch = [];
+	
+	if(employeeSearch != null && employeeSearch.length > 0)
+		{
+			resultsOfSearch = resultsOfSearch.concat(employeeSearch);
+		}
+	
+	if(vendorSearch != null && vendorSearch.length > 0)
+		{
+			resultsOfSearch = resultsOfSearch.concat(vendorSearch);
+		}
+	
 	//Do we have a list of employees?
 	//
-	if(employeeSearch != null && employeeSearch.length > 0)
+	if(resultsOfSearch != null && resultsOfSearch.length > 0)
 		{
 			//Loop through the list of employees
 			//
-			for (var int = 0; int < employeeSearch.length; int++) 
+			for (var int = 0; int < resultsOfSearch.length; int++) 
 				{
-					var employeeId = employeeSearch[int].getId();
-					var employeeEmail = employeeSearch[int].getValue('email');
-					var employeeName = employeeSearch[int].getValue('entityid');
+					var employeeId = resultsOfSearch[int].getId();
+					var employeeEmail = resultsOfSearch[int].getValue('email');
+					var employeeName = resultsOfSearch[int].getValue('entityid');
 					
 					//Search for any time sheet entries
 					//
