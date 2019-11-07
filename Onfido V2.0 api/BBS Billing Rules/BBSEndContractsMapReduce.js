@@ -90,7 +90,7 @@ function(runtime, search, record, email) {
 					details: contractRecord
 				});
 				
-				// write the contractRecord to the context which can be retrieved in the summary stage
+				// write the contractRecord to the context so that it can be retrieved in the summary stage
 				context.write(contractRecord);
 			}
 		catch (error)
@@ -100,11 +100,6 @@ function(runtime, search, record, email) {
 					details: 'Record: ' + recordID + ' | Error: ' + error
 				});
 			}
-		
-		log.audit({
-    		title: 'Contracts Ended',
-    		details: endedContracts
-    	});
 
     }
 

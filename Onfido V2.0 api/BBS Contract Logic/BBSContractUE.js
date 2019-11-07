@@ -125,44 +125,44 @@ function(url, runtime, record, search, format) {
     	// check if the record is being edited
     	if (scriptContext.type == scriptContext.UserEventType.EDIT)
     		{    	
-		       	// get the oldrecord and newrecord objects
+		       	// get the oldRecord and newRecord objects
     			var oldRecord = scriptContext.oldRecord;
     			var currentRecord = scriptContext.newRecord;
     			
     			// get the ID of the current record
         		var currentRecordID = scriptContext.newRecord.id;
     			
-    			// get the value of the status field from the oldrecord
+    			// get the value of the status field from the oldRecord object
     			var oldStatus = oldRecord.getValue({
     				fieldId: 'custrecord_bbs_contract_status'
     			});
     			
-    			// get the value of the status field from the newrecord
+    			// get the value of the status field from the currrentRecord object
     			var newStatus = currentRecord.getValue({
     				fieldId: 'custrecord_bbs_contract_status'
     			});
     			
-    			// get the value of the minimum quarterly usage field from the oldrecord
+    			// get the value of the minimum quarterly usage field from the oldRecord object
     			var oldQtrMin = oldRecord.getValue({
     				fieldId: 'custrecord_bbs_contract_qu_min_use'
     			});
     			
-    			// get the value of the minimum quarterly usage field from the newrecord
+    			// get the value of the minimum quarterly usage field from the currentRecord object
     			var newQtrMin = currentRecord.getValue({
     				fieldId: 'custrecord_bbs_contract_qu_min_use'
     			});
     			
-    			// get the value of the minimum annual usage field from the oldrecord
+    			// get the value of the minimum annual usage field from the oldRecord object
     			var oldAnnMin = oldRecord.getValue({
     				fieldId: 'custrecord_bbs_contract_min_ann_use'
     			});
     			
-    			// get the value of the minimum annual usage field from the newrecord
+    			// get the value of the minimum annual usage field from the currentRecord object
     			var newAnnMin = currentRecord.getValue({
     				fieldId: 'custrecord_bbs_contract_min_ann_use'
     			});
     			
-    			// get the value of the 'billing type' field from the record
+    			// get the value of the 'billing type' field from the currentRecord object
 		    	var billingType = currentRecord.getValue({
 		    		fieldId: 'custrecord_bbs_contract_billing_type'
 		    	});
@@ -170,7 +170,7 @@ function(url, runtime, record, search, format) {
     			// check that oldStatus variable does NOT return 1 and the newStatus variable DOES return 1 (IE contract has been edited and status changed to approved)
     			if (oldStatus != 1 && newStatus == 1) // 1 = Approved
     				{
-	    				// get the value of the 'setup fee' field from the record
+	    				// get the value of the 'setup fee' field from the currentRecord object
 				    	var setupFee = currentRecord.getValue({
 				    		fieldId: 'custrecord_bbs_contract_setup_fee'
 				    	});
@@ -211,12 +211,12 @@ function(url, runtime, record, search, format) {
     					// check if the difference variable is greater than 0
     					if (difference > 0)
     						{
-	    						// get the customer from the current record
+	    						// get the customer from the currentRecord object
 	    					    var customer = currentRecord.getValue({
 	    							fieldId: 'custrecord_bbs_contract_customer'
 	    						});
 	    					    
-	    					    // get the currency from the current record			
+	    					    // get the currency from the currentRecord object
 	    						var currency = currentRecord.getValue({
 	    							fieldId: 'custrecord_bbs_contract_currency'
 	    						});
@@ -235,12 +235,12 @@ function(url, runtime, record, search, format) {
 						// check if the difference variable is greater than 0
 						if (difference > 0)
 							{
-								// get the customer from the current record
+								// get the customer from the currentRecord object
 	    					    var customer = currentRecord.getValue({
 	    							fieldId: 'custrecord_bbs_contract_customer'
 	    						});
 	    					    
-	    					    // get the currency from the current record			
+	    					    // get the currency from the currentRecord object	
 	    						var currency = currentRecord.getValue({
 	    							fieldId: 'custrecord_bbs_contract_currency'
 	    						});
@@ -258,7 +258,7 @@ function(url, runtime, record, search, format) {
     
     function createSetupFeeInvoice(currentRecord, currentRecordID)
 	    {
-	    	// get the customer from the current record
+	    	// get the customer from the currentRecord object
 		    var customer = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_customer'
 			});
@@ -273,12 +273,12 @@ function(url, runtime, record, search, format) {
 			// retrieve values from the customerLookup
 			var location = customerLookup.custentity_bbs_location[0].value;
 			
-	    	// get the currency from the current record
+	    	// get the currency from the currentRecord object
 	    	var currency = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_currency'
 			});
 			
-	    	// get the setup fee from the current record
+	    	// get the setup fee from the currentRecord object
 	    	var setupFeeAmount = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_setup_fee_amount'
 			});
@@ -407,7 +407,7 @@ function(url, runtime, record, search, format) {
     		// declare variables
     		var invoiceDate;
     	
-    		// get the contract start date
+    		// get the contract start date from the currentRecord object
 			var contractStart = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_start_date'
 			});
@@ -440,17 +440,17 @@ function(url, runtime, record, search, format) {
 							invoiceDate = new Date(contractStart.getFullYear(), contractStart.getMonth(), contractStart.getDate()-30);
 						}
 				
-					// get the customer from the current record
+					// get the customer from the currentRecord object
 				    var customer = currentRecord.getValue({
 						fieldId: 'custrecord_bbs_contract_customer'
 					});
 				    
-				    // get the currency from the current record			
+				    // get the currency from the currentRecord object		
 					var currency = currentRecord.getValue({
 						fieldId: 'custrecord_bbs_contract_currency'
 					});
 					
-					// get the minimum usage from the current record			
+					// get the minimum usage from the currentRecord object			
 					var ampAmt = currentRecord.getValue({
 						fieldId: 'custrecord_bbs_contract_min_ann_use'
 					});
@@ -469,17 +469,17 @@ function(url, runtime, record, search, format) {
     
     function QUR(billingType, currentRecord, currentRecordID)
     	{
-	    	// get the customer from the current record
+	    	// get the customer from the currentRecord object
 		    var customer = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_customer'
 			});
 		    
-		    // get the currency from the current record			
+		    // get the currency from the currentRecord object		
 			var currency = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_currency'
 			});
 			
-			// get the minimum usage from the current record			
+			// get the minimum usage from the currentRecord object			
 			var qmpAmt = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_qu_min_use'
 			});
