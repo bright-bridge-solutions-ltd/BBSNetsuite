@@ -37,18 +37,27 @@ function portletName(portletObj, column)
 	var caption3 = context.getSetting('SCRIPT', 'custscript_bbs_cont_caption_3');
 	var caption4 = context.getSetting('SCRIPT', 'custscript_bbs_cont_caption_4');
 	
+	var filter1 = context.getSetting('SCRIPT', 'custscript_bbs_cont_filter_1');
+	var filter2 = context.getSetting('SCRIPT', 'custscript_bbs_cont_filter_2');
+	var filter3 = context.getSetting('SCRIPT', 'custscript_bbs_cont_filter_3');
+	var filter4 = context.getSetting('SCRIPT', 'custscript_bbs_cont_filter_4');
+	
 	var portletCaption = context.getSetting('SCRIPT', 'custscript_bbs_cont_caption');
 	portletCaption = (portletCaption == null ? '' : portletCaption);
 	
-	var params = {};
-	params.search1 = search1;
-	params.search2 = search2;
-	params.search3 = search3;
-	params.search4 = search4;
+	var params 		= {};
+	params.search1 	= search1;
+	params.search2 	= search2;
+	params.search3 	= search3;
+	params.search4 	= search4;
 	params.caption1 = caption1;
 	params.caption2 = caption2;
 	params.caption3 = caption3;
 	params.caption4 = caption4;
+	params.filter1 	= filter1;
+	params.filter2 	= filter2;
+	params.filter3 	= filter3;
+	params.filter4 	= filter4;
 	params.entityId = entityId
 	
 	//Set the portlet title
@@ -97,28 +106,28 @@ function portletName(portletObj, column)
 		{
 			var htmlField1 = portletObj.addField('custpage_results_1', 'inlinehtml', '', null);
 			htmlField1.setDefaultValue(defaultHtml);
-			htmlField1.setLayoutType('outsidebelow', 'none');
+//			htmlField1.setLayoutType('outsidebelow', 'none');
 		}
 
 	if(params.search2 != null && params.search2 != '')
 		{
 			var htmlField2 = portletObj.addField('custpage_results_2', 'inlinehtml', '', null);
 			htmlField2.setDefaultValue(defaultHtml);
-			htmlField2.setLayoutType('outsidebelow', 'none');
+//			htmlField2.setLayoutType('outsidebelow', 'none');
 		}
 	
-	if(params.search3 != null && params.search3 != '')
-		{
-			var htmlField3 = portletObj.addField('custpage_results_3', 'inlinehtml', '', null);
-			htmlField3.setDefaultValue(defaultHtml);
-			htmlField3.setLayoutType('outsidebelow', 'none');
-		}
+//	if(params.search3 != null && params.search3 != '')
+//		{
+//			var htmlField3 = portletObj.addField('custpage_results_3', 'inlinehtml', '', null);
+//			htmlField3.setDefaultValue(defaultHtml);
+//			htmlField3.setLayoutType('outsidebelow', 'none');
+//		}
 	
-	if(params.search4 != null && params.search4 != '')
-		{
-			var htmlField4 = portletObj.addField('custpage_results_4', 'inlinehtml', '', null);
-			htmlField4.setDefaultValue(defaultHtml);
-			htmlField4.setLayoutType('outsidebelow', 'none');
-		}
+//	if(params.search4 != null && params.search4 != '')
+//		{
+//			var htmlField4 = portletObj.addField('custpage_results_4', 'inlinehtml', '', null);
+//			htmlField4.setDefaultValue(defaultHtml);
+//			htmlField4.setLayoutType('outsidebelow', 'none');
+//		}
 }
 

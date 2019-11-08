@@ -221,17 +221,26 @@ function clientFieldChanged(type, name, linenum)
 				
 				if(contactId != null && contactId != '')
 					{
+						var leftCell1 	= '';
+						var rightCell1 	= '';
+						var leftCell2 	= '';
+						var rightCell2 	= '';
+						
 						if(params.search1 != null && params.search1 != '')
-							nlapiSetFieldValue('custpage_results_1', buildContent(params.search1, params.caption1, contactId), false, true);
+							leftCell1  = buildContent(params.search1, params.caption1, contactId, params.filter1);
 						
 						if(params.search2 != null && params.search2 != '')
-							nlapiSetFieldValue('custpage_results_2', buildContent(params.search2, params.caption2, contactId), false, true);
+							rightCell1 = buildContent(params.search2, params.caption2, contactId, params.filter2);
 						
 						if(params.search3 != null && params.search3 != '')
-							nlapiSetFieldValue('custpage_results_3', buildContent(params.search3, params.caption3, contactId), false, true);
+							leftCell2  = buildContent(params.search3, params.caption3, contactId, params.filter3);
 						
 						if(params.search4 != null && params.search4 != '')
-							nlapiSetFieldValue('custpage_results_4', buildContent(params.search4, params.caption4, contactId), false, true);
+							rightCell2 = buildContent(params.search4, params.caption4, contactId, params.filter4);
+											
+						nlapiSetFieldValue('custpage_results_1', '<table style="width: 100%;"><tr><td>' + leftCell1 + '</td><td>' + rightCell1 + '</td></tr></table>', false, true);
+						nlapiSetFieldValue('custpage_results_2', '<table style="width: 100%;"><tr><td>' + leftCell2 + '</td><td>' + rightCell2 + '</td></tr></table>', false, true);
+						
 					}
 				else
 					{
@@ -240,12 +249,6 @@ function clientFieldChanged(type, name, linenum)
 						
 						if(params.search2 != null && params.search2 != '')
 							nlapiSetFieldValue('custpage_results_2', '', false, true);
-						
-						if(params.search3 != null && params.search3 != '')
-							nlapiSetFieldValue('custpage_results_3', '', false, true);
-						
-						if(params.search4 != null && params.search4 != '')
-							nlapiSetFieldValue('custpage_results_4', '', false, true);
 					}
 			}
 	}
@@ -254,7 +257,7 @@ function clientFieldChanged(type, name, linenum)
 //Functions
 //=====================================================================
 //
-function buildContent(searchId, caption)
+function buildContent(searchId, caption, contactId, filter)
 	{
 		caption = (caption == null ? '' : caption);
 		
@@ -262,6 +265,18 @@ function buildContent(searchId, caption)
 		//
 		var recordSearch = nlapiLoadSearch(null, searchId);
 		var recordColumns = recordSearch.getColumns();
+		
+		//Add filter on contact
+		//
+		if(filter != null && filter != '')
+			{
+				var filters = filter.split('.');
+				var filterColumn = (filters[0] === undefined ? '' : filters[0]);
+				var filterJoin = (filters[1] === undefined ? null : filters[1]);
+				
+				recordSearch.addFilter(new nlobjSearchFilter(filterColumn, filterJoin, 'anyof', contactId, null));
+			}
+		
 		
 		var content = '';
 		content += '<style type="text/css">';
@@ -432,7 +447,7 @@ function buildContent(searchId, caption)
 			{
 				//Loop through the results
 				//
-				for (var int2 = 0; int2 < recordSearchResults.length; int2++) 
+				for (var int2 = 0; int2 < Math.max(recordSearchResults.length,6) ; int2++) 
 					{
 						content += '<tr>';
 					
@@ -444,13 +459,28 @@ function buildContent(searchId, caption)
 								
 								//See if the column has a text equivalent
 								//
-								rowColumnData = recordSearchResults[int2].getText(recordColumns[int3]);
+								try
+									{
+										rowColumnData = recordSearchResults[int2].getText(recordColumns[int3]);
+									}
+								catch(err)
+									{
+									
+									}
 								
 								//If no text is returned, i.e. the column is not a lookup or list
 								//
 								if(rowColumnData == null)
 									{
-										rowColumnData = recordSearchResults[int2].getValue(recordColumns[int3]);
+										try
+											{
+												rowColumnData = recordSearchResults[int2].getValue(recordColumns[int3]);
+											}
+										catch(err)
+											{
+											
+											}
+										
 									}
 	
 								//Format based on column type
@@ -462,19 +492,43 @@ function buildContent(searchId, caption)
 										case 'float':
 										case 'currency':
 											
-											rowColumnData = Number(rowColumnData).numberFormat('###,###.00');
+											try
+												{
+													rowColumnData = Number(rowColumnData).numberFormat('###,###.00');
+												}
+											catch(err)
+												{
+												
+												}
+											
 											alignment = 'right';
 											break;
 										
 										case 'integer':
 											
-											rowColumnData = Number(rowColumnData).numberFormat('###,###');
+											try
+												{
+													rowColumnData = Number(rowColumnData).numberFormat('###,###');
+												}
+											catch(err)
+												{
+												
+												}
+											
 											alignment = 'right';
 											break;
 										
 										case 'date':
 											
-											rowColumnData = nlapiStringToDate(rowColumnData).format('d/m/Y');
+											try
+												{
+													rowColumnData = nlapiStringToDate(rowColumnData).format('d/m/Y');
+												}
+											catch(err)
+												{
+												
+												}
+											
 											alignment = 'right';
 											break;
 										
@@ -508,7 +562,8 @@ function getResults(search)
 		var start = 0;
 		var end = 1000;
 		var searchResultSet = searchResult.getResults(start, end);
-		var resultlen = searchResultSet.length;
+		
+		var resultlen = (searchResultSet != null ? searchResultSet.length : 0);
 	
 		//If there is more than 1000 results, page through them
 		//
