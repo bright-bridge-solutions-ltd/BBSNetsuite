@@ -85,7 +85,7 @@ function scheduled(type)
 	                      delete summary[key]
 	                    }
 					
-					nlapiLogExecution('AUDIT', 'Processing Sales Order', salesOrderID);                 
+					nlapiLogExecution('AUDIT', 'Processing Sales Order', salesOrderId);                 
 					
 					//Run a search to find the picked values
 					//
@@ -403,6 +403,8 @@ function scheduled(type)
 					//Save the output array to the sales order
 					//
 					nlapiSubmitField(thisRecordType, salesOrderId, ['custbody_bbs_item_summary_json','custbody_bbs_item_suumary_created'], [JSON.stringify(outputArray),'T'], false);
+					
+					nlapiLogExecution('AUDIT', 'Sales Order Updated', salesOrderId);
 		}
 }
 
@@ -661,7 +663,7 @@ function checkResources()
 {
 	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
 	
-	if(remaining < 100)
+	if(remaining < 50)
 		{
 			nlapiYieldScript();
 		}
