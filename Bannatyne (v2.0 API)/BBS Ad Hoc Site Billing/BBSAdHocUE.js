@@ -741,7 +741,7 @@ function(runtime, record, format) {
     				invoiceRecord.setCurrentSublistValue({
     					sublistId: 'item',
     					fieldId: 'description',
-    					value: 'Deposit Invoice'
+    					value: 'Pro Rata Invoice'
     				});
     				
     				// commit the line
