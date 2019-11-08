@@ -84,7 +84,8 @@ function scheduled(type)
 	                    {
 	                      delete summary[key]
 	                    }
-                  
+					
+					nlapiLogExecution('AUDIT', 'Processing Sales Order', salesOrderID);                 
 					
 					//Run a search to find the picked values
 					//
@@ -660,7 +661,7 @@ function checkResources()
 {
 	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
 	
-	if(remaining < 200)
+	if(remaining < 100)
 		{
 			nlapiYieldScript();
 		}
