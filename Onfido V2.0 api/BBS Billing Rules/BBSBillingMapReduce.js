@@ -245,9 +245,8 @@ function(runtime, search, record, format, task) {
     		billingType = 'AMBMA';
     		
     		// declare and initialize variables
-    		var periodStart;
-    		var periodEnd;
-    		var invoicedTotal = 0;
+    		var monthlyMinimum;
+    		var cumulativeMinimumsTotal;
     		
     		// load the sales order record
     		var soRecord = record.load({
@@ -270,14 +269,10 @@ function(runtime, search, record, format, task) {
 		    var contractRecordLookup = search.lookupFields({
 		    	type: 'customrecord_bbs_contract',
 		    	id: contractRecord,
-		    	columns: ['custrecord_bbs_contract_min_ann_use', 'custrecord_bbs_contract_term', 'custrecord_bbs_contract_currency', 'custrecord_bbs_contract_end_date']
+		    	columns: ['custrecord_bbs_contract_currency', 'custrecord_bbs_contract_end_date']
 		    });
 		    
 		    // return values from the contractRecordLookup
-		    var annualMinimum = contractRecordLookup.custrecord_bbs_contract_min_ann_use;
-		    annualMinimum = parseFloat(annualMinimum); // use parseFloat to convert to floating point number
-		    var contractTerm = contractRecordLookup.custrecord_bbs_contract_term;
-		    contractTerm = parseInt(contractTerm); // use parseInt to convert to integer number
 		    var currency = contractRecordLookup.custrecord_bbs_contract_currency[0].value;
 		    var contractEnd = contractRecordLookup.custrecord_bbs_contract_end_date;
 		    
@@ -287,18 +282,12 @@ function(runtime, search, record, format, task) {
 		    	value: contractEnd
 		    });
 		    	
-		    // divide annualMinimum by the contractTerm to calculate the monthly minimum
-		    var monthlyMinimum = (annualMinimum / contractTerm);
-		    
 		    // run search to find period detail records for this billing month
 		    var periodDetailSearch = search.create({
 		    	type: 'customrecord_bbs_contract_period',
 		    	
 		    	columns: [{
-		    		name: 'custrecord_bbs_contract_period_start'
-		    	},
-		    			{
-		    		name: 'custrecord_bbs_contract_period_end'
+		    		name: 'custrecord_bbs_contract_period_min_mon'
 		    	}],
 		    	
 		    	filters: [{
@@ -322,100 +311,45 @@ function(runtime, search, record, format, task) {
 		    // process search results
     		periodDetailSearch.run().each(function(result) {
     			
-    			// get the period start and end dates from the search results
-	    		periodStart = result.getValue({
-	    			name: 'custrecord_bbs_contract_period_start'
-	    		});
-	    		
-	    		periodEnd = result.getValue({
-	    			name: 'custrecord_bbs_contract_period_end'
+    			// get the monthlyMinimum from the search results
+    			monthlyMinimum = result.getValue({
+	    			name: 'custrecord_bbs_contract_period_min_mon'
 	    		});
 
     		});
-    		
-    		// format periodStart as a date object
-    		periodStart = format.parse({
-    			type: format.Type.DATE,
-    			value: periodStart
-    		});
-    		
-    		// format periodEnd as a date object
-    		periodEnd = format.parse({
-    			type: format.Type.DATE,
-    			value: periodEnd
-    		});
-    		
-    		// get the day of the month from the periodStart and periodEnd objects
-    		var periodStartDay = periodStart.getDate();
-    		var periodEndDay = periodEnd.getDate();
-    		
-    		// call function to calculate number of days in the current month
-			var daysInMonth = getDaysInMonth(periodStart.getMonth(), periodStart.getFullYear());
 			
-			// check if the periodStartDay is NOT equal to 1 (IE starts mid month)
-			if (periodStartDay != 1)
-				{
-					// calculate the days remaining in the month
-					var daysRemaining = daysInMonth - periodStartDay;
-					
-					// divide monthlyMinimum by daysInMonth to calculate the dailyMinimum
-					var dailyMinimum = monthlyMinimum / daysInMonth;
-					
-					// multiply the dailyMinimum by daysRemaining to calculate the pro rate minimum usage
-					monthlyMinimum = parseFloat(dailyMinimum * daysRemaining);
-					monthlyMinimum = monthlyMinimum.toFixed(2);
-				}
-			// check that the periodEndDay is NOT equal to the end of the month (IE ends mid month)
-			else if (periodEndDay != daysInMonth)
-				{
-					// divide monthlyMinimum by daysInMonth to calculate the dailyMinimum
-					var dailyMinimum = monthlyMinimum / daysInMonth;
-					
-					// multiply monthlyMinimum by periodEndDay to calculate the pro rate minimum usage
-					monthlyMinimum = parseFloat(dailyMinimum * periodEndDay);
-					monthlyMinimum = monthlyMinimum.toFixed(2);
-				}
-			
-			// create search to find monthly minimum invoices for this contract record
-    		var invoiceSearch = search.create({
-    			   type: search.Type.INVOICE,
-    			   
-    			   columns: [{
-    				   name: 'netamount',
-    				   summary: 'SUM'
-    			   }],
-    			   
-    			   filters: [{
-    				   name: 'mainline',
-    				   operator: 'is',
-    				   values: ['T']
-    			   },
-    			   			{
-    				   name: 'custbody_bbs_contract_record',
-    				   operator: 'anyof',
-    				   values: [contractRecord]
-    			   	},
-    			   			{
-    			   		name: 'custbody_bbs_invoice_type',
-    			   		operator: 'anyof',
-    			   		values: ['3'] // 3 = Prepayment
-    			   	}],
-
-    			});
-    		
-    		// run search and process results
-    		invoiceSearch.run().each(function(result) {
+			// create search to find cumulative total of monthly minimums for this contract
+    		var monthlyMinimumsSearch = search.create({
+    			type: 'customrecord_bbs_contract_period',
+		    	
+		    	columns: [{
+		    		name: 'custrecord_bbs_contract_period_min_mon',
+		    		summary: 'SUM'
+		    	}],
+		    	
+		    	filters: [{
+    				name: 'custrecord_bbs_contract_period_contract',
+    				operator: 'anyof',
+    				values: [contractRecord]
+    			},
+    					{
+    				name: 'custrecord_bbs_contract_period_end',
+    				operator: 'onorbefore',
+    				values: ['lastmonth']
+        		}],
+        		
+		    });
+		    	
+		    // process search results
+    		monthlyMinimumsSearch.run().each(function(result) {
     			
-    			// get the total net amount and set the invoicedTotal variable to be this amount
-	    		invoicedTotal = result.getValue({
-	    			name: 'netamount',
+    			// get the monthlyMinimum from the search results
+    			cumulativeMinimumsTotal = result.getValue({
+	    			name: 'custrecord_bbs_contract_period_min_mon',
 	    			summary: 'SUM'
 	    		});
 
     		});
-    		
-    		// add the monthlyMinimum variable to the invoicedTotal variable
-    		invoicedTotal = parseFloat(monthlyMinimum) + parseFloat(invoicedTotal);
     		
     		// get the sales order subtotal
     		var soSubtotal = soRecord.getValue({
@@ -425,13 +359,13 @@ function(runtime, search, record, format, task) {
     		// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
 			var deferredRevAmt = calculateDeferredRev(contractRecord);
 			
-			// check if the invoicedTotal variable is greater than or equal to the soSubtotal variable
-    		if (invoicedTotal >= soSubtotal)
+			// check if the cumulativeMinimumsTotal variable is greater than or equal to the soSubtotal variable
+    		if (cumulativeMinimumsTotal >= soSubtotal)
     			{
 	    			// call function to create the next monthly invoice. Pass in billingType, contractRecord, customer, monthlyMinimum and currency
 					createNextInvoice(billingType, contractRecord, customer, monthlyMinimum, currency);
     			}
-    		else // invoicedTotal variable is less than the soSubtotal variable
+    		else // cumulativeMinimumsTotal variable is less than the soSubtotal variable
     			{
 	    			// calculate any overage by subtracting invoicedTotal from soSubtotal
 					var overage = parseFloat(soSubtotal - invoicedTotal);
@@ -959,6 +893,9 @@ function(runtime, search, record, format, task) {
 	    	// set the billingType variable to UIOLI
 			billingType = 'UIOLI';
 			
+			// declare and initialize variables
+			var monthlyMinimum;
+			
 			// load the sales order record
     		var soRecord = record.load({
 		    	type: record.Type.SALES_ORDER,
@@ -971,119 +908,59 @@ function(runtime, search, record, format, task) {
 				fieldId: 'custbody_bbs_contract_record'
 			});
 		
-			// get the minimum usage from the contract record
-			var contractRecordLookup = search.lookupFields({
-				type: 'customrecord_bbs_contract',
-				id: contractRecord,
-				columns: ['custrecord_bbs_contract_mon_min_use']
-			});
-			
-			var minimumUsage = contractRecordLookup.custrecord_bbs_contract_mon_min_use;
-			
 			// run search to find period detail records for this billing month
 		    var periodDetailSearch = search.create({
 		    	type: 'customrecord_bbs_contract_period',
 		    	
 		    	columns: [{
-		    		name: 'custrecord_bbs_contract_period_start'
-		    	},
-		    			{
-		    		name: 'custrecord_bbs_contract_period_end'
+		    		name: 'custrecord_bbs_contract_period_min_mon'
 		    	}],
 		    	
 		    	filters: [{
-					name: 'custrecord_bbs_contract_period_contract',
-					operator: 'anyof',
-					values: [contractRecord]
-				},
-						{
-					name: 'custrecord_bbs_contract_period_start',
-					operator: 'within',
-					values: ['lastmonth']
-				},
-						{
-					name: 'custrecord_bbs_contract_period_end',
-					operator: 'within',
-					values: ['lastmonth']
-	    		}],
+    				name: 'custrecord_bbs_contract_period_contract',
+    				operator: 'anyof',
+    				values: [contractRecord]
+    			},
+    					{
+    				name: 'custrecord_bbs_contract_period_start',
+    				operator: 'within',
+    				values: ['lastmonth']
+    			},
+    					{
+    				name: 'custrecord_bbs_contract_period_end',
+    				operator: 'within',
+    				values: ['lastmonth']
+        		}],
+        		
 		    });
-		    
-		    // process search results
-		    periodDetailSearch.run().each(function(result) {
-			
-		    	// get the start date from the search results
-		    	periodStartDate = result.getValue({
-		    		name: 'custrecord_bbs_contract_period_start'
-		    	});
 		    	
-		    	// get the end date from the search results
-		    	periodEndDate = result.getValue({
-		    		name: 'custrecord_bbs_contract_period_end'
-		    	});
-    		
-		    });
-		
-		    // format periodStartDate as a date object
-			periodStartDate = format.parse({
-				type: format.Type.DATE,
-				value: periodStartDate
-			});
-			
-			// format periodEndDate as a date object
-			periodEndDate = format.parse({
-				type: format.Type.DATE,
-				value: periodEndDate
-			});
-		
-			// get the day of the month from the periodStartDate object
-			var startDay = periodStartDate.getDate();
-			
-			// get the day of the month from the periodEndDate object
-			var endDay = periodEndDate.getDate();
-			
-			// call function to calculate number of days in the current month
-			var daysInMonth = getDaysInMonth(periodStartDate.getMonth(), periodStartDate.getFullYear());
-			
-			// check if the startDay is NOT equal to 1 (IE starts mid month)
-			if (startDay != 1)
-				{
-					// calculate the pro rata minimum usage
-					var dailyMinimum = minimumUsage / daysInMonth;
-					
-					// calculate the days remaining in the month
-					var daysRemaining = daysInMonth - startDay;
-					
-					// multiply the dailyMinimum by the daysRemaining to calculate the pro rate minimum usage
-					minimumUsage = parseFloat(dailyMinimum * daysRemaining);
-					minimumUsage = minimumUsage.toFixed(2);
-				}
-			// check that the endDay is NOT equal to the end of the month (IE ends mid month)
-			else if (endDay != daysInMonth)
-				{
-					// calculate the pro rata minimum usage
-					var dailyMinimum = minimumUsage / daysInMonth;
-					
-					// multiply the dailyMinimum by the endDay to calculate the pro rate minimum usage
-					minimumUsage = parseFloat(dailyMinimum * endDay);
-					minimumUsage = minimumUsage.toFixed(2);
-				}
+		    // process search results
+    		periodDetailSearch.run().each(function(result) {
+    			
+    			// get the monthlyMinimum from the search results
+    			monthlyMinimum = result.getValue({
+	    			name: 'custrecord_bbs_contract_period_min_mon'
+	    		});
+
+    		});
 			
 			// get the total usage from the soRecord
 			var totalUsage = soRecord.getValue({
 				fieldId: 'subtotal'
 			});
 			
-			// check if the totalUsage is less than the minimumUsage
-			if (totalUsage < minimumUsage)
+			// check if the totalUsage is less than the monthlyMinimum
+			if (totalUsage < monthlyMinimum)
 	    		{
-					// calculate the difference by subtracting the totalUsage from the minimumUsage
-					var difference = minimumUsage - totalUsage;
+					// calculate the difference by subtracting the totalUsage from the monthlyMinimum
+					var difference = parseFloat(monthlyMinimum - totalUsage);
+					difference = difference.toFixed(2);
 					
 					// call function to add an adjustment item to the sales order prior to billing. Pass in soRecord, ID of sales order, difference and contractRecord
 					addAdjustmentItem(soRecord, recordID, difference, contractRecord);
 	    		}
-    		
-    		// call function to transform the sales order to an invoice. Pass in ID of sales order
+			
+			// call function to transform the sales order to an invoice. Pass in ID of sales order
 			createInvoice(recordID);
 			
 			// call function to update period detail records (to tick the Usage Invoice Issued checkbox). Pass in recordID and soRecord
@@ -1253,18 +1130,23 @@ function(runtime, search, record, format, task) {
 	    	try
 	    		{
 		    		// create a new invoice record
-					var invoice = record.transform({
-					    fromType: record.Type.CUSTOMER,
-					    fromId: customer,
-					    toType: record.Type.INVOICE,
-					    isDynamic: true,
-					    defaultValues: {
-					    	customform: invoiceForm
-					    }
-					});
+					var invoice = record.create({
+						type: record.Type.INVOICE,
+						isDynamic: true
+					});	
 	    		
 					// set header fields on the invoice
 	    			invoice.setValue({
+	    				fieldId: 'customform',
+	    				value: invoiceForm
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'entity',
+	    				value: customer
+	    			});
+					
+					invoice.setValue({
 	    				fieldId: 'trandate',
 	    				value: invoiceDate
 	    			});
@@ -1387,17 +1269,22 @@ function(runtime, search, record, format, task) {
     		try
 				{
 					// create a new invoice record
-					var invoice = record.transform({
-					    fromType: record.Type.CUSTOMER,
-					    fromId: customer,
-					    toType: record.Type.INVOICE,
-					    isDynamic: true,
-					    defaultValues: {
-					    	customform: invoiceForm
-					    }
+					var invoice = record.create({
+						type: record.Type.INVOICE,
+						isDynamic: true
+					});					
+
+					// set header fields on the invoice
+					invoice.setValue({
+						fieldId: 'customform',
+						value: invoiceForm
 					});
 					
-					// set header fields on the invoice
+					invoice.setValue({
+						fieldId: 'entity',
+						value: customer
+					});
+					
 					invoice.setValue({
 						fieldId: 'trandate',
 						value: invoiceDate
@@ -2258,16 +2145,6 @@ function(runtime, search, record, format, task) {
 			        		
 			    		}
 	    		}
-	    }
-    
-    //================================================
-	// FUNCTION TO GET THE NUMBER OF DAYS IN THE MONTH
-	//================================================   
-    
-    function getDaysInMonth(month, year)
-	    {
-    		// day 0 is the last day in the current month
-    	 	return new Date(year, month+1, 0).getDate(); // return the last day of the month
 	    }
     
     //========================================================
