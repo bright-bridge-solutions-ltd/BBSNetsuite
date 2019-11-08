@@ -565,25 +565,21 @@ function(runtime, search, record, format, task) {
 	    {
 	    	try
     			{
-    				var soRecord = record.create({
-    					type: record.Type.SALES_ORDER,
-    					isDynamic: true
-    				});
-    				
-    				// set header fields on the soRecord
-    				soRecord.setValue({
-    					fieldId: 'customform',
-    					value: soForm
-    				});
-    				
+		    		// create a new sales order record
+					var soRecord = record.transform({
+					    fromType: record.Type.CUSTOMER,
+					    fromId: customer,
+					    toType: record.Type.SALES_ORDER,
+					    isDynamic: true,
+					    defaultValues: {
+					    	customform: soForm
+					    }
+					});
+	    		
+					// set header fields on the soRecord
     				soRecord.setValue({
     					fieldId: 'trandate',
     					value: processDate
-    				});
-    				
-    				soRecord.setValue({
-    					fieldId: 'entity',
-    					value: customer
     				});
     				
     				soRecord.setValue({

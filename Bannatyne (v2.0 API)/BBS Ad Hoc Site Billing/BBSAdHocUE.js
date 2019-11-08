@@ -410,20 +410,17 @@ function(runtime, record, format) {
     		try
     			{
     				// create a new invoice record
-    				var invoiceRecord = record.create({
-    					type: record.Type.INVOICE,
-    					isDynamic: true
-    				});
-    				
-    				// set header fields on the invoiceRecord
+					var invoiceRecord = record.transform({
+					    fromType: record.Type.CUSTOMER,
+					    fromId: customer,
+					    toType: record.Type.INVOICE,
+					    isDynamic: true
+					});
+    			
+					// set header fields on the invoiceRecord
     				invoiceRecord.setValue({
     					fieldId: 'trandate',
     					value: agreementDate
-    				});
-    				
-    				invoiceRecord.setValue({
-    					fieldId: 'entity',
-    					value: customer
     				});
     				
     				invoiceRecord.setValue({
@@ -634,21 +631,18 @@ function(runtime, record, format) {
 			try
 				{
 					// create a new invoice record
-					var invoiceRecord = record.create({
-						type: record.Type.INVOICE,
-						isDynamic: true
+					var invoiceRecord = record.transform({
+					    fromType: record.Type.CUSTOMER,
+					    fromId: customer,
+					    toType: record.Type.INVOICE,
+					    isDynamic: true
 					});
-					
+				
 					// set header fields on the invoiceRecord
 					invoiceRecord.setValue({
     					fieldId: 'trandate',
     					value: agreementDate
     				});
-					
-					invoiceRecord.setValue({
-						fieldId: 'entity',
-						value: customer
-					});
 					
 					invoiceRecord.setValue({
 						fieldId: 'custbody_bbs_ad_hoc_site',

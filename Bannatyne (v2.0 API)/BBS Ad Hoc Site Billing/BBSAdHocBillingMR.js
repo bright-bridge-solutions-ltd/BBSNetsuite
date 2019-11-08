@@ -273,18 +273,15 @@ function(runtime, search, format, record) {
     	{
     		try
     			{
-    				// create a new invoice record
-    				var invoiceRecord = record.create({
-    					type: record.Type.INVOICE,
-    					isDynamic: true
-    				});
-    				
-    				// set header fields on the invoice record
-    				invoiceRecord.setValue({
-    					fieldId: 'entity',
-    					value: customer
-    				});
-    				
+	    			// create a new invoice record
+					var invoiceRecord = record.transform({
+					    fromType: record.Type.CUSTOMER,
+					    fromId: customer,
+					    toType: record.Type.INVOICE,
+					    isDynamic: true
+					});
+    			
+					// set header fields on the invoice record
     				invoiceRecord.setValue({
     					fieldId: 'custbody_bbs_ad_hoc_site',
     					value: adHocSiteID

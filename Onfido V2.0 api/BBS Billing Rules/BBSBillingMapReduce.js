@@ -1103,22 +1103,18 @@ function(runtime, search, record, format, task) {
 		    			   fromType: record.Type.SALES_ORDER, 
 		    			   fromId: recordID, 
 		    			   toType: record.Type.INVOICE,
-		    			   isDynamic: true
+		    			   isDynamic: true,
+		    			   defaultValues: {
+		    				   customform: invoiceForm
+		    			   }
 		    		});
 		    		
-		    		// set the customForm on the invoiceRecord using the invoiceForm variable
-		    		invoiceRecord.setValue({
-		    			fieldId: 'customform',
-		    			value: invoiceForm
-		    		});
-		    		
-		    		// set the tranDate on the invoiceRecord using the invoiceDate variable
+		    		// set header fields on the invoice
 		    		invoiceRecord.setValue({
 		    			fieldId: 'trandate',
 		    			value: invoiceDate
 		    		});
 		    		
-		    		// set the posting account on the invoiceRecord
 		    		invoiceRecord.setValue({
 		    			fieldId: 'account',
 		    			value: trcsAcc
@@ -1256,26 +1252,21 @@ function(runtime, search, record, format, task) {
 
 	    	try
 	    		{
-	    			// create a new invoice record
-	    			var invoice = record.create({
-	    				type: record.Type.INVOICE,
-	    				isDynamic: true
-	    			});
-	    			
-	    			// set header fields on the invoice
-	    			invoice.setValue({
-	    				fieldId: 'customform',
-	    				value: invoiceForm
-	    			});
-	    			
+		    		// create a new invoice record
+					var invoice = record.transform({
+					    fromType: record.Type.CUSTOMER,
+					    fromId: customer,
+					    toType: record.Type.INVOICE,
+					    isDynamic: true,
+					    defaultValues: {
+					    	customform: invoiceForm
+					    }
+					});
+	    		
+					// set header fields on the invoice
 	    			invoice.setValue({
 	    				fieldId: 'trandate',
 	    				value: invoiceDate
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'entity',
-	    				value: customer
 	    			});
 	    			
 	    			invoice.setValue({
@@ -1396,25 +1387,20 @@ function(runtime, search, record, format, task) {
     		try
 				{
 					// create a new invoice record
-					var invoice = record.create({
-						type: record.Type.INVOICE,
-						isDynamic: true
+					var invoice = record.transform({
+					    fromType: record.Type.CUSTOMER,
+					    fromId: customer,
+					    toType: record.Type.INVOICE,
+					    isDynamic: true,
+					    defaultValues: {
+					    	customform: invoiceForm
+					    }
 					});
 					
 					// set header fields on the invoice
 					invoice.setValue({
-						fieldId: 'customform',
-						value: invoiceForm
-					});
-					
-					invoice.setValue({
 						fieldId: 'trandate',
 						value: invoiceDate
-					});
-					
-					invoice.setValue({
-						fieldId: 'entity',
-						value: customer
 					});
 					
 					invoice.setValue({

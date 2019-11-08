@@ -288,19 +288,41 @@ function(url, runtime, record, search, format) {
 			
 			try
 				{
-	    			// create a new invoice record
-	    			var invoice = record.create({
-	    				type: record.Type.INVOICE,
-	    				isDynamic: true,
-	    				defaultValues: {
-	    					customform: invoiceForm,
-	    					entity: customer,
-	    					account: trcsAcc,
-	    					custbody_bbs_contract_record: currentRecordID,
-	    					location: location,
-	    					currency: currency,
-	    					custbody_bbs_invoice_type: 1 // 1 = Setup Fee
-	    				}
+					// create a new invoice record
+					var invoice = record.transform({
+					    fromType: record.Type.CUSTOMER,
+					    fromId: customer,
+					    toType: record.Type.INVOICE,
+					    isDynamic: true,
+					    defaultValues: {
+					    	customform: invoiceForm
+					    }
+					});
+				
+					// set header fields on the invoice
+					invoice.setValue({
+	    				fieldId: 'account',
+	    				value: trcsAcc
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'custbody_bbs_contract_record',
+	    				value: currentRecordID
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'location',
+	    				value: location
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'currency',
+	    				value: currency
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'custbody_bbs_invoice_type',
+	    				value: 1 // 1 = Setup Fee
 	    			});
 	    			
 	    			// add a new line to the invoice
@@ -509,23 +531,18 @@ function(url, runtime, record, search, format) {
     	
     		try
 				{
-					// create a new invoice record
-					var invoice = record.create({
-						type: record.Type.INVOICE,
-						isDynamic: true
+	    			// create a new invoice record
+					var invoice = record.transform({
+					    fromType: record.Type.CUSTOMER,
+					    fromId: customer,
+					    toType: record.Type.INVOICE,
+					    isDynamic: true,
+					    defaultValues: {
+					    	customform: invoiceForm
+					    }
 					});
-					
-					// set header fields on the invoice record
-					invoice.setValue({
-						fieldId: 'customform',
-						value: invoiceForm
-					});
-					
-					invoice.setValue({
-						fieldId: 'entity',
-						value: customer
-					});
-					
+    			
+    				// set header fields on the invoice record
 					invoice.setValue({
 						fieldId: 'account',
 						value: trpAcc
