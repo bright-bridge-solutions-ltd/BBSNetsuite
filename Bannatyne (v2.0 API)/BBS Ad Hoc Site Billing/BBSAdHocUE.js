@@ -14,9 +14,12 @@ function(runtime, record, format) {
     	name: 'custscript_bbs_deposit_item'
     });
 	
-	// script parameters are global variables so can be access throughout the script
 	descriptionItem = currentScript.getParameter({
 		name: 'custscript_bbs_description_item'
+	});
+	
+	paymentTerms = currentScript.getParameter({
+		name: 'custscript_bbs_ad_hoc_site_payment_terms'
 	});
    
     /**
@@ -86,20 +89,6 @@ function(runtime, record, format) {
     				fieldId: 'custrecord_bbs_ad_hoc_site_contract_rcvd'
     			});
     			
-    			// get the value of the agreement date field from the newRecord object
-    			var agreementDate = newRecord.getValue({
-    				fieldId: 'custrecord_bbs_ad_hoc_site_agree_date'
-    			});
-    			
-    			// format agreementDate as a date object
-    			agreementDate = format.parse({
-    				type: format.Type.DATE,
-    				value: agreementDate
-    			});
-    			
-    			// get today's date
-    			var today = new Date();
-    			
     			/*
     			 * Check the following criteria:
     			 * 
@@ -122,15 +111,47 @@ function(runtime, record, format) {
     							// call function to create a customer record. Pass newRecord object and currentRecordID. ID of created customer will be returned
         						customer = createCustomer(newRecord, currentRecordID);
     						}
+    					
+    					// get the value of the agreement date field from the newRecord object
+		    			var agreementDate = newRecord.getValue({
+		    				fieldId: 'custrecord_bbs_ad_hoc_site_agree_date'
+		    			});
+		    			
+		    			// format agreementDate as a date object
+		    			agreementDate = format.parse({
+		    				type: format.Type.DATE,
+		    				value: agreementDate
+		    			});
+		    			
+		    			// get today's date
+		    			var today = new Date();
     				
     					// check that the agreement date is this month and the agreement date is this year
     					if (agreementDate.getMonth()+1 == today.getMonth()+1 && agreementDate.getFullYear() == today.getFullYear())
     						{
-	    						// call function to create a deposit invoice. Pass newRecord, currentRecordID and customer
-	    	        			createDepositInvoice(newRecord, currentRecordID, customer);
-	        				
-	    	        			// call function to create a pro rata invoice. Pass newRecord, currentRecordID and customer
-	        					createProRataInvoice(newRecord, currentRecordID, customer);
+	    						// get the value of the 'Do Not Issue Deposit Invoice' checkbox from the newRecord object
+	        					var noDepositInvoice = newRecord.getValue({
+	        						fieldId: 'custrecord_bbs_ad_hoc_site_no_dep_inv'
+	        					});
+	        					
+	        					// get the value of the 'Do Not Issue Pro Forma Invoice' checkbox from the newRecord object
+	        					var noProFormaInvoice = newRecord.getValue({
+	        						fieldId: 'custrecord_bbs_ad_hoc_site_no_pro_forma'
+	        					});
+	        					
+	        					// check that the noDepositInvoice variable returns false
+	        					if (noDepositInvoice == false)
+	        						{
+		        						// call function to create a deposit invoice. Pass newRecord, currentRecordID and customer
+			    	        			createDepositInvoice(newRecord, currentRecordID, customer);
+	        						}
+	        					
+	        					// check if the noProFormaInvoice variable returns false
+	        					if (noProFormaInvoice == false)
+	        						{
+		        						// call function to create a pro rata invoice. Pass newRecord, currentRecordID and customer
+			        					createProRataInvoice(newRecord, currentRecordID, customer);
+	        						}
     						}
     				}
     		}
@@ -235,6 +256,11 @@ function(runtime, record, format) {
     				customerRecord.setValue({
     					fieldId: 'custentity_2663_direct_debit',
     					value: true
+    				});
+    				
+    				customerRecord.setValue({
+    					fieldId: 'terms',
+    					value: paymentTerms
     				});
     				
     				// add a new line to the address sublist
