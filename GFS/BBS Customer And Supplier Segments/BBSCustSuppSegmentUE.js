@@ -104,7 +104,7 @@ function custSuppSegmentAS(type)
 			
 			//If we don't have a segment associated to the entity, but the category is now relevant, then create a segment from the entity
 			//
-			if(subsidiary == APPLICABLE_SUBSIDIARY && newSegment == null || newSegment == '' && ((recordType == 'customer' && newCategory == CUSTOMER_CATEGORY) || (recordType == 'vendor' && newCategory == SUPPLIER_CATEGORY)))
+			if(subsidiary == APPLICABLE_SUBSIDIARY && (newSegment == null || newSegment == '') && ((recordType == 'customer' && newCategory == CUSTOMER_CATEGORY) || (recordType == 'vendor' && newCategory == SUPPLIER_CATEGORY)))
 				{
 					createSegment(recordType, recordId, entitySegmentField, newName, customSegmentId);
 				}
