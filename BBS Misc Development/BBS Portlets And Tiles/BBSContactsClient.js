@@ -227,16 +227,16 @@ function clientFieldChanged(type, name, linenum)
 						var rightCell2 	= '';
 						
 						if(params.search1 != null && params.search1 != '')
-							leftCell1  = buildContent(params.search1, params.caption1, contactId, params.filter1);
+							leftCell1  = buildContent(params.search1, params.caption1, contactId, params.filter1, params.fontSize);
 						
 						if(params.search2 != null && params.search2 != '')
-							rightCell1 = buildContent(params.search2, params.caption2, contactId, params.filter2);
+							rightCell1 = buildContent(params.search2, params.caption2, contactId, params.filter2, params.fontSize);
 						
 						if(params.search3 != null && params.search3 != '')
-							leftCell2  = buildContent(params.search3, params.caption3, contactId, params.filter3);
+							leftCell2  = buildContent(params.search3, params.caption3, contactId, params.filter3, params.fontSize);
 						
 						if(params.search4 != null && params.search4 != '')
-							rightCell2 = buildContent(params.search4, params.caption4, contactId, params.filter4);
+							rightCell2 = buildContent(params.search4, params.caption4, contactId, params.filter4, params.fontSize);
 											
 						nlapiSetFieldValue('custpage_results_1', '<table style="width: 100%;"><tr><td>' + leftCell1 + '</td><td>' + rightCell1 + '</td></tr></table>', false, true);
 						nlapiSetFieldValue('custpage_results_2', '<table style="width: 100%;"><tr><td>' + leftCell2 + '</td><td>' + rightCell2 + '</td></tr></table>', false, true);
@@ -257,9 +257,10 @@ function clientFieldChanged(type, name, linenum)
 //Functions
 //=====================================================================
 //
-function buildContent(searchId, caption, contactId, filter)
+function buildContent(searchId, caption, contactId, filter, fontSize)
 	{
 		caption = (caption == null ? '' : caption);
+		fontSize = (fontSize == null || fontSize == '' ? '14' : fontSize);
 		
 		//Load up the custom saved search
 		//
@@ -281,13 +282,13 @@ function buildContent(searchId, caption, contactId, filter)
 		var content = '';
 		content += '<style type="text/css">';
 		content += 'html {';
-		content += '  /*width: 100%;*/ /*required if using % width*/';
+		content += '  width: 100%;  /*required if using % width*/';
 		content += '  /*height: 100%;*/ /*required if using % height*/';
 		content += '}';
 		content += 'body {';
-		content += '  /*width: 100%;*/ /*required if using % width*/';
+		content += '  width: 100%; /*required if using % width*/';
 		content += '  /*height: 100%;*/ /*required if using % height*/';
-		content += '  /*margin: 0;*/ /*required if using % width or height*/';
+		content += '  margin: 0; /*required if using % width or height*/';
 		content += '  /*padding: 0 20px 0 20px;*/ /*purely aesthetic, not required*/';
 		content += '  /*box-sizing: border-box;*/ /*required if using above declaration*/';
 		content += '  background: white;';
@@ -299,11 +300,11 @@ function buildContent(searchId, caption, contactId, filter)
 		content += '  vertical-align: middle;';
 		content += '  overflow: hidden;';
 		content += '  width: auto; /*set table width here if using fixed value*/';
-		content += '  /*min-width: 100%;*/ /*set table width here if using %*/';
+		content += '  min-width: 100%; /*set table width here if using %*/';
 		content += '  height: 188px; /*set table height here; can be fixed value or %*/';
 		content += '  /*min-height: 104px;*/ /*if using % height, make this at least large enough to fit scrollbar arrows + captions + thead*/';
 		content += '  font-family: Verdana, Tahoma, sans-serif;';
-		content += '  font-size: 15px;';
+		content += '  font-size: ' + fontSize + 'px;';
 		content += '  line-height: 20px;';
 		content += '  padding-top: 20px; /*this determines top caption height*/';
 		content += '  padding-bottom: 20px; /*this determines bottom caption height*/';
@@ -332,7 +333,7 @@ function buildContent(searchId, caption, contactId, filter)
 		content += '.scrollingtable > div > div {';
 		content += '  /*min-height: 43px;*/ /*if using % height, make this at least large enough to fit scrollbar arrows*/';
 		content += '  max-height: 100%;';
-		content += '  overflow: scroll; /*set to auto if using fixed or % width; else scroll*/';
+		content += '  overflow: auto; /*set to auto if using fixed or % width; else scroll*/';
 		content += '  overflow-x: hidden;';
 		content += '  border: 1px solid black; /*border around table body*/';
 		content += '}';
@@ -341,7 +342,7 @@ function buildContent(searchId, caption, contactId, filter)
 		content += '  width: 100%;';
 		content += '  border-spacing: 0;';
 		content += '  margin-top: -20px; /*inverse of column header height*/';
-		content += '  /*margin-right: 17px;*/ /*uncomment if using % width*/';
+		content += '  margin-right: 17px; /*uncomment if using % width*/';
 		content += '}';
 		content += '.scrollingtable > div > div > table > caption {';
 		content += '  position: absolute;';
@@ -455,7 +456,7 @@ function buildContent(searchId, caption, contactId, filter)
 						//
 						for (var int3 = 0; int3 < recordColumns.length; int3++) 
 							{
-								var rowColumnData = '';
+								var rowColumnData = '-';
 								
 								//See if the column has a text equivalent
 								//
@@ -535,6 +536,7 @@ function buildContent(searchId, caption, contactId, filter)
 										default:
 											break;
 									}
+								
 								//Assign the value to the column
 								//
 								content += '<td align="' + alignment +'">' + nlapiEscapeXML(rowColumnData) + '</td>';
@@ -542,6 +544,26 @@ function buildContent(searchId, caption, contactId, filter)
 						
 						content += '</tr>';
 					}
+			}
+		else
+			{
+				for (var int2 = 0; int2 < 6 ; int2++) 
+					{
+						content += '<tr>';
+					
+						//Loop through the columns
+						//
+						for (var int3 = 0; int3 < recordColumns.length; int3++) 
+							{
+								var rowColumnData = '-';
+								
+								//Assign the value to the column
+								//
+								content += '<td>' + rowColumnData + '</td>';
+							}
+						
+						content += '</tr>';
+					}		
 			}
 		
 		content += '</tbody>';

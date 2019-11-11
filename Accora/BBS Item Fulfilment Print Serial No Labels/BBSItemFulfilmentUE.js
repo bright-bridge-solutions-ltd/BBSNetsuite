@@ -48,13 +48,15 @@ function itemFulfilmentAfterSubmit(type)
 					var lines = record.getLineItemCount('item');
 					var fulfilmentId = record.getFieldValue('tranid');
 					var salesOrderId = record.getFieldValue('createdfrom');
-					
+					var subsidiaryId = record.getFieldValue('subsidiary');
+                  	
 					if(salesOrderId != null && salesOrderId != '')
 						{
 							var salesOrderNo = nlapiLookupField('salesorder', salesOrderId, 'tranid', false);
 							var salesOrderLocation = nlapiLookupField('salesorder', salesOrderId, 'location', false);
+							var salesOrderFulfilLocation = nlapiLookupField('salesorder', salesOrderId, 'custbody_bbs_fulfil_location', false);
 							
-							if(salesOrderLocation == '7') //Only Orwell is required
+							if(['7','130','131','133'].indexOf(salesOrderLocation) != -1 || ['Orwell','Ireland Stores'].indexOf(salesOrderFulfilLocation) != -1)
 								{
 									var salesOrderRecord = null;
 									

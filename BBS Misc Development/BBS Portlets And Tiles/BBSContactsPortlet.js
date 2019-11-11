@@ -45,6 +45,9 @@ function portletName(portletObj, column)
 	var portletCaption = context.getSetting('SCRIPT', 'custscript_bbs_cont_caption');
 	portletCaption = (portletCaption == null ? '' : portletCaption);
 	
+	var fontSize = context.getSetting('SCRIPT', 'custscript_bbs_cont_font_size');
+	fontSize = (fontSize == null ? '14' : fontSize);
+	
 	var params 		= {};
 	params.search1 	= search1;
 	params.search2 	= search2;
@@ -58,7 +61,8 @@ function portletName(portletObj, column)
 	params.filter2 	= filter2;
 	params.filter3 	= filter3;
 	params.filter4 	= filter4;
-	params.entityId = entityId
+	params.entityId = entityId;
+	params.fontSize = fontSize;
 	
 	//Set the portlet title
 	//
