@@ -44,11 +44,13 @@ function(search, record) {
     		          	"AND",
     		          	["taxline","is","F"],
     		          	"AND",
-    		          	["quantitycommitted","greaterthan","0"]],
+    		          	["quantitycommitted","greaterthan","0"],
+    		          	"AND",
+    		          	["status", "noneof", "SalesOrd:A"]], // SalesOrd:A = Sales Order:Pending Approval
     		          	"OR",
     		          	[["mainline","is","T"],
     		          	"AND",
-    		          	["status","anyof","SalesOrd:D","SalesOrd:E"]],
+    		          	["status","anyof","SalesOrd:D","SalesOrd:E"]], // SalesOrd:D = Sales Order:Partially Fulfilled, SalesOrd:E = Sales Order:Pending Billing/Partially Fulfilled
     		        ],
     	});
 
