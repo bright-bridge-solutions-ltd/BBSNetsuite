@@ -269,7 +269,8 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    		   columns:
 	    		   [
 	    		      search.createColumn({name: "name", label: "Contract Name"}),
-	    		      search.createColumn({name: "custentity_bbs_usage_statement_email",join: "CUSTRECORD_BBS_CONTRACT_CUSTOMER",label: "Email Address For Usage Statement"})
+	    		      search.createColumn({name: "custentity_bbs_usage_statement_email",join: "CUSTRECORD_BBS_CONTRACT_CUSTOMER",label: "Email Address For Usage Statement"}),
+	    		      search.createColumn({name: "custrecord_bbs_contract_customer", label: "Customer"})
 	    		   ]
 	    		});
 	    }
@@ -303,7 +304,9 @@ function(config, email, error, file, record, render, runtime, search, format) {
 			    	var resultContractId					= result.id;
 			    	var resultContractName					= result.values["name"];
 			    	var resultContractEmailAddress			= result.values["custentity_bbs_usage_statement_email.CUSTRECORD_BBS_CONTRACT_CUSTOMER"];
+			    	var resultContractCustomer				= result.values["custrecord_bbs_contract_customer"].value;
 
+			    	
 			    	//Get the contract record
 	    			//
 	    			var contractRecord = getContract(resultContractId);
@@ -338,7 +341,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
 					    	
 					    	//Email the pdf to the customer
 					    	//
-					    	emailPdf(pdfFile, resultContractEmailAddress, resultContractId, emailTemplateId);
+					    	emailPdf(pdfFile, resultContractEmailAddress, resultContractId, emailTemplateId, resultContractCustomer);
 					    	
 					    	//Attach the statement to the contract
 					    	//
@@ -749,7 +752,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
     //Function to email the pdf
     //=============================================================================================
     //
-    function emailPdf(_pdfFile, _emailAddress, _contractId, _emailTemplateId)
+    function emailPdf(_pdfFile, _emailAddress, _contractId, _emailTemplateId, _contractCustomer)
     	{
 	    	//Build up the attachments array
 			//
@@ -783,7 +786,10 @@ function(config, email, error, file, record, render, runtime, search, format) {
 										recipients:		_emailAddress,
 										subject:		emailSubject,
 										body:			emailBody,
-										attachments:	emailAttachments
+										attachments:	emailAttachments,
+										relatedRecords: {
+														entityId:	_contractCustomer
+														}
 										})		
 							
 						}
