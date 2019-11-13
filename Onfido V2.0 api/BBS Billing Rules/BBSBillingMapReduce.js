@@ -246,7 +246,11 @@ function(runtime, search, record, format, task) {
     		
     		// declare and initialize variables
     		var monthlyMinimum;
-    		var cumulativeMinimumsTotal;
+    		var cumulativeMinimums;
+    		var cumulativeInvoices;
+    		var thisMonthUsage;
+    		var maximumMonthlyMinimum;
+    		var invoiceAmount;
     		
     		// load the sales order record
     		var soRecord = record.load({
@@ -269,12 +273,13 @@ function(runtime, search, record, format, task) {
 		    var contractRecordLookup = search.lookupFields({
 		    	type: 'customrecord_bbs_contract',
 		    	id: contractRecord,
-		    	columns: ['custrecord_bbs_contract_currency', 'custrecord_bbs_contract_end_date']
+		    	columns: ['custrecord_bbs_contract_currency', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_min_ann_use']
 		    });
 		    
 		    // return values from the contractRecordLookup
 		    var currency = contractRecordLookup.custrecord_bbs_contract_currency[0].value;
 		    var contractEnd = contractRecordLookup.custrecord_bbs_contract_end_date;
+		    var annualMinimum = contractRecordLookup.custrecord_bbs_contract_min_ann_use;
 		    
 		    // format contractEnd as a date object
 		    contractEnd = format.parse({
@@ -317,6 +322,8 @@ function(runtime, search, record, format, task) {
 	    		});
 
     		});
+    		
+    		monthlyMinimum = parseFloat(monthlyMinimum); // use parseFloat to convert to a floating point number
 			
 			// create search to find cumulative total of monthly minimums for this contract
     		var monthlyMinimumsSearch = search.create({
@@ -340,44 +347,189 @@ function(runtime, search, record, format, task) {
         		
 		    });
 		    	
-		    // process search results
+		    // run search and process results
     		monthlyMinimumsSearch.run().each(function(result) {
     			
-    			// get the monthlyMinimum from the search results
-    			cumulativeMinimumsTotal = result.getValue({
+    			// get the cumulative total of monthly minimum amounts from the search results
+    			cumulativeMinimums = result.getValue({
 	    			name: 'custrecord_bbs_contract_period_min_mon',
 	    			summary: 'SUM'
 	    		});
 
     		});
     		
-    		// get the sales order subtotal
-    		var soSubtotal = soRecord.getValue({
+    		cumulativeMinimums = parseFloat(cumulativeMinimums); // use parseFloat to convert to a floating point number
+    		
+    		// create search to find cumulative total of monthly invoices for this contract
+    		var cumulativeInvoiceSearch = search.create({
+    			type: search.Type.INVOICE,
+    			
+    			columns: [{
+    				name: 'formulacurrency',
+    				summary: 'SUM',
+    				formula: '{totalamount}-{taxtotal}'
+    			}],
+    			
+    			filters: [{
+    				name: 'mainline',
+    				operator: 'is',
+    				values: ['F']
+    			},
+    					{
+    				name: 'custbody_bbs_invoice_type',
+    				operator: 'anyof',
+    				values: ['3'] // 3 = Prepayment
+    			},
+    					{
+    				name: 'custbody_bbs_contract_record',
+    				operator: 'anyof',
+    				values: [contractRecord]
+    			}],
+    		});
+    		
+    		// run search and process results
+    		cumulativeInvoiceSearch.run().each(function(result) {
+    			
+    			// get the total of all invoices from the search results
+    			cumulativeInvoices = result.getValue({
+    				name: 'formulacurrency',
+    				summary: 'SUM'
+    			});
+    			
+    		});
+    		
+    		// check if the cumulativeInvoices variable is empty
+    		if (cumulativeInvoices == '')
+    			{
+    				// set the cumulativeInvoices variable to 0
+    				cumulativeInvoices = 0;
+    			}
+    		
+    		cumulativeInvoices = parseFloat(cumulativeInvoices); // use parseFloat to convert to a floating point number
+    		
+    		// create search to find usage for this month
+    		var usageSearch = search.create({
+    			type: search.Type.SALES_ORDER,
+    			
+    			columns: [{
+    				name: 'amount',
+    				summary: 'SUM'
+    			}],
+    			
+    			filters: [{
+    				name: 'mainline',
+    				operator: 'is',
+    				values: ['F']
+    			},
+    					{
+    				name: 'custcol_bbs_so_search_date',
+    				operator: 'within',
+    				values: ['lastmonth']
+    			},
+    					{
+    				name: 'custbody_bbs_contract_record',
+    				operator: 'anyof',
+    				values: [contractRecord]
+    			}],
+    		});
+    		
+    		// run search and process results
+    		usageSearch.run().each(function(result)	{
+    			
+    			// get the the total of this month's usage from the search
+    			thisMonthUsage = result.getValue({
+    				name: 'amount',
+    				summary: 'SUM'
+    			});
+    			
+    		});
+    		
+    		// check if the thisMonthUsage variable is empty
+    		if (thisMonthUsage == '')
+    			{
+    				// set the thisMonthUsage to 0
+    				thisMonthUsage = 0;
+    			}
+    		
+    		thisMonthUsage = parseFloat(thisMonthUsage); // use parseFloat to convert to a floating point number
+    		
+    		// get the cumulative usage across the contract to date
+    		var cumulativeUsage = soRecord.getValue({
     			fieldId: 'subtotal'
     		});
     		
     		// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
 			var deferredRevAmt = calculateDeferredRev(contractRecord);
 			
-			// check if the cumulativeMinimumsTotal variable is greater than or equal to the soSubtotal variable
-    		if (cumulativeMinimumsTotal >= soSubtotal)
-    			{
-	    			// call function to create the next monthly invoice. Pass in billingType, contractRecord, customer, monthlyMinimum and currency
-					createNextInvoice(billingType, contractRecord, customer, monthlyMinimum, currency);
-    			}
-    		else // cumulativeMinimumsTotal variable is less than the soSubtotal variable
-    			{
-	    			// calculate any overage by subtracting invoicedTotal from soSubtotal
-					var overage = parseFloat(soSubtotal - invoicedTotal);
-					
-					// add overage to monthlyMinimum
-					monthlyMinimum = parseFloat(monthlyMinimum) + parseFloat(overage);
-					monthlyMinimum.toFixed(2);
-					
-					// call function to create the next monthly invoice. Pass in billingType, contractRecord, customer, monthlyMinimum and currency
-					createNextInvoice(billingType, contractRecord, customer, monthlyMinimum, currency);
-    			}
-    		
+			log.debug({
+				title: 'Script Check',
+				details: 'Monthly Minimum: ' + monthlyMinimum + ' | Cumulative Monthly Minimum: ' + cumulativeMinimums + ' | Cumulative Invoice Total: ' + cumulativeInvoices + ' | This Month Usage: ' + thisMonthUsage + ' | Cumulative Usage: ' + cumulativeUsage + ' | Deferred Rev Amt: ' + deferredRevAmt
+			});
+			
+			/*
+			 * =========================================================
+			 * CALCULATE THE MAXIMUM MONTHLY MINIMUM THAT CAN BE CHARGED
+			 * =========================================================
+			 */
+			
+			// check if cumulativeInvoices plus monthlyMinimum is greater than or equal to annualMinimum
+			if ((cumulativeInvoices + monthlyMinimum) >= annualMinimum)
+				{
+					// maximumMonthlyMinimum will be annualMinimum minus cumulativeInvoices
+					maximumMonthlyMinimum = parseFloat(annualMinimum - cumulativeInvoices);
+				}
+			else
+				{
+					// maximumMonthlyMinimum will be the monthlyMinimum
+					maximumMonthlyMinimum = monthlyMinimum;
+				}
+			
+			/*
+			 * =========================================
+			 * CALCULATE THE AMOUNT FOR THE NEXT INVOICE
+			 * =========================================
+			 */
+			
+			// check if cumulativeUsage is less than annualMinimum
+			if (cumulativeUsage < annualMinimum)
+				{
+					// check if cumulativeUsage is less than or equal to cumulativeMinimums
+					if (cumulativeUsage <= cumulativeMinimums)
+						{
+							// invoiceAmount will be maximumMonthlyMinimum
+							invoiceAmount = maximumMonthlyMinimum;
+						}
+					else
+						{
+							// invoiceAmount will be thisMonthUsage minus deferredRevAmt
+							invoiceAmount = parseFloat(thisMonthUsage - deferredRevAmt);
+						}
+				}
+			else
+				{
+					// invoiceAmount will be thisMonthUsage minus deferredRevAmt
+					invoiceAmount = parseFloat(thisMonthUsage - deferredRevAmt);
+				}
+			
+			log.debug({
+				title: 'Invoice Amount',
+				details: invoiceAmount
+			});
+			
+			// check that the invoiceAmount variable is greater than 0
+			if (invoiceAmount > 0)
+				{
+				 	// call function to create next invoice
+				
+					log.debug({
+						title: 'Next Invoice Would Be Created For...',
+						details: invoiceAmount
+					});
+				}
+			
+			
+    		/*
+			
     		// check if the invoiceDate is equal to the contractEnd
 			if (invoiceDate.getTime() == contractEnd.getTime())
 				{
@@ -389,6 +541,8 @@ function(runtime, search, record, format, task) {
 					// call function to create journal recognising all revenue for the current contract period. Pass in recordID and billingType (False = Clearing Journal NO)
 	    			createRevRecJournal(recordID, billingType, false);
 				}
+				
+				*/
 	    }
     
     function AMP(recordID)

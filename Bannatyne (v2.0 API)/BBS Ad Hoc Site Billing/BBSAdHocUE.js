@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/record', 'N/format'],
-function(runtime, record, format) {
+define(['N/config', 'N/runtime', 'N/record', 'N/format'],
+function(config, runtime, record, format) {
 	
 	// retrieve script parameters
 	var currentScript = runtime.getCurrentScript();
@@ -58,11 +58,11 @@ function(runtime, record, format) {
      * @Since 2015.2
      */
     function afterSubmit(scriptContext) {
-    	
+
     	// check if the record is being edited
     	if (scriptContext.type == scriptContext.UserEventType.EDIT)
     		{    	
-		       	// get the oldrecord and newrecord objects
+	    		// get the oldrecord and newrecord objects
     			var oldRecord = scriptContext.oldRecord;
     			var newRecord = scriptContext.newRecord;
     			
@@ -170,6 +170,14 @@ function(runtime, record, format) {
     		var subsidiary = adHocSiteRecord.getValue({
     			fieldId: 'custrecord_bbs_ad_hoc_site_subsidiary'
     		});
+    		
+    		var firstName = adHocSiteRecord.getValue({
+    			fieldId: 'custrecord_bbs_ad_hoc_site_first_name'
+    		});
+    		
+    		var lastName = adHocSiteRecord.getValue({
+    			fieldId: 'custrecord_bbs_ad_hoc_site_surname'
+    		});
     	
     		var companyName = adHocSiteRecord.getValue({
     			fieldId: 'custrecord_bbs_ad_hoc_site_company_name'
@@ -227,10 +235,25 @@ function(runtime, record, format) {
     					isDynamic: true
     				});
     				
+    				customerRecord.setValue({
+    					fieldId: 'isperson',
+    					value: 'T'
+    				});
+    				
     				// set fields on the new customer record
     				customerRecord.setValue({
     					fieldId: 'subsidiary',
     					value: subsidiary
+    				});
+    				
+    				customerRecord.setValue({
+    					fieldId: 'firstname',
+    					value: firstName
+    				});
+    				
+    				customerRecord.setValue({
+    					fieldId: 'lastname',
+    					value: lastName
     				});
     				
     				customerRecord.setValue({
@@ -251,6 +274,11 @@ function(runtime, record, format) {
     				customerRecord.setValue({
     					fieldId: 'phone',
     					value: phone
+    				});
+    				
+    				customerRecord.setValue({
+    					fieldId: 'category',
+    					value: 1 // 1 = Ad Hoc
     				});
     				
     				customerRecord.setValue({
@@ -391,7 +419,7 @@ function(runtime, record, format) {
     					title: 'Unable to Create Customer Record',
     					details: 'Ad Hoc Site: ' + adHocSiteID + ' | Error: ' + error
     				});
-    			}    		
+    			}
 	    }
     
     /*
