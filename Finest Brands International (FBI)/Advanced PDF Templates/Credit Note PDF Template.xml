@@ -280,7 +280,7 @@
   </table>
  
 <#assign summary_info = record.custbody_bbs_item_summary_json?eval>
-<table class="total" cellpadding="1" style="width: 100%; margin-top: 10px; border-right: 1px solid black;">
+<table  class="itemtable" cellpadding="1" style="width: 100%; margin-top: 10px; border-right: 1px solid black;">
 <#list summary_info as info>
 		<#if info_index==0>
 			<thead>
@@ -610,7 +610,7 @@
   </table>
   
 <#assign summary_info = record.custbody_bbs_item_summary_json?eval>
-<table class="total" cellpadding="1" style="width: 100%; margin-top: 10px; border-right: 1px solid black;">
+<table class="itemtable" cellpadding="1" style="width: 100%; margin-top: 10px; border-right: 1px solid black;">
 <#list summary_info as info>
 		<#if info_index==0>
 			<thead>

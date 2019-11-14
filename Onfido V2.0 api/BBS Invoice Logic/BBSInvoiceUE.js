@@ -202,6 +202,11 @@ function(file, record, render, runtime, search, email)
 					    									var emailSubject = mergeResult.subject;
 					    									var emailBody = mergeResult.body;
 					    									
+					    									log.debug({
+															    title: 'customer id', 
+															    details: thisCustomerId
+															    });
+					    									
 					    									//Send the email
 					    									//
 					    									try
@@ -211,7 +216,10 @@ function(file, record, render, runtime, search, email)
 					    														recipients:		emailAddress,
 					    														subject:		emailSubject,
 					    														body:			emailBody,
-					    														attachments:	emailAttachments
+					    														attachments:	emailAttachments,
+					    														relatedRecords: {
+					    																		entityId:	thisCustomerId
+					    																		}
 					    														})		
 																	
 																}
