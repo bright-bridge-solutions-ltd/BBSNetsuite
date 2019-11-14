@@ -373,7 +373,7 @@ function(runtime, search, record, format, task) {
     			filters: [{
     				name: 'mainline',
     				operator: 'is',
-    				values: ['F']
+    				values: ['T']
     			},
     					{
     				name: 'custbody_bbs_invoice_type',
@@ -490,7 +490,7 @@ function(runtime, search, record, format, task) {
 			 * =========================================
 			 */
 			
-			// check if cumulativeUsage is less than annualMinimum
+			// check if cumulativeUsage is less than or equal to annualMinimum
 			if (cumulativeUsage < annualMinimum)
 				{
 					// check if cumulativeUsage is less than or equal to cumulativeMinimums
@@ -511,24 +511,12 @@ function(runtime, search, record, format, task) {
 					invoiceAmount = parseFloat(thisMonthUsage - deferredRevAmt);
 				}
 			
-			log.debug({
-				title: 'Invoice Amount',
-				details: invoiceAmount
-			});
-			
 			// check that the invoiceAmount variable is greater than 0
 			if (invoiceAmount > 0)
 				{
-				 	// call function to create next invoice
-				
-					log.debug({
-						title: 'Next Invoice Would Be Created For...',
-						details: invoiceAmount
-					});
+				 	// call function to create the next quarterly invoice. Pass in billingType, contractRecord, customer, invoiceAmount and currency
+					createNextInvoice(billingType, contractRecord, customer, invoiceAmount, currency, overage);
 				}
-			
-			
-    		/*
 			
     		// check if the invoiceDate is equal to the contractEnd
 			if (invoiceDate.getTime() == contractEnd.getTime())
@@ -541,8 +529,6 @@ function(runtime, search, record, format, task) {
 					// call function to create journal recognising all revenue for the current contract period. Pass in recordID and billingType (False = Clearing Journal NO)
 	    			createRevRecJournal(recordID, billingType, false);
 				}
-				
-				*/
 	    }
     
     function AMP(recordID)

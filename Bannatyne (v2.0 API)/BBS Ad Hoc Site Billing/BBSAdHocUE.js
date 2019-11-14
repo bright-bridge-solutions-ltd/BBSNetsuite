@@ -14,8 +14,8 @@ function(config, runtime, record, format) {
     	name: 'custscript_bbs_deposit_item'
     });
 	
-	descriptionItem = currentScript.getParameter({
-		name: 'custscript_bbs_description_item'
+	invoiceForm = currentScript.getParameter({
+		name: 'custscript_bbs_ad_hoc_invoice_form'
 	});
 	
 	paymentTerms = currentScript.getParameter({
@@ -468,11 +468,19 @@ function(config, runtime, record, format) {
 					    fromType: record.Type.CUSTOMER,
 					    fromId: customer,
 					    toType: record.Type.INVOICE,
-					    isDynamic: true
+					    isDynamic: true,
+					    defaultValues: {
+					    	customform: invoiceForm
+					    }
 					});
     			
 					// set header fields on the invoiceRecord
-    				invoiceRecord.setValue({
+					invoiceRecord.setValue({
+    					fieldId: 'approvalstatus',
+    					value: 2 // 2 = Approved
+    				});
+					
+					invoiceRecord.setValue({
     					fieldId: 'trandate',
     					value: agreementDate
     				});
@@ -480,6 +488,11 @@ function(config, runtime, record, format) {
     				invoiceRecord.setValue({
     					fieldId: 'custbody_bbs_ad_hoc_site',
     					value: adHocSiteID
+    				});
+    				
+    				invoiceRecord.setValue({
+    					fieldId: 'custbody_bbs_ad_hoc_inv_desc',
+    					value: 'Deposit Invoice'
     				});
     				
     				/*
@@ -534,35 +547,6 @@ function(config, runtime, record, format) {
     					sublistId: 'item',
     					fieldId: 'quantity',
     					value: 1
-    				});
-    				
-    				// commit the line
-    				invoiceRecord.commitLine({
-						sublistId: 'item'
-					});
-    				
-    				/*
-    				 * ===========================================
-    				 * ADD A DESCRIPTION LINE TO THE ITEMS SUBLIST
-    				 * ===========================================
-    				 */
-    				
-    				// select a new sublist line
-    				invoiceRecord.selectNewLine({
-    					sublistId: 'item'
-    				});
-    				
-    				// set fields on the new line
-    				invoiceRecord.setCurrentSublistValue({
-    					sublistId: 'item',
-    					fieldId: 'item',
-    					value: descriptionItem
-    				});
-    				
-    				invoiceRecord.setCurrentSublistValue({
-    					sublistId: 'item',
-    					fieldId: 'description',
-    					value: 'Deposit Invoice'
     				});
     				
     				// commit the line
@@ -689,10 +673,18 @@ function(config, runtime, record, format) {
 					    fromType: record.Type.CUSTOMER,
 					    fromId: customer,
 					    toType: record.Type.INVOICE,
-					    isDynamic: true
+					    isDynamic: true,
+					    defaultValues: {
+					    	customform: invoiceForm
+					    }
 					});
 				
 					// set header fields on the invoiceRecord
+					invoiceRecord.setValue({
+    					fieldId: 'approvalstatus',
+    					value: 2 // 2 = Approved
+    				});
+					
 					invoiceRecord.setValue({
     					fieldId: 'trandate',
     					value: agreementDate
@@ -702,6 +694,11 @@ function(config, runtime, record, format) {
 						fieldId: 'custbody_bbs_ad_hoc_site',
 						value: adHocSiteID
 					});
+					
+					invoiceRecord.setValue({
+    					fieldId: 'custbody_bbs_ad_hoc_inv_desc',
+    					value: 'Pro Rata Invoice'
+    				});
 					
 					/*
     				 * =======================================================================
@@ -765,35 +762,6 @@ function(config, runtime, record, format) {
 					
 					// commit the line
 					invoiceRecord.commitLine({
-						sublistId: 'item'
-					});
-					
-					/*
-    				 * ===========================================
-    				 * ADD A DESCRIPTION LINE TO THE ITEMS SUBLIST
-    				 * ===========================================
-    				 */
-    				
-    				// select a new sublist line
-    				invoiceRecord.selectNewLine({
-    					sublistId: 'item'
-    				});
-    				
-    				// set fields on the new line
-    				invoiceRecord.setCurrentSublistValue({
-    					sublistId: 'item',
-    					fieldId: 'item',
-    					value: descriptionItem
-    				});
-    				
-    				invoiceRecord.setCurrentSublistValue({
-    					sublistId: 'item',
-    					fieldId: 'description',
-    					value: 'Pro Rata Invoice'
-    				});
-    				
-    				// commit the line
-    				invoiceRecord.commitLine({
 						sublistId: 'item'
 					});
 	    			

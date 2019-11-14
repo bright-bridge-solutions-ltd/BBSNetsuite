@@ -10,8 +10,8 @@ function(runtime, search, format, record) {
 	var currentScript = runtime.getCurrentScript();
 	
 	// script parameters are global variables so can be access throughout the script
-	descriptionItem = currentScript.getParameter({
-		name: 'custscript_bbs_description_item'
+	invoiceForm = currentScript.getParameter({
+		name: 'custscript_bbs_ad_hoc_invoice_form'
 	});
 	
 	// create new array to hold names of months. Global variable so can be accessed throughout the script
@@ -278,13 +278,26 @@ function(runtime, search, format, record) {
 					    fromType: record.Type.CUSTOMER,
 					    fromId: customer,
 					    toType: record.Type.INVOICE,
-					    isDynamic: true
+					    isDynamic: true,
+					    defaultValues: {
+					    	customform: invoiceForm
+					    }
 					});
     			
 					// set header fields on the invoice record
-    				invoiceRecord.setValue({
+					invoiceRecord.setValue({
+    					fieldId: 'approvalstatus',
+    					value: 2 // 2 = Approved
+    				});
+					
+					invoiceRecord.setValue({
     					fieldId: 'custbody_bbs_ad_hoc_site',
     					value: adHocSiteID
+    				});
+    				
+    				invoiceRecord.setValue({
+    					fieldId: 'custbody_bbs_ad_hoc_inv_desc',
+    					value: 'Monthly Invoice for ' + monthNames[today.getMonth()]
     				});
     				
     				/*
@@ -345,35 +358,6 @@ function(runtime, search, format, record) {
     					sublistId: 'item',
     					fieldId: 'location',
     					value: location
-    				});
-    				
-    				// commit the line
-    				invoiceRecord.commitLine({
-						sublistId: 'item'
-					});
-    				
-    				/*
-    				 * ===========================================
-    				 * ADD A DESCRIPTION LINE TO THE ITEMS SUBLIST
-    				 * ===========================================
-    				 */
-    				
-    				// select a new sublist line
-    				invoiceRecord.selectNewLine({
-    					sublistId: 'item'
-    				});
-    				
-    				// set fields on the new line
-    				invoiceRecord.setCurrentSublistValue({
-    					sublistId: 'item',
-    					fieldId: 'item',
-    					value: descriptionItem
-    				});
-    				
-    				invoiceRecord.setCurrentSublistValue({
-    					sublistId: 'item',
-    					fieldId: 'description',
-    					value: 'Monthly Invoice for ' + monthNames[today.getMonth()]
     				});
     				
     				// commit the line
