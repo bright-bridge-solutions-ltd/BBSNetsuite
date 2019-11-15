@@ -38,17 +38,50 @@ function scheduled(type)
 					var journalId = journalentrySearch[int].getValue("internalid",null,"GROUP");
 					var memo = journalentrySearch[int].getValue("memomain",null,"GROUP");
 					
-					var originalTransactionId = findTransaction(memo);
+					//Find original transaction
+					//
+					var originalTransaction = findTransaction(memo);
 					
-					if(originalTransactionId != null)
+					if(originalTransaction != null)
 						{
+							var statJournalRecord = null;
+							
+							//try to load up the stat journal
+							//
 							try
 								{
-									nlapiSubmitField('statisticaljournalentry', journalId, 'custbody_bbs_originating_transaction', originalTransactionId, false);
+									statJournalRecord = nlapiLoadRecord('statisticaljournalentry', journalId);
 								}
 							catch(err)
 								{
-									nlapiLogExecution('ERROR', 'Error updating journal id = ' + journalId, err.message);
+									nlapiLogExecution('ERROR', 'Error loading journal id = ' + journalId, err.message);
+									statJournalRecord = null;
+								}
+							
+							if(statJournalRecord != null)
+								{
+									//Set the original transaction id on the header of the stat journal
+									//
+									statJournalRecord.setFieldValue('custbody_bbs_originating_transaction', originalTransaction.id);
+								
+									//Find the lines on the stat journal
+									//
+									var journalLines = statJournalRecord.getLineItemCount('line');
+									
+									for (var int2 = 1; int2 <= journalLines; int2++) 
+										{
+											statJournalRecord.setLineItemValue('line', 'cseg_bbs_customer', int2, originalTransaction.custSegment);
+											statJournalRecord.setLineItemValue('line', 'cseg_bbs_supplier', int2, originalTransaction.suppSegment);
+										}
+									
+									try
+										{
+											nlapiSubmitRecord(statJournalRecord, false, true);
+										}
+									catch(err)
+										{
+											nlapiLogExecution('ERROR', 'Error saving journal id = ' + journalId, err.message);
+										}
 								}
 						}
 				}
@@ -63,7 +96,7 @@ function scheduled(type)
 //
 function findTransaction(_memo)
 {
-	var originalTrans = null;
+	var originalTrans = {};
 	
 	var transactionSearch = nlapiSearchRecord("transaction",null,
 			[
@@ -82,8 +115,63 @@ function findTransaction(_memo)
 	
 	if(transactionSearch != null && transactionSearch.length == 1)
 		{
-			originalTrans = transactionSearch[0].getId();
+			//get the original transaction id & type
+			//
+			originalTrans.id  		= transactionSearch[0].getId();
+			originalTransId.type 	= transactionSearch[0].getValue("type");
+
+			//get the cust & supp segments from the original transaction
+			//
+			var originalRecord = null;
+			
+			try
+				{
+					originalRecord = nlapiLoadRecord(translateType(originalTransId.type), originalTrans.id);
+				}
+			catch(err)
+				{
+					originalRecord = null;
+				}
+			
+			if(originalRecord != null)
+				{
+					//Items
+					//
+					var itemCount = originalRecord.getLineItemCount('item');
+					
+					for (var int2 = 1; int2 <= itemCount; int2++) 
+						{
+							originalTrans.suppSegment = originalRecord.getLineItemValue('item', 'cseg_bbs_supplier', int2);
+							originalTrans.custSegment = originalRecord.getLineItemValue('item', 'cseg_bbs_customer', int2);
+						}
+					
+					//Expenses
+					//
+					var expenseCount = originalRecord.getLineItemCount('expense');
+					
+					for (var int2 = 1; int2 <= expenseCount; int2++) 
+						{
+							originalTrans.suppSegment = originalRecord.getLineItemValue('expense', 'cseg_bbs_supplier', int2);
+							originalTrans.custSegment = originalRecord.getLineItemValue('expense', 'cseg_bbs_customer', int2);
+						}
+					
+	
+					//Lines
+					//
+					var lineCount = originalRecord.getLineItemCount('line');
+					
+					for (var int2 = 1; int2 <= lineCount; int2++) 
+						{
+							originalTrans.suppSegment = originalRecord.getLineItemValue('line', 'cseg_bbs_supplier', int2);
+							originalTrans.custSegment = originalRecord.getLineItemValue('line', 'cseg_bbs_customer', int2);
+						}
+				}
 		}
+	else
+		{
+			originalTrans = null;
+		}
+	
 	
 	return originalTrans;
 }
@@ -132,4 +220,39 @@ function getResults(search)
 		}
 	
 	return searchResultSet;
+}
+
+function translateType(_transactionType)
+{
+	var realTransactionType = null;
+	
+	switch(_transactionType)
+		{
+			case 'Journal':
+				
+				realTransactionType = 'journalentry';
+				break;
+			
+			case 'CustInvc':
+				
+				realTransactionType = 'invoice';
+				break;
+				
+			case 'VendBill':
+				
+				realTransactionType = 'vendorbill';
+				break;
+				
+			case 'CustCred':
+				
+				realTransactionType = 'creditmemo';
+				break;
+				
+			case 'VendCred':
+				
+				realTransactionType = 'vendorcredit';
+				break;	
+		}
+	
+	return realTransactionType;
 }
