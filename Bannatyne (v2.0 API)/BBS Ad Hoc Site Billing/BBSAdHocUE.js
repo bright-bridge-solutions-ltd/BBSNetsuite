@@ -79,32 +79,24 @@ function(config, runtime, record, format) {
     				fieldId: 'custrecord_bbs_ad_hoc_site_app_status'
     			});
     			
-    			// get the value of the signed DD mandate field from the newRecord object
-    			var ddMandate = newRecord.getValue({
-    				fieldId: 'custrecord_bbs_ad_hoc_site_dd_man_rcvd'
+    			// get the value of the contract terminated checkbox field from the oldRecord object
+    			var oldContractTerminated = oldRecord.getValue({
+    				fieldId: 'custrecord_bbs_ad_hoc_site_con_terminate'
     			});
     			
-    			// get the value of the signed contract field from the newRecord object
-    			var contractRcvd = newRecord.getValue({
-    				fieldId: 'custrecord_bbs_ad_hoc_site_contract_rcvd'
-    			});
+    			// get the value of the contract terminated checkbox field from the newRecord object
+    			var newContractTerminated = newRecord.getValue({
+    				fieldId: 'custrecord_bbs_ad_hoc_site_con_terminate'
+    			});			
     			
-    			/*
-    			 * Check the following criteria:
-    			 * 
-    			 * oldStatus variable returns 2 (Pending Approval) and the newStatus variable returns 1 (Approved)
-    			 * ddMandate variable returns true
-    			 * contractRcvd variable returns true
-    			 * 
-    			 */
-    			
-    			if ((oldApprovalStatus != 1 && newApprovalStatus == 1) && ddMandate == true && contractRcvd == true)
+    			// check if the oldStatus variable returns 2 (Pending Approval) and the newStatus variable returns 1 (Approved)
+    			if (oldApprovalStatus != 1 && newApprovalStatus == 1)
     				{
     					// get the value of the customer field from the newRecord object
     					var customer = newRecord.getValue({
     						fieldId: 'custrecord_bbs_ad_hoc_site_customer'
     					});
-    					
+    				
     					// check if the customer variable is null
     					if (customer == '')
     						{
@@ -149,10 +141,229 @@ function(config, runtime, record, format) {
 	        					// check if the noProFormaInvoice variable returns false
 	        					if (noProFormaInvoice == false)
 	        						{
-		        						// call function to create a pro rata invoice. Pass newRecord, currentRecordID and customer
-			        					createProRataInvoice(newRecord, currentRecordID, customer);
+		        						// get the value of the stepped rent field from the newRecord object
+			    						var steppedRent = newRecord.getValue({
+			    							fieldId: 'custrecord_bbs_ad_hoc_site_stepped_rent'
+			    						});
+			    						
+			    						// check if the steppedRent variable returns 1 (Rent is Stepped)
+			    						if (steppedRent == '1')
+			    							{
+			    								// get the value of the '1st Step Amount' field
+			    								var monthlyAmount = newRecord.getValue({
+			    									fieldId: 'custrecord_bbs_ad_hoc_site_step_1_amt'
+			    								});
+			    							}
+			    						else // rent is NOT stepped
+			    							{
+			    								// get the value of the monthly amount field
+			    					    		var monthlyAmount = newRecord.getValue({
+			    					    			fieldId: 'custrecord_bbs_ad_hoc_site_monthly_amt'
+			    					    		});
+			    							}
+			    						
+			    						// get the start date of the contract
+			    			    		var startDate = newRecord.getValue({
+			    			    			fieldId: 'custrecord_bbs_ad_hoc_site_start_date'
+			    			    		});
+			    			    		
+			    			    		// format startDate as a date object
+			    			    		startDate = format.parse({
+			    							type: format.Type.DATE,
+			    							value: startDate
+			    						});
+			    			    		
+			    			    		// get the day of the month from the startDate object
+			    						var startDay = startDate.getDate();
+			
+			    						// call function to calculate number of days in the current month
+			    						var daysInMonth = getDaysInMonth(startDate.getMonth(), startDate.getFullYear());
+			    						
+			    						// divide monthlyAmount by daysInMonth to calculate dailyAmount
+			    						var dailyAmount = (monthlyAmount / daysInMonth);
+			    						
+			    						// calculate the days remaining in the month by subtracting startDay from daysInMonth
+			    						var daysRemaining = (daysInMonth - startDay);
+			    						
+			    						// multiply dailyAmount by daysRemaining to calculate the pro rata invoice amount
+			    						var invoiceAmount = parseFloat(dailyAmount * daysRemaining);
+			    						invoiceAmount = invoiceAmount.toFixed(2);
+	        						
+			    						// call function to create a pro rata invoice. Pass newRecord, currentRecordID, customer and invoiceAmount
+			        					createProRataInvoice(newRecord, currentRecordID, customer, invoiceAmount);
 	        						}
     						}
+    				}
+    			// check if the oldContractTerminated variable returns false and the newContractTerminated variable returns true
+    			else if (oldContractTerminated == false && newContractTerminated == true)
+    				{
+    					// declare and initiate variables
+    					var monthlyAmount;
+    				
+    					// get today's date
+    					var today = new Date();
+    					today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    					
+    					// get the value of the customer field from the newRecord object
+    					var customer = newRecord.getValue({
+    						fieldId: 'custrecord_bbs_ad_hoc_site_customer'
+    					});
+    				
+    					// get the value of the 'Contract Termination Date' field from the newRecord object
+    					var terminationDate = newRecord.getValue({
+    						fieldId: 'custrecord_bbs_ad_hoc_site_con_term_date'
+    					});
+    					
+    					// check that we have the terminationDate variable returns a value
+    					if (terminationDate)
+    						{
+	    						// get the value of the stepped rent field from the newRecord object
+	    						var steppedRent = newRecord.getValue({
+	    							fieldId: 'custrecord_bbs_ad_hoc_site_stepped_rent'
+	    						});
+	    						
+	    						// check if the steppedRent variable returns 1 (Rent is Stepped)
+	    						if (steppedRent == '1')
+	    							{
+	    								// get the value of the step dates from the newRecord object
+	    								var step1Date = newRecord.getValue({
+	    									fieldId: 'custrecord_bbs_ad_hoc_site_step_1_date'
+	    								});
+	    								
+	    								var step2Date = newRecord.getValue({
+	    									fieldId: 'custrecord_bbs_ad_hoc_site_step_2_date'
+	    								});
+	    								
+	    								var step3Date = newRecord.getValue({
+	    									fieldId: 'custrecord_bbs_ad_hoc_site_step_3_date'
+	    								});
+	    								
+	    								var step4Date = newRecord.getValue({
+	    									fieldId: 'custrecord_bbs_ad_hoc_site_step_4_date'
+	    								});
+	    								
+	    								var step5Date = newRecord.getValue({
+	    									fieldId: 'custrecord_bbs_ad_hoc_site_step_5_date'
+	    								});
+	    								
+	    								// check if the step1Date variable returns a value
+	    								if (step1Date)
+	    									{
+	    										// format step1Date as a date object
+	    										step1Date = format.parse({
+	    											type: format.Type.DATE,
+	    											value: step1Date
+	    										});
+	    									
+	    										// get the step1Amount from the newRecord object and set the monthlyAmount variable using this value
+	    										monthlyAmount = newRecord.getValue({
+	    											fieldId: 'custrecord_bbs_ad_hoc_site_step_1_amt'
+	    										});
+	    								
+	    										// check if today is after the step 1 date
+	    										if (today.getTime() > step1Date.getTime())
+	    											{
+	    												// check if the step2Date variable returns a value
+	    												if (step2Date)
+	    													{
+	    														// format step2Date as a date object
+	    														step2Date = format.parse({
+	    															type: format.Type.DATE,
+	    															value: step2Date
+	    														});
+	    													
+	    														// get the step2Amount from the newRecord object and set the monthlyAmount variable using this value
+	    														monthlyAmount = newRecord.getValue({
+	    			    											fieldId: 'custrecord_bbs_ad_hoc_site_step_2_amt'
+	    			    										});
+	    													
+	    														// check if today is after the step 2 date
+	    														if (today.getTime() > step2Date.getTime())
+	    															{
+	    																// check if the step3Date variable returns a value
+	    																if (step3Date)
+	    																	{
+	    																		// format step3Date as a date object
+	    																		step3Date = format.parse({
+	    																			type: format.Type.DATE,
+	    																			value: step3Date
+	    																		});
+	    																	
+	    																		// get the step3Amount from the newRecord object and set the monthlyAmount variable using this value
+	    																		monthlyAmount = newRecord.getValue({
+	    							    											fieldId: 'custrecord_bbs_ad_hoc_site_step_3_amt'
+	    							    										});
+	    																	
+	    																		// check if today is after the step 3 date
+	    																		if (today.getTime() > step3Date.getTime())
+	    																			{
+	    																				// check if the step4Date variable returns a value
+	    																				if (step4Date)
+	    																					{
+	    																						// format step4Date as a date object
+	    																						step4Date = format.parse({
+	    																							type: format.Type.DATE,
+	    																							value: step4Date
+	    																						});
+	    																					
+	    																						// get the step4Amount from the newRecord object and set the monthlyAmount variable using this value
+	    																						monthlyAmount = newRecord.getValue({
+	    											    											fieldId: 'custrecord_bbs_ad_hoc_site_step_4_amt'
+	    											    										});
+	    														
+	    																						// check if today is after the step 4 date
+	    																						if (today.getTime() > step4Date.getTime())
+	    																							{
+	    																								// check if the step5Date variable returns a value
+	    																								if (step5Date)
+	    																									{
+	    																										// get the step5Amount from the newRecord object and set the monthlyAmount variable using this value
+	    																										monthlyAmount = newRecord.getValue({
+	    															    											fieldId: 'custrecord_bbs_ad_hoc_site_step_5_amt'
+	    															    										});
+	    																									}
+	    																							}
+	    																					}
+	    																			}
+	    																	}
+	    															}
+	    													}
+	    											}
+	    									}
+	    							}
+	    						else // stepped rent is 2 (No)
+	    							{
+	    								// get the value of the monthly amount field from the newRecord object and set the monthlyAmount variable using this value
+	    								monthlyAmount = newRecord.getValue({
+	    									fieldId: 'custrecord_bbs_ad_hoc_site_monthly_amt'
+	    								});	    								
+	    							}
+	    						
+	    						// format terminationDate as a date object
+	    						terminationDate = format.parse({
+	    							type: format.Type.DATE,
+	    							value: terminationDate
+	    						});
+	    						
+	    						// get the day from the terminationDate object
+	    						var startDay = terminationDate.getDate();
+	    						
+	    						// call function to calculate number of days in the current month
+	    						var daysInMonth = getDaysInMonth(today.getMonth(), today.getFullYear());
+	    						
+	    						// divide monthlyAmount by daysInMonth to calculate dailyAmount
+	    						var dailyAmount = (monthlyAmount / daysInMonth);
+	    						
+	    						// calculate the days remaining in the month by subtracting startDay from daysInMonth
+	    						var daysRemaining = (daysInMonth - startDay);
+	    						
+	    						// multiply dailyAmount by daysRemaining to calculate the pro rata invoice amount
+	    						var invoiceAmount = parseFloat(dailyAmount * daysRemaining);
+	    						invoiceAmount = invoiceAmount.toFixed(2);
+    						}
+    					
+    					// call function to create a pro rata invoice. Pass newRecord, currentRecordID, customer and invoiceAmount
+    					createProRataInvoice(newRecord, currentRecordID, customer, invoiceAmount);
     				}
     		}
 
@@ -235,12 +446,17 @@ function(config, runtime, record, format) {
     					isDynamic: true
     				});
     				
+    				// set fields on the new customer record
     				customerRecord.setValue({
     					fieldId: 'isperson',
     					value: 'T'
     				});
     				
-    				// set fields on the new customer record
+    				customerRecord.setValue({
+    					fieldId: 'emailtransactions',
+    					value: true
+    				});
+    				
     				customerRecord.setValue({
     					fieldId: 'subsidiary',
     					value: subsidiary
@@ -580,7 +796,7 @@ function(config, runtime, record, format) {
      * =====================================
      */
     
-    function createProRataInvoice(adHocSiteRecord, adHocSiteID, customer)
+    function createProRataInvoice(adHocSiteRecord, adHocSiteID, customer, invoiceAmount)
     	{
 	    	// get the description of services from the adHocSiteRecord object
 			var description = adHocSiteRecord.getValue({
@@ -606,54 +822,6 @@ function(config, runtime, record, format) {
 			var vatRate = adHocSiteRecord.getValue({
 				fieldId: 'custrecord_bbs_ad_hoc_site_vat_rate'
 			});
-			
-			// get the value of the stepped rent field from the adHocSiteRecord object
-			var steppedRent = adHocSiteRecord.getValue({
-				fieldId: 'custrecord_bbs_ad_hoc_site_stepped_rent'
-			});
-			
-			// check if the steppedRent variable returns 1 (Rent is Stepped)
-			if (steppedRent == '1')
-				{
-					// get the value of the '1st Step Amount' field
-					var monthlyAmount = adHocSiteRecord.getValue({
-						fieldId: 'custrecord_bbs_ad_hoc_site_step_1_amt'
-					});
-				}
-			else // rent is NOT stepped
-				{
-					// get the value of the monthly amount field
-		    		var monthlyAmount = adHocSiteRecord.getValue({
-		    			fieldId: 'custrecord_bbs_ad_hoc_site_monthly_amt'
-		    		});
-				}
-			
-			// get the start date of the contract
-    		var startDate = adHocSiteRecord.getValue({
-    			fieldId: 'custrecord_bbs_ad_hoc_site_start_date'
-    		});
-    		
-    		// format startDate as a date object
-    		startDate = format.parse({
-				type: format.Type.DATE,
-				value: startDate
-			});
-    		
-    		// get the day of the month from the startDate object
-			var startDay = startDate.getDate();
-
-			// call function to calculate number of days in the current month
-			var daysInMonth = getDaysInMonth(startDate.getMonth(), startDate.getFullYear());
-			
-			// divide monthlyAmount by daysInMonth to calculate dailyAmount
-			var dailyAmount = (monthlyAmount / daysInMonth);
-			
-			// calculate the days remaining in the month by subtracting startDay from daysInMonth
-			var daysRemaining = (daysInMonth - startDay);
-			
-			// multiply dailyAmount by daysRemaining to calculate the pro rata invoice amount
-			var invoiceAmount = parseFloat(dailyAmount * daysRemaining);
-			invoiceAmount = invoiceAmount.toFixed(2);
 			
 			// get the agreement date
     		var agreementDate = adHocSiteRecord.getValue({

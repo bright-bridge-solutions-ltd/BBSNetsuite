@@ -238,7 +238,7 @@
 	    	<td style="padding: 5px; font-size: 12px; color: black;">Please arrange for this invoice to be paid to the account below before you start on site.</td>
 	    </tr>
 	    <tr>
-	         <td style="padding: 5px; font-size: 12px; color: red;">Bank Name: ${record.subsidiary.custrecord_bbs_bank_account_name}<br/>Account No: ${record.subsidiary.custrecord_bbs_bank_account_number}<br/>Sort Code: ${record.subsidiary.custrecord_bbs_bank_account_sort}<br/>BIC: ${record.subsidiary.custrecord_bbs_bank_account_bic}<br/>IBAN: ${record.subsidiary.custrecord_bbs_bank_account_iban}</td>
+	         <td style="padding: 5px; font-size: 12px; color: red;">Bank Name: ${record.subsidiary.custrecord_bbs_bank_account_name}<br/>Account No: ${record.subsidiary.custrecord_bbs_bank_account_number}<br/>Sort Code: ${record.subsidiary.custrecord_bbs_bank_account_sort}</td>
 	    </tr>
 	</table>
 </body>
