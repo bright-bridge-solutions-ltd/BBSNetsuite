@@ -19,7 +19,7 @@ function poFieldChanged(type, name, linenum)
 {
 	if(name == 'otherrefnum')
 		{
-			//Get the current record id & the current po num,ber
+			//Get the current record id, the current po number and the customer
 			//
 			var currentId = nlapiGetRecordId();
 			var currentPoNo = nlapiGetFieldValue('otherrefnum');
@@ -49,11 +49,11 @@ function poFieldChanged(type, name, linenum)
 					//
 					var filters = [
 								   //["type","anyof","Estimate","CustInvc","SalesOrd"], 
-								   ["type","anyof",currentType], 
+								   ["type", "anyof", currentType], 
 								   "AND", 
-								   ["mainline","is","T"], 
-								   "AND", 
-								   ["poastext","is",currentPoNo]
+								   ["mainline", "is", "T"], 
+								   "AND",
+								   ["poastext", "is", currentPoNo]
 								];
 					
 					//If the current id is not -1 (new record) then exclude it from the serach
@@ -75,7 +75,7 @@ function poFieldChanged(type, name, linenum)
 					//
 					if(transactionSearch != null && transactionSearch.length > 0)
 						{
-							alert('WARNING - Purchase Order Number ' + currentPoNo + " Has Already Been Used On Another Transaction");
+							alert('WARNING - Purchase Order Number ' + currentPoNo + ' Has Already Been Used On Another Transaction');
 							//nlapiSetFieldValue('otherrefnum', '', false, true);
 						}
 				}
