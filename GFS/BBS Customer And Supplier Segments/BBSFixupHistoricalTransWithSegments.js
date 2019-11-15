@@ -154,7 +154,7 @@ function processCustomers()
 				
 					var tranId = transactionSearch[int].getId();
 					var tranType = transactionSearch[int].getValue('type');
-					var tranSegment = transactionSearch[int].getValue("custentity_bbs_supplier_segment","vendor",null);
+					var tranSegment = transactionSearch[int].getValue("custentity_bbs_customer_segment","customer",null);
 				
 					//load up the transaction record
 					//
