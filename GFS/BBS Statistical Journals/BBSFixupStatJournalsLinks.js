@@ -117,8 +117,8 @@ function findTransaction(_memo)
 		{
 			//get the original transaction id & type
 			//
-			originalTrans.id  		= transactionSearch[0].getId();
-			originalTransId.type 	= transactionSearch[0].getValue("type");
+			originalTrans.id  	= transactionSearch[0].getId();
+			originalTrans.type 	= transactionSearch[0].getValue("type");
 
 			//get the cust & supp segments from the original transaction
 			//
@@ -126,7 +126,7 @@ function findTransaction(_memo)
 			
 			try
 				{
-					originalRecord = nlapiLoadRecord(translateType(originalTransId.type), originalTrans.id);
+					originalRecord = nlapiLoadRecord(translateType(originalTrans.type), originalTrans.id);
 				}
 			catch(err)
 				{
@@ -180,7 +180,7 @@ function checkResources()
 {
 	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
 	
-	if(remaining < 100)
+	if(remaining < 200)
 		{
 			nlapiYieldScript();
 		}
