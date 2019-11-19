@@ -5,54 +5,87 @@
 	<#assign logoInfo>https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=9544&amp;c=5554661_SB1&amp;h=3c1a74753ea9e8671a1c</#assign>
   	<#assign todaysDate = .now>
 	<#assign summary_info = contract.custrecord_bbs_contract_usage_json?eval>
-	
+	<#assign regInfo>Company Registration No: 07479524.  Registered Office: 3 Finsbury Avenue, 5th Floor, London, EC2M 2PA, United Kingdom.</#assign>
+	<#assign emailInfo>accounts@onfido.com</#assign>
+	<#assign telInfo>02081333628</#assign>
+	<#assign vatInfo>VAT No: GB 159 2397 76</#assign>
+  	<#assign signature>https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=37336&amp;c=5554661_SB1&amp;h=d5b58d1ec190b9507c62</#assign>
+     
+     	<!--Reassign based on subsidiary-->
+  	<#if subsidiary.id == "10"> <!--India-->
+      <#assign emailInfo>billing@onfido.com</#assign>
+    </#if>
+  
+  	<#if subsidiary.id == "15"> <!--Singapore-->
+    </#if>
+  
+  	<#if subsidiary.id == "6"> <!--France-->
+    </#if>
+  
+  	<#if subsidiary.id == "8"> <!--Portugal-->
+    </#if>
+  
+  	<#if subsidiary.id == "5"> <!--Uk-->
+    </#if>
+  
+  	<#if subsidiary.id == "9"> <!--USA-->
+    </#if>
+  
     <macrolist>
     
         <macro id="nlheader">
             <table class="header" style="width: 100%;">
     			<tr>
-					<td style="padding-top: 40px;"><span style="font-size:18px;">Contract Usage Statement</span></td>
+					<td style="padding-top: 55px;"><span style="font-size:22px;">Usage Statement</span></td>
 					<td align="right">&nbsp;</td>
-					<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:105px;" /></td>
+					<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:130px;" /></td>
     			</tr>
           	</table>
           	
 		    <table class="header" style="width: 100%; margin-top: 10px;">
 				<tr>
-					<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Statement Date</td>
+					<td colspan="2" align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Statement Date</td>
 					<td align="right" style="padding-right: 2px;border-top: 1px solid black; border-right: 1px solid black;">${todaysDate?string["dd/MM/yyyy"]}</td>
 					<td align="left">&nbsp;</td>
 					<td align="left">&nbsp;</td>
-					<td align="left">&nbsp;</td>
+					<td rowspan="7" colspan="2" style="font-size:8pt">${subsidiary.mainaddress_text}<br/><br/>${vatInfo}</td>
 				</tr>
 				<tr>
-					<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Client Name</td>
+					<td colspan="2" align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Client Name</td>
 					<td align="right" style="padding-right: 2px; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_customer}</td>
 					<td align="left">&nbsp;</td>
 					<td align="left">&nbsp;</td>
-					<td align="left">&nbsp;</td>
 				</tr>
 				<tr>
-					<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Contract Start Date</td>
+					<td colspan="2" align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Contract Start Date</td>
 					<td align="right" style="padding-right: 2px; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_start_date}</td>
 					<td align="left">&nbsp;</td>
 					<td align="left">&nbsp;</td>
-					<td align="left">&nbsp;</td>
 				</tr>
 				<tr>
-					<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Contract End Date</td>
+					<td colspan="2" align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Contract End Date</td>
 					<td align="right" style="padding-right: 2px; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_end_date}</td>
 					<td align="left">&nbsp;</td>
 					<td align="left">&nbsp;</td>
-					<td align="left">&nbsp;</td>
 				</tr>
 				<tr>
-					<td align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Annual Commitment</td>
+					<td colspan="2" align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Annual Commitment</td>
 					<#if contract.custrecord_bbs_contract_annual_commit?length == 0>
 						<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;">N/A</td>
 					<#else>				
 						<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_annual_commit}</td>
 					</#if>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+				</tr>
+				<tr>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+				</tr>
+				<tr>
+					<td align="left">&nbsp;</td>
 					<td align="left">&nbsp;</td>
 					<td align="left">&nbsp;</td>
 					<td align="left">&nbsp;</td>
@@ -93,12 +126,14 @@
 
         </macro>
 
-        <macro id="nlfooter">
+<macro id="nlfooter">
+
 			<table class="footer" style="width: 100%;">
-	          	<tr>
-					<td align="right"><pagenumber/> of <totalpages/></td>
+          		<tr>
+                  	<td colspan="8" style="font-size: 6pt;">${regInfo}</td>
+					<td align="right" style="font-size: 6pt;">Page <pagenumber/> of <totalpages/></td>
 				</tr>
-	        </table>
+        	</table>
         </macro>
         
     </macrolist>
@@ -202,7 +237,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="10px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+<body header="nlheader" header-height="390px" footer="nlfooter" footer-height="10px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 
 	<#if summary_info.periodSummary?has_content>
 		<#list summary_info.periodSummary as period>

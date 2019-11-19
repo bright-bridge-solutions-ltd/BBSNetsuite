@@ -5,7 +5,7 @@
  */
 define(['N/sftp'],
 /**
- * @param {https} sftp
+ * @param {sftp} 
  */
 function(sftp) {
    

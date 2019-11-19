@@ -311,6 +311,10 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    			//
 	    			var contractRecord = getContract(resultContractId);
 	    			
+	    			//Having got the contract record, no get the subsidiary from the contract's customer
+	    			//
+	    			var subsidiaryRecord = getSubsidiary(contractRecord);
+	    			
 			    	//Only carry on if we have an email address & the contract record
 			    	//
 			    	if(resultContractEmailAddress != null && resultContractEmailAddress != '' && contractRecord != null)
@@ -333,7 +337,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
 					    	
 					    	//Merge data with the template
 					    	//
-					    	var pdfFile = mergeTemplate(resultContractId, pdfTemplateId, jsonSummary, contractRecord);
+					    	var pdfFile = mergeTemplate(resultContractId, pdfTemplateId, jsonSummary, contractRecord, subsidiaryRecord);
 					    	
 					    	//Save file to the filing cabinet 
 					    	//
@@ -379,6 +383,40 @@ function(config, email, error, file, record, render, runtime, search, format) {
     		
     		return contractRecord;
     	}
+
+    //=============================================================================================
+    //Function to get the subsidiary record
+    //=============================================================================================
+    //
+    function getSubsidiary(_contractRecord)
+    	{
+    		var subsidiaryRecord = null;
+    		
+    		var customerId = _contractRecord.getValue({fieldId: 'custrecord_bbs_contract_customer'})
+    		var subsidiaryId = search.lookupFields({
+    												type:		search.Type.CUSTOMER,
+    												id:			customerId,
+    												columns:	'subsidiary'
+    												}).subsidiary[0].value;
+    		try
+    			{
+    			subsidiaryRecord = record.load({
+											type: 		'subsidiary', 
+											id: 		subsidiaryId, 
+											isDynamic: 	true
+											});	
+    			}
+    		catch(err)
+    			{
+	    			log.error({
+								title: 	'Error loading the subsidiary record id =  ' + subsidiaryId,
+								details: err
+								});
+    			}
+    		
+    		return subsidiaryRecord;
+    	}
+
 
     //=============================================================================================
     //Function to attach the statement to the contract record
@@ -916,7 +954,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
     //Function to merge the pdf template with the data elements
     //=============================================================================================
     //
-    function mergeTemplate(_contractId, _pdfTemplateId, _jsonSummary, _contractRecord)
+    function mergeTemplate(_contractId, _pdfTemplateId, _jsonSummary, _contractRecord, _subsidiaryRecord)
     	{
     		var pdfFile = null;
     		
@@ -978,7 +1016,11 @@ function(config, email, error, file, record, render, runtime, search, format) {
     											templateName:	'contract',
     											record:			_contractRecord
     											});		
-    						
+    						renderer.addRecord({
+												templateName:	'subsidiary',
+												record:			_subsidiaryRecord
+												});		
+			
     						//Render as PDF
     						//
     						try
