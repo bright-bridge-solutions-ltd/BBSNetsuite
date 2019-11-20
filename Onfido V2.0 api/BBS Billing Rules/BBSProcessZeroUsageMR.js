@@ -23,6 +23,10 @@ function(runtime, search, record, format, task) {
 		name: 'custscript_bbs_sales_order_form'
 	});
 	
+	billingType = currentScript.getParameter({
+		name: 'custscript_bbs_billing_type_select'
+	});
+	
 	// declare new date object. Global variable so can be accessed throughout the script
 	processDate = new Date();
 	processDate.setDate(0); // set date to be the last day of the previous month
@@ -41,8 +45,8 @@ function(runtime, search, record, format, task) {
      */
     function getInputData() {
     	
-    	// run search to find contract records with no usage
-    	return search.create({
+    	// create search to find contract records with no usage
+    	var contractRecordSearch = search.create({
     		type: 'customrecord_bbs_contract_period',
     		
     		filters: [{
@@ -79,7 +83,27 @@ function(runtime, search, record, format, task) {
     		}],
 
     	});
+    	
+    	// check if the billingType variable contains a value
+    	if (billingType)
+    		{
+    			// get the current search filters
+    			var filters = contractRecordSearch.filters; //reference Search.filters object to a new variable
+    	    
+    			// create a new search filter
+    			var newFilter = search.createFilter({
+    	            name: 'custrecord_bbs_contract_billing_type',
+    	            join: 'custrecord_bbs_contract_period_contract',
+    	            operator: 'anyof',
+    	            values: [billingType]
+    	        });
 
+    			// add the filter using .push() method
+    			filters.push(newFilter);
+    		}
+    	
+    	// return the search object to the map stage
+    	return contractRecordSearch;
     }
 
     /**
@@ -674,7 +698,10 @@ function(runtime, search, record, format, task) {
     	var mapReduceTask = task.create({
     	    taskType: task.TaskType.MAP_REDUCE,
     	    scriptId: 'customscript_bbs_billing_map_reduce',
-    	    deploymentId: 'customdeploy_bbs_billing_map_reduce'
+    	    deploymentId: 'customdeploy_bbs_billing_map_reduce',
+    	    params: {
+    	    	custscript_bbs_billing_type_select: billingType
+    	    }
     	});
     	
     	// submit the map/reduce task

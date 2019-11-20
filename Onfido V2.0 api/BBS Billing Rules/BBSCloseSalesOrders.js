@@ -104,7 +104,7 @@ function(search, record) {
 	    	catch(error)
 	    		{
 		    		log.error({
-			    		title: 'Error Upating Sales Order ' + recordID,
+			    		title: 'Error Updating Sales Order ' + recordID,
 			    		details: error
 			    	});
 	    		}

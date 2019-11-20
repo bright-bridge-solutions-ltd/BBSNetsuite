@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define([],
-function() {
+define(['N/search', 'N/format', 'N/ui/message'],
+function(search, format, message) {
     
     /**
      * Function to be executed after page is initialized.
@@ -67,10 +67,10 @@ function() {
 		    			day--;
 		    			
 						// create a new date object and set it's value. This will be the last day of the month
-						var endDate = new Date().
-						endDate.setDate(day);
-						endDate.setMonth(startDate.getMonth()+contractTerm);
+						var endDate = new Date();
 						endDate.setFullYear(startDate.getFullYear());
+						endDate.setMonth(startDate.getMonth()+contractTerm);
+						endDate.setDate(day);
 		    			
 		    			// set the end date field on the record
 		    			currentRecord.setValue({
@@ -194,11 +194,91 @@ function() {
      * @since 2015.2
      */
     function saveRecord(scriptContext) {
-
+    	
+    	// declare and initialize contracts
+    	var contracts = 0;
+    	
+    	// get the current record object
+    	var currentRecord = scriptContext.currentRecord;
+    	
+    	// get the internal ID of the customer
+    	var customer = currentRecord.getValue({
+    		fieldId: 'custrecord_bbs_contract_customer'
+    	});
+    	
+    	// get the start date of the contract
+    	var startDate = currentRecord.getValue({
+    		fieldId: 'custrecord_bbs_contract_start_date'
+    	});
+    	
+    	// format startDate as a date string
+    	startDate = format.format({
+    		type: format.Type.DATE,
+    		value: startDate
+    	});
+    	
+    	// create search to find active contracts for this customer between the selected dates
+    	var contractRecordSearch = search.create({
+    		type: 'customrecord_bbs_contract',
+    		
+    		columns: [{
+    			name: 'internalid'
+    		}],
+    		
+    		filters: [{
+    			name: 'custrecord_bbs_contract_customer',
+    			operator: 'anyof',
+    			values: [customer]
+    		},
+    				{
+    			name: 'isinactive',
+    			operator: 'is',
+    			values: ['F']
+    		},
+    				{
+    			name: 'custrecord_bbs_contract_end_date',
+    			operator: 'onorafter',
+    			values: [startDate]
+    		}],
+    	});
+    	
+    	// run search and process results
+    	contractRecordSearch.run().each(function(result) {
+    		
+    		// increase the contracts variable
+    		contracts++;
+    		
+    	});
+    	
+    	// check if the contracts variable is greater than 0
+    	if (contracts > 0)
+    		{
+    			// get the text value of the customer field
+        		customer = currentRecord.getText({
+        			fieldId: 'custrecord_bbs_contract_customer'
+        		});
+    		
+    			// display an alert to the user
+        		message.create({
+                    title: 'Error', 
+                    message: 'There is already an existing contract record for <b>' + customer + '</b> which runs between the selected dates.<br><br>Please amend your dates and try again.',
+                    type: message.Type.ERROR,
+                    duration: 5000 // show message for 5000 milliseconds/5 seconds
+                }).show(); // show message
+                
+        		// do not allow the record to be submitted
+    			return false;
+    		}
+    	else // contracts variable is 0
+    		{
+    			// allow the record to be submitted
+    			return true;
+    		}
     }
 
     return {
-        fieldChanged: fieldChanged
+        fieldChanged: fieldChanged,
+        saveRecord: saveRecord
     };
     
 });
