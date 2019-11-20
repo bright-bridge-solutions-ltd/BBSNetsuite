@@ -6,6 +6,7 @@
  * 1.10			09 Aug 2019		sambatten		Added lineInit and saveRecord functions and added additional actions to pageInit and fieldChanged functions
  * 1.20			22 Aug 2019		sambatten		Added action to disable grossamt line field instead of amount field
  * 1.30			09 Sep 2019		sambatten		Changed pageInit function to only set expense department line field on create
+ * 1.40			20 Nov 2019		sambatten		Changed pageInit function to only set currency line field on create
  */
 
 function pageInit(type)
@@ -25,13 +26,13 @@ function pageInit(type)
 						
 				// set the value of the custcol_bbs_expense_department field for the current line using the defaultCostCentre variable
 				nlapiSetCurrentLineItemValue('expense', 'custcol_bbs_expense_department', defaultCostCentre, false, true); // type, fldnam, value, firefieldchanged, synchronous
+				
+				// set the value of the currency field for the current line to GBP (internal ID 1)
+				nlapiSetCurrentLineItemValue('expense', 'currency', 1, false, true); // type, fldnam, value, firefieldchanged, synchronous
 			}
 				
 		// set the value of the currency field to GBP (internal ID 1)
 		nlapiSetFieldValue('expensereportcurrency', 1);
-				
-		// set the value of the currency field for the current line to GBP (internal ID 1)
-		nlapiSetCurrentLineItemValue('expense', 'currency', 1, false, true); // type, fldnam, value, firefieldchanged, synchronous
 	}
 
 function lineInit(type)
