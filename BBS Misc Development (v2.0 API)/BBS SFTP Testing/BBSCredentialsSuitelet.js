@@ -53,6 +53,11 @@ function(serverWidget, http)
 	    	{
 	    		var request = context.request;
 	    		var guid = request.parameters['custpage_password'];
+	    		
+	    		//Save the returned guid to a custom record to be retrieved later
+	    		//
+	    		
+	    		
 				var dummy = '';
 	    	}
     }

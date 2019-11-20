@@ -140,10 +140,10 @@ function myCatalogueAddSuitelet(request, response)
 								{
 									var userFilters = JSON.parse(sessionData);
 									
-									if(userFilters['brand'] != '')
-										{
-											existingFilters.push("AND",["custrecord_bbs_web_product_item.custitem_cseg_bbs_custseg_it","anyof",userFilters['brand']])
-										}
+									//if(userFilters['brand'] != '')
+									//	{
+									//		existingFilters.push("AND",["custrecord_bbs_web_product_item.custitem_cseg_bbs_custseg_it","anyof",userFilters['brand']])
+									//	}
 									
 									if(userFilters['description'] != '')
 										{
@@ -174,7 +174,13 @@ function myCatalogueAddSuitelet(request, response)
 							
 							//Add filters to the sublist
 							//
-							form.addField('custpage_filter_brand', 'select', 'Brand', 'customrecord_cseg_bbs_custseg_it', 'custpage_items_tab');
+							//form.addField('custpage_filter_brand', 'select', 'Brand', 'customrecord_cseg_bbs_custseg_it', 'custpage_items_tab');
+							var brandField = form.addField('custpage_filter_brand', 'select', 'Branded/Un-Branded', null, 'custpage_items_tab');
+							brandField.addSelectOption('','', true);
+							brandField.addSelectOption('A','--Any--', false);
+							brandField.addSelectOption('B','Branded (Assemblies)', false);
+							brandField.addSelectOption('U','Un-Branded (Inventory Items)', false);
+							
 							form.addField('custpage_filter_desc', 'text', 'Description (contains)', null, 'custpage_items_tab');
 							form.addField('custpage_filter_product', 'text', 'Product Code (contains)', null, 'custpage_items_tab');
 							
@@ -184,7 +190,7 @@ function myCatalogueAddSuitelet(request, response)
 							var userFiltersAdded = false;
 							var filters = [];
 							filters.push(["isinactive","is","F"]);
-							filters.push("AND",["type","anyof","InvtPart","Assembly"]);
+							//filters.push("AND",["type","anyof","InvtPart","Assembly"]);
 							filters.push("AND",[["matrix","is","F"],"OR",[["matrix","is","T"],"AND",["matrixchild","is","T"]]]);
 							
 							if(existingIds.length > 0)
@@ -196,12 +202,30 @@ function myCatalogueAddSuitelet(request, response)
 								{
 									var userFilters = JSON.parse(sessionData);
 									
-									if(userFilters['brand'] != '')
+								//	if(userFilters['brand'] != '')
+								//		{
+								//			filters.push("AND",["custitem_cseg_bbs_custseg_it","anyof",userFilters['brand']]);
+								//			userFiltersAdded = true;
+								//		}
+									
+									if(userFilters['brand'] == 'B')
 										{
-											filters.push("AND",["custitem_cseg_bbs_custseg_it","anyof",userFilters['brand']]);
+											filters.push("AND",["type","anyof","Assembly"]);
 											userFiltersAdded = true;
 										}
 									
+									if(userFilters['brand'] == 'U')
+										{
+											filters.push("AND",["type","anyof","InvtPart"]);
+											userFiltersAdded = true;
+										}
+								
+									if(userFilters['brand'] == 'A')
+										{
+											filters.push("AND",["type","anyof","InvtPart","Assembly"]);
+											userFiltersAdded = true;
+										}
+								
 									if(userFilters['description'] != '')
 										{
 											filters.push("AND",["description","contains",userFilters['description']]);
@@ -396,11 +420,12 @@ function getResults(search)
 	
 	//Get the initial set of results
 	//
-	var pageSize = 100;
+	var pageSize = 500;
 	var start = 0;
 	var end = pageSize;
 	var searchResultSet = searchResult.getResults(start, end);
 	
+	/*
 	if(searchResultSet != null)
 		{
 			var resultlen = searchResultSet.length;
@@ -418,5 +443,7 @@ function getResults(search)
 						searchResultSet = searchResultSet.concat(moreSearchResultSet);
 				}
 		}
+		*/
+	
 	return searchResultSet;
 }
