@@ -627,14 +627,23 @@ function(url, runtime, record, search, format) {
 					var invoiceID = invoice.save();
 					
 					log.audit({
-						title: 'QUR Invoice Created',
+						title: 'Initial Prepayment Invoice Created',
 						details: 'Invoice ID: ' + invoiceID + ' | Contract Record ID: ' + contractRecord
+					});
+					
+					// update the 'Initial Prepayment Invoice Billed' checkbox on the contract record
+					record.submitFields({
+						type: 'customrecord_bbs_contract',
+						id: contractRecord,
+						values: {
+							custrecord_bbs_contract_initial_invoice: true
+						}
 					});
 				}
 	    	catch(e)
 				{
 					log.error({
-						title: 'Error creating QUR Invoice for Contract Record ' + contractRecord,
+						title: 'Error creating initial prepayment invoice for Contract Record ' + contractRecord,
 						details: e
 					});
 				}
