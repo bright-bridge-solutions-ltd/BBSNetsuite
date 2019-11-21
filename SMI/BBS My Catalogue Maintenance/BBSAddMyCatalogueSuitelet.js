@@ -122,7 +122,7 @@ function myCatalogueAddSuitelet(request, response)
 							var sublistFieldId = sublist.addField('custpage_items_id', 'text', 'Internal Id', null);
 							var sublistFieldType = sublist.addField('custpage_items_type', 'text', 'Type', null);
 							var sublistFieldProduct = sublist.addField('custpage_items_product', 'text', 'Product', null);
-							var sublistFieldDescription = sublist.addField('custpage_items_description', 'text', 'XDescription', null);
+							var sublistFieldDescription = sublist.addField('custpage_items_description', 'text', 'Description', null);
 							var sublistFieldBrand = sublist.addField('custpage_items_brand', 'text', 'Brand', null);
 							
 							//Get session data
@@ -175,7 +175,7 @@ function myCatalogueAddSuitelet(request, response)
 							//Add filters to the sublist
 							//
 							//form.addField('custpage_filter_brand', 'select', 'Brand', 'customrecord_cseg_bbs_custseg_it', 'custpage_items_tab');
-							var brandField = form.addField('custpage_filter_brand', 'select', 'Branded/Un-Branded', null, 'custpage_items_tab');
+							var brandField = form.addField('custpage_filter_brand', 'select', 'Item Type', null, 'custpage_items_tab');
 							brandField.addSelectOption('','', true);
 							brandField.addSelectOption('A','--Any--', false);
 							brandField.addSelectOption('B','Branded (Assemblies)', false);
@@ -189,55 +189,67 @@ function myCatalogueAddSuitelet(request, response)
 							//
 							var userFiltersAdded = false;
 							var filters = [];
-							filters.push(["isinactive","is","F"]);
-							//filters.push("AND",["type","anyof","InvtPart","Assembly"]);
-							filters.push("AND",[["matrix","is","F"],"OR",[["matrix","is","T"],"AND",["matrixchild","is","T"]]]);
+							var userFilters = null;
 							
+							//Parse the session data
+							//
+							if(sessionData != null && sessionData != '')
+								{
+									userFilters = JSON.parse(sessionData);
+								}
+							
+							//Start of with only active items
+							//
+							filters.push(["isinactive","is","F"]);
+							
+							//Add filter to remove existing items
+							//
 							if(existingIds.length > 0)
 								{
 									filters.push("AND",["internalid","noneof",existingIds]);
 								}
 							
-							if(sessionData != null && sessionData != '')
+							//Add a filter for the description
+							//
+							if(userFilters != null && userFilters['description'] != '')
 								{
-									var userFilters = JSON.parse(sessionData);
-									
-								//	if(userFilters['brand'] != '')
-								//		{
-								//			filters.push("AND",["custitem_cseg_bbs_custseg_it","anyof",userFilters['brand']]);
-								//			userFiltersAdded = true;
-								//		}
-									
-									if(userFilters['brand'] == 'B')
-										{
-											filters.push("AND",["type","anyof","Assembly"]);
-											userFiltersAdded = true;
-										}
-									
-									if(userFilters['brand'] == 'U')
-										{
-											filters.push("AND",["type","anyof","InvtPart"]);
-											userFiltersAdded = true;
-										}
-								
-									if(userFilters['brand'] == 'A')
-										{
-											filters.push("AND",["type","anyof","InvtPart","Assembly"]);
-											userFiltersAdded = true;
-										}
-								
-									if(userFilters['description'] != '')
-										{
-											filters.push("AND",["description","contains",userFilters['description']]);
-											userFiltersAdded = true;
-										}
-									
-									if(userFilters['product'] != '')
-										{
-											filters.push("AND",["itemid","contains",userFilters['product']]);
-											userFiltersAdded = true;
-										}
+									filters.push("AND",["description","contains",userFilters['description']]);
+									userFiltersAdded = true;
 								}
+							
+							//Add a filter for the product code
+							//
+							if(userFilters != null && userFilters['product'] != '')
+								{
+									filters.push("AND",["itemid","contains",userFilters['product']]);
+									userFiltersAdded = true;
+								}
+							
+							//Add filter for inventory items only, but exclude matrix parents (matrix is F)
+							//
+							if(userFilters != null && userFilters['brand'] == 'U')
+								{
+									filters.push("AND",[["type","anyof","InvtPart"],"AND",["matrix","is","F"]]);
+									userFiltersAdded = true;
+								}
+							
+							//Add a filter for both inventory items & assembly items (but only assembly items that belong to the customer)
+							//
+							if(userFilters != null && userFilters['brand'] == 'A')
+								{
+									filters.push("AND",[[["type","anyof","InvtPart"],"AND",["matrix","is","F"]],"OR",[["type","anyof","Assembly"],"AND",["matrix","is","F"],"AND",["matrixchild","is","T"],"AND",["custitem_bbs_item_customer","anyof",custIdParam]]]);
+									userFiltersAdded = true;
+								}
+							
+							//Add filter for assemblies only (but only assemblies that belong to the customer)
+							//
+							if(userFilters != null && userFilters['brand'] == 'B')
+								{
+								filters.push("AND",["type","anyof","Assembly"],"AND",["matrix","is","F"],"AND",["matrixchild","is","T"],"AND",["custitem_bbs_item_customer","anyof",custIdParam]);
+								userFiltersAdded = true;
+								}
+							
+							
 							
 							//Populate the sublist
 							//

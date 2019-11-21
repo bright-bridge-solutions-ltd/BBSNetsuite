@@ -126,9 +126,16 @@ function myCatalogueDeleteSuitelet(request, response)
 							
 							//Add filters to the sublist
 							//
-							form.addField('custpage_filter_brand', 'select', 'Brand', 'customrecord_cseg_bbs_custseg_it', 'custpage_items_tab');
+							var brandField = form.addField('custpage_filter_brand', 'select', 'Item Type', null, 'custpage_items_tab');
+							brandField.addSelectOption('','', true);
+							brandField.addSelectOption('A','--Any--', false);
+							brandField.addSelectOption('B','Branded (Assemblies)', false);
+							brandField.addSelectOption('U','Un-Branded (Inventory Items)', false);
+
 							form.addField('custpage_filter_desc', 'text', 'Description (contains)', null, 'custpage_items_tab');
 							form.addField('custpage_filter_product', 'text', 'Product Code (contains)', null, 'custpage_items_tab');
+							//form.addField('custpage_filter_brand', 'select', 'Brand', 'customrecord_cseg_bbs_custseg_it', 'custpage_items_tab');
+							
 							
 							//Get session data
 							//
@@ -143,11 +150,26 @@ function myCatalogueDeleteSuitelet(request, response)
 								{
 									var userFilters = JSON.parse(sessionData);
 									
-									if(userFilters['brand'] != '')
-										{
-											filters.push("AND",["custrecord_bbs_web_product_item.custitem_cseg_bbs_custseg_it","anyof",userFilters['brand']])
-										}
+									//if(userFilters['brand'] != '')
+									//	{
+									//		filters.push("AND",["custrecord_bbs_web_product_item.custitem_cseg_bbs_custseg_it","anyof",userFilters['brand']])
+									//	}
 									
+									if(userFilters['brand'] == 'A')
+										{
+											filters.push("AND",["custrecord_bbs_web_product_item.type","anyof","InvtPart","Assembly"])
+										}
+								
+									if(userFilters['brand'] == 'B')
+										{
+											filters.push("AND",["custrecord_bbs_web_product_item.type","anyof","Assembly"])
+										}
+								
+									if(userFilters['brand'] == 'U')
+										{
+											filters.push("AND",["custrecord_bbs_web_product_item.type","anyof","InvtPart"])
+										}
+								
 									if(userFilters['description'] != '')
 										{
 											filters.push("AND",["custrecord_bbs_web_product_item.description","contains",userFilters['description']])
