@@ -189,7 +189,16 @@ function(runtime, search, record) {
 	    			log.audit({
 	    				title: 'QMP Invoice Created',
 	    				details: 'Invoice ID: ' + invoiceID + ' | Contract Record ID: ' + contractRecord
-	    			}); 			
+	    			});
+	    			
+	    			// update fields on the contract record
+					record.submitFields({
+						type: 'customrecord_bbs_contract',
+						id: contractRecord,
+						values: {
+							custrecord_bbs_contract_prepayment_inv: qmpAmt
+						}
+					});
 				}
 		    catch(e)
 			    {

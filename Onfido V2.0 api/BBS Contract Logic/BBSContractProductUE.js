@@ -50,6 +50,7 @@ function(record, search, format) {
     	var quarter = 0;
     	var monthlyMinimum;
     	var thisMonthlyMinimum;
+    	var quarterStart = false;
     	
     	// get the ID of the submitted record
     	var currentRecordID = scriptContext.newRecord.id;
@@ -136,6 +137,9 @@ function(record, search, format) {
     		{
     			// reset the thisMonthlyMinimum variable's value using the monthlyMinimum variable
     			thisMonthlyMinimum = monthlyMinimum;
+    			
+    			// reset the quarterStart variable to false
+    			quarterStart = false;
     		
     			// create a new BBS Contract Period Detail record
     			var newRecord = record.create({
@@ -233,7 +237,14 @@ function(record, search, format) {
     			// if statement to check this is the 3rd contract period and not the last contract period
     			if (ct % 3 === 1 && ct != contractTerm)
     				{	
-	        			// increase quarter variable by 1
+	        			// check this is NOT the first month
+    					if (ct != 1)
+    						{
+    							// set the value of the quarterStart variable to true
+    							quarterStart = true;
+    						}
+    				
+    					// increase quarter variable by 1
 		    			quarter++;
 	        			
 		    			// if the quarter variable is 5
@@ -258,6 +269,16 @@ function(record, search, format) {
 	    			fieldId: 'custrecord_bbs_contract_period_qu_end',
 	    			value: quarterEndDate
 	    		});
+	    		
+	    		// check if quarterStart = true
+	    		if (quarterStart == true)
+	    			{
+	    				// tick the 'Start of New Quarter' checkbox on the new record
+	    				newRecord.setValue({
+	    					fieldId: 'custrecord_bbs_contract_period_qtr_start',
+	    					value: true
+	    				});
+	    			}
     					
     			// submit the new record
     			var newRecordID = newRecord.save();

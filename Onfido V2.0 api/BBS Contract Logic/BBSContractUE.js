@@ -631,12 +631,13 @@ function(url, runtime, record, search, format) {
 						details: 'Invoice ID: ' + invoiceID + ' | Contract Record ID: ' + contractRecord
 					});
 					
-					// update the 'Initial Prepayment Invoice Billed' checkbox on the contract record
+					// update fields on the contract record
 					record.submitFields({
 						type: 'customrecord_bbs_contract',
 						id: contractRecord,
 						values: {
-							custrecord_bbs_contract_initial_invoice: true
+							custrecord_bbs_contract_initial_invoice: true,
+							custrecord_bbs_contract_prepayment_inv: amount
 						}
 					});
 				}

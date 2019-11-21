@@ -195,12 +195,13 @@ function(runtime, search, record) {
 	    			// submit the invoice record
 	    			invoiceID = invoice.save();
 	    			
-	    			// tick the 'INITIAL PREPAYMENT INVOICE BILLED' checkbox on the contract record
+	    			// update fields on the contract record
 	    			record.submitFields({
 	    				type: 'customrecord_bbs_contract',
 	    				id: contractRecord,
 	    				values: {
-	    					'custrecord_bbs_contract_initial_invoice': true
+	    					custrecord_bbs_contract_initial_invoice: true,
+	    					custrecord_bbs_contract_prepayment_inv: ampAmt
 	    				}
 	    			});
 	    			
