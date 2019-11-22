@@ -122,7 +122,7 @@ function myCatalogueDeleteSuitelet(request, response)
 							var sublistFieldId = sublist.addField('custpage_items_id', 'text', 'Internal Id', null);
 							var sublistFieldProduct = sublist.addField('custpage_items_product', 'text', 'Product', null);
 							var sublistFieldDescription = sublist.addField('custpage_items_description', 'text', 'XDescription', null);
-							var sublistFieldBrand = sublist.addField('custpage_items_brand', 'text', 'Brand', null);
+							var sublistFieldFinish = sublist.addField('custpage_items_finish', 'text', 'Finish', null);
 							
 							//Add filters to the sublist
 							//
@@ -134,7 +134,7 @@ function myCatalogueDeleteSuitelet(request, response)
 
 							form.addField('custpage_filter_desc', 'text', 'Description (contains)', null, 'custpage_items_tab');
 							form.addField('custpage_filter_product', 'text', 'Product Code (contains)', null, 'custpage_items_tab');
-							//form.addField('custpage_filter_brand', 'select', 'Brand', 'customrecord_cseg_bbs_custseg_it', 'custpage_items_tab');
+							form.addField('custpage_filter_finish', 'select', 'Finish', 'customlist_bbs_item_finish_ref', 'custpage_items_tab');
 							
 							
 							//Get session data
@@ -155,29 +155,36 @@ function myCatalogueDeleteSuitelet(request, response)
 									//		filters.push("AND",["custrecord_bbs_web_product_item.custitem_cseg_bbs_custseg_it","anyof",userFilters['brand']])
 									//	}
 									
-									if(userFilters['brand'] == 'A')
+									if(userFilters != null && userFilters['brand'] == 'A')
 										{
 											filters.push("AND",["custrecord_bbs_web_product_item.type","anyof","InvtPart","Assembly"])
 										}
 								
-									if(userFilters['brand'] == 'B')
+									if(userFilters != null && userFilters['brand'] == 'B')
 										{
 											filters.push("AND",["custrecord_bbs_web_product_item.type","anyof","Assembly"])
 										}
 								
-									if(userFilters['brand'] == 'U')
+									if(userFilters != null && userFilters['brand'] == 'U')
 										{
 											filters.push("AND",["custrecord_bbs_web_product_item.type","anyof","InvtPart"])
 										}
 								
-									if(userFilters['description'] != '')
+									if(userFilters != null && userFilters['description'] != '')
 										{
 											filters.push("AND",["custrecord_bbs_web_product_item.description","contains",userFilters['description']])
 										}
 									
-									if(userFilters['product'] != '')
+									if(userFilters != null && userFilters['product'] != '')
 										{
 											filters.push("AND",["custrecord_bbs_web_product_item.name","contains",userFilters['product']])
+										}
+									
+									//Add a filter for the product finish
+									//
+									if(userFilters != null && userFilters['finish'] != '')
+										{
+											filters.push("AND",["custrecord_bbs_web_product_item.custitem_bbs_item_finish_ref","anyof",userFilters['finish']]);
 										}
 								}
 							
@@ -190,6 +197,7 @@ function myCatalogueDeleteSuitelet(request, response)
 									   new nlobjSearchColumn("custrecord_bbs_web_product_item"), 
 									   new nlobjSearchColumn("salesdescription","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null), 
 									   new nlobjSearchColumn("custitem_cseg_bbs_custseg_it","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null), 
+									   new nlobjSearchColumn("custitem_bbs_item_finish_ref","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null), 
 									   new nlobjSearchColumn("custitem_bbs_matrix_item_seq","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null).setSort(false)
 									]
 									));
@@ -202,11 +210,12 @@ function myCatalogueDeleteSuitelet(request, response)
 											var searchProduct = customrecord_bbs_customer_web_productSearch[int].getText("custrecord_bbs_web_product_item");
 											var searchDescription = customrecord_bbs_customer_web_productSearch[int].getValue("salesdescription","CUSTRECORD_BBS_WEB_PRODUCT_ITEM");
 											var searchBrand = customrecord_bbs_customer_web_productSearch[int].getText("custitem_cseg_bbs_custseg_it","CUSTRECORD_BBS_WEB_PRODUCT_ITEM");
+											var searchFilter = customrecord_bbs_customer_web_productSearch[int].getText("custitem_bbs_item_finish_ref","CUSTRECORD_BBS_WEB_PRODUCT_ITEM");
 											
 											sublist.setLineItemValue('custpage_items_id', int + 1, searchId);
 											sublist.setLineItemValue('custpage_items_product', int + 1, searchProduct);
 											sublist.setLineItemValue('custpage_items_description', int + 1, searchDescription);
-											sublist.setLineItemValue('custpage_items_brand', int + 1, searchBrand);
+											sublist.setLineItemValue('custpage_items_finish', int + 1, searchFilter);
 											
 										}
 								}

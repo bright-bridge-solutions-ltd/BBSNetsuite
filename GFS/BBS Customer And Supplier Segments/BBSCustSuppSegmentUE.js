@@ -48,7 +48,7 @@ function custSuppSegmentAS(type)
 					break;
 			}
 		
-			if(subsidiary == APPLICABLE_SUBSIDIARY && ((recordType == 'customer' && category == CUSTOMER_CATEGORY) || (recordType == 'vendor' && category == SUPPLIER_CATEGORY))) //Subsidiary = Global Freight Solutions & Category = Tech Only
+			if(subsidiary == APPLICABLE_SUBSIDIARY && (recordType == 'customer' || (recordType == 'vendor' && category == SUPPLIER_CATEGORY))) //Subsidiary = Global Freight Solutions & Category = Tech Only
 				{
 					createSegment(recordType, recordId, entitySegmentField, name, customSegmentId);
 				}
@@ -97,14 +97,14 @@ function custSuppSegmentAS(type)
 			
 			//If we have a segment associated to the entity, but the category is no longer relevant, then remove the segment from the entity
 			//
-			if(subsidiary == APPLICABLE_SUBSIDIARY && newSegment != null && newSegment != '' && ((recordType == 'customer' && category != CUSTOMER_CATEGORY) || (recordType == 'vendor' && category != SUPPLIER_CATEGORY)))
+			if(subsidiary == APPLICABLE_SUBSIDIARY && newSegment != null && newSegment != '' && (recordType == 'customer'  || (recordType == 'vendor' && category != SUPPLIER_CATEGORY)))
 				{
 					removeSegment(recordType, recordId, entitySegmentField);
 				}
 			
 			//If we don't have a segment associated to the entity, but the category is now relevant, then create a segment from the entity
 			//
-			if(subsidiary == APPLICABLE_SUBSIDIARY && (newSegment == null || newSegment == '') && ((recordType == 'customer' && newCategory == CUSTOMER_CATEGORY) || (recordType == 'vendor' && newCategory == SUPPLIER_CATEGORY)))
+			if(subsidiary == APPLICABLE_SUBSIDIARY && (newSegment == null || newSegment == '') && (recordType == 'customer' || (recordType == 'vendor' && newCategory == SUPPLIER_CATEGORY)))
 				{
 					createSegment(recordType, recordId, entitySegmentField, newName, customSegmentId);
 				}

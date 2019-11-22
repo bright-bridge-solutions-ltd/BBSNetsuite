@@ -123,7 +123,7 @@ function myCatalogueAddSuitelet(request, response)
 							var sublistFieldType = sublist.addField('custpage_items_type', 'text', 'Type', null);
 							var sublistFieldProduct = sublist.addField('custpage_items_product', 'text', 'Product', null);
 							var sublistFieldDescription = sublist.addField('custpage_items_description', 'text', 'Description', null);
-							var sublistFieldBrand = sublist.addField('custpage_items_brand', 'text', 'Brand', null);
+							var sublistFieldFinish = sublist.addField('custpage_items_finish', 'text', 'Finish', null);
 							
 							//Get session data
 							//
@@ -183,6 +183,7 @@ function myCatalogueAddSuitelet(request, response)
 							
 							form.addField('custpage_filter_desc', 'text', 'Description (contains)', null, 'custpage_items_tab');
 							form.addField('custpage_filter_product', 'text', 'Product Code (contains)', null, 'custpage_items_tab');
+							form.addField('custpage_filter_finish', 'select', 'Finish', 'customlist_bbs_item_finish_ref', 'custpage_items_tab');
 							
 							
 							//Define the search filters
@@ -225,6 +226,14 @@ function myCatalogueAddSuitelet(request, response)
 									userFiltersAdded = true;
 								}
 							
+							//Add a filter for the product finish
+							//
+							if(userFilters != null && userFilters['finish'] != '')
+								{
+									filters.push("AND",["custitem_bbs_item_finish_ref","anyof",userFilters['finish']]);
+									userFiltersAdded = true;
+								}
+							
 							//Add filter for inventory items only, but exclude matrix parents (matrix is F)
 							//
 							if(userFilters != null && userFilters['brand'] == 'U')
@@ -260,6 +269,7 @@ function myCatalogueAddSuitelet(request, response)
 											[
 											   new nlobjSearchColumn("type"), 
 											   new nlobjSearchColumn("custitem_cseg_bbs_custseg_it"), 
+											   new nlobjSearchColumn("custitem_bbs_item_finish_ref"), 
 											   new nlobjSearchColumn("itemid").setSort(false), 
 											   new nlobjSearchColumn("salesdescription")
 											]
@@ -273,12 +283,13 @@ function myCatalogueAddSuitelet(request, response)
 													var searchProduct = itemSearch[int].getValue("itemid");
 													var searchDescription = itemSearch[int].getValue("salesdescription");
 													var searchBrand = itemSearch[int].getText("custitem_cseg_bbs_custseg_it");
+													var searchFinish = itemSearch[int].getText("custitem_bbs_item_finish_ref");
 													var searchType = itemSearch[int].getText("type");
 													
 													sublist.setLineItemValue('custpage_items_id', int + 1, searchId);
 													sublist.setLineItemValue('custpage_items_product', int + 1, searchProduct);
 													sublist.setLineItemValue('custpage_items_description', int + 1, searchDescription);
-													sublist.setLineItemValue('custpage_items_brand', int + 1, searchBrand);
+													sublist.setLineItemValue('custpage_items_finish', int + 1, searchFinish);
 													sublist.setLineItemValue('custpage_items_type', int + 1, searchType);
 													
 												}

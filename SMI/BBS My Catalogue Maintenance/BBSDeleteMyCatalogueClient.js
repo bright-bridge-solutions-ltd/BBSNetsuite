@@ -27,10 +27,12 @@ function myCatalogueFieldChanged(type, name, linenum)
 			var filterBrand = nlapiGetFieldValue('custpage_filter_brand');
 			var filterDescription = nlapiGetFieldValue('custpage_filter_desc');
 			var filterPrioduct = nlapiGetFieldValue('custpage_filter_product');
+			var filterFinish = nlapiGetFieldValue('custpage_filter_finish');
 			
 			filters['brand'] = filterBrand;
 			filters['description'] = filterDescription;
 			filters['product'] = filterPrioduct;
+			filters['finish'] = filterFinish;
 			
 			var filtersString = JSON.stringify(filters);
 			
