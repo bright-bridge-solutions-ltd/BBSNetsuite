@@ -271,8 +271,8 @@ function(runtime, search, record, format, task) {
     		// declare and initialize variables
     		var monthlyMinimum;
     		var cumulativeMinimums;
-    		var cumulativeInvoices;
     		var thisMonthUsage;
+    		var cumulativeUsage;
     		var maximumMonthlyMinimum;
     		var invoiceAmount;
     		
@@ -297,7 +297,7 @@ function(runtime, search, record, format, task) {
 		    var contractRecordLookup = search.lookupFields({
 		    	type: 'customrecord_bbs_contract',
 		    	id: contractRecord,
-		    	columns: ['custrecord_bbs_contract_currency', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_min_ann_use']
+		    	columns: ['custrecord_bbs_contract_currency', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_min_ann_use', 'custrecord_bbs_contract_cum_inv_total']
 		    });
 		    
 		    // return values from the contractRecordLookup
@@ -305,6 +305,17 @@ function(runtime, search, record, format, task) {
 		    var contractEnd = contractRecordLookup.custrecord_bbs_contract_end_date;
 		    var earlyEndDate = contractRecordLookup.custrecord_bbs_contract_early_end_date;
 		    var annualMinimum = contractRecordLookup.custrecord_bbs_contract_min_ann_use;
+		    var cumulativeInvoices = contractRecordLookup.custrecord_bbs_contract_cum_inv_total;
+		    
+		    // check if the cumulativeInvoices variable is empty
+		    if (cumulativeInvoices == '')
+		    	{
+		    		// set the cumulativeInvoices variable to 0
+		    		cumulativeInvoices = 0;
+		    	}
+		    
+		    // use parseFloat to convert cumulativeInvoices to a floating point number
+		    cumulativeInvoices = parseFloat(cumulativeInvoices);
 		    
 		    // format contractEnd as a date object
 		    contractEnd = format.parse({
@@ -426,45 +437,48 @@ function(runtime, search, record, format, task) {
     		cumulativeInvoiceSearch.run().each(function(result) {
     			
     			// get the total of all invoices from the search results
-    			cumulativeInvoices = result.getValue({
+    			cumulativeInvoicesSearchResult = result.getValue({
     				name: 'formulacurrency',
     				summary: 'SUM'
     			});
     			
     		});
     		
-    		// check if the cumulativeInvoices variable is empty
-    		if (cumulativeInvoices == '')
+    		// check if the cumulativeInvoicesSearchResult variable is empty
+    		if (cumulativeInvoicesSearchResult == '')
     			{
-    				// set the cumulativeInvoices variable to 0
-    				cumulativeInvoices = 0;
+    				// set the cumulativeInvoicesSearchResult variable to 0
+    				cumulativeInvoicesSearchResult = 0;
     			}
     		
-    		cumulativeInvoices = parseFloat(cumulativeInvoices); // use parseFloat to convert to a floating point number
+    		cumulativeInvoicesSearchResult = parseFloat(cumulativeInvoicesSearchResult); // use parseFloat to convert to a floating point number
+    		
+    		// add cumulativeInvoicesSearchResult to cumulativeInvoices
+    		cumulativeInvoices += cumulativeInvoicesSearchResult;
     		
     		// create search to find usage for this month
     		var usageSearch = search.create({
-    			type: search.Type.SALES_ORDER,
+    			type: 'customrecord_bbs_contract_period',
     			
     			columns: [{
-    				name: 'amount',
+    				name: 'custrecord_bbs_contract_period_prod_use',
     				summary: 'SUM'
     			}],
     			
     			filters: [{
-    				name: 'mainline',
-    				operator: 'is',
-    				values: ['F']
+    				name: 'custrecord_bbs_contract_period_contract',
+    				operator: 'anyof',
+    				values: [contractRecord]
     			},
     					{
-    				name: 'custcol_bbs_so_search_date',
+    				name: 'custrecord_bbs_contract_period_start',
     				operator: 'within',
     				values: ['lastmonth']
     			},
     					{
-    				name: 'custbody_bbs_contract_record',
-    				operator: 'anyof',
-    				values: [contractRecord]
+    				name: 'custrecord_bbs_contract_period_end',
+    				operator: 'within',
+    				values: ['lastmonth']
     			}],
     		});
     		
@@ -473,7 +487,7 @@ function(runtime, search, record, format, task) {
     			
     			// get the the total of this month's usage from the search
     			thisMonthUsage = result.getValue({
-    				name: 'amount',
+    				name: 'custrecord_bbs_contract_period_prod_use',
     				summary: 'SUM'
     			});
     			
@@ -488,10 +502,46 @@ function(runtime, search, record, format, task) {
     		
     		thisMonthUsage = parseFloat(thisMonthUsage); // use parseFloat to convert to a floating point number
     		
-    		// get the cumulative usage across the contract to date
-    		var cumulativeUsage = soRecord.getValue({
-    			fieldId: 'subtotal'
+    		// create search to find cumulative usage for the contract
+    		var cumulativeUsageSearch = search.create({
+    			type: 'customrecord_bbs_contract_period',
+    			
+    			columns: [{
+    				name: 'custrecord_bbs_contract_period_prod_use',
+    				summary: 'SUM'
+    			}],
+    			
+    			filters: [{
+    				name: 'custrecord_bbs_contract_period_contract',
+    				operator: 'anyof',
+    				values: [contractRecord]
+    			},
+    					{
+    				name: 'custrecord_bbs_contract_period_end',
+    				operator: 'onorbefore',
+    				values: ['lastmonth']
+    			}],
     		});
+    		
+    		// run search and process results
+    		cumulativeUsageSearch.run().each(function(result)	{
+    			
+    			// get the the total of this month's usage from the search
+    			cumulativeUsage = result.getValue({
+    				name: 'custrecord_bbs_contract_period_prod_use',
+    				summary: 'SUM'
+    			});
+    			
+    		});
+    		
+    		// check if the cumulativeUsage variable is empty
+    		if (cumulativeUsage == '')
+    			{
+    				// set the cumulativeUsage to 0
+    				cumulativeUsage = 0;
+    			}
+    		
+    		cumulativeUsage = parseFloat(cumulativeUsage); // use parseFloat to convert to a floating point number
     		
     		// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
 			var deferredRevAmt = calculateDeferredRev(contractRecord);
@@ -555,8 +605,8 @@ function(runtime, search, record, format, task) {
 			else
 				{
 					log.audit({
-						title: 'Unable to Create Next Prepayment Invoice for Contract Record ' + contractRecord,
-						details: 'Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
+						title: 'Unable to Create Next Prepayment Invoice',
+						details: 'Contract Record ID: ' + contractRecord + ' | Reason: This would have resulted in a zero value invoice'
 					});
 		
 		    		// update fields on the contract record
@@ -614,10 +664,46 @@ function(runtime, search, record, format, task) {
 		    var contractEnd = contractRecordLookup.custrecord_bbs_contract_end_date;
 		    var earlyEndDate = contractRecordLookup.custrecord_bbs_contract_early_end_date;
 		    
-		    // get the total usage from the soRecord
-		    var totalUsage = soRecord.getValue({
-		    	fieldId: 'subtotal'
-		    });
+		    // create search to find cumulative usage for the contract
+    		var cumulativeUsageSearch = search.create({
+    			type: 'customrecord_bbs_contract_period',
+    			
+    			columns: [{
+    				name: 'custrecord_bbs_contract_period_prod_use',
+    				summary: 'SUM'
+    			}],
+    			
+    			filters: [{
+    				name: 'custrecord_bbs_contract_period_contract',
+    				operator: 'anyof',
+    				values: [contractRecord]
+    			},
+    					{
+    				name: 'custrecord_bbs_contract_period_end',
+    				operator: 'onorbefore',
+    				values: ['lastmonth']
+    			}],
+    		});
+    		
+    		// run search and process results
+    		cumulativeUsageSearch.run().each(function(result)	{
+    			
+    			// get the the total of this month's usage from the search
+    			cumulativeUsage = result.getValue({
+    				name: 'custrecord_bbs_contract_period_prod_use',
+    				summary: 'SUM'
+    			});
+    			
+    		});
+    		
+    		// check if the cumulativeUsage variable is empty
+    		if (cumulativeUsage == '')
+    			{
+    				// set the cumulativeUsage to 0
+    				cumulativeUsage = 0;
+    			}
+    		
+    		cumulativeUsage = parseFloat(cumulativeUsage); // use parseFloat to convert to a floating point number
 
 		    // format contractEnd as a date object
 		    contractEnd = format.parse({
@@ -638,13 +724,13 @@ function(runtime, search, record, format, task) {
 		    // check if the invoiceDate is greater than (after) or equal to the contractEnd OR earlyEndDate
 			if (invoiceDate.getTime() >= contractEnd.getTime() || earlyEndDate != '' && invoiceDate.getTime() >= earlyEndDate.getTime())
 		    	{
-		    		// check if the totalUsage is less than the minimumUsage
-				    if (totalUsage <= minimumUsage)
+		    		// check if the cumulativeUsage is less than the minimumUsage
+				    if (cumulativeUsage <= minimumUsage)
 					    {
 				    		// call function to close the sales order. Pass in soRecord object
 				    		closeSalesOrder(soRecord);
 					    }
-				    // if the totalUsage is greater than the minimumUsage
+				    // else if cumulativeUsage is greater than minimumUsage
 				    else
 				    	{
 				    		// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage  and contractRecord
@@ -657,18 +743,8 @@ function(runtime, search, record, format, task) {
 							updatePeriodDetail(recordID, soRecord);
 				    	}
 				    
-				    // check if the totalUsage is less than or equal to the minimumUsage
-	    		    if (totalUsage <= minimumUsage)
-	    		    	{
-	    		    		// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID and billingType (True = Clearing Journal YES)
-	    		    		createRevRecJournal(recordID, billingType, true);
-	    		    	}
-	    		    // if the totalUsage is greater than the minimumUsage
-	    		    else if (totalUsage > minimumUsage)
-	    		    	{
-	    		    		// call function to create journal clearing deferred revenue balance. Pass in recordID and billingType (True = Clearing Journal YES)
-	    		    		createRevRecJournal(recordID, billingType, true);
-	    		    	}
+				    // call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID and billingType (True = Clearing Journal YES)
+	    		    createRevRecJournal(recordID, billingType, true);
 		    	}
 		    else // this is calendar month end and NOT the end of the contract
 		    	{
@@ -844,31 +920,26 @@ function(runtime, search, record, format, task) {
 					// check that the deferredRevenueBalance variable is less than 0
 				    if (deferredRevenueBalance < 0)
 				    	{
-				    		// check if cumulativeUsage minus thisMonthUsage is less than minimumUsage
+				    		// check if cumulativeUsage minus thisMonthUsage is greater than minimumUsage
 				    		if ((cumulativeUsage - thisMonthUsage) > minimumUsage)
 				    			{
 					    			// call function to transform the sales order to an invoice. Pass in ID of sales order
 					    			createInvoice(recordID);
 				    			}
-				    		// else if cumulativeUsage minus thisMonthUsage is greater than minimumUsage
+				    		// if cumulativeUsage minus minimumUsage is less than or equal to 0
 				    		else
 				    			{
-				    				// check if cumulativeUsage minus minimumUsage is greater than 0
-				    				if ((cumulativeUsage - minimumUsage) > 0)
-				    					{
-					    					// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
-					    	    		    addCreditLine(soRecord, recordID, billingType, minimumUsage, contractRecord);
+				    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
+				    				addCreditLine(soRecord, recordID, billingType, minimumUsage, contractRecord);
 					    	    		    		
-					    	    		    // call function to transform the sales order to an invoice. Pass in ID of sales order
-					    	    			createInvoice(recordID);
-				    					}
-				    			}   				
+					    	    	// call function to transform the sales order to an invoice. Pass in ID of sales order
+					    	    	createInvoice(recordID);
+				    			}
 				    	}
-				    // else if deferredRevenueBalance is greater than or equal to 0
-				    else
+				    else // if deferredRevenueBalance is greater than or equal to 0
 				    	{
-				    		// call function to close the sales order. Pass in soRecord object
-		    	    		closeSalesOrder(soRecord);
+					    	// call function to close the sales order. Pass in soRecord object
+		    				closeSalesOrder(soRecord);
 				    	}
 				    
 				    // check if this is either the end of the contract or the early termination date has passed
@@ -891,25 +962,21 @@ function(runtime, search, record, format, task) {
 					// check that the deferredRevenueBalance variable is less than 0
 					if (deferredRevenueBalance < 0)
 						{
-							// check if cumulativeUsage minus thisMonthUsage is less than minimumUsage
+							// check if cumulativeUsage minus thisMonthUsage is greater than minimumUsage
 				    		if ((cumulativeUsage - thisMonthUsage) > minimumUsage)
 				    			{
 					    			// call function to transform the sales order to an invoice. Pass in ID of sales order
 					    			createInvoice(recordID);
 				    			}
-				    		// else if cumulativeUsage minus thisMonthUsage is greater than minimumUsage
+				    		// if cumulativeUsage minus minimumUsage is less than or equal to 0
 				    		else
 				    			{
-					    			// check if cumulativeUsage minus minimumUsage is greater than 0
-				    				if ((cumulativeUsage - minimumUsage) > 0)
-				    					{
-					    					// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
-					    	    		    addCreditLine(soRecord, recordID, billingType, minimumUsage, contractRecord);
+				    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
+				    				addCreditLine(soRecord, recordID, billingType, minimumUsage, contractRecord);
 					    	    		    		
-					    	    		    // call function to transform the sales order to an invoice. Pass in ID of sales order
-					    	    			createInvoice(recordID);
-				    					}
-				    			}   				
+					    	    	// call function to transform the sales order to an invoice. Pass in ID of sales order
+					    	    	createInvoice(recordID);
+				    			}		
 						}
 					
 					// call function to create journal recognising all revenue for the current contract period. Pass in recordID and billingType (False = Clearing Journal NO)
@@ -1096,21 +1163,13 @@ function(runtime, search, record, format, task) {
 			// check if this is the beginning of a quarter
 			if (quarterStart == true)
 				{
-					// check if deferredRevAmt plus lastPrepaymentAmount minus thisMonthUsage is greater than 0
-					if ((deferredRevAmt + lastPrepaymentAmount - thisMonthUsage) > 0)
-						{
-							// set the value of the calculatedDeferredRevenue variable
-							calculatedDeferredRevenue = (deferredRevAmt + lastPrepaymentAmount - thisMonthUsage);
-						}
+					// set the value of the calculatedDeferredRevenue variable
+					calculatedDeferredRevenue = (deferredRevAmt + lastPrepaymentAmount - thisMonthUsage);
 				}
 			else // this is NOT the beginning of a quarter
 				{
-					// check if deferredRevAmt minus thisMonthUsage is greater than 0
-					if ((deferredRevAmt - thisMonthUsage) > 0)
-						{
-							// set the value of the calculatedDeferredRevenue variable
-							calculatedDeferredRevenue = (deferredRevAmt - thisMonthUsage);
-						}
+					// set the value of the calculatedDeferredRevenue variable
+					calculatedDeferredRevenue = (deferredRevAmt - thisMonthUsage);
 				}
 			
 			// use parseFloat to convert calculatedDeferredRevenue to a floating point number
@@ -1127,8 +1186,8 @@ function(runtime, search, record, format, task) {
 					// check if calculatedDeferredRevenue is less than 0
 					if (calculatedDeferredRevenue < 0)
 						{
-							// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
-	    	    		    addCreditLine(soRecord, recordID, billingType, minimumUsage, contractRecord);
+		    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
+							addCreditLine(soRecord, recordID, billingType, minimumUsage, contractRecord);
 	    	    		    		
 	    	    		    // call function to transform the sales order to an invoice. Pass in ID of sales order
 	    	    			createInvoice(recordID);
@@ -1153,7 +1212,7 @@ function(runtime, search, record, format, task) {
 					if (calculatedDeferredRevenue < 0)
 						{
 							// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
-	    	    		    addCreditLine(soRecord, recordID, billingType, minimumUsage, contractRecord);
+							addCreditLine(soRecord, recordID, billingType, minimumUsage, contractRecord);
 	    	    		    		
 	    	    		    // call function to transform the sales order to an invoice. Pass in ID of sales order
 	    	    			createInvoice(recordID);
@@ -1168,8 +1227,8 @@ function(runtime, search, record, format, task) {
 					if (cumulativeUsage >= (4 * minimumUsage))
 						{
 							log.audit({
-		    					title: 'Unable to Create Next Prepayment Invoice for Contract Record ' + contractRecord,
-		    					details: 'Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
+		    					title: 'Unable to Create Next Prepayment Invoice',
+		    					details: 'Contract Record ID: ' + contractRecord + ' | Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
 		    				});
 		    		
 				    		// update fields on the contract record
@@ -1185,8 +1244,8 @@ function(runtime, search, record, format, task) {
 					else if (cumulativeUsage >= (2 * minimumUsage))
 						{
 							log.audit({
-		    					title: 'Unable to Create Next Prepayment Invoice for Contract Record ' + contractRecord,
-		    					details: 'Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
+		    					title: 'Unable to Create Next Prepayment Invoice',
+		    					details: 'Contract Record ID: ' + contractRecord + ' | Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
 		    				});
 		    		
 				    		// update fields on the contract record
@@ -1216,8 +1275,8 @@ function(runtime, search, record, format, task) {
 							createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, currency);
 						}
 					
-					// check if deferredRevAmt minus lastPrepaymentAmount is greater than 0
-					if ((deferredRevAmt - nextInvoiceAmount) > 0)
+					// check if deferredRevAmt is greater than 0
+					if (deferredRevAmt > 0)
 						{
 							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType and nextInvoiceAmount (False = Clearing Journal NO)
 			    			createRevRecJournal(recordID, billingType, false, nextInvoiceAmount);
@@ -1226,17 +1285,17 @@ function(runtime, search, record, format, task) {
 			// else this is a month end
 			else
 				{
-					// check if calculatedDeferredRevenue is less than 0
+					// check if calculatedDeferredRevenue is less than 0 and thisMonthUsage is greater than 0
 					if (calculatedDeferredRevenue < 0 && thisMonthUsage > 0)
 						{
 							// check if quarterStart is true
 							if (quarterStart == true)
 								{
-									// check if deferredRevenueAmt plus lastPrepaymentAmount is greater than 0
-									if ((deferredRevenueAmt + lastPrepaymentAmount) > 0)
+									// check if deferredRevAmt plus lastPrepaymentAmount is greater than 0
+									if ((deferredRevAmt + lastPrepaymentAmount) > 0)
 										{
 											// set the creditLineAmount variable to be deferredRevenueAmt plus lastPrepaymentAmount
-											creditLineAmount = (deferredRevenueAmt + lastPrepaymentAmount);
+											creditLineAmount = (deferredRevAmt + lastPrepaymentAmount);
 									
 											// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, creditLineAmount and contractRecord
 	    	    		    				addCreditLine(soRecord, recordID, billingType, creditLineAmount, contractRecord);
@@ -1248,11 +1307,11 @@ function(runtime, search, record, format, task) {
 	    	    		    // quarterStart is false
 	    	    		    else
 	    	    		    	{
-	    	    		    		// check if deferredRevenueAmt is greater than 0
-	    	    		    		if (deferredRevenueAmt > 0)
+	    	    		    		// check if deferredRevAmt plus thisMonthUsage is greater than 0
+	    	    		    		if ((deferredRevAmt + thisMonthUsage) > 0)
 	    	    		    			{
-	    	    		    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, deferredRevenueAmt and contractRecord
-	    	    		    				addCreditLine(soRecord, recordID, billingType, deferredRevenueAmt, contractRecord);
+		    	    		    			// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
+	    	    		    				addCreditLine(soRecord, recordID, billingType, minimumUsage, contractRecord);
 	    	    		    			}
 	    	    		    			
 	    	    		    		// call function to transform the sales order to an invoice. Pass in ID of sales order
@@ -1260,12 +1319,17 @@ function(runtime, search, record, format, task) {
 	    	    		    	}
 						}
 					
-					// check if deferredRevAmt minus lastPrepaymentAmount is greater than 0
-					if ((deferredRevAmt - lastPrepaymentAmount) > 0)
+					// check if quarterStart is true and deferredRevAmt minus lastPrepaymentAmount is greater than 0
+					if (quarterStart == true && (deferredRevAmt - lastPrepaymentAmount) > 0)
 						{
 							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType and lastPrepaymentAmount (False = Clearing Journal NO)
-		    				createRevRecJournal(recordID, billingType, false, lastPrepaymentAmount);
+	    		    		createRevRecJournal(recordID, billingType, false, lastPrepaymentAmount);
 						}
+					else if (deferredRevAmt > 0) // check if deferredRevAmt is greater than 0
+						{
+							// call function to create journal recognising all revenue for the current contract period. Pass in recordID and billingType (False = Clearing Journal NO)
+				    		createRevRecJournal(recordID, billingType, false);
+						}				
 				}
 	    }
     
@@ -1391,15 +1455,15 @@ function(runtime, search, record, format, task) {
 		    		
     		
 		    		log.audit({
-						title: 'Invoice Created',
+						title: 'Sales Order Billed',
 						details: 'Invoice ID: ' + invoiceID + ' | Sales Order ID: ' + recordID
 					});
     			}
     		catch(error)
 	    		{
 	    			log.error({
-	    				title: 'Error creating invoice for sales order ' + recordID,
-	    				details: error
+	    				title: 'Error Billing Sales Order',
+	    				details: 'Sales Order ID: ' + recordID + ' | Error: ' + error
 	    			});
 	    		}
     	}
@@ -1612,8 +1676,8 @@ function(runtime, search, record, format, task) {
     		catch(error)
     			{
     				log.error({
-    					title: 'Error Creating Mgmt Fee Invoice for Contract ID: ' + contractRecord,
-    					details: error
+    					title: 'Error Creating Mgmt Fee Invoice',
+    					details: 'Contract ID: ' + contractRecord + ' | Error: ' + error
     				});
     			}
     	}
@@ -1773,8 +1837,8 @@ function(runtime, search, record, format, task) {
 			catch(error)
 				{
 					log.error({
-						title: 'Error Creating Next Prepayment Invoice for Contract ID: ' + contractRecord,
-						details: error
+						title: 'Error Creating Next Prepayment Invoice',
+						details: 'Contract ID: ' + contractRecord + ' | Error: ' + error
 					});
 				}
 			
@@ -1838,8 +1902,8 @@ function(runtime, search, record, format, task) {
     		catch(error)
 	    		{
 	    			log.error({
-			    		title: 'Error Upating Sales Order ' + recordID,
-			    		details: error
+			    		title: 'Error Closing Sales Order',
+			    		details: 'Sales Order ID: ' + recordID + ' | Error: ' + error
 			    	});
 	    		}
 	    }
@@ -1909,15 +1973,15 @@ function(runtime, search, record, format, task) {
 			    	});
 			    	
 			    	log.audit({
-			    		title: 'New line added to sales order record',
+			    		title: 'Credit Line Added to Sales Order',
 			    		details: recordID
 			    	});
 	    		}
 	    	catch(error)
 		    	{
 		    		log.error({
-			    		title: 'Error Updating Sales Order ' + recordID,
-			    		details: error
+			    		title: 'Error Adding Credit Line to Sales Order',
+			    		details: 'Sales Order ID: ' + recordID + ' | Error: ' + error
 			    	});
 		    	}
     	}
@@ -1972,15 +2036,15 @@ function(runtime, search, record, format, task) {
 			    	});
 							
 					log.audit({
-						title: 'New line added to sales order record',
+						title: 'Adjustment Item Added to Sales Order',
 						details: recordID
 					});
 	    		}
 	    	catch(error)
 		    	{
 		    		log.error({
-			    		title: 'Error Upating Sales Order ' + recordID,
-			    		details: error
+			    		title: 'Error Adding Adjustment Item to Sales Order',
+			    		details: 'Sales Order ID: ' + recordID + ' | Error: ' + error
 			    	});
 		    	}
 	    }
@@ -2103,45 +2167,50 @@ function(runtime, search, record, format, task) {
 						    });
 					    
 						    // create search to find contract usage for the current billing month
-						    var soSearch = search.create({
-						    	type: search.Type.SALES_ORDER,
-						    	
-						    	columns: [{
-						    		name: 'amount',
-						    		summary: 'SUM'
-						    	}],
-						    	
-						    	filters: [{
-						    		name: 'mainline',
-						    		operator: 'is',
-						    		values: ['F']
-						    	},
-						    			{
-						    		name: 'internalid',
-						    		operator: 'anyof',
-						    		values: [recordID]
-						    	},
-						    			{
-						    		name: 'custcol_bbs_so_search_date',
-						    		operator: 'within',
-						    		values: ['lastmonth']
-						    	}],
-				
-						    });
-				
-						    // run search and process search results
-						    soSearch.run().each(function(result) {
-						    	
-						    	// set the thisMonthUsage variable using the amount from the search results
-						    	thisMonthUsage = result.getValue({
-						    		name: 'amount',
-						    		summary: 'SUM'
-						    	});
-						    
-						    });
-					    
-						    // use parseFloat to convert thisMonthUsage to a floating point number
-						    thisMonthUsage = parseFloat(thisMonthUsage);
+				    		var thisMonthUsageSearch = search.create({
+				    			type: 'customrecord_bbs_contract_period',
+				    			
+				    			columns: [{
+				    				name: 'custrecord_bbs_contract_period_prod_use',
+				    				summary: 'SUM'
+				    			}],
+				    			
+				    			filters: [{
+				    				name: 'custrecord_bbs_contract_period_contract',
+				    				operator: 'anyof',
+				    				values: [contractRecord]
+				    			},
+				    					{
+				    				name: 'custrecord_bbs_contract_period_start',
+				    				operator: 'within',
+				    				values: ['lastmonth']
+				    			},
+				    				{
+				    				name: 'custrecord_bbs_contract_period_end',
+				    				operator: 'within',
+				    				values: ['lastmonth']
+				    			}],
+				    		});
+				    		
+				    		// run search and process results
+				    		thisMonthUsageSearch.run().each(function(result)	{
+				    			
+				    			// get the the total of this month's usage from the search
+				    			thisMonthUsage = result.getValue({
+				    				name: 'custrecord_bbs_contract_period_prod_use',
+				    				summary: 'SUM'
+				    			});
+				    			
+				    		});
+				    		
+				    		// check if the thisMonthUsage variable is empty
+				    		if (thisMonthUsage == '')
+				    			{
+				    				// set the thisMonthUsage to 0
+				    				thisMonthUsage = 0;
+				    			}
+				    		
+				    		thisMonthUsage = parseFloat(thisMonthUsage); // use parseFloat to convert to a floating point number
 						    
 						    // check if this is a clearing journal
 						    if (clearingJournal == true)
@@ -2152,73 +2221,77 @@ function(runtime, search, record, format, task) {
 						    				// calculate the unused revenue amount
 						    				var unused = parseFloat(deferredRevAmt - thisMonthUsage);
 						    				
-						    				// add unused to the total
-										    total += unused;
-										    
-										    // ==========================================================
-										    // ADD A LINE TO THE JOURNAL TO CLEAR UNUSED DEFERRED REVENUE
-										    // ==========================================================
-										    
-										    // select a new line on the journal record
-											journalRecord.selectNewLine({
-												sublistId: 'line'
-											});
+						    				// check if we have an unused balance
+						    				if (unused > 0)
+						    					{	
+								    				// add unused to the total
+												    total += unused;
 												    
-											// set the account on the new line using the unusedIncomeAccount variable
-											journalRecord.setCurrentSublistValue({
-												sublistId: 'line',
-											    fieldId: 'account',
-											    value: unusedIncomeAccount
-											});
+												    // ==========================================================
+												    // ADD A LINE TO THE JOURNAL TO CLEAR UNUSED DEFERRED REVENUE
+												    // ==========================================================
 												    
-											// set fields on the new line
-											journalRecord.setCurrentSublistValue({
-												sublistId: 'line',
-												fieldId: 'entity',
-												value: customer
-											});
-												    
-											journalRecord.setCurrentSublistValue({
-												sublistId: 'line',
-												fieldId: 'location',
-												value: location
-											});
-												    
-											journalRecord.setCurrentSublistValue({
-												sublistId: 'line',
-												fieldId: 'custcol_bbs_journal_client_tier',
-												value: tier
-											});
-												    		
-											journalRecord.setCurrentSublistValue({
-												sublistId: 'line',
-												fieldId: 'custcol_bbs_contract_record',
-												value: contractRecord
-											});
-												    
-											journalRecord.setCurrentSublistValue({
-												sublistId: 'line',
-												fieldId: 'custcol_bbs_related_sales_order',
-												value: recordID
-											});
-												    		
-											journalRecord.setCurrentSublistValue({
-												sublistId: 'line',
-												fieldId: 'memo',
-												value: billingType + ' + ' + journalDate
-											});
-												    
-											// set the credit amount to be the deferredRevAmt
-											journalRecord.setCurrentSublistValue({
-												sublistId: 'line',
-												fieldId: 'credit',
-												value: unused
-											});
-										    	
-											// commit the line
-											journalRecord.commitLine({
-												sublistId: 'line'
-											});
+												    // select a new line on the journal record
+													journalRecord.selectNewLine({
+														sublistId: 'line'
+													});
+														    
+													// set the account on the new line using the unusedIncomeAccount variable
+													journalRecord.setCurrentSublistValue({
+														sublistId: 'line',
+													    fieldId: 'account',
+													    value: unusedIncomeAccount
+													});
+														    
+													// set fields on the new line
+													journalRecord.setCurrentSublistValue({
+														sublistId: 'line',
+														fieldId: 'entity',
+														value: customer
+													});
+														    
+													journalRecord.setCurrentSublistValue({
+														sublistId: 'line',
+														fieldId: 'location',
+														value: location
+													});
+														    
+													journalRecord.setCurrentSublistValue({
+														sublistId: 'line',
+														fieldId: 'custcol_bbs_journal_client_tier',
+														value: tier
+													});
+														    		
+													journalRecord.setCurrentSublistValue({
+														sublistId: 'line',
+														fieldId: 'custcol_bbs_contract_record',
+														value: contractRecord
+													});
+														    
+													journalRecord.setCurrentSublistValue({
+														sublistId: 'line',
+														fieldId: 'custcol_bbs_related_sales_order',
+														value: recordID
+													});
+														    		
+													journalRecord.setCurrentSublistValue({
+														sublistId: 'line',
+														fieldId: 'memo',
+														value: billingType + ' + ' + journalDate
+													});
+														    
+													// set the credit amount to be the deferredRevAmt
+													journalRecord.setCurrentSublistValue({
+														sublistId: 'line',
+														fieldId: 'credit',
+														value: unused
+													});
+												    	
+													// commit the line
+													journalRecord.commitLine({
+														sublistId: 'line'
+													});
+						    					}
 											
 											// ==========================================================================================
 											// NOW WE NEED TO ADD LINES TO THE JOURNAL TO RECOGNISE REVENUE FOR THE CURRENT BILLING MONTH
@@ -2932,16 +3005,16 @@ function(runtime, search, record, format, task) {
 			   		catch(error)
 			   			{
 				   			log.error({
-								title: 'Error Creating Journal for Sales Order ID: ' + recordID,
-								details: error
+								title: 'Error Creating Journal',
+								details: 'Sales Order ID: ' + recordID + ' | Error: ' + error
 							});
 			   			}
     			}
 		   else // deferred revenue balance is 0
 			    {
 			    	log.audit({
-						title: 'Unable to Create Journal for Sales Order ID: ' + recordID,
-						details: 'Insufficient Deferred Revenue Balance'
+						title: 'Unable to Create Journal',
+						details: 'Sales Order ID: ' + recordID + ' | Reason: Insufficient Deferred Revenue Balance'
 					});
 			    }
 	    }
@@ -3062,8 +3135,8 @@ function(runtime, search, record, format, task) {
 			    	    		catch(e)
 			    					{
 			    						log.error({
-			    							title: 'An error occured updating Period Detail record ' + recordID,
-			    							details: 'Error: ' + e
+			    							title: 'Error Updating Period Detail Record',
+			    							details: 'Sales Order ID: ' + recordID + ' | Error: ' + e
 			    						});
 			    					}
 			        		});
@@ -3161,7 +3234,7 @@ function(runtime, search, record, format, task) {
 	    	var mapReduceTaskID = mapReduceTask.submit();
 	    	
 	    	log.audit({
-	    		title: 'Script scheduled',
+	    		title: 'Script Scheduled',
 	    		details: 'BBS End Contracts Map/Reduce script has been scheduled. Job ID ' + mapReduceTaskID
 	    	});	    	
 	    }
