@@ -476,11 +476,12 @@ function processBillingEndDates(_processingDate)
 							//
 							oldSalesOrder.setFieldValue('custbody_bbs_billing_end_date_proc', 'T');
 							
-							//Try to save the old sales order
+							//Try to save the old sales order & also update the end date on the revenue arrangement
 							//
 							try
 								{
 									nlapiSubmitRecord(oldSalesOrder, true, true);
+									endRevenueArrangement(salesOrderId, todayString);
 								}
 							catch(err)
 								{
@@ -492,7 +493,82 @@ function processBillingEndDates(_processingDate)
 }
 
 
+function endRevenueArrangement(_salesOrderId, _endDate)
+{
+	//Find a revenue element for this sales order
+	//
+	var revenueelementSearch = nlapiSearchRecord("revenueelement",null,
+			[
+			   ["referenceid","is", "SalesOrd_" + _salesOrderId]
+			], 
+			[
+			   new nlobjSearchColumn("internalid","revenueArrangement",null)
+			]
+			);
+	
+	if(revenueelementSearch != null && revenueelementSearch.length > 0)
+		{
+			//Loop through the search results
+			//
+			for (var int3 = 0; int3 < revenueelementSearch.length; int3++) 
+				{
+					var revArrangementId = revenueelementSearch[int3].getValue("internalid","revenueArrangement");
 
+					//Have we got an associated revenue arrangement
+					//
+					if(revArrangementId != null && revArrangementId != '')
+						{
+							var arrangementRecord = null;
+						
+							//Try to load the revenue arrangement record
+							//
+							try
+								{
+									arrangementRecord = nlapiLoadRecord('revenuearrangement', revArrangementId);
+								}
+							catch(err)
+								{
+									arrangementRecord = null;
+									nlapiLogExecution('ERROR', 'Error loading revenue arrangement, id = ' + revArrangementId, err.message);
+								}
+							
+							if(arrangementRecord != null)
+								{
+									//Process the revenue arrangement record elements
+									//
+									var elements = arrangementRecord.getLineItemCount('revenueelement');
+									
+									//Loop through the elements
+									//
+									for (var int4 = 1; int4 <= elements; int4++) 
+										{
+											//Get the source from the line
+											//
+											var elementSource = arrangementRecord.getLineItemValue('revenueelement', 'referenceid', int4);
+											
+											//Check to make sure the source matches
+											//
+											if(elementSource == "SalesOrd_" + _salesOrderId)
+												{
+													arrangementRecord.setLineItemValue('revenueelement', 'revrecenddate', int4, _endDate);
+												}
+										}
+								
+									//Save the revenue arrangement record
+									//
+									try
+										{
+											nlapiSubmitRecord(arrangementRecord, false, true);
+										}
+									catch(err)
+										{
+											nlapiLogExecution('ERROR', 'Error saving revenue arrangement, id = ' + revArrangementId, err.message);
+										}
+								}
+						}
+				}	
+		}
+}
 
 function getResults(search)
 {
