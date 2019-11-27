@@ -16,13 +16,18 @@ function scheduled(type)
 {
 	//Turn off mandatory departments
 	//
+	nlapiLogExecution('DEBUG', 'Turning off mandatory departments','');
 	updateAccPreferences('F');
 	
+	nlapiLogExecution('DEBUG', 'Suppliers','');
 	processSuppliers();
+	
+	nlapiLogExecution('DEBUG', 'Customers','');
 	processCustomers();
 	
 	//Turn on mandatory departments
 	//
+	nlapiLogExecution('DEBUG', 'Turning on mandatory departments','');
 	updateAccPreferences('T');
 }
 
@@ -34,9 +39,16 @@ function scheduled(type)
 //
 function updateAccPreferences(_mode)
 {
-	var accPreferences = nlapiLoadConfiguration('accountingpreferences');
-	accPreferences.setFieldValue('deptmandatory', _mode);
-	nlapiSubmitConfiguration(accPreferences);
+	try
+		{
+			var accPreferences = nlapiLoadConfiguration('accountingpreferences');
+			accPreferences.setFieldValue('deptmandatory', _mode);
+			nlapiSubmitConfiguration(accPreferences);
+		}
+	catch(err)
+		{
+			nlapiLogExecution('ERROR', 'Error changing preferences', err.message);
+		}
 }
 
 function processSuppliers()

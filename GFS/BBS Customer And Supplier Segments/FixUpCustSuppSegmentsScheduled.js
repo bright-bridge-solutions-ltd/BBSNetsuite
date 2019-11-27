@@ -25,8 +25,8 @@ function processCustomers()
 	var customerSearch = nlapiSearchRecord("customer",null,
 			[
 			   ["subsidiary","anyof",APPLICABLE_SUBSIDIARY], 
-			   "AND", 
-			   ["category","anyof",CUSTOMER_CATEGORY], 
+			//   "AND", 
+			//   ["category","anyof",CUSTOMER_CATEGORY], 
 			   "AND", 
 			   ["custentity_bbs_customer_segment","anyof","@NONE@"]
 			], 
