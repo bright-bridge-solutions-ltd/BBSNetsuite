@@ -1,0 +1,236 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    <macrolist>
+    <macro id="nlheader">
+    <table class="header" style="width: 100%;"><tr>
+	<td rowspan="3"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: left; margin: 7px" /></#if></td>
+	<td align="right"><span class="title">${record@title}</span></td>
+	</tr>
+	<tr>
+	<td align="right"><span class="number">#${record.tranid}</span></td>
+	</tr>
+	<tr>
+	<td align="right">${record.trandate}</td>
+	</tr>
+	</table>
+	<table class="header" style="width: 100%;">
+	<tr>
+	<td>&nbsp;</td>
+	</tr>
+	<tr>
+	<td><span class="name">${record.entity}</span></td>
+	</tr>
+	</table>
+        </macro>
+        <macro id="nlfooter">
+            <table class="footer" style="width: 100%;"><tr>
+	<td align="right"><pagenumber/> of <totalpages/></td>
+	</tr></table>
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 9pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #e3e3e3;
+            color: #333333;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { align:left }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+            table-layout: auto;
+            margin-top: 10px;
+        }
+        tr.totalrow td {
+            background-color: #e3e3e3;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        tr.totalrow td.next {
+            padding-top: 0;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.name {
+        	font-size: 20pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+        .signatures {
+            page-break-inside: avoid;
+            margin-top: 40px;
+        }
+        .signhere {
+            border-bottom: 1px solid #d3d3d3;
+            height: 15px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="10%" footer="nlfooter" footer-height="20pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+    <table style="width: 100%; margin-top: 10px;"><tr>
+	<td class="addressheader" colspan="3"><b>${record.billaddress@label}</b></td>
+	<td class="addressheader" colspan="3"><b>${record.shipaddress@label}</b></td>
+	<td class="totalboxtop" colspan="5"><b>${record.total@label?upper_case}</b></td>
+	</tr>
+	<tr>
+	<td class="address" colspan="3" rowspan="3">${record.billaddress}</td>
+	<td class="address" colspan="3" rowspan="3">${record.shipaddress}</td>
+	<td align="right" class="totalboxmid" colspan="5">${record.total}<br/></td>
+	</tr>
+	</table>
+
+<table class="body" style="width: 100%; margin-top: 10px;"><tr>
+	<th>${record.memo@label}</th>
+	<th>&nbsp;</th>
+	<th>&nbsp;</th>
+	<th>&nbsp;</th>
+	</tr>
+	<tr>
+	<td>${record.memo}</td>
+	<td>&nbsp;</td>
+	<td>&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr></table>
+<#if record.expense?has_content>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start expenses --><#list record.expense as expense><#if expense_index==0>
+<thead>
+	<tr>
+	<th colspan="4">Date</th>
+	<th colspan="12">Memo</th>
+	<th align="right" colspan="3">NET</th>
+	<th align="right" colspan="3">VAT</th>
+	<th align="right" colspan="3">GROSS</th>
+	</tr>
+</thead>
+</#if>
+	<tr>
+	<td colspan="4">${expense.expensedate}</td>
+	<td colspan="12">${expense.memo}</td>
+	<td align="right" colspan="3">${expense.amount}</td>
+	<td align="right" colspan="3">${expense.tax1amt}</td>
+	<td align="right" colspan="3">${expense.grossamt}</td>
+	</tr>
+	</#list><!-- end expenses -->
+</table>
+
+<hr /></#if>
+<table align="right" class="total">
+	<tr class="totalrow">
+	<td>&nbsp;</td>
+	<td align="right"><b>NET</b></td>
+	<td align="right">${record.custbody_bbs_expense_net_amt}</td>
+	</tr>
+	<tr class="totalrow">
+	<td>&nbsp;</td>
+	<td align="right"><b>VAT</b></td>
+	<td align="right">${record.tax1amt}</td>>
+	</tr>
+	<tr class="totalrow">
+	<td>&nbsp;</td>
+	<td align="right"><b>GROSS</b></td>
+	<td align="right">${record.total}</td>
+	</tr>
+</table>
+
+<table class="signatures" style="width: 100%; margin-top: 10px;"><tr>
+	<td>I hereby acknowledge that the expenditures listed above were made for valid company purposes.</td>
+	</tr>
+	<tr>
+	<td><b>Employee Signature &amp; Date:</b></td>
+	</tr>
+	<tr class="signhere">
+	<td>&nbsp;</td>
+	</tr>
+	<tr>
+	<td><b>Approver Signature &amp; Date:</b></td>
+	</tr>
+	<tr class="signhere">
+	<td>&nbsp;</td>
+	</tr></table>
+</body>
+</pdf>
