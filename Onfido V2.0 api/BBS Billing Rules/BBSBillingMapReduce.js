@@ -771,12 +771,19 @@ function(runtime, search, record, format, task) {
     		var quarterEnd;
     		var thisMonthUsage = 0;
     		var cumulativeUsage = 0;
+    		var amtToBill;
+    		var creditLineAmt;
     	
     		// load the sales order record
 		    var soRecord = record.load({
 		    	type: record.Type.SALES_ORDER,
 		    	id: recordID,
 		    	isDynamic: true
+		    });
+		    
+		    // get the subtotal from the sales order record
+		    var soSubtotal = soRecord.getValue({
+		    	fieldId: 'subtotal'
 		    });
 		    		
 		    // get the ID of the customer from the sales order record
@@ -906,81 +913,121 @@ function(runtime, search, record, format, task) {
     			value: quarterEnd
     		});
     		
-    		// calculate the current deferred revenue balance
-    		var deferredRevenueBalance = parseFloat(minimumUsage - cumulativeUsage);
+    		// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
+			var deferredRevAmt = calculateDeferredRev(contractRecord);
+			
+			// calculate the current deferred revenue balance
+    		var calculatedDeferredRevenue = parseFloat(minimumUsage - cumulativeUsage);
     		
     		log.debug({
     			title: 'Script Check',
-    			details: 'Minimum Usage: ' + minimumUsage + ' | This Month Usage: ' + thisMonthUsage + ' | Cumulative Usage: ' + cumulativeUsage + ' | Deferred Revenue Balance: ' + deferredRevenueBalance
+    			details: 'Minimum Usage: ' + minimumUsage + ' | This Month Usage: ' + thisMonthUsage + ' | Cumulative Usage: ' + cumulativeUsage + ' | Actual Deferred Revenue Balance: ' + deferredRevAmt + ' | Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
     		});
     		
     		// check if the invoiceDate is equal to the quarterEnd OR the invoiceDate is greater than (after) or equal to the earlyEndDate
 			if (invoiceDate.getTime() >= quarterEnd.getTime() || earlyEndDate != '' && invoiceDate.getTime() >= earlyEndDate.getTime())
     			{
-					// check that the deferredRevenueBalance variable is less than 0
-				    if (deferredRevenueBalance < 0)
+					// check if calculatedDeferredRevenue is less than 0
+				    if (calculatedDeferredRevenue < 0)
 				    	{
 				    		// check if cumulativeUsage minus thisMonthUsage is greater than minimumUsage
 				    		if ((cumulativeUsage - thisMonthUsage) > minimumUsage)
 				    			{
-					    			// call function to transform the sales order to an invoice. Pass in ID of sales order
-					    			createInvoice(recordID);
+					    			// set the amtToBill variable to be the cumulativeUsage
+				    				amtToBill = cumulativeUsage;
 				    			}
-				    		// if cumulativeUsage minus minimumUsage is less than or equal to 0
+				    		// check if cumulativeUsage minus minimumUsage is less than or equal to 0
+				    		else if ((cumulativeUsage - minimumUsage) <= 0)
+				    			{
+				    				// set the amtToBill variable to be 0
+				    				amtToBill = 0;
+				    			}
 				    		else
 				    			{
-				    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
-				    				addCreditLine(soRecord, recordID, billingType, minimumUsage, contractRecord);
-					    	    		    		
-					    	    	// call function to transform the sales order to an invoice. Pass in ID of sales order
-					    	    	createInvoice(recordID);
+				    				// set the amtToBill variable to be cumulativeUsage minus minimumUsage
+				    				amtToBill = parseFloat(cumulativeUsage - minimumUsage);				    			
 				    			}
+				    		
+				    		// check if soSubtotal minus amtToBill is greater than 0
+				    		if ((soSubtotal - amtToBill) > 0)
+				    			{
+					    			// calculate the value of the credit line that needs adding
+				    				creditLineAmt = parseFloat(soSubtotal - amtToBill);
+				    			
+				    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
+				    				addCreditLine(soRecord, recordID, billingType, creditLineAmt, contractRecord);
+				    			}
+				    			
+				    			// call function to transform the sales order to an invoice. Pass in ID of sales order
+					    		createInvoice(recordID);
 				    	}
-				    else // if deferredRevenueBalance is greater than or equal to 0
+				    else // if calculatedDeferredRevenue is greater than or equal to 0
 				    	{
 					    	// call function to close the sales order. Pass in soRecord object
 		    				closeSalesOrder(soRecord);
 				    	}
 				    
-				    // check if this is either the end of the contract or the early termination date has passed
-				    if (invoiceDate.getTime() >= contractEnd.getTime() || earlyEndDate != '' && invoiceDate.getTime() >= earlyEndDate.getTime())
+				    // check if deferredRevAmt is greater than 0
+				    if (deferredRevAmt > 0)
 				    	{
-					    	// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID and billingType (True = Clearing Journal YES)
-				    		createRevRecJournal(recordID, billingType, true);
+					    	// check if this is either the end of the contract or the early termination date has passed
+						    if (invoiceDate.getTime() >= contractEnd.getTime() || earlyEndDate != '' && invoiceDate.getTime() >= earlyEndDate.getTime())
+						    	{
+							    	// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID and billingType (True = Clearing Journal YES)
+						    		createRevRecJournal(recordID, billingType, true);
+						    	}
+						    // else if this is the end of a contract quarter
+						    else
+						    	{
+							    	// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID, billingType and minimumUsage (True = Clearing Journal YES)
+						    		createRevRecJournal(recordID, billingType, true, minimumUsage);
+						    	}
 				    	}
-				    // else if this is the end of a contract quarter
-				    else
-				    	{
-					    	// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID, billingType and minimumUsage (True = Clearing Journal YES)
-				    		createRevRecJournal(recordID, billingType, true, minimumUsage);
-				    	}
-    			}
-			
+    			}			
 			// else if this is NOT the end of the quarter or the early termination date
 			else
 				{
-					// check that the deferredRevenueBalance variable is less than 0
-					if (deferredRevenueBalance < 0)
+					// check if calculatedDeferredRevenue is less than 0
+					if (calculatedDeferredRevenue < 0)
 						{
 							// check if cumulativeUsage minus thisMonthUsage is greater than minimumUsage
 				    		if ((cumulativeUsage - thisMonthUsage) > minimumUsage)
 				    			{
-					    			// call function to transform the sales order to an invoice. Pass in ID of sales order
-					    			createInvoice(recordID);
+					    			// set the amtToBill variable to be the cumulativeUsage
+				    				amtToBill = cumulativeUsage;
 				    			}
-				    		// if cumulativeUsage minus minimumUsage is less than or equal to 0
+				    		// check if cumulativeUsage minus minimumUsage is less than or equal to 0
+				    		else if ((cumulativeUsage - minimumUsage) <= 0)
+				    			{
+				    				// set the amtToBill variable to be 0
+				    				amtToBill = 0;
+				    			}
 				    		else
 				    			{
+				    				// set the amtToBill variable to be cumulativeUsage minus minimumUsage
+				    				amtToBill = parseFloat(cumulativeUsage - minimumUsage);				    			
+				    			}
+				    		
+				    		// check if soSubtotal minus amtToBill is greater than 0
+				    		if ((soSubtotal - amtToBill) > 0)
+				    			{
+					    			// calculate the value of the credit line that needs adding
+				    				creditLineAmt = parseFloat(soSubtotal - amtToBill);
+				    			
 				    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
-				    				addCreditLine(soRecord, recordID, billingType, minimumUsage, contractRecord);
-					    	    		    		
-					    	    	// call function to transform the sales order to an invoice. Pass in ID of sales order
-					    	    	createInvoice(recordID);
-				    			}		
+				    				addCreditLine(soRecord, recordID, billingType, creditLineAmt, contractRecord);
+				    			}
+				    			
+				    			// call function to transform the sales order to an invoice. Pass in ID of sales order
+					    		createInvoice(recordID);
 						}
 					
-					// call function to create journal recognising all revenue for the current contract period. Pass in recordID and billingType (False = Clearing Journal NO)
-	    			createRevRecJournal(recordID, billingType, false);
+					// check if deferredRevAmt is greater than 0
+					if (deferredRevAmt > 0)
+						{
+							// call function to create journal recognising all revenue for the current contract period. Pass in recordID and billingType (False = Clearing Journal NO)
+							createRevRecJournal(recordID, billingType, false);
+						}
 				}
     	}
     
@@ -994,6 +1041,7 @@ function(runtime, search, record, format, task) {
 			var calculatedDeferredRevenue = 0;
 			var nextInvoiceAmount = 0;
 			var creditLineAmount = 0;
+			var amtToBill;
 	
 			// set the billingType variable to QUR
 			billingType = 'QUR';
@@ -1004,6 +1052,11 @@ function(runtime, search, record, format, task) {
 				id: recordID,
 				isDynamic: true
 			});
+			
+			// get the subtotal from the sales order record
+		    var soSubtotal = soRecord.getValue({
+		    	fieldId: 'subtotal'
+		    });
 			
 			// get the ID of the customer from the sales order record
 		    var customer = soRecord.getValue({
@@ -1186,11 +1239,21 @@ function(runtime, search, record, format, task) {
 					// check if calculatedDeferredRevenue is less than 0
 					if (calculatedDeferredRevenue < 0)
 						{
-		    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
-							addCreditLine(soRecord, recordID, billingType, minimumUsage, contractRecord);
-	    	    		    		
-	    	    		    // call function to transform the sales order to an invoice. Pass in ID of sales order
-	    	    			createInvoice(recordID);
+		    				// set the amtToBill variable to be the calculatedDeferredRevenue multiplied by -1 to create a positive number
+							amtToBill = parseFloat(calculatedDeferredRevenue * -1);
+							
+							// check if soSubtotal minus amtToBill is greater than 0
+				    		if ((soSubtotal - amtToBill) > 0)
+				    			{
+					    			// calculate the value of the credit line that needs adding
+				    				creditLineAmt = parseFloat(soSubtotal - amtToBill);
+				    			
+				    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
+				    				addCreditLine(soRecord, recordID, billingType, creditLineAmt, contractRecord);
+				    			}
+				    			
+				    			// call function to transform the sales order to an invoice. Pass in ID of sales order
+					    		createInvoice(recordID);
 						}
 					else // calculatedDeferredRevenue is greater than or equal to 0
 						{
@@ -1211,11 +1274,21 @@ function(runtime, search, record, format, task) {
 					// check if calculatedDeferredRevenue is less than 0
 					if (calculatedDeferredRevenue < 0)
 						{
-							// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
-							addCreditLine(soRecord, recordID, billingType, minimumUsage, contractRecord);
-	    	    		    		
-	    	    		    // call function to transform the sales order to an invoice. Pass in ID of sales order
-	    	    			createInvoice(recordID);
+							// set the amtToBill variable to be the calculatedDeferredRevenue multiplied by -1 to create a positive number
+							amtToBill = parseFloat(calculatedDeferredRevenue * -1);
+						
+							// check if soSubtotal minus amtToBill is greater than 0
+							if ((soSubtotal - amtToBill) > 0)
+			    				{
+				    				// calculate the value of the credit line that needs adding
+			    					creditLineAmt = parseFloat(soSubtotal - amtToBill);
+			    			
+			    					// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
+			    					addCreditLine(soRecord, recordID, billingType, creditLineAmt, contractRecord);
+			    				}
+			    			
+			    			// call function to transform the sales order to an invoice. Pass in ID of sales order
+				    		createInvoice(recordID);
 						}
 					else // calculatedDeferredRevenue is greater than or equal to 0
 						{
@@ -1294,11 +1367,21 @@ function(runtime, search, record, format, task) {
 									// check if deferredRevAmt plus lastPrepaymentAmount is greater than 0
 									if ((deferredRevAmt + lastPrepaymentAmount) > 0)
 										{
-											// set the creditLineAmount variable to be deferredRevenueAmt plus lastPrepaymentAmount
-											creditLineAmount = (deferredRevAmt + lastPrepaymentAmount);
-									
-											// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, creditLineAmount and contractRecord
-	    	    		    				addCreditLine(soRecord, recordID, billingType, creditLineAmount, contractRecord);
+											// set the amtToBill variable to be the calculatedDeferredRevenue multiplied by -1 to create a positive number
+											amtToBill = parseFloat(calculatedDeferredRevenue * -1);
+											
+											// check if soSubtotal minus amtToBill is greater than 0
+								    		if ((soSubtotal - amtToBill) > 0)
+								    			{
+									    			// calculate the value of the credit line that needs adding
+								    				var creditLineAmt = parseFloat(soSubtotal - amtToBill);
+								    			
+								    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
+								    				addCreditLine(soRecord, recordID, billingType, creditLineAmt, contractRecord);
+								    			}
+							    			
+							    			// call function to transform the sales order to an invoice. Pass in ID of sales order
+								    		createInvoice(recordID);
 										}
 										
 									// call function to transform the sales order to an invoice. Pass in ID of sales order
@@ -1307,15 +1390,21 @@ function(runtime, search, record, format, task) {
 	    	    		    // quarterStart is false
 	    	    		    else
 	    	    		    	{
-	    	    		    		// check if deferredRevAmt plus thisMonthUsage is greater than 0
-	    	    		    		if ((deferredRevAmt + thisMonthUsage) > 0)
-	    	    		    			{
-		    	    		    			// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
-	    	    		    				addCreditLine(soRecord, recordID, billingType, minimumUsage, contractRecord);
-	    	    		    			}
-	    	    		    			
-	    	    		    		// call function to transform the sales order to an invoice. Pass in ID of sales order
-	    	    		    		createInvoice(recordID);
+	    	    		    		// set the amtToBill variable to be the calculatedDeferredRevenue multiplied by -1 to create a positive number
+									amtToBill = parseFloat(calculatedDeferredRevenue * -1);
+								
+									// check if soSubtotal minus amtToBill is greater than 0
+						    		if ((soSubtotal - amtToBill) > 0)
+						    			{
+							    			// calculate the value of the credit line that needs adding
+						    				var creditLineAmt = parseFloat(soSubtotal - amtToBill);
+						    			
+						    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
+						    				addCreditLine(soRecord, recordID, billingType, creditLineAmt, contractRecord);
+						    			}
+					    			
+					    			// call function to transform the sales order to an invoice. Pass in ID of sales order
+						    		createInvoice(recordID);
 	    	    		    	}
 						}
 					
