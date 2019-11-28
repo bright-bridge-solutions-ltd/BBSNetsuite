@@ -85,55 +85,69 @@
 	<tr>
 	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Deliver To:</td>
     <td align="left" rowspan="2" style="padding: 5px; font-size: 9px;">VAT Reg. No. 484 6151 31<br/>Terms: Nett 30 Days<br/>E&amp;OE</td>
+	<td>&nbsp;</td>
 	<td align="left" style="font-size: 10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">TOTAL GOODS:</td>
 	<td align="right" style="font-size: 10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.subtotal}</td>
 	</tr>
 
 	<tr>
 	<td align="left" colspan="2" rowspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${record.shipaddress}</td>
+	<td>&nbsp;</td>
 	<td align="left" rowspan="1" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">TOTAL VAT:</td>
 	<td align="right" rowspan="1" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.taxtotal}</td>
 	</tr>
 
     <tr>
 	<td align="left" rowspan="3" style="padding: 5px; font-size: 9px; color: red;">We prefer payment via BACS<br/>Santander UK Plc.<br/>Bridle Road, Bootle<br/>Merseyside L30 4GB<br/>Account No: 10388370<br/>Sort Code: 09-02-22</td>
+	<td>&nbsp;</td>
 	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">AMOUNT DUE:</td>
-	<td align="right"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.total}</td>
+	<td align="right" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.total}</td>
 	</tr>
       
     <tr>
-	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">PAYMENT SCHEDULE</td>
+	<td align="left" colspan="3" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">PAYMENT SCHEDULE</td>
     </tr>
-      
+    <!--  Only print this row if the custbody_bbs_1stduedate field is populated -->
+    <#if record.custbody_bbs_1stduedate?has_content>
    	<tr>
-	<td align="right"  style="font-size:7px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">${record.custbody_bbs_1stduedate}</td>
+	<td style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">1st Payment Due</td>
+	<td align="right"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">${record.custbody_bbs_1stduedate}</td>
     <td align="right"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody_bbs_1stamount}</td>
     </tr>
-      
+    </#if>
+    <!--  Only print this row if the custbody_bbs_2ndduedate field is populated -->
+    <#if record.custbody_bbs_2ndduedate?has_content>  
     <tr>
     <td>&nbsp;</td>
-	<td>&nbsp;</td>
-	<td>&nbsp;</td>
-	<td align="right"  style="font-size:7px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">${record.custbody_bbs_2ndduedate}</td>
-    <td align="right"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody_bbs_2ndamount}</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">2nd Payment Due</td>
+	<td align="right" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">${record.custbody_bbs_2ndduedate}</td>
+    <td align="right" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody_bbs_2ndamount}</td>
     </tr>
-
+	</#if>
+    <!--  Only print this row if the custbody_bbs_3rdduedate field is populated -->
+    <#if record.custbody_bbs_3rdduedate?has_content> 
     <tr>
     <td>&nbsp;</td>
-	<td>&nbsp;</td>
-	<td>&nbsp;</td>
-	<td align="right"  style="font-size:7px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">${record.custbody_bbs_3rdduedate}</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">3rd Payment Due</td>
+	<td align="right"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">${record.custbody_bbs_3rdduedate}</td>
     <td align="right"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody_bbs3rdamount}</td>
     </tr>
-
+    </#if>
+    <!--  Only print this row if the custbody_bbs_4thduedate field is populated -->
+    <#if record.custbody_bbs_4thduedate?has_content> 
     <tr>
     <td>&nbsp;</td>
-	<td>&nbsp;</td>
-	<td>&nbsp;</td>
-	<td align="right"  style="font-size:7px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">${record.custbody_bbs_4thduedate}</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">4th Payment Due</td>
+	<td align="right"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">${record.custbody_bbs_4thduedate}</td>
     <td align="right"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody_bbs_4thamount}</td>
     </tr>
-      
+    </#if>   
     </table>
 
     <table style="width: 100%;">
