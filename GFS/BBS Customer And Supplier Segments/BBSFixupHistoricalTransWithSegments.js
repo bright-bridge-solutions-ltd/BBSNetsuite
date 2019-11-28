@@ -184,41 +184,48 @@ function processCustomers()
 					
 					if(tranRecord != null)
 						{
-							//Items
-							//
-							var itemCount = tranRecord.getLineItemCount('item');
-							
-							for (var int2 = 1; int2 <= itemCount; int2++) 
-								{
-									tranRecord.setLineItemValue('item', 'cseg_bbs_customer', int2, tranSegment);
-								}
-							
-							//Expenses
-							//
-							var expenseCount = tranRecord.getLineItemCount('expense');
-							
-							for (var int2 = 1; int2 <= expenseCount; int2++) 
-								{
-									tranRecord.setLineItemValue('expense', 'cseg_bbs_customer', int2, tranSegment);
-								}
-							
-
-							//Lines
-							//
-							var lineCount = tranRecord.getLineItemCount('line');
-							
-							for (var int2 = 1; int2 <= lineCount; int2++) 
-								{
-									tranRecord.setLineItemValue('line', 'cseg_bbs_customer', int2, tranSegment);
-								}
-							
 							try
 								{
-									nlapiSubmitRecord(tranRecord, false, true);
+									//Items
+									//
+									var itemCount = tranRecord.getLineItemCount('item');
+									
+									for (var int2 = 1; int2 <= itemCount; int2++) 
+										{
+											tranRecord.setLineItemValue('item', 'cseg_bbs_customer', int2, tranSegment);
+										}
+									
+									//Expenses
+									//
+									var expenseCount = tranRecord.getLineItemCount('expense');
+									
+									for (var int2 = 1; int2 <= expenseCount; int2++) 
+										{
+											tranRecord.setLineItemValue('expense', 'cseg_bbs_customer', int2, tranSegment);
+										}
+									
+		
+									//Lines
+									//
+									var lineCount = tranRecord.getLineItemCount('line');
+									
+									for (var int2 = 1; int2 <= lineCount; int2++) 
+										{
+											tranRecord.setLineItemValue('line', 'cseg_bbs_customer', int2, tranSegment);
+										}
+									
+									try
+										{
+											nlapiSubmitRecord(tranRecord, false, true);
+										}
+									catch(err)
+										{
+											nlapiLogExecution('ERROR', 'Error updating transaction record ' + tranType + ' ' + tranId, err.message);
+										}
 								}
 							catch(err)
 								{
-									nlapiLogExecution('ERROR', 'Error updating transaction record ' + tranType + ' ' + tranId, err.message);
+									nlapiLogExecution('ERROR', 'Error updating transaction lines ' + tranType + ' ' + tranId, err.message);
 								}
 						}
 				}

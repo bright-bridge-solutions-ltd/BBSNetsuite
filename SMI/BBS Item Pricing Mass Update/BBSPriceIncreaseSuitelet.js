@@ -227,7 +227,8 @@ function priceIncreaseSuitelet(request, response)
 							//Start of with only active items & inventory items
 							//
 							filters.push(["isinactive","is","F"]);
-							filters.push("AND",[["type","anyof","InvtPart"],"AND",["matrix","is","F"]]);
+							//filters.push("AND",[["type","anyof","InvtPart"],"AND",["matrix","is","F"]]);
+							filters.push("AND",[[["type","anyof","InvtPart"],"AND",["matrix","is","F"]],"OR",[["type","anyof","Assembly"],"AND",["matrix","is","F"],"AND",["matrixchild","is","T"],"AND",["custitem_bbs_item_customer","anyof",custIdParam]]]);
 							
 							//Add a filter for the description
 							//
