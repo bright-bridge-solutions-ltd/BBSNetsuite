@@ -372,7 +372,7 @@ function createAssembliesSuitelet(request, response){
 							var sublistFieldMargin = sublist.addField(sublistId + '_margin', 'text', 'Margin', null);
 //SMI						var sublistFieldMin = sublist.addField(sublistId + '_min', 'integer', 'Min Stock', null);
 //SMI						var sublistFieldMax = sublist.addField(sublistId + '_max', 'integer', 'Max Stock', null);
-//SMI						var sublistFieldWeb = sublist.addField(sublistId + '_web', 'checkbox', 'Web Product', null);
+							var sublistFieldWeb = sublist.addField(sublistId + '_web', 'checkbox', 'Add To My Catalogue', null);
 							
 /*SMI*/						var sublistFieldOpt2Id = sublist.addField(sublistId + '_opt2_id', 'text', 'Colour Id', null);
 							
@@ -680,11 +680,11 @@ function createAssembliesSuitelet(request, response){
 								var salesPrice = request.getLineItemValue(sublistId, sublistId + '_sales', int);
 //SMI							var minStock = request.getLineItemValue(sublistId, sublistId + '_min', int);
 //SMI							var maxStock = request.getLineItemValue(sublistId, sublistId + '_max', int);
-//SMI							var webProduct = request.getLineItemValue(sublistId, sublistId + '_web', int);
+								var webProduct = request.getLineItemValue(sublistId, sublistId + '_web', int);
 /*SMI*/							var colourId = request.getLineItemValue(sublistId, sublistId + '_opt2_id', int);
 								
 //SMI							var data = [item,salesPrice,minStock,maxStock,webProduct];
-								var data = [item,salesPrice,colourId];
+								var data = [item,salesPrice,colourId,webProduct];
 								
 								//Build up the parent & child object
 								//

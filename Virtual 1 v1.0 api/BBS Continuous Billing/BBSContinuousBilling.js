@@ -550,7 +550,22 @@ function endRevenueArrangement(_salesOrderId, _endDate)
 											//
 											if(elementSource == "SalesOrd_" + _salesOrderId)
 												{
-													arrangementRecord.setLineItemValue('revenueelement', 'revrecenddate', int4, _endDate);
+													//Get the start date
+													//
+													var revStartDate = arrangementRecord.getLineItemValue('revenueelement', 'revrecstartdate', int4);
+												
+													//Check to see if the new end date is before the start date
+													//
+													if(nlapiStringToDate(_endDate).getTime() < nlapiStringToDate(revStartDate).getTime())
+														{
+															//If it is, then set the end date to be the start date
+															//
+															arrangementRecord.setLineItemValue('revenueelement', 'revrecenddate', int4, revStartDate);
+														}
+													else
+														{
+															arrangementRecord.setLineItemValue('revenueelement', 'revrecenddate', int4, _endDate);
+														}
 												}
 										}
 								

@@ -144,12 +144,13 @@ function processCustomers()
 			[
 			   ["subsidiary","anyof",APPLICABLE_SUBSIDIARY], 
 			   "AND", 
-			   ["type","anyof","CustCred","CustInvc","Journal"], 
+			   [["type","anyof","CustCred","CustInvc"],"OR",[["type","anyof","Journal"],"AND",["accounttype","noneof","Stat"]]],
+			//   ["type","anyof","CustCred","CustInvc","Journal"], 
 			   "AND", 
 			   ["customer.custentity_bbs_customer_segment","noneof","@NONE@"], 
 			   "AND", 
 			   ["mainline","is","T"]
-			], 
+			], sub
 			[
 			   new nlobjSearchColumn("type"), 
 			   new nlobjSearchColumn("tranid"), 

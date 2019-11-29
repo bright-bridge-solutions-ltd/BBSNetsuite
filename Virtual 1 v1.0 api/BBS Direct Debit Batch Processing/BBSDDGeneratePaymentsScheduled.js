@@ -217,7 +217,7 @@ function scheduled(type)
 	
 	try
 		{
-		configRecord = nlapiLoadConfiguration('companyinformation');
+			configRecord = nlapiLoadConfiguration('companyinformation');
 		}
 	catch(err)
 		{
@@ -349,6 +349,10 @@ function scheduled(type)
 													//
 													paymentRecord.setFieldValue('trandate', paymentFileDate);
 													
+													//Set the preferred entity bank
+													//
+													paymentRecord.setFieldValue('custbody_11187_pref_entity_bank', findEntityBank(batchPartnerId));	
+													
 													//Set all lines to be un-applied
 													//
 													var applyLines = paymentRecord.getLineItemCount('apply');
@@ -454,6 +458,32 @@ function scheduled(type)
 //=============================================================================================
 //=============================================================================================
 //
+function findEntityBank(_customerId)
+{
+	var bankId = null;
+	var customerRecord = null;
+	
+	var customrecord_2663_entity_bank_detailsSearch = nlapiSearchRecord("customrecord_2663_entity_bank_details",null,
+			[
+			   ["isinactive","is","F"], 
+			   "AND", 
+			   ["custrecord_2663_entity_bank_type","anyof","1"], 		//Type = "Primary"
+			   "AND", 
+			   ["custrecord_2663_parent_customer","anyof",_customerId]
+			], 
+			[
+			   new nlobjSearchColumn("name").setSort(false)
+			]
+			);
+	
+	if(customrecord_2663_entity_bank_detailsSearch != null && customrecord_2663_entity_bank_detailsSearch.length == 1)
+		{
+			bankId = customrecord_2663_entity_bank_detailsSearch[0].getId();
+		}
+	
+	return bankId;
+}
+
 function updatePrValues(prId, amountToPayDD)
 {
 	//Update the PR record's amount to pay by DD value
