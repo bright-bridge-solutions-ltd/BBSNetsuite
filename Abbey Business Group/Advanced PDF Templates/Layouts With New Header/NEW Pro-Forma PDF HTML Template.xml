@@ -103,18 +103,17 @@
 	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">AMOUNT DUE:</td>
 	<td align="right" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.total}</td>
 	</tr>
-      
+    
+    <!--  Only print the payment schedule rows if the custbody_bbs_1stduedate field is populated -->
+    <#if record.custbody_bbs_1stduedate?has_content>
     <tr>
 	<td align="left" colspan="3" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">PAYMENT SCHEDULE</td>
     </tr>
-    <!--  Only print this row if the custbody_bbs_1stduedate field is populated -->
-    <#if record.custbody_bbs_1stduedate?has_content>
    	<tr>
 	<td style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">1st Payment Due</td>
 	<td align="right"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">${record.custbody_bbs_1stduedate}</td>
     <td align="right"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody_bbs_1stamount}</td>
     </tr>
-    </#if>
     <!--  Only print this row if the custbody_bbs_2ndduedate field is populated -->
     <#if record.custbody_bbs_2ndduedate?has_content>  
     <tr>
@@ -147,7 +146,8 @@
 	<td align="right"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">${record.custbody_bbs_4thduedate}</td>
     <td align="right"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody_bbs_4thamount}</td>
     </tr>
-    </#if>   
+    </#if>
+    </#if> 
     </table>
 
     <table style="width: 100%;">
