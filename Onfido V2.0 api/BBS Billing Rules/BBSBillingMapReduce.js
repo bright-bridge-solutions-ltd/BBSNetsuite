@@ -65,6 +65,14 @@ function(runtime, search, record, format, task) {
 	billingType = currentScript.getParameter({
 		name: 'custscript_bbs_billing_type_select'
 	});
+	
+	billingTypeText = currentScript.getParameter({
+		name: 'custscript_bbs_billing_type_select_text'
+	});
+	
+	initiatingUser = currentScript.getParameter({
+		name: 'custscript_bbs_billing_email_emp_alert'
+	});
 
 	// declare new date object. Global variable so can be accessed throughout the script
 	invoiceDate = new Date();
@@ -1037,6 +1045,7 @@ function(runtime, search, record, format, task) {
 			var quarterEnd;
 			var thisMonthUsage = 0;
 			var quarterStart = 0;
+			var cumulativeQtrUsage = 0;
 			var cumulativeUsage = 0;
 			var calculatedDeferredRevenue = 0;
 			var nextInvoiceAmount = 0;
@@ -1187,7 +1196,44 @@ function(runtime, search, record, format, task) {
     		periodDetailQtrSearch.run().each(function(result) {
     			
     			// get the cumulative usage for the current quarter from the search results
-	    		cumulativeUsage = result.getValue({
+    			cumulativeQtrUsage = result.getValue({
+	    			name: 'custrecord_bbs_contract_period_prod_use',
+	    			summary: 'SUM'
+	    		});
+	    		
+    		});
+    		
+    		// check if cumulativeQtrUsage is null
+			if (cumulativeQtrUsage == '')
+				{
+				 	// set cumulativeQtrUsage to 0
+					cumulativeQtrUsage = 0;
+				}
+    		
+    		// use parseFloat to convert cumulativeQtrUsage to a floating point number
+			cumulativeQtrUsage = parseFloat(cumulativeQtrUsage);
+			
+			// create search to find cumulative usage across the contract to date
+			var periodDetailCumulativeSearch = search.create({
+				type: 'customrecord_bbs_contract_period',
+				
+				columns: [{
+    				name: 'custrecord_bbs_contract_period_prod_use',
+    				summary: 'SUM'
+    			}],
+    			
+    			filters: [{
+    				name: 'custrecord_bbs_contract_period_contract',
+    				operator: 'anyof',
+    				values: [contractRecord]
+    			}],
+    		});
+    		
+			// process search results
+			periodDetailCumulativeSearch.run().each(function(result) {
+    			
+    			// get the cumulative usage to date from the search results
+    			cumulativeUsage = result.getValue({
 	    			name: 'custrecord_bbs_contract_period_prod_use',
 	    			summary: 'SUM'
 	    		});
@@ -1202,9 +1248,9 @@ function(runtime, search, record, format, task) {
 				}
     		
     		// use parseFloat to convert cumulativeUsage to a floating point number
-    		cumulativeUsage = parseFloat(cumulativeUsage);
-    		
-    		// format quarterEnd as a date object
+			cumulativeUsage = parseFloat(cumulativeUsage);
+
+			// format quarterEnd as a date object
     		quarterEnd = format.parse({
     			type: format.Type.DATE,
     			value: quarterEnd
@@ -1230,7 +1276,7 @@ function(runtime, search, record, format, task) {
 			
 			log.debug({
     			title: 'Script Check',
-    			details: 'Minimum Usage: ' + minimumUsage + ' | This Month Usage: ' + thisMonthUsage + ' | Cumulative Usage: ' + cumulativeUsage + ' | Last Prepayment Invoice: ' + lastPrepaymentAmount + ' | Actual Deferred Revenue Balance: ' + deferredRevAmt + ' | Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
+    			details: 'Minimum Usage: ' + minimumUsage + ' | This Month Usage: ' + thisMonthUsage + ' | Cumulative Qtr Usage: ' + cumulativeQtrUsage + ' | Cumulative Usage to Date: ' + cumulativeUsage + ' | Last Prepayment Invoice: ' + lastPrepaymentAmount + ' | Actual Deferred Revenue Balance: ' + deferredRevAmt + ' | Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
     		});
 		
 			// check if the invoiceDate is greater than (after) or equal to the contractEnd OR the invoiceDate is greater than (after) or equal to the earlyEndDate
@@ -1313,8 +1359,8 @@ function(runtime, search, record, format, task) {
 								}
 							});
 						}
-					// check if cumulativeUsage is greater than or equal to 2 x minimumUsage
-					else if (cumulativeUsage >= (2 * minimumUsage))
+					// check if cumulativeUsage is greater than or equal to 3 x minimumUsage
+					else if (cumulativeUsage >= (3 * minimumUsage))
 						{
 							log.audit({
 		    					title: 'Unable to Create Next Prepayment Invoice',
@@ -1330,11 +1376,11 @@ function(runtime, search, record, format, task) {
 								}
 							});
 						}
-					// check if cumulativeUsage is greater than minimumUsage
-					else if (cumulativeUsage > minimumUsage)
+					// check if cumulativeUsage is greater than 3 x minimumUsage
+					else if (cumulativeUsage > (2 * minimumUsage))
 						{
-							// set the nextInvoiceAmount to be 2 x minimumUsage minus cumulativeUsage
-							nextInvoiceAmount = parseFloat((2 * minimumUsage) - cumulativeUsage);
+							// set the nextInvoiceAmount to be 3 x minimumUsage minus cumulativeUsage
+							nextInvoiceAmount = parseFloat((3 * minimumUsage) - cumulativeUsage);
 							
 							// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and currency
 							createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, currency);
@@ -3315,7 +3361,9 @@ function(runtime, search, record, format, task) {
 	    	    scriptId: 'customscript_bbs_end_contracts_mr',
 	    	    deploymentId: 'customdeploy_bbs_end_contracts_mr',
 	    	    params: {
-	    	    	custscript_bbs_billing_type_select: billingType
+	    	    	custscript_bbs_billing_type_select: billingType,
+	    	    	custscript_bbs_billing_type_select_text: billingTypeText,
+	    	    	custscript_bbs_billing_email_emp_alert: initiatingUser
 	    	    }
 	    	});
 	    	

@@ -3,11 +3,11 @@
  * @NScriptType ScheduledScript
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/search', 'N/record'],
+define(['N/runtime', 'N/config', 'N/search', 'N/record'],
 /**
  * @param {search} search
  */
-function(runtime, search, record) {
+function(runtime, config, search, record) {
    
     /**
      * Definition of the Scheduled script trigger point.
@@ -65,6 +65,11 @@ function(runtime, search, record) {
     			name: 'custrecord_bbs_contract_billing_type',
     			operator: 'anyof',
     			values: ['3'] // 3 = QMP
+    		},
+    				{
+    			name: 'custrecord_bbs_contract_status',
+    			operator: 'anyof',
+    			values: ['1'] // 1 = Approved
     		}],
     	});
     	
@@ -207,9 +212,38 @@ function(runtime, search, record) {
 						details: e
 					});
 			    }
-    	});    
+    	});
+    	
+    	// call updateCompanyPreferences function
+    	updateCompanyPreferences();
 
     }
+    
+    //=======================================
+	// FUNCTION TO UPDATE COMPANY PREFERENCES
+	//=======================================
+    
+    function updateCompanyPreferences()
+	    {
+	    	// load the company preferences
+	    	var companyPreferences = config.load({
+	            type: config.Type.COMPANY_PREFERENCES
+	        });
+	    	
+	    	// unset the 'Billing Process Complete' checkbox
+	    	companyPreferences.setValue({
+	    		fieldId: 'custscript_bbs_billing_process_complete',
+	    		value: false
+	    	});
+	    	
+	    	// save the company preferences
+	    	companyPreferences.save();
+	    	
+	    	log.debug({
+	    		title: 'Company Preferences Updated',
+	    		details: 'Billing Process Checkbox has been UNTICKED'
+	    	});
+	    }
 
     return {
         execute: execute

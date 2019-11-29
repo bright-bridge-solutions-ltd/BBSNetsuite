@@ -3,8 +3,8 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['N/ui/serverWidget', 'N/ui/message', 'N/task', 'N/redirect'],
-function(ui, message, task, redirect) {
+define(['N/runtime', 'N/config', 'N/ui/serverWidget', 'N/ui/message', 'N/task', 'N/redirect'],
+function(runtime, config, ui, message, task, redirect) {
    
     /**
      * Definition of the Suitelet script trigger point.
@@ -17,6 +17,9 @@ function(ui, message, task, redirect) {
     function onRequest(context) {
     	
     	var request = context.request;
+    	
+    	// get the ID of the current user
+    	var currentUser = runtime.getCurrentUser().id;
     	
     	if (context.request.method === 'GET')
 			{
@@ -89,6 +92,13 @@ function(ui, message, task, redirect) {
    		 			label: 'Close Page',
    		 			functionName: 'cancelButton()'
    		 		});
+   		 		
+   		 		// add a button to the form to schedule creation of QMP invoices
+   		 		form.addButton({
+   		 			id: 'custpage_create_qmp_invoices',
+   		 			label: 'Create QMP Invoices',
+   		 			functionName: 'createQMPInvoices()'
+   		 		});
 				
 				// write the response to the page
 				context.response.writePage(form);
@@ -96,7 +106,9 @@ function(ui, message, task, redirect) {
 			}
     	else if (context.request.method === 'POST')
 			{
-    			
+    			// call updateCompanyPreferences function
+    			updateCompanyPreferences();
+    		
     			// get the value of the billing type select field
     			var billingType = request.parameters.billingtypeselect;
     			
@@ -116,7 +128,9 @@ function(ui, message, task, redirect) {
 	    		    	    scriptId: 'customscript_bbs_billing_map_reduce',
 	    		    	    deploymentId: 'customdeploy_bbs_billing_map_reduce',
 	    		    	    params: {
-	        	    	    	custscript_bbs_billing_type_select: billingType
+	        	    	    	custscript_bbs_billing_type_select: billingType,
+	        	    	    	custscript_bbs_billing_type_select_text: billingTypeText,
+	        	    	    	custscript_bbs_billing_email_emp_alert: currentUser
 	        	    	    }
 	    		    	});
 	    		    	
@@ -140,7 +154,9 @@ function(ui, message, task, redirect) {
 	        	    	    scriptId: 'customscript_bbs_process_zero_usage_mr',
 	        	    	    deploymentId: 'customdeploy_bbs_process_zero_usage_mr',
 	        	    	    params: {
-	        	    	    	custscript_bbs_billing_type_select: billingType
+	        	    	    	custscript_bbs_billing_type_select: billingType,
+	        	    	    	custscript_bbs_billing_type_select_text: billingTypeText,
+	        	    	    	custscript_bbs_billing_email_emp_alert: currentUser
 	        	    	    }
 	        	    	});
 	        	    	
@@ -160,9 +176,35 @@ function(ui, message, task, redirect) {
 					   billingtype: billingTypeText
 				    }
 				});
-			}	
+			}
 
     }
+    
+    //=======================================
+	// FUNCTION TO UPDATE COMPANY PREFERENCES
+	//=======================================
+    
+    function updateCompanyPreferences()
+	    {
+	    	// load the company preferences
+	    	var companyPreferences = config.load({
+	            type: config.Type.COMPANY_PREFERENCES
+	        });
+	    	
+	    	// unset the 'Billing Process Complete' checkbox
+	    	companyPreferences.setValue({
+	    		fieldId: 'custscript_bbs_billing_process_complete',
+	    		value: false
+	    	});
+	    	
+	    	// save the company preferences
+	    	companyPreferences.save();
+	    	
+	    	log.debug({
+	    		title: 'Company Preferences Updated',
+	    		details: 'Billing Process Checkbox has been UNTICKED'
+	    	});
+	    }
 
     return {
         onRequest: onRequest

@@ -27,6 +27,14 @@ function(runtime, search, record, format, task) {
 		name: 'custscript_bbs_billing_type_select'
 	});
 	
+	billingTypeText = currentScript.getParameter({
+		name: 'custscript_bbs_billing_type_select_text'
+	});
+	
+	initiatingUser = currentScript.getParameter({
+		name: 'custscript_bbs_billing_email_emp_alert'
+	});
+	
 	// declare new date object. Global variable so can be accessed throughout the script
 	processDate = new Date();
 	processDate.setDate(0); // set date to be the last day of the previous month
@@ -700,7 +708,9 @@ function(runtime, search, record, format, task) {
     	    scriptId: 'customscript_bbs_billing_map_reduce',
     	    deploymentId: 'customdeploy_bbs_billing_map_reduce',
     	    params: {
-    	    	custscript_bbs_billing_type_select: billingType
+    	    	custscript_bbs_billing_type_select: billingType,
+    	    	custscript_bbs_billing_type_select_text: billingTypeText,
+    	    	custscript_bbs_billing_email_emp_alert: initiatingUser
     	    }
     	});
     	
