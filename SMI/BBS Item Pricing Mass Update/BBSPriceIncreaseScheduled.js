@@ -162,7 +162,7 @@ function processCustomer(_customerId, _increase, _items)
 					//
 					if(itemPricingLevel == '-1' && (_items == null || _items.length == 0 || _items.indexOf(itemPricingItem) != -1))	//Pricing level must be 'Custom' & the list of items to process is either empty of the item price line exists in that array
 						{
-							var newItemPricingPrice = itemPricingPrice + ((itemPricingPrice / 100.0) * Number(_increase));
+							var newItemPricingPrice = Number((itemPricingPrice + ((itemPricingPrice / 100.0) * Number(_increase))).toFixed(2));
 							customerRecord.setLineItemValue('itempricing', 'price', int2, newItemPricingPrice);
 							linesUpdated++;
 						}

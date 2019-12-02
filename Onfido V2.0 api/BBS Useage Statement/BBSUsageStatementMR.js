@@ -270,7 +270,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    		   [
 	    		      search.createColumn({name: "name", label: "Contract Name"}),
 	    		      search.createColumn({name: "custentity_bbs_usage_statement_email",join: "CUSTRECORD_BBS_CONTRACT_CUSTOMER",label: "Email Address For Usage Statement"}),
-	    		      search.createColumn({name: "custrecord_bbs_contract_customer", label: "Customer"})
+	    		      search.createColumn({name: "custrecord_bbs_contract_customer", label: "Customer"})	    		      
 	    		   ]
 	    		});
 	    }
@@ -285,10 +285,12 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    {
 	    	//Get the id of the pdf template for the usage statement
 	    	//
-	    	var pdfTemplateId = runtime.getCurrentScript().getParameter({name: 'custscript_pdf_template_id'});
-	    	var emailTemplateId = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_usage_email_template'});
+	    	var pdfTemplateId 		= runtime.getCurrentScript().getParameter({name: 'custscript_pdf_template_id'});
+	    	var emailTemplateId 	= runtime.getCurrentScript().getParameter({name: 'custscript_bbs_usage_email_template'});
 	    	var attachmentsFolderId = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_attachments_folder'});
-	    	var statementDate = runtime.getCurrentScript().getParameter({name: 'custscript_statement_date'});
+	    	var statementDate 		= runtime.getCurrentScript().getParameter({name: 'custscript_statement_date'});
+	    	var emailFrom 			= runtime.getCurrentScript().getParameter({name: 'customscript_bbs_usage_email_from'});
+	    	
 	    	var today = new Date();
 	    	
 	    	//Only continue if we have a pdf & email template
@@ -303,10 +305,9 @@ function(config, email, error, file, record, render, runtime, search, format) {
 			    	//	
 			    	var resultContractId					= result.id;
 			    	var resultContractName					= result.values["name"];
-			    	var resultContractEmailAddress			= result.values["custentity_bbs_usage_statement_email.CUSTRECORD_BBS_CONTRACT_CUSTOMER"];
+			    	//var resultContractEmailAddress			= result.values["custentity_bbs_usage_statement_email.CUSTRECORD_BBS_CONTRACT_CUSTOMER"];
 			    	var resultContractCustomer				= result.values["custrecord_bbs_contract_customer"].value;
 
-			    	
 			    	//Get the contract record
 	    			//
 	    			var contractRecord = getContract(resultContractId);
@@ -314,6 +315,10 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    			//Having got the contract record, no get the subsidiary from the contract's customer
 	    			//
 	    			var subsidiaryRecord = getSubsidiary(contractRecord);
+	    			
+	    			//Work out the email address to use based on the billing level (Parent or Child)
+	    			//
+	    			var resultContractEmailAddress = getCorrectEmail(contractRecord);
 	    			
 			    	//Only carry on if we have an email address & the contract record
 			    	//
@@ -345,7 +350,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
 					    	
 					    	//Email the pdf to the customer
 					    	//
-					    	emailPdf(pdfFile, resultContractEmailAddress, resultContractId, emailTemplateId, resultContractCustomer);
+					    	emailPdf(pdfFile, resultContractEmailAddress, resultContractId, emailTemplateId, resultContractCustomer, emailFrom);
 					    	
 					    	//Attach the statement to the contract
 					    	//
@@ -356,6 +361,34 @@ function(config, email, error, file, record, render, runtime, search, format) {
 			    		}
 	    		}
 	    }
+    
+    //=============================================================================================
+    //Function to work out the correct email address to use
+    //=============================================================================================
+    //
+    function getCorrectEmail(_contractRecord)
+    	{
+    		var billingLevel = _contractRecord.getValue({fieldId: 'custrecord_bbs_contract_billing_level'})
+    		var customerId = _contractRecord.getValue({fieldId: 'custrecord_bbs_contract_customer'})
+    		var emailAddress = '';
+    		
+    		if(billingLevel == '1') 	//Parent
+    			{
+	    			emailAddress = search.lookupFields({
+											            type: 		search.Type.CUSTOMER,
+											            id: 		thisCustomerId,
+											            columns: 	['parentcustomer.custentity_bbs_usage_statement_email']
+											        	})['parentcustomer.custentity_bbs_usage_statement_email'];
+    			}
+    		else						//Child
+    			{
+	    			emailAddress = search.lookupFields({
+											            type: 		search.Type.CUSTOMER,
+											            id: 		thisCustomerId,
+											            columns: 	['custentity_bbs_usage_statement_email']
+											        	})['custentity_bbs_usage_statement_email'];
+    			}
+    	}
     
     //=============================================================================================
     //Function to get the contract record
@@ -790,7 +823,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
     //Function to email the pdf
     //=============================================================================================
     //
-    function emailPdf(_pdfFile, _emailAddress, _contractId, _emailTemplateId, _contractCustomer)
+    function emailPdf(_pdfFile, _emailAddress, _contractId, _emailTemplateId, _contractCustomer, _emailFrom)
     	{
 	    	//Build up the attachments array
 			//
@@ -820,7 +853,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
 					try
 						{
 							email.send({
-										author: 		runtime.getCurrentUser().id,
+										author: 		_emailFrom,
 										recipients:		_emailAddress,
 										subject:		emailSubject,
 										body:			emailBody,

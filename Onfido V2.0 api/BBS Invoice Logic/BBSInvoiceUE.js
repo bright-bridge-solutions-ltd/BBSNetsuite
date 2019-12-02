@@ -147,90 +147,102 @@ function(file, record, render, runtime, search, email)
 				    												});
 				    							}
 				    						
-				    						//Read the contract record to see who we send the email version of the pdf to
+				    						//Read the contract record to see if consolidated invoicing is required
+				    						//If no consolidation then we can email the invoice
 				    						//
-				    						var emailAddress = '';
+				    						var consolidationRequired = search.lookupFields({
+													    				            type: 		'customrecord_bbs_contract',
+													    				            id: 		thisContractId,
+													    				            columns: 	['custrecord_bbs_contract_consol_inv']
+													    				        	})['custrecord_bbs_contract_consol_inv'][0].value;
 				    						
-				    						var billingLevel = search.lookupFields({
-													    				            type: 'customrecord_bbs_contract',
-													    				            id: thisContractId,
-													    				            columns: ['custrecord_bbs_contract_billing_level']
-													    				        })['custrecord_bbs_contract_billing_level'][0].value;
-				    						
-				    						if(billingLevel == 1)	//Parent level
+				    						if(consolidationRequired == '2')	//No, then email the invoice
 				    							{
-					    							emailAddress = search.lookupFields({
-														    				            type: search.Type.CUSTOMER,
-														    				            id: thisCustomerId,
-														    				            columns: ['parentcustomer.custentity_bbs_invoice_email']
-														    				        })['parentcustomer.custentity_bbs_invoice_email'];
-					    						}
-				    						else	//Child level
-				    							{
-					    							emailAddress = search.lookupFields({
-														    				            type: search.Type.CUSTOMER,
-														    				            id: thisCustomerId,
-														    				            columns: ['custentity_bbs_invoice_email']
-														    				        })['custentity_bbs_invoice_email'];
-				    							}
-				    						
-				    						//Have we actually got an email address?
-				    						//
-				    						if(emailAddress != null && emailAddress != '')
-				    							{
-				    								//Build up the attachments array
-				    								//
-				    								var emailAttachments = [];
-				    								emailAttachments.push(file.load({id: fileId}));
-				    							
-				    								//Create an email merger
-				    								//
-				    								var mergeResult = render.mergeEmail({
-												    								    templateId: emailTemplate,
-												    								    customRecord: {
-															    								        type: 'customrecord_bbs_contract',
-															    								        id: Number(thisContractId)
-															    								        }
-												    								    });
-				    								
-				    								//Was the merge ok?
-				    								//
-				    								if(mergeResult != null)
-					    								{
-				    										//Get the body & subject from the merge to pass on to the email
-				    										//
-					    									var emailSubject = mergeResult.subject;
-					    									var emailBody = mergeResult.body;
-					    									
-					    									log.debug({
-															    title: 'customer id', 
-															    details: thisCustomerId
-															    });
-					    									
-					    									//Send the email
-					    									//
-					    									try
-																{
-					    											email.send({
-					    														author: 		runtime.getCurrentUser().id,
-					    														recipients:		emailAddress,
-					    														subject:		emailSubject,
-					    														body:			emailBody,
-					    														attachments:	emailAttachments,
-					    														relatedRecords: {
-					    																		entityId:	thisCustomerId
-					    																		}
-					    														})		
-																	
-																}
-															catch(err)
-																{
-																	log.debug({
-																			    title: 'Error sending email', 
-																			    details: err.message
-																			    });
-																}
-					    								}
+				    								//Read the contract record to see who we send the email version of the pdf to
+					    							//
+					    							var emailAddress = '';
+						    						
+						    						var billingLevel = search.lookupFields({
+															    				            type: 		'customrecord_bbs_contract',
+															    				            id: 		thisContractId,
+															    				            columns: 	['custrecord_bbs_contract_billing_level']
+															    				        	})['custrecord_bbs_contract_billing_level'][0].value;
+						    						
+						    						if(billingLevel == 1)	//Parent level
+						    							{
+							    							emailAddress = search.lookupFields({
+																    				            type: 		search.Type.CUSTOMER,
+																    				            id: 		thisCustomerId,
+																    				            columns: 	['parentcustomer.custentity_bbs_invoice_email']
+																    				        	})['parentcustomer.custentity_bbs_invoice_email'];
+							    						}
+						    						else	//Child level
+						    							{
+							    							emailAddress = search.lookupFields({
+																    				            type: 		search.Type.CUSTOMER,
+																    				            id: 		thisCustomerId,
+																    				            columns: 	['custentity_bbs_invoice_email']
+																    				        	})['custentity_bbs_invoice_email'];
+						    							}
+						    						
+						    						//Have we actually got an email address?
+						    						//
+						    						if(emailAddress != null && emailAddress != '')
+						    							{
+						    								//Build up the attachments array
+						    								//
+						    								var emailAttachments = [];
+						    								emailAttachments.push(file.load({id: fileId}));
+						    							
+						    								//Create an email merger
+						    								//
+						    								var mergeResult = render.mergeEmail({
+														    								    templateId: emailTemplate,
+														    								    customRecord: {
+																	    								        type: 'customrecord_bbs_contract',
+																	    								        id: Number(thisContractId)
+																	    								        }
+														    								    });
+						    								
+						    								//Was the merge ok?
+						    								//
+						    								if(mergeResult != null)
+							    								{
+						    										//Get the body & subject from the merge to pass on to the email
+						    										//
+							    									var emailSubject = mergeResult.subject;
+							    									var emailBody = mergeResult.body;
+							    									
+							    									log.debug({
+																	    title: 'customer id', 
+																	    details: thisCustomerId
+																	    });
+							    									
+							    									//Send the email
+							    									//
+							    									try
+																		{
+							    											email.send({
+							    														author: 		runtime.getCurrentUser().id,
+							    														recipients:		emailAddress,
+							    														subject:		emailSubject,
+							    														body:			emailBody,
+							    														attachments:	emailAttachments,
+							    														relatedRecords: {
+							    																		entityId:	thisCustomerId
+							    																		}
+							    														})		
+																			
+																		}
+																	catch(err)
+																		{
+																			log.debug({
+																					    title: 'Error sending email', 
+																					    details: err.message
+																					    });
+																		}
+							    								}
+						    							}
 				    							}
 		    							}
 		    					}
