@@ -44,80 +44,69 @@
     			</tr>
           	</table>
           	
-		    <table class="header" style="width: 100%; margin-top: 10px;">
+		    <table class="header" style="width: 100%; margin-top: 5px;">
 				<tr>
-					<td colspan="2" align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Statement Date</td>
-					<td colspan="2" align="right" style="padding-right: 2px;border-top: 1px solid black; border-right: 1px solid black;">${todaysDate?string["dd/MM/yyyy"]}</td>
-					<td align="left">&nbsp;</td>
-					<td rowspan="7" colspan="2" style="font-size:8pt">${subsidiary.mainaddress_text}<br/><br/>${vatInfo}</td>
-				</tr>
-				<tr>
-					<td colspan="2" align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Client Name</td>
-					<td colspan="2" align="right" style="padding-right: 2px; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_customer}</td>
-					<td align="left">&nbsp;</td>
-				</tr>
-				<tr>
-					<td colspan="2" align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Contract Start Date</td>
-					<td colspan="2" align="right" style="padding-right: 2px; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_start_date}</td>
-					<td align="left">&nbsp;</td>
-				</tr>
-				<tr>
-					<td colspan="2" align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Contract End Date</td>
-					<td colspan="2" align="right" style="padding-right: 2px; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_end_date}</td>
-					<td align="left">&nbsp;</td>
-				</tr>
-				<tr>
-					<td colspan="2" align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ffa31a;">Annual Commitment</td>
-					<#if contract.custrecord_bbs_contract_annual_commit?length == 0>
-						<td colspan="2" align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;">N/A</td>
-					<#else>				
-						<td colspan="2" align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_annual_commit}</td>
-					</#if>
-					<td align="left">&nbsp;</td>
-				</tr>
-				<tr>
-					<td colspan="2" align="left">&nbsp;</td>
-					<td colspan="2" align="left">&nbsp;</td>
-					<td align="left">&nbsp;</td>
-				</tr>
-				<tr>
-					<td colspan="2" align="left">&nbsp;</td>
-					<td colspan="2" align="left">&nbsp;</td>
-					<td align="left">&nbsp;</td>
+					<td rowspan="7" colspan="2" style="font-size:8pt">${customer.defaultaddress}<br/><br/>VAT Number: ${customer.defaulttaxreg}</td>
+					<td rowspan="7" colspan="2" style="font-size:8pt">&nbsp;</td>
+					<td rowspan="7" colspan="2" style="font-size:8pt">${subsidiary.mainaddress_text}<br/>${vatInfo}<br/>billing@onfido.com</td>
 				</tr>
 		   	</table>
 		   	
-		   	<table class="header" style="width: 100%;">
-		   		<#list summary_info.invoiceSummary as inv>
-				   	<#if inv_index==0>
-				    	<tr>
-				        	<td colspan="2" align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ff0000;"><b>Invoices</b></td>
-							<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black; background-color: #ff0000;"><b>Amount</b></td>
-				            <td align="center" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black; background-color: #ff0000;"><b>Status</b></td>
-							<td colspan="3" align="left">&nbsp;</td>
-				            </tr>
-		        	</#if>
-		        	
-		        	<#if inv_index==5>
-			        	<tr>
-							<td colspan="2" align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ff0000;">${inv.description}</td>
-							<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-right: 1px solid black; background-color: #ff0000;">${inv.value}</td>
-							<td align="left" style="padding-right: 2px; border-bottom: 1px solid black; border-right: 1px solid black; background-color: #ff0000;">${inv.status}</td>
-							<td colspan="3" align="left">&nbsp;</td>
-
-						</tr>
-					<#else>	
-						<tr>
-							<td colspan="2" align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; background-color: #ff9999;">${inv.description}</td>
-							<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-right: 1px solid black;">${inv.value}</td>
-							<td align="left" style="padding-right: 2px; border-bottom: 1px solid black; border-right: 1px solid black;">${inv.status}</td>
-							<td colspan="3" align="left">&nbsp;</td>
-
-						</tr>
-		        	</#if>
-				</#list>
-		   	</table>
-
+		   	<table class="header" style="width: 100%; margin-top: 20px;">
+		   		<tr>
+		   			<td>
+			   			<table class="header" style="width: 100%;">
+							<tr>
+								<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; ">Statement Date</td>
+								<td align="right" style="padding-right: 2px;border-top: 1px solid black; border-right: 1px solid black;">${todaysDate?string["dd/MM/yyyy"]}</td>
+							</tr>
+							<tr>
+								<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; ">Contract Start Date</td>
+								<td align="right" style="padding-right: 2px; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_start_date}</td>
+							</tr>
+							<tr>
+								<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; ">Contract End Date</td>
+								<td align="right" style="padding-right: 2px; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_end_date}</td>
+							</tr>
+							<tr>
+								<td align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; ">Annual Commitment</td>
+								<#if contract.custrecord_bbs_contract_annual_commit?length == 0>
+									<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;">N/A</td>
+								<#else>				
+									<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_annual_commit}</td>
+								</#if>
+							</tr>
+			   			</table>
+		   			</td>
+		   			<td>
+					   	<table class="header" style="width: 100%; margin-left: 5px;">
+					   		<#list summary_info.invoiceSummary as inv>
+							   	<#if inv_index==0>
+							    	<tr>
+							        	<td align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; "><b>Invoices</b></td>
+										<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black; "><b>Amount</b></td>
+							            <td align="center" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black; "><b>Status</b></td>
+									</tr>
+					        	</#if>
+					        	
+					        	<#if inv_index==5>
+						        	<tr>
+										<td align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; "><b>${inv.description}</b></td>
+										<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-right: 1px solid black; "><b>${inv.value}</b></td>
+										<td align="left" style="padding-right: 2px; border-bottom: 1px solid black; border-right: 1px solid black; ">${inv.status}</td>
+									</tr>
+								<#else>	
+									<tr>
+										<td align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; ">${inv.description}</td>
+										<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-right: 1px solid black;">${inv.value}</td>
+										<td align="left" style="padding-right: 2px; border-bottom: 1px solid black; border-right: 1px solid black;">${inv.status}</td>
+									</tr>
+					        	</#if>
+							</#list>
+					   	</table>
+		   			</td>
+		   		</tr>
+			</table>
         </macro>
 
 <macro id="nlfooter">

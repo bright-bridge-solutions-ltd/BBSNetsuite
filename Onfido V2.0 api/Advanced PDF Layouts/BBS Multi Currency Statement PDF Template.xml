@@ -51,7 +51,7 @@
         			<td rowspan="7" colspan="3" style="font-size:8pt">${statement.billaddress}</td>
         			<td>&nbsp;</td>
         			<td colspan="2" style="font-size:8pt"><b>Statement Date</b></td>
-        			<td rowspan="7" colspan="2" style="font-size:8pt">${subsidiary.mainaddress_text}<br/><br/>${vatInfo}</td>
+        			<td rowspan="7" colspan="2" style="font-size:8pt">${subsidiary.mainaddress_text}<br/>${vatInfo}<br/>billing@onfido.com</td>
         		</tr>
         		<tr>
         			<td>&nbsp;</td>

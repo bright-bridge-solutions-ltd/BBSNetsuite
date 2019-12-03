@@ -289,7 +289,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    	var emailTemplateId 	= runtime.getCurrentScript().getParameter({name: 'custscript_bbs_usage_email_template'});
 	    	var attachmentsFolderId = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_attachments_folder'});
 	    	var statementDate 		= runtime.getCurrentScript().getParameter({name: 'custscript_statement_date'});
-	    	var emailFrom 			= runtime.getCurrentScript().getParameter({name: 'customscript_bbs_usage_email_from'});
+	    	var emailFrom 			= runtime.getCurrentScript().getParameter({name: 'custscript_bbs_usage_email_from'});
 	    	
 	    	var today = new Date();
 	    	
@@ -376,7 +376,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
     			{
 	    			emailAddress = search.lookupFields({
 											            type: 		search.Type.CUSTOMER,
-											            id: 		thisCustomerId,
+											            id: 		customerId,
 											            columns: 	['parentcustomer.custentity_bbs_usage_statement_email']
 											        	})['parentcustomer.custentity_bbs_usage_statement_email'];
     			}
@@ -384,10 +384,12 @@ function(config, email, error, file, record, render, runtime, search, format) {
     			{
 	    			emailAddress = search.lookupFields({
 											            type: 		search.Type.CUSTOMER,
-											            id: 		thisCustomerId,
+											            id: 		customerId,
 											            columns: 	['custentity_bbs_usage_statement_email']
 											        	})['custentity_bbs_usage_statement_email'];
     			}
+    		
+    		return emailAddress;
     	}
     
     //=============================================================================================
@@ -433,11 +435,11 @@ function(config, email, error, file, record, render, runtime, search, format) {
     												}).subsidiary[0].value;
     		try
     			{
-    			subsidiaryRecord = record.load({
-											type: 		'subsidiary', 
-											id: 		subsidiaryId, 
-											isDynamic: 	true
-											});	
+    				subsidiaryRecord = record.load({
+													type: 		'subsidiary', 
+													id: 		subsidiaryId, 
+													isDynamic: 	true
+													});	
     			}
     		catch(err)
     			{
@@ -1012,6 +1014,29 @@ function(config, email, error, file, record, render, runtime, search, format) {
     		    		
     					}
 
+    				//Load the customer record
+    				//
+    				var customerId = _contractRecord.getValue({fieldId: 'custrecord_bbs_contract_customer'})
+    	    		var customerRecord = null;
+    				
+    				try
+    					{
+	    					customerRecord = record.load({
+														type: 		'customer', 
+														id: 		customerId, 
+														isDynamic: 	true
+														});
+    					}
+    				catch(err)
+    					{
+    						customerRecord = null;
+    						
+    						log.error({
+									    title: 'Error loading customer record', 
+									    details: err
+									   });
+    					}
+    				
     				//Load the template file & get contents
     				//
     				var templateFile = null;
@@ -1044,16 +1069,24 @@ function(config, email, error, file, record, render, runtime, search, format) {
     						//Create the renderer
     						//
     						var renderer = render.create();
+    						
     						renderer.templateContent = templateContents;
+    						
     						renderer.addRecord({
     											templateName:	'contract',
     											record:			_contractRecord
-    											});		
+    											});	
+    						
     						renderer.addRecord({
 												templateName:	'subsidiary',
 												record:			_subsidiaryRecord
 												});		
 			
+    						renderer.addRecord({
+												templateName:	'customer',
+												record:			customerRecord
+												});	
+    						
     						//Render as PDF
     						//
     						try

@@ -111,78 +111,79 @@ function portletName(portletObj, column)
 					
 					//Process the results
 					//
+					var resultValue = Number(0);
+					
 					if(results != null && results.length > 0)
 						{
-							var resultValue = Number(0);
 							
 							for (var int3 = 0; int3 < results.length; int3++) 
 								{
 									resultValue += Number(results[int3].getValue(tileSearchSelectedColumn));
 								}
-
-							resultValue = Number(resultValue).numberFormat('###,###.00');
+						}
+					
+					resultValue = Number(resultValue).numberFormat('###,###.00');
 							
-							//Increment the tile counter
-							//
-							tileCount++;
+					//Increment the tile counter
+					//
+					tileCount++;
 							
-							var resultLabel = tileSearchSelectedColumn.label;
-							var resultDataType = tileSearchSelectedColumn.type;
-							var tileIconHtml = '';
-							var tileDescriptionHtml = '';
+					var resultLabel = tileSearchSelectedColumn.label;
+					var resultDataType = tileSearchSelectedColumn.type;
+					var tileIconHtml = '';
+					var tileDescriptionHtml = '';
 									
-							if(tileIcon != null && tileIcon != '')
-								{
-									var file = nlapiLoadFile(tileIcon);
-											
-									tileIconHtml = '<img src="' + nlapiEscapeXML(file.getURL()) + '" style="float: left; width:50px; height:50px;" />';
-								}
-							else
-								{
-									tileIconHtml = '&nbsp;';
-								}
+					if(tileIcon != null && tileIcon != '')
+						{
+							var file = nlapiLoadFile(tileIcon);
+										
+							tileIconHtml = '<img src="' + nlapiEscapeXML(file.getURL()) + '" style="float: left; width:50px; height:50px;" />';
+						}
+					else
+						{
+							tileIconHtml = '&nbsp;';
+						}
 									
-							if(tileLink != null && tileLink != '')
-								{
-									tileDescriptionHtml = '<td align="right" style="padding-right: 10px; font-size: 12pt;"><a align="right" style="padding-right: 10px; font-size: 12pt;"href="' + tileLink + entityId + '" target="_blank">' + nlapiEscapeXML(tileTitle) + '</a></td>';
-								}
-							else
-								{
-									tileDescriptionHtml = '<td align="right" style="padding-right: 10px; font-size: 12pt;">' + nlapiEscapeXML(tileTitle) + '</td>';
-								}
+					if(tileLink != null && tileLink != '')
+						{
+							tileDescriptionHtml = '<td align="right" style="padding-right: 10px; font-size: 12pt;"><a align="right" style="padding-right: 10px; font-size: 12pt;"href="' + tileLink + entityId + '" target="_blank">' + nlapiEscapeXML(tileTitle) + '</a></td>';
+						}
+					else
+						{
+							tileDescriptionHtml = '<td align="right" style="padding-right: 10px; font-size: 12pt;">' + nlapiEscapeXML(tileTitle) + '</td>';
+						}
 									
-							//Build the html
-							//
-							content += '<td style="width: 400px; background-color: ' + tileColour + '; color: ' + textColour + ';">';
+					//Build the html
+					//
+					content += '<td style="width: 400px; background-color: ' + tileColour + '; color: ' + textColour + ';">';
 									
-							content += '<table width="100%">';
+					content += '<table width="100%">';
 									
-							content += '<tr style="height: 25px;">';
-							content += '<td>&nbsp</td>';
-							content += '<td align="right" style="padding-right: 10px; font-size: 12pt;">' + nlapiEscapeXML(tilePrefix) + nlapiEscapeXML(resultValue) + nlapiEscapeXML(tileSuffix) + '</td>';
-							content += '</tr>';
+					content += '<tr style="height: 25px;">';
+					content += '<td>&nbsp</td>';
+					content += '<td align="right" style="padding-right: 10px; font-size: 12pt;">' + nlapiEscapeXML(tilePrefix) + nlapiEscapeXML(resultValue) + nlapiEscapeXML(tileSuffix) + '</td>';
+					content += '</tr>';
 									
-							content += '<tr style="height: 25px;">';
-							content += '<td rowspan="2" style="padding-left: 10px;">' + tileIconHtml + '</td>';
-							//content += '<td align="right" style="padding-right: 10px; font-size: 12pt;">' + nlapiEscapeXML(tileDescriptionHtml) + '</td>';
-							content += tileDescriptionHtml;
-							content += '</tr>';
+					content += '<tr style="height: 25px;">';
+					content += '<td rowspan="2" style="padding-left: 10px;">' + tileIconHtml + '</td>';
+					//content += '<td align="right" style="padding-right: 10px; font-size: 12pt;">' + nlapiEscapeXML(tileDescriptionHtml) + '</td>';
+					content += tileDescriptionHtml;
+					content += '</tr>';
 									
-							content += '<tr style="height: 25px;">';
-							content += '<td align="right" style="padding-right: 10px;">&nbsp</td>';
-							content += '</tr>';
+					content += '<tr style="height: 25px;">';
+					content += '<td align="right" style="padding-right: 10px;">&nbsp</td>';
+					content += '</tr>';
 									
-							content += '</table> ';
+					content += '</table> ';
 									
-							content += '</td>';	
+					content += '</td>';	
 							
-							//Every fourth tile, we need to start a new row
-							//
-							if(tileCount%4 == 0)
-								{
-									content += '</tr>';
-									content += '<tr style="height: 100px;">';
-								}
+					//Every fourth tile, we need to start a new row
+					//
+					if(tileCount%4 == 0)
+						{
+							content += '</tr>';
+							content += '<tr style="height: 100px;">';
 						}
 				}
 			
@@ -190,8 +191,7 @@ function portletName(portletObj, column)
 			content += '</table>';
 		}
 	
-	htmlField.setDefaultValue(content);
-    //portletObj.setHtml(content);
+	htmlField.setDefaultValue(content);	
 }
 
 function getResults(search)

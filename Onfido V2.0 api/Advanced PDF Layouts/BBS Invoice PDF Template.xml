@@ -54,7 +54,7 @@
         			<td>&nbsp;</td>
         			<td>&nbsp;</td>
         			<td colspan="2" style="font-size:8pt"><b>Invoice Date</b></td>
-        			<td rowspan="7" colspan="2" style="font-size:8pt">${subsidiary.mainaddress_text}<br/><br/>${vatInfo}</td>
+        			<td rowspan="7" colspan="2" style="font-size:8pt">${subsidiary.mainaddress_text}<br/>${vatInfo}<br/>billing@onfido.com</td>
         		</tr>
         		<tr>
         			<td>&nbsp;</td>
@@ -75,23 +75,23 @@
               	<tr>
         			<td>&nbsp;</td>
         			<td>&nbsp;</td>
-        			<td colspan="2" style="font-size:8pt"><b>Reference</b></td>
+        			<td colspan="2" style="font-size:8pt"><b>Period</b></td>
         		</tr>
         		<tr>
         			<td>&nbsp;</td>
         			<td>&nbsp;</td>
-        			<td colspan="2" style="font-size:8pt">${record.otherrefnum}</td>
+        			<td colspan="2" style="font-size:8pt">${record.postingperiod}</td>
         		</tr>
               	<tr>
         			<td>&nbsp;</td>
         			<td>&nbsp;</td>
-        			<td colspan="2" style="font-size:8pt"><b>Period</b></td>
+        			<td colspan="2" style="font-size:8pt"><b>&nbsp;</b></td>
         		</tr>
               	<tr>
         			<td colspan="2">&nbsp;</td>
         			<td>&nbsp;</td>
         			<td>&nbsp;</td>
-        			<td colspan="2" style="font-size:8pt">${record.postingperiod}</td>
+        			<td colspan="2" style="font-size:8pt">&nbsp;</td>
         			<td colspan="2" style="font-size:8pt">&nbsp;</td>
         		</tr>
               	    		
@@ -264,9 +264,14 @@
 	</tr>
 </table>
 
+<#assign dueDate="">
+<#if record.duedate?length gt 0>
+	<#assign dueDate=record.duedate?string.long>
+</#if>
+
 <table class="header" style="width: 100%; margin-top: 20px; page-break-inside: avoid;">
 	<tr>
-      <td colspan="4" style="font-size: 12pt; font-weight: bold;">Due Date: ${record.duedate?string.long}</td>
+      <td colspan="4" style="font-size: 12pt; font-weight: bold;">Due Date: ${dueDate}</td>
     </tr>
 </table>
   

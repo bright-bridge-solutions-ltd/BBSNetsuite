@@ -584,7 +584,7 @@ function getResults(search)
 		//Get the initial set of results
 		//
 		var start = 0;
-		var end = 1000;
+		var end = 50;
 		var searchResultSet = searchResult.getResults(start, end);
 		
 		var resultlen = (searchResultSet != null ? searchResultSet.length : 0);
