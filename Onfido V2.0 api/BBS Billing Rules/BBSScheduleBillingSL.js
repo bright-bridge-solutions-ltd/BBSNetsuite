@@ -199,11 +199,6 @@ function(runtime, config, ui, message, task, redirect) {
 	    	
 	    	// save the company preferences
 	    	companyPreferences.save();
-	    	
-	    	log.debug({
-	    		title: 'Company Preferences Updated',
-	    		details: 'Billing Process Checkbox has been UNTICKED'
-	    	});
 	    }
 
     return {

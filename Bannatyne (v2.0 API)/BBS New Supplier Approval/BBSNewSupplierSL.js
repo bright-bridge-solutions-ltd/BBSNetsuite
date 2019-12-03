@@ -71,7 +71,7 @@ function(ui, record) {
 				var surnameField = form.addField({
 					id: 'custpage_surname',
 					type: ui.FieldType.TEXT,
-					label: 'SurName'
+					label: 'Surname'
 				});
 				
 				surnameField.updateDisplayType({

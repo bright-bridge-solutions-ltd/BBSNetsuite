@@ -18,6 +18,10 @@ function(runtime, config, search, record, email) {
     	name: 'custscript_bbs_ended_contracts_alert_emp'
     });
 	
+	emailSender = currentScript.getParameter({
+		name: 'custscript_bbs_billing_script_email_send'
+	});
+	
 	billingType = currentScript.getParameter({
 		name: 'custscript_bbs_billing_type_select'
 	});
@@ -182,7 +186,7 @@ function(runtime, config, search, record, email) {
 	    			{
 	        			// send email with a list of ended contracts
 	    	        	email.send({
-	    	        		author: emailRecipient,
+	    	        		author: emailSender,
 	    	        		recipients: emailRecipient,
 	    	        		subject: emailSubject,
 	    	        		body: emailBody,
@@ -205,7 +209,7 @@ function(runtime, config, search, record, email) {
 			{
 				// send email with a list of ended contracts
 	        	email.send({
-	        		author: emailRecipient,
+	        		author: emailSender,
 	        		recipients: initiatingUser,
 	        		subject: emailSubject,
 	        		body: emailBody,

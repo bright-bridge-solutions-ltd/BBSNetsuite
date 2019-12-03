@@ -70,14 +70,18 @@ function(runtime, search, record, format, task) {
     			values: ['1'] // 1 = PAYG
     		},
     				{
-    			name: 'custrecord_bbs_contract_period_contract',
-    			operator: 'anyof',
-    			values: ['165']
+    			name: 'custrecord_bbs_contract_period_prod_use',
+    			operator: 'isempty'
     		},
     				{
-    			name: 'custrecord_bbs_contract_period_prod_use',
-    			operator: 'isempty',
-    			summary: 'SUM'
+				name: 'custrecord_bbs_contract_period_start',
+				operator: 'within',
+				values: ['lastmonth']
+			},
+					{
+				name: 'custrecord_bbs_contract_period_end',
+				operator: 'within',
+				values: ['lastmonth']
     		}],
     		
     		columns: [{
@@ -220,108 +224,15 @@ function(runtime, search, record, format, task) {
 			var contractRecordLookup = search.lookupFields({
 				type: 'customrecord_bbs_contract',
 				id: contractRecordID,
-				columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_currency', 'custrecord_bbs_contract_min_ann_use', 'custrecord_bbs_contract_term']
+				columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_currency']
 			});
 			
 			// return values from the contractRecordLookup
 			var customer = contractRecordLookup.custrecord_bbs_contract_customer[0].value;
 			var currency = contractRecordLookup.custrecord_bbs_contract_currency[0].value;
-			var annualMinimum = contractRecordLookup.custrecord_bbs_contract_min_ann_use;
-		    annualMinimum = parseFloat(annualMinimum); // use parseFloat to convert to floating point number
-		    var contractTerm = contractRecordLookup.custrecord_bbs_contract_term;
-		    contractTerm = parseInt(contractTerm); // use parseInt to convert to integer number
 		    
-		    // divide annualMinimum by the contractTerm to calculate the monthly minimum
-		    var monthlyMinimum = (annualMinimum / contractTerm);
-		    
-		    // run search to find period detail records for this billing month
-		    var periodDetailSearch = search.create({
-		    	type: 'customrecord_bbs_contract_period',
-		    	
-		    	columns: [{
-		    		name: 'custrecord_bbs_contract_period_start'
-		    	},
-		    			{
-		    		name: 'custrecord_bbs_contract_period_end'
-		    	}],
-		    	
-		    	filters: [{
-    				name: 'custrecord_bbs_contract_period_contract',
-    				operator: 'anyof',
-    				values: [contractRecordID]
-    			},
-    					{
-    				name: 'custrecord_bbs_contract_period_start',
-    				operator: 'within',
-    				values: ['lastmonth']
-    			},
-    					{
-    				name: 'custrecord_bbs_contract_period_end',
-    				operator: 'within',
-    				values: ['lastmonth']
-        		}],
-        		
-		    });
-		    	
-		    // process search results
-    		periodDetailSearch.run().each(function(result) {
-    			
-    			// get the period start and end dates from the search results
-	    		periodStart = result.getValue({
-	    			name: 'custrecord_bbs_contract_period_start'
-	    		});
-	    		
-	    		periodEnd = result.getValue({
-	    			name: 'custrecord_bbs_contract_period_end'
-	    		});
-
-    		});
-    		
-    		// format periodStart as a date object
-    		periodStart = format.parse({
-    			type: format.Type.DATE,
-    			value: periodStart
-    		});
-    		
-    		// format periodEnd as a date object
-    		periodEnd = format.parse({
-    			type: format.Type.DATE,
-    			value: periodEnd
-    		});
-    		
-    		// get the day of the month from the periodStart and periodEnd objects
-    		var periodStartDay = periodStart.getDate();
-    		var periodEndDay = periodEnd.getDate();
-    		
-    		// call function to calculate number of days in the current month
-			var daysInMonth = getDaysInMonth(periodStart.getMonth(), periodStart.getFullYear());
-			
-			// check if the periodStartDay is NOT equal to 1 (IE starts mid month)
-			if (periodStartDay != 1)
-				{
-					// calculate the days remaining in the month
-					var daysRemaining = daysInMonth - periodStartDay;
-					
-					// divide monthlyMinimum by daysInMonth to calculate the dailyMinimum
-					var dailyMinimum = monthlyMinimum / daysInMonth;
-					
-					// multiply the dailyMinimum by daysRemaining to calculate the pro rate minimum usage
-					monthlyMinimum = parseFloat(dailyMinimum * daysRemaining);
-					monthlyMinimum = monthlyMinimum.toFixed(2);					
-				}
-			// check that the periodEndDay is NOT equal to the end of the month (IE ends mid month)
-			else if (periodEndDay != daysInMonth)
-				{
-					// divide monthlyMinimum by daysInMonth to calculate the dailyMinimum
-					var dailyMinimum = monthlyMinimum / daysInMonth;
-					
-					// multiply monthlyMinimum by periodEndDay to calculate the pro rate minimum usage
-					monthlyMinimum = parseFloat(dailyMinimum * periodEndDay);
-					monthlyMinimum = monthlyMinimum.toFixed(2);
-				}
-			
-			// call function to create a sales order. Pass in contractRecordID, customer, currency and monthlyMinimum
-    		createSalesOrder(contractRecordID, customer, currency, monthlyMinimum);
+		    // call function to create a sales order. Pass in contractRecordID, customer and currency
+    		createSalesOrder(contractRecordID, customer, currency);
     	}
     
     function AMP(contractRecordID)
@@ -330,14 +241,12 @@ function(runtime, search, record, format, task) {
 			var contractRecordLookup = search.lookupFields({
 				type: 'customrecord_bbs_contract',
 				id: contractRecordID,
-				columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_currency', 'custrecord_bbs_contract_min_ann_use', 'custrecord_bbs_contract_end_date']
+				columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_currency', 'custrecord_bbs_contract_end_date']
 			});
 			
 			// return values from the contractRecordLookup
 			var customer = contractRecordLookup.custrecord_bbs_contract_customer[0].value;
 			var currency = contractRecordLookup.custrecord_bbs_contract_currency[0].value;
-			var annualMinimum = contractRecordLookup.custrecord_bbs_contract_min_ann_use;
-			annualMinimum = parseFloat(annualMinimum); // use parseFloat to convert to floating point number
 			var contractEnd = contractRecordLookup.custrecord_bbs_contract_end_date;
 			
 			// format contractEnd as a date object
@@ -349,8 +258,8 @@ function(runtime, search, record, format, task) {
 		    // check if this is the end of the contract or has already passed
 		    if (contractEnd <= processDate)
 		    	{
-		    		// call function to create a sales order. Pass in contractRecordID, customer, currency and annualMinimum
-	    			createSalesOrder(contractRecordID, customer, currency, annualMinimum);
+		    		// call function to create a sales order. Pass in contractRecordID, customer and currency
+	    			createSalesOrder(contractRecordID, customer, currency);
 		    	}    		
     	}
     
@@ -405,17 +314,15 @@ function(runtime, search, record, format, task) {
 					var contractRecordLookup = search.lookupFields({
 						type: 'customrecord_bbs_contract',
 						id: contractRecordID,
-						columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_currency', 'custrecord_bbs_contract_qu_min_use']
+						columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_currency']
 					});
 					
 					// return values from the contractRecordLookup
 					var customer = contractRecordLookup.custrecord_bbs_contract_customer[0].value;
 					var currency = contractRecordLookup.custrecord_bbs_contract_currency[0].value;
-					var minimumUsage = contractRecordLookup.custrecord_bbs_contract_qu_min_use;
-					minimumUsage = parseFloat(minimumUsage); // use parseFloat to convert to floating point number
 					
-					// call function to create a sales order. Pass in contractRecordID, customer, currency and minimumUsage
-		    		createSalesOrder(contractRecordID, customer, currency, minimumUsage);
+					// call function to create a sales order. Pass in contractRecordID, customer and currency
+		    		createSalesOrder(contractRecordID, customer, currency);
 				}	
     	}
     
@@ -470,17 +377,15 @@ function(runtime, search, record, format, task) {
 					var contractRecordLookup = search.lookupFields({
 						type: 'customrecord_bbs_contract',
 						id: contractRecordID,
-						columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_currency', 'custrecord_bbs_contract_qu_min_use']
+						columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_currency']
 					});
 					
 					// return values from the contractRecordLookup
 					var customer = contractRecordLookup.custrecord_bbs_contract_customer[0].value;
 					var currency = contractRecordLookup.custrecord_bbs_contract_currency[0].value;
-					var minimumUsage = contractRecordLookup.custrecord_bbs_contract_qu_min_use;
-					minimumUsage = parseFloat(minimumUsage); // use parseFloat to convert to floating point number
 					
-					// call function to create a sales order. Pass in contractRecordID, customer, currency and minimumUsage
-		    		createSalesOrder(contractRecordID, customer, currency, minimumUsage);
+					// call function to create a sales order. Pass in contractRecordID, customer and currency
+		    		createSalesOrder(contractRecordID, customer, currency);
 				}
     	}
     
@@ -490,103 +395,15 @@ function(runtime, search, record, format, task) {
 			var contractRecordLookup = search.lookupFields({
 				type: 'customrecord_bbs_contract',
 				id: contractRecordID,
-				columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_currency', 'custrecord_bbs_contract_mon_min_use']
+				columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_currency']
 			});
 			
 			// return values from the contractRecordLookup
 			var customer = contractRecordLookup.custrecord_bbs_contract_customer[0].value;
 			var currency = contractRecordLookup.custrecord_bbs_contract_currency[0].value;
-			var monthlyMinimum = contractRecordLookup.custrecord_bbs_contract_mon_min_use;
-			monthlyMinimum = parseFloat(monthlyMinimum); // use parseFloat to convert to floating point number
 			
-			// run search to find period detail records for this billing month
-		    var periodDetailSearch = search.create({
-		    	type: 'customrecord_bbs_contract_period',
-		    	
-		    	columns: [{
-		    		name: 'custrecord_bbs_contract_period_start'
-		    	},
-		    			{
-		    		name: 'custrecord_bbs_contract_period_end'
-		    	}],
-		    	
-		    	filters: [{
-    				name: 'custrecord_bbs_contract_period_contract',
-    				operator: 'anyof',
-    				values: [contractRecordID]
-    			},
-    					{
-    				name: 'custrecord_bbs_contract_period_start',
-    				operator: 'within',
-    				values: ['lastmonth']
-    			},
-    					{
-    				name: 'custrecord_bbs_contract_period_end',
-    				operator: 'within',
-    				values: ['lastmonth']
-        		}],
-        		
-		    });
-		    	
-		    // process search results
-    		periodDetailSearch.run().each(function(result) {
-    			
-    			// get the period start and end dates from the search results
-	    		periodStart = result.getValue({
-	    			name: 'custrecord_bbs_contract_period_start'
-	    		});
-	    		
-	    		periodEnd = result.getValue({
-	    			name: 'custrecord_bbs_contract_period_end'
-	    		});
-
-    		});
-    		
-    		// format periodStart as a date object
-    		periodStart = format.parse({
-    			type: format.Type.DATE,
-    			value: periodStart
-    		});
-    		
-    		// format periodEnd as a date object
-    		periodEnd = format.parse({
-    			type: format.Type.DATE,
-    			value: periodEnd
-    		});
-    		
-    		// get the day of the month from the periodStart and periodEnd objects
-    		var periodStartDay = periodStart.getDate();
-    		var periodEndDay = periodEnd.getDate();
-    		
-    		// call function to calculate number of days in the current month
-			var daysInMonth = getDaysInMonth(periodStart.getMonth(), periodStart.getFullYear());
-			
-			// check if the periodStartDay is NOT equal to 1 (IE starts mid month)
-			if (periodStartDay != 1)
-				{
-					// calculate the days remaining in the month
-					var daysRemaining = daysInMonth - periodStartDay;
-					
-					// divide monthlyMinimum by daysInMonth to calculate the dailyMinimum
-					var dailyMinimum = monthlyMinimum / daysInMonth;
-					
-					// multiply the dailyMinimum by daysRemaining to calculate the pro rate minimum usage
-					monthlyMinimum = parseFloat(dailyMinimum * daysRemaining);
-					monthlyMinimum = monthlyMinimum.toFixed(2);					
-				}
-			// check that the periodEndDay is NOT equal to the end of the month (IE ends mid month)
-			else if (periodEndDay != daysInMonth)
-				{
-					// divide monthlyMinimum by daysInMonth to calculate the dailyMinimum
-					var dailyMinimum = monthlyMinimum / daysInMonth;
-					
-					// multiply monthlyMinimum by periodEndDay to calculate the pro rate minimum usage
-					monthlyMinimum = parseFloat(dailyMinimum * periodEndDay);
-					monthlyMinimum = monthlyMinimum.toFixed(2);
-				}
-			
-			// call function to create a sales order. Pass in contractRecordID, customer, currency and monthlyMinimum
-    		createSalesOrder(contractRecordID, customer, currency, monthlyMinimum);    	
+			// call function to create a sales order. Pass in contractRecordID, customer and currency
+    		createSalesOrder(contractRecordID, customer, currency);
     	}
     
     // ================================
@@ -646,7 +463,7 @@ function(runtime, search, record, format, task) {
     				soRecord.setCurrentSublistValue({
 	    				sublistId: 'item',
 	    				fieldId: 'rate',
-	    				value: minimumUsage
+	    				value: 0
 	    			});
 	    			
     				soRecord.setCurrentSublistValue({
@@ -679,16 +496,6 @@ function(runtime, search, record, format, task) {
 					});
 				}
 		}
-    
-    //================================================
-	// FUNCTION TO GET THE NUMBER OF DAYS IN THE MONTH
-	//================================================   
-    
-    function getDaysInMonth(month, year)
-	    {
-    		// day 0 is the last day in the current month
-    	 	return new Date(year, month+1, 0).getDate(); // return the last day of the month
-	    }
     
     /**
      * Executes when the summarize entry point is triggered and applies to the result set.
