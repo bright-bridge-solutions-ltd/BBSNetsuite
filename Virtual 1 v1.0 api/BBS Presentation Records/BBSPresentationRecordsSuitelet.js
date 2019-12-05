@@ -230,6 +230,7 @@ function presentationRecordsSuitelet(request, response)
 			var billingGroup = request.getParameter('billinggroup'); //Billing group
 			var batches = request.getParameter('batches'); 			//Batches (PR records)
 			var billingDate = request.getParameter('billingdate'); 	//Billing date
+			var reconciled = request.getParameter('reconciled'); 	//Reconciled
 			
 			stage = (stage == null || stage == '' ? 1 : stage);
 	
@@ -280,6 +281,12 @@ function presentationRecordsSuitelet(request, response)
 			var billingDateParamField = form.addField('custpage_param_billing_date', 'text', 'Billing Date');
 			billingDateParamField.setDisplayType('hidden');
 			billingDateParamField.setDefaultValue(billingDate);
+			
+			//Store the reconciled flag in a field in the form so that it can be retrieved in the POST section of the code
+			//
+			var reconciledParamField = form.addField('custpage_param_reconciled', 'checkbox', 'Reconciled');
+			reconciledParamField.setDisplayType('hidden');
+			reconciledParamField.setDefaultValue(reconciled);
 			
 			//Work out what the form layout should look like based on the stage number
 			//
@@ -338,6 +345,10 @@ function presentationRecordsSuitelet(request, response)
 						//
 						var billingDateSelectField = form.addField('custpage_select_bill_date', 'date', 'Billing Date', null, null);
 						billingDateSelectField.setMandatory(true);
+						
+						//Add a field for the reconciled flag
+						//
+						var reconciledSelectField = form.addField('custpage_select_reconciled', 'checkbox', 'Reconciled', null, null);
 						
 						//Add a submit button to the form
 						//
@@ -478,6 +489,12 @@ function presentationRecordsSuitelet(request, response)
 								recordSearch.addFilter(new nlobjSearchFilter( 'custentity_bbs_billing_group', 'customer', 'anyof', billingGroup ));
 							}
 						
+						//Add filter based on reconciled flag
+						//
+						if(reconciled == 'T')
+							{
+								recordSearch.addFilter(new nlobjSearchFilter( 'custbody_bbs_reconciled', null, 'is', "T" ));
+							}
 						
 						//Get the session record to see if we are filtering by partner and add filter if needed
 						//
@@ -698,7 +715,7 @@ function presentationRecordsSuitelet(request, response)
 						var billingFreq = request.getParameter('custpage_select_bill_freq'); 	//Billing frequency
 						var billingGroup = request.getParameter('custpage_select_bill_group'); 	//Billing group
 						var billingDate = request.getParameter('custpage_select_bill_date'); 	//Billing datwe
-		
+						var reconciled = request.getParameter('custpage_select_reconciled'); 	//Reconciled flag
 						
 						//Build up the parameters so we can call this suitelet again, but move it on to the next stage
 						//
@@ -710,7 +727,7 @@ function presentationRecordsSuitelet(request, response)
 						params['billingfreq'] = billingFreq;
 						params['billinggroup'] = billingGroup;
 						params['billingdate'] = billingDate;
-						
+						params['reconciled'] = reconciled;
 						
 						response.sendRedirect('SUITELET', nlapiGetContext().getScriptId(), nlapiGetContext().getDeploymentId(), null, params);
 						
