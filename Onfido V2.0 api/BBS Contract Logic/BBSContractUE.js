@@ -122,8 +122,49 @@ function(url, runtime, record, search, format) {
      */
     function contractAS(scriptContext) {
     	
+    	// check if the record is being created
+    	if (scriptContext.type == scriptContext.UserEventType.CREATE)
+    		{
+    			// get the new record object
+    			var currentRecord = scriptContext.newRecord
+    			
+    			// get the internal ID of the custoemr from the currentRecord object
+			    var customer = currentRecord.getValue({
+					fieldId: 'custrecord_bbs_contract_customer'
+				});
+    			
+    			// get the value of the 'Consolidated Invoicing Required' field from the currentRecord object
+    			var consolInvReq = currentRecord.getValue({
+    				fieldId: 'custrecord_bbs_contract_consol_inv'
+    			});
+    			
+    			// check if the consolInvReq variable returns 1 (Yes)
+    			if (consolInvReq == 1)
+    				{
+    					// untick the 'Exclude from Consolidated Invoicing' checkbox on the customer record
+    					record.submitFields({
+    						type: record.Type.CUSTOMER,
+    						id: customer,
+    						values: {
+    							custentity_nsts_ci_exclude_ci: false
+    						}
+    					});
+    				}
+    			// if the consolInvReq variable returns 2 (No)
+    			else if (consolInvReq == 2)
+    				{
+	    				// tick the 'Exclude from Consolidated Invoicing' checkbox on the customer record
+						record.submitFields({
+							type: record.Type.CUSTOMER,
+							id: customer,
+							values: {
+								custentity_nsts_ci_exclude_ci: true
+							}
+						});
+    				}
+    		}
     	// check if the record is being edited
-    	if (scriptContext.type == scriptContext.UserEventType.EDIT)
+    	else if (scriptContext.type == scriptContext.UserEventType.EDIT)
     		{    	
 		       	// get the oldRecord and newRecord objects
     			var oldRecord = scriptContext.oldRecord;
@@ -227,7 +268,7 @@ function(url, runtime, record, search, format) {
     				}
     			
     			// check if the oldAnnMin and newAnnMin variables are NOT the same (IE contract has been edited and annual minimum amount has been changed)
-    			else if (oldAnnMin != newAnnMin)
+    			else if ((oldAnnMin != newAnnMin) && billingType != 6) // 6 = AMBMA
     				{
 	    				// calculate the difference by subtracting oldAnnMin from newQtrMin
 						var difference = (newAnnMin - oldAnnMin);

@@ -157,11 +157,6 @@ function(runtime, config, search, record, email) {
      */
     function summarize(summary) {
     	
-    	log.debug({
-    		title: 'Script Param Check',
-    		details: initiatingUser 
-    	});
-    	
     	// declare new array to hold ended contracts
     	var endedContracts = '';
 

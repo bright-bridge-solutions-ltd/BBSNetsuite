@@ -1043,6 +1043,7 @@ function(runtime, search, record, format, task) {
 	    {
     		// declare and initiate variables
 			var quarterEnd;
+			var contractQuarter;
 			var thisMonthUsage = 0;
 			var quarterStart = 0;
 			var cumulativeQtrUsage = 0;
@@ -1117,6 +1118,9 @@ function(runtime, search, record, format, task) {
 					name: 'custrecord_bbs_contract_period_qu_end'
 				},
 						{
+					name: 'custrecord_bbs_contract_period_quarter'
+				},
+						{
 		    		name: 'custrecord_bbs_contract_period_prod_use'
 		    	},
 		    			{
@@ -1148,6 +1152,10 @@ function(runtime, search, record, format, task) {
 				quarterEnd = result.getValue({
 					name: 'custrecord_bbs_contract_period_qu_end'
     			});
+				
+				contractQuarter = result.getValue({
+					name: 'custrecord_bbs_contract_period_quarter'
+				});
 				
 				// get the usage for the current billing month from the search results
 	    		thisMonthUsage = result.getValue({
@@ -1341,57 +1349,169 @@ function(runtime, search, record, format, task) {
 							// call function to close the sales order. Pass in soRecord object
 	    	    			closeSalesOrder(soRecord);
 						}
-
-					// check if cumulativeUsage is greater than or equal to 4 x minimumUsage
-					if (cumulativeUsage >= (4 * minimumUsage))
+					
+					// if contractQuarter variable is 1
+					if (contractQuarter == 1)
 						{
-							log.audit({
-		    					title: 'Unable to Create Next Prepayment Invoice',
-		    					details: 'Contract Record ID: ' + contractRecord + ' | Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
-		    				});
-		    		
-				    		// update fields on the contract record
-							record.submitFields({
-								type: 'customrecord_bbs_contract',
-								id: contractRecord,
-								values: {
-									custrecord_bbs_contract_prepayment_inv: amount
+							// check if cumulativeUsage is greater than or equal to 4 x minimumUsage
+							if (cumulativeUsage >= (4 * minimumUsage))
+								{
+									log.audit({
+				    					title: 'Unable to Create Next Prepayment Invoice',
+				    					details: 'Contract Record ID: ' + contractRecord + ' | Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
+				    				});
+									
+									// set the nextInvoiceAmount variable to 0
+									nextInvoiceAmount = 0;
+				    		
+						    		// update fields on the contract record
+									record.submitFields({
+										type: 'customrecord_bbs_contract',
+										id: contractRecord,
+										values: {
+											custrecord_bbs_contract_prepayment_inv: nextInvoiceAmount
+										}
+									});
 								}
-							});
-						}
-					// check if cumulativeUsage is greater than or equal to 3 x minimumUsage
-					else if (cumulativeUsage >= (3 * minimumUsage))
-						{
-							log.audit({
-		    					title: 'Unable to Create Next Prepayment Invoice',
-		    					details: 'Contract Record ID: ' + contractRecord + ' | Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
-		    				});
-		    		
-				    		// update fields on the contract record
-							record.submitFields({
-								type: 'customrecord_bbs_contract',
-								id: contractRecord,
-								values: {
-									custrecord_bbs_contract_prepayment_inv: amount
+							// check if cumulativeUsage is greater than or equal to 3 x minimumUsage
+							else if (cumulativeUsage >= (2 * minimumUsage))
+								{
+									log.audit({
+				    					title: 'Unable to Create Next Prepayment Invoice',
+				    					details: 'Contract Record ID: ' + contractRecord + ' | Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
+				    				});
+									
+									// set the nextInvoiceAmount variable to 0
+									nextInvoiceAmount = 0;
+				    		
+						    		// update fields on the contract record
+									record.submitFields({
+										type: 'customrecord_bbs_contract',
+										id: contractRecord,
+										values: {
+											custrecord_bbs_contract_prepayment_inv: nextInvoiceAmount
+										}
+									});
 								}
-							});
+							// check if cumulativeUsage is greater than minimumUsage
+							else if (cumulativeUsage > minimumUsage)
+								{
+									// set the nextInvoiceAmount to be 2 x minimumUsage minus cumulativeUsage
+									nextInvoiceAmount = parseFloat((2 * minimumUsage) - cumulativeUsage);
+									
+									// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and currency
+									createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, currency);
+								}
+							else
+								{
+									// set the nextInvoiceAmount to be the minimumUsage
+									nextInvoiceAmount = minimumUsage;
+								
+									// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and currency
+									createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, currency);
+								}
 						}
-					// check if cumulativeUsage is greater than 3 x minimumUsage
-					else if (cumulativeUsage > (2 * minimumUsage))
+					// if contractQuarter is 2
+					else if (contractQuarter == 2)
 						{
-							// set the nextInvoiceAmount to be 3 x minimumUsage minus cumulativeUsage
-							nextInvoiceAmount = parseFloat((3 * minimumUsage) - cumulativeUsage);
-							
-							// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and currency
-							createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, currency);
+							// check if cumulativeUsage is greater than or equal to 4 x minimumUsage
+							if (cumulativeUsage >= (4 * minimumUsage))
+								{
+									log.audit({
+				    					title: 'Unable to Create Next Prepayment Invoice',
+				    					details: 'Contract Record ID: ' + contractRecord + ' | Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
+				    				});
+									
+									// set the nextInvoiceAmount variable to 0
+									nextInvoiceAmount = 0;
+				    		
+						    		// update fields on the contract record
+									record.submitFields({
+										type: 'customrecord_bbs_contract',
+										id: contractRecord,
+										values: {
+											custrecord_bbs_contract_prepayment_inv: nextInvoiceAmount
+										}
+									});
+								}
+							// check if cumulativeUsage is greater than or equal to 3 x minimumUsage
+							else if (cumulativeUsage >= (3 * minimumUsage))
+								{
+									log.audit({
+				    					title: 'Unable to Create Next Prepayment Invoice',
+				    					details: 'Contract Record ID: ' + contractRecord + ' | Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
+				    				});
+									
+									// set the nextInvoiceAmount variable to 0
+									nextInvoiceAmount = 0;
+				    		
+						    		// update fields on the contract record
+									record.submitFields({
+										type: 'customrecord_bbs_contract',
+										id: contractRecord,
+										values: {
+											custrecord_bbs_contract_prepayment_inv: nextInvoiceAmount
+										}
+									});
+								}
+							// check if cumulativeUsage is greater than or equal to 2 x minimumUsage
+							else if (cumulativeUsage > (2 * minimumUsage))
+								{
+									// set the nextInvoiceAmount to be 3 x minimumUsage minus cumulativeUsage
+									nextInvoiceAmount = parseFloat((3 * minimumUsage) - cumulativeUsage);
+									
+									// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and currency
+									createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, currency);
+								}
+							else
+								{
+									// set the nextInvoiceAmount to be the minimumUsage
+									nextInvoiceAmount = minimumUsage;
+								
+									// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and currency
+									createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, currency);
+								}
 						}
-					else
+					// if contractQuarter is 3
+					else if (contractQuarter == 3)
 						{
-							// set the nextInvoiceAmount to be the minimumUsage
-							nextInvoiceAmount = minimumUsage;
-						
-							// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and currency
-							createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, currency);
+							// check if cumulativeUsage is greater than or equal to 4 x minimumUsage
+							if (cumulativeUsage >= (4 * minimumUsage))
+								{
+									log.audit({
+				    					title: 'Unable to Create Next Prepayment Invoice',
+				    					details: 'Contract Record ID: ' + contractRecord + ' | Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
+				    				});
+									
+									// set the nextInvoiceAmount variable to 0
+									nextInvoiceAmount = 0;
+				    		
+						    		// update fields on the contract record
+									record.submitFields({
+										type: 'customrecord_bbs_contract',
+										id: contractRecord,
+										values: {
+											custrecord_bbs_contract_prepayment_inv: nextInvoiceAmount
+										}
+									});
+								}
+							// check if cumulativeUsage is greater than 3 x minimumUsage
+							else if (cumulativeUsage > (3 * minimumUsage))
+								{
+									// set the nextInvoiceAmount to be 3 x minimumUsage minus cumulativeUsage
+									nextInvoiceAmount = parseFloat((4 * minimumUsage) - cumulativeUsage);
+									
+									// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and currency
+									createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, currency);
+								}
+							else
+								{
+									// set the nextInvoiceAmount to be the minimumUsage
+									nextInvoiceAmount = minimumUsage;
+								
+									// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and currency
+									createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, currency);
+								}						
 						}
 					
 					// check if deferredRevAmt is greater than 0

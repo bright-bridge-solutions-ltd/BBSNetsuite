@@ -94,7 +94,7 @@ function(message, url, https, search) {
     			operator: 'anyof',
     			values: ['SalesOrd:F'] // SalesOrd:F = Sales Order:Pending Billing
     		},
-    		          {
+    		     	{
     			name: 'custrecord_bbs_contract_billing_type',
     			join: 'custbody_bbs_contract_record',
     			operator: 'anyof',
@@ -102,6 +102,26 @@ function(message, url, https, search) {
     		},
     				{
     			name: 'custcol_bbs_usage_updated',
+    			operator: 'is',
+    			values: ['F']
+    		},
+    				{
+    			name: 'mainline',
+    			operator: 'is',
+    			values: ['F']
+    		},
+    				{
+    			name: 'cogs',
+    			operator: 'is',
+    			values: ['F']
+    		},
+    				{
+    			name: 'shipping',
+    			operator: 'is',
+    			values: ['F']
+    		},
+    				{
+    			name: 'taxline',
     			operator: 'is',
     			values: ['F']
     		}],

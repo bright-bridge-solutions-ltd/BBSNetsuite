@@ -58,6 +58,12 @@ function(runtime, search, record, format, task) {
     		type: 'customrecord_bbs_contract_period',
     		
     		filters: [{
+    			name: 'isinactive',
+    			join: 'custrecord_bbs_contract_period_contract',
+    			operator: 'is',
+    			values: ['F']
+    		},
+    		       	{
     			name: 'custrecord_bbs_contract_status',
     			join: 'custrecord_bbs_contract_period_contract',
     			operator: 'anyof',
