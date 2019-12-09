@@ -3,8 +3,8 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['N/ui/serverWidget', 'N/record'],
-function(ui, record) {
+define(['N/runtime', 'N/ui/serverWidget', 'N/record', 'N/search'],
+function(runtime, ui, record, search) {
    
     /**
      * Definition of the Suitelet script trigger point.
@@ -19,16 +19,16 @@ function(ui, record) {
     	if (context.request.method === 'GET')
 			{
 				// retrieve parameters that have been passed to the page
-    			var seciRecordID = context.request.parameters.record;
+    			var supplierRecordID = context.request.parameters.record;
     		
     			// create form
 				var form = ui.createForm({
-	                title: 'Bannatyne - SECI Bank Details',
+	                title: 'Bannatyne - Supplier Bank Details',
 	                hideNavBar: true
 	            });
 				
 				// set client script to run on the form
-				form.clientScriptFileId = 406356;
+				form.clientScriptFileId = '406471';
 				
 				// add cancel button to the form
    		 		form.addButton({
@@ -47,94 +47,52 @@ function(ui, record) {
 				// set default value of the pageLogo field
 				pageLogo.defaultValue = "<img src='https://4537381-sb1.app.netsuite.com/core/media/media.nl?id=915&c=4537381_SB1&h=7a14b6798dff769d5845' alt='Bannatyne Logo' style='width: 226px; height: 48px;'>";
 
-				// add fields to the form to display SECI information
-				var seciRecordField = form.addField({
-					id: 'custpage_secirecord',
+				// add fields to the form to display supplier information
+				var supplierRecordField = form.addField({
+					id: 'custpage_supplier_record',
 					type: ui.FieldType.INTEGER,
-					label: 'SECI Record'
+					label: 'Supplier Record'
 				});
 				
-				seciRecordField.updateDisplayType({
+				supplierRecordField.updateDisplayType({
 				    displayType : ui.FieldDisplayType.HIDDEN
 				});
 				
-				var firstNameField = form.addField({
-					id: 'custpage_firstname',
+				var supplierNameField = form.addField({
+					id: 'custpage_supplier_name',
 					type: ui.FieldType.TEXT,
-					label: 'First Name'
+					label: 'Supplier Name'
 				});
 				
-				firstNameField.updateDisplayType({
+				supplierNameField.updateDisplayType({
 				    displayType : ui.FieldDisplayType.INLINE
 				});
 				
-				var surnameField = form.addField({
-					id: 'custpage_surname',
-					type: ui.FieldType.TEXT,
-					label: 'Surname'
-				});
-				
-				surnameField.updateDisplayType({
-				    displayType : ui.FieldDisplayType.INLINE
-				});
-				
-				var companyNameField = form.addField({
-					id: 'custpage_companyname',
-					type: ui.FieldType.TEXT,
-					label: 'Company Name'
-				});
-				
-				companyNameField.updateDisplayType({
-				    displayType : ui.FieldDisplayType.INLINE
-				});
-				
-				// check if the seciRecord parameter returns a value
-				if (seciRecordID)
+				// check if the supplierRecordID parameter returns a value
+				if (supplierRecordID)
 					{
-						// load the seci record
-						var seciRecord = record.load({
-							type: 'customrecord_bbs_seci_record',
-							id: seciRecordID
+						// set supplier record field on the form
+						supplierRecordField.defaultValue = supplierRecordID;
+					
+						// load the supplier setup request record
+						var supplierRecord = record.load({
+							type: 'customrecord_tbg_supp_entry',
+							id: supplierRecordID
 						});
 						
-						// retrieve values from the seciRecord object
-						var firstName = seciRecord.getValue({
-							fieldId: 'custrecord_bbs_seci_record_first_name'
-						});
-						
-						var surname = seciRecord.getValue({
-							fieldId: 'custrecord_bbs_seci_record_last_name'
-						});
-						
-						var companyName = seciRecord.getValue({
-							fieldId: 'custrecord_bbs_seci_record_comp_name'
+						// retrieve values from the supplierRecord object
+						var supplierName = supplierRecord.getValue({
+							fieldId: 'altname'
 						});
 							
-						// set record id, first name, surname and company number fields on the form
-						seciRecordField.defaultValue = seciRecordID;
-						firstNameField.defaultValue = firstName;
-						surnameField.defaultValue = surname;
-						companyNameField.defaultValue = companyName;
+						// set supplier name field on the form
+						supplierNameField.defaultValue = supplierName;
 						
 						// add submit button to the form
 		   		 		form.addSubmitButton({
 		   		 			label : 'Submit'
 		   		 		});
 					}
-				
-				// add help inline HTML field to the form
-				var helpText = form.addField({
-					id: 'custpage_helptext',
-					type: ui.FieldType.INLINEHTML,
-					label: 'Help Text'
-				});
-				
-				// set default value of the helpText field
-				helpText.defaultValue = "<p><span style='font-size:20px;'><span style='font-family:arial,helvetica,sans-serif;'>Please use this form to enter your bank details and click 'Submit' once done.</span></span></p>";
-				
-				helpText.updateBreakType({
-				    breakType : ui.FieldBreakType.STARTCOL
-				});
 				
 				// add fields to enter bank details
 				form.addField({
@@ -155,12 +113,44 @@ function(ui, record) {
 					label: 'Sort Code'
 				}).isMandatory = true;
 				
+				form.addField({
+					id: 'custpage_payment_notification_email',
+					type: ui.FieldType.EMAIL,
+					label: 'Email Address for Payment Notification'
+				}).isMandatory = true;
+				
+				form.addField({
+					id: 'custpage_vat_number',
+					type: ui.FieldType.TEXT,
+					label: 'VAT Number'
+				}).isMandatory = true;
+				
+				form.addField({
+					id: 'custpage_terms_accepted',
+					type: ui.FieldType.CHECKBOX,
+					label: 'Bannatyne Terms and Conditions Accepted'
+				});
+				
+				// add help inline HTML field to the form
+				var helpText = form.addField({
+					id: 'custpage_helptext',
+					type: ui.FieldType.INLINEHTML,
+					label: 'Help Text'
+				});
+				
+				// set default value of the helpText field
+				helpText.defaultValue = "<p><span style='font-size:20px;'><span style='font-family:arial,helvetica,sans-serif;'>Please use this form to enter your bank details and click 'Submit' once done.</span></span></p>";
+				
+				helpText.updateBreakType({
+				    breakType : ui.FieldBreakType.STARTCOL
+				});
+				
 				// write the response to the page
 				context.response.writePage(form);
 			}
     	else if (context.request.method === 'POST')
     		{
-	    		// create form
+    			// create form
 				var form = ui.createForm({
 	                title: 'Supplier Bank Details',
 	                hideNavBar: true
@@ -196,53 +186,88 @@ function(ui, record) {
 				helpText.updateBreakType({
 				    breakType : ui.FieldBreakType.STARTCOL
 				});
+				
+				// retrieve script parameters
+				var currentScript = runtime.getCurrentScript();
+				
+				var payablesAccount = currentScript.getParameter({
+			    	name: 'custscript_bbs_new_supp_sl_pay_acc'
+			    });
+				
+				var fileFormat = currentScript.getParameter({
+					name: 'custscript_bbs_new_supp_sl_pay_file_form'
+				});
     		
     			// retrieve field values from the form
-    			var seciRecordID = context.request.parameters.custpage_secirecord;
-    			var firstName = context.request.parameters.custpage_firstname;
-    			var surname = context.request.parameters.custpage_surname;
-    			var companyName = context.request.parameters.custpage_companyname;
+    			var supplierRequestRecordID = context.request.parameters.custpage_supplier_record;
+    			var companyName = context.request.parameters.custpage_supplier_name;
     			var bankName = context.request.parameters.custpage_bankname;
     			var accountNumber = context.request.parameters.custpage_accountnumber;
     			var sortCode = context.request.parameters.custpage_sortcode;
+    			var emailForPaymentNotificaton = context.request.parameters.custpage_payment_notification_email;
+    			var vatNumber = context.request.parameters.custpage_vat_number;
     			
-    			// load the seci record
-				var seciRecord = record.load({
-					type: 'customrecord_bbs_seci_record',
-					id: seciRecordID
+    			// load the supplier setup request record
+				var supplierRequestRecord = record.load({
+					type: 'customrecord_tbg_supp_entry',
+					id: supplierRequestRecordID
 				});
 				
-				// get field values from the seciRecord object
-				var subsidiary = seciRecord.getValue({
-					fieldId: 'custrecord_bbs_seci_record_subsidiary'
+				// get field values from the supplierRequestRecord object
+				var subsidiary = supplierRequestRecord.getValue({
+					fieldId: 'custrecord_tbg_supp_entry_primary_sub'
 				});
 				
-				var email = seciRecord.getValue({
-					fieldId: 'custrecord_bbs_seci_record_email'
+				var email = supplierRequestRecord.getValue({
+					fieldId: 'custrecord_tbg_supp_entry_email'
 				});
 					
-				var phone = seciRecord.getValue({
-					fieldId: 'custrecord_bbs_seci_record_phone'
+				var phone = supplierRequestRecord.getValue({
+					fieldId: 'custrecord_tbg_supp_entry_phone'
 				});
 				
-				var address1 = seciRecord.getValue({
-					fieldId: 'custrecord_bbs_seci_record__addr_1'
+				var address1 = supplierRequestRecord.getValue({
+					fieldId: 'custrecord_tbg_supp_entry_address_1'
 				});
 				
-				var address2 = seciRecord.getValue({
-					fieldId: 'custrecord_bbs_seci_record_addr_2'
+				var address2 = supplierRequestRecord.getValue({
+					fieldId: 'custrecord_tbg_supp_entry_address_2'
 				});
 				
-				var town = seciRecord.getValue({
-					fieldId: 'custrecord_bbs_seci_record_town'
+				var city = supplierRequestRecord.getValue({
+					fieldId: 'custrecord_tbg_supp_entry_city'
 				});
 				
-				var county = seciRecord.getValue({
-					fieldId: 'custrecord_bbs_seci_record_county'
+				var county = supplierRequestRecord.getValue({
+					fieldId: 'custrecord_tbg_supp_entry_county'
 				});
 				
-				var postcode = seciRecord.getValue({
-					fieldId: 'custrecord_bbs_seci_record_post_code'
+				var postcode = supplierRequestRecord.getValue({
+					fieldId: 'custrecord_tbg_supp_entry_postcode'
+				});
+				
+				var terms = supplierRequestRecord.getValue({
+					fieldId: 'custrecord_tbg_supp_entry_pay_terms_give'
+				});
+				
+				var sendViaEmail = supplierRequestRecord.getValue({
+					fieldId: 'custrecord_tbg_supp_entry_send_via_email'
+				});
+				
+				var classification = supplierRequestRecord.getValue({
+					fieldId: 'custrecord_tbg_supp_entry_vat_class'
+				});
+				
+				var category = supplierRequestRecord.getValue({
+					fieldId: 'custrecord_tbg_supp_entry_category'
+				});
+				
+				var siteCanRaiseWithoutRequisition = supplierRequestRecord.getValue({
+					fieldId: 'custrecord_tbg_supp_entry_site_raise_po'
+				});
+				
+				var itemSupplied = supplierRequestRecord.getValue({
+					fieldId: 'custrecord_tbg_supp_entry_item'
 				});
 				
 				try
@@ -256,22 +281,12 @@ function(ui, record) {
 						// set fields on the new supplier record
 						supplierRecord.setValue({
 	    					fieldId: 'isperson',
-	    					value: 'T'
+	    					value: 'F'
 	    				});
 						
 						supplierRecord.setValue({
 	    					fieldId: 'subsidiary',
 	    					value: subsidiary
-	    				});
-						
-						supplierRecord.setValue({
-	    					fieldId: 'firstname',
-	    					value: firstName
-	    				});
-						
-						supplierRecord.setValue({
-	    					fieldId: 'lastname',
-	    					value: surname
 	    				});
 						
 						supplierRecord.setValue({
@@ -291,12 +306,52 @@ function(ui, record) {
 						
 						supplierRecord.setValue({
 	    					fieldId: 'category',
-	    					value: 21 // 21 = Personal Trainer
+	    					value: category
 	    				});
 						
 						supplierRecord.setValue({
+							fieldId: 'custentitycustentityfieldban_vat_class',
+							value: classification
+						});
+						
+						supplierRecord.setValue({
+							fieldId: 'terms',
+							value: terms
+						})
+						
+						supplierRecord.setValue({
 							fieldId: 'openingbalanceaccount',
-							value: 1592 // 1592 = 20025 Accounts Payable : Personal trainers
+							value: payablesAccount
+						});
+						
+						supplierRecord.setValue({
+							fieldId: 'custentity_2663_payment_method',
+							value: true
+						});
+						
+						supplierRecord.setValue({
+							fieldId: 'custentity_bbs_sites_raise_po_without_rq',
+							value: siteCanRaiseWithoutRequisition
+						});
+						
+						supplierRecord.setValue({
+							fieldId: 'emailtransactions',
+							value: sendViaEmail
+						});
+						
+						supplierRecord.setValue({
+							fieldId: 'custentity_2663_email_address_notif',
+							value: emailForPaymentNotificaton
+						});
+						
+						supplierRecord.setValue({
+							fieldId: 'vatregnumber',
+							value: vatNumber
+						});
+						
+						supplierRecord.setValue({
+							fieldId: 'custentity_tbg_terms_conditions_accept',
+							value: true
 						});
 						
 						// add a new line to the address sublist
@@ -333,7 +388,7 @@ function(ui, record) {
 	    				
 	    				addressSubrecord.setValue({
 	    					fieldId: 'city',
-	    					value: town
+	    					value: city
 	    				});
 	    				
 	    				addressSubrecord.setValue({
@@ -362,6 +417,11 @@ function(ui, record) {
 		    				type: 'customrecord_2663_entity_bank_details'
 		    			});
 		    			
+		    			bankDetailsRecord.setValue({
+		    				fieldId: 'custrecord_2663_entity_file_format',
+		    				value: fileFormat
+		    			});
+		    			
 		    			// set fields on the new bank details record
 		    			bankDetailsRecord.setValue({
 		    				fieldId: 'custrecord_2663_parent_vendor',
@@ -371,11 +431,6 @@ function(ui, record) {
 		    			bankDetailsRecord.setValue({
 		    				fieldId: 'name',
 		    				value: companyName
-		    			});
-		    			
-		    			bankDetailsRecord.setValue({
-		    				fieldId: 'custpage_2663_entity_file_format',
-		    				value: 42 // 42 = BACS DD
 		    			});
 		    			
 		    			bankDetailsRecord.setValue({
@@ -406,15 +461,52 @@ function(ui, record) {
 		    			
 		    			log.audit({
 		    				title: 'New Supplier Record Created',
-		    				details: 'SECI Record: ' + seciRecordID + ' | Supplier ID: ' + supplierID
+		    				details: 'Supplier Request Record: ' + supplierRequestRecordID + ' | Supplier ID: ' + supplierID
 		    			});
 		    			
-		    			// submit the customer field on the ad hoc site record
+		    			// submit the supplier field on the supplier request record
 		    			record.submitFields({
-		    				type: 'customrecord_bbs_seci_record',
-		    				id: seciRecordID,
+		    				type: 'customrecord_tbg_supp_entry',
+		    				id: supplierRequestRecordID,
 		    				values: {
-		    					custrecord_bbs_seci_record_create_pt_sup: supplierID
+		    					custrecord_tbg_supp_entry_supp_rec: supplierID,
+		    					custrecord_tbg_supp_entry_terms_accepted: true
+		    				}
+		    			});
+		    			
+		    			// call function to return the item type. Pass itemSupplied variable. Item type will be returned
+		    			var itemType = itemTypeSearch(itemSupplied);
+		    			
+		    			// declare and initialize variables
+		    			var itemRecordType;
+		    			
+		    			// translate the itemType so it can be used in the API calls
+				        switch (itemType)
+				        	{ 
+					            case 'InvtPart':
+					            	itemRecordType = 'inventoryitem';
+					                break;
+					                
+					            case 'NonInvtPart':
+					            	itemRecordType = 'noninventoryitem';
+					                break;
+					                
+					            case 'Service':
+					            	itemRecordType = 'serviceitem';
+					            	break;
+				        	}
+				        
+				        log.debug({
+				        	title: 'Item Record Type',
+				        	details: itemRecordType
+				        });
+				        
+				        // submit the supplier field on the item record
+		    			record.submitFields({
+		    				type: itemRecordType,
+		    				id: itemSupplied,
+		    				values: {
+		    					custitem_bbs_available_suppliers: supplierID
 		    				}
 		    			});
 		    			
@@ -426,7 +518,7 @@ function(ui, record) {
 	    			{
 	    				log.error({
 	    					title: 'Unable to Create Supplier Record',
-	    					details: 'SECI Record: ' + seciRecordID + ' | Error: ' + error
+	    					details: 'Supplier Request Record: ' + supplierRequestRecordID + ' | Error: ' + error
 	    				});
 	    				
 	    				// set default value of the helpText field
@@ -438,6 +530,46 @@ function(ui, record) {
 				
     		}
     }
+
+    // =================================================
+    // FUNCTION TO RUN SAVED SEARCH AND RETURN ITEM TYPE
+    // =================================================
+    
+    function itemTypeSearch(itemID)
+    	{
+    		// declare and initialize variables
+    		var itemType;
+    		
+    		// create search to find item type for the given item ID
+    		var itemSearch = search.create({
+    			type: search.Type.ITEM,
+    			
+    			filters: [{
+    				name: 'internalid',
+    				operator: 'anyof',
+    				values: itemID
+    			}],
+    			
+    			columns: [{
+    				name: 'type'
+    			}],
+    			
+    		});
+    		
+    		// run search and process results
+    		itemSearch.run().each(function(result) {
+    			
+    			// get the item type from the search results
+    			itemType = result.getValue({
+    				name: 'type'
+    			});
+    		
+    		});
+    		
+    		// return the item type to the main script function
+    		return itemType;
+    		
+    	}
 
     return {
         onRequest: onRequest
