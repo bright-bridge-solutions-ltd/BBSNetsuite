@@ -9,7 +9,7 @@ function(message, url, https, search) {
     function cancelButton()
     	{
 	    	// close the window
-    		open(location, '_self').close();    
+    		parent.close();
     	}
     
     function createQMPInvoices()
@@ -51,6 +51,18 @@ function(message, url, https, search) {
 				        message: 'The billing process for QMP has not yet completed so the creation of QMP invoices cannot start.<br><br>Please wait until you have received an email informing you that the billing process has completed and try again.'
 					}).show(5000); // show for 5 seconds	
 				}		
+    	}
+    
+    function createConsolidatedInvoices()
+    	{
+    		// return the URL of the 'Create Consolidated Invoices' Suitelet
+			var reloadURL = url.resolveScript({
+			    scriptId: 'customscript_nsts_ci_online_sl',
+			    deploymentId: 'customdeploy_nsts_ci_online_sl'
+			});
+			
+			// open the 'Create Consolidated Invoices' Suitelet in a new tab/window
+    		window.open(reloadURL, '_blank');
     	}
     
     /**
@@ -160,7 +172,8 @@ function(message, url, https, search) {
     return {
     	saveRecord: saveRecord,
     	cancelButton: cancelButton,
-    	createQMPInvoices: createQMPInvoices
+    	createQMPInvoices: createQMPInvoices,
+    	createConsolidatedInvoices:  createConsolidatedInvoices
     };
     
 });

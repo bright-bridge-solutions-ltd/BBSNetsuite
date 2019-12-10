@@ -3,8 +3,8 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/ui/serverWidget', 'N/record', 'N/search'],
-function(runtime, ui, record, search) {
+define(['N/runtime', 'N/ui/serverWidget', 'N/record', 'N/search', 'N/email'],
+function(runtime, ui, record, search, email) {
    
     /**
      * Definition of the Suitelet script trigger point.
@@ -196,6 +196,15 @@ function(runtime, ui, record, search) {
 				
 				var fileFormat = currentScript.getParameter({
 					name: 'custscript_bbs_new_supp_sl_pay_file_form'
+				});
+				
+				// emailRecipient and emailSender variables are global parameter so can be accessed throughout the script
+				emailRecipient = currentScript.getParameter({
+					name: 'custscript_bbs_new_sup_sl_item_email_rec'
+				});
+				
+				emailSender = currentScript.getParameter({
+					name: 'custscript_bbs_new_sup_sl_item_email_sen'
 				});
     		
     			// retrieve field values from the form
@@ -474,42 +483,9 @@ function(runtime, ui, record, search) {
 		    				}
 		    			});
 		    			
-		    			// call function to return the item type. Pass itemSupplied variable. Item type will be returned
-		    			var itemType = itemTypeSearch(itemSupplied);
-		    			
-		    			// declare and initialize variables
-		    			var itemRecordType;
-		    			
-		    			// translate the itemType so it can be used in the API calls
-				        switch (itemType)
-				        	{ 
-					            case 'InvtPart':
-					            	itemRecordType = 'inventoryitem';
-					                break;
-					                
-					            case 'NonInvtPart':
-					            	itemRecordType = 'noninventoryitem';
-					                break;
-					                
-					            case 'Service':
-					            	itemRecordType = 'serviceitem';
-					            	break;
-				        	}
+		    			// call function to add the new supplier to the vendors sublist on the item record. Pass itemSupplied and supplierID variables.
+		    			updateItemRecord(itemSupplied, supplierID);
 				        
-				        log.debug({
-				        	title: 'Item Record Type',
-				        	details: itemRecordType
-				        });
-				        
-				        // submit the supplier field on the item record
-		    			record.submitFields({
-		    				type: itemRecordType,
-		    				id: itemSupplied,
-		    				values: {
-		    					custitem_bbs_available_suppliers: supplierID
-		    				}
-		    			});
-		    			
 		    			// set default value of the helpText field
 						helpText.defaultValue = "<p><span style='color:#008000;'><strong>Thankyou, your bank details have been submitted successfully.</strong></span></p><br><p><span style='color:#008000;'><strong>You may now close the page.</strong></span></p>"
 						
@@ -535,10 +511,11 @@ function(runtime, ui, record, search) {
     // FUNCTION TO RUN SAVED SEARCH AND RETURN ITEM TYPE
     // =================================================
     
-    function itemTypeSearch(itemID)
+    function updateItemRecord(itemID, supplierID)
     	{
     		// declare and initialize variables
     		var itemType;
+			var itemRecordType;
     		
     		// create search to find item type for the given item ID
     		var itemSearch = search.create({
@@ -565,10 +542,109 @@ function(runtime, ui, record, search) {
     			});
     		
     		});
-    		
-    		// return the item type to the main script function
-    		return itemType;
-    		
+			
+			// translate the itemType so it can be used in the API calls
+	        switch (itemType)
+	        	{ 
+		            case 'InvtPart':
+		            	itemRecordType = 'inventoryitem';
+		                break;
+		                
+		            case 'NonInvtPart':
+		            	itemRecordType = 'noninventoryitem';
+		                break;
+		                
+		            case 'Service':
+		            	itemRecordType = 'serviceitem';
+		            	break;
+	        	}
+	        
+	        try
+	        	{
+			        // load the item record
+			        var itemRecord = record.load({
+			        	type: itemRecordType,
+			        	id: itemID,
+			        	isDynamic: true
+			        });
+			        
+			        // add a new line to the 'itemvendor' sublist
+			        itemRecord.selectNewLine({
+						sublistId: 'itemvendor'
+					});
+			        
+			        // set the 'vendor' field on the new line using the supplierID variable
+			        itemRecord.setCurrentSublistValue({
+			        	sublistId: 'itemvendor',
+			        	fieldId: 'vendor',
+			        	value: supplierID
+			        });
+			        
+			        // commit the line
+					itemRecord.commitLine({
+						sublistId: 'itemvendor'
+					});
+					
+					// submit the item record
+					itemRecord.save({
+						enableSourcing: false,
+			    		ignoreMandatoryFields: true
+					});
+					
+					log.audit({
+						title: 'Item Record Updated',
+						details: 'Supplier ' + supplierID + ' has been added to item ' + itemID
+					});
+				}
+	        catch(error)
+	        	{
+	        		log.error({
+	        			title: 'Unable to Update Item Record',
+	        			details: 'Item ID: ' + itemID + ' | Error: ' + error
+	        		});
+	        		
+	        		try
+		        		{
+		        			// ============================================================
+			        		// SEND EMAIL NOTIFICATION OF AN ERROR UPDATING THE ITEM RECORD
+			        		// ============================================================
+			        		
+			        		// build up the HTML of the email
+			        		var emailBody = '<html>';
+			        	    emailBody += '<p>There has been an error adding a new supplier to an item record</p>';
+			            	emailBody += '<br>';
+			            	emailBody += '<p><b>Item ID:</b> ' + itemID + '</p>';
+			            	emailBody += '<br>';
+			            	emailBody += '<p><b>Supplier ID:</b> ' + supplierID + '</p>';
+			            	emailBody += '<br>';
+			            	emailBody += '<p><b>Error:</b> ' + error + '</p>';
+			            	emailBody += '<br>';
+			            	emailBody += '<p><span style="font-size:10px;">this alert has been sent by &#39;BBS New Supplier Suitelet&#39; (customscript_bbs_new_supplier_suitelet)</span></p>';
+			            	emailBody += '</html>';
+			        		
+			        		email.send({
+				        		author: emailSender,
+				        		recipients: emailRecipient,
+				        		subject: 'Error Adding Supplier to Item Record',
+				        		body: emailBody,
+				        		relatedRecords: {
+				        	           entityId: emailRecipient
+				        		}
+				        	});
+			        		
+			        		log.audit({
+			        			title: 'Failure Email Notification Sent',
+			        			details: 'Email Sender: ' + emailSender + ' | Email Recipient: ' + emailRecipient
+			        		});
+		        		}
+	        		catch(error)
+	        			{
+	        				log.error({
+	        					title: 'Unable to Send Email Notification',
+	        					details: error
+	        				});
+	        			}
+	        	}
     	}
 
     return {

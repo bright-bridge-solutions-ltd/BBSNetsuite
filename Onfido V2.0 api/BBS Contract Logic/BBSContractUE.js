@@ -123,10 +123,11 @@ function(url, runtime, record, search, format) {
     function contractAS(scriptContext) {
     	
     	// check if the record is being created
-    	if (scriptContext.type == scriptContext.UserEventType.CREATE)
+    	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
     		{
-    			// get the new record object
-    			var currentRecord = scriptContext.newRecord
+	    		// get the oldRecord and newRecord objects
+				var oldRecord = scriptContext.oldRecord;
+				var currentRecord = scriptContext.newRecord;
     			
     			// get the internal ID of the custoemr from the currentRecord object
 			    var customer = currentRecord.getValue({
@@ -162,134 +163,119 @@ function(url, runtime, record, search, format) {
 							}
 						});
     				}
-    		}
-    	// check if the record is being edited
-    	else if (scriptContext.type == scriptContext.UserEventType.EDIT)
-    		{    	
-		       	// get the oldRecord and newRecord objects
-    			var oldRecord = scriptContext.oldRecord;
-    			var currentRecord = scriptContext.newRecord;
     			
-    			// get the ID of the current record
-        		var currentRecordID = scriptContext.newRecord.id;
-    			
-    			// get the value of the status field from the oldRecord object
-    			var oldStatus = oldRecord.getValue({
-    				fieldId: 'custrecord_bbs_contract_status'
-    			});
-    			
-    			// get the value of the status field from the currrentRecord object
-    			var newStatus = currentRecord.getValue({
-    				fieldId: 'custrecord_bbs_contract_status'
-    			});
-    			
-    			// get the value of the minimum quarterly usage field from the oldRecord object
-    			var oldQtrMin = oldRecord.getValue({
-    				fieldId: 'custrecord_bbs_contract_qu_min_use'
-    			});
-    			
-    			// get the value of the minimum quarterly usage field from the currentRecord object
-    			var newQtrMin = currentRecord.getValue({
-    				fieldId: 'custrecord_bbs_contract_qu_min_use'
-    			});
-    			
-    			// get the value of the minimum annual usage field from the oldRecord object
-    			var oldAnnMin = oldRecord.getValue({
-    				fieldId: 'custrecord_bbs_contract_min_ann_use'
-    			});
-    			
-    			// get the value of the minimum annual usage field from the currentRecord object
-    			var newAnnMin = currentRecord.getValue({
-    				fieldId: 'custrecord_bbs_contract_min_ann_use'
-    			});
-    			
-    			// get the value of the 'billing type' field from the currentRecord object
-		    	var billingType = currentRecord.getValue({
-		    		fieldId: 'custrecord_bbs_contract_billing_type'
-		    	});
-    			
-    			// check that oldStatus variable does NOT return 1 and the newStatus variable DOES return 1 (IE contract has been edited and status changed to approved)
-    			if (oldStatus != 1 && newStatus == 1) // 1 = Approved
-    				{
-	    				// get the value of the 'setup fee' field from the currentRecord object
-				    	var setupFee = currentRecord.getValue({
-				    		fieldId: 'custrecord_bbs_contract_setup_fee'
-				    	});
-				    	
-				    	// check if the setupFee variable returns true (checkbox is ticked)
-				    	if (setupFee == true)
-				    		{
-				    			// call function to create an account setup fee invoice. Pass currentRecord object and currentRecordID variable
-				    			createSetupFeeInvoice(currentRecord, currentRecordID);	
-				    		}
-				    	
-				    	// check if the billingType variable returns 3 (QMP)
-				    	if (billingType == 3)
-				    		{
-				    			// call the QMP function. Pass currentRecord object and currentRecordID variable
-				    			QMP(billingType, currentRecord, currentRecordID);
-				    		}
-				    	// if the billingType variable returns 4 (AMP)
-				    	else if (billingType == 4)
-				    		{
-				    			// call the AMP function. Pass currentRecord object and currentRecord variable
-				    			AMP(billingType, currentRecord, currentRecordID);
-				    		}
-				    	// if the billingType variable returns 5 (QUR)
-				    	else if (billingType == 5)
-				    		{
-				    			// call the QUR function. Pass currentRecord object and currentRecord variable
-				    			QUR(billingType, currentRecord, currentRecordID);
-				    		}
-    				}
-    			
-    			// check if the oldQtrMin and newQtrMin variables are NOT the same (IE contract has been edited and quarterly minimum amount has been changed)
-    			else if (oldQtrMin != newQtrMin)
-    				{
-    					// calculate the difference by subtracting oldQtrMin from newQtrMin
-    					var difference = (newQtrMin - oldQtrMin);
-    					
-    					// check if the difference variable is greater than 0
-    					if (difference > 0)
-    						{
-	    						// get the customer from the currentRecord object
-	    					    var customer = currentRecord.getValue({
-	    							fieldId: 'custrecord_bbs_contract_customer'
-	    						});
-	    					    
-	    					    // get the currency from the currentRecord object
-	    						var currency = currentRecord.getValue({
-	    							fieldId: 'custrecord_bbs_contract_currency'
-	    						});
+    			// check if the record is being edited
+    	    	if (scriptContext.type == scriptContext.UserEventType.EDIT)
+    	    		{
+	    	    		// get the ID of the current record
+	            		var currentRecordID = scriptContext.newRecord.id;
+	        			
+	        			// get the value of the status field from the oldRecord object
+	        			var oldStatus = oldRecord.getValue({
+	        				fieldId: 'custrecord_bbs_contract_status'
+	        			});
+	        			
+	        			// get the value of the status field from the currrentRecord object
+	        			var newStatus = currentRecord.getValue({
+	        				fieldId: 'custrecord_bbs_contract_status'
+	        			});
+	        			
+	        			// get the value of the minimum quarterly usage field from the oldRecord object
+	        			var oldQtrMin = oldRecord.getValue({
+	        				fieldId: 'custrecord_bbs_contract_qu_min_use'
+	        			});
+	        			
+	        			// get the value of the minimum quarterly usage field from the currentRecord object
+	        			var newQtrMin = currentRecord.getValue({
+	        				fieldId: 'custrecord_bbs_contract_qu_min_use'
+	        			});
+	        			
+	        			// get the value of the minimum annual usage field from the oldRecord object
+	        			var oldAnnMin = oldRecord.getValue({
+	        				fieldId: 'custrecord_bbs_contract_min_ann_use'
+	        			});
+	        			
+	        			// get the value of the minimum annual usage field from the currentRecord object
+	        			var newAnnMin = currentRecord.getValue({
+	        				fieldId: 'custrecord_bbs_contract_min_ann_use'
+	        			});
+	        			
+	        			// get the value of the 'billing type' field from the currentRecord object
+	    		    	var billingType = currentRecord.getValue({
+	    		    		fieldId: 'custrecord_bbs_contract_billing_type'
+	    		    	});
+        			
+	        			// check that oldStatus variable does NOT return 1 and the newStatus variable DOES return 1 (IE contract has been edited and status changed to approved)
+	        			if (oldStatus != 1 && newStatus == 1) // 1 = Approved
+	        				{
+	    	    				// get the value of the 'setup fee' field from the currentRecord object
+	    				    	var setupFee = currentRecord.getValue({
+	    				    		fieldId: 'custrecord_bbs_contract_setup_fee'
+	    				    	});
+	    				    	
+	    				    	// check if the setupFee variable returns true (checkbox is ticked)
+	    				    	if (setupFee == true)
+	    				    		{
+	    				    			// call function to create an account setup fee invoice. Pass currentRecord object and currentRecordID variable
+	    				    			createSetupFeeInvoice(currentRecord, currentRecordID);	
+	    				    		}
+	    				    	
+	    				    	// check if the billingType variable returns 3 (QMP)
+	    				    	if (billingType == 3)
+	    				    		{
+	    				    			// call the QMP function. Pass currentRecord object and currentRecordID variable
+	    				    			QMP(billingType, currentRecord, currentRecordID);
+	    				    		}
+	    				    	// if the billingType variable returns 4 (AMP)
+	    				    	else if (billingType == 4)
+	    				    		{
+	    				    			// call the AMP function. Pass currentRecord object and currentRecord variable
+	    				    			AMP(billingType, currentRecord, currentRecordID);
+	    				    		}
+	    				    	// if the billingType variable returns 5 (QUR)
+	    				    	else if (billingType == 5)
+	    				    		{
+	    				    			// call the QUR function. Pass currentRecord object and currentRecord variable
+	    				    			QUR(billingType, currentRecord, currentRecordID);
+	    				    		}
+	        				}        			
+	        			// check if the oldQtrMin and newQtrMin variables are NOT the same (IE contract has been edited and quarterly minimum amount has been changed)
+	        			else if (oldQtrMin != newQtrMin)
+	        				{
+	        					// calculate the difference by subtracting oldQtrMin from newQtrMin
+	        					var difference = (newQtrMin - oldQtrMin);
+	        					
+	        					// check if the difference variable is greater than 0
+	        					if (difference > 0)
+	        						{
+	    	    						// get the currency from the currentRecord object
+	    	    						var currency = currentRecord.getValue({
+	    	    							fieldId: 'custrecord_bbs_contract_currency'
+	    	    						});
+	    	    						
+	    	    						// call function to create a prepayment invoice
+	    	    						createPrepaymentInvoice(billingType, currentRecordID, customer, currency, difference);
+	        						}
+	        				}
+	        			// check if the oldAnnMin and newAnnMin variables are NOT the same (IE contract has been edited and annual minimum amount has been changed)
+	        			else if ((oldAnnMin != newAnnMin) && billingType != 6) // 6 = AMBMA
+	        				{
+	    	    				// calculate the difference by subtracting oldAnnMin from newQtrMin
+	    						var difference = (newAnnMin - oldAnnMin);
 	    						
-	    						// call function to create a prepayment invoice
-	    						createPrepaymentInvoice(billingType, currentRecordID, customer, currency, difference);
-    						}
-    				}
-    			
-    			// check if the oldAnnMin and newAnnMin variables are NOT the same (IE contract has been edited and annual minimum amount has been changed)
-    			else if ((oldAnnMin != newAnnMin) && billingType != 6) // 6 = AMBMA
-    				{
-	    				// calculate the difference by subtracting oldAnnMin from newQtrMin
-						var difference = (newAnnMin - oldAnnMin);
-						
-						// check if the difference variable is greater than 0
-						if (difference > 0)
-							{
-								// get the customer from the currentRecord object
-	    					    var customer = currentRecord.getValue({
-	    							fieldId: 'custrecord_bbs_contract_customer'
-	    						});
-	    					    
-	    					    // get the currency from the currentRecord object	
-	    						var currency = currentRecord.getValue({
-	    							fieldId: 'custrecord_bbs_contract_currency'
-	    						});
-	    						
-	    						// call function to create a prepayment invoice
-	    						createPrepaymentInvoice(billingType, currentRecordID, customer, currency, difference);
-							}
-    				}
+	    						// check if the difference variable is greater than 0
+	    						if (difference > 0)
+	    							{
+	    								// get the currency from the currentRecord object	
+	    	    						var currency = currentRecord.getValue({
+	    	    							fieldId: 'custrecord_bbs_contract_currency'
+	    	    						});
+    	    						
+	    	    						// call function to create a prepayment invoice
+	    	    						createPrepaymentInvoice(billingType, currentRecordID, customer, currency, difference);
+	    							}
+	        				}
+    	    		}
     		}
     }
     

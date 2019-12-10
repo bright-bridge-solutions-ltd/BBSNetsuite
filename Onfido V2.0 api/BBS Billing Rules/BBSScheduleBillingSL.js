@@ -99,6 +99,13 @@ function(runtime, config, ui, message, task, redirect) {
    		 			label: 'Create QMP Invoices',
    		 			functionName: 'createQMPInvoices()'
    		 		});
+   		 		
+   		 		// add a button to the form to create consolidated invoices
+   		 		form.addButton({
+   		 			id: 'custpage_create_consolidated_invoices',
+   		 			label: 'Create Consolidated Invoices',
+   		 			functionName: 'createConsolidatedInvoices()'
+   		 		});
 				
 				// write the response to the page
 				context.response.writePage(form);
