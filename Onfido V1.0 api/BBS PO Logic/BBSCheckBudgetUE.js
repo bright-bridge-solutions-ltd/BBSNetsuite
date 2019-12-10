@@ -9,6 +9,32 @@
 /**
  * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
  * @appliedtorecord recordType
+ *   
+ * @param {String} type Operation types: create, edit, view, copy, print, email
+ * @param {nlobjForm} form Current form
+ * @param {nlobjRequest} request Request object
+ * @returns {Void}
+ */
+function poCheckBudgetBL(type, form, request)
+{
+	if(type == 'copy' || type == 'create')
+		{
+			var lines = nlapiGetLineItemCount('item');
+			
+			for (var int = 1; int <= lines; int++) 
+				{
+					nlapiSetLineItemValue('item', 'custcol_bbs_budget_ytd', int, null);
+					nlapiSetLineItemValue('item', 'custcol_bbs_available_budget', int, null);
+					nlapiSetLineItemValue('item', 'custcol_bbs_actual_spend', int, null);
+					nlapiSetLineItemValue('item', 'custcol_bbs_actual_spend', int, null);
+				}
+		}
+}
+
+
+/**
+ * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
+ * @appliedtorecord recordType
  * 
  * @param {String} type Operation types: create, edit, delete, xedit,
  *                      approve, cancel, reject (SO, ER, Time Bill, PO & RMA only)
