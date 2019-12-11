@@ -3,19 +3,24 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/runtime','N/format'],
-function(runtime, format) {
+define(['N/runtime', 'N/search', 'N/format'],
+function(runtime, search, format) {
 
     function beforeSubmit(scriptContext) {
     	
     	// initialize variables
 		var days;
-		    	
+		
 		// get the current script so parameters can be retrieved
-		var currentScript = runtime.getCurrentScript();		    	
+		var currentScript = runtime.getCurrentScript();
 		    	
 		// load the current record so it can be manipulated
 		var currentRecord = scriptContext.newRecord;
+		
+		// get the value of the customform field
+		var customForm = currentRecord.getValue({
+			fieldId: 'customform'
+		});
 		    	
 		// get the customer from the record
 		var customerId = currentRecord.getValue({
@@ -32,37 +37,46 @@ function(runtime, format) {
 			type: format.Type.DATE,
 			value: shippingDate
 		});
-		    	
-		// get the special customer parameters from the company general preferences
-		var specialCustomerId = currentScript.getParameter({
-			name: 'custscript_bbs_smi_override_ship_cust'
-		});			
-		    	
-		var specialCustomerDays = currentScript.getParameter({
-			name: 'custscript_bbs_smi_override_ship_date'
-		});			
-
-		// see if we are doing any special handling for the customer
-		if (customerId == specialCustomerId)
+		
+		// lookup fields on the customer record
+		var customerLookup = search.lookupFields({
+			type: search.Type.CUSTOMER,
+			id: customerId,
+			columns: ['custentity_bbs_override_ship_date_logic', 'custentity_bbs_override_ship_standard', 'custentity_bbs_override_ship_manpack']
+		});
+		
+		// retrieve values from the customerLookup object
+		var overrideShipDateLogic = customerLookup.custentity_bbs_override_ship_date_logic;
+		var overrideStandard = customerLookup.custentity_bbs_override_ship_standard;
+		var overrideManpack = customerLookup.custentity_bbs_override_ship_manpack;
+		
+		// if the overrideShipDateLogic variable returns true
+		if (overrideShipDateLogic == true)
 			{
-		    	days = specialCustomerDays;
-		    }
-		else
-		    {
-				// get the internal ID of the customform field
-				var customForm = currentRecord.getValue({
-					fieldId: 'customform'
-				});
-				        		
+				// check if the customForm variable returns 103 (SMI Standard Sales Order)
+				if (customForm == 103)
+					{
+						// set the value of the days variable using the overrideStandard variable
+						days = overrideStandard;
+					}
+				// if the customForm variable returns 123 (SMI Manpack Sales Order)
+				else if (customForm == 123)
+					{
+						// set the value of the days variable using the overrideManpack variable
+						days = overrideManpack;
+					}
+			}
+		else // overrideShipDateLogic variable returns false
+			{
 				// check if the customForm variable returns 103 (SMI Standard Sales Order)
 				if (customForm == 103)
 					{
 				    	// set value of days variable. This is a script parameter
 				    	days = currentScript.getParameter({
 				    		name: 'custscript_bbs_smi_std_so_ship_date'
-				    	});				
+				    	});
 					}
-				// check if the customForm variable returns 123 (SMI Manpack Sales Order)
+				// if the customForm variable returns 123 (SMI Manpack Sales Order)
 				else if (customForm == 123)
 					{
 					    // set value of days variable. This is a script parameter
@@ -100,7 +114,6 @@ function(runtime, format) {
     	  
 			return shippingDate;
     	}
-
 
     return {
         beforeSubmit: beforeSubmit
