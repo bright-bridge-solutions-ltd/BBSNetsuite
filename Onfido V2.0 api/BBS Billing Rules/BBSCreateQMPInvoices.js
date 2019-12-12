@@ -84,7 +84,7 @@ function(runtime, config, search, record) {
     		},
     				{
     			name: 'internalid',
-    			join: 'custrecord2',
+    			join: 'custrecord_bbs_contract_location',
     			summary: 'MAX'
     		},
     				{
