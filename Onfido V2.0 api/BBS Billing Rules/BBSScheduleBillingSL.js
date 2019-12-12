@@ -195,26 +195,18 @@ function(runtime, config, ui, message, task, redirect) {
 	    {
 	    	// load the company preferences
 	    	var companyPreferences = config.load({
-	            type: config.Type.COMPANY_PREFERENCES
+	            type: config.Type.COMPANY_PREFERENCES,
+	            isDynamic: true
 	        });
 	    	
-	    	// get the value of the 'Billing Process Complete' checkbox
-	    	var billingComplete = companyPreferences.getValue({
-	    		fieldId: 'custscript_bbs_billing_process_complete'
+	    	// unset the 'Billing Process Complete' checkbox
+	    	companyPreferences.setValue({
+	    		fieldId: 'custscript_bbs_billing_process_complete',
+	    		value: false
 	    	});
 	    	
-	    	// check if the billingComplete variable returns true (IE checkbox is ticked)
-	    	if (billingComplete == true)
-	    		{
-	    			// unset the 'Billing Process Complete' checkbox
-	    			companyPreferences.setValue({
-	    				fieldId: 'custscript_bbs_billing_process_complete',
-	    				value: false
-	    			});
-	    	
-	    			// save the company preferences
-	    			companyPreferences.save();
-	    		}
+	    	// save the company preferences
+	    	companyPreferences.save();
 	    }
 
     return {

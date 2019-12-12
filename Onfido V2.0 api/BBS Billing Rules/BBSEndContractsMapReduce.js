@@ -234,7 +234,8 @@ function(runtime, config, search, record, email) {
 	    {
 	    	// load the company preferences
 	    	var companyPreferences = config.load({
-	            type: config.Type.COMPANY_PREFERENCES
+	            type: config.Type.COMPANY_PREFERENCES,
+	            isDynamic: true
 	        });
 	    	
 	    	// set the 'Billing Process Complete' checkbox
