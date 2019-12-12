@@ -188,10 +188,7 @@ function(runtime, search, record, format, email) {
 				    			if (productRecords == 0)
 				    				{
 				    					// call function to create a new contract product record. Pass contractRecord, contractRecordText, itemID, itemText and tranID variables. ID of product detail record will be created				    				
-				    					var productRecordID = createProduct(contractRecord, contractRecordText, itemID, itemText, tranID);
-				    					
-				    					// call function to create contract period detail records. Pass contractRecord and productRecordID variables
-				    					createPeriodDetail(contractRecord, productRecordID);
+				    					createProduct(contractRecord, contractRecordText, itemID, itemText, tranID);
 				    				}
 				    			
 				    			// format searchDate as a date object
@@ -403,8 +400,8 @@ function(runtime, search, record, format, email) {
 		    				});
 		    			}
 	    			
-	    			// return the internal ID of the new 'Contract Product Detail' record
-	    			return productRecordID;
+		    		// call function to create contract period detail records. Pass contractRecord and productRecordID variables
+					createPeriodDetail(contractRecord, productRecordID);
 	    		}
 	    	catch(error)
 		    	{
