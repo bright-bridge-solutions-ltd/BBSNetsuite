@@ -294,7 +294,7 @@ function(search, format, message) {
     		{
     			// get the value of the 'Sales Force Opportunity ID' field
     			var salesForceOppID = currentRecord.getValue({
-    				fieldId: 'custrecord_bbs_sales_for_op_id'
+    				fieldId: 'custrecord_bbs_contract_sales_force_id'
     			});
     			
     			// reset contracts variable to 0
@@ -309,7 +309,7 @@ function(search, format, message) {
     	    		}],
     	    		
     	    		filters: [{
-    	    			name: 'custrecord_bbs_sales_for_op_id',
+    	    			name: 'custrecord_bbs_contract_sales_force_id',
     	    			operator: 'is',
     	    			values: [salesForceOppID]
     	    		},
