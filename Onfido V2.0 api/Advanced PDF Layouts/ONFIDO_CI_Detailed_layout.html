@@ -1,322 +1,297 @@
 <?xml version="1.0" ?>
 <!DOCTYPE PDF PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
 <pdf>
-<#assign cs = "{currencySymbol}">
+  
+  	<!--Default assigns-->
+  	<#assign logoInfo>https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=9544&amp;c=5554661_SB1&amp;h=3c1a74753ea9e8671a1c</#assign>
+  	<#assign regInfo>Company Registration No: 07479524.  Registered Office: 3 Finsbury Avenue, 5th Floor, London, EC2M 2PA, United Kingdom.</#assign>
+	<#assign emailInfo>accounts@onfido.com</#assign>
+	<#assign telInfo>02081333628</#assign>
+	<#assign vatInfo>VAT No: GB 159 2397 76</#assign>
+  	<#assign ibanLabel>IBAN:</#assign>
+  	<#assign signature>https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=37336&amp;c=5554661_SB1&amp;h=d5b58d1ec190b9507c62</#assign>
+      
 
-<#assign hh = "{headerHeight}">
+	<#assign cs = "{currencySymbol}">
+	
+	<#assign hh = "{headerHeight}">
+	
+	<#assign BFS = "{bodyFontSize}px">
+	<#assign TFS = "{titleFontSize}px">
+	<#assign STFS = "{subTitleFontSize}px">
+	<#assign THFS = "{thFontSize}px">
+	<#assign TRFS = "{trFontSize}px">
+	
+	<#assign BSFS = "{billshipFontSize}px">
+	<#assign BSTBLH = "{billshipTBLHeight}px">
+	
+	<#function toCurrency value showSymbol=false>
+		<#local retval = 0>
+		<#local tmpcs = cs>
+		<#if showSymbol == false>
+			<#local tmpcs = "">
+		</#if>
+		<#if value &lt; 0 >
+			<#local retval = value?string["#,##0.00"]>
+			<#local retval = "(" + tmpcs + retval?replace("-","") + ")">
+		<#else>
+			<#local retval = tmpcs + value?string["#,##0.00"]>
+		</#if>
+		<#return retval>
+	</#function>
+	
+	<#function limitText text limit=30>
+		<#local tmpText=text?string>
+		<#if tmpText?length &gt; limit>
+			<#local tmpText = text?substring(0,limit) + "[...]">
+		</#if>
+		<#return tmpText>
+	</#function>
 
-<#assign BFS = "{bodyFontSize}px">
-<#assign TFS = "{titleFontSize}px">
-<#assign STFS = "{subTitleFontSize}px">
-<#assign THFS = "{thFontSize}px">
-<#assign TRFS = "{trFontSize}px">
-
-<#assign BSFS = "{billshipFontSize}px">
-<#assign BSTBLH = "{billshipTBLHeight}px">
-
-<#function toCurrency value showSymbol=false>
-	<#local retval = 0>
-	<#local tmpcs = cs>
-	<#if showSymbol == false>
-		<#local tmpcs = "">
-	</#if>
-	<#if value &lt; 0 >
-		<#local retval = value?string["#,##0.00"]>
-		<#local retval = "(" + tmpcs + retval?replace("-","") + ")">
-	<#else>
-		<#local retval = tmpcs + value?string["#,##0.00"]>
-	</#if>
-	<#return retval>
-</#function>
-
-<#function limitText text limit=30>
-	<#local tmpText=text?string>
-	<#if tmpText?length &gt; limit>
-		<#local tmpText = text?substring(0,limit) + "[...]">
-	</#if>
-	<#return tmpText>
-</#function>
+<#list invoiceline as lines>	
+<#assign SubsidAddress1>${lines.subsidiary.address1}</#assign>
+<#assign SubsidAddress2>${lines.subsidiary.address2}</#assign>
+<#assign SubsidAddress3>${lines.subsidiary.address3}</#assign>
+<#assign SubsidAddress4>${lines.subsidiary.city}</#assign>
+<#assign SubsidAddress5>${lines.subsidiary.state}</#assign>
+<#assign SubsidAddress6>${lines.subsidiary.country}</#assign>
+<#assign SubsidAddress7>${lines.subsidiary.zip}</#assign>
+<#assign bic>${lines.custbody_bbs_bank_bic}</#assign>
+<#assign iban>${lines.custbody_bbs_bank_iban}</#assign>
+<#assign sortcode>${lines.custbody_bbs_bank_sort_code}</#assign>
+<#assign accno>${lines.custbody_bbs_bank_account_number}</#assign>
+<#assign bankname>${lines.custbody_bbs_bank_name}</#assign>
+</#list>
 
 <head>
-<style type="text/css">
-body {
-	font-family: sans-serif;
-	font-size: ${BFS};
-}
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+  	<link name="WorkSans" type="font" subtype="opentype" src="https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=37338&amp;c=5554661_SB1&amp;h=8405786539e632199200&amp;_xt=.otf" src-bold="https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=37339&amp;c=5554661_SB1&amp;h=51b66d9833053be2cd34&amp;_xt=.otf" src-italic="https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=37340&amp;c=5554661_SB1&amp;h=19b16825b34ba5486a54&amp;_xt=.otf" src-bolditalic="https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=37341&amp;c=5554661_SB1&amp;h=8a33438751bbe5e3f6f4&amp;_xt=.otf" bytes="2" />
 
-table {
-	width: 100%;
-	border-color:#004480;
-}
-table th{
-	font-weight: bold;
-	font-size: ${THFS};
-	vertical-align: middle;
-	padding-right: 6px;
-	padding-left: 6px;
-	padding-bottom: 3px;
-	padding-top: 5px;
-	background-color: #004480;
-	color: white;
-	white-space: nowrap;
-}
-table td {
-	font-size: ${TRFS};
- 	/* white-space: nowrap; */
-}
-.toSum th {
-	font-weight: bold;
-	font-size: ${THFS};
-	vertical-align: middle;
-	padding-right: 6px;
-	padding-left: 6px;
-	padding-bottom: 3px;
-	padding-top: 5px;
-	background-color: #004480;
-	color: white;
-	/* white-space: nowrap; */
-}
-
-.toSum td {
-	font-size: ${TRFS};
-	/* white-space: nowrap; */
-}
-
-b {
-	font-weight: bolder;
-	font-weight: bold;
-}
-
-hr {
-	width: 100%;
-	color: #004480;
-	background-color: #004480;
-	height: 1px;
-}
-
-.brdB {
-	border-bottom: 1px;
-	border-bottom-color: #004480;
-}
-.brdT {
-	border-top: 1px;
-	border-top-color: #004480;
-}
-.brdL {
-	border-left: 1px;
-	border-left-color: #004480;
-}
-.brdR {
-	border-right: 1px;
-	border-right-color: #004480;
-}
-
-.toSumByDueDate td{
-	border-left: 1px;
-	border-left-color: #004480;
-}
-
-.minH{
-	height:12px;
-}
-
-.title{
-	font-size: ${TFS};
-}
-
-.subtitle{
-	font-size: ${STFS};
-}
-
-.BSTBLH{
-	height: ${BSTBLH};
-}
-.BSFS{
-	font-size: ${BSFS};
-}
-</style>	
+    <style type="text/css">* {
+			font-family: WorkSans;
+		}
+		table {
+			font-size: 9pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+          	border-bottom: 1px solid black;
+            <!--background-color: #e3e3e3;-->
+            color: #333333;
+        }
+        td {
+            padding: 2px 4px;
+        }
+		td p { align:left }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+      td.itemtable {
+        border-bottom: 1px solid lightgrey;
+      	}
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
 
 
-<macrolist> <macro id="nlheader">
-<table class="header">
-	<tr>
-		<td>
-			<table>
-				<tr>
-					<td>
-					<#if "${company.logo}" != "">
-					<img src="${company.logo}" style="float: left; margin: 7px;width: 200px" />
-					</#if>
-					</td>
-				</tr>
-				<Tr>
-					<td>
-					<b class="title">${companyinformation.companyname}</b> <br/>
-					</td>
-				</Tr>
-				<tr>
-					<td>
-						${companyinformation.mainaddress_text}
-					</td>
-				</tr>
-			</table>	
-		</td>
-		<td></td>
-		<td rowspan="3">
-			<table>
-				<tr>
-					<td><b class="title">CONSOLIDATED INVOICE</b></td>
-				</tr>
-				
-				<tr>
-					<td align="left">
-					<table>
-						<tr>
-							<th>CONSOLIDATED INVOICE #</th>
-							<th>INVOICE DATE</th>
-							<#if companyinformation.basecurrency?has_content>
-								<th>CURRENCY</th>
+<macrolist> 
+<macro id="nlheader">
+			<table class="header" style="width: 100%;">
+    			<tr>
+					<td colspan="2" style="font-size:22px; padding-top: 55px;">CONSOLIDATED INVOICE</td>
+					
+                  	<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:130px;"/></td>
+    			</tr>
+          	</table>
+          
+			<table class="header" style="width: 100%; margin-top: 10px;">
+        		<tr>
+        			<td rowspan="7" colspan="2" style="font-size: 12pt">
+        					<#if customer.billaddressee?has_content>
+							${customer.billaddressee}<br/>
 							</#if>
-						</tr>
-						<tr class="brdB">
-							<td class="brdR brdL">${ci.name}</td>
-							<td class="brdR">${ci.custrecord_nsts_ci_date}</td>
-							<#if companyinformation.basecurrency?has_content>
-								<td class="brdR">${ci.custrecord_nsts_ci_pref_currency}</td>
+							
+							<#if customer.billaddr1?has_content>
+							${customer.billaddr1}<br/>
 							</#if>
-						</tr>
-					</table>
-					</td>
+					
+							<#if customer.billaddr2?has_content>
+							${customer.billaddr2}<br/>
+							</#if>
+					
+							<#if customer.billaddr3?has_content>
+							${customer.billaddr3}<br/>
+							</#if>
+							
+							<#if customer.billcity?has_content>
+							${customer.billcity}<br/>
+							</#if>
+							
+							<#if customer.billstate?has_content>
+							${customer.billstate} ${customer.billzip}<br/>
+							</#if>
+
+							<#if customer.billcountry?has_content>
+							${customer.billcountry}<br/>
+							</#if>
+							 
+							<br/>VAT No: ${customer.defaulttaxreg}</td>
+        			
+                  <td>&nbsp;</td>
+        			<td colspan="2" style="font-size: 12pt"><b>Invoice Date</b></td>
+        			<td rowspan="7" colspan="2" style="font-size: 12pt">
+        			<#if SubsidAddress1?has_content>
+        				${SubsidAddress1}<br/>
+        			</#if>
+        			
+					<#if SubsidAddress2?has_content>
+        				${SubsidAddress2}<br/>
+        			</#if>
+        			        			
+					<#if SubsidAddress3?has_content>
+        				${SubsidAddress3}<br/>
+        			</#if>
+        			        			
+					<#if SubsidAddress4?has_content>
+        				${SubsidAddress4}<br/>
+        			</#if>
+        			        			
+					<#if SubsidAddress5?has_content>
+        				${SubsidAddress5}<br/>
+        			</#if>
+        			        			
+					<#if SubsidAddress6?has_content>
+        				${SubsidAddress6}<br/>
+        			</#if>
+        			        			
+					<#if SubsidAddress7?has_content>
+        				${SubsidAddress7}<br/>
+        			</#if>
+        			
+
+        			${vatInfo}<br/>billing@onfido.com</td>
+        		</tr>
+        		<tr>
+        			
+                  <td>&nbsp;</td>
+        			<td colspan="2" style="font-size: 12pt">${ci.custrecord_nsts_ci_date?string.long}</td>
+        		</tr>
+        		<tr>
+        			
+                  <td>&nbsp;</td>
+        			<td colspan="2" style="font-size: 12pt"><b>Invoice Number</b></td>
+        		</tr>        		
+        		<tr>
+        			
+                  <td>&nbsp;</td>
+        			<td colspan="2" style="font-size: 12pt">${ci.name}</td>
+        		</tr>        		
+        		
+              	<tr>
+        			
+                  <td>&nbsp;</td>
+        			<td colspan="2" style="font-size: 12pt"><b>Currency</b></td>
+        		</tr>
+        		<tr>
+        			
+                  <td>&nbsp;</td>
+        			<td colspan="2" style="font-size: 12pt">${ci.custrecord_nsts_ci_pref_currency}</td>
+        		</tr>
+              	<tr>
+        			
+                  <td>&nbsp;</td>
+        			<td colspan="2" style="font-size: 12pt"><b>&nbsp;</b></td>
+        		</tr>
+              	<tr>
+        			<td colspan="2">&nbsp;</td>
+        			
+                  <td>&nbsp;</td>
+        			<td colspan="2" style="font-size: 12pt">&nbsp;</td>
+        			<td colspan="2" style="font-size: 12pt">&nbsp;</td>
+        		</tr>
+              	    		
+        		
+          	</table>
+        </macro>
+
+
+
+<macro id="nlfooter">
+
+			<table class="footer" style="width: 100%;">
+          		<tr>
+                  	<td colspan="8" style="font-size: 6pt;">${regInfo}</td>
+					<td align="right" style="font-size: 6pt;">Page <pagenumber/> of <totalpages/></td>
 				</tr>
+        	</table>
+        </macro>
 
-			</table>
-		</td>
-	</tr>
-	
-
-</table>
-
-<table>
-	<tr>
-		<th align="left"><b>Bill To:</b></th>
-		<td></td>
-		<th align="left" class="brdT brdL brdR"><b>Ship To:</b></th>
-	</tr>
-	<tr class="BSTBLH">
-		<td class="brdL brdR brdB BSFS">
-		<#if customer.billattention?has_content>
-		${customer.billattention}<br/>
-		</#if>
-		<#if customer.billaddressee?has_content>
-		${customer.billaddressee}<br/>
-		</#if>
-		
-		<#if customer.billaddr1?has_content>
-		${customer.billaddr1}<br/>
-		</#if>
-
-		<#if customer.billaddr2?has_content>
-		${customer.billaddr2}<br/>
-		</#if>
-
-		<#if customer.billaddr3?has_content>
-		${customer.billaddr3}<br/>
-		</#if>
-		
-		<#if customer.billcity?has_content>
-		${customer.billcity}<br/>
-		</#if>
-		
-		<#if customer.billstate?has_content>
-		${customer.billstate}<br/>
-		</#if>
-
-		<#if customer.billzip?has_content>
-		${customer.billzip}<br/>
-		</#if>
-		
-		<#if customer.billcountry?has_content>
-		${customer.billcountry}<br/>
-		</#if>
-		
-		<#if customer.billphone?has_content>
-		${customer.billphone}<br/>
-		</#if>
-		</td>
-		<td></td>
-		<td class="brdL brdR brdB BSFS">
-		<#if customer.shipattention?has_content>
-		${customer.shipattention}<br/>
-		</#if>
-		<#if customer.shipaddressee?has_content>
-		${customer.shipaddressee}<br/>
-		</#if>
-		
-		<#if customer.shipaddr1?has_content>
-		${customer.shipaddr1}<br/>
-		</#if>
-
-		<#if customer.shipaddr2?has_content>
-		${customer.shipaddr2}<br/>
-		</#if>
-
-		<#if customer.shipaddr3?has_content>
-		${customer.shipaddr3}<br/>
-		</#if>
-		
-		<#if customer.shipcity?has_content>
-		${customer.shipcity}<br/>
-		</#if>
-		
-		<#if customer.shipstate?has_content>
-		${customer.shipstate}<br/>
-		</#if>
-
-		<#if customer.shipzip?has_content>
-		${customer.shipzip}<br/>
-		</#if>
-		
-		<#if customer.shipcountry?has_content>
-		${customer.shipcountry}<br/>
-		</#if>
-		
-		<#if customer.shipphone?has_content>
-		${customer.shipphone}<br/>
-		</#if>
-		</td>
-	</tr>
-</table>
-
-<table style="padding-top: 2;">
-	<tr>
-		<th >SALES REP</th>
-		<th class="brdB">PARTNER</th>
-		<#if ci.custrecord_nsts_ci_cld_inv_duedate_upd == true>
-			<th class="brdB">CI DATE</th>
-		<#else>
-			<th class="brdB">PAYMENT TERMS</th> 
-		</#if>
-	</tr>
-	<tr class="minH">
-		<td class="brdL brdR brdB">${customer.salesrep}</td>
-		<td class="brdR brdB">${customer.partner}</td>
-		<#if ci.custrecord_nsts_ci_cld_inv_duedate_upd == true>
-			<td class="brdR brdB">${ci.custrecord_nsts_ci_tran_duedate}</td>
-		<#else>
-			<td class="brdR brdB">${customer.terms}</td>
-		</#if>
-	</tr>
-</table>
-</macro> <macro id="nlfooter">
-<table class="footer">
-	<tr>
-		<td align="right"><pagenumber /> of <totalpages /></td>
-	</tr>
-</table>
-</macro> </macrolist>
+</macrolist>
 </head>
 
-<body {isLandscape} header="nlheader" header-height="${hh}" footer="nlfooter" footer-height="20pt">
+<body header="nlheader" header-height="300px" footer="nlfooter" footer-height="10px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 	
 	<#assign itemtotal=0> 
 	<#assign itemcount=0>
@@ -324,23 +299,16 @@ hr {
 	<#assign previnvoice="">
 	
 	<#if invoiceline?has_content>
-	<b>Details</b> 
-	<table class="toSum brdB">
+
+	<table class="itemtable" style="width: 100%;">
 		<thead>
 			<tr>
-				<th align="left">INVOICE</th>
-				<th align="center">#</th>
-				<th align="left">INVOICE DATE</th>
-				<th align="left">ITEM</th>
-				<th align="left">PO#</th>
-				<th align="left">SO#</th>
-				<th align="left">SALES DESCRIPTION</th>
-				<th align="right">QUANTITY</th>
-				<th align="left">UNITS</th>
-				<th align="right">RATE</th>
-				<th align="right">ITEM TOTAL</th>
-				<th align="right">TAX</th>
-				<th align="right">AMOUNT</th>
+				<th align="left" colspan="5" style="font-size: 12pt;"><br/>Invoice</th>
+				<th align="left" colspan="4" style="font-size: 12pt;">Invoice<br/>Date</th>
+				<th align="left" colspan="11" style="font-size: 12pt;"><br/>Item</th>
+				<th align="right" colspan="3" style="font-size: 12pt;"><br/>Qty</th>
+				<th align="right" colspan="4" style="font-size: 12pt;">Unit<br/>Price</th>
+				<th align="right" colspan="4" style="font-size: 12pt;">Item<br/>Total</th>
 			</tr>
 		</thead>
 
@@ -348,29 +316,13 @@ hr {
 		<#assign itemtotal=item.grossamount + item.taxamount>
 		<tr>
 			<#assign itemcount=itemcount+1> 
-			<td class="brdR brdL" align="left">${item.tranid}</td>
-			<td class="brdR" align="center">${itemcount}</td>
-			<td class="brdR" align="left">${item.trandate}</td>
-			<td class="brdR" align="left">${item.item?chop_linebreak}</td>
-			<td class="brdR" align="left">${item.otherrefnum}</td>
-			<td class="brdR" align="left">${item.createdfrom}</td>
-			<td class="brdR" align="left">${item.item.salesdescription?chop_linebreak}</td>
-			<#if item.item.type == "Discount">
-				<td class="brdR" align="right"></td>
-				<td class="brdR" align="left">${item.unit}</td>
-				<td class="brdR" align="right"></td>
-				<td class="brdR" align="right"></td>
-				<td class="brdR" align="right">${toCurrency(item.formulacurrency2)}</td>
-				<td class="brdR" align="right">${toCurrency(item.formulacurrency1)}</td>
-			<#else>
-				<td class="brdR" align="right">${item.quantity?number?string["0.##"]} </td>
-				<td class="brdR" align="left">${item.unit}</td>
-				<td class="brdR" align="right">${toCurrency(item.formulacurrency4)}</td>
-				<td class="brdR" align="right">${toCurrency(item.formulacurrency)}</td>
-				<td class="brdR" align="right">${toCurrency(item.formulacurrency2)}</td>
-				<td class="brdR" align="right">${toCurrency(item.formulacurrency1)}</td>
-			</#if>
 			
+			<td class="itemtable" colspan="5" style="font-size: 12pt;" align="left">${item.tranid}</td>
+			<td class="itemtable" colspan="4" style="font-size: 12pt;" align="left">${item.trandate}</td>
+			<td class="itemtable" colspan="11" style="font-size: 12pt;" align="left">${item.item?chop_linebreak}</td>
+			<td class="itemtable" colspan="3" style="font-size: 12pt;" align="right">${item.quantity?number?string["0.##"]} </td>
+			<td class="itemtable" colspan="4" style="font-size: 12pt;" align="right">${toCurrency(item.formulacurrency4)}</td>
+			<td class="itemtable" colspan="4" style="font-size: 12pt;" align="right">${toCurrency(item.formulacurrency)}</td>
 		</tr>		
 		
 
@@ -378,38 +330,64 @@ hr {
 		</#list>
 		<!-- end items -->
 	</table>
-	<table class="toSum brdL brdR brdB">
-		<tr class="totalrow">
-			<td colspan="7">&nbsp;</td>
-			<td align="right" class="brdR"><b>SUB TOTAL</b></td>
-			
-			<#assign subTotal=ci.custrecord_nsts_ci_pdf_subtotal + ci.custrecord_nsts_ci_pdf_discount + ci.custrecord_nsts_ci_pdf_tax>
-			<td align="right">${toCurrency(subTotal)}</td>
-		</tr>
-		<tr class="totalrow">
-			<td colspan="7">&nbsp;</td>
-			<td align="right" class="brdR"><b>SHIPPING AND HANDLING</b></td>
-			<td align="right">${toCurrency(ci.custrecord_nsts_ci_pdf_shipping_handling)}</td>
-		</tr>
-		<tr class="totalrow">
-			<td colspan="7">&nbsp;</td>
-			<td align="right" class="brdR"><b>TOTAL</b></td>			
-			<td align="right" class="brdT">${toCurrency(ci.custrecord_nsts_ci_pdf_itemtotal,true)}</td>
-		</tr>
-		<tr class="totalrow">
-			<td colspan="7">&nbsp;</td>
-			<td align="right" class="brdR"><b>AMOUNT PAID</b></td>			
-			<td align="right">${toCurrency(ci.custrecord_nsts_ci_pdf_amountpaid)}</td>
-		</tr>
-		<tr class="totalrow">
-			<td colspan="7">&nbsp;</td>
-			<td align="right" class="brdR"><b>TOTAL DUE</b></td>			
-			<td align="right">${toCurrency(ci.custrecord_nsts_ci_pdf_total_due,true)}</td>
-		</tr>
+	
+	
+	<table class="total" style="width: 100%; margin-top: 10px;">
+	<#assign subTotal=ci.custrecord_nsts_ci_pdf_subtotal + ci.custrecord_nsts_ci_pdf_discount + ci.custrecord_nsts_ci_pdf_tax>
+	
+	<tr>
+      <td colspan="4">&nbsp;</td>
+      <td align="right" style="font-size: 12pt;"><b>Subtotal</b></td>
+      <td align="right" style="font-size: 12pt;">${toCurrency(subTotal,true)}</td>
+      </tr>
+      <tr>
+      <td colspan="4">&nbsp;</td>
+      <td align="right" style="font-size: 12pt;"><b>Tax</b></td>
+      <td align="right" style="font-size: 12pt;">${toCurrency(ci.custrecord_nsts_ci_pdf_tax,true)}</td>
+      </tr>
+      <tr>
+      <td colspan="4">&nbsp;</td>
+      <td align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>Total</b></td>
+      <td align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${toCurrency(ci.custrecord_nsts_ci_pdf_itemtotal,true)}</b></td>
+	</tr>
 	</table>
-	</#if>
-	<p>
+	
+<#assign dueDate="">
+<#if ci.custrecord_nsts_ci_pref_duedate?length gt 0>
+	<#assign dueDate=ci.custrecord_nsts_ci_pref_duedate?string.long>
+</#if>
 
-	</p>
+<table class="header" style="width: 100%; margin-top: 20px; page-break-inside: avoid;">
+	<tr>
+      <td colspan="4" style="font-size: 12pt; font-weight: bold;">Due Date: ${dueDate}</td>
+    </tr>
+</table>
+  
+<table class="header" style="width: 100%; margin-top: 20px; page-break-inside: avoid;">
+  	<tr>
+      <td>Bank:</td>
+      <td>${bankname}</td>
+      <td colspan="2" rowspan="5" align="center">&nbsp;</td>
+    </tr>
+    <tr>
+      <td>Sort Code:</td>
+      <td>${sortcode}</td>
+    </tr>
+    <tr>
+      <td>Account Number:</td>
+      <td>${accno}</td>
+    </tr>
+    <tr>
+      <td>IBAN:</td>
+      <td>${iban}</td>
+    </tr>
+    <tr>
+      <td>SWIFT:</td>
+      <td>${bic}</td>
+    </tr>
+</table>
+	
+	</#if>
+
 </body>
 </pdf>

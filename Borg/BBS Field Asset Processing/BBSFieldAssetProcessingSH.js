@@ -2,95 +2,57 @@
  * Module Description
  * 
  * Version    Date            Author           Remarks
- * 1.00       04 Dec 2019     cedricgriffiths
+ * 1.00       13 Dec 2019     cedricgriffiths
  *
  */
 
-var FRESHGROUND_SUBSIDIARY = 7;
-
 /**
- * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
- * @appliedtorecord recordType
- * 
- * @param {String} type Operation types: create, edit, delete, xedit,
- *                      approve, cancel, reject (SO, ER, Time Bill, PO & RMA only)
- *                      pack, ship (IF only)
- *                      dropship, specialorder, orderitems (PO only) 
- *                      paybills (vendor payments)
+ * @param {String} type Context Types: scheduled, ondemand, userinterface, aborted, skipped
  * @returns {Void}
  */
-function assemblyBuildAS(type)
+function scheduled(type) 
 {
-	//Only work for create on assembly build
+	var paramObjString = context.getSetting('SCRIPT', 'customscript_bbs_fa_scheduled');
+	var paramObj = JSON.parse(paramObjString);
+	
+	var assemblyBuildRecordId 	= paramObj.assemblyBuildRecordId;
+	var serialNumber			= paramObj.serialNumber;
+	var salesOrderRecordId		= paramObj.salesOrderRecordId;
+	var worksOrderRecordId		= paramObj.worksOrderRecordId;
+	
+	
+	//Get the assembly build record
 	//
-	if(type == 'create')
+	var assemblyBuildRecord = null;
+	
+	try 
 		{
-			//Get the assembly build record
-			//
-			var assemblyBuildRecord = nlapiGetNewRecord();
-
-			//Make sure we are only working with the FreshGround subsidiary
-			//
-			var subsidiary = assemblyBuildRecord.getFieldValue('subsidiary');
-			
-			if(subsidiary == FRESHGROUND_SUBSIDIARY)
+			assemblyBuildRecord = nlapiLoadRecord('assemblybuild', assemblyBuildRecordId);
+		} 
+	catch (err) 
+		{
+			assemblyBuildRecord = null;
+		}
+	
+	if(assemblyBuildRecord != null)
+		{
+			var worksOrderRecord = getWo(assemblyBuildRecord);
+		
+			if(worksOrderRecord != null)
 				{
-					//Get the works order that the assembly build is created from
-					//
-					var worksOrderRecord = getWo(assemblyBuildRecord);
+					var salesOrderRecord = getSo(worksOrderRecord);
 					
-					//Continue if we have a works order
-					//
-					if(worksOrderRecord != null)
+					if(salesOrderRecord != null)
 						{
-							//Get the sales order that the works order is created from 
+							//Create or find the field asset
 							//
-							var salesOrderRecord = getSo(worksOrderRecord);
+							var fieldAssetId = createOrUpdateFieldAsset(assemblyBuildRecord, serialNumber, salesOrderRecord);
 							
-							//Continue if we have a sales order
-							//
-							if(salesOrderRecord != null)
+							if(fieldAssetId != null)
 								{
-									//See if the assembly is included in the field asset processing
+									//Update the sales order with the field asset
 									//
-									var fieldAssetProcessing = checkFieldAssetProcessing(assemblyBuildRecord);
-									
-									//Continue if the assembly is to use field asset processing
-									//
-									if(fieldAssetProcessing)
-										{
-											//Get the serial number from the assembly build record
-											//
-											var serialNumber = getSerialNumber(assemblyBuildRecord);
-										
-											//Continue if we have a serial number
-											//
-											if(serialNumber != null)
-												{
-													//Call a scheduled job to do the update/create to the field asset
-													//
-													var paramObj = {};
-													paramObj.assemblyBuildRecordId 	= assemblyBuildRecord.getId();
-													paramObj.serialNumber 			= serialNumber;
-													paramObj.salesOrderRecordId 	= salesOrderRecord.getId();
-													paramObj.worksOrderRecordId		= worksOrderRecord.getId();
-													
-													var scheduleParams = {custscript_bbs_param_object: JSON.stringify(paramObj)};
-													nlapiScheduleScript('customscript_bbs_fa_scheduled', null, scheduleParams);
-												
-												
-													//Create or find the field asset
-													//
-													//var fieldAssetId = createOrUpdateFieldAsset(assemblyBuildRecord, serialNumber, salesOrderRecord);
-													
-													//if(fieldAssetId != null)
-													//	{
-													//		//Update the sales order with the field asset
-													//		//
-													//		updateSalesOrder(fieldAssetId, salesOrderRecord, worksOrderRecord);
-													//	}
-												}
-										}
+									updateSalesOrder(fieldAssetId, salesOrderRecord, worksOrderRecord);
 								}
 						}
 				}
@@ -216,43 +178,6 @@ function createOrUpdateFieldAsset(_assemblyBuildRecord, _serialNumber, _salesOrd
 		}
 	
 	return assetId;
-}
-
-function getSerialNumber(_assemblyBuildRecord)
-{
-	var serialNumber = null;
-	
-	var inventoryDetail = _assemblyBuildRecord.viewSubrecord('inventorydetail');
-	
-	if(inventoryDetail != null && inventoryDetail != '')
-		{
-			var invAssignmentLines =  inventoryDetail.getLineItemCount('inventoryassignment');
-			
-			for (var int = 1; int <= invAssignmentLines; int++) 
-				{
-					serialNumber = inventoryDetail.getLineItemValue('inventoryassignment', 'receiptinventorynumber', int);
-				}
-		}
-	
-	return serialNumber;
-}
-
-function checkFieldAssetProcessing(_assemblyBuildRecord)
-{
-	var status = false;
-	var asssemblyItem = _assemblyBuildRecord.getFieldValue('item');
-	
-	try
-		{
-			status = (nlapiLookupField('assemblyitem', asssemblyItem, 'custitem_bbs_use_field_asset_proc', false) == 'T' ? true : false);
-		}
-	catch(err)
-		{
-			status = false;
-		}
-	
-	
-	return status;
 }
 
 function getWo(_assemblyBuildRecord)

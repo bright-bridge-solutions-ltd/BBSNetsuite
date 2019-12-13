@@ -401,6 +401,10 @@ function presentationRecordsSuitelet(request, response)
 						resultsTickedField.setDisplayType('disabled');
 						resultsTickedField.setDefaultValue(0);
 						
+						var resultsValueField = form.addField('custpage_select_value', 'currency', 'Value Of Records Selected', null, 'custpage_tab_items');
+						resultsValueField.setDisplayType('disabled');
+						resultsValueField.setDefaultValue(0);
+						
 						
 						//Add required buttons to sublist and form
 						//
@@ -516,7 +520,8 @@ function presentationRecordsSuitelet(request, response)
 						if(recordSearchResults != null && recordSearchResults.length > 0)
 							{
 								var lineNo = Number(0);
-							
+								var lineTotal = Number(0);
+								
 								//Loop through the results
 								//
 								for (var int2 = 0; int2 < recordSearchResults.length; int2++) 
@@ -569,6 +574,13 @@ function presentationRecordsSuitelet(request, response)
 												//
 												subList.setLineItemValue(columnId, lineNo, rowColumnData);
 												
+												//Sum up the amount column
+												//
+												if(recordColumns[int3]['name'] == 'amount')
+													{
+														lineTotal += Number(rowColumnData);
+													}
+												
 												//See if we have a result column called 'Partner' then we need to add this to the list of partners to filter by
 												//
 												if(recordColumns[int3]['label'] == 'Partner')
@@ -588,6 +600,7 @@ function presentationRecordsSuitelet(request, response)
 								if(PR_AUTO_MARK_ALL)
 									{
 										resultsTickedField.setDefaultValue(recordSearchResults.length);
+										resultsValueField.setDefaultValue(lineTotal.toFixed(2));
 									}
 							}
 	

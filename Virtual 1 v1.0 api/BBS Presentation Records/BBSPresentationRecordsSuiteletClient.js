@@ -29,6 +29,7 @@ function clientFieldChanged(type, name, linenum)
 		{
 			var count = nlapiGetLineItemCount('custpage_sublist_items');
 			var ticked = Number(0);
+			var total = Number(0);
 			
 			for (var int = 1; int <= count; int++) 
 				{
@@ -37,10 +38,12 @@ function clientFieldChanged(type, name, linenum)
 					if(tick == 'T')
 						{
 							ticked++;
+							total += Number(nlapiGetLineItemValue('custpage_sublist_items', 'custpage_sublist_amount', int));
 						}
 				}
 			
 			nlapiSetFieldValue('custpage_select_ticked', ticked, false, true);
+			nlapiSetFieldValue('custpage_select_value', total.toFixed(2), false, true);
 		}
 }
 
