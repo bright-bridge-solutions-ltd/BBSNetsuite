@@ -18,7 +18,8 @@
  *                      editforecast (Opp, Estimate)
  * @returns {Void}
  */
-function userEventBeforeSubmit(type) {
+function userEventBeforeSubmit(type) 
+{
 
 	//Get the ship date from the order header
 	//
@@ -32,10 +33,10 @@ function userEventBeforeSubmit(type) {
 	//
 	var latestDate = null;
 
-	if (headerShipDate != null && headerShipDate != '') {
-
-		latestDate = nlapiStringToDate(headerShipDate);
-	}
+	if (headerShipDate != null && headerShipDate != '') 
+		{
+			latestDate = nlapiStringToDate(headerShipDate);
+		}
 
 	// Loop through the item lines 
 	//
@@ -47,33 +48,34 @@ function userEventBeforeSubmit(type) {
 
 		// See if we have a none null ESD
 		//
-		if (lineESD != null && lineESD != '') {
-
-			var tempESDDate = nlapiStringToDate(lineESD);
-
-			//If the latest date is null, then set it to the date from the current line
-			//as this must be the first date we have found
-			//
-			if (latestDate == null) {
-
-				latestDate = tempESDDate;
-			}
-			else {
-				//Otherwise do a compare on the line date with the current soonest date we hold
+		if (lineESD != null && lineESD != '') 
+			{
+				var tempESDDate = nlapiStringToDate(lineESD);
+	
+				//If the latest date is null, then set it to the date from the current line
+				//as this must be the first date we have found
 				//
-				if (tempESDDate > latestDate) {
-
-					latestDate = tempESDDate;
-				}
+				if (latestDate == null) 
+					{
+		
+						latestDate = tempESDDate;
+					}
+				else 
+					{
+						//Otherwise do a compare on the line date with the current soonest date we hold
+						//
+						if (tempESDDate.getTime() > latestDate.getTime()) 
+							{
+								latestDate = tempESDDate;
+							}
+					}
 			}
-		}
 	}
 
 	// Set the field value for the ship date
 	//
-	if (latestDate != null) {
-
-		nlapiSetFieldValue('custbody_bbs_otif_date', nlapiDateToString(latestDate), false, true);
-	}
-
+	if (latestDate != null) 
+		{
+			nlapiSetFieldValue('custbody_bbs_otif_date', nlapiDateToString(latestDate), false, true);
+		}
 }

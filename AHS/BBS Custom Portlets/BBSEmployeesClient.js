@@ -238,8 +238,13 @@ function clientFieldChanged(type, name, linenum)
 						if(params.search4 != null && params.search4 != '')
 							rightCell2 = buildContent(params.search4, params.caption4, employeeId, params.filter4, params.fontSize);
 											
-						nlapiSetFieldValue('custpage_results_1', '<table style="width: 100%;"><tr><td>' + leftCell1 + '</td><td style="width: 10px;">&nbsp;</td><td>' + rightCell1 + '</td></tr></table>', false, true);
-						nlapiSetFieldValue('custpage_results_2', '<table style="width: 100%;"><tr><td>' + leftCell2 + '</td><td style="width: 10px;">&nbsp;</td><td>' + rightCell2 + '</td></tr></table>', false, true);
+				//		nlapiSetFieldValue('custpage_results_1', '<table style="width: 100%;"><tr><td>' + leftCell1 + '</td><td style="width: 10px;">&nbsp;</td><td>' + rightCell1 + '</td></tr></table>', false, true);
+				//		nlapiSetFieldValue('custpage_results_2', '<table style="width: 100%;"><tr><td>' + leftCell2 + '</td><td style="width: 10px;">&nbsp;</td><td>' + rightCell2 + '</td></tr></table>', false, true);
+						
+						nlapiSetFieldValue('custpage_results_1', leftCell1, false, true);
+						nlapiSetFieldValue('custpage_results_2', rightCell1, false, true);
+						nlapiSetFieldValue('custpage_results_3', leftCell2, false, true);
+						nlapiSetFieldValue('custpage_results_4', rightCell2, false, true);
 						
 					}
 				else
@@ -249,6 +254,12 @@ function clientFieldChanged(type, name, linenum)
 						
 						if(params.search2 != null && params.search2 != '')
 							nlapiSetFieldValue('custpage_results_2', '', false, true);
+						
+						if(params.search3 != null && params.search3 != '')
+							nlapiSetFieldValue('custpage_results_3', '', false, true);
+						
+						if(params.search4 != null && params.search4 != '')
+							nlapiSetFieldValue('custpage_results_4', '', false, true);
 					}
 			}
 	}
@@ -303,7 +314,8 @@ function buildContent(searchId, caption, contactId, filter, fontSize)
 		content += '  min-width: 100%; /*set table width here if using %*/';
 		content += '  height: 188px; /*set table height here; can be fixed value or %*/';
 		content += '  /*min-height: 104px;*/ /*if using % height, make this at least large enough to fit scrollbar arrows + captions + thead*/';
-		content += '  font-family: Verdana, Tahoma, sans-serif;';
+//		content += '  font-family: Verdana, Tahoma, sans-serif;';
+		content += '  font-family: "Open Sans", sans-serif;';
 		content += '  font-size: ' + fontSize + 'px;';
 		content += '  line-height: 20px;';
 		content += '  padding-top: 20px; /*this determines top caption height*/';
@@ -313,13 +325,14 @@ function buildContent(searchId, caption, contactId, filter, fontSize)
 		content += '.scrollingtable * {box-sizing: border-box;}';
 		content += '.scrollingtable > div {';
 		content += '  position: relative;';
-		content += '  border-top: 1px solid black; /*top table border*/';
+//		content += '  border-top: 1px solid black; /*top table border*/';
 		content += '  height: 100%;';
 		content += '  padding-top: 20px; /*this determines column header height*/';
 		content += '}';
 		content += '.scrollingtable > div:before {';
 		content += '  top: 0;';
-		content += '  background: cornflowerblue; /*column header background color*/';
+//		content += '  background: cornflowerblue; /*column header background color*/';
+		content += '  background: gainsboro; /*column header background color*/';
 		content += '}';
 		content += '.scrollingtable > div:before,';
 		content += '.scrollingtable > div > div:after {';
@@ -335,7 +348,7 @@ function buildContent(searchId, caption, contactId, filter, fontSize)
 		content += '  max-height: 100%;';
 		content += '  overflow: auto; /*set to auto if using fixed or % width; else scroll*/';
 		content += '  overflow-x: hidden;';
-		content += '  border: 1px solid black; /*border around table body*/';
+//		content += '  border: 1px solid black; /*border around table body*/';
 		content += '}';
 		content += '.scrollingtable > div > div:after {background: white;} /*match page background color*/';
 		content += '.scrollingtable > div > div > table {';
@@ -368,7 +381,7 @@ function buildContent(searchId, caption, contactId, filter, fontSize)
 		content += '  top: 0;';
 		content += '  left: 0;';
 		content += '  height: 20px; /*match column header height*/';
-		content += '  border-left: 1px solid black; /*leftmost header border*/';
+//		content += '  border-left: 1px solid black; /*leftmost header border*/';
 		content += '}';
 		content += '.scrollingtable > div > div > table > thead > tr > * > div[label]:before,';
 		content += '.scrollingtable > div > div > table > thead > tr > * > div > div:first-child,';
@@ -376,7 +389,7 @@ function buildContent(searchId, caption, contactId, filter, fontSize)
 		content += '  position: absolute;';
 		content += '  top: 0;';
 		content += '  white-space: pre-wrap;';
-		content += '  color: white; /*header row font color*/';
+		content += '  color: black; /*header row font color*/';
 		content += '}';
 		content += '.scrollingtable > div > div > table > thead > tr > * > div[label]:before,';
 		content += '.scrollingtable > div > div > table > thead > tr > * > div[label]:after {content: attr(label);}';
@@ -385,7 +398,7 @@ function buildContent(searchId, caption, contactId, filter, fontSize)
 		content += '  display: block;';
 		content += '  min-height: 20px; /*match column header height*/';
 		content += '  padding-top: 1px;';
-		content += '  border-left: 1px solid black; /*borders between header cells*/';
+//		content += '  border-left: 1px solid black; /*borders between header cells*/';
 		content += '}';
 		content += '.scrollingtable .scrollbarhead {float: right;}';
 		content += '.scrollingtable .scrollbarhead:before {';
@@ -399,19 +412,19 @@ function buildContent(searchId, caption, contactId, filter, fontSize)
 		content += '  display: table-cell;';
 		content += '  position: relative;';
 		content += '  padding: 0;';
-		content += '  border-top: 1px solid black;';
+//		content += '  border-top: 1px solid black;';
 		content += '  top: -1px; /*inverse of border width*/';
 		content += '}';
 		content += '.scrollingtable > div > div > table > tbody {vertical-align: top;}';
 		content += '.scrollingtable > div > div > table > tbody > tr {background: white;}';
 		content += '.scrollingtable > div > div > table > tbody > tr > * {';
-		content += '  border-bottom: 1px solid black;';
+		content += '  border-bottom: 1px solid gainsboro;';
 		content += '  padding: 0 6px 0 6px;';
 		content += '  height: 20px; /*match column header height*/';
 		content += '}';
 		content += '.scrollingtable > div > div > table > tbody:last-of-type > tr:last-child > * {border-bottom: none;}';
-		content += '.scrollingtable > div > div > table > tbody > tr:nth-child(even) {background: gainsboro;} /*alternate row color*/';
-		content += '.scrollingtable > div > div > table > tbody > tr > * + * {border-left: 1px solid black;} /*borders between body cells*/';
+		content += '.scrollingtable > div > div > table > tbody > tr:nth-child(even) {background: white;} /*alternate row color*/';
+//		content += '.scrollingtable > div > div > table > tbody > tr > * + * {border-left: 1px solid black;} /*borders between body cells*/';
 		content += '</style>';
 
 		content += '<div class="scrollingtable">';

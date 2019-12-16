@@ -66,12 +66,34 @@ function portletName(portletObj, column)
 	
 	//Add a field to select the employee from
 	//
-	var employeeField = portletObj.addField('custpage_select_employee', 'select', 'Employee', 'employee');
+	var employeeField = portletObj.addField('custpage_select_employee', 'select', 'Employee', null);
 	employeeField.setLayoutType('normal', 'startcol');
+	
+	employeeField.addSelectOption(0, '', true);
+	
+	var employeeSearch = nlapiSearchRecord("employee",null,
+			[
+			   ["salesrep","is","T"]
+			], 
+			[
+			   new nlobjSearchColumn("entityid").setSort(false)
+			]
+			);
+	
+	if(employeeSearch != null && employeeSearch.length > 0)
+		{
+			for (var int = 0; int < employeeSearch.length; int++) 
+				{
+					var empId = employeeSearch[int].getId();
+					var empName = employeeSearch[int].getValue('entityid');
+					
+					employeeField.addSelectOption(empId, empName, false);
+				}
+		}
 	
 	//Add a dummy field to hold the parameters
 	//
-	var entityField = portletObj.addField('custpage_params', 'text', 'Entity', null);
+	var entityField = portletObj.addField('custpage_params', 'longtext', 'Entity', null);
 	entityField.setDisplayType('hidden');
 	entityField.setDefaultValue(JSON.stringify(params));
 
@@ -89,6 +111,18 @@ function portletName(portletObj, column)
 		{
 			var htmlField2 = portletObj.addField('custpage_results_2', 'inlinehtml', '', null);
 			htmlField2.setDefaultValue(defaultHtml);
+		}
+	
+	if(params.search3 != null && params.search3 != '')
+		{
+			var htmlField3 = portletObj.addField('custpage_results_3', 'inlinehtml', '', null);
+			htmlField3.setDefaultValue(defaultHtml);
+		}
+	
+	if(params.search4 != null && params.search4 != '')
+		{
+			var htmlField4 = portletObj.addField('custpage_results_4', 'inlinehtml', '', null);
+			htmlField4.setDefaultValue(defaultHtml);
 		}
 }
 
