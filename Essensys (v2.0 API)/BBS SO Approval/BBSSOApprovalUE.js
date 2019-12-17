@@ -21,7 +21,7 @@ function(runtime) {
     	if (scriptContext.type == 'view')
     		{
 		    	// get the current record
-		    	var currentRecord = scriptContext.newRecord;
+		    	var currentRecord = scriptContext.newRecord; 
 		    	
 		    	// get the value of the 'Workflow State' field
 		    	var workflowState = currentRecord.getValue({
