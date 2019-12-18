@@ -51,13 +51,16 @@ function(runtime, config, search, record, email) {
     		type: 'customrecord_bbs_contract',
     		
     		filters:  [
-    		             ['custrecord_bbs_contract_status', 'anyof', '1'], // 1 = Approved
-    		             'AND', 
+    		            ['custrecord_bbs_contract_subsidiary', 'anyof', '5'], // 5 = UK
+    		            	'AND',
+    					['custrecord_bbs_contract_status', 'anyof', '1'], // 1 = Approved
+    		             	'AND', 
     		             [
     		              	['custrecord_bbs_contract_end_date', 'within', 'lastmonth'],
     		              	'OR',
     		              	['custrecord_bbs_contract_early_end_date', 'within', 'lastmonth']
     		             ]
+    		             
     		          ],
     		          
     		 columns:	[{

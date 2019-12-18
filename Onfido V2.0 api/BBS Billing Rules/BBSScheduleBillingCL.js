@@ -113,6 +113,11 @@ function(message, url, https, search) {
     			values: [billingType]
     		},
     				{
+    			name: 'subsidiary',
+    			operator: 'anyof',
+    			values: ['5'] // 5 = UK
+    		},
+    				{
     			name: 'custcol_bbs_usage_updated',
     			operator: 'is',
     			values: ['F']

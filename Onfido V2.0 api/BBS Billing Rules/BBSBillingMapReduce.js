@@ -130,6 +130,11 @@ function(runtime, search, record, format, task) {
 				values: ['SalesOrd:F'] // SalesOrd:F = Pending Billing
 			},
 					{
+				name: 'subsidiary',
+				operator: 'anyof',
+				values: ['5'] // 5 = UK
+			},
+					{
 				name: 'custbody_bbs_contract_record',
 				operator: 'noneof',
 				values: ['@NONE@']
