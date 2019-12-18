@@ -319,7 +319,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					            				filters.push("AND");
 					            			}
 					            		
-					            		filters.push(["custrecord_bbs_sales_for_op_id","contains",paramSFOpportunity]);
+					            		filters.push(["custrecord_bbs_contract_sales_force_id","contains",paramSFOpportunity]);
 					            	}
 		            
 					            if(paramConStartStart != null && paramConStartStart != '')
@@ -375,7 +375,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					            	      search.createColumn({name: "custrecord_bbs_contract_end_date", label: "Contract End Date"}),
 					            	      search.createColumn({name: "custrecord_bbs_contract_billing_type", label: "Billing Type"}),
 					            	      search.createColumn({name: "custrecord_bbs_contract_term", label: "Contract Term in Months"}),
-					            	      search.createColumn({name: "custrecord_bbs_sales_for_op_id", label: "SalesForce Opporunity"})
+					            	      search.createColumn({name: "custrecord_bbs_contract_sales_force_id", label: "SalesForce Opporunity"})
 					            	   ]
 					            	}));
 					            	

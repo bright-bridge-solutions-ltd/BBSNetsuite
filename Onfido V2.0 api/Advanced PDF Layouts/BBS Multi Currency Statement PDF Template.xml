@@ -48,41 +48,41 @@
           
 			<table class="header" style="width: 100%; margin-top: 10px;">
         		<tr>
-        			<td rowspan="7" colspan="3" style="font-size:8pt">${statement.billaddress}</td>
-        			<td>&nbsp;</td>
-        			<td colspan="2" style="font-size:8pt"><b>Statement Date</b></td>
-        			<td rowspan="7" colspan="2" style="font-size:8pt">${subsidiary.mainaddress_text}<br/>${vatInfo}<br/>billing@onfido.com</td>
+        			<td rowspan="7" colspan="3" style="font-size:12pt">${statement.billaddress}</td>
+
+        			<td colspan="2" style="font-size:12pt"><b>Statement Date</b></td>
+        			<td rowspan="7" colspan="2" style="font-size:12pt">${subsidiary.mainaddress_text}<br/>${vatInfo}<br/>billing@onfido.com</td>
         		</tr>
         		<tr>
-        			<td>&nbsp;</td>
-        			<td colspan="2" style="font-size:8pt">${statement.trandate?string.long}</td>
+
+        			<td colspan="2" style="font-size:12pt">${statement.trandate?string.long}</td>
         		</tr>
         		<tr>
-        			<td>&nbsp;</td>
-        			<td colspan="2" style="font-size:8pt"><b>Amount Due</b></td>
+
+        			<td colspan="2" style="font-size:12pt"><b>Amount Due</b></td>
         		</tr>        		
         		<tr>
-        			<td>&nbsp;</td>
-        			<td colspan="2" style="font-size:8pt">${statement.amountDue}</td>
+
+        			<td colspan="2" style="font-size:12pt">${statement.amountDue}</td>
         		</tr>        		
               	<tr>
-        			<td>&nbsp;</td>
-        			<td colspan="2" style="font-size:8pt"><b>Currency</b></td>
+
+        			<td colspan="2" style="font-size:12pt"><b>Currency</b></td>
         		</tr>
         		<tr>
-        			<td>&nbsp;</td>
-        			<td colspan="2" style="font-size:8pt">${statement.currency}</td>
+
+        			<td colspan="2" style="font-size:12pt">${statement.currency}</td>
         		</tr>
               	<tr>
-        			<td>&nbsp;</td>
-        			<td colspan="2" style="font-size:8pt"><b>&nbsp;</b></td>
+
+        			<td colspan="2" style="font-size:12pt"><b>&nbsp;</b></td>
         		</tr>
               	<tr>
         			<td colspan="2">&nbsp;</td>
+
         			<td>&nbsp;</td>
-        			<td>&nbsp;</td>
-        			<td colspan="2" style="font-size:8pt">&nbsp;</td>
-        			<td colspan="2" style="font-size:8pt">&nbsp;</td>
+        			<td colspan="2" style="font-size:12pt">&nbsp;</td>
+        			<td colspan="2" style="font-size:12pt">&nbsp;</td>
         		</tr>
           	</table>
         </macro>
@@ -185,47 +185,47 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="300px" footer="nlfooter" footer-height="10px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+<body header="nlheader" header-height="320px" footer="nlfooter" footer-height="10px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
   <#if statement.lines?has_content>
     <table class="itemtable" style="width: 100%; margin-top: 10px;">
         <#list statement.lines as line>
             <#if line_index==0>
               <thead>
                   <tr>
-                  <th colspan="3">${line.datecol@label}</th>
-                  <th colspan="12">${line.description@label}</th>
-                  <th align="right" colspan="3">Invoice</th>
-                  <th align="right" colspan="4">${line.payment@label}</th>
-                  <th align="right" colspan="4">${line.balance@label}</th>
+                  <th colspan="3" style="font-size:12pt">${line.datecol@label}</th>
+                  <th colspan="10" style="font-size:12pt">${line.description@label}</th>
+                  <th align="right" colspan="3" style="font-size:12pt">Invoice</th>
+                  <th align="right" colspan="4" style="font-size:12pt">${line.payment@label}</th>
+                  <th align="right" colspan="4" style="font-size:12pt">${line.balance@label}</th>
                   </tr>
               </thead>
             </#if>
               <tr>
-                <td colspan="3">${line.datecol}</td>
-                <td colspan="12">${line.description}</td>
-                <td align="right" colspan="3">${line.charge}</td>
-                <td align="right" colspan="4">${line.payment}</td>
-                <td align="right" colspan="4">${line.balance}</td>
+                <td colspan="3" style="font-size:12pt">${line.datecol}</td>
+                <td colspan="10" style="font-size:12pt">${line.description}</td>
+                <td align="right" colspan="3" style="font-size:12pt">${line.charge}</td>
+                <td align="right" colspan="4" style="font-size:12pt">${line.payment}</td>
+                <td align="right" colspan="4" style="font-size:12pt">${line.balance}</td>
               </tr>
         </#list>
     </table>
 
     <table class="aging" style="width: 100%; margin-top: 10px; page-break-inside: avoid;">
         <tr>
-          <th align="right" colspan="4">${statement.aging1@label}</th>
-          <th align="right" colspan="4">${statement.aging2@label}</th>
-          <th align="right" colspan="4">${statement.aging3@label}</th>
-          <th align="right" colspan="4">${statement.aging4@label}</th>
-          <th align="right" colspan="4">${statement.aging5@label}</th>
-          <th align="right" colspan="4">${statement.agingbal@label}</th>
+          <th align="right" colspan="3" style="font-size:12pt">${statement.aging1@label}</th>
+          <th align="right" colspan="3" style="font-size:12pt">${statement.aging2@label}</th>
+          <th align="right" colspan="3" style="font-size:12pt">${statement.aging3@label}</th>
+          <th align="right" colspan="3" style="font-size:12pt">${statement.aging4@label}</th>
+          <th align="right" colspan="3" style="font-size:12pt">${statement.aging5@label}</th>
+          <th align="right" colspan="3" style="font-size:12pt">${statement.agingbal@label}</th>
         </tr>
         <tr>
-          <td align="right" colspan="4">${statement.aging1}</td>
-          <td align="right" colspan="4">${statement.aging2}</td>
-          <td align="right" colspan="4">${statement.aging3}</td>
-          <td align="right" colspan="4">${statement.aging4}</td>
-          <td align="right" colspan="4">${statement.aging5}</td>
-          <td align="right" colspan="4">${statement.agingbal}</td>
+          <td align="right" colspan="3" style="font-size:12pt">${statement.aging1}</td>
+          <td align="right" colspan="3" style="font-size:12pt">${statement.aging2}</td>
+          <td align="right" colspan="3" style="font-size:12pt">${statement.aging3}</td>
+          <td align="right" colspan="3" style="font-size:12pt">${statement.aging4}</td>
+          <td align="right" colspan="3" style="font-size:12pt">${statement.aging5}</td>
+          <td align="right" colspan="3" style="font-size:12pt">${statement.agingbal}</td>
         </tr>
     </table>
   </#if>

@@ -303,7 +303,7 @@
 	<table class="itemtable" style="width: 100%;">
 		<thead>
 			<tr>
-				<th align="left" colspan="5" style="font-size: 12pt;"><br/>Invoice</th>
+				<th align="left" colspan="5" style="font-size: 12pt;">Invoice / <br/>Customer</th>
 				<th align="left" colspan="4" style="font-size: 12pt;">Invoice<br/>Date</th>
 				<th align="left" colspan="11" style="font-size: 12pt;"><br/>Item</th>
 				<th align="right" colspan="3" style="font-size: 12pt;"><br/>Qty</th>
@@ -317,7 +317,14 @@
 		<tr>
 			<#assign itemcount=itemcount+1> 
 			
-			<td class="itemtable" colspan="5" style="font-size: 12pt;" align="left">${item.tranid}</td>
+			<#assign custName="">
+			<#if item.customer.entityid?index_of(":") gt -1>
+				<#assign custName=item.customer.entityid?keep_after(":")>
+			<#else>
+				<#assign custName=item.customer.entityid>
+			</#if>
+			
+			<td class="itemtable" colspan="5" style="font-size: 12pt;" align="left">${item.tranid}<br/>${custName}</td>
 			<td class="itemtable" colspan="4" style="font-size: 12pt;" align="left">${item.trandate}</td>
 			<td class="itemtable" colspan="11" style="font-size: 12pt;" align="left">${item.item?chop_linebreak}</td>
 			<td class="itemtable" colspan="3" style="font-size: 12pt;" align="right">${item.quantity?number?string["0.##"]} </td>

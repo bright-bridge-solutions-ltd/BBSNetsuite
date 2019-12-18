@@ -51,46 +51,38 @@
 			<table class="header" style="width: 100%; margin-top: 10px;">
         		<tr>
         			<td rowspan="7" colspan="2" style="font-size: 12pt">${record.billaddress}<br/><br/>VAT No: ${record.entitytaxregnum}</td>
-        			
-                  <td>&nbsp;</td>
+                  	<td>&nbsp;</td>
         			<td colspan="2" style="font-size: 12pt"><b>Credit Date</b></td>
         			<td rowspan="7" colspan="2" style="font-size: 12pt">${subsidiary.mainaddress_text}<br/>${vatInfo}<br/>billing@onfido.com</td>
         		</tr>
         		<tr>
-        			
-                  <td>&nbsp;</td>
+                  	<td>&nbsp;</td>
         			<td colspan="2" style="font-size: 12pt">${record.trandate?string.long}</td>
         		</tr>
         		<tr>
-        			
                   <td>&nbsp;</td>
         			<td colspan="2" style="font-size: 12pt"><b>Credit Number</b></td>
         		</tr>        		
         		<tr>
-        			
                   <td>&nbsp;</td>
         			<td colspan="2" style="font-size: 12pt">${record.tranid}</td>
         		</tr>        		
         		
               	<tr>
-        			
                   <td>&nbsp;</td>
         			<td colspan="2" style="font-size: 12pt"><b>Period</b></td>
         		</tr>
         		<tr>
-        			
                   <td>&nbsp;</td>
         			<td colspan="2" style="font-size: 12pt">${record.postingperiod}</td>
         		</tr>
               	<tr>
-        			
                   <td>&nbsp;</td>
         			<td colspan="2" style="font-size: 12pt"><b>&nbsp;</b></td>
         		</tr>
               	<tr>
         			<td colspan="2">&nbsp;</td>
-        			
-                  <td>&nbsp;</td>
+                  	<td>&nbsp;</td>
         			<td colspan="2" style="font-size: 12pt">&nbsp;</td>
         			<td colspan="2" style="font-size: 12pt">&nbsp;</td>
         		</tr>
