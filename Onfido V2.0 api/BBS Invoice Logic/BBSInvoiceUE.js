@@ -394,7 +394,7 @@ function(file, record, render, runtime, search, email)
 		  	this.itemId 				= _itemid;
 		  	this.salesDescription 		= _salesdescription;
 		  	this.unitPrice 				= Number(_unitPrice);
-		  	this.quantity 				= Number(_amount);
+		  	this.quantity 				= Number(_quantity);
 		  	this.amount 				= Number(_amount);
 		  	this.vatAmount				= Number(_vatAmount);
 		  	this.vatRate				= _itemVatRate + '%';

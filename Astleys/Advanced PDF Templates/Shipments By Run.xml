@@ -1,0 +1,216 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+  
+<#assign regInfo>Company Registration No: 12345678. Registered Office: Renown Avenue,Coventry Business Park, Coventry,CV5 6UF, United Kingdom.</#assign>
+<#assign emailInfo>sales@astleys.co.uk</#assign>
+<#assign telInfo>0800 093 5494</#assign>
+<#assign vatInfo>GB 123 4567 89</#assign>
+<#assign logoInfo>${companyInformation.logoUrl}</#assign>
+<#assign todaysDate = .now>
+  
+<macrolist>
+  <macro id="nlheader">
+	<table class="header" style="width: 100%;">
+    	<tr>
+  			<td colspan="2" align="left" style="font-size:24px; padding-top: 30px;">CONSIGNMENT NOTE</td>
+  			<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /></td>
+    	</tr>
+
+	</table>
+    
+    <table class="header" style="width: 100%; margin-top: 20px;">
+      <tr>
+        <td align="left">Date:</td>
+        <td align="left" style="padding-left: 5px;">${todaysDate?string["E dd MMM yyyy"]}</td>
+        <td>&nbsp;</td>
+        <td align="left">Run Number:</td>
+        <td align="left" style="padding-left: 5px;">${results[0].shipmethod}</td>
+      </tr>
+      <tr>
+        <td align="left">Driver:</td>
+        <td align="left" style="padding-left: 5px;">${results[0].memomain}</td>
+        <td>&nbsp;</td>
+        <td align="left">Reg No:</td>
+        <td align="left" style="padding-left: 5px;">&nbsp;</td>
+      </tr>
+    </table>
+	</macro>
+
+        <macro id="nlfooter">
+        <table style="width: 100%;">
+          <tr class="messagerow">
+              <td align="left" class="message">${regInfo}</td>
+      		</tr>
+        </table>
+
+    	<table class="footer" style="width: 100%;">
+          <tr>
+      		<td align="right"><pagenumber/> of <totalpages/></td>
+    		</tr>
+        </table>
+        </macro>
+</macrolist>
+      
+      
+      
+   <style type="text/css">table {
+            <!--font-family: sans-serif;-->
+          font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            <!--background-color: #e3e3e3;-->
+            border-bottom: 1px solid black;
+        border-collapse: collapse;
+            <!--color: #333333;-->
+        }
+        td {
+            padding: 0px;
+            vertical-align: top;
+            font-size:9px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 6pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+			font-size: 6pt;
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      table.message{
+        border: 1px solid #dddddd;
+      }
+        tr.totalrow {
+            <!--background-color: #e3e3e3;-->
+            line-height: 200%;
+        }
+      tr.messagerow{
+        font-size: 6pt;
+      }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 10pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+          font-size: 10pt;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalcell {
+          border-bottom: 1px solid black;
+        border-collapse: collapse;
+        }
+      td.message{
+        font-size: 8pt;
+      }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+  
+  
+</head>
+<body header="nlheader" header-height="150px" footer="nlfooter" footer-height="10px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<#assign lastOrder="">
+<table style="width: 100%;">
+<#list results as result><#if result_index == 0>
+<thead>
+	<tr>
+	<th colspan="4">Description</th>
+	<th align="right">Qty</th>
+	<th align="right">Pack</th>
+	<th align="center">T/F</th>
+	<th align="center" style="border-left: 1px solid black;">Time</th>
+	<th align="center" colspan="2" style="border-left: 1px solid black; border-right: 1px solid black;">Sign And Print</th>
+	</tr>
+</thead>
+</#if>
+  <tr>
+    <#if lastOrder != result.createdfrom>
+      <#assign lastOrder=result.createdfrom>
+        <#if result_index != 0>
+        <td colspan="4" style="border-bottom: 1px solid black;">&nbsp;</td>
+		<td align="right" style="border-bottom: 1px solid black;">&nbsp;</td>
+		<td align="right" style="border-bottom: 1px solid black;">&nbsp;</td>
+		<td align="right" style="border-bottom: 1px solid black;">&nbsp;</td>
+		<td align="center" style="border-bottom: 1px solid black; border-left: 1px solid black;">&nbsp;</td>
+		<td align="center" colspan="2" style="border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">&nbsp;</td>
+		</#if>
+      </tr>
+      <tr>
+      <td colspan="7" >${result.createdfrom?keep_after("Sales Order #")} - ${result.entity}<br/>${result.shipaddress}<br/><br/></td>
+      <!--<td align="right" >&nbsp;</td>
+	  <td align="right" >&nbsp;</td>
+	  <td align="right" >&nbsp;</td>-->
+	  <td align="center" style="border-left: 1px solid black;">&nbsp;</td>
+	  <td align="center" colspan="2" style="border-left: 1px solid black; border-right: 1px solid black;">&nbsp;</td>
+      </tr>
+      <tr>
+   </#if>
+    <td colspan="4">${result.item}&nbsp;&nbsp;&nbsp;${result.formulatext}</td>
+	<td align="right">${result.quantity}</td>
+	<td align="right">${result.unit?keep_after("Pack")}</td>
+	<td align="right">&nbsp;</td>
+	<td align="center" style="border-left: 1px solid black;">&nbsp;</td>
+	<td align="center" colspan="2" style="border-left: 1px solid black; border-right: 1px solid black;">&nbsp;</td>
+	</tr>
+	</#list>
+  
+  <tr>
+    <td colspan="4" style="border-bottom: 1px solid black;">&nbsp;</td>
+	<td align="right" style="border-bottom: 1px solid black;">&nbsp;</td>
+	<td align="right" style="border-bottom: 1px solid black;">&nbsp;</td>
+	<td align="right" style="border-bottom: 1px solid black;">&nbsp;</td>
+	<td align="center" style="border-bottom: 1px solid black; border-left: 1px solid black;">&nbsp;</td>
+	<td align="center" colspan="2" style="border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">&nbsp;</td>
+
+  </tr>
+  </table>
+</body>
+</pdf>
