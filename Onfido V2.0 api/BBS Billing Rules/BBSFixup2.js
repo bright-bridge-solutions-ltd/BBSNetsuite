@@ -20,7 +20,7 @@ function(search, record) {
     	
     	// create search to find sales orders to be updated
     	return search.create({
-			type: search.Type.SALES_ORDER,
+			type: search.Type.JOURNAL_ENTRY,
 			
 			columns: [{
 				name: 'tranid'
@@ -32,19 +32,14 @@ function(search, record) {
 				values: ['T']
 			},
 					{
-				name: 'status',
+				name: 'subsidiary',
 				operator: 'anyof',
-				values: ['SalesOrd:F'] // SalesOrd:F = Pending Billing
+				values: ['9'] // 9 = US
 			},
 					{
 				name: 'custbody_bbs_contract_record',
 				operator: 'noneof',
 				values: ['@NONE@']
-    		},
-    				{
-    			name: 'trandate',
-    			operator: 'onorafter',
-    			values: ['17/12/2019']
     		}],
 		});
 
@@ -71,53 +66,21 @@ function(search, record) {
     	
     	try
     		{
-	    		// load the sales order record
-				var soRecord = record.load({
-					type: record.Type.SALES_ORDER,
-					id: recordID,
-					isDynamic: true
+	    		// delete sales order record
+				record.delete({
+					type: record.Type.JOURNAL_ENTRY,
+					id: recordID
 				});
-			
-				// get count of item lines
-		    	var lineCount = soRecord.getLineCount({
-		    		sublistId: 'item'
-		    	});
-		    	
-		    	// loop through line count
-		    	for (var i = 0; i < lineCount; i++)
-		    		{
-			    		// select the line
-						soRecord.selectLine({
-							sublistId: 'item',
-							line: i
-						});
-		    		
-		    			// unset the 'Usage Updated' checkbox
-		    			soRecord.setCurrentSublistValue({
-		    				sublistId: 'item',
-		    				fieldId: 'custcol_bbs_usage_updated',
-		    				value: false
-		    			});
-		    			
-		    			// commit the line
-		        		soRecord.commitLine({
-							sublistId: 'item'
-						});		
-		    			
-		    		}
-		    	
-		    	// save the sales order
-		    	soRecord.save();
-		    	
+
 		    	log.audit({
-		    		title: 'Sales Order Updated',
+		    		title: 'Sales Order Deleted',
 		    		details: 'Record ID: ' + recordID
 		    	});
     		}
     	catch(e)
     		{
     			log.error({
-    				title: 'Error Updating Sales Order',
+    				title: 'Error Deleting Sales Order',
     				details: 'Record ID: ' + recordID + '<br>Error: ' + e
     			});
     		}

@@ -35,6 +35,12 @@ function(search, record) {
 				name: 'custrecord_bbs_contract_period_end',
 				operator: 'within',
 				values: ['lastmonth']
+    		},
+    				{
+    			name: 'custrecord_bbs_contract_subsidiary',
+    			join: 'custrecord_bbs_contract_period_contract',
+    			operator: 'anyof',
+    			values: ['9'] // 9 = US
     		}],
 		});
 
