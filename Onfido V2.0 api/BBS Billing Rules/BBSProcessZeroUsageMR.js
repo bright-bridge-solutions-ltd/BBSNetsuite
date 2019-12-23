@@ -31,6 +31,14 @@ function(runtime, search, record, format, task) {
 		name: 'custscript_bbs_billing_type_select_text'
 	});
 	
+	subsidiary = currentScript.getParameter({
+		name: 'custscript_bbs_subsidiary_select'
+	});
+	
+	subsidiaryText = currentScript.getParameter({
+		name: 'custscript_bbs_subsidiary_select_text'
+	});
+	
 	initiatingUser = currentScript.getParameter({
 		name: 'custscript_bbs_billing_email_emp_alert'
 	});
@@ -529,6 +537,8 @@ function(runtime, search, record, format, task) {
     	    params: {
     	    	custscript_bbs_billing_type_select: billingType,
     	    	custscript_bbs_billing_type_select_text: billingTypeText,
+    	    	custscript_bbs_subsidiary_select: subsidiary,
+    	    	custscript_bbs_subsidiary_select_text: subsidiaryText,
     	    	custscript_bbs_billing_email_emp_alert: initiatingUser
     	    }
     	});

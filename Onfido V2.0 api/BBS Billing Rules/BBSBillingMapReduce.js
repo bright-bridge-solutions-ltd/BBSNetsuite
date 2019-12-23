@@ -3,8 +3,8 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/search', 'N/record', 'N/format', 'N/task'],
-function(runtime, search, record, format, task) {
+define(['N/runtime', 'N/search', 'N/record', 'N/format', 'N/task', 'N/currency'],
+function(runtime, search, record, format, task, currency) {
 	
 	// retrieve script parameters
 	var currentScript = runtime.getCurrentScript();
@@ -70,6 +70,14 @@ function(runtime, search, record, format, task) {
 		name: 'custscript_bbs_billing_type_select_text'
 	});
 	
+	subsidiary = currentScript.getParameter({
+		name: 'custscript_bbs_subsidiary_select'
+	});
+	
+	subsidiaryText = currentScript.getParameter({
+		name: 'custscript_bbs_subsidiary_select_text'
+	});
+	
 	initiatingUser = currentScript.getParameter({
 		name: 'custscript_bbs_billing_email_emp_alert'
 	});
@@ -93,7 +101,7 @@ function(runtime, search, record, format, task) {
     function getInputData() {
     	
     	// create search to find sales orders to be billed
-    	var salesOrderSearch = search.create({
+    	return search.create({
     		type: search.Type.SALES_ORDER,
 			
 			columns: [{
@@ -114,9 +122,13 @@ function(runtime, search, record, format, task) {
 				name: 'custrecord_bbs_contract_mgmt_fee_amt',
 				join: 'custbody_bbs_contract_record'
 			},
-				{
+					{
 				name: 'custrecord_bbs_contract_currency',
 				join: 'custbody_bbs_contract_record'
+			},
+					{
+				name: 'currency',
+				join: 'subsidiary'
 			}],
 			
 			filters: [{
@@ -132,14 +144,9 @@ function(runtime, search, record, format, task) {
 					{
 				name: 'subsidiary',
 				operator: 'anyof',
-				values: ['5'] // 5 = UK
+				values: [subsidiary]
 			},
 					{
-				name: 'custbody_bbs_contract_record',
-				operator: 'noneof',
-				values: ['@NONE@']
-    		},
-    				{
     			name: 'custrecord_bbs_contract_status',
     			join: 'custbody_bbs_contract_record',
     			operator: 'anyof',
@@ -150,29 +157,14 @@ function(runtime, search, record, format, task) {
     			join: 'custbody_bbs_contract_record',
     			operator: 'is',
     			values: ['F']
+    		},
+    				{
+    			name: 'custrecord_bbs_contract_billing_type',
+    			join: 'custbody_bbs_contract_record',
+    			operator: 'anyof',
+    			values: [billingType]
     		}],
 		});
-    	
-    	// check if the billingType variable contains a value
-    	if (billingType)
-    		{
-    			// get the current search filters
-    			var filters = salesOrderSearch.filters; //reference Search.filters object to a new variable
-    	    
-    			// create a new search filter
-    			var newFilter = search.createFilter({
-    	            name: 'custrecord_bbs_contract_billing_type',
-    	            join: 'custbody_bbs_contract_record',
-    	            operator: 'anyof',
-    	            values: [billingType]
-    	        });
-
-    			// add the filter using .push() method
-    			filters.push(newFilter);
-    		}
-    	
-    	// return the search object to the map stage
-    	return salesOrderSearch;  	
     }
 
     /**
@@ -190,7 +182,8 @@ function(runtime, search, record, format, task) {
     	var mgmtFee;
     	var customer;
     	var mgmtFeeAmt;
-    	var currency;
+    	var contractCurrency;
+    	var subsidiaryCurrency
     	var netAmt;
     	var monthlyMinimum;
     	
@@ -211,6 +204,12 @@ function(runtime, search, record, format, task) {
 		// get the billing type from the search results
 		billingType = searchResult.values["custrecord_bbs_contract_billing_type.custbody_bbs_contract_record"].value;
 		
+		// get the contract currency from the search results
+		contractCurrency = searchResult.values["custrecord_bbs_contract_currency.custbody_bbs_contract_record"].value;
+		
+		// get the subsidiary currency from the search results
+		subsidiaryCurrency = searchResult.values["currency.subsidiary"].value;
+		
 		//============================================================================================
 		// CHECK THE BILLING TYPE AND CALL THE RELEVANT FUNCTION FOR PRE-PROCESSING OF THE SALES ORDER
 		//============================================================================================
@@ -218,38 +217,38 @@ function(runtime, search, record, format, task) {
 		// AMBMA billing type
 		if (billingType == 6)
 			{
-				// call the AMBMA function. Pass in the internal ID of the sales order record
-				AMBMA(recordID);
+				// call the AMBMA function. Pass record ID, contractRecord, contractCurrency and subsidiaryCurrency
+				AMBMA(recordID, contractRecord, contractCurrency, subsidiaryCurrency);
 			}
 		// AMP billing type
 		else if (billingType == 4)
 			{
-				// call the AMP function. Pass in the internal ID of the sales order record
-				AMP(recordID);
+				// call the AMP function. Pass in the recordID and contractRecord
+				AMP(recordID, contractRecord);
 			}
 		// PAYG billing type
 		else if (billingType == 1)
 			{
-				// call the PAYG function. Pass in the internal ID of the sales order record
-				PAYG(recordID);
+				// call the PAYG function. Pass in recordID and contractRecord
+				PAYG(recordID, contractRecord);
 			}
 		// QMP billing type
 		else if (billingType == 3)
 			{
-				// call the QMP function. Pass in the internal ID of the sales order record
-				QMP(recordID);
+				// call the QMP function. Pass record ID, contractRecord, contractCurrency and subsidiaryCurrency
+				QMP(recordID, contractRecord, contractCurrency, subsidiaryCurrency);
 			}
 		// QUR billing type
 		else if (billingType == 5)
 			{
-				// call the QUR function. Pass in the internal ID of the sales order record
-				QUR(recordID);
+				// call the QUR function. Pass record ID, contractRecord, contractCurrency and subsidiaryCurrency
+				QUR(recordID, contractRecord, contractCurrency, subsidiaryCurrency);
 			}
 		// UIOLI billing type
 		else if (billingType == 2)
 			{
-				// call the UIOLI function. Pass in the internal ID of the sales order record
-				UIOLI(recordID);
+				// call the UIOLI function. Pass in recordID and contractRecord
+				UIOLI(recordID, contractRecord);
 			}
 		
 		// get the value of the management fee checkbox from the search results
@@ -263,12 +262,9 @@ function(runtime, search, record, format, task) {
 				
 				// get the management fee amount from the search results
 				mgmtFeeAmt = searchResult.values["custrecord_bbs_contract_mgmt_fee_amt.custbody_bbs_contract_record"];
-				
-				// get the currency from the search results
-				currency = searchResult.values["custrecord_bbs_contract_currency.custbody_bbs_contract_record"].value;
 			
-				// call function to create invoice for monthly management fee. Pass in ID of contract record, customer, mgmtFeeAmt, currency
-				createMgmtFeeInvoice(contractRecord, customer, mgmtFeeAmt, currency);
+				// call function to create invoice for monthly management fee. Pass in ID of contract record, customer, mgmtFeeAmt, contractCurrency
+				createMgmtFeeInvoice(contractRecord, customer, mgmtFeeAmt, contractCurrency);
 			}
     }
     
@@ -276,7 +272,7 @@ function(runtime, search, record, format, task) {
 	// SEPARATE FUNCTIONS FOR EACH BILLING TYPE
 	//=========================================
     
-    function AMBMA(recordID)
+    function AMBMA(recordID, contractRecord, contractCurrency, subsidiaryCurrency)
 	    {
 	    	// set the billingType variable to AMBMA
     		billingType = 'AMBMA';
@@ -289,32 +285,15 @@ function(runtime, search, record, format, task) {
     		var maximumMonthlyMinimum;
     		var invoiceAmount;
     		
-    		// load the sales order record
-    		var soRecord = record.load({
-		    	type: record.Type.SALES_ORDER,
-		    	id: recordID,
-		    	isDynamic: true
-		    });
-    		
-    		// get the customer from the sales order record
-    		var customer = soRecord.getValue({
-    			fieldId: 'entity'
-    		});
-    		
-    		// get the ID of the contract record from the sales order record
-		    var contractRecord = soRecord.getValue({
-		    	fieldId: 'custbody_bbs_contract_record'
-		    });
-    	
-		    // lookup fields on the contract record
+    		// lookup fields on the contract record
 		    var contractRecordLookup = search.lookupFields({
 		    	type: 'customrecord_bbs_contract',
 		    	id: contractRecord,
-		    	columns: ['custrecord_bbs_contract_currency', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_min_ann_use', 'custrecord_bbs_contract_cum_inv_total']
+		    	columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_min_ann_use', 'custrecord_bbs_contract_cum_inv_total']
 		    });
 		    
 		    // return values from the contractRecordLookup
-		    var currency = contractRecordLookup.custrecord_bbs_contract_currency[0].value;
+		    var customer = contractRecordLookup.custrecord_bbs_contract_customer[0].value;
 		    var contractEnd = contractRecordLookup.custrecord_bbs_contract_end_date;
 		    var earlyEndDate = contractRecordLookup.custrecord_bbs_contract_early_end_date;
 		    var annualMinimum = contractRecordLookup.custrecord_bbs_contract_min_ann_use;
@@ -389,6 +368,10 @@ function(runtime, search, record, format, task) {
     			type: 'customrecord_bbs_contract_period',
 		    	
 		    	columns: [{
+		    		name: 'custrecord_bbs_contract_period_product',
+		    		summary: 'GROUP'
+		    	},
+		    		{
 		    		name: 'custrecord_bbs_contract_period_min_mon',
 		    		summary: 'SUM'
 		    	}],
@@ -559,6 +542,13 @@ function(runtime, search, record, format, task) {
     		// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
 			var deferredRevAmt = calculateDeferredRev(contractRecord);
 			
+			// check if contractCurrency is not equal to subsidiaryCurrency
+			if (contractCurrency != subsidiaryCurrency)
+				{
+					// convert deferredRevAmt from subsidiary currency to contractCurrency
+					deferredRevAmt = currencyConversion(subsidiaryCurrency, contractCurrency, deferredRevAmt);
+				}
+			
 			log.debug({
 				title: 'Script Check',
 				details: 'Monthly Minimum: ' + monthlyMinimum + ' | Cumulative Monthly Minimum: ' + cumulativeMinimums + ' | Cumulative Invoice Total: ' + cumulativeInvoices + ' | This Month Usage: ' + thisMonthUsage + ' | Cumulative Usage: ' + cumulativeUsage + ' | Deferred Rev Amt: ' + deferredRevAmt
@@ -612,8 +602,8 @@ function(runtime, search, record, format, task) {
 			// check that invoiceAmount is greater than 0
 			if (invoiceAmount > 0)
 				{
-					// call function to create the next quarterly invoice. Pass in billingType, contractRecord, customer, invoiceAmount and currency
-					createNextInvoice(billingType, contractRecord, customer, invoiceAmount, currency);
+					// call function to create the next quarterly invoice. Pass in billingType, contractRecord, customer, invoiceAmount and contractCurrency
+					createNextInvoice(billingType, contractRecord, customer, invoiceAmount, contractCurrency);
 				}
 			else
 				{
@@ -635,37 +625,32 @@ function(runtime, search, record, format, task) {
     		// check if the invoiceDate is greater than (after) or equal to the contractEnd OR earlyEndDate
 			if (invoiceDate.getTime() >= contractEnd.getTime() || earlyEndDate!= '' && invoiceDate.getTime() >= earlyEndDate.getTime())
 				{
+					// load the sales order record
+					var soRecord = record.load({
+						type: record.Type.SALES_ORDER,
+						id: recordID,
+						isDynamic: true
+					});
+				
 					// call function to close the sales order. Pass in soRecord object
     				closeSalesOrder(soRecord);
 				
-					// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance. Pass in recordID and billingType (True = Clearing Journal YES)
-	    			createRevRecJournal(recordID, billingType, true);
+					// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance. Pass in recordID, billingType, contractCurrency and subsidiaryCurrency (True = Clearing Journal YES)
+	    			createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, true);
 				}
 			else
 				{
-					// call function to create journal recognising all revenue for the current contract period. Pass in recordID and billingType (False = Clearing Journal NO)
-	    			createRevRecJournal(recordID, billingType, false);
+					// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType, contractCurrency and subsidiaryCurrency (False = Clearing Journal NO)
+	    			createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, false);
 				}
 	    }
     
-    function AMP(recordID)
+    function AMP(recordID, contractRecord, contractCurrency, subsidiaryCurrency)
     	{
 	    	// set the billingType variable to AMP
 			billingType = 'AMP';
-    	
-    		// load the sales order record
-    		var soRecord = record.load({
-		    	type: record.Type.SALES_ORDER,
-		    	id: recordID,
-		    	isDynamic: true
-		    });
-    		
-    		// get the ID of the contract record from the sales order record
-		    var contractRecord = soRecord.getValue({
-		    	fieldId: 'custbody_bbs_contract_record'
-		    });
-    	
-		    // lookup fields on the contract record
+			
+			// lookup fields on the contract record
 		    var contractRecordLookup = search.lookupFields({
 		    	type: 'customrecord_bbs_contract',
 		    	id: contractRecord,
@@ -737,7 +722,14 @@ function(runtime, search, record, format, task) {
 		    // check if the invoiceDate is greater than (after) or equal to the contractEnd OR earlyEndDate
 			if (invoiceDate.getTime() >= contractEnd.getTime() || earlyEndDate != '' && invoiceDate.getTime() >= earlyEndDate.getTime())
 		    	{
-		    		// check if the cumulativeUsage is less than the minimumUsage
+		    		// load the sales order record
+					var soRecord = record.load({
+						type: record.Type.SALES_ORDER,
+						id: recordID,
+						isDynamic: true
+					});
+				
+					// check if the cumulativeUsage is less than the minimumUsage
 				    if (cumulativeUsage <= minimumUsage)
 					    {
 				    		// call function to close the sales order. Pass in soRecord object
@@ -746,36 +738,36 @@ function(runtime, search, record, format, task) {
 				    // else if cumulativeUsage is greater than minimumUsage
 				    else
 				    	{
-				    		// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage  and contractRecord
-			    			addCreditLine(soRecord, recordID, billingType, minimumUsage, contractRecord);
+				    		// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, minimumUsage  and contractRecord
+			    			addCreditLine(soRecord, billingType, minimumUsage, contractRecord);
 			    		
-			    			// call function to transform the sales order to an invoice. Pass in ID of sales order.
+			    			// call function to transform the sales order to an invoice. Pass in recordID
 			    			createInvoice(recordID);
 			    			
-			    			// call function to update period detail records (to tick the Usage Invoice Issued checkbox). Pass in recordID and soRecord
-							updatePeriodDetail(recordID, soRecord);
+			    			// call function to update period detail records (to tick the Usage Invoice Issued checkbox). Pass in recordID and contractRecord
+							updatePeriodDetail(recordID, contractRecord);
 				    	}
 				    
-				    // call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID and billingType (True = Clearing Journal YES)
-	    		    createRevRecJournal(recordID, billingType, true);
+				    // call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID, billingType, contractCurrency and subsidiaryCurrency (True = Clearing Journal YES)
+	    		    createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, true);
 		    	}
 		    else // this is calendar month end and NOT the end of the contract
 		    	{
-			    	// call function to create journal recognising all revenue for the current contract period. Pass in recordID and billingType (False = Clearing Journal NO)
-		    		createRevRecJournal(recordID, billingType, false);
+			    	// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType, contractCurrency and subsidiaryCurrency (False = Clearing Journal NO)
+		    		createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, false);
 		    	}
     	}
     
-    function PAYG(recordID)
+    function PAYG(recordID, contractRecord)
 	    {
-	    	// call function to transform the sales order to an invoice. Pass in ID of sales order
+	    	// call function to transform the sales order to an invoice. Pass in recordID
 			createInvoice(recordID);
 			
-			// call function to update period detail records (to tick the Usage Invoice Issued checkbox). Pass in ID of sales order
-			updatePeriodDetail(recordID);
+			// call function to update period detail records (to tick the Usage Invoice Issued checkbox). Pass in recordID and contractRecord
+			updatePeriodDetail(recordID, contractRecord);
 	    }
     
-    function QMP(recordID)
+    function QMP(recordID, contractRecord, contractCurrency, subsidiaryCurrency)
     	{
     		// set the billingType variable to QMP
 			billingType = 'QMP';
@@ -793,32 +785,22 @@ function(runtime, search, record, format, task) {
 		    	id: recordID,
 		    	isDynamic: true
 		    });
-		    
-		    // get the subtotal from the sales order record
-		    var soSubtotal = soRecord.getValue({
-		    	fieldId: 'subtotal'
-		    });
-		    		
-		    // get the ID of the customer from the sales order record
-		    var customer = soRecord.getValue({
-		    	fieldId: 'entity'
-		    });
-		    
-		    // get the ID of the contract record from the sales order record
-		    var contractRecord = soRecord.getValue({
-		    	fieldId: 'custbody_bbs_contract_record'
-		    });
+			
+			// get the subtotal from the soRecord object
+			var subtotal = soRecord.getValue({
+				fieldId: 'subtotal'
+			});
 		    	
 		    // lookup fields on the contract record
 		    var contractRecordLookup = search.lookupFields({
 		    	type: 'customrecord_bbs_contract',
 		    	id: contractRecord,
-		    	columns: ['custrecord_bbs_contract_qu_min_use', 'custrecord_bbs_contract_currency', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_end_date']
+		    	columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_qu_min_use', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_end_date']
 		    });
 		    		
 		    // return values from the contractRecordLookup
+		    var customer = contractRecordLookup.custrecord_bbs_contract_customer[0].value;
 		    var minimumUsage = contractRecordLookup.custrecord_bbs_contract_qu_min_use;
-		    var currency = contractRecordLookup.custrecord_bbs_contract_currency[0].value;
 		    var earlyEndDate = contractRecordLookup.custrecord_bbs_contract_early_end_date;
 		    var contractEnd = contractRecordLookup.custrecord_bbs_contract_end_date;
 		    
@@ -843,10 +825,12 @@ function(runtime, search, record, format, task) {
 		    	type: 'customrecord_bbs_contract_period',
 		    	
 		    	columns: [{
-		    		name: 'custrecord_bbs_contract_period_qu_end'
+		    		name: 'custrecord_bbs_contract_period_qu_end',
+		    		summary: 'MAX'
 		    	},
 		    			{
-		    		name: 'custrecord_bbs_contract_period_prod_use'
+		    		name: 'custrecord_bbs_contract_period_prod_use',
+		    		summary: 'SUM'
 		    	}],
 		    	
 		    	filters: [{
@@ -872,12 +856,14 @@ function(runtime, search, record, format, task) {
     			
     			// get the quarter end date from the search results
 	    		quarterEnd = result.getValue({
-	    			name: 'custrecord_bbs_contract_period_qu_end'
+	    			name: 'custrecord_bbs_contract_period_qu_end',
+	    			summary: 'MAX'
 	    		});
 	    		
 	    		// get the usage for the current billing month from the search results
 	    		thisMonthUsage = result.getValue({
-	    			name: 'custrecord_bbs_contract_period_prod_use'
+	    			name: 'custrecord_bbs_contract_period_prod_use',
+	    			summary: 'SUM'
 	    		});
 	    		
     		});
@@ -929,6 +915,13 @@ function(runtime, search, record, format, task) {
     		// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
 			var deferredRevAmt = calculateDeferredRev(contractRecord);
 			
+			// check if contractCurrency is not equal to subsidiaryCurrency
+			if (contractCurrency != subsidiaryCurrency)
+				{
+					// convert deferredRevAmt from subsidiary currency to contractCurrency
+					deferredRevAmt = currencyConversion(subsidiaryCurrency, contractCurrency, deferredRevAmt);
+				}
+			
 			// calculate the current deferred revenue balance
     		var calculatedDeferredRevenue = parseFloat(minimumUsage - cumulativeUsage);
     		
@@ -967,16 +960,16 @@ function(runtime, search, record, format, task) {
 					    			// calculate the value of the credit line that needs adding
 				    				creditLineAmt = parseFloat(soSubtotal - amtToBill);
 				    			
-				    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
-				    				addCreditLine(soRecord, recordID, billingType, creditLineAmt, contractRecord);
+				    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, minimumUsage and contractRecord
+				    				addCreditLine(soRecord, billingType, creditLineAmt, contractRecord);
 				    			}
 				    			
-				    			// call function to transform the sales order to an invoice. Pass in ID of sales order
+				    			// call function to transform the sales order to an invoice. Pass in recordID
 					    		createInvoice(recordID);
 				    	}
 				    else // if calculatedDeferredRevenue is greater than or equal to 0
 				    	{
-					    	// call function to close the sales order. Pass in soRecord object
+					    	// call function to close the sales order. Pass in soRecord
 		    				closeSalesOrder(soRecord);
 				    	}
 				    
@@ -986,14 +979,14 @@ function(runtime, search, record, format, task) {
 					    	// check if this is either the end of the contract or the early termination date has passed
 						    if (invoiceDate.getTime() >= contractEnd.getTime() || earlyEndDate != '' && invoiceDate.getTime() >= earlyEndDate.getTime())
 						    	{
-							    	// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID and billingType (True = Clearing Journal YES)
-						    		createRevRecJournal(recordID, billingType, true);
+							    	// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID, billingType, contractRecord and subsidiaryCurrency (True = Clearing Journal YES)
+						    		createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, true);
 						    	}
 						    // else if this is the end of a contract quarter
 						    else
 						    	{
-							    	// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID, billingType and minimumUsage (True = Clearing Journal YES)
-						    		createRevRecJournal(recordID, billingType, true, minimumUsage);
+							    	// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID, billingType, contractCurrency, subsidiaryCurrency and minimumUsage (True = Clearing Journal YES)
+						    		createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, true, minimumUsage);
 						    	}
 				    	}
     			}			
@@ -1027,24 +1020,24 @@ function(runtime, search, record, format, task) {
 					    			// calculate the value of the credit line that needs adding
 				    				creditLineAmt = parseFloat(soSubtotal - amtToBill);
 				    			
-				    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
-				    				addCreditLine(soRecord, recordID, billingType, creditLineAmt, contractRecord);
+				    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, minimumUsage and contractRecord
+				    				addCreditLine(soRecord, billingType, creditLineAmt, contractRecord);
 				    			}
 				    			
-				    			// call function to transform the sales order to an invoice. Pass in ID of sales order
+				    			// call function to transform the sales order to an invoice. Pass in recordID
 					    		createInvoice(recordID);
 						}
 					
 					// check if deferredRevAmt is greater than 0
 					if (deferredRevAmt > 0)
 						{
-							// call function to create journal recognising all revenue for the current contract period. Pass in recordID and billingType (False = Clearing Journal NO)
-							createRevRecJournal(recordID, billingType, false);
+							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType, contractCurrency and subsidiaryCurrency (False = Clearing Journal NO)
+							createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, false);
 						}
 				}
     	}
     
-    function QUR(recordID)
+    function QUR(recordID, contractRecord, contractCurrency, subsidiaryCurrency)
 	    {
     		// declare and initiate variables
 			var quarterEnd;
@@ -1060,7 +1053,7 @@ function(runtime, search, record, format, task) {
 	
 			// set the billingType variable to QUR
 			billingType = 'QUR';
-	
+			
 			// load the sales order record
 			var soRecord = record.load({
 				type: record.Type.SALES_ORDER,
@@ -1068,30 +1061,20 @@ function(runtime, search, record, format, task) {
 				isDynamic: true
 			});
 			
-			// get the subtotal from the sales order record
-		    var soSubtotal = soRecord.getValue({
-		    	fieldId: 'subtotal'
-		    });
-			
-			// get the ID of the customer from the sales order record
-		    var customer = soRecord.getValue({
-		    	fieldId: 'entity'
-		    });
-	    		
-			// get the ID of the contract record from the sales order record
-			var contractRecord = soRecord.getValue({
-				fieldId: 'custbody_bbs_contract_record'
+			// get the subtotal from the soRecord object
+			var soSubtotal = soRecord.getValue({
+				fieldId: 'subtotal'
 			});
-	    	
-			// get the minimum usage, currency and contract end date from the contract record
+			
+		    // get the minimum usage, currency and contract end date from the contract record
 			var contractRecordLookup = search.lookupFields({
 				type: 'customrecord_bbs_contract',
 				id: contractRecord,
-				columns: ['custrecord_bbs_contract_qu_min_use', 'custrecord_bbs_contract_currency', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_term', 'custrecord_bbs_contract_prepayment_inv']
+				columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_qu_min_use', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_term', 'custrecord_bbs_contract_prepayment_inv']
 			});
 	    		
+			var customer = contractRecordLookup.custrecord_bbs_contract_customer[0].value;
 			var minimumUsage = contractRecordLookup.custrecord_bbs_contract_qu_min_use;
-			var currency = contractRecordLookup.custrecord_bbs_contract_currency[0].value;
 			var contractEnd = contractRecordLookup.custrecord_bbs_contract_end_date;
 			var earlyEndDate = contractRecordLookup.custrecord_bbs_contract_early_end_date;
 			var lastPrepaymentAmount = contractRecordLookup.custrecord_bbs_contract_prepayment_inv;
@@ -1120,16 +1103,20 @@ function(runtime, search, record, format, task) {
 				type: 'customrecord_bbs_contract_period',
 	    	
 				columns: [{
-					name: 'custrecord_bbs_contract_period_qu_end'
+					name: 'custrecord_bbs_contract_period_qu_end',
+					summary: 'MAX'
 				},
 						{
-					name: 'custrecord_bbs_contract_period_quarter'
+					name: 'custrecord_bbs_contract_period_quarter',
+					summary: 'MAX'
 				},
 						{
-		    		name: 'custrecord_bbs_contract_period_prod_use'
+		    		name: 'custrecord_bbs_contract_period_prod_use',
+		    		summary: 'SUM'
 		    	},
 		    			{
-		    		name: 'custrecord_bbs_contract_period_qtr_start'
+		    		name: 'custrecord_bbs_contract_period_qtr_start',
+		    		summary: 'MAX'
 		    	}],
 	    	
 				filters: [{
@@ -1155,21 +1142,25 @@ function(runtime, search, record, format, task) {
 			
 				// get the quarter end date from the search results
 				quarterEnd = result.getValue({
-					name: 'custrecord_bbs_contract_period_qu_end'
+					name: 'custrecord_bbs_contract_period_qu_end',
+					summary: 'MAX'
     			});
 				
 				contractQuarter = result.getValue({
-					name: 'custrecord_bbs_contract_period_quarter'
+					name: 'custrecord_bbs_contract_period_quarter',
+					summary: 'MAX'
 				});
 				
 				// get the usage for the current billing month from the search results
 	    		thisMonthUsage = result.getValue({
-	    			name: 'custrecord_bbs_contract_period_prod_use'
+	    			name: 'custrecord_bbs_contract_period_prod_use',
+	    			summary: 'SUM'
 	    		});
 	    		
 	    		// get the value of the quarter start checkbox from the search results
 	    		quarterStart = result.getValue({
-	    			name: 'custrecord_bbs_contract_period_qtr_start'
+	    			name: 'custrecord_bbs_contract_period_qtr_start',
+	    			summary: 'MAX'
 	    		});
     		
 			});
@@ -1272,6 +1263,13 @@ function(runtime, search, record, format, task) {
 			// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
 			var deferredRevAmt = calculateDeferredRev(contractRecord);
 			
+			// check if contractCurrency is not equal to subsidiaryCurrency
+			if (contractCurrency != subsidiaryCurrency)
+				{
+					// convert deferredRevAmt from subsidiary currency to contractCurrency
+					deferredRevAmt = currencyConversion(subsidiaryCurrency, contractCurrency, deferredRevAmt);
+				}
+			
 			// check if this is the beginning of a quarter
 			if (quarterStart == true)
 				{
@@ -1307,24 +1305,24 @@ function(runtime, search, record, format, task) {
 					    			// calculate the value of the credit line that needs adding
 				    				creditLineAmt = parseFloat(soSubtotal - amtToBill);
 				    			
-				    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
-				    				addCreditLine(soRecord, recordID, billingType, creditLineAmt, contractRecord);
+				    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, minimumUsage and contractRecord
+				    				addCreditLine(soRecord, billingType, creditLineAmt, contractRecord);
 				    			}
 				    			
-				    			// call function to transform the sales order to an invoice. Pass in ID of sales order
+				    			// call function to transform the sales order to an invoice. Pass in recordID
 					    		createInvoice(recordID);
 						}
 					else // calculatedDeferredRevenue is greater than or equal to 0
 						{
-							// call function to close the sales order. Pass in soRecord object
+							// call function to close the sales order. Pass in soRecord
 	    	    			closeSalesOrder(soRecord);
 						}
 				
 					// check if we have deferredRevAmt is greater than 0
 					if (deferredRevAmt > 0)
 						{
-							// call function to create journal recognising all revenue for the current contract period. Pass in recordID and billingType (True = Clearing Journal YES)
-		    				createRevRecJournal(recordID, billingType, true);
+							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType, contractCurrency and subsidiaryCurrency (True = Clearing Journal YES)
+		    				createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, true);
 						}
 				}
 			// else check if the invoiceDate is equal to the quarterEnd
@@ -1342,16 +1340,16 @@ function(runtime, search, record, format, task) {
 				    				// calculate the value of the credit line that needs adding
 			    					creditLineAmt = parseFloat(soSubtotal - amtToBill);
 			    			
-			    					// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
-			    					addCreditLine(soRecord, recordID, billingType, creditLineAmt, contractRecord);
+			    					// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, creditLineAmt and contractRecord
+			    					addCreditLine(soRecord, billingType, creditLineAmt, contractRecord);
 			    				}
 			    			
-			    			// call function to transform the sales order to an invoice. Pass in ID of sales order
+			    			// call function to transform the sales order to an invoice. Pass in recordID
 				    		createInvoice(recordID);
 						}
 					else // calculatedDeferredRevenue is greater than or equal to 0
 						{
-							// call function to close the sales order. Pass in soRecord object
+							// call function to close the sales order. Pass in soRecord
 	    	    			closeSalesOrder(soRecord);
 						}
 					
@@ -1404,16 +1402,16 @@ function(runtime, search, record, format, task) {
 									// set the nextInvoiceAmount to be 2 x minimumUsage minus cumulativeUsage
 									nextInvoiceAmount = parseFloat((2 * minimumUsage) - cumulativeUsage);
 									
-									// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and currency
-									createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, currency);
+									// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and contractCurrency
+									createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, contractCurrency);
 								}
 							else
 								{
 									// set the nextInvoiceAmount to be the minimumUsage
 									nextInvoiceAmount = minimumUsage;
 								
-									// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and currency
-									createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, currency);
+									// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and contractCurrency
+									createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, contractCurrency);
 								}
 						}
 					// if contractQuarter is 2
@@ -1465,16 +1463,16 @@ function(runtime, search, record, format, task) {
 									// set the nextInvoiceAmount to be 3 x minimumUsage minus cumulativeUsage
 									nextInvoiceAmount = parseFloat((3 * minimumUsage) - cumulativeUsage);
 									
-									// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and currency
-									createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, currency);
+									// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and contractCurrency
+									createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, contractCurrency);
 								}
 							else
 								{
 									// set the nextInvoiceAmount to be the minimumUsage
 									nextInvoiceAmount = minimumUsage;
 								
-									// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and currency
-									createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, currency);
+									// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and contractCurrency
+									createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, contractCurrency);
 								}
 						}
 					// if contractQuarter is 3
@@ -1506,24 +1504,24 @@ function(runtime, search, record, format, task) {
 									// set the nextInvoiceAmount to be 3 x minimumUsage minus cumulativeUsage
 									nextInvoiceAmount = parseFloat((4 * minimumUsage) - cumulativeUsage);
 									
-									// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and currency
-									createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, currency);
+									// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and contractCurrency
+									createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, contractCurrency);
 								}
 							else
 								{
 									// set the nextInvoiceAmount to be the minimumUsage
 									nextInvoiceAmount = minimumUsage;
 								
-									// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and currency
-									createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, currency);
+									// call function to create next prepayment invoice. Pass in billingType, contractRecord, customer, nextInvoiceAmount and contractCurrency
+									createNextInvoice(billingType, contractRecord, customer, nextInvoiceAmount, contractCurrency);
 								}						
 						}
 					
 					// check if deferredRevAmt is greater than 0
 					if (deferredRevAmt > 0)
 						{
-							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType and nextInvoiceAmount (False = Clearing Journal NO)
-			    			createRevRecJournal(recordID, billingType, false, nextInvoiceAmount);
+							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType, contractCurrency, subsidiaryCurrency and nextInvoiceAmount (False = Clearing Journal NO)
+			    			createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, false, nextInvoiceAmount);
 						}
 				}
 			// else this is a month end
@@ -1547,15 +1545,15 @@ function(runtime, search, record, format, task) {
 									    			// calculate the value of the credit line that needs adding
 								    				var creditLineAmt = parseFloat(soSubtotal - amtToBill);
 								    			
-								    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
-								    				addCreditLine(soRecord, recordID, billingType, creditLineAmt, contractRecord);
+								    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, minimumUsage and contractRecord
+								    				addCreditLine(soRecord, billingType, creditLineAmt, contractRecord);
 								    			}
 							    			
-							    			// call function to transform the sales order to an invoice. Pass in ID of sales order
+							    			// call function to transform the sales order to an invoice. Pass in recordID
 								    		createInvoice(recordID);
 										}
 										
-									// call function to transform the sales order to an invoice. Pass in ID of sales order
+									// call function to transform the sales order to an invoice. Pass in recordID
 	    	    		    		createInvoice(recordID);
 	    	    		    	}
 	    	    		    // quarterStart is false
@@ -1570,11 +1568,11 @@ function(runtime, search, record, format, task) {
 							    			// calculate the value of the credit line that needs adding
 						    				var creditLineAmt = parseFloat(soSubtotal - amtToBill);
 						    			
-						    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, recordID, billingType, minimumUsage and contractRecord
-						    				addCreditLine(soRecord, recordID, billingType, creditLineAmt, contractRecord);
+						    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, minimumUsage and contractRecord
+						    				addCreditLine(soRecord, billingType, creditLineAmt, contractRecord);
 						    			}
 					    			
-					    			// call function to transform the sales order to an invoice. Pass in ID of sales order
+					    			// call function to transform the sales order to an invoice. Pass in recordID
 						    		createInvoice(recordID);
 	    	    		    	}
 						}
@@ -1582,36 +1580,24 @@ function(runtime, search, record, format, task) {
 					// check if quarterStart is true and deferredRevAmt minus lastPrepaymentAmount is greater than 0
 					if (quarterStart == true && (deferredRevAmt - lastPrepaymentAmount) > 0)
 						{
-							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType and lastPrepaymentAmount (False = Clearing Journal NO)
-	    		    		createRevRecJournal(recordID, billingType, false, lastPrepaymentAmount);
+							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType contractCurrency, subsidiaryCurrency and lastPrepaymentAmount (False = Clearing Journal NO)
+	    		    		createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, false, lastPrepaymentAmount);
 						}
 					else if (deferredRevAmt > 0) // check if deferredRevAmt is greater than 0
 						{
-							// call function to create journal recognising all revenue for the current contract period. Pass in recordID and billingType (False = Clearing Journal NO)
-				    		createRevRecJournal(recordID, billingType, false);
+							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType, contractCurrency, subsidiaryCurrency and (False = Clearing Journal NO)
+				    		createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, false);
 						}				
 				}
 	    }
     
-    function UIOLI(recordID)
+    function UIOLI(recordID, contractRecord)
     	{
 	    	// set the billingType variable to UIOLI
 			billingType = 'UIOLI';
 			
 			// declare and initialize variables
 			var monthlyMinimum;
-			
-			// load the sales order record
-    		var soRecord = record.load({
-		    	type: record.Type.SALES_ORDER,
-		    	id: recordID,
-		    	isDynamic: true
-		    });
-    		
-    		// get the ID of the contract record from the sales order record
-			var contractRecord = soRecord.getValue({
-				fieldId: 'custbody_bbs_contract_record'
-			});
 		
 			// run search to find period detail records for this billing month
 		    var periodDetailSearch = search.create({
@@ -1649,7 +1635,14 @@ function(runtime, search, record, format, task) {
 
     		});
 			
-			// get the total usage from the soRecord
+    		// load the sales order record
+			var soRecord = record.load({
+				type: record.Type.SALES_ORDER,
+				id: recordID,
+				isDynamic: true
+			});
+			
+			// get the subtotal from the soRecord object
 			var totalUsage = soRecord.getValue({
 				fieldId: 'subtotal'
 			});
@@ -1658,18 +1651,17 @@ function(runtime, search, record, format, task) {
 			if (totalUsage < monthlyMinimum)
 	    		{
 					// calculate the difference by subtracting the totalUsage from the monthlyMinimum
-					var difference = parseFloat(monthlyMinimum - totalUsage);
-					difference = difference.toFixed(2);
+					var difference = parseFloat(monthlyMinimum - totalUsage).toFixed(2);
 					
-					// call function to add an adjustment item to the sales order prior to billing. Pass in soRecord, ID of sales order, difference and contractRecord
-					addAdjustmentItem(soRecord, recordID, difference, contractRecord);
+					// call function to add an adjustment item to the sales order prior to billing. Pass in soRecord, difference and contractRecord
+					addAdjustmentItem(soRecord, difference, contractRecord);
 	    		}
 			
-			// call function to transform the sales order to an invoice. Pass in ID of sales order
+			// call function to transform the sales order to an invoice. Pass in recordID
 			createInvoice(recordID);
 			
-			// call function to update period detail records (to tick the Usage Invoice Issued checkbox). Pass in recordID and soRecord
-			updatePeriodDetail(recordID, soRecord);
+			// call function to update period detail records (to tick the Usage Invoice Issued checkbox). Pass in recordID and contractRecord
+			updatePeriodDetail(recordID, contractRecord);
     	}
     
     //====================================================
@@ -2172,7 +2164,7 @@ function(runtime, search, record, format, task) {
 	// FUNCTION TO ADD A CREDIT LINE TO THE SALES ORDER
 	//=================================================
     
-    function addCreditLine(soRecord, recordID, billingType, amount, contractRecord)
+    function addCreditLine(soRecord, billingType, amount, contractRecord)
     	{
 	    	try
 	    		{
@@ -2250,7 +2242,7 @@ function(runtime, search, record, format, task) {
 	// FUNCTION TO ADD AN ADJUSTMENT ITEM TO THE SALES ORDER
 	//======================================================
     
-    function addAdjustmentItem(soRecord, recordID, difference, contractRecord)
+    function addAdjustmentItem(soRecord, difference, contractRecord)
 	    {
 	    	try
 	    		{
@@ -2313,7 +2305,7 @@ function(runtime, search, record, format, task) {
 	// FUNCTION TO CREATE A REVENUE RECOGNITION JOURNAL
 	//=================================================
     
-    function createRevRecJournal(recordID, billingType, clearingJournal, minimumUsage)
+    function createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, clearingJournal, minimumUsage)
 	    {
     		// declare and initialize variables
 		    var itemID;
@@ -2322,6 +2314,8 @@ function(runtime, search, record, format, task) {
 		    var postingAccount;
 		    var thisMonthUsage = 0;
 		    var total = 0;
+		    var location;
+		    var tier;
 		    		
 		    // lookup fields on the sales order
 		    var salesOrderLookup = search.lookupFields({
@@ -2339,6 +2333,13 @@ function(runtime, search, record, format, task) {
 		    // check if minimumUsage returns a value
 		    if (minimumUsage)
 		    	{
+		    		// check if contractCurrency is NOT equal to subsidiaryCurrency
+		    		if (contractCurrency != subsidiaryCurrency)
+		    			{
+		    				// call function to convert minimumUsage to the subsidiary currency
+		    				minimumUsage = currencyConversion(contractCurrency, subsidiaryCurrency, minimumUsage)
+		    			}
+		    	
 		    		// subtract minimumUsage from deferredRevAmt
 		    		deferredRevAmt = parseFloat(deferredRevAmt - minimumUsage);
 		    	}
@@ -2356,20 +2357,20 @@ function(runtime, search, record, format, task) {
 						   columns: ['subsidiary', 'custentity_bbs_location', 'custentity_bbs_client_tier']
 					});
 						    		
-					// get the subsidiary, location and tier from the customerLookup
+					// get the subsidiary from the customerLookup object
 					var subsidiary = customerLookup.subsidiary[0].value;
-					var location = customerLookup.custentity_bbs_location[0].value;
-					var tier = customerLookup.custentity_bbs_client_tier[0].value;
-						    
-					// lookup fields on the subsidiary record
-					var subsidiaryLookup = search.lookupFields({
-						type: search.Type.SUBSIDIARY,
-						id: subsidiary,
-						columns: ['currency']
-					});
-						    		
-					// get the currency from the subsidiaryLookup
-					var currency = subsidiaryLookup.currency[0].value;
+					
+					// check if we have a location on the customer
+					if (customerLookup.custentity_bbs_location.length > 0)
+						{
+							location = customerLookup.custentity_bbs_location[0].value;
+						}
+					
+					// check if we have a client tier on the customer
+					if (customerLookup.custentity_bbs_client_tier.length > 0)
+						{
+							tier = customerLookup.custentity_bbs_client_tier[0].value;
+						}
 					
 					// format the invoiceDate object to a date (DD/MM/YYYY)
 				    var journalDate = format.format({
@@ -2410,6 +2411,16 @@ function(runtime, search, record, format, task) {
 						    	fieldId: 'subsidiary',
 						    	value: subsidiary
 						    });
+						    
+						    // check if the subsidiary is 9 (US)
+						    if (subsidiary == '9')
+						    	{
+						    		// set the 'Nexus' field to 216 (United States - Avalara Purchasing Fix 0%)
+						    		journalRecord.setValue({
+						    			fieldId: 'nexus',
+						    			value: 216
+						    		});
+						    	}
 						    		
 						    journalRecord.setValue({
 						    	fieldId: 'location',
@@ -2418,7 +2429,7 @@ function(runtime, search, record, format, task) {
 						    		
 						    journalRecord.setValue({
 						    	fieldId: 'currency',
-						    	value: currency
+						    	value: subsidiaryCurrency
 						    });
 						    
 						    journalRecord.setValue({
@@ -2471,6 +2482,13 @@ function(runtime, search, record, format, task) {
 				    			}
 				    		
 				    		thisMonthUsage = parseFloat(thisMonthUsage); // use parseFloat to convert to a floating point number
+				    		
+				    		// check if the contractCurrency variable is NOT equal to the subsidiaryCurrency variable
+				    		if (contractCurrency != subsidiaryCurrency)
+				    			{
+				    				// call function to convert thisMonthUsage to subsidiary currency. Pass contractCurrency, subsidiaryCurrency and thisMonthUsage. Converted amount will be returned
+				    				thisMonthUsage = currencyConversion(contractCurrency, subsidiaryCurrency, thisMonthUsage);		    			
+				    			}
 						    
 						    // check if this is a clearing journal
 						    if (clearingJournal == true)
@@ -2479,7 +2497,7 @@ function(runtime, search, record, format, task) {
 						    		if (thisMonthUsage <= deferredRevAmt)
 						    			{
 						    				// calculate the unused revenue amount
-						    				var unused = parseFloat(deferredRevAmt - thisMonthUsage);
+						    				var unused = parseFloat(deferredRevAmt - thisMonthUsage);					    				
 						    				
 						    				// check if we have an unused balance
 						    				if (unused > 0)
@@ -2544,7 +2562,7 @@ function(runtime, search, record, format, task) {
 													journalRecord.setCurrentSublistValue({
 														sublistId: 'line',
 														fieldId: 'credit',
-														value: unused
+														value: parseFloat(unused).toFixed(2)
 													});
 												    	
 													// commit the line
@@ -2557,7 +2575,7 @@ function(runtime, search, record, format, task) {
 											// NOW WE NEED TO ADD LINES TO THE JOURNAL TO RECOGNISE REVENUE FOR THE CURRENT BILLING MONTH
 											// ==========================================================================================
 											
-											// create search to find sales order lines for the current billing month
+						    				// create search to find sales order lines for the current billing month
 										    var soSearch = search.create({
 										    	type: search.Type.SALES_ORDER,
 										    	
@@ -2599,7 +2617,7 @@ function(runtime, search, record, format, task) {
 										    	
 										    	// add the lineAmount to the total variable
 										    	total += lineAmount;
-										    	
+									    	
 										    	// get the income account for the item from the search results
 										    	postingAccount = result.getValue({
 										    		name: 'incomeaccount',
@@ -2621,7 +2639,7 @@ function(runtime, search, record, format, task) {
 										        journalRecord.setCurrentSublistValue({
 										        	sublistId: 'line',
 										        	fieldId: 'credit',
-										        	value: lineAmount
+										        	value: parseFloat(lineAmount).toFixed(2)
 										        });
 										        		
 										        journalRecord.setCurrentSublistValue({
@@ -2741,7 +2759,7 @@ function(runtime, search, record, format, task) {
 											journalRecord.setCurrentSublistValue({
 												sublistId: 'line',
 												fieldId: 'debit',
-												value: total
+												value: parseFloat(total).toFixed(2)
 											});
 										    		
 										    // commit the line
@@ -2810,7 +2828,7 @@ function(runtime, search, record, format, task) {
 											journalRecord.setCurrentSublistValue({
 												sublistId: 'line',
 												fieldId: 'credit',
-												value: deferredRevAmt
+												value: parseFloat(deferredRevAmt).toFixed(2)
 											});
 										    		
 										    // commit the line
@@ -2889,7 +2907,7 @@ function(runtime, search, record, format, task) {
 											journalRecord.setCurrentSublistValue({
 												sublistId: 'line',
 												fieldId: 'debit',
-												value: deferredRevAmt
+												value: parseFloat(deferredRevAmt).toFixed(2)
 											});
 										    		
 										    // commit the line
@@ -2908,7 +2926,7 @@ function(runtime, search, record, format, task) {
 											// ADD LINES TO THE JOURNAL TO RECOGNISE REVENUE FOR THE CURRENT BILLING MONTH
 											// ===========================================================================
 											
-											// create search to find sales order lines for the current billing month
+							    			// create search to find sales order lines for the current billing month
 										    var soSearch = search.create({
 										    	type: search.Type.SALES_ORDER,
 										    	
@@ -2972,7 +2990,7 @@ function(runtime, search, record, format, task) {
 										        journalRecord.setCurrentSublistValue({
 										        	sublistId: 'line',
 										        	fieldId: 'credit',
-										        	value: lineAmount
+										        	value: parseFloat(lineAmount).toFixed(2)
 										        });
 										        		
 										        journalRecord.setCurrentSublistValue({
@@ -3092,7 +3110,7 @@ function(runtime, search, record, format, task) {
 											journalRecord.setCurrentSublistValue({
 												sublistId: 'line',
 												fieldId: 'debit',
-												value: total
+												value: parseFloat(total).toFixed(2)							
 											});
 										    		
 										    // commit the line
@@ -3101,7 +3119,7 @@ function(runtime, search, record, format, task) {
 											});
 										    
 						    			}
-						    		// else if thisMonthUsage is less than deferredRevAmt
+						    		// else if thisMonthUsage is greater than deferredRevAmt
 						    		else
 						    			{
 							    			// =============================================================
@@ -3161,7 +3179,7 @@ function(runtime, search, record, format, task) {
 											journalRecord.setCurrentSublistValue({
 												sublistId: 'line',
 												fieldId: 'credit',
-												value: deferredRevAmt
+												value: parseFloat(deferredRevAmt).toFixed(2)
 											});
 										    		
 										    // commit the line
@@ -3240,7 +3258,7 @@ function(runtime, search, record, format, task) {
 											journalRecord.setCurrentSublistValue({
 												sublistId: 'line',
 												fieldId: 'debit',
-												value: deferredRevAmt
+												value: parseFloat(deferredRevAmt).toFixed(2)
 											});
 										    		
 										    // commit the line
@@ -3255,7 +3273,6 @@ function(runtime, search, record, format, task) {
 								enableSourcing: false,
 							   ignoreMandatoryFields: true
 							});
-							
 											
 							log.audit({
 								title: 'Journal Created',
@@ -3283,126 +3300,114 @@ function(runtime, search, record, format, task) {
 	// FUNCTION TO UPDATE FIELDS ON THE RELEVANT PERIOD DETAIL RECORD	
 	//===============================================================
     
-    function updatePeriodDetail(recordID, soRecord)
+    function updatePeriodDetail(salesOrderID, contractRecord)
 	    {
-    		// declare variables
-	    	var itemID;
-	    	var searchItem;
-	    	var searchDate;
-	    	var startDate = new Date();
-	    	var endDate = new Date();
-	    	var periodDetailSearch;
-	    	var contractRecord;
-
-	    	// check if the soRecord variable is blank
-	    	if (soRecord != '')
-	    		{
-	    		 	// load the sales order record using the recordID variable
-	    			soRecord = record.load({
-	    				type: record.Type.SALES_ORDER,
-	    				id: recordID,
-	    				isDynamic: true
-	    			});
-	    		}
 	    	
-	    	// get count of item lines
-        	var lineCount = soRecord.getLineCount({
-        		sublistId: 'item'
-        	});
-        	
-        	// loop through line count
-	    	for (var i = 0; i < lineCount; i++)
-	    		{
-		    		// get the internal ID of the item for the line
-	    			itemID = soRecord.getSublistValue({
-	    				sublistId: 'item',
-	    				fieldId: 'item',
-	    				line: i
-	    			});
-	    			
-	    			// get the internal ID of the contract record for the line
-	    			contractRecord = soRecord.getSublistValue({
-	    				sublistId: 'item',
-	    				fieldId: 'custcol_bbs_contract_record',
-	    				line: i
-	    			});
-	    			
-	    			// get the search date for the line
-	    			searchDate = soRecord.getSublistValue({
-	    				sublistId: 'item',
-	    				fieldId: 'custcol_bbs_so_search_date',
-	    				line: i
-	    			});
-	    			
-	    			// only process lines where the searchDate variable returns a value
-	    			if (searchDate)
+	    	// create search to find sales order lines for the current billing month
+	    	var soSearch = search.create({
+	    		type: search.Type.SALES_ORDER,
+	    		
+	    		columns: [{
+	    			name: 'item',
+	    			summary: 'GROUP'
+	    		}],
+	    		
+	    		filters: [{
+	    			name: 'mainline',
+	    			operator: 'is',
+	    			values: ['F']
+	    		},
 	    				{
-			    			// run search to find period detail records to be updated
-			    			periodDetailSearch = search.create({
-			        			type: 'customrecord_bbs_contract_period',
-			        			
-			        			columns: [{
-			        				name: 'internalid'
-			        			}],
-			        			
-			        			filters: [{
-			        				name: 'custrecord_bbs_contract_period_contract',
-			        				operator: 'anyof',
-			        				values: [contractRecord]
-			        			},
-			        					{
-			        				name: 'custrecord_bbs_contract_period_product',
-			        				operator: 'anyof',
-			        				values: [itemID]
-			        			},
-			        					{
-			        				name: 'custrecord_bbs_contract_period_start',
-			        				operator: 'within',
-			        				values: ['lastmonth']
-			        			},
-			        					{
-			        				name: 'custrecord_bbs_contract_period_end',
-			        				operator: 'within',
-			        				values: ['lastmonth']
-			            		}],
-			        		});
-			    			
-			    			// process search results
-			        		periodDetailSearch.run().each(function(result) {
-			        			
-			        			// get the record ID from the search results
-			    	    		recordID = result.getValue({
-			    	    			name: 'internalid'
-			    	    		});
-			    	    		
-			    	    		try
-									{
-			    						// update fields on the period detail record
-					        			record.submitFields({
-					        				type: 'customrecord_bbs_contract_period',
-					        				id: recordID,
-					        				values: {
-					        					custrecord_bbs_contract_period_usage_inv: true
-					        				}
-					        			});
-					        			
-					        			log.audit({
-					        				title: 'Period Detail Record Updated',
-					        				details: recordID
-					        			});
-									}
-							
-			    	    		catch(e)
-			    					{
-			    						log.error({
-			    							title: 'Error Updating Period Detail Record',
-			    							details: 'Sales Order ID: ' + recordID + ' | Error: ' + e
-			    						});
-			    					}
-			        		});
-			        		
-			    		}
-	    		}
+	    			name: 'custcol_bbs_so_search_date',
+	    			operator: 'within',
+	    			values: ['lastmonth']
+	    		},
+	    				{
+	    			name: 'custcol_bbs_contract_record',
+	    			operator: 'anyof',
+	    			values: [contractRecord]
+	    		}],	
+	    		
+	    	});
+	    	
+	    	// run search and process results
+	    	soSearch.run().each(function(result) {
+	    		
+	    		// get the item ID from the search results
+	    		var itemID = result.getValue({
+	    			name: 'item',
+	    			summary: 'GROUP'
+	    		});
+	    		
+	    		// create search to find period detail records for this billing month for this item
+	    		var periodDetailSearch = search.create({
+	    			type: 'customrecord_bbs_contract_period',
+	    			
+	    			columns: [{
+	    				name: 'internalid'
+	    			}],
+	    			
+	    			filters: [{
+        				name: 'custrecord_bbs_contract_period_contract',
+        				operator: 'anyof',
+        				values: [contractRecord]
+        			},
+        					{
+        				name: 'custrecord_bbs_contract_period_product',
+        				operator: 'anyof',
+        				values: [itemID]
+        			},
+        					{
+        				name: 'custrecord_bbs_contract_period_start',
+        				operator: 'within',
+        				values: ['lastmonth']
+        			},
+        					{
+        				name: 'custrecord_bbs_contract_period_end',
+        				operator: 'within',
+        				values: ['lastmonth']
+            		}],
+        		});
+	    		
+	    		// run search and process results
+	    		periodDetailSearch.run().each(function(result) {
+	    			
+	    			// get the record ID from the search results
+    	    		var recordID = result.getValue({
+    	    			name: 'internalid'
+    	    		});
+    	    		
+    	    		try
+						{
+    						// update fields on the period detail record
+		        			record.submitFields({
+		        				type: 'customrecord_bbs_contract_period',
+		        				id: recordID,
+		        				values: {
+		        					custrecord_bbs_contract_period_usage_inv: true
+		        				}
+		        			});
+		        			
+		        			log.audit({
+		        				title: 'Period Detail Record Updated',
+		        				details: recordID
+		        			});
+						}
+				
+    	    		catch(e)
+    					{
+    						log.error({
+    							title: 'Error Updating Period Detail Record',
+    							details: 'Sales Order ID: ' + salesOrderID + ' | Error: ' + e
+    						});
+    					}
+        		});
+	    		
+	    		// continue processing additional results
+	    		return true
+	    		
+	    	});
+
 	    }
     
     //========================================================
@@ -3464,6 +3469,25 @@ function(runtime, search, record, format, task) {
     	 	return new Date(year, month+1, 0).getDate(); // return the last day of the month
 	    }
     
+    // ==========================================
+    // FUNCTION TO GET THE CURRENCY EXCHANGE RATE
+    // ==========================================
+    
+    function currencyConversion(sourceCurrency, targetCurrency, amount)
+    	{
+    		// find the exchange rate
+    		var exchangeRate = currency.exchangeRate({
+    			source: sourceCurrency,
+    			target: targetCurrency
+    		});
+    		
+    		// calculate the amount by the exchange rate
+    		var amtConverted = parseFloat(amount * exchangeRate).toFixed(2);
+    		
+    		// return amtConverted
+    		return amtConverted;  		
+    	}
+    
     function summarize(context)
 	    {
 	    	log.audit({
@@ -3488,6 +3512,8 @@ function(runtime, search, record, format, task) {
 	    	    params: {
 	    	    	custscript_bbs_billing_type_select: billingType,
 	    	    	custscript_bbs_billing_type_select_text: billingTypeText,
+	    	    	custscript_bbs_subsidiary_select: subsidiary,
+	    	    	custscript_bbs_subsidiary_select_text: subsidiaryText,
 	    	    	custscript_bbs_billing_email_emp_alert: initiatingUser
 	    	    }
 	    	});
@@ -3497,7 +3523,7 @@ function(runtime, search, record, format, task) {
 	    	
 	    	log.audit({
 	    		title: 'Script Scheduled',
-	    		details: 'BBS End Contracts Map/Reduce script has been scheduled. Job ID ' + mapReduceTaskID
+	    		details: 'BBS End Contracts Map/Reduce script has been Scheduled. Job ID ' + mapReduceTaskID
 	    	});	    	
 	    }
 
@@ -3505,6 +3531,6 @@ function(runtime, search, record, format, task) {
         getInputData: getInputData,
         map: map,
         summarize: summarize
-    };
+    }
     
 });

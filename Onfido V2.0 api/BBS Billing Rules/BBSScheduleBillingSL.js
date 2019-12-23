@@ -31,6 +31,7 @@ function(runtime, config, ui, message, task, redirect) {
 				
 				// retrieve parameters that have been passed to the Suitelet
 				var billingType = request.parameters.billingtype;
+				var subsidiary = request.parameters.subsidiary;
 				
 				// set client script to run on the form
 				form.clientScriptFileId = '55078';
@@ -42,7 +43,7 @@ function(runtime, config, ui, message, task, redirect) {
 						form.addPageInitMessage({
 				            type: message.Type.CONFIRMATION,
 				            title: 'Billing Process Scheduled',
-				            message: 'The billing process for ' + billingType + ' contracts has been scheduled.<br><br>You may now close this page, or select another billing type to bill additional orders.<br><br>Click <a href="https://5554661-sb1.app.netsuite.com/app/common/scripting/mapreducescriptstatus.nl?daterange=TODAY" target="_blank">here</a> to view the map/reduce script status page (this will open in a new tab/window)'
+				            message: 'The billing process for ' + billingType + ' contracts has been scheduled for ' + subsidiary + '.<br><br>You may now close this page, or select another billing type to bill additional orders.<br><br>Click <a href="https://5554661-sb1.app.netsuite.com/app/common/scripting/mapreducescriptstatus.nl?daterange=TODAY" target="_blank">here</a> to view the map/reduce script status page (this will open in a new tab/window)'
 				        });
 					}
 				
@@ -70,16 +71,21 @@ function(runtime, config, ui, message, task, redirect) {
 				    breakType : ui.FieldBreakType.STARTCOL
 				});
 				
+				// add a field to the form to select a subsidiary
+				form.addField({
+					id: 'subsidiaryselect',
+					type: ui.FieldType.SELECT,
+					source: 'subsidiary',
+					label: 'Please Select a Subsidiary'
+				}).isMandatory = true;
+				
 				// add a field to the form to select a billing type
-				var billingTypeSelect = form.addField({
+				form.addField({
 					id: 'billingtypeselect',
 					type: ui.FieldType.SELECT,
 					source: 'customlist_bbs_contract_billing_type',
 					label: 'Please Select a Billing Type'
-				});
-				
-				// set the billingTypeSelect field to be mandatory
-				billingTypeSelect.isMandatory = true;
+				}).isMandatory = true;
 				
 				// add submit button to the form
    		 		form.addSubmitButton({
@@ -122,6 +128,12 @@ function(runtime, config, ui, message, task, redirect) {
     			// get the text value of the billing type select field
     			var billingTypeText = request.parameters.inpt_billingtypeselect;
     			
+    			// get the value of the subsidiary select field
+    			var subsidiary = request.parameters.subsidiaryselect;
+    			
+    			// get the text value of the subsidiary select field
+    			var subsidiaryText = request.parameters.inpt_subsidiaryselect;
+    			
     			// check if the billingType is 1 (PAYG)
     			if (billingType == '1')
     				{
@@ -137,6 +149,8 @@ function(runtime, config, ui, message, task, redirect) {
 	    		    	    params: {
 	        	    	    	custscript_bbs_billing_type_select: billingType,
 	        	    	    	custscript_bbs_billing_type_select_text: billingTypeText,
+	        	    	    	custscript_bbs_subsidiary_select: subsidiary,
+	        	    	    	custscript_bbs_subsidiary_select_text: subsidiaryText,
 	        	    	    	custscript_bbs_billing_email_emp_alert: currentUser
 	        	    	    }
 	    		    	});
@@ -146,7 +160,7 @@ function(runtime, config, ui, message, task, redirect) {
 	    		    	
 	    		    	log.audit({
 	    		    		title: 'Script scheduled',
-	    		    		details: 'BBS Billing Map/Reduce script has been scheduled. Job ID ' + mapReduceTaskID
+	    		    		details: 'BBS Billing Map/Reduce script has been scheduled.<br>Billing Type: ' + billingTypeText + '<br>Subsidiary: ' + subsidiaryText + '<br>Job ID ' + mapReduceTaskID
 	    		    	});
     				}
     			else // billingType array is NOT 1 (PAYG)
@@ -163,6 +177,8 @@ function(runtime, config, ui, message, task, redirect) {
 	        	    	    params: {
 	        	    	    	custscript_bbs_billing_type_select: billingType,
 	        	    	    	custscript_bbs_billing_type_select_text: billingTypeText,
+	        	    	    	custscript_bbs_subsidiary_select: subsidiary,
+	        	    	    	custscript_bbs_subsidiary_select_text: subsidiaryText,
 	        	    	    	custscript_bbs_billing_email_emp_alert: currentUser
 	        	    	    }
 	        	    	});
@@ -172,7 +188,7 @@ function(runtime, config, ui, message, task, redirect) {
 	        	    	
 	        	    	log.audit({
 	        	    		title: 'Script scheduled',
-	        	    		details: 'BBS Process Zero Usage Map/Reduce script has been scheduled. Job ID ' + mapReduceTaskID
+	        	    		details: 'BBS Process Zero Usage Map/Reduce script has been scheduled.<br>Billing Type: ' + billingTypeText + '<br>Subsidiary: ' + subsidiaryText + '<br>Job ID ' + mapReduceTaskID
 	        	    	});
     				}
     			
@@ -180,7 +196,8 @@ function(runtime, config, ui, message, task, redirect) {
 				redirect.redirect({
 				    url: '/app/site/hosting/scriptlet.nl?script=643&deploy=1',
 				    parameters: {
-					   billingtype: billingTypeText
+					   billingtype: billingTypeText,
+					   subsidiary: subsidiaryText
 				    }
 				});
 			}

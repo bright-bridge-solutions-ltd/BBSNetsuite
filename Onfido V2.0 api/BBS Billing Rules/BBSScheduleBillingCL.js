@@ -12,19 +12,19 @@ function(message, url, https, search) {
     		parent.close();
     	}
     
-    function createQMPInvoices()
+    function createQMPInvoices(scriptContext)
     	{
-	    	// ==============================================================
+    		// ==============================================================
 			// CALL BACKEND SUITELET TO SCHEDULE 'Create QMP Invoices' SCRIPT
 			// ==============================================================
 		
 			// define URL of Suitelet
 			var suiteletURL = url.resolveScript({
 				scriptId: 'customscript_bbs_create_qmp_invoices_sl',
-				deploymentId: 'customdeploy_bbs_create_qmp_invoices_sl',
+				deploymentId: 'customdeploy_bbs_create_qmp_invoices_sl'
 			});
 		
-			// call a backend Suitelet to update the PO with the rejection reason
+			// call a backend Suitelet to check if 'Billing Process Complete' company pref is set
 			var response = 	https.get({
 				url: suiteletURL
 			});
@@ -92,6 +92,16 @@ function(message, url, https, search) {
     		fieldId: 'billingtypeselect'
     	});
     	
+    	// get the value of the subsidiary field from the currentRecord object
+    	var subsidiary = currentRecord.getValue({
+    		fieldId: 'subsidiaryselect'
+    	});
+    	
+    	// get the text value of the subsidiary field from the currentRecord object
+    	var subsidiaryText = currentRecord.getText({
+    		fieldId: 'subsidiaryselect'
+    	});
+    	
     	// create search to find open sales orders for this billing type where the usage updated checkbox is NOT ticked
     	var salesOrderSearch = search.create({
     		type: search.Type.SALES_ORDER,
@@ -115,7 +125,7 @@ function(message, url, https, search) {
     				{
     			name: 'subsidiary',
     			operator: 'anyof',
-    			values: ['5'] // 5 = UK
+    			values: [subsidiary]
     		},
     				{
     			name: 'custcol_bbs_usage_updated',
@@ -160,7 +170,7 @@ function(message, url, https, search) {
 				message.create({
 					type: message.Type.ERROR,
 			        title: 'Error',
-			        message: 'The billing process for ' + billingTypeText + ' cannot be started as there are open sales orders where the usage on the contract record has not been updated.<br><br><a href="https://5554661-sb1.app.netsuite.com/app/common/search/searchresults.nl?searchid=397&AQT_CUSTRECORD_BBS_CONTRACT_BILLING_TYPE=' + billingType + '" target="_blank">Click Here</a> to view details of these orders (this will open in a new tab/window)'
+			        message: 'The billing process for ' + billingTypeText + ' cannot be started as there are open sales orders for the ' + subsidiaryText + ' subsidiary where the usage on the contract record has not been updated.<br><br><a href="https://5554661-sb1.app.netsuite.com/app/common/search/searchresults.nl?searchid=397&AQT_CUSTRECORD_BBS_CONTRACT_BILLING_TYPE=' + billingType + '&Transaction_SUBSIDIARY=' + subsidiary + 'target="_blank">Click Here</a> to view details of these orders (this will open in a new tab/window)'
 				}).show();
 				
 				// prevent the Suitelet from being submitted
