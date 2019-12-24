@@ -30,7 +30,7 @@ function(ui, record, search, redirect) {
 	            });
 				
 				// set client script to run on the form
-				form.clientScriptFileId = 9545;
+				form.clientScriptFileId = '39751';
 				
 				// add a field to the form to store the internal ID of the record
 				var recordIdField = form.addField({
@@ -55,7 +55,7 @@ function(ui, record, search, redirect) {
 				});
 				
 				// set default value of the pageLogo field
-				pageLogo.defaultValue = "<img src='https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=9544&c=5554661_SB1&h=3c1a74753ea9e8671a1c' alt='Onfido Logo' style='width: 250px; height: 102px;'>";
+				pageLogo.defaultValue = "<img src='https://5554661.app.netsuite.com/core/media/media.nl?id=23854&c=5554661&h=268a7aa2af99ce665d56' alt='Onfido Logo' style='width: 250px; height: 102px;'>";
 				
 				// add a field to the form to display the contract record
 				var contractRecordField = form.addField({

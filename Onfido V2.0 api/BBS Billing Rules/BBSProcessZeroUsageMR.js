@@ -101,7 +101,7 @@ function(runtime, search, record, format, task) {
     			name: 'custrecord_bbs_contract_subsidiary',
     			join: 'custrecord_bbs_contract_period_contract',
     			operator: 'anyof',
-    			values: ['5'] // 5 = UK
+    			values: [subsidiary]
     		}],
     		
     		columns: [{

@@ -2411,16 +2411,6 @@ function(runtime, search, record, format, task, currency) {
 						    	fieldId: 'subsidiary',
 						    	value: subsidiary
 						    });
-						    
-						    // check if the subsidiary is 9 (US)
-						    if (subsidiary == '9')
-						    	{
-						    		// set the 'Nexus' field to 216 (United States - Avalara Purchasing Fix 0%)
-						    		journalRecord.setValue({
-						    			fieldId: 'nexus',
-						    			value: 216
-						    		});
-						    	}
 						    		
 						    journalRecord.setValue({
 						    	fieldId: 'location',
@@ -2584,7 +2574,7 @@ function(runtime, search, record, format, task, currency) {
 										    		join: 'item'
 										    	},
 										    			{
-										    		name: 'amount'
+										    		name: 'fxamount'
 										    	}],
 										    	
 										    	filters: [{
@@ -2610,10 +2600,17 @@ function(runtime, search, record, format, task, currency) {
 										    	
 										    	// get the line amount from the search results
 										    	lineAmount = result.getValue({
-										    		name: 'amount'
+										    		name: 'fxamount'
 										    	});
 										    	
 										    	lineAmount = parseFloat(lineAmount); // use parseFloat to convert to floating point number
+										    	
+										    	// check if contractCurrency is NOT equal to subsidiaryCurrency
+									    		if (contractCurrency != subsidiaryCurrency)
+									    			{
+									    				// call function to convert lineAmount to the subsidiary currency
+									    				lineAmount = currencyConversion(contractCurrency, subsidiaryCurrency, lineAmount)
+									    			}
 										    	
 										    	// add the lineAmount to the total variable
 										    	total += lineAmount;
@@ -2935,7 +2932,7 @@ function(runtime, search, record, format, task, currency) {
 										    		join: 'item'
 										    	},
 										    			{
-										    		name: 'amount'
+										    		name: 'fxamount'
 										    	}],
 										    	
 										    	filters: [{
@@ -2961,10 +2958,17 @@ function(runtime, search, record, format, task, currency) {
 										    	
 										    	// get the line amount from the search results
 										    	lineAmount = result.getValue({
-										    		name: 'amount'
+										    		name: 'fxamount'
 										    	});
 										    	
 										    	lineAmount = parseFloat(lineAmount); // use parseFloat to convert to floating point number
+										    	
+										    	// check if contractCurrency is NOT equal to subsidiaryCurrency
+									    		if (contractCurrency != subsidiaryCurrency)
+									    			{
+									    				// call function to convert lineAmount to the subsidiary currency
+									    				lineAmount = currencyConversion(contractCurrency, subsidiaryCurrency, lineAmount)
+									    			}
 										    	
 										    	// add the lineAmount to the total variable
 										    	total += lineAmount;

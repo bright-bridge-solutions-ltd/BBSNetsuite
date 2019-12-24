@@ -34,7 +34,7 @@ function(runtime, config, ui, message, task, redirect) {
 				var subsidiary = request.parameters.subsidiary;
 				
 				// set client script to run on the form
-				form.clientScriptFileId = '55078';
+				form.clientScriptFileId = '39750';
 				
 				// check if the mapReduceTaskID variable contains a value
 				if (billingType)
@@ -43,7 +43,7 @@ function(runtime, config, ui, message, task, redirect) {
 						form.addPageInitMessage({
 				            type: message.Type.CONFIRMATION,
 				            title: 'Billing Process Scheduled',
-				            message: 'The billing process for ' + billingType + ' contracts has been scheduled for ' + subsidiary + '.<br><br>You may now close this page, or select another billing type to bill additional orders.<br><br>Click <a href="https://5554661-sb1.app.netsuite.com/app/common/scripting/mapreducescriptstatus.nl?daterange=TODAY" target="_blank">here</a> to view the map/reduce script status page (this will open in a new tab/window)'
+				            message: 'The billing process for ' + billingType + ' contracts has been scheduled for ' + subsidiary + '.<br><br>You may now close this page, or select another billing type to bill additional orders.<br><br>Click <a href="https://5554661.app.netsuite.com/app/common/scripting/mapreducescriptstatus.nl?daterange=TODAY" target="_blank">here</a> to view the map/reduce script status page (this will open in a new tab/window)'
 				        });
 					}
 				
@@ -55,7 +55,7 @@ function(runtime, config, ui, message, task, redirect) {
 				});
 				
 				// set default value of the pageLogo field
-				pageLogo.defaultValue = "<img src='https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=9544&c=5554661_SB1&h=3c1a74753ea9e8671a1c' alt='Onfido Logo' style='width: 250px; height: 102px;'>";
+				pageLogo.defaultValue = "<img src='https://5554661.app.netsuite.com/core/media/media.nl?id=23854&c=5554661&h=268a7aa2af99ce665d56' alt='Onfido Logo' style='width: 250px; height: 102px;'>";
 				
 				// add help inline HTML field to the form
 				var helpText = form.addField({
@@ -194,7 +194,7 @@ function(runtime, config, ui, message, task, redirect) {
     			
     			// redirect user to landing page
 				redirect.redirect({
-				    url: '/app/site/hosting/scriptlet.nl?script=643&deploy=1',
+				    url: '/app/site/hosting/scriptlet.nl?script=547&deploy=1',
 				    parameters: {
 					   billingtype: billingTypeText,
 					   subsidiary: subsidiaryText
