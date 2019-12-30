@@ -334,11 +334,20 @@ function(file, record, render, runtime, search, email)
 							    line: int
 							}));
 		
-							var itemVatRate = thisRecord.getSublistValue({
-							    sublistId: 'taxdetails',
-							    fieldId: 'taxrate',
-							    line: int
-							});
+							var itemVatRate = Number(0);
+							
+							try
+								{
+									itemVatRate = thisRecord.getSublistValue({
+									    sublistId: 'taxdetails',
+									    fieldId: 'taxrate',
+									    line: int
+									});
+								}
+							catch(err)
+								{
+									itemVatRate = Number(0);
+								}
 							
 							//See if we have this product in the summary yet
 							//
