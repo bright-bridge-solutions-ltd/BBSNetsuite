@@ -2570,11 +2570,12 @@ function(runtime, search, record, format, task, currency) {
 										    	type: search.Type.SALES_ORDER,
 										    	
 										    	columns: [{
-										    		name: 'incomeaccount',
-										    		join: 'item'
+										    		name: 'custcol_bbs_income_account',
+										    		summary: 'GROUP'
 										    	},
 										    			{
-										    		name: 'fxamount'
+										    		name: 'fxamount',
+										    		summary: 'SUM'
 										    	}],
 										    	
 										    	filters: [{
@@ -2600,7 +2601,8 @@ function(runtime, search, record, format, task, currency) {
 										    	
 										    	// get the line amount from the search results
 										    	lineAmount = result.getValue({
-										    		name: 'fxamount'
+										    		name: 'fxamount',
+										    		summary: 'SUM'
 										    	});
 										    	
 										    	lineAmount = parseFloat(lineAmount); // use parseFloat to convert to floating point number
@@ -2617,8 +2619,8 @@ function(runtime, search, record, format, task, currency) {
 									    	
 										    	// get the income account for the item from the search results
 										    	postingAccount = result.getValue({
-										    		name: 'incomeaccount',
-										    		join: 'item'
+										    		name: 'custcol_bbs_income_account',
+										    		summary: 'GROUP'
 										    	});
 										        
 										        // select a new line on the journal record
@@ -2928,11 +2930,12 @@ function(runtime, search, record, format, task, currency) {
 										    	type: search.Type.SALES_ORDER,
 										    	
 										    	columns: [{
-										    		name: 'incomeaccount',
-										    		join: 'item'
+										    		name: 'custcol_bbs_income_account',
+										    		summary: 'GROUP'
 										    	},
 										    			{
-										    		name: 'fxamount'
+										    		name: 'fxamount',
+										    		summary: 'SUM'
 										    	}],
 										    	
 										    	filters: [{
@@ -2958,7 +2961,8 @@ function(runtime, search, record, format, task, currency) {
 										    	
 										    	// get the line amount from the search results
 										    	lineAmount = result.getValue({
-										    		name: 'fxamount'
+										    		name: 'fxamount',
+										    		summary: 'SUM'
 										    	});
 										    	
 										    	lineAmount = parseFloat(lineAmount); // use parseFloat to convert to floating point number
@@ -2975,8 +2979,8 @@ function(runtime, search, record, format, task, currency) {
 									    	
 										    	// get the income account for the item from the search results
 										    	postingAccount = result.getValue({
-										    		name: 'incomeaccount',
-										    		join: 'item'
+										    		name: 'custcol_bbs_income_account',
+										    		summary: 'GROUP',
 										    	});
 										        
 										        // select a new line on the journal record
