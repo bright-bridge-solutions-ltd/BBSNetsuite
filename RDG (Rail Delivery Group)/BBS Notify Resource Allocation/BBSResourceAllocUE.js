@@ -79,11 +79,25 @@ function resourceAllocAS(type)
 			var project 		= newRecord.getFieldText('project');
 			var projectId 		= newRecord.getFieldValue('project');
 			var allocUnit 		= newRecord.getFieldValue('allocationunit');
-			var pmoId 			= nlapiLookupField('job', projectId, 'custentity_bbs_pmo_project', false);
-			var pmo 			= nlapiLookupField('job', projectId, 'custentity_bbs_pmo_project', true);
-			var projectManagerId = nlapiLookupField('job', projectId, 'custentity_bbs_projectmanager_project', false);
-			var projectManager 	= nlapiLookupField('job', projectId, 'custentity_bbs_projectmanager_project', true);
-			var objective 		= nlapiLookupField('job', projectId, 'custentity_bbs_objective_project', false);
+			var pmoId 			= '';
+			var pmo 			= '';
+			var projectManagerId = '';
+			var projectManager 	= '';
+			var objective 		= '';
+			
+			try
+				{
+					pmoId 			= nlapiLookupField('job', projectId, 'custentity_bbs_pmo_project', false);
+					pmo 			= nlapiLookupField('job', projectId, 'custentity_bbs_pmo_project', true);
+					projectManagerId = nlapiLookupField('job', projectId, 'custentity_bbs_projectmanager_project', false);
+					projectManager 	= nlapiLookupField('job', projectId, 'custentity_bbs_projectmanager_project', true);
+					objective 		= nlapiLookupField('job', projectId, 'custentity_bbs_objective_project', false);
+				}
+			catch(err)
+				{
+				
+				}
+			
 			var projectLink		= nlapiResolveURL('RECORD', 'job', projectId, 'VIEW');
 			var employeeEmail 	= '';
 			var projectManagerEmail = '';
