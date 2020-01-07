@@ -440,8 +440,19 @@ function buildContent(searchId, caption, contactId, filter, fontSize)
 				var columnType = recordColumns[int]['type'];
 				var columnSearchType = recordColumns[int]['searchtype'];
 				var columnName = recordColumns[int]['name'];
+				var alignment = 'left';
 				
-				content += '<th>';
+				switch(columnType)
+					{
+						case 'float':
+						case 'currency':
+						case 'integer':
+							
+							alignment = 'right';
+							break;
+					}
+				
+				content += '<th align="' + alignment + '">';
 				content += '<div><div>' +  nlapiEscapeXML(columnLabel) + '</div><div>' +  nlapiEscapeXML(columnLabel) + '</div></div>';
 				content += '</th>';			
 			}

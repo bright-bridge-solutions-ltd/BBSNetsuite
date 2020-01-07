@@ -164,12 +164,16 @@
               	</thead>
     		</#if>
           <tr>
-            <td align="left" colspan="2" line-height="200%" style="padding-left: 5px; border-left: 1px solid black; border-bottom: 1px solid black;">${item.item}</td>
-            <td align="left" colspan="3" line-height="200%" style="border-bottom: 1px solid black;"><barcode codetype="code128" showtext="false" bar-width="0.7" value="${item.item}"> </barcode></td>
-            <td align="left" colspan="1" line-height="200%" style="border-bottom: 1px solid black;">${qty1?string["0.##"]}</td>
-            <td align="left" colspan="1" line-height="200%" style="border-bottom: 1px solid black;">${item.units}</td>
-            <td align="left" colspan="1" line-height="200%" style="border-bottom: 1px solid black;">${item.quantity}</td>
-            <td align="left" colspan="12" line-height="200%" style="border-right: 1px solid black; border-bottom: 1px solid black;">${item.description}</td>
+            <#assign backgroudColour = "#ffffff">
+            <#if item.custcol9>
+              <#assign backgroudColour = "#d9d9d9">
+            </#if>
+            <td align="left" colspan="2" line-height="200%" style="background-color: ${backgroudColour}; padding-left: 5px; border-left: 1px solid black; border-bottom: 1px solid black;">${item.item}</td>
+            <td align="left" colspan="3" line-height="200%" style="background-color: ${backgroudColour}; border-bottom: 1px solid black;"><barcode codetype="code128" showtext="false" bar-width="0.7" value="${item.item}"> </barcode></td>
+            <td align="left" colspan="1" line-height="200%" style="background-color: ${backgroudColour}; border-bottom: 1px solid black;">${qty1?string["0.##"]}</td>
+            <td align="left" colspan="1" line-height="200%" style="background-color: ${backgroudColour}; border-bottom: 1px solid black;">${item.units}</td>
+            <td align="left" colspan="1" line-height="200%" style="background-color: ${backgroudColour}; border-bottom: 1px solid black;">${item.quantity}</td>
+            <td align="left" colspan="12" line-height="200%" style="background-color: ${backgroudColour}; border-right: 1px solid black; border-bottom: 1px solid black;">${item.description}</td>
           </tr>
 		</#list>
 	</table>

@@ -82,7 +82,9 @@ function scheduled(type)
 							   "AND", 
 							   ["date","within",startDateString,endDateString],
 							   "AND", 
-							   ["formulanumeric: CASE  WHEN  {date} >= {employee.custentity_bbs_date_pm_resource} THEN 1 ELSE 0 END","equalto","1"]
+							   ["formulanumeric: CASE  WHEN  {date} >= {employee.custentity_bbs_date_pm_resource} THEN 1 ELSE 0 END","equalto","1"],
+							   "AND",
+							   ["type","anyof","A"]
 							], 
 							[
 							   new nlobjSearchColumn("date").setSort(false)
