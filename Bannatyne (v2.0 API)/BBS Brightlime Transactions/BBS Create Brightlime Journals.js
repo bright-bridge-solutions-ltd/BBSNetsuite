@@ -3,9 +3,9 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/search', 'N/record', 'N/task'],
+define(['N/search', 'N/record', 'N/format', 'N/task'],
 
-function(search, record, task) {
+function(search, record, format, task) {
 
     /**
      * Marks the beginning of the Map/Reduce process and generates input data.
@@ -20,7 +20,7 @@ function(search, record, task) {
     function getInputData() {
     	
     	// create search to find BBS Brightlime Transactions records
-    	var brightlimeTransactionSearch = search.create({
+    	return search.create({
 			type: 'customrecord_bbs_bl_trans',
 			
 			columns: [{
@@ -35,38 +35,6 @@ function(search, record, task) {
 			
 			],
 		});
-    	
-    	// create new array to hold search results
-    	var searchResults = new Array();
-    	
-    	// declare variables
-    	var recordID;
-    	
-    	// run each result and get ID and push it to array
-    	brightlimeTransactionSearch.run().each(function(result) {
-    		
-    		// get the record ID from the search results
-    		recordID = result.getValue ({
-    			name: 'internalid'
-    		});
-    		
-    		// push search result to searchResults array
-    		searchResults.push({
-    			'id': recordID
-    		});
-    		
-    		// continue processing results
-    		return true;
-    	});
-    	
-    	// log number of search results found
-    	log.audit({
-    		title: 'Search Results',
-    		details: 'Search found ' + searchResults.length + ' results'
-    	});
-    	
-    	// pass array to Map() function
-    	return searchResults;
 
     }
 
@@ -84,7 +52,7 @@ function(search, record, task) {
     	var credit;
     	var location;
     	
-    	// retrieve ID of the record ID from the search
+    	// retrieve ID of the record from the search
     	var searchResult = JSON.parse(context.value);
 		var recordID = searchResult.id;
 		
@@ -104,6 +72,17 @@ function(search, record, task) {
 				// get the subsidiary from the loaded record
 				var subsidiary = blTranRec.getValue({
 					fieldId: 'custrecord_bbs_bl_trans_subsidiary'
+				});
+				
+				// get the date from the loaded record
+				var journalDate = blTranRec.getValue({
+					fieldId: 'custrecord_bbs_bl_trans_date'
+				});
+				
+				// format journalDate as a date object
+				journalDate = format.parse({
+					type: format.Type.DATE,
+					value: journalDate
 				});
 				
 				log.audit ({
@@ -130,6 +109,11 @@ function(search, record, task) {
 				journalRec.setValue({
 					fieldId: 'customform',
 					value: 121 // 121 = Brightlime Transaction JL Entry
+				});
+				
+				journalRec.setValue({
+					fieldId: 'trandate',
+					value: journalDate
 				});
 				
 				journalRec.setValue({
