@@ -88,7 +88,7 @@ function prePickingTicketSuitelet(request, response)
 						{
 							var remaining = Number(nlapiGetContext().getRemainingUsage());
 							
-							if(remaining >= 20)
+							if(remaining > 20)
 								{
 									var salesOrderId = salesorderSearch[int2].getValue("internalid",null,"GROUP");
 									
@@ -118,10 +118,20 @@ function prePickingTicketSuitelet(request, response)
 								  			
 								  			if(manpackInfo != currentManpackInfo)
 								  				{
-								  					nlapiSubmitField('salesorder', salesOrderId, 'custbody_bbs_manpack_info', manpackInfo, false);  //10GU's
-									  					
-							  					//salesOrderRecord.setFieldValue('custbody_bbs_manpack_info', manpackInfo);
-							  					//nlapiSubmitRecord(salesOrderRecord, false, true);  //20GU's
+								  					try
+								  						{
+								  							salesOrderRecord.setFieldValue('custbody_bbs_manpack_info', manpackInfo);
+									  						nlapiSubmitRecord(salesOrderRecord, false, true);  //20GU's
+								  						
+								  							//nlapiSubmitField('salesorder', salesOrderId, 'custbody_bbs_manpack_info', manpackInfo, false);  //10GU's
+								  						}
+								  					catch(err)
+								  						{
+								  							nlapiLogExecution('ERROR', 'Error updating sales order with manpack info id = ' + salesOrderId, err.message);
+								  						
+								  						}
+								  					
+							  					
 								  				}
 								  		}
 								}
