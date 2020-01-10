@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/search'],
-function(search) {
+define(['N/search', 'N/ui/dialog'],
+function(search, dialog) {
     
     /**
      * Function to be executed after page is initialized.
@@ -209,9 +209,35 @@ function(search) {
      *
      * @since 2015.2
      */
-    function validateLine(scriptContext) {
-
-    }
+	function validateLine(scriptContext) {
+	    	
+	    	// get the current record object
+	    	var currentRecord = scriptContext.currentRecord;
+	    	
+	    	// get the value of the 'description' field for the current line
+	    	var description = currentRecord.getCurrentSublistValue({
+	    		sublistId: 'item',
+	    		fieldId: 'description'
+	    	});
+	    	
+	    	// check if a description was entered by the user
+	    	if (description)
+	    		{
+	    			// allow the line to be saved
+	    			return true;
+	    		}
+	    	else // a description was NOT entered
+	    		{
+	    			// show an alert to the user
+	    			dialog.alert({
+	    				title: '⚠️ Please enter a description',
+	    				message: 'The line cannot be saved as a description has not been entered.<br><br>Please enter a description and try again.'
+	    			});
+	
+	    			// do not allow the line to be saved
+	    			return false;
+	    		}
+	    }
 
     /**
      * Validation function to be executed when sublist line is inserted.
@@ -257,7 +283,8 @@ function(search) {
     }
 
     return {
-        fieldChanged: fieldChanged
+        fieldChanged: fieldChanged,
+        validateLine: validateLine
     };
     
 });
