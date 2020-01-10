@@ -29,6 +29,7 @@ function(file, record, render, runtime, search, email)
     		var currentScript = runtime.getCurrentScript();
     		var attachmentsFolder = currentScript.getParameter({name: 'custscript_bbs_attachments_folder'});
     		var emailTemplate = currentScript.getParameter({name: 'custscript_bbs_email_template'});
+    		var emailSender = currentScript.getParameter({name: 'custscript_bbs_invoice_email_sender'});
     		
     		var today = new Date();
     		
@@ -223,7 +224,7 @@ function(file, record, render, runtime, search, email)
 							    									try
 																		{
 							    											email.send({
-							    														author: 		runtime.getCurrentUser().id,
+							    														author: 		emailSender,
 							    														recipients:		emailAddress,
 							    														subject:		emailSubject,
 							    														body:			emailBody,
