@@ -277,6 +277,7 @@ function buildContent(searchId, caption, contactId, filter, fontSize)
 		//
 		var recordSearch = nlapiLoadSearch(null, searchId);
 		var recordColumns = recordSearch.getColumns();
+		var recordSearchType = recordSearch.getSearchType(); 
 		
 		//Add filter on contact
 		//
@@ -464,6 +465,17 @@ function buildContent(searchId, caption, contactId, filter, fontSize)
 				//
 				for (var int2 = 0; int2 < Math.max(recordSearchResults.length,6) ; int2++) 
 					{
+						var recordId = null;
+						
+						try
+							{
+								recordId = recordSearchResults[int2].getId();
+							}
+						catch(err)
+							{
+								recordId = null;
+							}
+						
 						content += '<tr>';
 					
 						//Loop through the columns
@@ -553,15 +565,35 @@ function buildContent(searchId, caption, contactId, filter, fontSize)
 								
 								//Assign the value to the column
 								//
+								var temp = '';
+								
 								if(rowColumnData.indexOf('<HTML>') != -1)
 									{
-										content += '<td align="' + alignment +'">' + rowColumnData + '</td>';
+										temp = rowColumnData;
 									}
 								else
 									{
-										content += '<td align="' + alignment +'">' + nlapiEscapeXML(rowColumnData) + '</td>';
+										temp = nlapiEscapeXML(rowColumnData);
 									}
 								
+								if(int3 == 0 && recordId != null)
+									{
+										var target = nlapiResolveURL('RECORD', recordSearchType, recordId, 'VIEW');
+										content += '<td align="' + alignment +'"><a href="' + target + '" target="_blank">' + temp + '</a></td>';
+									}
+								else
+									{
+										if(recordColumns[int3]['searchtype'] != null)
+											{
+												var linkedId = recordSearchResults[int2].getValue(recordColumns[int3]);
+												var target = nlapiResolveURL('RECORD', recordColumns[int3]['searchtype'], linkedId, 'VIEW');
+												content += '<td align="' + alignment +'"><a href="' + target + '" target="_blank">' + temp + '</a></td>';
+											}
+										else
+											{
+												content += '<td align="' + alignment +'">' + temp + '</td>';
+											}
+									}
 							}
 						
 						content += '</tr>';

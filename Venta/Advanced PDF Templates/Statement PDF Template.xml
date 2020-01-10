@@ -1,0 +1,200 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd"><pdfset><#if statements?has_content><#list statements as statement>
+<pdf>
+<head>
+<#if .locale == "ru_RU">
+    <link name="verdana" type="font" subtype="opentype" src="${nsfont.verdana}" src-bold="${nsfont.verdana_bold}" bytes="2" />
+</#if>
+  
+<#assign logoInfo>https://4133410.app.netsuite.com/core/media/media.nl?id=14283&amp;c=4133410&amp;h=3e0508872bb1a4e0fba5</#assign>
+<#assign logoSize>width: 250px; height: 58px;</#assign>
+  
+<#assign subId>${statement.subsidiary}</#assign>
+  
+  <#if subId=="HDB">
+    <#assign logoInfo>https://4133410.app.netsuite.com/core/media/media.nl?id=20890&amp;c=4133410&amp;h=cb5f721a4394ae9d861c</#assign>
+    <#assign logoSize>width: 100px; height: 58px;</#assign>
+
+  </#if>
+  
+     <macrolist>
+        <macro id="nlheader">
+            <table style="width: 100%; font-size: 10pt;"><tr>
+	<td rowspan="3" style="padding: 0;"><#if companyInformation.logoUrl?length != 0><img height="200%" src="${logoInfo}" style="float: left; margin: 7px; ${logoSize}"/> </#if> </td>
+	<td align="right" style="padding: 0;"><span style="font-size: 28pt;">STATEMENT</span></td>
+	</tr>
+	</table>
+        </macro>
+        <macro id="nlfooter">
+            <table style="width: 100%; font-size: 8pt;">
+              <tr>
+				<td align="center" style="padding: 0;">${subsidiary.name}, ${subsidiary.addr2}, ${subsidiary.city}, ${subsidiary.country}, ${subsidiary.zip}</td>
+              </tr><tr>
+                <td align="center" style="padding: 0;"><b>Telephone:</b> ${subsidiary.addrphone}, <b>Email:</b> ${companyInformation.email}</td>
+	</tr><tr>
+                <td align="center" style="padding: 0;"><b>VAT No:</b> GB${companyInformation.employerid} <b>Company No:</b> 08771117</td>
+	</tr>
+          </table>
+        </macro>
+    </macrolist>
+    <style type="text/css">table {
+             <#if .locale == "zh_CN">
+                 font-family: stsong, sans-serif;
+             <#elseif .locale == "zh_TW">
+                 font-family: msung, sans-serif;
+             <#elseif .locale == "ja_JP">
+                 font-family: heiseimin, sans-serif;
+             <#elseif .locale == "ko_KR">
+                 font-family: hygothic, sans-serif;
+             <#elseif .locale == "ru_RU">
+                 font-family: verdana;
+             <#else>
+                 font-family: sans-serif;
+             </#if>
+             font-size: 9pt;
+             table-layout: fixed;
+         }
+         th {
+             font-weight: bold;
+             font-size: 8pt;
+             vertical-align: middle;
+             padding: 5px 6px 3px;
+             background-color: #e3e3e3;
+             color: #333333;
+         }
+         td {
+             padding: 4px 6px;
+         }
+         b {
+             font-weight: bold;
+             color: #333333;
+         }
+         table.header td {
+             padding: 0;
+             font-size: 10pt;
+         }
+         table.footer td {
+             padding: 0;
+             font-size: 8pt;
+         }
+         table.itemtable th {
+             padding-bottom: 10px;
+             padding-top: 10px;
+         }
+         table.body td {
+             padding-top: 2px;
+         }
+         td.addressheader {
+             font-weight: bold;
+             font-size: 8pt;
+             padding-top: 6px;
+             padding-bottom: 2px;
+         }
+         td.address {
+             padding-top: 0;
+         }
+         span.title {
+             font-size: 28pt;
+         }
+         span.number {
+             font-size: 16pt;
+         }
+         div.remittanceSlip {
+             width: 100%;
+             /* To ensure minimal height of remittance slip */
+             height: 200pt;
+             page-break-inside: avoid;
+             page-break-after: avoid;
+         }
+         hr {
+             border-top: 1px dashed #d3d3d3;
+             width: 100%;
+             color: #ffffff;
+             background-color: #ffffff;
+             height: 1px;
+         }
+</style>
+</head>
+<body header="nlheader" header-height="8%" footer="nlfooter" footer-height="20pt" padding="0.4in 0.5in 0.5in 0.5in" size="Letter">
+  <table border="0" cellpadding="1" cellspacing="1" style="width:100%;">
+<tbody>
+	<tr>
+	<td width="25%">&nbsp;</td>
+	<td width="25%">&nbsp;</td>
+	<td width="30%" align="right" style="font-size: 9pt; font-weight: bold;">Date:</td>
+	<td width="20%" align="right" style="font-size: 9pt;">${statement.trandate}</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>&nbsp;</td>
+	<td align="right" style="font-size: 9pt; font-weight: bold;">Currency:</td>
+	<td align="right" style="font-size: 9pt;">${statement.currency}</td>
+	</tr>
+</tbody>
+</table>
+
+    <table style="width: 100%; margin-top: 10px;"><tr>
+	<td class="addressheader" colspan="3">${statement.billaddress@label}</td>
+	</tr>
+	<tr>
+	<td class="address" colspan="3">${statement.billaddress}</td>
+	</tr></table>
+
+<#if statement.lines?has_content>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list statement.lines as line><#if line_index==0>
+<thead>
+	<tr>
+	<th colspan="3">${line.datecol@label}</th>
+	<th colspan="12">${line.description@label}</th>
+	<th align="right" colspan="3">${line.charge@label}</th>
+	<th align="right" colspan="4">${line.payment@label}</th>
+	<th align="right" colspan="4">${line.balance@label}</th>
+	</tr>
+</thead>
+</#if><tr>
+	<td colspan="3">${line.datecol}</td>
+	<td colspan="12">${line.description}</td>
+	<td align="right" colspan="3">${line.charge}</td>
+	<td align="right" colspan="4">${line.payment}</td>
+	<td align="right" colspan="4">${line.balance}</td>
+	</tr>
+	</#list><!-- end items --></table>
+
+<table class="aging" style="width: 100%; margin-top: 10px;"><tr>
+	<th>${statement.aging1@label}</th>
+	<th>${statement.aging2@label}</th>
+	<th>${statement.aging3@label}</th>
+	<th>${statement.aging4@label}</th>
+	<th>${statement.aging5@label}</th>
+	<th>${statement.agingbal@label}</th>
+	</tr>
+	<tr>
+	<td>${statement.aging1}</td>
+	<td>${statement.aging2}</td>
+	<td>${statement.aging3}</td>
+	<td>${statement.aging4}</td>
+	<td>${statement.aging5}</td>
+	<td>${statement.agingbal}</td>
+	</tr></table>
+</#if>
+
+<hr style="width: 100%; color: #d3d3d3; background-color: #d3d3d3; height: 1px;" />
+
+<table style="page-break-inside: avoid; width: 100%; margin-top: 10px;">
+	<tr style="background-color: #e3e3e3; line-height: 200%;">
+	<td background-color="#ffffff" colspan="4">&nbsp;</td>
+	<td align="right" style="font-weight: bold; color: #333333;">Balance Total</td>
+	<td align="right">${statement.agingbal}</td>
+	</tr>
+  <tr>
+	<td background-color="#ffffff" colspan="4"><b>Bank Details:</b> NatWest Bank PLC, Winchester Old Bank, SO23 9AW<br /><b>Sort Code:</b> 55-81-26 <b>Account No:</b> 89129148<br /><b>IBAN:</b> GB46NWBK55812689129148 <b>BIC:</b> NWBK GB 2L</td>
+	<td align="right" style="font-weight: bold; color: #333333;">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	</tr>
+  </table>  
+  
+</body></pdf></#list><#else><pdf><head></head><body>
+
+<p>Please use Single Currency Advanced Printing Template</p>
+</body>
+</pdf></#if></pdfset>

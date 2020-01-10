@@ -277,6 +277,7 @@ function buildContent(searchId, caption, contactId, filter, fontSize)
 		//
 		var recordSearch = nlapiLoadSearch(null, searchId);
 		var recordColumns = recordSearch.getColumns();
+		var recordSearchType = recordSearch.getSearchType(); 
 		
 		//Add filter on contact
 		//
@@ -474,6 +475,17 @@ function buildContent(searchId, caption, contactId, filter, fontSize)
 				//
 				for (var int2 = 0; int2 < Math.max(recordSearchResults.length,6) ; int2++) 
 					{
+						var recordId = null;
+						
+						try
+							{
+								recordId = recordSearchResults[int2].getId();
+							}
+						catch(err)
+							{
+								recordId = null;
+							}
+					
 						content += '<tr>';
 					
 						//Loop through the columns
@@ -565,7 +577,16 @@ function buildContent(searchId, caption, contactId, filter, fontSize)
 								
 								//Assign the value to the column
 								//
-								content += '<td align="' + alignment +'">' + nlapiEscapeXML(rowColumnData) + '</td>';
+								if(int3 == 0 && recordId != null)
+									{
+										var target = nlapiResolveURL('RECORD', recordSearchType, recordId, 'VIEW');
+										content += '<td align="' + alignment +'"><a href="' + target + '" target="_blank">' + nlapiEscapeXML(rowColumnData) + '</a></td>';
+									}
+								else
+									{
+										content += '<td align="' + alignment +'">' + nlapiEscapeXML(rowColumnData) + '</td>';
+									}
+								
 							}
 						
 						content += '</tr>';
