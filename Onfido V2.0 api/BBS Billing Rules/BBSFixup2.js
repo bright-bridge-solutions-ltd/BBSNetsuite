@@ -18,29 +18,15 @@ function(search, record) {
      */
     function getInputData() {
     	
-    	// create search to find sales orders to be updated
+    	// create search to find contract records to be updated
     	return search.create({
-			type: search.Type.JOURNAL_ENTRY,
+			type: search.Type.LOCATION,
 			
 			columns: [{
-				name: 'tranid'
+				name: 'internalid'
 			}],
 			
-			filters: [{
-				name: 'mainline',
-				operator: 'is',
-				values: ['T']
-			},
-					{
-				name: 'subsidiary',
-				operator: 'anyof',
-				values: ['9'] // 9 = US
-			},
-					{
-				name: 'custbody_bbs_contract_record',
-				operator: 'noneof',
-				values: ['@NONE@']
-    		}],
+			filters: [],
 		});
 
     }
@@ -56,31 +42,34 @@ function(search, record) {
     	// retrieve search results
     	var searchResult = JSON.parse(context.value);
     	
-    	// get the internal ID of the sales order
+    	// get the internal ID of the contract record
     	var recordID = searchResult.id;
     	
     	log.audit({
-    		title: 'Processing Sales Order',
-    		details: searchResult.values['tranid']
+    		title: 'Processing Location Record',
+    		details: 'Internal ID: ' + recordID
     	});
     	
     	try
     		{
-	    		// delete sales order record
-				record.delete({
-					type: record.Type.JOURNAL_ENTRY,
-					id: recordID
+	    		// check the 'Include Children' checkbox on the location record
+				record.submitFields({
+					type: record.Type.LOCATION,
+					id: recordID,
+					values: {
+						includechildren: true
+					}
 				});
 
 		    	log.audit({
-		    		title: 'Sales Order Deleted',
+		    		title: 'Location Record Updated',
 		    		details: 'Record ID: ' + recordID
 		    	});
     		}
     	catch(e)
     		{
     			log.error({
-    				title: 'Error Deleting Sales Order',
+    				title: 'Error Updating Location Record',
     				details: 'Record ID: ' + recordID + '<br>Error: ' + e
     			});
     		}
