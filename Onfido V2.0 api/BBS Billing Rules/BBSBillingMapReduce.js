@@ -223,8 +223,8 @@ function(runtime, search, record, format, task, currency) {
 		// AMP billing type
 		else if (billingType == 4)
 			{
-				// call the AMP function. Pass in the recordID and contractRecord
-				AMP(recordID, contractRecord);
+				// call the AMP function. Pass in the recordID and contractRecord, contractCurrency and subsidiaryCurrency
+				AMP(recordID, contractRecord, contractCurrency, subsidiaryCurrency);
 			}
 		// PAYG billing type
 		else if (billingType == 1)
@@ -2787,7 +2787,7 @@ function(runtime, search, record, format, task, currency) {
 							    			});
 							    			
 							    			// set fields on the new line
-										    journalRecord.setCurrentSublistValue({
+							    			journalRecord.setCurrentSublistValue({
 										    	sublistId: 'line',
 										    	fieldId: 'entity',
 										    	value: customer
@@ -2866,7 +2866,7 @@ function(runtime, search, record, format, task, currency) {
 									    		}
 										    		
 										    // set fields on the new line
-										    journalRecord.setCurrentSublistValue({
+									    	journalRecord.setCurrentSublistValue({
 										    	sublistId: 'line',
 										    	fieldId: 'entity',
 										    	value: customer
@@ -3276,7 +3276,7 @@ function(runtime, search, record, format, task, currency) {
 						    			}
 						    	}
 						    
-							// submit the journal record record
+						    // submit the journal record record
 							var journalID = journalRecord.save({
 								enableSourcing: false,
 							   ignoreMandatoryFields: true
