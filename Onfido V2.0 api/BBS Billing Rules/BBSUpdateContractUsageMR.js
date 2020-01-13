@@ -195,7 +195,7 @@ function(runtime, search, record, format, email) {
 		if (productRecords == 0)
 			{
 				// call function to create a new contract product record. Pass contractRecord, contractRecordText, itemID, itemText and tranID variables		
-				createProduct(contractRecord, contractRecordText, itemID, itemText, tranID);
+				createProduct(contractRecordID, contractRecordText, itemID, itemText, tranID);
 			}
     	
     	// create search to find period detail records to be updated
