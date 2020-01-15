@@ -1,0 +1,162 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdfset>
+<pdf>
+<head>
+<#if .locale == "ru_RU">
+    <link name="verdana" type="font" subtype="opentype" src="${nsfont.verdana}" src-bold="${nsfont.verdana_bold}" bytes="2" />
+</#if>
+    <macrolist>
+        <macro id="nlheader">
+            <table style="width: 100%; font-size: 10pt;"><tr>
+	<td rowspan="3" style="padding: 0;" valign="middle"><span style="font-size: 26pt; color: #00aeed;">PURCHASE ORDER</span> </td>
+	<td align="right" style="padding: 0;"><#if companyInformation.logoUrl?length != 0><img height="100%" src="${companyInformation.logoUrl}" style="float: left; margin: 7px" width="100%" /> </#if></td>
+	</tr>
+	</table>
+        </macro>
+        <macro id="nlfooter">
+            <table style="width: 100%; font-size: 8pt;">
+              <tr>
+				<td align="center" style="padding: 0; color: #00aeed;">${companyInformation.companyName}, ${subsidiary.addr2}, ${subsidiary.city}, ${subsidiary.country}, ${subsidiary.zip}</td>
+              </tr><tr>
+                <td align="center" style="padding: 0; color: #00aeed;"><b>Telephone:</b> ${subsidiary.addrphone}, <b>Email:</b> ${companyInformation.email}</td>
+	</tr><tr>
+                <td align="center" style="padding: 0; color: #00aeed;"><b>VAT No:</b> GB${companyInformation.employerid} <b>Company No:</b> 08771117</td>
+	</tr>
+          </table>
+        </macro>
+    </macrolist>
+    <style type="text/css">table {
+        <#if .locale == "zh_CN">
+            font-family: stsong, sans-serif;
+        <#elseif .locale == "zh_TW">
+            font-family: msung, sans-serif;
+        <#elseif .locale == "ja_JP">
+            font-family: heiseimin, sans-serif;
+        <#elseif .locale == "ko_KR">
+            font-family: hygothic, sans-serif;
+        <#elseif .locale == "ru_RU">
+            font-family: verdana;
+        <#else>
+            font-family: sans-serif;
+        </#if>
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 9pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            
+            color: #333333;
+        }
+        td {
+            padding: 4px 6px;
+        } 
+        .rowon {
+ 			 background-color: #f2f2f2;
+		}
+
+		.rowoff {
+
+		}
+
+</style>
+</head>
+<body header="nlheader" header-height="7%" footer="nlfooter" footer-height="22pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+   <hr style="width: 100%; color: #3c93cd; background-color: #3c93cd; height: 1px; margin-bottom: 25px;" />
+  <table border="0" style="width:100%; margin-top: 20px;">
+<tbody>
+	<tr>
+	<td width="30%" align="left" style="font-size: 9pt; font-weight: bold; border-bottom: 0.5px solid; border-color: #999795;">Order Date</td>
+	<td width="20%" align="left" style="font-size: 9pt; border-right: 0.5px solid; border-bottom: 0.5px solid; border-color: #999795;">${record.trandate}</td>
+	<td width="30%" align="left" style="font-size: 9pt; font-weight: bold; border-bottom: 0.5px solid; border-color: #999795;">Purchase Order No</td>
+	<td width="20%" align="left" style="font-size: 9pt; border-bottom: 0.5px solid; border-color: #999795;">${record.tranid}</td>
+	</tr>
+	<tr>
+    <td align="left" style="font-size: 9pt; font-weight: bold;">Delivery Date</td>
+	<td align="left" style="font-size: 9pt; border-right: 0.5px solid; border-color: #999795;">${record.shipdate}</td>
+	<td>&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr>
+</tbody>
+    
+</table>
+ <table style="width: 100%; margin-top: 20px; border: 0.1px solid; border-color: #999795;">
+   <tbody>
+	<tr>
+	<td align="left" style="font-size: 9pt; font-weight: bold; border-right: 0.5px solid; border-color: #999795;">Company Address:</td>
+	<td align="left" style="font-size: 9pt; font-weight: bold; border-right: 0.5px solid; border-color: #999795;">Delivery To:</td>
+	</tr>
+	<tr>
+    <td align="left" style="font-size: 9pt; border-right: 0.5px solid; border-color: #999795;">${companyInformation.addressText}</td>
+	<td align="left" style="font-size: 9pt;">${record.billaddress}</td>
+	</tr>
+</tbody>
+ </table> 
+ <table style="width: 100%; margin-top: 20px; border: 0.1px solid; border-color: #999795;">
+   <tbody>
+	<tr>
+	<td align="left" style="font-size: 9pt; font-weight: bold;">Notes:</td>
+	</tr>
+	<tr>
+    <td align="left" style="font-size: 9pt;">${record.memo}</td>
+	</tr>
+</tbody>
+ </table> 
+ 
+<#if record.item?has_content>
+
+<table style="width: 100%; margin-top: 20px; border: 0.1px solid; border-color: #999795;"><!-- start items --><#list record.item as item><#if item_index==0>
+<thead>
+	<tr>
+     <th colspan="4" style="padding: 10px 6px; color: #00aeed; white-space: nowrap; border-right: 0.5px solid; border-bottom: 1px solid; border-color: #999795;">Supplier Code</th>
+	<th colspan="4" style="padding: 10px 6px; color: #00aeed; border-right: 0.5px solid; border-bottom: 1px solid; border-color: #999795;">Venta Item Code</th>
+    <th colspan="10" style="padding: 10px 6px; color: #00aeed; border-right: 0.5px solid; border-bottom: 1px solid; border-color: #999795;">Description</th>
+    <th align="center" colspan="3" style="padding: 10px 6px; color: #00aeed; border-right: 0.5px solid; border-bottom: 1px solid; border-color: #999795;">${item.quantity@label}</th>
+	<th align="right" colspan="3" style="padding: 10px 6px; color: #00aeed; border-right: 0.5px solid; border-bottom: 1px solid; border-color: #999795;">Unit Price</th>
+	<th align="right" colspan="3" style="padding: 10px 6px; color: #00aeed; border-bottom: 1px solid; border-color: #999795; white-space: nowrap;">Net Amount</th>
+	</tr>
+</thead>
+</#if><tr class="<#if item_index % 2 ==0>rowon<#else>rowoff</#if>">
+  	<td colspan="4" style="border-right: 0.5px solid; border-color: #999795; height:35px; font-size: 8pt;">${item.item}</td>
+	<td colspan="4" style="border-right: 0.5px solid; border-color: #999795; height:35px; font-size: 8pt;">${item.item}</td>
+  	<td colspan="10" style="border-right: 0.5px solid; border-color: #999795; height:35px; font-size: 8pt;">${item.description}</td>
+  	<td align="center" colspan="3" line-height="150%" style="border-right: 0.5px solid; border-color: #999795; height:35px; font-size: 8pt;">${item.quantity}</td>
+	<td align="right" colspan="3" style="border-right: 0.5px solid; border-color: #999795; height:35px; font-size: 8pt;">${item.rate}</td>
+	<td align="right" colspan="3" style="border-color: #999795; height:35px; font-size: 8pt;">${item.amount}</td>
+	</tr>
+	</#list><!-- end items --></table>
+<table>
+    <tr><td style="height:20px;">&nbsp;</td></tr>
+  </table>
+  </#if>
+  <table style="width: 100%; font-size: 8pt;">
+    <tr><td>&nbsp;</td></tr>
+              <tr>
+				<td align="left" style="padding: 0; font-size: 12pt; font-weight: bold;">PLEASE CONFIRM RECEIPT OF THIS ORDER</td>
+              </tr>	  
+  </table>
+<table style="page-break-inside: avoid; width: 100%; margin-top: 10px; border: 0.1px solid; border-color: #999795;"><tr>
+	<td colspan="4" rowspan="3" style="border-right: 0.5px solid; border-color: #999795;">Any queries regarding this order or variation to prices or<br />delivery date must be notified to us within 48 hours.<br /><br />These goods are purchased under our standard Terms and Conditions.<br /> No other Terms and Conditions shall apply.</td>
+	<td align="right" style="font-weight: bold; color: #333333;">Total</td>
+	<td align="right">${record.subtotal}</td>
+	</tr>
+	<tr>
+	<td align="right" style="font-weight: bold; color: #333333;">Total VAT</td>
+	<td align="right">${record.taxtotal}</td>
+	</tr>
+  	<tr>
+	<td align="right" style="font-weight: bold; color: #333333;">Carriage</td>
+	<td align="right">${record.shippingcost}</td>
+	</tr>
+	<tr style="background-color: #f2f2f2; line-height: 200%;">
+	<td background-color="#ffffff" colspan="4" style="border-bottom: 0.5px solid; border-right: 0.5px solid; border-left: 0.5px solid; border-color: #999795;">&nbsp;</td>
+	<td align="right" style="font-weight: bold; color: #333333; border-bottom: 0.5px solid; border-color: #999795;">Order Total</td>
+	<td align="right" style="border-bottom: 0.5px solid; border-color: #999795;">${record.total}</td>
+	</tr>
+  </table>
+</body>
+</pdf>
+<pdf src="https://4133410.app.netsuite.com/core/media/media.nl?id=130757&amp;c=4133410&amp;h=b80b715ffb56763b9650&amp;_xt=.pdf" />
+</pdfset>
