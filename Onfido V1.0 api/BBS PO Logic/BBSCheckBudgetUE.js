@@ -45,18 +45,19 @@ function poCheckBudgetBL(type, form, request)
  */
 function poCheckBudgetAS(type)
 {
-	if(type == 'create')
+	//Get the current purchase order record
+	//
+	var newRecord = nlapiGetNewRecord();
+	var poId = newRecord.getId();
+	var poType = newRecord.getFieldValue('custbody_po_type');
+	var poApprovalStage = newRecord.getFieldValue('custbody_bbs_opex_app_stag');
+	
+	if(type == 'create' || (type == 'edit' && (poApprovalStage == 'PO Rejected' || poApprovalStage == 'Pending Submission')))
 		{
 			//Get environment
 			//
 			var context = nlapiGetContext();
 			var amoritizationAccount = context.getSetting('SCRIPT', 'custscript_bbs_amortization_account');
-			
-			//Get the current purchase order record
-			//
-			var newRecord = nlapiGetNewRecord();
-			var poId = newRecord.getId();
-			var poType = newRecord.getFieldValue('custbody_po_type');
 			
 			if(poType == '2')	//OPEX
 				{
