@@ -9,21 +9,21 @@
         <macro id="nlheader">
             <table class="header" style="width: 100%;">
             	<tr>
-					<td rowspan="3"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: left; margin: 7px" /> </#if></td>
-					<td>Telephone<br />+44(0)1362 695 006<br />Email<br />sales@borgandoverstrom.com<br /><br /><strong>borgandoverstrom.com</strong></td>
-					<td>${companyInformation.companyName}<br /><span class="nameandaddress">${companyInformation.addressText}</span></td>
+					<td rowspan="3" colspan="3"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: left; margin-top: 7px;" /> </#if></td>
+					<td><span class="header"><br/>Telephone<br />+44(0)1362 695 006<br />Email<br />sales@borgandoverstrom.com<br /><br /><strong>borgandoverstrom.com</strong></span></td>
+					<td><span class="header"><br/>${companyInformation.addressText}</span></td>
 				</tr>
 			</table>
         </macro>       
         <macro id="nlfooter">
             <table class="footer" style="width: 100%;">
             	<tr>
-            		<td colspan="8"><span class="address"><strong>This quotation is valid for 30 (thirty) days commencing on the date of this document.</strong></span></td>
-            		<td colspan="8">&nbsp;</td>
+            		<td colspan="12"><span class="disclaimertitle">This quotation is valid for 30 (thirty) days<br/>commencing on the date of this document.</span></td>
+            		<td colspan="6">&nbsp;</td>
             	</tr>
             	<tr>
-            		<td colspan="8">Following the expiry period of thirty days, and before the Agreement is accepted and signed by the client, prices are subject to change upon prior notification to the Client.</td>
-            		<td colspan="8" align="right"><br/><br/><strong>Please note this is not a VAT invoice</strong></td>
+            		<td colspan="12"><span class="disclaimer">Following the expiry period of thirty days, and before the<br/>Agreement is accepted and signed by the client, prices<br/>are subject to change upon prior notification to the Client.</span></td>
+            		<td colspan="6" align="left"><br/><br/><span class="tableheader">Please note this is not a VAT invoice</span></td>
             	</tr>
             </table>
 		</macro> 
@@ -45,9 +45,11 @@
             color: #333333;
         }
         td {
-            padding: 4px 6px;
+            padding: 0px 0px;
         }
-		td p { align:left }
+		td p { 
+			align:left 
+		}
         b {
             font-weight: bold;
             color: #333333;
@@ -95,16 +97,48 @@
             background-color: #e3e3e3;
             font-weight: bold;
         }
+        span.header {
+        	font-size: 8pt;
+        	line-height: 10pt;
+        }
         span.title {
-            font-size: 16pt;
+            font-size: 17pt;
             font-weight: bold;
+        }
+        span.subtitle {
+        	font-size: 8pt;
+        	line-height: 14pt;
+        	font-weight: bold;
+        }
+        span.tranid {
+        	font-size: 11pt;
+        	line-height: 22pt;
         }
         span.address {
-            font-size: 12pt;
+            font-size: 10pt;
+            line-height: 14pt;
+        }
+        span.tableheader {
+        	font-size: 8pt;
+        	font-weight: bold;
         }
         span.itemname {
+        	font-size: 10pt;
+        	line-height: 14pt;
             font-weight: bold;
-            line-height: 150%;
+        }
+        span.terms {
+        	font-size: 8pt;
+        	line-height: 12pt;
+        }
+        span.disclaimertitle {
+        	font-size: 9pt;
+        	line-height: 11pt;
+        	font-weight: bold;
+        }
+        span.disclaimer {
+        	font-size: 7pt;
+        	line-height: 9pt;
         }
         hr {
             width: 100%;
@@ -115,88 +149,73 @@
         
 </style>
 </head>
-<body header="nlheader" header-height="15%" footer="nlfooter" footer-height="40pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="115pt" footer="nlfooter" footer-height="40pt" padding="0.3in 0.3in 0.6in 0.4in" size="A4">
    
-   	<!-- Horizontal Line -->
-   	<hr/>
-   	
-   	<table style="width: 100%; margin-top: 10px; margin-bottom: 35px">
+   	<table style="width: 100%; margin-right: 5px; margin-top: 10px; border-top: 1px solid black;">
    		<tr>
-   			<td><span class="title">${record@title}</span></td>
+   			<td style="padding-top:10px" colspan="7"><span class="title">${record@title}</span></td>
    		</tr>
    		<tr>
-   			<td><span class="address">${record.tranid}</span></td>
-   			<td><strong>Invoice to</strong><br/><span class="address">${record.billaddress}</span></td>
-   			<td><strong>Date</strong><br/><span class="address">${record.trandate}</span><br/><br/><strong>Document Number</strong><br/><span class="address">${record.tranid}</span><br/><br/><strong>Client Order Number</strong><br/><span class="address">${record.memo}</span></td>
-   		</tr>
-	</table>
-
-	<!-- Horizontal Line -->
-   	<hr/>
-
-	<#if record.item?has_content>
-		<table style="width: 100%; margin-bottom: 20px;">
-			<!-- start items --><#list record.item as item><#if item_index==0>
-				<tr>
-					<td align="center" colspan="4">&nbsp;</td>
-					<td colspan="6"><strong>Reference</strong></td>
-					<td colspan="6"><strong>Description</strong></td>
-					<td align="left" colspan="3"><strong>Quantity</strong></td>
-					<td align="left" colspan="4"><strong>Price</strong></td>
-					<td align="left" colspan="4"><strong>Net Price</strong></td>
-				</tr>
-				<tr>
-					<td colspan="4">&nbsp;</td>
-					<td colspan="6">&nbsp;</td>
-					<td colspan="6">&nbsp;</td>
-					<td colspan="3">&nbsp;</td>
-					<td colspan="4">&nbsp;</td>
-					<td colspan="4">&nbsp;</td>
-				</tr>
-			</#if>
-				<tr>
-					<!-- check if we have an item image -->
-					<#if item.custcol_bbs_item_image?length gt 0>
-    					<td colspan="4" align="center"><img src="${item.custcol_bbs_item_image}" style="width: 50px; height: 50px;"/></td>
-    				<#else>
-      					<td colspan="4">&nbsp;</td>
-   					</#if>
-					<td colspan="6"><span class="address"><strong>${item.item}</strong></span></td>
-					<td colspan="6"><span class="address">${item.description}</span></td>
-					<td align="left" colspan="3"><span class="address">${item.quantity}</span></td>
-					<td align="left" colspan="4"><span class="address">${item.rate}</span></td>
-					<td align="left" colspan="4"><span class="address">${item.amount}</span></td>
-				</tr>
-			</#list><!-- end items -->
-		</table>
-	</#if>
-
-<!-- Horizontal Line -->
-<hr/>
-	
-	<table style="width: 100%;">
-		<tr>
-			<td colspan="3">Payment terms: 30 Days from date of Invoice</td>
+   			<td colspan="14"><span class="tranid">${record.tranid}</span></td>
+   			<td colspan="12"><span class="subtitle">Invoice to</span><br/><span class="address">${record.billaddress}</span></td>
+   			<td colspan="12"><span class="subtitle">Date</span><br/><span class="address">${record.trandate}</span><br/><br/><span class="subtitle">Document Number</span><br/><span class="address">${record.tranid}</span><br/><br/><span class="subtitle">Client Order Number</span><br/><span class="address">${record.memo}</span></td>
+		</tr>
+		<#if record.item?has_content>
+		<!-- start items --><#list record.item as item><#if item_index==0>
+		<tr style="margin-top: 40px; border-top: 1px solid black;">
+			<td style="padding-top:10px" colspan="8">&nbsp;</td>
+			<td style="padding-top:10px" colspan="6"><span class="tableheader">Reference</span></td>
+			<td style="padding-top:10px" colspan="7"><span class="tableheader">Description</span></td>
+			<td style="padding-top:10px" colspan="5">&nbsp;</td>
+			<td style="padding-top:10px" align="left" colspan="4"><span class="tableheader">Quantity</span></td>
+			<td style="padding-top:10px" align="left" colspan="4"><span class="tableheader">Price</span></td>
+			<td style="padding-top:10px" align="left" colspan="4"><span class="tableheader">Net Price</span></td>
 		</tr>
 		<tr>
-			<td colspan="3">&nbsp;</td>
-			<td align="left"><span class="address">${record.subtotal@label}</span></td>
-			<td align="right"><span class="address">${record.subtotal}</span></td>
+			<td colspan="8">&nbsp;</td>
+			<td colspan="6">&nbsp;</td>
+			<td colspan="7">&nbsp;</td>
+			<td colspan="5">&nbsp;</td>
+			<td colspan="4">&nbsp;</td>
+			<td colspan="4">&nbsp;</td>
+			<td colspan="4">&nbsp;</td>
+		</tr>
+		</#if>
+		<tr>
+			<!-- check if we have an item image -->
+			<#if item.custcol_bbs_item_image?length gt 0>
+    			<td style="padding-bottom:10px" align="left" colspan="8"><img src="${item.custcol_bbs_item_image}" style="width: 120px; height: 80px;"/></td>
+    		<#else>
+      			<td colspan="8">&nbsp;</td>
+   			</#if>
+			<td colspan="6"><span class="itemname">${item.item}</span></td>
+			<td colspan="7"><span class="address">${item.description}</span></td>
+			<td colspan="5">&nbsp;</td>
+			<td align="left" colspan="4"><span class="address">${item.quantity}</span></td>
+			<td align="left" colspan="4"><span class="address">${item.rate}</span></td>
+			<td align="left" colspan="4"><span class="address">${item.amount}</span></td>
+		</tr>
+		</#list><!-- end items -->
+		</#if>
+		<tr style="margin-top: 40px; border-top: 1px solid black;">
+			<td colspan="26"><span class="terms">Payment terms: 30 Days from date of Invoice</span></td>
 		</tr>
 		<tr>
-			<td colspan="3">&nbsp;</td>
-			<td align="left"><span class="address">VAT at 20%</span></td>
-			<td align="right"><span class="address">${record.taxtotal}</span></td>
+			<td colspan="26">&nbsp;</td>
+			<td colspan="8" align="left"><span class="address">${record.subtotal@label}</span></td>
+			<td colspan="4" align="right"><span class="address">${record.subtotal}</span></td>
 		</tr>
 		<tr>
-			<td colspan="3">&nbsp;</td>
-			<td align="left"><span class="address"><strong>${record.total@label}</strong></span></td>
-			<td align="right"><span class="address"><strong>${record.total}</strong></span></td>
+			<td colspan="26">&nbsp;</td>
+			<td colspan="8" align="left"><span class="address">VAT at 20%</span></td>
+			<td colspan="4" align="right"><span class="address">${record.taxtotal}</span></td>
+		</tr>
+		<tr style="border-bottom: 1px solid black;">
+			<td colspan="26">&nbsp;</td>
+			<td colspan="8" align="left"><span class="address"><strong>${record.total@label}</strong></span></td>
+			<td colspan="4" align="right"><span class="address"><strong>${record.total}</strong></span></td>
 		</tr>
 	</table>
-	
-<!-- Horizontal Line -->
-<hr/>
 
 </body>
 </pdf>
