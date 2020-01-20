@@ -31,3 +31,19 @@ function sendEmail()
 	window.open(url, '_self', '', 'menubar=no, titlebar=no, toolbar=no, scrollbars=no, resizable=yes');
 
 }
+
+
+function regenerateDocuments()
+{
+	var recordId = nlapiGetRecordId();
+	
+	var url = nlapiResolveURL('SUITELET', 'customscript_bbs_pr_regen_su', 'customdeploy_bbs_pr_regen_su');
+
+	url = url + '&prid=' + recordId;
+	
+	// Open a new window
+	//
+	window.open(url, '_self', '', 'menubar=no, titlebar=no, toolbar=no, scrollbars=no, resizable=yes');
+
+}
+

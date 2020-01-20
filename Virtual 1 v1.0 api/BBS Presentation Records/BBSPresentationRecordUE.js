@@ -20,6 +20,8 @@ function presentationRecordBL(type, form, request)
 	if(type == 'view')
 		{
 			form.addButton('custpage_email_button', 'Email Documents To Partner', 'sendEmail()');
+			form.addButton('custpage_regen_button', 'Regenerate PDF & CSV Files', 'regenerateDocuments()');
+		
 			form.setScript('customscript_bbs_pr_client');
 		}
 }
