@@ -18,15 +18,19 @@ function(search, record) {
      */
     function getInputData() {
     	
-    	// create search to find contract records to be updated
+    	// create search to find sales order records to be updated
     	return search.create({
-			type: search.Type.LOCATION,
+			type: 'customrecord_bbs_contract',
 			
 			columns: [{
 				name: 'internalid'
 			}],
 			
-			filters: [],
+			filters: [{
+				name: 'custrecord_bbs_contract_customer',
+				operator: 'anyof',
+				values: ['2619', '3236', '3182', '3263', '3344', '3287', '2339', '2610', '3304']
+			}],
 		});
 
     }
@@ -42,34 +46,31 @@ function(search, record) {
     	// retrieve search results
     	var searchResult = JSON.parse(context.value);
     	
-    	// get the internal ID of the contract record
+    	// get the internal ID of the sales order record
     	var recordID = searchResult.id;
     	
     	log.audit({
-    		title: 'Processing Location Record',
+    		title: 'Processing Contract Record',
     		details: 'Internal ID: ' + recordID
     	});
     	
     	try
     		{
-	    		// check the 'Include Children' checkbox on the location record
-				record.submitFields({
-					type: record.Type.LOCATION,
-					id: recordID,
-					values: {
-						includechildren: true
-					}
+	    		// delete the sales order record
+				record.delete({
+					type: 'customrecord_bbs_contract',
+					id: recordID
 				});
 
 		    	log.audit({
-		    		title: 'Location Record Updated',
+		    		title: 'Contract Record Deleted',
 		    		details: 'Record ID: ' + recordID
 		    	});
     		}
     	catch(e)
     		{
     			log.error({
-    				title: 'Error Updating Location Record',
+    				title: 'Error Deleting Contract Record',
     				details: 'Record ID: ' + recordID + '<br>Error: ' + e
     			});
     		}

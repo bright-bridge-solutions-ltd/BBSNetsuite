@@ -9,7 +9,7 @@ define(['N/runtime', 'N/config', 'N/search', 'N/record'],
  */
 function(runtime, config, search, record) {
    
-    /**
+	/**
      * Definition of the Scheduled script trigger point.
      *
      * @param {Object} scriptContext
@@ -21,11 +21,11 @@ function(runtime, config, search, record) {
     	// retrieve script parameters
     	var currentScript = runtime.getCurrentScript();
     	
-    	var trpAcc = currentScript.getParameter({
+    	trpAcc = currentScript.getParameter({
     		name: 'custscript_bbs_trp_account'
     	});
     	
-    	var qmpItem = currentScript.getParameter({
+    	qmpItem = currentScript.getParameter({
         	name: 'custscript_bbs_qmp_item'
         });
     	
@@ -135,7 +135,7 @@ function(runtime, config, search, record) {
     		// get the location from the search results
     		location = result.getValue({
     			name: 'internalid',
-    			join: 'custrecord2',
+    			join: 'custrecord_bbs_contract_location',
     			summary: 'MAX'
     		})
     		
@@ -242,22 +242,19 @@ function(runtime, config, search, record) {
     // FUNCTION TO CREATE THE QMP INVOICE
     // ==================================
     
-    function createInvoice(contractRecord, customer, currency, location, amount)
+    function createInvoice(contractRecord, customer, location, currency, amount)
     	{
 	    	try
 				{
 					// create a new invoice record
-					var invoice = record.create({
-						type: record.Type.INVOICE,
-						isDynamic: true
+					var invoice = record.transform({
+					    fromType: record.Type.CUSTOMER,
+					    fromId: customer,
+					    toType: record.Type.INVOICE,
+					    isDynamic: true
 					});
 					
 					// set header fields on the invoice record
-					invoice.setValue({
-						fieldId: 'entity',
-						value: customer
-					});
-					
 					invoice.setValue({
 						fieldId: 'account',
 						value: trpAcc

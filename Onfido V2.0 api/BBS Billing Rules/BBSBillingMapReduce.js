@@ -81,12 +81,6 @@ function(runtime, search, record, format, task, currency) {
 	initiatingUser = currentScript.getParameter({
 		name: 'custscript_bbs_billing_email_emp_alert'
 	});
-
-	// declare new date object. Global variable so can be accessed throughout the script
-	invoiceDate = new Date();
-	invoiceDate.setDate(0); // set date to be the last day of the previous month
-	
-	invoiceDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth(), invoiceDate.getDate());
    
     /**
      * Marks the beginning of the Map/Reduce process and generates input data.
@@ -144,7 +138,7 @@ function(runtime, search, record, format, task, currency) {
 					{
 				name: 'subsidiary',
 				operator: 'anyof',
-				values: [subsidiary]
+				values: ['5']
 			},
 					{
     			name: 'custrecord_bbs_contract_status',
@@ -174,6 +168,12 @@ function(runtime, search, record, format, task, currency) {
      * @since 2015.1
      */
     function map(context) {
+    	
+    	// declare new date object. Global variable so can be accessed throughout the script
+    	invoiceDate = new Date();
+    	invoiceDate.setDate(0); // set date to be the last day of the previous month
+    	
+    	invoiceDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth(), invoiceDate.getDate());
     	
     	// initiate variables
     	var recordID;
@@ -542,13 +542,6 @@ function(runtime, search, record, format, task, currency) {
     		// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
 			var deferredRevAmt = calculateDeferredRev(contractRecord);
 			
-			// check if contractCurrency is not equal to subsidiaryCurrency
-			if (contractCurrency != subsidiaryCurrency)
-				{
-					// convert deferredRevAmt from subsidiary currency to contractCurrency
-					deferredRevAmt = currencyConversion(subsidiaryCurrency, contractCurrency, deferredRevAmt);
-				}
-			
 			log.debug({
 				title: 'Script Check',
 				details: 'Monthly Minimum: ' + monthlyMinimum + ' | Cumulative Monthly Minimum: ' + cumulativeMinimums + ' | Cumulative Invoice Total: ' + cumulativeInvoices + ' | This Month Usage: ' + thisMonthUsage + ' | Cumulative Usage: ' + cumulativeUsage + ' | Deferred Rev Amt: ' + deferredRevAmt
@@ -787,7 +780,7 @@ function(runtime, search, record, format, task, currency) {
 		    });
 			
 			// get the subtotal from the soRecord object
-			var subtotal = soRecord.getValue({
+			var soSubtotal = soRecord.getValue({
 				fieldId: 'subtotal'
 			});
 		    	
@@ -915,15 +908,8 @@ function(runtime, search, record, format, task, currency) {
     		// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
 			var deferredRevAmt = calculateDeferredRev(contractRecord);
 			
-			// check if contractCurrency is not equal to subsidiaryCurrency
-			if (contractCurrency != subsidiaryCurrency)
-				{
-					// convert deferredRevAmt from subsidiary currency to contractCurrency
-					deferredRevAmt = currencyConversion(subsidiaryCurrency, contractCurrency, deferredRevAmt);
-				}
-			
-			// calculate the current deferred revenue balance
-    		var calculatedDeferredRevenue = parseFloat(minimumUsage - cumulativeUsage);
+			// calculate calculated deferred revenue position
+			var calculatedDeferredRevenue = parseFloat(minimumUsage - cumulativeUsage);
     		
     		log.debug({
     			title: 'Script Check',
@@ -936,7 +922,7 @@ function(runtime, search, record, format, task, currency) {
 					// check if calculatedDeferredRevenue is less than 0
 				    if (calculatedDeferredRevenue < 0)
 				    	{
-				    		// check if cumulativeUsage minus thisMonthUsage is greater than minimumUsage
+					    	// check if cumulativeUsage minus thisMonthUsage is greater than minimumUsage
 				    		if ((cumulativeUsage - thisMonthUsage) > minimumUsage)
 				    			{
 					    			// set the amtToBill variable to be the cumulativeUsage
@@ -1263,13 +1249,6 @@ function(runtime, search, record, format, task, currency) {
 			// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
 			var deferredRevAmt = calculateDeferredRev(contractRecord);
 			
-			// check if contractCurrency is not equal to subsidiaryCurrency
-			if (contractCurrency != subsidiaryCurrency)
-				{
-					// convert deferredRevAmt from subsidiary currency to contractCurrency
-					deferredRevAmt = currencyConversion(subsidiaryCurrency, contractCurrency, deferredRevAmt);
-				}
-			
 			// check if this is the beginning of a quarter
 			if (quarterStart == true)
 				{
@@ -1333,13 +1312,13 @@ function(runtime, search, record, format, task, currency) {
 						{
 							// set the amtToBill variable to be the calculatedDeferredRevenue multiplied by -1 to create a positive number
 							amtToBill = parseFloat(calculatedDeferredRevenue * -1);
-						
+							
 							// check if soSubtotal minus amtToBill is greater than 0
 							if ((soSubtotal - amtToBill) > 0)
 			    				{
 				    				// calculate the value of the credit line that needs adding
 			    					creditLineAmt = parseFloat(soSubtotal - amtToBill);
-			    			
+			    					
 			    					// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, creditLineAmt and contractRecord
 			    					addCreditLine(soRecord, billingType, creditLineAmt, contractRecord);
 			    				}
@@ -1826,24 +1805,19 @@ function(runtime, search, record, format, task, currency) {
 			
 			try
 	    		{
-		    		// create a new invoice record
-					var invoice = record.create({
-						type: record.Type.INVOICE,
-						isDynamic: true
-					});	
+					// create a new invoice record
+					var invoice = record.transform({
+					    fromType: record.Type.CUSTOMER,
+					    fromId: customer,
+					    toType: record.Type.INVOICE,
+					    isDynamic: true,
+					    defaultValues: {
+					    	customform: invoiceForm
+					    }
+					});
 	    		
 					// set header fields on the invoice
 	    			invoice.setValue({
-	    				fieldId: 'customform',
-	    				value: invoiceForm
-	    			});
-	    			
-	    			invoice.setValue({
-	    				fieldId: 'entity',
-	    				value: customer
-	    			});
-					
-					invoice.setValue({
 	    				fieldId: 'trandate',
 	    				value: invoiceDate
 	    			});
@@ -1966,22 +1940,17 @@ function(runtime, search, record, format, task, currency) {
 		    try
 				{
 					// create a new invoice record
-					var invoice = record.create({
-						type: record.Type.INVOICE,
-						isDynamic: true
-					});					
+					var invoice = record.transform({
+					    fromType: record.Type.CUSTOMER,
+					    fromId: customer,
+					    toType: record.Type.INVOICE,
+					    isDynamic: true,
+					    defaultValues: {
+					    	customform: invoiceForm
+					    }
+					});
 		
 					// set header fields on the invoice
-					invoice.setValue({
-						fieldId: 'customform',
-						value: invoiceForm
-					});
-							
-					invoice.setValue({
-						fieldId: 'entity',
-						value: customer
-					});
-							
 					invoice.setValue({
 						fieldId: 'trandate',
 						value: invoiceDate
@@ -2219,7 +2188,7 @@ function(runtime, search, record, format, task, currency) {
 			    	});
 			    	
 			    	// submit the sales order record
-			    	soRecord.save({
+			    	var recordID = soRecord.save({
 			    		enableSourcing: false,
 			    		ignoreMandatoryFields: true
 			    	});
@@ -2233,7 +2202,7 @@ function(runtime, search, record, format, task, currency) {
 		    	{
 		    		log.error({
 			    		title: 'Error Adding Credit Line to Sales Order',
-			    		details: 'Sales Order ID: ' + recordID + ' | Error: ' + error
+			    		details: 'Error: ' + error
 			    	});
 		    	}
     	}
@@ -2307,6 +2276,12 @@ function(runtime, search, record, format, task, currency) {
     
     function createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, clearingJournal, minimumUsage)
 	    {
+	    	// declare new date object. Global variable so can be accessed throughout the script
+	    	invoiceDate = new Date();
+	    	invoiceDate.setDate(0); // set date to be the last day of the previous month
+	    	
+	    	invoiceDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth(), invoiceDate.getDate());
+    	
     		// declare and initialize variables
 		    var itemID;
 		    var lineAmount;
@@ -2333,13 +2308,6 @@ function(runtime, search, record, format, task, currency) {
 		    // check if minimumUsage returns a value
 		    if (minimumUsage)
 		    	{
-		    		// check if contractCurrency is NOT equal to subsidiaryCurrency
-		    		if (contractCurrency != subsidiaryCurrency)
-		    			{
-		    				// call function to convert minimumUsage to the subsidiary currency
-		    				minimumUsage = currencyConversion(contractCurrency, subsidiaryCurrency, minimumUsage)
-		    			}
-		    	
 		    		// subtract minimumUsage from deferredRevAmt
 		    		deferredRevAmt = parseFloat(deferredRevAmt - minimumUsage);
 		    	}
@@ -2377,923 +2345,931 @@ function(runtime, search, record, format, task, currency) {
 				    	type: format.Type.DATE,
 				    	value: invoiceDate
 				    });
-		    	
-		    		try
-			   			{
-			   				// create a new journal record
-			   				var journalRecord = record.create({
-			   					type: record.Type.JOURNAL_ENTRY,
-			   					isDynamic: true
-			   				});
-					    		
-						    // set header fields on the journal record
-						    journalRecord.setValue({
-						    	fieldId: 'trandate',
-						    	value: invoiceDate
-						    });
-					    		
-						    journalRecord.setValue({
-						    	fieldId: 'memo',
-						    	value: billingType + ' + ' + journalDate
-						    });
-						    		
-						    journalRecord.setValue({
-						    	fieldId: 'custbody_bbs_contract_record',
-						    	value: contractRecord
-						    });
-						    		
-						    journalRecord.setValue({
-						    	fieldId: 'custbody_bbs_rev_rec_journal',
-						    	value: true
-						    });
-						    		
-						    journalRecord.setValue({
-						    	fieldId: 'subsidiary',
-						    	value: subsidiary
-						    });
-						    		
-						    journalRecord.setValue({
-						    	fieldId: 'location',
-						    	value: location
-						    });
-						    		
-						    journalRecord.setValue({
-						    	fieldId: 'currency',
-						    	value: subsidiaryCurrency
-						    });
-						    
-						    journalRecord.setValue({
-						    	fieldId: 'custbody_bbs_related_sales_order',
-						    	value: recordID
-						    });
-					    
-						    // create search to find contract usage for the current billing month
-				    		var thisMonthUsageSearch = search.create({
-				    			type: 'customrecord_bbs_contract_period',
-				    			
-				    			columns: [{
-				    				name: 'custrecord_bbs_contract_period_prod_use',
-				    				summary: 'SUM'
-				    			}],
-				    			
-				    			filters: [{
-				    				name: 'custrecord_bbs_contract_period_contract',
-				    				operator: 'anyof',
-				    				values: [contractRecord]
-				    			},
-				    					{
-				    				name: 'custrecord_bbs_contract_period_start',
-				    				operator: 'within',
-				    				values: ['lastmonth']
-				    			},
-				    				{
-				    				name: 'custrecord_bbs_contract_period_end',
-				    				operator: 'within',
-				    				values: ['lastmonth']
-				    			}],
-				    		});
-				    		
-				    		// run search and process results
-				    		thisMonthUsageSearch.run().each(function(result)	{
-				    			
-				    			// get the the total of this month's usage from the search
-				    			thisMonthUsage = result.getValue({
-				    				name: 'custrecord_bbs_contract_period_prod_use',
-				    				summary: 'SUM'
-				    			});
-				    			
-				    		});
-				    		
-				    		// check if the thisMonthUsage variable is empty
-				    		if (thisMonthUsage == '')
-				    			{
-				    				// set the thisMonthUsage to 0
-				    				thisMonthUsage = 0;
-				    			}
-				    		
-				    		thisMonthUsage = parseFloat(thisMonthUsage); // use parseFloat to convert to a floating point number
-				    		
-				    		// check if the contractCurrency variable is NOT equal to the subsidiaryCurrency variable
-				    		if (contractCurrency != subsidiaryCurrency)
-				    			{
-				    				// call function to convert thisMonthUsage to subsidiary currency. Pass contractCurrency, subsidiaryCurrency and thisMonthUsage. Converted amount will be returned
-				    				thisMonthUsage = currencyConversion(contractCurrency, subsidiaryCurrency, thisMonthUsage);		    			
-				    			}
-						    
-						    // check if this is a clearing journal
-						    if (clearingJournal == true)
-						    	{
-						    		// check if thisMonthUsage is less than/equal to deferredRevAmt
-						    		if (thisMonthUsage <= deferredRevAmt)
-						    			{
-						    				// calculate the unused revenue amount
-						    				var unused = parseFloat(deferredRevAmt - thisMonthUsage);					    				
-						    				
-						    				// check if we have an unused balance
-						    				if (unused > 0)
-						    					{	
-								    				// add unused to the total
-												    total += unused;
+				    
+				    // create search to find contract usage for the current billing month
+		    		var thisMonthUsageSearch = search.create({
+		    			type: 'customrecord_bbs_contract_period',
+		    			
+		    			columns: [{
+		    				name: 'custrecord_bbs_contract_period_prod_use',
+		    				summary: 'SUM'
+		    			}],
+		    			
+		    			filters: [{
+		    				name: 'custrecord_bbs_contract_period_contract',
+		    				operator: 'anyof',
+		    				values: [contractRecord]
+		    			},
+		    					{
+		    				name: 'custrecord_bbs_contract_period_start',
+		    				operator: 'within',
+		    				values: ['lastmonth']
+		    			},
+		    				{
+		    				name: 'custrecord_bbs_contract_period_end',
+		    				operator: 'within',
+		    				values: ['lastmonth']
+		    			}],
+		    		});
+		    		
+		    		// run search and process results
+		    		thisMonthUsageSearch.run().each(function(result)	{
+		    			
+		    			// get the the total of this month's usage from the search
+		    			thisMonthUsage = result.getValue({
+		    				name: 'custrecord_bbs_contract_period_prod_use',
+		    				summary: 'SUM'
+		    			});
+		    			
+		    		});
+		    		
+		    		// check if the thisMonthUsage variable is empty
+		    		if (thisMonthUsage == '')
+		    			{
+		    				// set the thisMonthUsage to 0
+		    				thisMonthUsage = 0;
+		    			}
+		    		
+		    		thisMonthUsage = parseFloat(thisMonthUsage); // use parseFloat to convert to a floating point number
+		    		
+		    		// check if the contractCurrency variable is NOT equal to the subsidiaryCurrency variable
+		    		if (contractCurrency != subsidiaryCurrency)
+		    			{
+		    				// call function to convert thisMonthUsage to subsidiary currency. Pass contractCurrency, subsidiaryCurrency and thisMonthUsage. Converted amount will be returned
+		    				thisMonthUsage = currencyConversion(contractCurrency, subsidiaryCurrency, thisMonthUsage);		    			
+		    			}
+		    		
+		    		// check if thisMonthUsage is greater than 0 AND clearingJournal is false OR clearingJournal is true
+		    		if ((thisMonthUsage > 0 && clearingJournal == false) || clearingJournal == true)
+		    			{
+				    		try
+					   			{
+					   				// create a new journal record
+					   				var journalRecord = record.create({
+					   					type: record.Type.JOURNAL_ENTRY,
+					   					isDynamic: true
+					   				});
+							    		
+								    // set header fields on the journal record
+								    journalRecord.setValue({
+								    	fieldId: 'trandate',
+								    	value: invoiceDate
+								    });
+							    		
+								    journalRecord.setValue({
+								    	fieldId: 'memo',
+								    	value: billingType + ' + ' + journalDate
+								    });
+								    		
+								    journalRecord.setValue({
+								    	fieldId: 'custbody_bbs_contract_record',
+								    	value: contractRecord
+								    });
+								    		
+								    journalRecord.setValue({
+								    	fieldId: 'custbody_bbs_rev_rec_journal',
+								    	value: true
+								    });
+								    		
+								    journalRecord.setValue({
+								    	fieldId: 'subsidiary',
+								    	value: subsidiary
+								    });
+								    		
+								    journalRecord.setValue({
+								    	fieldId: 'location',
+								    	value: location
+								    });
+								    		
+								    journalRecord.setValue({
+								    	fieldId: 'currency',
+								    	value: subsidiaryCurrency
+								    });
+								    
+								    journalRecord.setValue({
+								    	fieldId: 'custbody_bbs_related_sales_order',
+								    	value: recordID
+								    });
+								    
+								    // check if this is a clearing journal
+								    if (clearingJournal == true)
+								    	{
+								    		// check if thisMonthUsage is less than/equal to deferredRevAmt
+								    		if (thisMonthUsage <= deferredRevAmt)
+								    			{
+								    				// calculate the unused revenue amount
+								    				var unused = parseFloat(deferredRevAmt - thisMonthUsage);					    				
+								    				
+								    				// check if we have an unused balance
+								    				if (unused > 0)
+								    					{	
+										    				// add unused to the total
+														    total += unused;
+														    
+														    // ==========================================================
+														    // ADD A LINE TO THE JOURNAL TO CLEAR UNUSED DEFERRED REVENUE
+														    // ==========================================================
+														    
+														    // select a new line on the journal record
+															journalRecord.selectNewLine({
+																sublistId: 'line'
+															});
+																    
+															// set the account on the new line using the unusedIncomeAccount variable
+															journalRecord.setCurrentSublistValue({
+																sublistId: 'line',
+															    fieldId: 'account',
+															    value: unusedIncomeAccount
+															});
+																    
+															// set fields on the new line
+															journalRecord.setCurrentSublistValue({
+																sublistId: 'line',
+																fieldId: 'entity',
+																value: customer
+															});
+																    
+															journalRecord.setCurrentSublistValue({
+																sublistId: 'line',
+																fieldId: 'location',
+																value: location
+															});
+																    
+															journalRecord.setCurrentSublistValue({
+																sublistId: 'line',
+																fieldId: 'custcol_bbs_journal_client_tier',
+																value: tier
+															});
+																    		
+															journalRecord.setCurrentSublistValue({
+																sublistId: 'line',
+																fieldId: 'custcol_bbs_contract_record',
+																value: contractRecord
+															});
+																    
+															journalRecord.setCurrentSublistValue({
+																sublistId: 'line',
+																fieldId: 'custcol_bbs_related_sales_order',
+																value: recordID
+															});
+																    		
+															journalRecord.setCurrentSublistValue({
+																sublistId: 'line',
+																fieldId: 'memo',
+																value: billingType + ' + ' + journalDate
+															});
+																    
+															// set the credit amount to be the deferredRevAmt
+															journalRecord.setCurrentSublistValue({
+																sublistId: 'line',
+																fieldId: 'credit',
+																value: parseFloat(unused).toFixed(2)
+															});
+														    	
+															// commit the line
+															journalRecord.commitLine({
+																sublistId: 'line'
+															});
+								    					}
+													
+													// check if thisMonthUsage is greater than 0
+								    				if (thisMonthUsage > 0)
+								    					{
+										    				// ==========================================================================================
+															// NOW WE NEED TO ADD LINES TO THE JOURNAL TO RECOGNISE REVENUE FOR THE CURRENT BILLING MONTH
+															// ==========================================================================================
+															
+										    				// create search to find sales order lines for the current billing month
+														    var soSearch = search.create({
+														    	type: search.Type.SALES_ORDER,
+														    	
+														    	columns: [{
+														    		name: 'custcol_bbs_income_account',
+														    		summary: 'GROUP'
+														    	},
+														    			{
+														    		name: 'fxamount',
+														    		summary: 'SUM'
+														    	}],
+														    	
+														    	filters: [{
+														    		name: 'mainline',
+														    		operator: 'is',
+														    		values: ['F']
+														    	},
+														    			{
+														    		name: 'internalid',
+														    		operator: 'anyof',
+														    		values: [recordID]
+														    	},
+														    			{
+														    		name: 'custcol_bbs_so_search_date',
+														    		operator: 'within',
+														    		values: ['lastmonth']
+														    	}],
+												
+														    });
+												
+														    // run search and process search results
+														    soSearch.run().each(function(result) {
+														    	
+														    	// get the line amount from the search results
+														    	lineAmount = result.getValue({
+														    		name: 'fxamount',
+														    		summary: 'SUM'
+														    	});
+														    	
+														    	lineAmount = parseFloat(lineAmount); // use parseFloat to convert to floating point number
+														    	
+														    	// check if contractCurrency is NOT equal to subsidiaryCurrency
+													    		if (contractCurrency != subsidiaryCurrency)
+													    			{
+													    				// call function to convert lineAmount to the subsidiary currency
+													    				lineAmount = currencyConversion(contractCurrency, subsidiaryCurrency, lineAmount)
+													    			}
+														    	
+														    	// add the lineAmount to the total variable
+														    	total += lineAmount;
+													    	
+														    	// get the income account for the item from the search results
+														    	postingAccount = result.getValue({
+														    		name: 'custcol_bbs_income_account',
+														    		summary: 'GROUP'
+														    	});
+														        
+														        // select a new line on the journal record
+															    journalRecord.selectNewLine({
+															    	sublistId: 'line'
+															    });
+															    
+															    // set fields on the new journal line
+														        journalRecord.setCurrentSublistValue({
+														        	sublistId: 'line',
+														        	fieldId: 'account',
+														        	value: postingAccount
+														        });
+														        		
+														        journalRecord.setCurrentSublistValue({
+														        	sublistId: 'line',
+														        	fieldId: 'credit',
+														        	value: parseFloat(lineAmount).toFixed(2)
+														        });
+														        		
+														        journalRecord.setCurrentSublistValue({
+														        	sublistId: 'line',
+														        	fieldId: 'entity',
+														        	value: customer
+														        });
+														        
+														        journalRecord.setCurrentSublistValue({
+														        	sublistId: 'line',
+														        	fieldId: 'location',
+														        	value: location
+														        });
+														        
+														        journalRecord.setCurrentSublistValue({
+														        	sublistId: 'line',
+														        	fieldId: 'custcol_bbs_journal_client_tier',
+														        	value: tier
+														        });
+														        		
+														        journalRecord.setCurrentSublistValue({
+														        	sublistId: 'line',
+														        	fieldId: 'memo',
+														        	value: billingType + ' + ' + journalDate
+														        });
+														        		
+														        journalRecord.setCurrentSublistValue({
+														        	sublistId: 'line',
+														        	fieldId: 'custcol_bbs_contract_record',
+														        	value: contractRecord
+														        });
+													        
+														        journalRecord.setCurrentSublistValue({
+														        	sublistId: 'line',
+														        	fieldId: 'custcol_bbs_related_sales_order',
+														        	value: recordID
+														        });
+														        		
+														        // commit the line
+														        journalRecord.commitLine({
+														    		sublistId: 'line'
+														    	});
+														        
+														        // continue processing search results
+														        return true;
+												
+															});
+								    					}
 												    
-												    // ==========================================================
-												    // ADD A LINE TO THE JOURNAL TO CLEAR UNUSED DEFERRED REVENUE
-												    // ==========================================================
+												    // =========================================================================================
+												    // NOW WE NEED TO ADD A LINE TO DEBIT BALANCES FROM THE APPROPRIATE DEFERRED REVENUE ACCOUNT
+												    // =========================================================================================
 												    
 												    // select a new line on the journal record
-													journalRecord.selectNewLine({
+												    journalRecord.selectNewLine({
+												    	sublistId: 'line'
+												    });
+												    		
+											    	// check if the billingType is 'AMBMA'
+											    	if (billingType == 'AMBMA')
+											    		{
+											    			// set the account on the new line using the deferredIncomeMonthly variable
+											    			journalRecord.setCurrentSublistValue({
+											    				sublistId: 'line',
+											    				fieldId: 'account',
+											    				value: deferredIncomeMonthly
+											    			});
+											    		}
+											    	// else if the billingType is 'QMP, AMP or QUR'
+											    	else
+											    		{
+												    		// set the account on the new line using the deferredIncomeUpfront variable
+											    			journalRecord.setCurrentSublistValue({
+											    				sublistId: 'line',
+											    				fieldId: 'account',
+											    				value: deferredIncomeUpfront
+											    			});
+											    		}
+												    		
+												    // set fields on the new line
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'entity',
+												    	value: customer
+												    });
+												    
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'location',
+												    	value: location
+												    });
+											    
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'custcol_bbs_journal_client_tier',
+												    	value: tier
+												    });
+												    		
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'custcol_bbs_contract_record',
+												    	value: contractRecord
+												    });
+												    
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'custcol_bbs_related_sales_order',
+												    	value: recordID
+												    });
+												    		
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'memo',
+												    	value: billingType + ' + ' + journalDate
+												    });
+												    
+												    // set the debit amount using the total variable
+													journalRecord.setCurrentSublistValue({
+														sublistId: 'line',
+														fieldId: 'debit',
+														value: parseFloat(total).toFixed(2)
+													});
+												    		
+												    // commit the line
+												    journalRecord.commitLine({
 														sublistId: 'line'
 													});
-														    
-													// set the account on the new line using the unusedIncomeAccount variable
-													journalRecord.setCurrentSublistValue({
-														sublistId: 'line',
-													    fieldId: 'account',
-													    value: unusedIncomeAccount
-													});
-														    
-													// set fields on the new line
-													journalRecord.setCurrentSublistValue({
-														sublistId: 'line',
-														fieldId: 'entity',
-														value: customer
-													});
-														    
-													journalRecord.setCurrentSublistValue({
-														sublistId: 'line',
-														fieldId: 'location',
-														value: location
-													});
-														    
-													journalRecord.setCurrentSublistValue({
-														sublistId: 'line',
-														fieldId: 'custcol_bbs_journal_client_tier',
-														value: tier
-													});
-														    		
-													journalRecord.setCurrentSublistValue({
-														sublistId: 'line',
-														fieldId: 'custcol_bbs_contract_record',
-														value: contractRecord
-													});
-														    
-													journalRecord.setCurrentSublistValue({
-														sublistId: 'line',
-														fieldId: 'custcol_bbs_related_sales_order',
-														value: recordID
-													});
-														    		
-													journalRecord.setCurrentSublistValue({
-														sublistId: 'line',
-														fieldId: 'memo',
-														value: billingType + ' + ' + journalDate
-													});
-														    
-													// set the credit amount to be the deferredRevAmt
+				
+								    			}
+								    		// else if thisMonthUsage is greater than deferredRevAmt
+								    		else
+								    			{
+									    			// =============================================================
+								    				// ADD A LINE TO CREDIT BALANCES TO THE CHECKS COMPLETED ACCOUNT
+								    				// =============================================================
+								    			
+									    			// select a new line on the journal record
+												    journalRecord.selectNewLine({
+												    	sublistId: 'line'
+												    });
+												    
+												    // set the account on the new line using the checksCompleteAccount variable
+									    			journalRecord.setCurrentSublistValue({
+									    				sublistId: 'line',
+									    				fieldId: 'account',
+									    				value: checksCompleteAccount
+									    			});
+									    			
+									    			// set fields on the new line
+									    			journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'entity',
+												    	value: customer
+												    });
+												    
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'location',
+												    	value: location
+												    });
+												    
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'custcol_bbs_journal_client_tier',
+												    	value: tier
+												    });
+												    		
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'custcol_bbs_contract_record',
+												    	value: contractRecord
+												    });
+												    
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'custcol_bbs_related_sales_order',
+												    	value: recordID
+												    });
+												    		
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'memo',
+												    	value: billingType + ' + ' + journalDate
+												    });
+												    
+												    // set the credit amount using the deferredRevAmt variable
 													journalRecord.setCurrentSublistValue({
 														sublistId: 'line',
 														fieldId: 'credit',
-														value: parseFloat(unused).toFixed(2)
+														value: parseFloat(deferredRevAmt).toFixed(2)
 													});
-												    	
-													// commit the line
-													journalRecord.commitLine({
+												    		
+												    // commit the line
+												    journalRecord.commitLine({
 														sublistId: 'line'
 													});
-						    					}
-											
-											// ==========================================================================================
-											// NOW WE NEED TO ADD LINES TO THE JOURNAL TO RECOGNISE REVENUE FOR THE CURRENT BILLING MONTH
-											// ==========================================================================================
-											
-						    				// create search to find sales order lines for the current billing month
-										    var soSearch = search.create({
-										    	type: search.Type.SALES_ORDER,
-										    	
-										    	columns: [{
-										    		name: 'custcol_bbs_income_account',
-										    		summary: 'GROUP'
-										    	},
-										    			{
-										    		name: 'fxamount',
-										    		summary: 'SUM'
-										    	}],
-										    	
-										    	filters: [{
-										    		name: 'mainline',
-										    		operator: 'is',
-										    		values: ['F']
-										    	},
-										    			{
-										    		name: 'internalid',
-										    		operator: 'anyof',
-										    		values: [recordID]
-										    	},
-										    			{
-										    		name: 'custcol_bbs_so_search_date',
-										    		operator: 'within',
-										    		values: ['lastmonth']
-										    	}],
-								
-										    });
-								
-										    // run search and process search results
-										    soSearch.run().each(function(result) {
-										    	
-										    	// get the line amount from the search results
-										    	lineAmount = result.getValue({
-										    		name: 'fxamount',
-										    		summary: 'SUM'
-										    	});
-										    	
-										    	lineAmount = parseFloat(lineAmount); // use parseFloat to convert to floating point number
-										    	
-										    	// check if contractCurrency is NOT equal to subsidiaryCurrency
-									    		if (contractCurrency != subsidiaryCurrency)
-									    			{
-									    				// call function to convert lineAmount to the subsidiary currency
-									    				lineAmount = currencyConversion(contractCurrency, subsidiaryCurrency, lineAmount)
-									    			}
-										    	
-										    	// add the lineAmount to the total variable
-										    	total += lineAmount;
-									    	
-										    	// get the income account for the item from the search results
-										    	postingAccount = result.getValue({
-										    		name: 'custcol_bbs_income_account',
-										    		summary: 'GROUP'
-										    	});
-										        
-										        // select a new line on the journal record
-											    journalRecord.selectNewLine({
-											    	sublistId: 'line'
-											    });
+								    			
+								    				// =========================================================================================
+												    // NOW WE NEED TO ADD A LINE TO DEBIT BALANCES FROM THE APPROPRIATE DEFERRED REVENUE ACCOUNT
+												    // =========================================================================================
+												    
+												    // select a new line on the journal record
+												    journalRecord.selectNewLine({
+												    	sublistId: 'line'
+												    });
+											    		
+											    	// check if the billingType is 'AMBMA'
+											    	if (billingType == 'AMBMA')
+											    		{
+											    			// set the account on the new line using the deferredIncomeMonthly variable
+											    			journalRecord.setCurrentSublistValue({
+											    				sublistId: 'line',
+											    				fieldId: 'account',
+											    				value: deferredIncomeMonthly
+											    			});
+											    		}
+											    	// else if the billingType is 'QMP, AMP or QUR'
+											    	else
+											    		{
+												    		// set the account on the new line using the deferredIncomeUpfront variable
+											    			journalRecord.setCurrentSublistValue({
+											    				sublistId: 'line',
+											    				fieldId: 'account',
+											    				value: deferredIncomeUpfront
+											    			});
+											    		}
+												    		
+												    // set fields on the new line
+											    	journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'entity',
+												    	value: customer
+												    });
+												    
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'location',
+												    	value: location
+												    });
+												    
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'custcol_bbs_journal_client_tier',
+												    	value: tier
+												    });
+												    		
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'custcol_bbs_contract_record',
+												    	value: contractRecord
+												    });
+												    
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'custcol_bbs_related_sales_order',
+												    	value: recordID
+												    });
+												    		
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'memo',
+												    	value: billingType + ' + ' + journalDate
+												    });
+												    
+												    // set the debit amount using the deferredRevAmt variable
+													journalRecord.setCurrentSublistValue({
+														sublistId: 'line',
+														fieldId: 'debit',
+														value: parseFloat(deferredRevAmt).toFixed(2)
+													});
+												    		
+												    // commit the line
+												    journalRecord.commitLine({
+														sublistId: 'line'
+													});
+								    			}
+								    	}	
+								    // else if this is NOT a clearing journal
+								    else
+								    	{
+								    		// check if thisMonthUsage is less than/equal to deferredRevAmt
+								    		if (thisMonthUsage <= deferredRevAmt)
+								    			{
+									    			// ===========================================================================
+													// ADD LINES TO THE JOURNAL TO RECOGNISE REVENUE FOR THE CURRENT BILLING MONTH
+													// ===========================================================================
+													
+									    			// create search to find sales order lines for the current billing month
+												    var soSearch = search.create({
+												    	type: search.Type.SALES_ORDER,
+												    	
+												    	columns: [{
+												    		name: 'custcol_bbs_income_account',
+												    		summary: 'GROUP'
+												    	},
+												    			{
+												    		name: 'fxamount',
+												    		summary: 'SUM'
+												    	}],
+												    	
+												    	filters: [{
+												    		name: 'mainline',
+												    		operator: 'is',
+												    		values: ['F']
+												    	},
+												    			{
+												    		name: 'internalid',
+												    		operator: 'anyof',
+												    		values: [recordID]
+												    	},
+												    			{
+												    		name: 'custcol_bbs_so_search_date',
+												    		operator: 'within',
+												    		values: ['lastmonth']
+												    	}],
+										
+												    });
+										
+												    // run search and process search results
+												    soSearch.run().each(function(result) {
+												    	
+												    	// get the line amount from the search results
+												    	lineAmount = result.getValue({
+												    		name: 'fxamount',
+												    		summary: 'SUM'
+												    	});
+												    	
+												    	lineAmount = parseFloat(lineAmount); // use parseFloat to convert to floating point number
+												    	
+												    	// check if contractCurrency is NOT equal to subsidiaryCurrency
+											    		if (contractCurrency != subsidiaryCurrency)
+											    			{
+											    				// call function to convert lineAmount to the subsidiary currency
+											    				lineAmount = currencyConversion(contractCurrency, subsidiaryCurrency, lineAmount)
+											    			}
+												    	
+												    	// add the lineAmount to the total variable
+												    	total += lineAmount;
+											    	
+												    	// get the income account for the item from the search results
+												    	postingAccount = result.getValue({
+												    		name: 'custcol_bbs_income_account',
+												    		summary: 'GROUP',
+												    	});
+												        
+												        // select a new line on the journal record
+													    journalRecord.selectNewLine({
+													    	sublistId: 'line'
+													    });
+													    
+													    // set fields on the new journal line
+												        journalRecord.setCurrentSublistValue({
+												        	sublistId: 'line',
+												        	fieldId: 'account',
+												        	value: postingAccount
+												        });
+												        		
+												        journalRecord.setCurrentSublistValue({
+												        	sublistId: 'line',
+												        	fieldId: 'credit',
+												        	value: parseFloat(lineAmount).toFixed(2)
+												        });
+												        		
+												        journalRecord.setCurrentSublistValue({
+												        	sublistId: 'line',
+												        	fieldId: 'entity',
+												        	value: customer
+												        });
+												        
+												        journalRecord.setCurrentSublistValue({
+												        	sublistId: 'line',
+												        	fieldId: 'location',
+												        	value: location
+												        });
+												        
+												        journalRecord.setCurrentSublistValue({
+												        	sublistId: 'line',
+												        	fieldId: 'custcol_bbs_journal_client_tier',
+												        	value: tier
+												        });
+												        		
+												        journalRecord.setCurrentSublistValue({
+												        	sublistId: 'line',
+												        	fieldId: 'memo',
+												        	value: billingType + ' + ' + journalDate
+												        });
+												        		
+												        journalRecord.setCurrentSublistValue({
+												        	sublistId: 'line',
+												        	fieldId: 'custcol_bbs_contract_record',
+												        	value: contractRecord
+												        });
+												        
+												        journalRecord.setCurrentSublistValue({
+												        	sublistId: 'line',
+												        	fieldId: 'custcol_bbs_related_sales_order',
+												        	value: recordID
+												        });
+												        		
+												        // commit the line
+												        journalRecord.commitLine({
+												    		sublistId: 'line'
+												    	});
+												        
+												        // continue processing search results
+												        return true;
+										
+													});
 											    
-											    // set fields on the new journal line
-										        journalRecord.setCurrentSublistValue({
-										        	sublistId: 'line',
-										        	fieldId: 'account',
-										        	value: postingAccount
-										        });
-										        		
-										        journalRecord.setCurrentSublistValue({
-										        	sublistId: 'line',
-										        	fieldId: 'credit',
-										        	value: parseFloat(lineAmount).toFixed(2)
-										        });
-										        		
-										        journalRecord.setCurrentSublistValue({
-										        	sublistId: 'line',
-										        	fieldId: 'entity',
-										        	value: customer
-										        });
-										        
-										        journalRecord.setCurrentSublistValue({
-										        	sublistId: 'line',
-										        	fieldId: 'location',
-										        	value: location
-										        });
-										        
-										        journalRecord.setCurrentSublistValue({
-										        	sublistId: 'line',
-										        	fieldId: 'custcol_bbs_journal_client_tier',
-										        	value: tier
-										        });
-										        		
-										        journalRecord.setCurrentSublistValue({
-										        	sublistId: 'line',
-										        	fieldId: 'memo',
-										        	value: billingType + ' + ' + journalDate
-										        });
-										        		
-										        journalRecord.setCurrentSublistValue({
-										        	sublistId: 'line',
-										        	fieldId: 'custcol_bbs_contract_record',
-										        	value: contractRecord
-										        });
-									        
-										        journalRecord.setCurrentSublistValue({
-										        	sublistId: 'line',
-										        	fieldId: 'custcol_bbs_related_sales_order',
-										        	value: recordID
-										        });
-										        		
-										        // commit the line
-										        journalRecord.commitLine({
-										    		sublistId: 'line'
-										    	});
-										        
-										        // continue processing search results
-										        return true;
-								
-											});
-										    
-										    // =========================================================================================
-										    // NOW WE NEED TO ADD A LINE TO DEBIT BALANCES FROM THE APPROPRIATE DEFERRED REVENUE ACCOUNT
-										    // =========================================================================================
-										    
-										    // select a new line on the journal record
-										    journalRecord.selectNewLine({
-										    	sublistId: 'line'
-										    });
-										    		
-									    	// check if the billingType is 'AMBMA'
-									    	if (billingType == 'AMBMA')
-									    		{
-									    			// set the account on the new line using the deferredIncomeMonthly variable
+												    // =========================================================================================
+												    // NOW WE NEED TO ADD A LINE TO DEBIT BALANCES FROM THE APPROPRIATE DEFERRED REVENUE ACCOUNT
+												    // =========================================================================================
+												    
+												    // select a new line on the journal record
+												    journalRecord.selectNewLine({
+												    	sublistId: 'line'
+												    });
+												    		
+											    	// check if the billingType is 'AMBMA'
+											    	if (billingType == 'AMBMA')
+											    		{
+											    			// set the account on the new line using the deferredIncomeMonthly variable
+											    			journalRecord.setCurrentSublistValue({
+											    				sublistId: 'line',
+											    				fieldId: 'account',
+											    				value: deferredIncomeMonthly
+											    			});
+											    		}
+											    	// else if the billingType is 'QMP, AMP or QUR'
+											    	else
+											    		{
+												    		// set the account on the new line using the deferredIncomeUpfront variable
+											    			journalRecord.setCurrentSublistValue({
+											    				sublistId: 'line',
+											    				fieldId: 'account',
+											    				value: deferredIncomeUpfront
+											    			});
+											    		}
+												    		
+												    // set fields on the new line
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'entity',
+												    	value: customer
+												    });
+												    
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'location',
+												    	value: location
+												    });
+												    
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'custcol_bbs_journal_client_tier',
+												    	value: tier
+												    });
+												    		
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'custcol_bbs_contract_record',
+												    	value: contractRecord
+												    });
+												    
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'custcol_bbs_related_sales_order',
+												    	value: recordID
+												    });
+												    		
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'memo',
+												    	value: billingType + ' + ' + journalDate
+												    });
+												    
+												    // set the debit amount using the total variable
+													journalRecord.setCurrentSublistValue({
+														sublistId: 'line',
+														fieldId: 'debit',
+														value: parseFloat(total).toFixed(2)							
+													});
+												    		
+												    // commit the line
+												    journalRecord.commitLine({
+														sublistId: 'line'
+													});
+												    
+								    			}
+								    		// else if thisMonthUsage is greater than deferredRevAmt
+								    		else
+								    			{
+									    			// =============================================================
+								    				// ADD A LINE TO CREDIT BALANCES TO THE CHECKS COMPLETED ACCOUNT
+								    				// =============================================================
+								    			
+									    			// select a new line on the journal record
+												    journalRecord.selectNewLine({
+												    	sublistId: 'line'
+												    });
+												    
+												    // set the account on the new line using the checksCompleteAccount variable
 									    			journalRecord.setCurrentSublistValue({
 									    				sublistId: 'line',
 									    				fieldId: 'account',
-									    				value: deferredIncomeMonthly
+									    				value: checksCompleteAccount
 									    			});
-									    		}
-									    	// else if the billingType is 'QMP, AMP or QUR'
-									    	else
-									    		{
-										    		// set the account on the new line using the deferredIncomeUpfront variable
-									    			journalRecord.setCurrentSublistValue({
-									    				sublistId: 'line',
-									    				fieldId: 'account',
-									    				value: deferredIncomeUpfront
-									    			});
-									    		}
-										    		
-										    // set fields on the new line
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'entity',
-										    	value: customer
-										    });
-										    
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'location',
-										    	value: location
-										    });
-									    
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'custcol_bbs_journal_client_tier',
-										    	value: tier
-										    });
-										    		
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'custcol_bbs_contract_record',
-										    	value: contractRecord
-										    });
-										    
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'custcol_bbs_related_sales_order',
-										    	value: recordID
-										    });
-										    		
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'memo',
-										    	value: billingType + ' + ' + journalDate
-										    });
-										    
-										    // set the debit amount using the total variable
-											journalRecord.setCurrentSublistValue({
-												sublistId: 'line',
-												fieldId: 'debit',
-												value: parseFloat(total).toFixed(2)
-											});
-										    		
-										    // commit the line
-										    journalRecord.commitLine({
-												sublistId: 'line'
-											});
-		
-						    			}
-						    		// else if thisMonthUsage is greater than deferredRevAmt
-						    		else
-						    			{
-							    			// =============================================================
-						    				// ADD A LINE TO CREDIT BALANCES TO THE CHECKS COMPLETED ACCOUNT
-						    				// =============================================================
-						    			
-							    			// select a new line on the journal record
-										    journalRecord.selectNewLine({
-										    	sublistId: 'line'
-										    });
-										    
-										    // set the account on the new line using the checksCompleteAccount variable
-							    			journalRecord.setCurrentSublistValue({
-							    				sublistId: 'line',
-							    				fieldId: 'account',
-							    				value: checksCompleteAccount
-							    			});
-							    			
-							    			// set fields on the new line
-							    			journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'entity',
-										    	value: customer
-										    });
-										    
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'location',
-										    	value: location
-										    });
-										    
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'custcol_bbs_journal_client_tier',
-										    	value: tier
-										    });
-										    		
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'custcol_bbs_contract_record',
-										    	value: contractRecord
-										    });
-										    
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'custcol_bbs_related_sales_order',
-										    	value: recordID
-										    });
-										    		
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'memo',
-										    	value: billingType + ' + ' + journalDate
-										    });
-										    
-										    // set the credit amount using the deferredRevAmt variable
-											journalRecord.setCurrentSublistValue({
-												sublistId: 'line',
-												fieldId: 'credit',
-												value: parseFloat(deferredRevAmt).toFixed(2)
-											});
-										    		
-										    // commit the line
-										    journalRecord.commitLine({
-												sublistId: 'line'
-											});
-						    			
-						    				// =========================================================================================
-										    // NOW WE NEED TO ADD A LINE TO DEBIT BALANCES FROM THE APPROPRIATE DEFERRED REVENUE ACCOUNT
-										    // =========================================================================================
-										    
-										    // select a new line on the journal record
-										    journalRecord.selectNewLine({
-										    	sublistId: 'line'
-										    });
-									    		
-									    	// check if the billingType is 'AMBMA'
-									    	if (billingType == 'AMBMA')
-									    		{
-									    			// set the account on the new line using the deferredIncomeMonthly variable
-									    			journalRecord.setCurrentSublistValue({
-									    				sublistId: 'line',
-									    				fieldId: 'account',
-									    				value: deferredIncomeMonthly
-									    			});
-									    		}
-									    	// else if the billingType is 'QMP, AMP or QUR'
-									    	else
-									    		{
-										    		// set the account on the new line using the deferredIncomeUpfront variable
-									    			journalRecord.setCurrentSublistValue({
-									    				sublistId: 'line',
-									    				fieldId: 'account',
-									    				value: deferredIncomeUpfront
-									    			});
-									    		}
-										    		
-										    // set fields on the new line
-									    	journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'entity',
-										    	value: customer
-										    });
-										    
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'location',
-										    	value: location
-										    });
-										    
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'custcol_bbs_journal_client_tier',
-										    	value: tier
-										    });
-										    		
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'custcol_bbs_contract_record',
-										    	value: contractRecord
-										    });
-										    
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'custcol_bbs_related_sales_order',
-										    	value: recordID
-										    });
-										    		
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'memo',
-										    	value: billingType + ' + ' + journalDate
-										    });
-										    
-										    // set the debit amount using the deferredRevAmt variable
-											journalRecord.setCurrentSublistValue({
-												sublistId: 'line',
-												fieldId: 'debit',
-												value: parseFloat(deferredRevAmt).toFixed(2)
-											});
-										    		
-										    // commit the line
-										    journalRecord.commitLine({
-												sublistId: 'line'
-											});
-						    			}
-						    	}	
-						    // else if this is NOT a clearing journal
-						    else
-						    	{
-						    		// check if thisMonthUsage is less than/equal to deferredRevAmt
-						    		if (thisMonthUsage <= deferredRevAmt)
-						    			{
-							    			// ===========================================================================
-											// ADD LINES TO THE JOURNAL TO RECOGNISE REVENUE FOR THE CURRENT BILLING MONTH
-											// ===========================================================================
-											
-							    			// create search to find sales order lines for the current billing month
-										    var soSearch = search.create({
-										    	type: search.Type.SALES_ORDER,
-										    	
-										    	columns: [{
-										    		name: 'custcol_bbs_income_account',
-										    		summary: 'GROUP'
-										    	},
-										    			{
-										    		name: 'fxamount',
-										    		summary: 'SUM'
-										    	}],
-										    	
-										    	filters: [{
-										    		name: 'mainline',
-										    		operator: 'is',
-										    		values: ['F']
-										    	},
-										    			{
-										    		name: 'internalid',
-										    		operator: 'anyof',
-										    		values: [recordID]
-										    	},
-										    			{
-										    		name: 'custcol_bbs_so_search_date',
-										    		operator: 'within',
-										    		values: ['lastmonth']
-										    	}],
-								
-										    });
-								
-										    // run search and process search results
-										    soSearch.run().each(function(result) {
-										    	
-										    	// get the line amount from the search results
-										    	lineAmount = result.getValue({
-										    		name: 'fxamount',
-										    		summary: 'SUM'
-										    	});
-										    	
-										    	lineAmount = parseFloat(lineAmount); // use parseFloat to convert to floating point number
-										    	
-										    	// check if contractCurrency is NOT equal to subsidiaryCurrency
-									    		if (contractCurrency != subsidiaryCurrency)
-									    			{
-									    				// call function to convert lineAmount to the subsidiary currency
-									    				lineAmount = currencyConversion(contractCurrency, subsidiaryCurrency, lineAmount)
-									    			}
-										    	
-										    	// add the lineAmount to the total variable
-										    	total += lineAmount;
-									    	
-										    	// get the income account for the item from the search results
-										    	postingAccount = result.getValue({
-										    		name: 'custcol_bbs_income_account',
-										    		summary: 'GROUP',
-										    	});
-										        
-										        // select a new line on the journal record
-											    journalRecord.selectNewLine({
-											    	sublistId: 'line'
-											    });
+									    			
+									    			// set fields on the new line
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'entity',
+												    	value: customer
+												    });
+												    
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'location',
+												    	value: location
+												    });
+												    
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'custcol_bbs_journal_client_tier',
+												    	value: tier
+												    });
+												    		
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'custcol_bbs_contract_record',
+												    	value: contractRecord
+												    });
+												    
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'custcol_bbs_related_sales_order',
+												    	value: recordID
+												    });
+												    		
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'memo',
+												    	value: billingType + ' + ' + journalDate
+												    });
+												    
+												    // set the credit amount using the deferredRevAmt variable
+													journalRecord.setCurrentSublistValue({
+														sublistId: 'line',
+														fieldId: 'credit',
+														value: parseFloat(deferredRevAmt).toFixed(2)
+													});
+												    		
+												    // commit the line
+												    journalRecord.commitLine({
+														sublistId: 'line'
+													});
+								    			
+								    				// =========================================================================================
+												    // NOW WE NEED TO ADD A LINE TO DEBIT BALANCES FROM THE APPROPRIATE DEFERRED REVENUE ACCOUNT
+												    // =========================================================================================
+												    
+												    // select a new line on the journal record
+												    journalRecord.selectNewLine({
+												    	sublistId: 'line'
+												    });
+												    		
+											    	// check if the billingType is 'AMBMA'
+											    	if (billingType == 'AMBMA')
+											    		{
+											    			// set the account on the new line using the deferredIncomeMonthly variable
+											    			journalRecord.setCurrentSublistValue({
+											    				sublistId: 'line',
+											    				fieldId: 'account',
+											    				value: deferredIncomeMonthly
+											    			});
+											    		}
+											    	// else if the billingType is 'QMP, AMP or QUR'
+											    	else
+											    		{
+												    		// set the account on the new line using the deferredIncomeUpfront variable
+											    			journalRecord.setCurrentSublistValue({
+											    				sublistId: 'line',
+											    				fieldId: 'account',
+											    				value: deferredIncomeUpfront
+											    			});
+											    		}
+												    		
+												    // set fields on the new line
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'entity',
+												    	value: customer
+												    });
+												    
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'location',
+												    	value: location
+												    });
+												    
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'custcol_bbs_journal_client_tier',
+												    	value: tier
+												    });
+												    		
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'custcol_bbs_contract_record',
+												    	value: contractRecord
+												    });
 											    
-											    // set fields on the new journal line
-										        journalRecord.setCurrentSublistValue({
-										        	sublistId: 'line',
-										        	fieldId: 'account',
-										        	value: postingAccount
-										        });
-										        		
-										        journalRecord.setCurrentSublistValue({
-										        	sublistId: 'line',
-										        	fieldId: 'credit',
-										        	value: parseFloat(lineAmount).toFixed(2)
-										        });
-										        		
-										        journalRecord.setCurrentSublistValue({
-										        	sublistId: 'line',
-										        	fieldId: 'entity',
-										        	value: customer
-										        });
-										        
-										        journalRecord.setCurrentSublistValue({
-										        	sublistId: 'line',
-										        	fieldId: 'location',
-										        	value: location
-										        });
-										        
-										        journalRecord.setCurrentSublistValue({
-										        	sublistId: 'line',
-										        	fieldId: 'custcol_bbs_journal_client_tier',
-										        	value: tier
-										        });
-										        		
-										        journalRecord.setCurrentSublistValue({
-										        	sublistId: 'line',
-										        	fieldId: 'memo',
-										        	value: billingType + ' + ' + journalDate
-										        });
-										        		
-										        journalRecord.setCurrentSublistValue({
-										        	sublistId: 'line',
-										        	fieldId: 'custcol_bbs_contract_record',
-										        	value: contractRecord
-										        });
-										        
-										        journalRecord.setCurrentSublistValue({
-										        	sublistId: 'line',
-										        	fieldId: 'custcol_bbs_related_sales_order',
-										        	value: recordID
-										        });
-										        		
-										        // commit the line
-										        journalRecord.commitLine({
-										    		sublistId: 'line'
-										    	});
-										        
-										        // continue processing search results
-										        return true;
-								
-											});
-									    
-										    // =========================================================================================
-										    // NOW WE NEED TO ADD A LINE TO DEBIT BALANCES FROM THE APPROPRIATE DEFERRED REVENUE ACCOUNT
-										    // =========================================================================================
-										    
-										    // select a new line on the journal record
-										    journalRecord.selectNewLine({
-										    	sublistId: 'line'
-										    });
-										    		
-									    	// check if the billingType is 'AMBMA'
-									    	if (billingType == 'AMBMA')
-									    		{
-									    			// set the account on the new line using the deferredIncomeMonthly variable
-									    			journalRecord.setCurrentSublistValue({
-									    				sublistId: 'line',
-									    				fieldId: 'account',
-									    				value: deferredIncomeMonthly
-									    			});
-									    		}
-									    	// else if the billingType is 'QMP, AMP or QUR'
-									    	else
-									    		{
-										    		// set the account on the new line using the deferredIncomeUpfront variable
-									    			journalRecord.setCurrentSublistValue({
-									    				sublistId: 'line',
-									    				fieldId: 'account',
-									    				value: deferredIncomeUpfront
-									    			});
-									    		}
-										    		
-										    // set fields on the new line
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'entity',
-										    	value: customer
-										    });
-										    
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'location',
-										    	value: location
-										    });
-										    
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'custcol_bbs_journal_client_tier',
-										    	value: tier
-										    });
-										    		
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'custcol_bbs_contract_record',
-										    	value: contractRecord
-										    });
-										    
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'custcol_bbs_related_sales_order',
-										    	value: recordID
-										    });
-										    		
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'memo',
-										    	value: billingType + ' + ' + journalDate
-										    });
-										    
-										    // set the debit amount using the total variable
-											journalRecord.setCurrentSublistValue({
-												sublistId: 'line',
-												fieldId: 'debit',
-												value: parseFloat(total).toFixed(2)							
-											});
-										    		
-										    // commit the line
-										    journalRecord.commitLine({
-												sublistId: 'line'
-											});
-										    
-						    			}
-						    		// else if thisMonthUsage is greater than deferredRevAmt
-						    		else
-						    			{
-							    			// =============================================================
-						    				// ADD A LINE TO CREDIT BALANCES TO THE CHECKS COMPLETED ACCOUNT
-						    				// =============================================================
-						    			
-							    			// select a new line on the journal record
-										    journalRecord.selectNewLine({
-										    	sublistId: 'line'
-										    });
-										    
-										    // set the account on the new line using the checksCompleteAccount variable
-							    			journalRecord.setCurrentSublistValue({
-							    				sublistId: 'line',
-							    				fieldId: 'account',
-							    				value: checksCompleteAccount
-							    			});
-							    			
-							    			// set fields on the new line
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'entity',
-										    	value: customer
-										    });
-										    
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'location',
-										    	value: location
-										    });
-										    
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'custcol_bbs_journal_client_tier',
-										    	value: tier
-										    });
-										    		
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'custcol_bbs_contract_record',
-										    	value: contractRecord
-										    });
-										    
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'custcol_bbs_related_sales_order',
-										    	value: recordID
-										    });
-										    		
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'memo',
-										    	value: billingType + ' + ' + journalDate
-										    });
-										    
-										    // set the credit amount using the deferredRevAmt variable
-											journalRecord.setCurrentSublistValue({
-												sublistId: 'line',
-												fieldId: 'credit',
-												value: parseFloat(deferredRevAmt).toFixed(2)
-											});
-										    		
-										    // commit the line
-										    journalRecord.commitLine({
-												sublistId: 'line'
-											});
-						    			
-						    				// =========================================================================================
-										    // NOW WE NEED TO ADD A LINE TO DEBIT BALANCES FROM THE APPROPRIATE DEFERRED REVENUE ACCOUNT
-										    // =========================================================================================
-										    
-										    // select a new line on the journal record
-										    journalRecord.selectNewLine({
-										    	sublistId: 'line'
-										    });
-										    		
-									    	// check if the billingType is 'AMBMA'
-									    	if (billingType == 'AMBMA')
-									    		{
-									    			// set the account on the new line using the deferredIncomeMonthly variable
-									    			journalRecord.setCurrentSublistValue({
-									    				sublistId: 'line',
-									    				fieldId: 'account',
-									    				value: deferredIncomeMonthly
-									    			});
-									    		}
-									    	// else if the billingType is 'QMP, AMP or QUR'
-									    	else
-									    		{
-										    		// set the account on the new line using the deferredIncomeUpfront variable
-									    			journalRecord.setCurrentSublistValue({
-									    				sublistId: 'line',
-									    				fieldId: 'account',
-									    				value: deferredIncomeUpfront
-									    			});
-									    		}
-										    		
-										    // set fields on the new line
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'entity',
-										    	value: customer
-										    });
-										    
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'location',
-										    	value: location
-										    });
-										    
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'custcol_bbs_journal_client_tier',
-										    	value: tier
-										    });
-										    		
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'custcol_bbs_contract_record',
-										    	value: contractRecord
-										    });
-									    
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'custcol_bbs_related_sales_order',
-										    	value: recordID
-										    });
-										    		
-										    journalRecord.setCurrentSublistValue({
-										    	sublistId: 'line',
-										    	fieldId: 'memo',
-										    	value: billingType + ' + ' + journalDate
-										    });
-										    
-										    // set the debit amount using the deferredRevAmt variable
-											journalRecord.setCurrentSublistValue({
-												sublistId: 'line',
-												fieldId: 'debit',
-												value: parseFloat(deferredRevAmt).toFixed(2)
-											});
-										    		
-										    // commit the line
-										    journalRecord.commitLine({
-												sublistId: 'line'
-											});
-						    			}
-						    	}
-						    
-						    // submit the journal record record
-							var journalID = journalRecord.save({
-								enableSourcing: false,
-							   ignoreMandatoryFields: true
-							});
-											
-							log.audit({
-								title: 'Journal Created',
-								details: 'Journal ID: ' + journalID + ' | Sales Order ID: ' + recordID
-							});
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'custcol_bbs_related_sales_order',
+												    	value: recordID
+												    });
+												    		
+												    journalRecord.setCurrentSublistValue({
+												    	sublistId: 'line',
+												    	fieldId: 'memo',
+												    	value: billingType + ' + ' + journalDate
+												    });
+												    
+												    // set the debit amount using the deferredRevAmt variable
+													journalRecord.setCurrentSublistValue({
+														sublistId: 'line',
+														fieldId: 'debit',
+														value: parseFloat(deferredRevAmt).toFixed(2)
+													});
+												    		
+												    // commit the line
+												    journalRecord.commitLine({
+														sublistId: 'line'
+													});
+								    			}
+								    	}
+								    
+								    // submit the journal record record
+									var journalID = journalRecord.save({
+										enableSourcing: false,
+									   ignoreMandatoryFields: true
+									});
+													
+									log.audit({
+										title: 'Journal Created',
+										details: 'Journal ID: ' + journalID + ' | Sales Order ID: ' + recordID
+									});
+				    			}
+					   		catch(error)
+					   			{
+						   			log.error({
+										title: 'Error Creating Journal',
+										details: 'Sales Order ID: ' + recordID + ' | Error: ' + error
+									});
+					   			}
 		    			}
-			   		catch(error)
-			   			{
-				   			log.error({
-								title: 'Error Creating Journal',
-								details: 'Sales Order ID: ' + recordID + ' | Error: ' + error
-							});
-			   			}
     			}
 		   else // deferred revenue balance is 0
 			    {
@@ -3447,7 +3423,7 @@ function(runtime, search, record, format, task, currency) {
 	    		
 	    		// get the deferred revenue amount from the search results
 	    		deferredRevAmt = result.getValue({
-	    			name: 'amount',
+	    			name: 'fxamount',
 	    			summary: 'SUM'
 	    		});
 	    		
