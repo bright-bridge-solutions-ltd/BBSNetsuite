@@ -115,17 +115,14 @@ function(runtime, search, record) {
 		    try
 				{
 	    			// create a new invoice record
-	    			var invoice = record.create({
-	    				type: record.Type.INVOICE,
-	    				isDynamic: true
-	    			});
+					var invoice = record.transform({
+					    fromType: record.Type.CUSTOMER,
+					    fromId: customer,
+					    toType: record.Type.INVOICE,
+					    isDynamic: true
+					});
 	    			
 	    			// set header fields on the invoice record
-	    			invoice.setValue({
-	    				fieldId: 'entity',
-	    				value: customer
-	    			});
-	    			
 	    			invoice.setValue({
 	    				fieldId: 'account',
 	    				value: trpAcc

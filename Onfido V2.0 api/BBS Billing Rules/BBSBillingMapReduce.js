@@ -138,7 +138,7 @@ function(runtime, search, record, format, task, currency) {
 					{
 				name: 'subsidiary',
 				operator: 'anyof',
-				values: ['5']
+				values: [subsidiary]
 			},
 					{
     			name: 'custrecord_bbs_contract_status',
