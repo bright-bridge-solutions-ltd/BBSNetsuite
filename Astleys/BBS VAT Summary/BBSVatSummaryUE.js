@@ -1,0 +1,127 @@
+/**
+ * Module Description
+ * 
+ * 	Version    	Date            Author          Remarks
+ * 	1.00       	19 Aug 2019     sambatten
+ *	1.10		22 Aug 2019		sambatten		Removed tax rate formatting as was causing null values to appear on layout. Added if statement to only push tax codes/amounts if handling/shipping amount is not 0
+ */
+
+function beforeSubmit(type)
+	{
+		// declare an array variable to store amounts, tax codes, and tax rates.
+		var poleArr = new Array();
+	
+		// get the value of the exchange rate field
+		var exchangeRate = nlapiGetFieldValue('exchangerate');
+
+		// get line item count
+		var itemCount = nlapiGetLineItemCount('item');
+	
+		// loop through the items and obtain relevant info and push to the PoleArr array.
+		for (var x = 1; x <= itemCount; x++)
+			{
+				// get the tax code for the line
+				var lineTaxCode = nlapiGetLineItemValue('item', 'taxcode', x);
+				
+				// check if the lineTaxCode variable returns a value
+				if (lineTaxCode)
+					{
+						// get line item fields
+						taxRate = nlapiGetLineItemValue('item', 'taxrate1', x);
+						taxRate = parseFloat(taxRate).toFixed(0);
+						taxAmt = nlapiGetLineItemValue('item', 'tax1amt', x);
+						taxAmt = parseFloat(taxAmt); // use parseFloat to convert to floating point number
+						taxName = nlapiGetLineItemText('item', 'taxcode', x);
+						goodsAmt = nlapiGetLineItemValue('item', 'amount', x);
+						goodsAmt = parseFloat(goodsAmt); // use parseFloat to convert to floating point number
+						grossTotal = parseFloat(taxAmt + goodsAmt); // use parseFloat to convert to floating point number
+ 						
+						// push all tax codes and tax amounts to the poleArr
+						poleArr.push({rate: taxRate, amt: taxAmt, amtconverted: ((taxAmt * exchangeRate)), name: taxName, code: lineTaxCode, goods: goodsAmt, goodsconverted: ((goodsAmt * exchangeRate)), total: grossTotal, totalConverted: ((grossTotal * exchangeRate))});
+					}
+			}
+		
+ 		// get shipping amount and tax info to add this data to the poleArr array
+		var shippingTaxCode = nlapiGetFieldValue('shippingtaxcode');
+		
+		// check if the shippingTaxCode variable returns a value
+		if (shippingTaxCode)
+			{
+				// retrieve shipping tax rate and amounts
+				shippingTaxRate = nlapiGetFieldValue('shippingtax1rate');
+				shippingTaxRate = parseFloat(shippingTaxRate).toFixed(0);
+				shippingTaxName = nlapiGetFieldText('shippingtaxcode');
+				shippingAmt = nlapiGetFieldValue('shippingcost');
+				shippingTaxAmt = shippingAmt * (shippingTaxRate/100);
+				
+				// check if the shippingAmt is not 0
+				if (shippingAmt != 0)
+					{
+						// push shipping data to the poleArr
+						poleArr.push({rate: shippingTaxRate, amt: shippingTaxAmt, amtconverted: ((shippingTaxAmt * exchangeRate)), name: shippingTaxName, code: shippingTaxCode, goods: shippingAmt, goodsconverted: ((shippingAmt * exchangeRate))});
+					}
+			}
+
+			// get handling amount and tax info to add this data to the poleArr array
+			var handlingTaxCode = nlapiGetFieldText('handlingtaxcode');
+			
+			// check if the handlingTaxCode variable returns a value
+			if (handlingTaxCode)
+				{
+					// retrieve handling tax rate and amounts
+					handlingTaxRate = nlapiGetFieldValue('handlingtax1rate');
+					handlingTaxRate = parseFloat(handlingTaxRate).toFixed(0);
+					handlingTaxName = nlapiGetFieldValue('handlingtaxcode');
+					handlingAmt = nlapiGetFieldValue('handlingcost');
+					handlingTaxAmt = handlingAmt * (handlingTaxRate/100);
+					
+					// check if the handlingAmt is not 0
+					if (handlingAmt != 0)
+						{
+							// push handling data to the poleArr
+							poleArr.push({rate: handlingTaxRate, amt: handlingTaxAmt, amtconverted: ((handlingTaxAmt * exchangeRate)), name: handlingTaxName, code: handlingTaxCode, goods: handlingAmt, goodsconverted: ((handlingAmt * exchangeRate))});
+						}
+				}
+
+			// loop through poleArr to summarise the data. Put the summarised data into a new array 'r'
+			var arrLength = poleArr.length;
+			
+			//find unique Tax Codes and sum-up Tax Amount
+			var n ={},r=[];
+			
+			// loop through arr
+			for (var i = 0; i < arrLength; i++)
+				{
+					var testCode = poleArr[i].code;
+					
+					// unique tax Code
+					if (!n[testCode])
+	 					{
+	 						n[poleArr[i].code] = true;
+	 						r.push(poleArr[i]);
+	 					}
+					else // non unique Tax Code then count Tax Amount together
+						{
+	 						for (var y = 0; y < r.length; y++)
+		 						{
+		 							if (testCode == r[y].code)
+			 							{
+			 								var sumNumber = parseFloat(r[y].amt) + parseFloat(poleArr[i].amt);
+			 								r[y].amt = sumNumber.toFixed(2);
+			 								var sumGoodsAmount = parseFloat(r[y].goods) + parseFloat(poleArr[i].goods);
+			 								r[y].goods = sumGoodsAmount.toFixed(2);
+			 								var sumTaxConverted = parseFloat(r[y].amtconverted) + parseFloat(poleArr[i].amtconverted);
+			 								r[y].amtconverted = sumTaxConverted.toFixed(2);
+			 								var sumGoodsConverted = parseFloat(r[y].goodsconverted) + parseFloat(poleArr[i].goodsconverted);
+			 								r[y].goodsconverted = sumGoodsConverted.toFixed(2);
+			 							}
+		 						}
+						}
+				}
+			
+		// stringify to convert the contents of array 'r' to a string.
+		var jsonString = JSON.stringify(r);
+		
+		// set the value of the 'custbody_bbs_vat_summary' field using the jsonString variable
+		nlapiSetFieldValue('custbody_bbs_vat_summary', jsonString);
+	}

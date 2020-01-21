@@ -1,0 +1,282 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+<macrolist>
+        <macro id="nlheader">
+            
+            <table class="header" style="width: 100%; border-bottom: 1px solid black;">
+    			<tr>
+  					<td colspan="10"><img src="${companyInformation.logoUrl}" style="float: right; width:200px; height:60px;" /></td>
+  					<td colspan="5" align="right"><span style="font-size:24px;">${record@title?upper_case}<br/>${record.tranid}</span></td>
+    			</tr>
+    			<tr>
+    				<td colspan="15">&nbsp;</td>
+    			</tr>
+    			<tr>
+    				<td colspan="10"><strong>John Astley &amp; Sons Limited</strong></td>
+    				<td><strong>Tel:</strong></td>
+    				<td colspan="4">024 7685 4545</td>
+    			</tr>
+    			<tr>
+    				<td colspan="10">Renown Avenue, Coventry Business Park</td>
+    				<td><strong>Fax:</strong></td>
+    				<td colspan="4">024 7685 4515</td>
+    			</tr>
+    			<tr>
+    				<td colspan="10">Coventry, CV5 6UF</td>
+    				<td><strong>Email:</strong></td>
+    				<td colspan="4">accounts@astleys.co.uk<br/>sales@astleys.co.uk</td>
+    			</tr>
+    			<tr>
+    				<td colspan="10">&nbsp;</td>
+    				<td><strong>Web:</strong></td>
+    				<td colspan="4">www.astleys.co.uk</td>
+    			</tr>
+    			<tr>
+    				<td colspan="15">&nbsp;</td>
+    			</tr>
+          </table>
+
+   		</macro>
+
+        <macro id="nlfooter">
+        
+        	<#if record.custbody_bbs_vat_summary?has_content>
+			<#assign customrecord = record.custbody_bbs_vat_summary?eval>
+			<#setting number_format=",##0.00">
+			<#setting locale="en_GB">
+			<table class="total" style="width: 30%; margin-top: 10px; margin-bottom: 20px; border-bottom: 1px solid black;">
+				<thead>
+					<tr>
+						<td style="border-bottom: 1px solid black; font-weight: bold;">RATE</td>
+						<td align="right" style="border-bottom: 1px solid black; font-weight: bold;">Goods</td>
+						<td align="right" style="border-bottom: 1px solid black; font-weight: bold;">VAT</td>
+						<td align="right" style="border-bottom: 1px solid black; font-weight: bold;">TOTAL</td>
+					</tr>
+			</thead>
+			<#list customrecord as customrecord_line>
+			    	<tr>
+						<td>${customrecord_line.rate}%</td>
+						<td align="right">${customrecord_line.goodsconverted}</td>
+						<td align="right">${customrecord_line.amtconverted}</td>
+						<td align="right">${customrecord_line.totalConverted}</td>
+					</tr>
+			</#list>
+			</table>
+			</#if>
+          
+			<table style="width: 100%;">
+          		<tr>
+          			<td>Goods remain the property of John Astley &amp; Sons limited until paid in full. See <a href="www.astleys.co.uk/Pages/Terms_and_Conditions.html" target="_blank">www.astleys.co.uk/Pages/Terms_and_Conditions.html</a> for full terms &amp; conditions.</td>
+          		</tr>
+          		<tr>
+          			<td>Company Registration No: 35885 VAT Registration No: 272 3323 78</td>
+          		</tr>
+          		<tr>
+          			<td>Sort Code: 30-92-33 Account No: 00178123</td>
+          		</tr>
+          	</table>
+
+    		<table class="footer" style="width: 100%;">
+          		<tr>
+      				<td align="right"><pagenumber/> of <totalpages/></td>
+    			</tr>
+        	</table>
+
+        </macro>
+    </macrolist>
+
+    <style type="text/css">table {
+            <!--font-family: sans-serif;-->
+          font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            <!--background-color: #e3e3e3;-->
+            border-bottom: 1px solid black;
+        	border-collapse: collapse;
+            <!--color: #333333;-->
+        }
+        td {
+            padding: 0px;
+            vertical-align: top;
+            font-size:9px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 6pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+			font-size: 6pt;
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      	table.message {
+        	border: 1px solid #dddddd;
+      	}
+        tr.totalrow {
+            <!--background-color: #e3e3e3;-->
+            line-height: 200%;
+        }
+      	tr.messagerow {
+        	font-size: 6pt;
+      	}
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 10pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+          font-size: 10pt;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalcell {
+          	border-bottom: 1px solid black;
+        	border-collapse: collapse;
+        }
+      	td.message {
+        font-size: 8pt;
+      	}
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="180px" footer="nlfooter" footer-height="75px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+    <table style="width: 100%;">
+    	<tr>
+  			<td colspan="2">&nbsp;</td>
+  			<td colspan="8" class="addressheader"><strong>Invoice Address:</strong></td>
+  			<td colspan="5" class="addressheader"><strong>Shipping Address:</strong></td>
+  		</tr>
+  		<tr>
+  			<td colspan="2">&nbsp;</td>
+  			<td colspan="8" class="address">${record.billaddress}</td>
+  			<td colspan="5" class="address">${record.shipaddress}</td>
+  		</tr>
+  	</table>
+  	
+  	<table style="width: 100%; margin-top: 30px;">
+  		<tr>
+  			<td colspan="2"><strong>Invoice No.</strong></td>
+  			<td colspan="8">${record.tranid}</td>
+  			<td colspan="3"><strong>Due at Astleys by:</strong></td>
+  			<td colspan="2">${record.duedate}</td>
+  		</tr>
+  		<tr>
+  			<td colspan="2"><strong>Date:</strong></td>
+  			<td colspan="8">${record.trandate}</td>
+  			<td colspan="3"><strong>Your sales rep is:</strong></td>
+  			<td colspan="2">${record.salesrep}</td>
+  		</tr>
+  		<tr>
+  			<td colspan="2"><strong>Account No.</strong></td>
+  			<td colspan="8">${record.entity.custentity_bbs_legacy_ref}</td>
+  			<td colspan="3"><strong>Telephone No.</strong></td>
+  			<td colspan="2">${record.salesrep.phone}</td>
+  		</tr>
+  		<tr>
+  			<td colspan="2"><strong>Ordered By.</strong></td>
+  			<td colspan="8">${record.custbody_bbs_sales_order_contact}</td> 			
+  		</tr>
+  		<tr>
+  			<td colspan="2"><strong>Sales Order No.</strong></td>
+  			<td colspan="8">${record.createdfrom?replace("Sales Order #SO", "SO")}</td>
+  		</tr>
+  	</table>
+  	
+	<#if record.item?has_content>
+		<table class="itemtable" style="width: 100%; margin-top: 30px;"><!-- start items --><#list record.item as item><#if item_index==0>
+			<thead>
+  				<tr>
+  					<th align="left" colspan="2"><br/>Code</th>
+  					<th align="left" colspan="6"><br/>Description</th>
+  					<th align="right">VAT<br/>Code</th>
+  					<th align="right">Pack<br/>Size</th>
+  					<th align="right"><br/>Quantity</th>
+  					<th align="right">Unit<br/>Price</th>
+  					<th align="right">Net<br/>Amount</th>
+  				</tr>
+  			</thead>
+  			</#if>
+  				<tr>
+  					<td align="left" colspan="2">${item.custcol_bbs_sku}</td>
+  					<td align="left" colspan="6">${item.description}</td>
+  					<td align="right">${item.taxrate1}</td>
+  					<td align="right">${item.units}</td>
+  					<td align="right">${item.quantity}</td>
+  					<td align="right">${item.rate?string("0.00")}</td>
+  					<td align="right">${item.amount?string("0.00")}</td>
+  				</tr>
+  		</#list><!-- end items -->
+  		</table>
+	</#if>
+
+<hr />
+	<table class="total" style="width: 100%;">
+		<tr class="totalrow">
+  			<td colspan="10">&nbsp;</td>
+			<td class="totalcell" align="right" colspan="2"><b>Net Total</b></td>
+			<td class="totalcell" align="right">£</td>
+			<td class="totalcell" align="right">${record.subtotal}</td>
+  		</tr>
+  		<tr class="totalrow">
+  			<td colspan="10">&nbsp;</td>
+  			<td class="totalcell" align="right" colspan="2"><b>VAT Total</b></td>
+  			<td class="totalcell" align="right">£</td>
+  			<td class="totalcell" align="right">${record.taxtotal}</td>
+  		</tr>
+  		<tr class="totalrow">
+  			<td colspan="10">&nbsp;</td>
+  			<td class="totalcell" align="right" colspan="2"><b>Gross Total</b></td>
+  			<td class="totalcell" align="right">£</td>
+  			<td class="totalcell" align="right">${record.total}</td>
+  		</tr>
+	</table>
+</body>
+</pdf>
