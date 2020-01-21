@@ -74,6 +74,7 @@ function salesOrderSummaryAS(type)
 							//Get values from the item line
 							//
 							var lineItem = nlapiGetLineItemValue('item', 'item', int);
+							var lineDesc = nlapiGetLineItemValue('item', 'description', int);
 							var lineQuantity = nlapiGetLineItemValue('item', 'quantity', int);
 							var lineCommitted = nlapiGetLineItemValue('item', 'quantitycommitted', int);
 							var lineFulfilled = nlapiGetLineItemValue('item', 'quantityfulfilled', int);
@@ -242,7 +243,7 @@ function salesOrderSummaryAS(type)
 							        		parentInfo = nlapiLookupField(recordType, lineItem, ['itemid','location','salesdescription'], false);
 							        		parentInfoText = nlapiLookupField(recordType, lineItem, ['location'], true);
 							        		
-							        		parentInfo.salesdescription = parentInfo.itemid;
+							        		parentInfo.salesdescription = lineDesc;
 							        		itemInfo.parent = lineItem;
 							        		itemInfo.custitem_fbi_item_colour = '0';
 							        		itemInfo.custitem_fbi_item_size1 = '0';
