@@ -838,6 +838,23 @@ function createProRataInvoice(_salesOrderRecord)
 					invoiceRecord.setCurrentLineItemValue('item','rate', invoiceValue); 
 					invoiceRecord.setCurrentLineItemValue('item','custcol_bbs_revenue_rec_start_date', nlapiDateToString(invoiceDate)); 
 					invoiceRecord.setCurrentLineItemValue('item','custcol_bbs_revenue_rec_end_date', nlapiDateToString(billingEndDate)); 
+					
+					//Get fields from invoice header
+					//
+					var endCustomerName = invoiceRecord.getFieldValue('custbody_bbs_end_cust_name_body');
+					var v1cNumber 		= invoiceRecord.getFieldValue('custbody_bbs_v1c_number');
+					var siteName 		= invoiceRecord.getFieldValue('custbody_bbs_site_name_body');
+					var postCode 		= invoiceRecord.getFieldValue('custbody__bbs_site_post_code_body');
+					var billingFreq 	= invoiceRecord.getFieldValue('custbody_bbs_billing_frequency_body');
+					var peReference 	= invoiceRecord.getFieldValue('custbody_bbs_pe_reference');
+
+					invoiceRecord.setCurrentLineItemValue('item','custcol_bbs_end_cust_name', endCustomerName); 
+					invoiceRecord.setCurrentLineItemValue('item','custcol_bbs_accessid_v1c', v1cNumber); 
+					invoiceRecord.setCurrentLineItemValue('item','custcol_bbs_site_name', siteName); 
+					invoiceRecord.setCurrentLineItemValue('item','custcol_bbs_site_post_code', postCode); 
+					invoiceRecord.setCurrentLineItemValue('item','custcol_bbs_billing_frequency', billingFreq); 
+					invoiceRecord.setCurrentLineItemValue('item','custcol_bbs_pe_reference', peReference); 
+					
 					invoiceRecord.commitLineItem('item'); 
 					
 					var invoiceId = null;
