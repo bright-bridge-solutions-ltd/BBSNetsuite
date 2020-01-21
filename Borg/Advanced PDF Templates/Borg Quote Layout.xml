@@ -9,7 +9,7 @@
         <macro id="nlheader">
             <table class="header" style="width: 100%;">
             	<tr>
-					<td rowspan="3" colspan="3"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: left; margin-top: 7px;" /> </#if></td>
+					<td rowspan="3" colspan="3"><img src="https://3976137.app.netsuite.com/core/media/media.nl?id=3216011&c=3976137&h=a62872ae3572bbadb77c" style="float: left;" /></td>
 					<td><span class="header"><br/>Telephone<br />+44(0)1362 695 006<br />Email<br />sales@borgandoverstrom.com<br /><br /><strong>borgandoverstrom.com</strong></span></td>
 					<td><span class="header"><br/>${companyInformation.addressText}</span></td>
 				</tr>
@@ -151,7 +151,7 @@
 </head>
 <body header="nlheader" header-height="115pt" footer="nlfooter" footer-height="40pt" padding="0.3in 0.3in 0.6in 0.4in" size="A4">
    
-   	<table style="width: 100%; margin-right: 5px; margin-top: 10px; border-top: 1px solid black;">
+   		<table style="width: 100%; margin-right: 5px; margin-top: 10px; border-top: 1px solid black;">
    		<tr>
    			<td style="padding-top:10px" colspan="7"><span class="title">${record@title}</span></td>
    		</tr>
@@ -184,38 +184,41 @@
 		<tr>
 			<!-- check if we have an item image -->
 			<#if item.custcol_bbs_item_image?length gt 0>
-    			<td style="padding-bottom:10px" align="left" colspan="8"><img src="${item.custcol_bbs_item_image}" style="width: 120px; height: 80px;"/></td>
+    			<td style="padding-top:10px;" align="left" colspan="8"><img src="${item.custcol_bbs_item_image}" style="width: 120px; height: 80px;"/></td>
     		<#else>
       			<td colspan="8">&nbsp;</td>
    			</#if>
-			<td colspan="6"><span class="itemname">${item.item}</span></td>
-			<td colspan="7"><span class="address">${item.description}</span></td>
-			<td colspan="5">&nbsp;</td>
-			<td align="left" colspan="4"><span class="address">${item.quantity}</span></td>
-			<td align="left" colspan="4"><span class="address">${item.rate}</span></td>
-			<td align="left" colspan="4"><span class="address">${item.amount}</span></td>
+			<td style="padding-top:10px;" colspan="6"><span class="itemname">${item.item}</span></td>
+			<td style="padding-top:10px;" colspan="7"><span class="address">${item.description}</span></td>
+			<td style="padding-top:10px;" colspan="5">&nbsp;</td>
+			<td style="padding-top:10px;" align="left" colspan="4"><span class="address">${item.quantity}</span></td>
+			<td style="padding-top:10px;" align="left" colspan="4"><span class="address">${item.rate}</span></td>
+			<td style="padding-top:10px;" align="left" colspan="4"><span class="address">${item.amount}</span></td>
 		</tr>
 		</#list><!-- end items -->
 		</#if>
-		<tr style="margin-top: 40px; border-top: 1px solid black;">
-			<td colspan="26"><span class="terms">Payment terms: 30 Days from date of Invoice</span></td>
-		</tr>
-		<tr>
-			<td colspan="26">&nbsp;</td>
-			<td colspan="8" align="left"><span class="address">${record.subtotal@label}</span></td>
-			<td colspan="4" align="right"><span class="address">${record.subtotal}</span></td>
-		</tr>
-		<tr>
-			<td colspan="26">&nbsp;</td>
-			<td colspan="8" align="left"><span class="address">VAT at 20%</span></td>
-			<td colspan="4" align="right"><span class="address">${record.taxtotal}</span></td>
-		</tr>
-		<tr style="border-bottom: 1px solid black;">
-			<td colspan="26">&nbsp;</td>
-			<td colspan="8" align="left"><span class="address"><strong>${record.total@label}</strong></span></td>
-			<td colspan="4" align="right"><span class="address"><strong>${record.total}</strong></span></td>
-		</tr>
-	</table>
+		</table>
+		
+		<table style="width: 100%; margin-right: 5px; margin-top: 10px; border-top: 1px solid black; page-break-inside: avoid;">
+			<tr>
+				<td colspan="26"><span class="terms">Payment terms: 30 Days from date of Invoice</span></td>
+			</tr>
+			<tr>
+				<td colspan="26">&nbsp;</td>
+				<td colspan="8" align="left"><span class="address">${record.subtotal@label}</span></td>
+				<td colspan="4" align="right"><span class="address">${record.subtotal}</span></td>
+			</tr>
+			<tr>
+				<td colspan="26">&nbsp;</td>
+				<td colspan="8" align="left"><span class="address">VAT at 20%</span></td>
+				<td colspan="4" align="right"><span class="address">${record.taxtotal}</span></td>
+			</tr>
+			<tr style="border-bottom: 1px solid black;">
+				<td colspan="26">&nbsp;</td>
+				<td colspan="8" align="left"><span class="address"><strong>${record.total@label}</strong></span></td>
+				<td colspan="4" align="right"><span class="address"><strong>${record.total}</strong></span></td>
+			</tr>
+		</table>
 
 </body>
 </pdf>
