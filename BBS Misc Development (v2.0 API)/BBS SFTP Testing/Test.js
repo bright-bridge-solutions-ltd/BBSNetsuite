@@ -54,7 +54,7 @@ function processNodes(_nodes, _prefix, _output, _isArray, _arrayIndex)
 				  	  if(_prefix == '')
 				  	  	{
 				  	  		_output[a] = {};
-				  	  		processNodes(childNodes, a, _output);
+				  	  		processNodes(childNodes, a, _output, false, -1);
 				  	  	}
 				  	  else
 				  	  	{
