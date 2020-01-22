@@ -82,6 +82,8 @@ function(sftp, file, search, xml, record)
 					//
 					if(objConnection != null)
 						{
+							//Find the files to process
+							//
 							var fileList = objConnection.list({
 																path: 	'.', 
 																sort: 	sftp.Sort.DATE
@@ -95,6 +97,8 @@ function(sftp, file, search, xml, record)
 									//
 									checkResources();
 									
+									//Extract the file name
+									//
 									var fileName = fileList[int].name;
 									var downloadedFile = null;
 									
@@ -118,26 +122,31 @@ function(sftp, file, search, xml, record)
 									//
 									if(downloadedFile != null)
 										{
-											//Process the file
+											//Get the file contents
 											//
 											var fileContents = downloadedFile.getContents();
 											
-											//Convert contents to xml
+											//Convert contents to xml object
 											//
 											var xmlDocument = xml.Parser.fromString({
 																					text: fileContents
 																					});
 											
-											//Process the xml into a cash sale 
+											var orderHeaderNode = xml.XPath.select({node: xmlDocument, xpath: '/*'});
+
+											var output = {};
+											processNodes(orderHeaderNode, '', output, false);
+
+											//Process the xml into NetSuite records
 											//
 											var fileProcessedOk = true;
-											var cashSaleRecordId = null;
+											
 											//TODO
 											
 											
-											//Save the file as an attachment to the cash sale record
+											//Save the file as an attachment 
 											//
-											if(cashSaleRecordId != null)
+											if(fileProcessedOk)
 												{
 													//Set the attachments folder
 						    						//
@@ -271,30 +280,85 @@ function(sftp, file, search, xml, record)
     	return retValue;
     }
 
-    function processNodes(_nodes)
+    function processNodes(_nodes, _prefix, _output, _isArray, _arrayIndex)
     {
+
+
     	for(var int=0; int< _nodes.length; int++)
     	{
               var nodeType = _nodes[int].nodeType;
 
               if(nodeType != 'TEXT_NODE')
               {
-
-    			  var a = _nodes[int].nodeName;
-    			  var b = _nodes[int].textContent;
-    			  var c = _nodes[int].attributes;
-
     				
+    				_arrayIndex++;
+    			  	var a = _nodes[int].nodeName;
+    			  	var b = _nodes[int].textContent;
+    			  	var c = _nodes[int].attributes;
+
+
 
     			  var childNodes = _nodes[int].childNodes;
 
     			  if(processChildNodes(childNodes))
     				  {
-    					processNodes(childNodes);
+    				  	  if(_prefix == '')
+    				  	  	{
+    				  	  		_output[a] = {};
+    				  	  		processNodes(childNodes, a, _output);
+    				  	  	}
+    				  	  else
+    				  	  	{
+    				  	  		var isArray = false;
+    				  	  		var arrayIndex = -1;
+
+    				  	  		if(_isArray)
+    				  	  			{
+    				  	  				var cmd = 'if(_output.' + _prefix + '.length <= ' + _arrayIndex + '){_output.' + _prefix + '.push(new Object())}';
+    				  	  				
+    				  	  				eval(cmd);
+    				  	  				var path =  _prefix + '[' + _arrayIndex + ']' + '.' + a;
+    				  	  			}
+    				  	  		else
+    				  	  			{
+    				  	  				var path = _prefix + '.' + a;
+    				  	  			}
+    				  	  		
+
+    				  	  		if(a == 'OrderLines' || a == 'Suppliers')
+    				  	  			{
+    				  	  				
+    									//var cmd = "_output." + path + " = Array.apply(null, Array(10)).map(function () {return new Object();})";
+    									var cmd = "_output." + path + " = []";
+    									isArray = true;
+    									//arrayIndex++;
+
+    									//path += '[0]';
+    				  	  			}
+    				  	  		else
+    					  	  		{
+
+    					  	  			var cmd = "_output." + path + " = {}";
+
+    					  	  			
+    					  	  		}
+    					  	  		
+    				  	  		eval(cmd);
+
+    				  	  		processNodes(childNodes, path, _output, isArray, arrayIndex);
+    				  	  	}
+    					
     				  }
     				else
     					{
-    						log.debug({title: a + ' = ' + b});
+    						var path = _prefix + '.' + a;
+    						var value = b;
+    						var pathParts = path.split('.');
+
+    						var cmd = "_output." + path + " = '" + value + "'";
+    						eval(cmd);
+
+    						log.debug({title: path + ' = ' + value});
     					}
 
     			  for(var attribute in c)
@@ -306,9 +370,7 @@ function(sftp, file, search, xml, record)
     	}
 
 
-    }
-    
-    
+    }   
     return {execute: execute};
 
 });
