@@ -16,16 +16,21 @@
 			</table>
         </macro>       
         <macro id="nlfooter">
-            <table class="footer" style="width: 100%;">
+            <table class="footer" style="width: 100%; border-top: 1px solid black;">
             	<tr>
-            		<td colspan="12"><span class="disclaimertitle">This quotation is valid for 30 (thirty) days<br/>commencing on the date of this document.</span></td>
-            		<td colspan="6">&nbsp;</td>
+            		<td style="padding-top:10px" colspan="12"><span class="disclaimertitle">This quotation is valid for 30 (thirty) days<br/>commencing on the date of this document.</span></td>
+            		<td style="padding-top:10px" colspan="6">&nbsp;</td>
             	</tr>
             	<tr>
             		<td colspan="12"><span class="disclaimer">Following the expiry period of thirty days, and before the<br/>Agreement is accepted and signed by the client, prices<br/>are subject to change upon prior notification to the Client.</span></td>
             		<td colspan="6" align="left"><br/><br/><span class="tableheader">Please note this is not a VAT invoice</span></td>
             	</tr>
             </table>
+            <table class="footer" style="width: 100%;">
+          		<tr>
+      				<td align="right"><pagenumber/> of <totalpages/></td>
+    			</tr>
+        	</table>
 		</macro> 
     </macrolist> 
     <style type="text/css">
@@ -192,8 +197,8 @@
 			<td style="padding-top:10px;" colspan="7"><span class="address">${item.description}</span></td>
 			<td style="padding-top:10px;" colspan="5">&nbsp;</td>
 			<td style="padding-top:10px;" align="left" colspan="4"><span class="address">${item.quantity}</span></td>
-			<td style="padding-top:10px;" align="left" colspan="4"><span class="address">${item.rate}</span></td>
-			<td style="padding-top:10px;" align="left" colspan="4"><span class="address">${item.amount}</span></td>
+			<td style="padding-top:10px;" align="left" colspan="4"><span class="address">${record.custbody_bbs_currency_symbol}${item.rate?string("0.00")}</span></td>
+			<td style="padding-top:10px;" align="left" colspan="4"><span class="address">${record.custbody_bbs_currency_symbol}${item.amount?string("0.00")}</span></td>
 		</tr>
 		</#list><!-- end items -->
 		</#if>
@@ -206,17 +211,17 @@
 			<tr>
 				<td colspan="26">&nbsp;</td>
 				<td colspan="8" align="left"><span class="address">${record.subtotal@label}</span></td>
-				<td colspan="4" align="right"><span class="address">${record.subtotal}</span></td>
+				<td colspan="4" align="right"><span class="address">${record.custbody_bbs_currency_symbol}${record.subtotal?string("0.00")}</span></td>
 			</tr>
 			<tr>
 				<td colspan="26">&nbsp;</td>
 				<td colspan="8" align="left"><span class="address">VAT at 20%</span></td>
-				<td colspan="4" align="right"><span class="address">${record.taxtotal}</span></td>
+				<td colspan="4" align="right"><span class="address">${record.custbody_bbs_currency_symbol}${record.taxtotal?string("0.00")}</span></td>
 			</tr>
-			<tr style="border-bottom: 1px solid black;">
+			<tr>
 				<td colspan="26">&nbsp;</td>
 				<td colspan="8" align="left"><span class="address"><strong>${record.total@label}</strong></span></td>
-				<td colspan="4" align="right"><span class="address"><strong>${record.total}</strong></span></td>
+				<td colspan="4" align="right"><span class="address"><strong>${record.custbody_bbs_currency_symbol}${record.total?string("0.00")}</strong></span></td>
 			</tr>
 		</table>
 
