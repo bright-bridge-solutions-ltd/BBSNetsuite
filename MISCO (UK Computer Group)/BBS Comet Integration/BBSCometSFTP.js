@@ -305,7 +305,23 @@ function(sftp, file, search, xml, record)
     				  	  if(_prefix == '')
     				  	  	{
     				  	  		_output[a] = {};
-    				  	  		processNodes(childNodes, a, _output);
+    				  	  		
+    				  	  		var firstAttribute = true;
+    					  	  	for(var attribute in c)
+    								{
+    					  	  			if(firstAttribute)
+    					  	  				{
+    					  	  					_output[a].attributes = {};
+    					  	  					firstAttribute = false;
+    					  	  				}
+    					  	  			
+    								       var attributeValue = _nodes[int].getAttribute({name : attribute});
+    								       var attributeName = '@' + attribute;
+    								       var cmd = "_output." + a + ".attributes['" + attributeName + "'] = '" + attributeValue + "'";
+    								       eval(cmd);
+    								 }
+    					  	  	
+    				  	  		processNodes(childNodes, a, _output, false, -1);
     				  	  	}
     				  	  else
     				  	  	{
@@ -345,6 +361,22 @@ function(sftp, file, search, xml, record)
     					  	  		
     				  	  		eval(cmd);
 
+    					  	  	var firstAttribute = true;
+    					  	  	for(var attribute in c)
+    								{
+    					  	  			if(firstAttribute)
+    					  	  				{
+    					  	  					var cmd = "_output." + path + ".attributes = {}";
+    					  	  					eval(cmd);
+    					  	  					firstAttribute = false;
+    					  	  				}
+    					  	  			
+    								       var attributeValue = _nodes[int].getAttribute({name : attribute});
+    								       var attributeName = '@' + attribute;
+    								       var cmd = "_output." + path + ".attributes['" + attributeName + "'] = '" + attributeValue + "'";
+    								       eval(cmd);
+    								 }
+    				  	  	
     				  	  		processNodes(childNodes, path, _output, isArray, arrayIndex);
     				  	  	}
     					
@@ -361,16 +393,12 @@ function(sftp, file, search, xml, record)
     						log.debug({title: path + ' = ' + value});
     					}
 
-    			  for(var attribute in c)
-    			    {
-    			       var d = _nodes[int].getAttribute({name : attribute});
-    			    }
+    			  
     	    }
 
     	}
-
-
-    }   
+    }
+    
     return {execute: execute};
 
 });
