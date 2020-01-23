@@ -820,9 +820,12 @@ function createProRataInvoice(_salesOrderRecord)
 			//Remove any lines on the invoice
 			//
 			var invoiceLines = invoiceRecord.getLineItemCount('item');
+			var lineDescription = '';
 			
 			for (var int = invoiceLines; int >= 1; int--) 
 				{
+					lineDescription = invoiceRecord.getLineItemValue('item', 'description', int);
+				
 					invoiceRecord.removeLineItem('item', int);
 				}
 			
@@ -838,6 +841,8 @@ function createProRataInvoice(_salesOrderRecord)
 					invoiceRecord.setCurrentLineItemValue('item','rate', invoiceValue); 
 					invoiceRecord.setCurrentLineItemValue('item','custcol_bbs_revenue_rec_start_date', nlapiDateToString(invoiceDate)); 
 					invoiceRecord.setCurrentLineItemValue('item','custcol_bbs_revenue_rec_end_date', nlapiDateToString(billingEndDate)); 
+					
+					invoiceRecord.setCurrentLineItemValue('item','description', lineDescription); 
 					
 					//Get fields from invoice header
 					//
