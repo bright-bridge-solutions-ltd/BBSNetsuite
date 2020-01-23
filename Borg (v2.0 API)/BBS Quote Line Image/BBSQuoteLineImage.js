@@ -55,6 +55,11 @@ function(record, file) {
     				line: i
     			});
     			
+    			log.debug({
+    				title: 'Item Type',
+    				details: itemType
+    			});
+    			
     			var recordType = '';
     			
     			// only interested in non description items
@@ -86,6 +91,10 @@ function(record, file) {
     							case 'GiftCert':
     				            	recordType = 'giftcertificateitem';
     				                break;
+    				                
+    							case 'Kit':
+    								recordType = 'kititem';
+    								break;
     						}
     					
     					// load the item record

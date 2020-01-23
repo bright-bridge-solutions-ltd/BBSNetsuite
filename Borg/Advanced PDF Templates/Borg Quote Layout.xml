@@ -210,6 +210,11 @@
 			</tr>
 			<tr>
 				<td colspan="26">&nbsp;</td>
+				<td colspan="8" align="left"><span class="address">${record.shippingcost@label}</span></td>
+				<td colspan="4" align="right"><span class="address">${record.custbody_bbs_currency_symbol}${record.shippingcost?string("0.00")}</span></td>
+			</tr>
+			<tr>
+				<td colspan="26">&nbsp;</td>
 				<td colspan="8" align="left"><span class="address">${record.subtotal@label}</span></td>
 				<td colspan="4" align="right"><span class="address">${record.custbody_bbs_currency_symbol}${record.subtotal?string("0.00")}</span></td>
 			</tr>
