@@ -3,11 +3,11 @@
  * @NScriptType ScheduledScript
  * @NModuleScope SameAccount
  */
-define(['N/sftp', 'N/file', 'N/search', 'N/xml', 'N/record'],
+define(['N/sftp', 'N/file', 'N/search', 'N/xml', 'N/record', 'N/runtime'],
 /**
  * @param {sftp} 
  */
-function(sftp, file, search, xml, record) 
+function(sftp, file, search, xml, record, runtime) 
 {
    
     /**
@@ -23,6 +23,7 @@ function(sftp, file, search, xml, record)
 			//
 			var currentScript = runtime.getCurrentScript();
 			var attachmentsFolder = currentScript.getParameter({name: 'custscript_bbs_attachments_folder'});
+			var cashSaleCustomer = currentScript.getParameter({name: 'custscript_bbs_cashsale_customer'});
 			
     		//Find the integration record
     		//
@@ -95,169 +96,236 @@ function(sftp, file, search, xml, record)
 								{
 									//Check resources
 									//
-									checkResources();
-									
-									//Extract the file name
-									//
-									var fileName = fileList[int].name;
-									var downloadedFile = null;
-									
-									//Try to download the file
-									//
-									try
+									if(runtime.getCurrentScript.getRemainingUsage() > 100)
 										{
-											downloadedFile = objConnection.download({filename: fileName});
-										}
-									catch(err)
-										{
-											log.error({
-														title: 		'Error downloading file ' + fileName,
-														details: 	err
-														});
-											
-											downloadedFile = null;
-										}
-									
-									//Do we have a file to process
-									//
-									if(downloadedFile != null)
-										{
-											//Get the file contents
+											//Extract the file name
 											//
-											var fileContents = downloadedFile.getContents();
+											var fileName = fileList[int].name;
+											var downloadedFile = null;
 											
-											//Convert contents to xml object
+											//Try to download the file
 											//
-											var xmlDocument = xml.Parser.fromString({
-																					text: fileContents
-																					});
-											
-											var orderHeaderNode = xml.XPath.select({node: xmlDocument, xpath: '/*'});
-
-											var output = {};
-											processNodes(orderHeaderNode, '', output, false);
-
-											//Process the xml into NetSuite records
-											//
-											var fileProcessedOk = true;
-											var salesOrderId = null;
-											
 											try
 												{
-													var salesOrderRecord = record.create({
-																							type: 			record.Type.SALES_ORDER, 
-																						    isDynamic: 		true,
-																						    defaultValues: 	{
-																						        			entity: 87				//Cash Sale Customer
-																						    				} 
-																						});
-													
-													salesOrderRecord.setValue({
-																				fieldId:	,
-																				value:	
-																				});
-													
-													salesOrderRecord.selectNewLine({
-																    				sublistId: 'item'
-																    				});
-													
-													salesOrderRecord.setCurrentSublistValue({
-																		    				sublistId: 	'item',
-																		    				fieldId: 	'item',
-																		    				value: 		
-																		    				});
-													
-													salesOrderRecord.commitLine({
-																				sublistId: 	'item'
-																				});
-													
-													salesOrderId = salesOrderRecord.save();
+													downloadedFile = objConnection.download({filename: fileName});
 												}
 											catch(err)
 												{
-													salesOrderId = null;
-													
 													log.error({
-																title: 		'Error creating sales order',
+																title: 		'Error downloading file ' + fileName,
 																details: 	err
-															});
+																});
+													
+													downloadedFile = null;
 												}
 											
-											//Save the file as an attachment 
+											//Do we have a file to process
 											//
-											if(fileProcessedOk)
+											if(downloadedFile != null)
 												{
-													//Set the attachments folder
-						    						//
-													downloadedFile.folder = attachmentsFolder;
-						    						
-													//Make available without login
-						    						//
-													downloadedFile.isOnline = true;
-						    						
-						    						//Try to save the file to the filing cabinet
-						    						//
-						    						var fileId = null;
-						    						
-						    						try
-						    							{
-						    								fileId = downloadedFile.save();
-						    							}
-						    						catch(err)
-						    							{
-						    								log.error({
-						    											title: 'Error Saving file To File Cabinet ' + attachmentsFolder,
-						    											details: err
-						    											});
-						    								
-						    								fileId = null;
-						    							}
+													//Get the file contents
+													//
+													var fileContents = downloadedFile.getContents();
 													
-						    						//If we have saved the file ok, then we need to attach the file
-						    						//
-						    						if(fileId != null)
-						    							{
-						    								record.attach({
-						    												record: {type: 'file', id: fileId},
-						    												to: {type: record.Type.SALES_ORDER, id: cashSaleRecordId}
-						    												});
-						    							
-						    						
-															//If all worked ok the we can move or delete the file
+													//Convert contents to xml object
+													//
+													var xmlDocument = xml.Parser.fromString({
+																							text: fileContents
+																							});
+													
+													var orderHeaderNode = xml.XPath.select({node: xmlDocument, xpath: '/*'});
+		
+													var output = {};
+													processNodes(orderHeaderNode, '', output, false);
+		
+													//Process the xml into NetSuite records
+													//
+													var fileProcessedOk = true;
+													var salesOrderId = null;
+													
+													try
+														{
+															//Extract order header data from output object
 															//
-															if(fileProcessedOk)
-																{
-																	//See if we are moving the file to another directory or just deleting it
-																	//
-																	if(integrationProcessed != null && integrationProcessed != '')
-																		{
-																			//Move the file to the processed directory
-																			//
-																				
-																			//TODO	
-																			
-																		}
-																	else
-																		{
-																			//Delete the file
-																			//
-																			try
-																				{
-																					objConnection.removeFile({
-																											path:	'./' + fileName
-																											});
-																				}
-																			catch(err)
-																				{
-																					log.error({
-																								title: 		'Error deleting file ' + fileName,
-																								details: 	err
+															var rawDateArray 		= output.Order.OrderHeader.OrderDate.substring(0,output.Order.OrderHeader.OrderDate.indexOf('T')).split('-');
+															var headerDate 			= rawDateArray[2] + '/' + rawDateArray[1] + '/' + rawDateArray[0];
+															var headerOrderNo 		= output.Order.OrderHeader.ExternalSystemOrderNo;
+															var headerCoName 		= output.Order.OrderHeader.CompanyInformation.Name;
+															var headerContactName 	= output.Order.OrderHeader.ContactInformation.Contact.Name;
+															var headerContactPhone 	= output.Order.OrderHeader.ContactInformation.Contact.Phone;
+															var headerContactEmail 	= output.Order.OrderHeader.ContactInformation.Contact.Email;
+															var headerBillAdressee 	= output.Order.OrderHeader.AddressingInformation.BillToAddress.AddressName;
+															var headerBillCompany 	= output.Order.OrderHeader.AddressingInformation.BillToAddress.Company;
+															var headerBillAddress1 	= output.Order.OrderHeader.AddressingInformation.BillToAddress.Address1;
+															var headerBillAddress2 	= output.Order.OrderHeader.AddressingInformation.BillToAddress.Address2;
+															var headerBillCity 		= output.Order.OrderHeader.AddressingInformation.BillToAddress.City;
+															var headerBillCounty 	= output.Order.OrderHeader.AddressingInformation.BillToAddress.County;
+															var headerBillPostCode 	= output.Order.OrderHeader.AddressingInformation.BillToAddress.Zip;
+															var headerBillCountry 	= output.Order.OrderHeader.AddressingInformation.BillToAddress.Country;
+															var headerShipAdressee 	= output.Order.OrderHeader.AddressingInformation.ShipToAddress.AddressName;
+															var headerShipCompany 	= output.Order.OrderHeader.AddressingInformation.ShipToAddress.Company;
+															var headerShipAddress1 	= output.Order.OrderHeader.AddressingInformation.ShipToAddress.Address1;
+															var headerShipAddress2 	= output.Order.OrderHeader.AddressingInformation.ShipToAddress.Address2;
+															var headerShipCity 		= output.Order.OrderHeader.AddressingInformation.ShipToAddress.City;
+															var headerShipCounty 	= output.Order.OrderHeader.AddressingInformation.ShipToAddress.County;
+															var headerShipPostCode 	= output.Order.OrderHeader.AddressingInformation.ShipToAddress.Zip;
+															var headerShipCountry 	= output.Order.OrderHeader.AddressingInformation.ShipToAddress.Country;
+															var headerShipTotal		= output.Order.OrderHeader.AddressingInformation.ShippingTotal.ExclusiveVAT;
+															var headerShipVat		= output.Order.OrderHeader.AddressingInformation.ShippingTotal.VAT;
+															var headerOrderTotal	= output.Order.OrderHeader.AddressingInformation.OrderTotal.ExclusiveVAT;
+															var headerOrderVat		= output.Order.OrderHeader.AddressingInformation.OrderTotal.VAT;
+															
+															//Create sales order record
+															//
+															var salesOrderRecord = record.create({
+																									type: 			record.Type.SALES_ORDER, 
+																								    isDynamic: 		true,
+																								    defaultValues: 	{
+																								        			entity: cashSaleCustomer	//Cash Sale Customer
+																								    				} 
 																								});
+															
+															salesOrderRecord.setValue({
+																						fieldId:	'otherrefnum',
+																						value:		headerOrderNo
+																						});
+															
+															
+															salesOrderRecord.setValue({
+																						fieldId:	'trandate',
+																						value:		new Date(headerDate)
+																						});
+															
+															salesOrderRecord.setValue({
+																						fieldId:	'status',
+																						value:		'pendingFulfillment'
+																						});
+															
+															//Shipping Address
+															//
+															var shippingSubrecord = salesOrderRecord.getSubrecord({fieldId: 'shippingaddress'});
+															shippingSubrecord.setValue({fieldId: 'addr1', value: headerShipAddress1});
+															shippingSubrecord.setValue({fieldId: 'addr2', value: headerShipAddress2});
+															shippingSubrecord.setValue({fieldId: 'city', value: headerShipCity});
+															shippingSubrecord.setValue({fieldId: 'state', value: headerShipCounty});
+															shippingSubrecord.setValue({fieldId: 'zip', value: headerShipPostCode});
+															shippingSubrecord.setValue({fieldId: 'adressee', value: headerShipCompany});
+															shippingSubrecord.setValue({fieldId: 'attention', value: headerShipAdressee});
+															
+															
+															
+															//Billing Address
+															//
+															
+			
+															//Line Processing
+															//
+															salesOrderRecord.selectNewLine({
+																		    				sublistId: 'item'
+																		    				});
+															
+															salesOrderRecord.setCurrentSublistValue({
+																				    				sublistId: 	'item',
+																				    				fieldId: 	'item',
+																				    				value: 		
+																				    				});
+															
+															salesOrderRecord.commitLine({
+																						sublistId: 	'item'
+																						});
+															
+															salesOrderId = salesOrderRecord.save();
+														}
+													catch(err)
+														{
+															salesOrderId = null;
+															
+															log.error({
+																		title: 		'Error creating sales order',
+																		details: 	err
+																	});
+														}
+													
+													//Save the file as an attachment 
+													//
+													if(fileProcessedOk)
+														{
+															//Set the attachments folder
+								    						//
+															downloadedFile.folder = attachmentsFolder;
+								    						
+															//Make available without login
+								    						//
+															downloadedFile.isOnline = true;
+								    						
+								    						//Try to save the file to the filing cabinet
+								    						//
+								    						var fileId = null;
+								    						
+								    						try
+								    							{
+								    								fileId = downloadedFile.save();
+								    							}
+								    						catch(err)
+								    							{
+								    								log.error({
+								    											title: 'Error Saving file To File Cabinet ' + attachmentsFolder,
+								    											details: err
+								    											});
+								    								
+								    								fileId = null;
+								    							}
+															
+								    						//If we have saved the file ok, then we need to attach the file
+								    						//
+								    						if(fileId != null)
+								    							{
+								    								record.attach({
+								    												record: {type: 'file', id: fileId},
+								    												to: {type: record.Type.SALES_ORDER, id: cashSaleRecordId}
+								    												});
+								    							
+								    						
+																	//If all worked ok the we can move or delete the file
+																	//
+																	if(fileProcessedOk)
+																		{
+																			//See if we are moving the file to another directory or just deleting it
+																			//
+																			if(integrationProcessed != null && integrationProcessed != '')
+																				{
+																					//Move the file to the processed directory
+																					//
+																						
+																					//TODO	
+																					
+																				}
+																			else
+																				{
+																					//Delete the file
+																					//
+																					try
+																						{
+																							objConnection.removeFile({
+																													path:	'./' + fileName
+																													});
+																						}
+																					catch(err)
+																						{
+																							log.error({
+																										title: 		'Error deleting file ' + fileName,
+																										details: 	err
+																										});
+																						}
 																				}
 																		}
-																}
-						    							}
+								    							}
+														}
 												}
+										}
+									else
+										{
+											break;
 										}
 								}
 						}
@@ -289,18 +357,6 @@ function(sftp, file, search, xml, record)
 	    		}
 	
 	    	return results;
-	    }
-    
-    //Check resources
-    //
-    function checkResources()
-	    {
-	    	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
-	    	
-	    	if(remaining < 100)
-	    		{
-	    			nlapiYieldScript();
-	    		}
 	    }
     
     

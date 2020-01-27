@@ -182,7 +182,7 @@
 	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Ship Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
     </tr>
       <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No</b></td><td align="right" style="font-size:9pt">${salesorder.entity.custentity_bbs_legacy_accnumber}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No</b></td><td align="right" style="font-size:9pt">${salesorder.entity.accountnumber}</td>
     </tr>
       <tr>
 	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Placed By</b></td><td align="right" style="font-size:9pt">${salesorder.custbody_bbs_opportunity_contact.entityid}</td>
