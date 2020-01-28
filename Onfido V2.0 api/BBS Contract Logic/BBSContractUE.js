@@ -210,6 +210,25 @@ function(url, runtime, record, search, format, task) {
 	    				    			// call the QUR function. Pass currentRecord object and currentRecord variable
 	    				    			QUR(billingType, currentRecord, currentRecordID);
 	    				    		}
+	    				    	else
+	    				    		{
+		    				    		// get the value of the 'setup fee' field from the currentRecord object
+		    					    	var setupFee = currentRecord.getValue({
+		    					    		fieldId: 'custrecord_bbs_contract_setup_fee'
+		    					    	});
+		    					    	
+		    					    	// get the value of the 'setup fee billed' field from the currentRecord object
+		    					    	var setupFeeBilled = currentRecord.getValue({
+		    					    		fieldId: 'custrecord_bbs_contract_setup_fee_billed'
+		    					    	});
+		    					    	
+		    					    	// check if the setupFee variable returns true (checkbox is ticked) and setupFeeBilled variable returns false (checkbox is NOT ticked)
+		    					    	if (setupFee == true && setupFeeBilled == false)
+		    					    		{
+		    					    			// call function to create initial invoices. Pass currentRecordID, qmpAmt, billingType, setupFeeInvoice and prepaymentInvoice
+			    								createInitialInvoices(currentRecordID, '0.00', billingType, 'T', 'F');
+		    					    		}
+	    				    		}
 	        				}        			
 	        			// check if the oldQtrMin and newQtrMin variables are NOT the same (IE contract has been edited and quarterly minimum amount has been changed)
 	        			else if (oldQtrMin != newQtrMin)

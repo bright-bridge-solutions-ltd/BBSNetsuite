@@ -63,10 +63,15 @@ function(runtime, search, record) {
     			operator: 'before',
     			values: ['daysfromnow0', 'daysfromnow30'] // within 30 days from now
     		},
-    			{
+    				{
     			name: 'custrecord_bbs_contract_billing_type',
     			operator: 'anyof',
     			values: ['4'] // 4 = AMP
+    		},
+    				{
+    			name: 'custrecord_bbs_contract_status',
+    			operator: 'anyof',
+    			values: ['1'] // 1 = Approved
     		},
     			{
     			name: 'custrecord_bbs_contract_initial_invoice',

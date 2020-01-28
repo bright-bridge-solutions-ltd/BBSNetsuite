@@ -155,6 +155,12 @@ function(runtime, search, record, format, task, currency) {
     				{
     			name: 'custrecord_bbs_contract_billing_type',
     			join: 'custbody_bbs_contract_record',
+    			operator: 'noneof',
+    			values: ['7'] // 7 = BUR
+    		},
+    				{
+    			name: 'custrecord_bbs_contract_billing_type',
+    			join: 'custbody_bbs_contract_record',
     			operator: 'anyof',
     			values: [billingType]
     		}],
