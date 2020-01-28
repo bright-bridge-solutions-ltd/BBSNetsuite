@@ -2,8 +2,8 @@
 <pdf>
 <head>
 
-  	<link name="Montserrat" type="font" subtype="opentype" src="https://5117415-sb1.app.netsuite.com/core/media/media.nl?id=31591&amp;c=5117415_SB1&amp;h=2dc552e4f13da67ac132&amp;_xt=.otf" src-bold="https://5117415-sb1.app.netsuite.com/core/media/media.nl?id=31592&amp;c=5117415_SB1&amp;h=a3ae6368ee04a59e5486&amp;_xt=.otf"  bytes="2" />
-	<link name="OpenSans"   type="font" subtype="opentype" src="https://5117415-sb1.app.netsuite.com/core/media/media.nl?id=31190&amp;c=5117415_SB1&amp;h=b36a1bf1dc7c4e9792b5&amp;_xt=.ttf" bytes="2" />
+  	<link name="Montserrat" type="font" subtype="opentype" src="https://5117415.app.netsuite.com/core/media/media.nl?id=1584&amp;c=5117415&amp;h=d46afab9ee121fec6e06&amp;_xt=.otf" src-bold="https://5117415.app.netsuite.com/core/media/media.nl?id=1583&amp;c=5117415&amp;h=fdacc0a916a00c7eea35&amp;_xt=.otf"  bytes="2" />
+	<link name="OpenSans"   type="font" subtype="opentype" src="https://5117415.app.netsuite.com/core/media/media.nl?id=1582&amp;c=5117415&amp;h=eb77997d14dfd9a18810&amp;_xt=.ttf" bytes="2" />
 	
 	<#assign todaysDate = .now>
 	
@@ -22,7 +22,7 @@
         <macro id="nlheader">
             <table class="header" style="width: 100%;">
 			<tr>
-				<td align="right"><img src="https://5117415-sb1.app.netsuite.com/core/media/media.nl?id=29989&amp;c=5117415_SB1&amp;h=b064430b41b43b655b8f" style="float: left; width:131px; height:75px;" /></td>
+				<td align="right"><img src="https://5117415.app.netsuite.com/core/media/media.nl?id=737&amp;c=5117415&amp;h=171a5fc472e678688b27" style="float: left; width:131px; height:75px;" /></td>
 			</tr>
 			</table>
 
