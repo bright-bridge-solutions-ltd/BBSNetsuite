@@ -3,11 +3,11 @@
  * @NScriptType ScheduledScript
  * @NModuleScope SameAccount
  */
-define(['N/sftp', 'N/file', 'N/search', 'N/xml', 'N/record', 'N/runtime'],
+define(['N/sftp', 'N/file', 'N/search', 'N/xml', 'N/record', 'N/runtime', 'N/email'],
 /**
  * @param {sftp} 
  */
-function(sftp, file, search, xml, record, runtime) 
+function(sftp, file, search, xml, record, runtime, email) 
 {
    
     /**
@@ -19,12 +19,8 @@ function(sftp, file, search, xml, record, runtime)
      */
     function execute(scriptContext) 
 	    {
-	    	//Get runtime parameters
-			//
-			var currentScript = runtime.getCurrentScript();
-			var attachmentsFolder = currentScript.getParameter({name: 'custscript_bbs_attachments_folder'});
-			var cashSaleCustomer = currentScript.getParameter({name: 'custscript_bbs_cashsale_customer'});
-			
+    		var emailMessage = '';
+    		
     		//Find the integration record
     		//
     		var customrecord_bbs_comet_integrationSearchObj = getResults(search.create({
@@ -32,26 +28,34 @@ function(sftp, file, search, xml, record, runtime)
 				   filters:	[],
 				   columns:
 				   [
-				      search.createColumn({name: "custrecord_bbs_comet_username", label: "SFTP Username"}),
-				      search.createColumn({name: "custrecord_bbs_comet_password", label: "SFTP Password (Tokenised)"}),
-				      search.createColumn({name: "custrecord_bbs_comet_url", label: "SFTP Site URL Or IP Address"}),
-				      search.createColumn({name: "custrecord_bbs_comet_port", label: "SFTP Port Number"}),
-				      search.createColumn({name: "custrecord_bbs_comet_outboud_dir", label: "SFTP Site Outbound Directory"}),
-				      search.createColumn({name: "custrecord_bbs_comet_processed_dir", label: "SFTP Site Processed Directory"}),
-				      search.createColumn({name: "custrecord_bbs_comet_hostkey", label: "SFTP Site Host Key"})
+				      search.createColumn({name: "custrecord_bbs_comet_username", 				label: "SFTP Username"}),
+				      search.createColumn({name: "custrecord_bbs_comet_password", 				label: "SFTP Password (Tokenised)"}),
+				      search.createColumn({name: "custrecord_bbs_comet_url", 					label: "SFTP Site URL Or IP Address"}),
+				      search.createColumn({name: "custrecord_bbs_comet_port", 					label: "SFTP Port Number"}),
+				      search.createColumn({name: "custrecord_bbs_comet_outboud_dir", 			label: "SFTP Site Outbound Directory"}),
+				      search.createColumn({name: "custrecord_bbs_comet_processed_dir", 			label: "SFTP Site Processed Directory"}),
+				      search.createColumn({name: "custrecord_bbs_comet_hostkey", 				label: "SFTP Site Host Key"}),
+				      search.createColumn({name: "custrecord_bbs_comet_cash_sale_cust", 		label: "Cash Sale Customer"}),
+				      search.createColumn({name: "custrecord_bbs_comet_attachments_folder", 	label: "Attachments Folder"}),
+				      search.createColumn({name: "custrecord_bbs_comet_email_sender", 			label: "Email Sender"}),
+				      search.createColumn({name: "custrecord_bbs_comet_email_recipients", 		label: "Email Recipients"})
 				   ]
 				}));
 			
 			if(customrecord_bbs_comet_integrationSearchObj != null && customrecord_bbs_comet_integrationSearchObj.length == 1)
 				{
-					var integrationId 			= customrecord_bbs_comet_integrationSearchObj[0].id;
-					var integrationUsername 	= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_username"});
-					var integrationPassword 	= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_password"});
-					var integrationUrl 			= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_url"});
-					var integrationPort 		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_port"});
-					var integrationOutbound 	= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_outboud_dir"});
-					var integrationProcessed 	= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_processed_dir"});
-					var integrationHostkey		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_hostkey"});
+					var integrationId 				= customrecord_bbs_comet_integrationSearchObj[0].id;
+					var integrationUsername 		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_username"});
+					var integrationPassword 		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_password"});
+					var integrationUrl 				= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_url"});
+					var integrationPort 			= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_port"});
+					var integrationOutbound 		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_outboud_dir"});
+					var integrationProcessed 		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_processed_dir"});
+					var integrationHostkey			= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_hostkey"});
+					var integrationCashSaleCust		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_cash_sale_cust"});
+					var integrationAttachFolder		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_attachments_folder"});
+					var integrationEmailSender		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_email_sender"});
+					var integrationEmailRecipients	= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_email_recipients"});
 					
 					//Create a connection
 					//
@@ -77,6 +81,8 @@ function(sftp, file, search, xml, record, runtime)
 										title: 		'Error connecting to sftp site',
 										details: 	err
 										});
+							
+							emailMessage += 'Error connecting to sftp site - ' + err.message + '\n\n';
 						}
 					
 					//Continue if we have a connection
@@ -115,6 +121,8 @@ function(sftp, file, search, xml, record, runtime)
 																title: 		'Error downloading file ' + fileName,
 																details: 	err
 																});
+													
+													emailMessage += 'Error downloading file ' + fileName + ' - ' + err.message + '\n\n';
 													
 													downloadedFile = null;
 												}
@@ -181,7 +189,7 @@ function(sftp, file, search, xml, record, runtime)
 																									type: 			record.Type.SALES_ORDER, 
 																								    isDynamic: 		true,
 																								    defaultValues: 	{
-																								        			entity: cashSaleCustomer	//Cash Sale Customer
+																								        			entity: integrationCashSaleCust	//Cash Sale Customer
 																								    				} 
 																								});
 															
@@ -197,8 +205,8 @@ function(sftp, file, search, xml, record, runtime)
 																						});
 															
 															salesOrderRecord.setValue({
-																						fieldId:	'status',
-																						value:		'pendingFulfillment'
+																						fieldId:	'orderstatus',
+																						value:		'B'					//Pending Fulfilment
 																						});
 															
 															//Shipping Address
@@ -212,28 +220,76 @@ function(sftp, file, search, xml, record, runtime)
 															shippingSubrecord.setValue({fieldId: 'adressee', value: headerShipCompany});
 															shippingSubrecord.setValue({fieldId: 'attention', value: headerShipAdressee});
 															
-															
-															
 															//Billing Address
 															//
+															var billingSubrecord = salesOrderRecord.getSubrecord({fieldId: 'billingaddress'});
+															billingSubrecord.setValue({fieldId: 'addr1', value: headerBillAddress1});
+															billingSubrecord.setValue({fieldId: 'addr2', value: headerBillAddress2});
+															billingSubrecord.setValue({fieldId: 'city', value: headerBillCity});
+															billingSubrecord.setValue({fieldId: 'state', value: headerBillCounty});
+															billingSubrecord.setValue({fieldId: 'zip', value: headerBillPostCode});
+															billingSubrecord.setValue({fieldId: 'adressee', value: headerBillCompany});
+															billingSubrecord.setValue({fieldId: 'attention', value: headerBillAdressee});
 															
-			
 															//Line Processing
 															//
-															salesOrderRecord.selectNewLine({
-																		    				sublistId: 'item'
-																		    				});
+															for (var int2 = 0; int2 < output.Order.OrderLines.length; int2++) 
+																{
+																	var lineProduct = output.Order.OrderLines[int2].ProductLine.SupplierArticleNo;
+																	var lineQuantity = output.Order.OrderLines[int2].ProductLine.Quantity;
+																	var lineSupplier = output.Order.OrderLines[int2].ProductLine.Supplier;
+																	var linePrice = output.Order.OrderLines[int2].ProductLine.Price;
+																
+																	//Find item 
+																	//
+																	var itemId = null;
+																	
+																	var itemSearchObj = getResults(search.create({
+																												   type: "item",
+																												   filters:
+																												   [
+																												      ["name","is",lineProduct]
+																												   ],
+																												   columns:
+																												   [
+																												      search.createColumn({name: "itemid", label: "Name"}),
+																												      search.createColumn({name: "displayname", label: "Display Name"})
+																												   ]
+																												}));
+																	
+																	if(itemSearchObj != null && itemSearchObj.length == 1)
+																		{	
+																			itemId = itemSearchObj[0].id;
+																		}
+																	
+																	//If we have found the item we can add it
+																	//
+																	if(itemId != null)
+																		{
+																			salesOrderRecord.selectNewLine({
+																						    				sublistId: 'item'
+																						    				});
+																			
+																			salesOrderRecord.setCurrentSublistValue({
+																								    				sublistId: 	'item',
+																								    				fieldId: 	'item',
+																								    				value: 		
+																								    				});
+										
+																			salesOrderRecord.setCurrentSublistValue({
+																								    				sublistId: 	'item',
+																								    				fieldId: 	'quantity',
+																								    				value: 		lineQuantity
+																								    				});
+																			
+																			salesOrderRecord.commitLine({
+																										sublistId: 	'item'
+																										});
+																		}
+																}
 															
-															salesOrderRecord.setCurrentSublistValue({
-																				    				sublistId: 	'item',
-																				    				fieldId: 	'item',
-																				    				value: 		
-																				    				});
-															
-															salesOrderRecord.commitLine({
-																						sublistId: 	'item'
-																						});
-															
+															//Save the sales order
+															//
 															salesOrderId = salesOrderRecord.save();
 														}
 													catch(err)
@@ -244,6 +300,9 @@ function(sftp, file, search, xml, record, runtime)
 																		title: 		'Error creating sales order',
 																		details: 	err
 																	});
+															
+															emailMessage += 'Error creating sales order - ' + err.message + '\n\n';
+															
 														}
 													
 													//Save the file as an attachment 
@@ -252,7 +311,7 @@ function(sftp, file, search, xml, record, runtime)
 														{
 															//Set the attachments folder
 								    						//
-															downloadedFile.folder = attachmentsFolder;
+															downloadedFile.folder = integrationAttachFolder;
 								    						
 															//Make available without login
 								    						//
@@ -273,6 +332,8 @@ function(sftp, file, search, xml, record, runtime)
 								    											details: err
 								    											});
 								    								
+								    								emailMessage += 'Error Saving file To File Cabinet - ' + err.message + '\n\n';
+								    								
 								    								fileId = null;
 								    							}
 															
@@ -281,8 +342,8 @@ function(sftp, file, search, xml, record, runtime)
 								    						if(fileId != null)
 								    							{
 								    								record.attach({
-								    												record: {type: 'file', id: fileId},
-								    												to: {type: record.Type.SALES_ORDER, id: cashSaleRecordId}
+								    												record: 	{type: 'file', id: fileId},
+								    												to: 		{type: record.Type.SALES_ORDER, id: salesOrderId}
 								    												});
 								    							
 								    						
@@ -313,9 +374,11 @@ function(sftp, file, search, xml, record, runtime)
 																					catch(err)
 																						{
 																							log.error({
-																										title: 		'Error deleting file ' + fileName,
+																										title: 		'Error deleting file from SFTP site ' + fileName,
 																										details: 	err
 																										});
+																							
+																							emailMessage += 'Error deleting file from SFTP site ' + fileName + ' - ' + err.message + '\n\n';
 																						}
 																				}
 																		}
@@ -336,6 +399,28 @@ function(sftp, file, search, xml, record, runtime)
 								title: 		'Error - unable to find configuration record',
 								details: 	''
 								});
+				}
+			
+			//If we have errors to report, then email them out
+			//
+			if(emailMessage != '')
+				{
+					try
+						{
+							email.send({
+							            author: 		integrationEmailSender,
+							            recipients: 	integrationEmailRecipients.split(';'),
+							            subject: 		'COMET Integration Errors',
+							            body: 			emailMessage,
+							        	});
+						}
+					catch(err)
+						{
+							log.error({
+										title: 		'Error sending email notification \n\n' + emailMessage,
+										details: 	err
+										});
+						}
 				}
 	    }
 
