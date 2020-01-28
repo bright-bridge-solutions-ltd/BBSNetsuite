@@ -3,11 +3,11 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define([],
+define(['N/record'],
 /**
  * @param {serverWidget} serverWidget
  */
-function() {
+function(record) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -42,9 +42,22 @@ function() {
 	    		});
     		}   	
     }
+    
+    function afterSubmit(scriptContext)
+    	{
+    		// submit the 'custevent_bbs_event_internal_id' field
+    		record.submitFields({
+    			type: record.Type.CALENDAR_EVENT,
+    			id: scriptContext.newRecord.id,
+    			values: {
+    				custevent_bbs_event_internal_id: scriptContext.newRecord.id  			
+    			}
+    		});
+    	}
 
     return {
-        beforeLoad: beforeLoad
+        beforeLoad: beforeLoad,
+        afterSubmit: afterSubmit
     };
     
 });
