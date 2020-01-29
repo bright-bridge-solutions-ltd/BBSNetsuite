@@ -278,7 +278,7 @@
       </#if>
     </tr>
     <tr>
-      <td style="font-size: 12pt;">Sort Code:</td>
+      <td style="font-size: 12pt;"><#if subsidiary.id == "9"><!--USA-->ABA:<#else>Sort Code:</#if></td>
       <td style="font-size: 12pt;">${record.custbody_bbs_bank_sort_code}</td>
     </tr>
     <tr>
