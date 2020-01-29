@@ -3,12 +3,12 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['N/ui/serverWidget','N/http', 'N/search', 'N/record', 'N/runtime'],
+define(['N/ui/serverWidget','N/http', 'N/search', 'N/record', 'N/runtime', 'N/redirect'],
 /**
  * @param {ui} ui
  * @param {serverWidget} serverWidget
  */
-function(serverWidget, http, search, record, runtime) 
+function(serverWidget, http, search, record, runtime, redirect) 
 {
    
     /**
@@ -98,6 +98,9 @@ function(serverWidget, http, search, record, runtime)
 	    					}
 	    			}
 
+	    		redirect.toTaskLink({
+	    							id:	'CARD_-29'
+	    							});
 	    	}
     }
 

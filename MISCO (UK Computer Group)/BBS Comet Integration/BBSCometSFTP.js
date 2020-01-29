@@ -38,7 +38,8 @@ function(sftp, file, search, xml, record, runtime, email)
 				      search.createColumn({name: "custrecord_bbs_comet_cash_sale_cust", 		label: "Cash Sale Customer"}),
 				      search.createColumn({name: "custrecord_bbs_comet_attachments_folder", 	label: "Attachments Folder"}),
 				      search.createColumn({name: "custrecord_bbs_comet_email_sender", 			label: "Email Sender"}),
-				      search.createColumn({name: "custrecord_bbs_comet_email_recipients", 		label: "Email Recipients"})
+				      search.createColumn({name: "custrecord_bbs_comet_email_recipients", 		label: "Email Recipients"}),
+				      search.createColumn({name: "custrecord_bbs_comet_file_extension", 		label: "File Extension"})
 				   ]
 				}));
 			
@@ -48,7 +49,7 @@ function(sftp, file, search, xml, record, runtime, email)
 					var integrationUsername 		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_username"});
 					var integrationPassword 		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_password"});
 					var integrationUrl 				= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_url"});
-					var integrationPort 			= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_port"});
+					var integrationPort 			= Number(customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_port"}));
 					var integrationOutbound 		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_outboud_dir"});
 					var integrationProcessed 		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_processed_dir"});
 					var integrationHostkey			= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_hostkey"});
@@ -56,6 +57,7 @@ function(sftp, file, search, xml, record, runtime, email)
 					var integrationAttachFolder		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_attachments_folder"});
 					var integrationEmailSender		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_email_sender"});
 					var integrationEmailRecipients	= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_email_recipients"});
+					var integrationFileExtension	= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_file_extension"});
 					
 					//Create a connection
 					//
@@ -91,18 +93,32 @@ function(sftp, file, search, xml, record, runtime, email)
 						{
 							//Find the files to process
 							//
-							var fileList = objConnection.list({
-																path: 	'.', 
-																sort: 	sftp.Sort.DATE
-															});
+							var fileList = [];
+							
+							try
+								{
+									fileList = objConnection.list({
+																	path: 	'./' + integrationFileExtension, 
+																	sort: 	sftp.Sort.DATE
+																	});
+								}
+							catch(err)
+								{
+									log.error({
+												title: 		'Error getting file list',
+												details: 	err
+												});
 						
+									emailMessage += 'Error getting file list - ' + err.message + '\n\n';
+								}
+							
 							//Process the list of files
 							//
 							for (var int = 0; int < fileList.length; int++) 
 								{
 									//Check resources
 									//
-									if(runtime.getCurrentScript.getRemainingUsage() > 100)
+									if(runtime.getCurrentScript().getRemainingUsage() > 100)
 										{
 											//Extract the file name
 											//
@@ -155,8 +171,8 @@ function(sftp, file, search, xml, record, runtime, email)
 														{
 															//Extract order header data from output object
 															//
+															/*
 															var rawDateArray 		= output.Order.OrderHeader.OrderDate.substring(0,output.Order.OrderHeader.OrderDate.indexOf('T')).split('-');
-															var headerDate 			= rawDateArray[2] + '/' + rawDateArray[1] + '/' + rawDateArray[0];
 															var headerOrderNo 		= output.Order.OrderHeader.ExternalSystemOrderNo;
 															var headerCoName 		= output.Order.OrderHeader.CompanyInformation.Name;
 															var headerContactName 	= output.Order.OrderHeader.ContactInformation.Contact.Name;
@@ -178,10 +194,39 @@ function(sftp, file, search, xml, record, runtime, email)
 															var headerShipCounty 	= output.Order.OrderHeader.AddressingInformation.ShipToAddress.County;
 															var headerShipPostCode 	= output.Order.OrderHeader.AddressingInformation.ShipToAddress.Zip;
 															var headerShipCountry 	= output.Order.OrderHeader.AddressingInformation.ShipToAddress.Country;
-															var headerShipTotal		= output.Order.OrderHeader.AddressingInformation.ShippingTotal.ExclusiveVAT;
-															var headerShipVat		= output.Order.OrderHeader.AddressingInformation.ShippingTotal.VAT;
-															var headerOrderTotal	= output.Order.OrderHeader.AddressingInformation.OrderTotal.ExclusiveVAT;
-															var headerOrderVat		= output.Order.OrderHeader.AddressingInformation.OrderTotal.VAT;
+															var headerShipTotal		= output.Order.OrderHeader.ShippingTotal.ExclusiveVAT;
+															var headerShipVat		= output.Order.OrderHeader.ShippingTotal.VAT;
+															var headerOrderTotal	= output.Order.OrderHeader.OrderTotal.ExclusiveVAT;
+															var headerOrderVat		= output.Order.OrderHeader.OrderTotal.VAT;
+															*/
+															var rawDateArray 		= output.Order.OrderHeader.OrderDate.substring(0,output.Order.OrderHeader.OrderDate.indexOf('T')).split('-');
+															var headerOrderNo 		= getDataElement('output.Order.OrderHeader.ExternalSystemOrderNo');
+															var headerCoName 		= getDataElement('output.Order.OrderHeader.CompanyInformation.Name');
+															var headerContactName 	= getDataElement('output.Order.OrderHeader.ContactInformation.Contact.Name');
+															var headerContactPhone 	= getDataElement('output.Order.OrderHeader.ContactInformation.Contact.Phone');
+															var headerContactEmail 	= getDataElement('output.Order.OrderHeader.ContactInformation.Contact.Email');
+															var headerBillAdressee 	= getDataElement('output.Order.OrderHeader.AddressingInformation.BillToAddress.AddressName');
+															var headerBillCompany 	= getDataElement('output.Order.OrderHeader.AddressingInformation.BillToAddress.Company');
+															var headerBillAddress1 	= getDataElement('output.Order.OrderHeader.AddressingInformation.BillToAddress.Address1');
+															var headerBillAddress2 	= getDataElement('output.Order.OrderHeader.AddressingInformation.BillToAddress.Address2');
+															var headerBillCity 		= getDataElement('output.Order.OrderHeader.AddressingInformation.BillToAddress.City');
+															var headerBillCounty 	= getDataElement('output.Order.OrderHeader.AddressingInformation.BillToAddress.County');
+															var headerBillPostCode 	= getDataElement('output.Order.OrderHeader.AddressingInformation.BillToAddress.Zip');
+															var headerBillCountry 	= getDataElement('output.Order.OrderHeader.AddressingInformation.BillToAddress.Country');
+															var headerShipAdressee 	= getDataElement('output.Order.OrderHeader.AddressingInformation.ShipToAddress.AddressName');
+															var headerShipCompany 	= getDataElement('output.Order.OrderHeader.AddressingInformation.ShipToAddress.Company');
+															var headerShipAddress1 	= getDataElement('output.Order.OrderHeader.AddressingInformation.ShipToAddress.Address1');
+															var headerShipAddress2 	= getDataElement('output.Order.OrderHeader.AddressingInformation.ShipToAddress.Address2');
+															var headerShipCity 		= getDataElement('output.Order.OrderHeader.AddressingInformation.ShipToAddress.City');
+															var headerShipCounty 	= getDataElement('output.Order.OrderHeader.AddressingInformation.ShipToAddress.County');
+															var headerShipPostCode 	= getDataElement('output.Order.OrderHeader.AddressingInformation.ShipToAddress.Zip');
+															var headerShipCountry 	= getDataElement('output.Order.OrderHeader.AddressingInformation.ShipToAddress.Country');
+															var headerShipTotal		= getDataElement('output.Order.OrderHeader.ShippingTotal.ExclusiveVAT');
+															var headerShipVat		= getDataElement('output.Order.OrderHeader.ShippingTotal.VAT');
+															var headerOrderTotal	= getDataElement('output.Order.OrderHeader.OrderTotal.ExclusiveVAT');
+															var headerOrderVat		= getDataElement('output.Order.OrderHeader.OrderTotal.VAT');
+
+															var headerDate 			= rawDateArray[2] + '/' + rawDateArray[1] + '/' + rawDateArray[0];
 															
 															//Create sales order record
 															//
@@ -273,7 +318,7 @@ function(sftp, file, search, xml, record, runtime, email)
 																			salesOrderRecord.setCurrentSublistValue({
 																								    				sublistId: 	'item',
 																								    				fieldId: 	'item',
-																								    				value: 		
+																								    				value: 		itemId
 																								    				});
 										
 																			salesOrderRecord.setCurrentSublistValue({
@@ -286,6 +331,10 @@ function(sftp, file, search, xml, record, runtime, email)
 																										sublistId: 	'item'
 																										});
 																		}
+																	else
+																		{
+																			emailMessage += 'Unable to find product with code ' + lineProduct + ' for order # '+ headerOrderNo + '\n\n';
+																		}
 																}
 															
 															//Save the sales order
@@ -295,6 +344,7 @@ function(sftp, file, search, xml, record, runtime, email)
 													catch(err)
 														{
 															salesOrderId = null;
+															fileProcessedOk = false;
 															
 															log.error({
 																		title: 		'Error creating sales order',
@@ -424,7 +474,24 @@ function(sftp, file, search, xml, record, runtime, email)
 				}
 	    }
 
-    
+    //Get data elements from output object
+    //
+    function getDataElement(_element)
+    	{
+    		var returnData = '';
+    		
+    		try
+    			{
+    				returnData = eval(_element);
+    			}
+    		catch(err)
+    			{
+    				returnData = '';
+    			}
+    		
+    		return returnData;
+    	}
+ 
     //Page through results set from search
     //
     function getResults(_searchObject)
@@ -560,7 +627,7 @@ function(sftp, file, search, xml, record, runtime, email)
 			    						var cmd = "_output." + path + " = '" + value + "'";
 			    						eval(cmd);
 			
-			    						log.debug({title: path + ' = ' + value});
+			    						//log.debug({title: path + ' = ' + value});
 			    					}
 			    	    }
 			    }
