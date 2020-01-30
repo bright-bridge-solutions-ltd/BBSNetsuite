@@ -1,0 +1,472 @@
+<customlist scriptid="customlist_bbs_brandlist">
+  <description></description>
+  <isinactive>F</isinactive>
+  <isordered>F</isordered>
+  <name>Brand List</name>
+  <customvalues>
+    <customvalue scriptid="val_14017_5731074_sb1_763">
+      <isinactive>F</isinactive>
+      <value>3Dconnexion</value>
+    </customvalue>
+    <customvalue scriptid="val_13992_5731074_sb1_167">
+      <isinactive>F</isinactive>
+      <value>3M</value>
+    </customvalue>
+    <customvalue scriptid="val_14003_5731074_sb1_511">
+      <isinactive>F</isinactive>
+      <value>Acer</value>
+    </customvalue>
+    <customvalue scriptid="val_14073_5731074_sb1_821">
+      <isinactive>F</isinactive>
+      <value>AddOn</value>
+    </customvalue>
+    <customvalue scriptid="val_14058_5731074_sb1_917">
+      <isinactive>F</isinactive>
+      <value>Adobe</value>
+    </customvalue>
+    <customvalue scriptid="val_14046_5731074_sb1_124">
+      <isinactive>F</isinactive>
+      <value>AMD</value>
+    </customvalue>
+    <customvalue scriptid="val_14007_5731074_sb1_131">
+      <isinactive>F</isinactive>
+      <value>Antec</value>
+    </customvalue>
+    <customvalue scriptid="val_14025_5731074_sb1_594">
+      <isinactive>F</isinactive>
+      <value>AOC</value>
+    </customvalue>
+    <customvalue scriptid="val_14004_5731074_sb1_474">
+      <isinactive>F</isinactive>
+      <value>Apple</value>
+    </customvalue>
+    <customvalue scriptid="val_14012_5731074_sb1_482">
+      <isinactive>F</isinactive>
+      <value>Asus</value>
+    </customvalue>
+    <customvalue scriptid="val_14071_5731074_sb1_162">
+      <isinactive>F</isinactive>
+      <value>Autodesk</value>
+    </customvalue>
+    <customvalue scriptid="val_14035_5731074_sb1_556">
+      <isinactive>F</isinactive>
+      <value>Avaya</value>
+    </customvalue>
+    <customvalue scriptid="val_14064_5731074_sb1_995">
+      <isinactive>F</isinactive>
+      <value>Avocor</value>
+    </customvalue>
+    <customvalue scriptid="val_13978_5731074_sb1_349">
+      <isinactive>F</isinactive>
+      <value>Axis Communications</value>
+    </customvalue>
+    <customvalue scriptid="val_14041_5731074_sb1_346">
+      <isinactive>F</isinactive>
+      <value>Barco</value>
+    </customvalue>
+    <customvalue scriptid="val_13980_5731074_sb1_182">
+      <isinactive>F</isinactive>
+      <value>Belkin</value>
+    </customvalue>
+    <customvalue scriptid="val_13987_5731074_sb1_782">
+      <isinactive>F</isinactive>
+      <value>BenQ</value>
+    </customvalue>
+    <customvalue scriptid="val_14061_5731074_sb1_813">
+      <isinactive>F</isinactive>
+      <value>Brocade</value>
+    </customvalue>
+    <customvalue scriptid="val_14016_5731074_sb1_281">
+      <isinactive>F</isinactive>
+      <value>Buffalo</value>
+    </customvalue>
+    <customvalue scriptid="val_13976_5731074_sb1_669">
+      <isinactive>F</isinactive>
+      <value>C2G</value>
+    </customvalue>
+    <customvalue scriptid="val_13964_5731074_sb1_638">
+      <isinactive>F</isinactive>
+      <value>Canon</value>
+    </customvalue>
+    <customvalue scriptid="val_13997_5731074_sb1_556">
+      <isinactive>F</isinactive>
+      <value>Cisco</value>
+    </customvalue>
+    <customvalue scriptid="val_14070_5731074_sb1_149">
+      <isinactive>F</isinactive>
+      <value>Cisco Meraki</value>
+    </customvalue>
+    <customvalue scriptid="val_14047_5731074_sb1_348">
+      <isinactive>F</isinactive>
+      <value>Compulocks</value>
+    </customvalue>
+    <customvalue scriptid="val_14075_5731074_sb1_593">
+      <isinactive>F</isinactive>
+      <value>Condeco</value>
+    </customvalue>
+    <customvalue scriptid="val_13994_5731074_sb1_647">
+      <isinactive>F</isinactive>
+      <value>CORSAIR</value>
+    </customvalue>
+    <customvalue scriptid="val_13995_5731074_sb1_590">
+      <isinactive>F</isinactive>
+      <value>D-Link</value>
+    </customvalue>
+    <customvalue scriptid="val_14059_5731074_sb1_921">
+      <isinactive>F</isinactive>
+      <value>Dataram</value>
+    </customvalue>
+    <customvalue scriptid="val_13966_5731074_sb1_866">
+      <isinactive>F</isinactive>
+      <value>Dell</value>
+    </customvalue>
+    <customvalue scriptid="val_14000_5731074_sb1_292">
+      <isinactive>F</isinactive>
+      <value>DICOTA</value>
+    </customvalue>
+    <customvalue scriptid="val_14043_5731074_sb1_398">
+      <isinactive>F</isinactive>
+      <value>DORO</value>
+    </customvalue>
+    <customvalue scriptid="val_14014_5731074_sb1_449">
+      <isinactive>F</isinactive>
+      <value>Draper</value>
+    </customvalue>
+    <customvalue scriptid="val_14033_5731074_sb1_412">
+      <isinactive>F</isinactive>
+      <value>Duracell</value>
+    </customvalue>
+    <customvalue scriptid="val_14006_5731074_sb1_472">
+      <isinactive>F</isinactive>
+      <value>Dymo Corporation</value>
+    </customvalue>
+    <customvalue scriptid="val_14008_5731074_sb1_302">
+      <isinactive>F</isinactive>
+      <value>Eaton</value>
+    </customvalue>
+    <customvalue scriptid="val_13968_5731074_sb1_537">
+      <isinactive>F</isinactive>
+      <value>Epson</value>
+    </customvalue>
+    <customvalue scriptid="val_13974_5731074_sb1_774">
+      <isinactive>F</isinactive>
+      <value>Ergotron</value>
+    </customvalue>
+    <customvalue scriptid="val_14050_5731074_sb1_144">
+      <isinactive>F</isinactive>
+      <value>Extreme Networks</value>
+    </customvalue>
+    <customvalue scriptid="val_14039_5731074_sb1_727">
+      <isinactive>F</isinactive>
+      <value>F-Secure</value>
+    </customvalue>
+    <customvalue scriptid="val_14065_5731074_sb1_934">
+      <isinactive>F</isinactive>
+      <value>Fitbit</value>
+    </customvalue>
+    <customvalue scriptid="val_13983_5731074_sb1_444">
+      <isinactive>F</isinactive>
+      <value>Fujitsu</value>
+    </customvalue>
+    <customvalue scriptid="val_14034_5731074_sb1_109">
+      <isinactive>F</isinactive>
+      <value>G-Technology</value>
+    </customvalue>
+    <customvalue scriptid="val_14005_5731074_sb1_990">
+      <isinactive>F</isinactive>
+      <value>GO Lamps</value>
+    </customvalue>
+    <customvalue scriptid="val_14030_5731074_sb1_441">
+      <isinactive>F</isinactive>
+      <value>Griffin Technology</value>
+    </customvalue>
+    <customvalue scriptid="val_13982_5731074_sb1_357">
+      <isinactive>F</isinactive>
+      <value>Hauppauge</value>
+    </customvalue>
+    <customvalue scriptid="val_14040_5731074_sb1_880">
+      <isinactive>F</isinactive>
+      <value>Hewlett Packard Enterprise</value>
+    </customvalue>
+    <customvalue scriptid="val_14002_5731074_sb1_162">
+      <isinactive>F</isinactive>
+      <value>Hitachi</value>
+    </customvalue>
+    <customvalue scriptid="val_13981_5731074_sb1_912">
+      <isinactive>F</isinactive>
+      <value>HP</value>
+    </customvalue>
+    <customvalue scriptid="val_14072_5731074_sb1_109">
+      <isinactive>F</isinactive>
+      <value>Huddly</value>
+    </customvalue>
+    <customvalue scriptid="val_14074_5731074_sb1_853">
+      <isinactive>F</isinactive>
+      <value>I.R.I.S.</value>
+    </customvalue>
+    <customvalue scriptid="val_14053_5731074_sb1_860">
+      <isinactive>F</isinactive>
+      <value>IAdea</value>
+    </customvalue>
+    <customvalue scriptid="val_14026_5731074_sb1_866">
+      <isinactive>F</isinactive>
+      <value>iiyama</value>
+    </customvalue>
+    <customvalue scriptid="val_14055_5731074_sb1_579">
+      <isinactive>F</isinactive>
+      <value>Incipio</value>
+    </customvalue>
+    <customvalue scriptid="val_14022_5731074_sb1_546">
+      <isinactive>F</isinactive>
+      <value>InFocus</value>
+    </customvalue>
+    <customvalue scriptid="val_13990_5731074_sb1_547">
+      <isinactive>F</isinactive>
+      <value>Intel</value>
+    </customvalue>
+    <customvalue scriptid="val_13996_5731074_sb1_184">
+      <isinactive>F</isinactive>
+      <value>Juniper Networks</value>
+    </customvalue>
+    <customvalue scriptid="val_13971_5731074_sb1_375">
+      <isinactive>F</isinactive>
+      <value>Kensington</value>
+    </customvalue>
+    <customvalue scriptid="val_13975_5731074_sb1_603">
+      <isinactive>F</isinactive>
+      <value>Kingston</value>
+    </customvalue>
+    <customvalue scriptid="val_14056_5731074_sb1_572">
+      <isinactive>F</isinactive>
+      <value>LapSafe</value>
+    </customvalue>
+    <customvalue scriptid="val_13988_5731074_sb1_916">
+      <isinactive>F</isinactive>
+      <value>Lenovo</value>
+    </customvalue>
+    <customvalue scriptid="val_13991_5731074_sb1_702">
+      <isinactive>F</isinactive>
+      <value>Lexmark</value>
+    </customvalue>
+    <customvalue scriptid="val_14037_5731074_sb1_729">
+      <isinactive>F</isinactive>
+      <value>LG</value>
+    </customvalue>
+    <customvalue scriptid="val_14019_5731074_sb1_554">
+      <isinactive>F</isinactive>
+      <value>Linksys</value>
+    </customvalue>
+    <customvalue scriptid="val_13984_5731074_sb1_524">
+      <isinactive>F</isinactive>
+      <value>Logitech</value>
+    </customvalue>
+    <customvalue scriptid="val_14051_5731074_sb1_537">
+      <isinactive>F</isinactive>
+      <value>MAGIX Software</value>
+    </customvalue>
+    <customvalue scriptid="val_14060_5731074_sb1_177">
+      <isinactive>F</isinactive>
+      <value>Medion</value>
+    </customvalue>
+    <customvalue scriptid="val_14068_5731074_sb1_340">
+      <isinactive>F</isinactive>
+      <value>Mellanox</value>
+    </customvalue>
+    <customvalue scriptid="val_13986_5731074_sb1_421">
+      <isinactive>F</isinactive>
+      <value>Metroplan</value>
+    </customvalue>
+    <customvalue scriptid="val_13998_5731074_sb1_413">
+      <isinactive>F</isinactive>
+      <value>Micron Technology</value>
+    </customvalue>
+    <customvalue scriptid="val_14045_5731074_sb1_896">
+      <isinactive>F</isinactive>
+      <value>Microsemi</value>
+    </customvalue>
+    <customvalue scriptid="val_13972_5731074_sb1_420">
+      <isinactive>F</isinactive>
+      <value>Microsoft</value>
+    </customvalue>
+    <customvalue scriptid="val_13969_5731074_sb1_289">
+      <isinactive>F</isinactive>
+      <value>Mitsubishi</value>
+    </customvalue>
+    <customvalue scriptid="val_137432_5731074_sb1_827">
+      <isinactive>F</isinactive>
+      <value>Motorola Mobility</value>
+    </customvalue>
+    <customvalue scriptid="val_13999_5731074_sb1_838">
+      <isinactive>F</isinactive>
+      <value>NEC</value>
+    </customvalue>
+    <customvalue scriptid="val_13973_5731074_sb1_990">
+      <isinactive>F</isinactive>
+      <value>NETGEAR</value>
+    </customvalue>
+    <customvalue scriptid="val_14010_5731074_sb1_925">
+      <isinactive>F</isinactive>
+      <value>NewStar</value>
+    </customvalue>
+    <customvalue scriptid="val_14049_5731074_sb1_563">
+      <isinactive>F</isinactive>
+      <value>Nuance</value>
+    </customvalue>
+    <customvalue scriptid="val_13963_5731074_sb1_232">
+      <isinactive>F</isinactive>
+      <value>OKI</value>
+    </customvalue>
+    <customvalue scriptid="val_13970_5731074_sb1_947">
+      <isinactive>F</isinactive>
+      <value>Optoma</value>
+    </customvalue>
+    <customvalue scriptid="val_14031_5731074_sb1_861">
+      <isinactive>F</isinactive>
+      <value>Otter Products</value>
+    </customvalue>
+    <customvalue scriptid="val_13989_5731074_sb1_630">
+      <isinactive>F</isinactive>
+      <value>Panasonic</value>
+    </customvalue>
+    <customvalue scriptid="val_14077_5731074_sb1_571">
+      <isinactive>F</isinactive>
+      <value>PC Specialist</value>
+    </customvalue>
+    <customvalue scriptid="val_14021_5731074_sb1_414">
+      <isinactive>F</isinactive>
+      <value>Philips</value>
+    </customvalue>
+    <customvalue scriptid="val_14027_5731074_sb1_505">
+      <isinactive>F</isinactive>
+      <value>PNY</value>
+    </customvalue>
+    <customvalue scriptid="val_14024_5731074_sb1_386">
+      <isinactive>F</isinactive>
+      <value>Promethean</value>
+    </customvalue>
+    <customvalue scriptid="val_14013_5731074_sb1_611">
+      <isinactive>F</isinactive>
+      <value>PSA</value>
+    </customvalue>
+    <customvalue scriptid="val_14063_5731074_sb1_582">
+      <isinactive>F</isinactive>
+      <value>ROCCAT</value>
+    </customvalue>
+    <customvalue scriptid="val_14054_5731074_sb1_443">
+      <isinactive>F</isinactive>
+      <value>Sage</value>
+    </customvalue>
+    <customvalue scriptid="val_14069_5731074_sb1_825">
+      <isinactive>F</isinactive>
+      <value>Salamander Designs</value>
+    </customvalue>
+    <customvalue scriptid="val_14038_5731074_sb1_476">
+      <isinactive>F</isinactive>
+      <value>Samsung</value>
+    </customvalue>
+    <customvalue scriptid="val_14001_5731074_sb1_978">
+      <isinactive>F</isinactive>
+      <value>SanDisk</value>
+    </customvalue>
+    <customvalue scriptid="val_14044_5731074_sb1_241">
+      <isinactive>F</isinactive>
+      <value>Sanus</value>
+    </customvalue>
+    <customvalue scriptid="val_13977_5731074_sb1_401">
+      <isinactive>F</isinactive>
+      <value>Schneider Electric</value>
+    </customvalue>
+    <customvalue scriptid="val_14028_5731074_sb1_547">
+      <isinactive>F</isinactive>
+      <value>Seagate</value>
+    </customvalue>
+    <customvalue scriptid="val_14011_5731074_sb1_223">
+      <isinactive>F</isinactive>
+      <value>Sennheiser</value>
+    </customvalue>
+    <customvalue scriptid="val_14057_5731074_sb1_929">
+      <isinactive>F</isinactive>
+      <value>Sharp</value>
+    </customvalue>
+    <customvalue scriptid="val_14062_5731074_sb1_893">
+      <isinactive>F</isinactive>
+      <value>Skoogmusic</value>
+    </customvalue>
+    <customvalue scriptid="val_14015_5731074_sb1_422">
+      <isinactive>F</isinactive>
+      <value>SonicWall</value>
+    </customvalue>
+    <customvalue scriptid="val_13967_5731074_sb1_844">
+      <isinactive>F</isinactive>
+      <value>Sony</value>
+    </customvalue>
+    <customvalue scriptid="val_14076_5731074_sb1_310">
+      <isinactive>F</isinactive>
+      <value>Steelcase</value>
+    </customvalue>
+    <customvalue scriptid="val_14052_5731074_sb1_870">
+      <isinactive>F</isinactive>
+      <value>Super Micro</value>
+    </customvalue>
+    <customvalue scriptid="val_14042_5731074_sb1_906">
+      <isinactive>F</isinactive>
+      <value>Symantec</value>
+    </customvalue>
+    <customvalue scriptid="val_14032_5731074_sb1_379">
+      <isinactive>F</isinactive>
+      <value>Synology</value>
+    </customvalue>
+    <customvalue scriptid="val_13979_5731074_sb1_597">
+      <isinactive>F</isinactive>
+      <value>Targus</value>
+    </customvalue>
+    <customvalue scriptid="val_14020_5731074_sb1_452">
+      <isinactive>F</isinactive>
+      <value>techair</value>
+    </customvalue>
+    <customvalue scriptid="val_13993_5731074_sb1_197">
+      <isinactive>F</isinactive>
+      <value>Toshiba</value>
+    </customvalue>
+    <customvalue scriptid="val_14009_5731074_sb1_682">
+      <isinactive>F</isinactive>
+      <value>TP-LINK</value>
+    </customvalue>
+    <customvalue scriptid="val_14067_5731074_sb1_385">
+      <isinactive>F</isinactive>
+      <value>Unilumin</value>
+    </customvalue>
+    <customvalue scriptid="val_14048_5731074_sb1_860">
+      <isinactive>F</isinactive>
+      <value>Urban Armor Gear</value>
+    </customvalue>
+    <customvalue scriptid="val_14029_5731074_sb1_187">
+      <isinactive>F</isinactive>
+      <value>ViewSonic</value>
+    </customvalue>
+    <customvalue scriptid="val_14023_5731074_sb1_604">
+      <isinactive>F</isinactive>
+      <value>Vision</value>
+    </customvalue>
+    <customvalue scriptid="val_14036_5731074_sb1_902">
+      <isinactive>F</isinactive>
+      <value>Vogel&apos;s</value>
+    </customvalue>
+    <customvalue scriptid="val_14018_5731074_sb1_915">
+      <isinactive>F</isinactive>
+      <value>Western Digital</value>
+    </customvalue>
+    <customvalue scriptid="val_13965_5731074_sb1_822">
+      <isinactive>F</isinactive>
+      <value>Xerox</value>
+    </customvalue>
+    <customvalue scriptid="val_14066_5731074_sb1_680">
+      <isinactive>F</isinactive>
+      <value>Xiaomi</value>
+    </customvalue>
+    <customvalue scriptid="val_13985_5731074_sb1_297">
+      <isinactive>F</isinactive>
+      <value>ZyXEL</value>
+    </customvalue>
+  </customvalues>
+</customlist>

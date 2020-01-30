@@ -1,0 +1,10 @@
+<centertab scriptid="custcentertab_bbs_comet_tab">
+  <allcustomers>F</allcustomers>
+  <allemployees>F</allemployees>
+  <allpartners>F</allpartners>
+  <allroles>T</allroles>
+  <allvendors>F</allvendors>
+  <audslctrole></audslctrole>
+  <center>BASIC</center>
+  <label>Comet SFTP Integration</label>
+</centertab>

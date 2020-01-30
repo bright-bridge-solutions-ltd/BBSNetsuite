@@ -5,7 +5,7 @@
  */
 define(['N/sftp', 'N/file', 'N/search', 'N/xml', 'N/record', 'N/runtime', 'N/email'],
 /**
- * @param {sftp} 
+ * @param {sftp, file, search, xml, record, runtime, email} 
  */
 function(sftp, file, search, xml, record, runtime, email) 
 {
@@ -200,31 +200,31 @@ function(sftp, file, search, xml, record, runtime, email)
 															var headerOrderVat		= output.Order.OrderHeader.OrderTotal.VAT;
 															*/
 															var rawDateArray 		= output.Order.OrderHeader.OrderDate.substring(0,output.Order.OrderHeader.OrderDate.indexOf('T')).split('-');
-															var headerOrderNo 		= getDataElement('output.Order.OrderHeader.ExternalSystemOrderNo');
-															var headerCoName 		= getDataElement('output.Order.OrderHeader.CompanyInformation.Name');
-															var headerContactName 	= getDataElement('output.Order.OrderHeader.ContactInformation.Contact.Name');
-															var headerContactPhone 	= getDataElement('output.Order.OrderHeader.ContactInformation.Contact.Phone');
-															var headerContactEmail 	= getDataElement('output.Order.OrderHeader.ContactInformation.Contact.Email');
-															var headerBillAdressee 	= getDataElement('output.Order.OrderHeader.AddressingInformation.BillToAddress.AddressName');
-															var headerBillCompany 	= getDataElement('output.Order.OrderHeader.AddressingInformation.BillToAddress.Company');
-															var headerBillAddress1 	= getDataElement('output.Order.OrderHeader.AddressingInformation.BillToAddress.Address1');
-															var headerBillAddress2 	= getDataElement('output.Order.OrderHeader.AddressingInformation.BillToAddress.Address2');
-															var headerBillCity 		= getDataElement('output.Order.OrderHeader.AddressingInformation.BillToAddress.City');
-															var headerBillCounty 	= getDataElement('output.Order.OrderHeader.AddressingInformation.BillToAddress.County');
-															var headerBillPostCode 	= getDataElement('output.Order.OrderHeader.AddressingInformation.BillToAddress.Zip');
-															var headerBillCountry 	= getDataElement('output.Order.OrderHeader.AddressingInformation.BillToAddress.Country');
-															var headerShipAdressee 	= getDataElement('output.Order.OrderHeader.AddressingInformation.ShipToAddress.AddressName');
-															var headerShipCompany 	= getDataElement('output.Order.OrderHeader.AddressingInformation.ShipToAddress.Company');
-															var headerShipAddress1 	= getDataElement('output.Order.OrderHeader.AddressingInformation.ShipToAddress.Address1');
-															var headerShipAddress2 	= getDataElement('output.Order.OrderHeader.AddressingInformation.ShipToAddress.Address2');
-															var headerShipCity 		= getDataElement('output.Order.OrderHeader.AddressingInformation.ShipToAddress.City');
-															var headerShipCounty 	= getDataElement('output.Order.OrderHeader.AddressingInformation.ShipToAddress.County');
-															var headerShipPostCode 	= getDataElement('output.Order.OrderHeader.AddressingInformation.ShipToAddress.Zip');
-															var headerShipCountry 	= getDataElement('output.Order.OrderHeader.AddressingInformation.ShipToAddress.Country');
-															var headerShipTotal		= getDataElement('output.Order.OrderHeader.ShippingTotal.ExclusiveVAT');
-															var headerShipVat		= getDataElement('output.Order.OrderHeader.ShippingTotal.VAT');
-															var headerOrderTotal	= getDataElement('output.Order.OrderHeader.OrderTotal.ExclusiveVAT');
-															var headerOrderVat		= getDataElement('output.Order.OrderHeader.OrderTotal.VAT');
+															var headerOrderNo 		= getDataElement(output, 'output.Order.OrderHeader.ExternalSystemOrderNo');
+															var headerCoName 		= getDataElement(output, 'output.Order.OrderHeader.CompanyInformation.Name');
+															var headerContactName 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Contact.Name');
+															var headerContactPhone 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Contact.Phone');
+															var headerContactEmail 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Contact.Email');
+															var headerBillAdressee 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.AddressName');
+															var headerBillCompany 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.Company');
+															var headerBillAddress1 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.Address1');
+															var headerBillAddress2 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.Address2');
+															var headerBillCity 		= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.City');
+															var headerBillCounty 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.County');
+															var headerBillPostCode 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.Zip');
+															var headerBillCountry 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.Country');
+															var headerShipAdressee 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.AddressName');
+															var headerShipCompany 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.Company');
+															var headerShipAddress1 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.Address1');
+															var headerShipAddress2 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.Address2');
+															var headerShipCity 		= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.City');
+															var headerShipCounty 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.County');
+															var headerShipPostCode 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.Zip');
+															var headerShipCountry 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.Country');
+															var headerShipTotal		= getDataElement(output, 'output.Order.OrderHeader.ShippingTotal.ExclusiveVAT');
+															var headerShipVat		= getDataElement(output, 'output.Order.OrderHeader.ShippingTotal.VAT');
+															var headerOrderTotal	= getDataElement(output, 'output.Order.OrderHeader.OrderTotal.ExclusiveVAT');
+															var headerOrderVat		= getDataElement(output, 'output.Order.OrderHeader.OrderTotal.VAT');
 
 															var headerDate 			= rawDateArray[2] + '/' + rawDateArray[1] + '/' + rawDateArray[0];
 															
@@ -280,7 +280,7 @@ function(sftp, file, search, xml, record, runtime, email)
 															//
 															for (var int2 = 0; int2 < output.Order.OrderLines.length; int2++) 
 																{
-																	var lineProduct = output.Order.OrderLines[int2].ProductLine.SupplierArticleNo;
+																	var lineProduct = output.Order.OrderLines[int2].ProductLine.ManufacturerArticleNo;
 																	var lineQuantity = output.Order.OrderLines[int2].ProductLine.Quantity;
 																	var lineSupplier = output.Order.OrderLines[int2].ProductLine.Supplier;
 																	var linePrice = output.Order.OrderLines[int2].ProductLine.Price;
@@ -327,6 +327,12 @@ function(sftp, file, search, xml, record, runtime, email)
 																								    				value: 		lineQuantity
 																								    				});
 																			
+																			salesOrderRecord.setCurrentSublistValue({
+																								    				sublistId: 	'item',
+																								    				fieldId: 	'amount',
+																								    				value: 		linePrice
+																								    				});
+										
 																			salesOrderRecord.commitLine({
 																										sublistId: 	'item'
 																										});
@@ -476,7 +482,7 @@ function(sftp, file, search, xml, record, runtime, email)
 
     //Get data elements from output object
     //
-    function getDataElement(_element)
+    function getDataElement(output, _element)
     	{
     		var returnData = '';
     		

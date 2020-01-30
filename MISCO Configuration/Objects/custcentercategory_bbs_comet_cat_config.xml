@@ -1,0 +1,19 @@
+<centercategory scriptid="custcentercategory_bbs_comet_cat_config">
+  <center>BASIC</center>
+  <centertab>[scriptid=custcentertab_bbs_comet_tab]</centertab>
+  <label>Configuration</label>
+  <links>
+    <link>
+      <linklabel>SFTP Credentials</linklabel>
+      <linkobject>[scriptid=customscript_bbs_comet_credentials.customdeploy_bbs_comet_credentials]</linkobject>
+      <linktasktype>SCRIPT</linktasktype>
+      <shortlist>F</shortlist>
+    </link>
+    <link>
+      <linklabel>Comet SFTP Integrations</linklabel>
+      <linkobject>[scriptid=customrecord_bbs_comet_integration]</linkobject>
+      <linktasktype>LIST</linktasktype>
+      <shortlist>F</shortlist>
+    </link>
+  </links>
+</centercategory>
