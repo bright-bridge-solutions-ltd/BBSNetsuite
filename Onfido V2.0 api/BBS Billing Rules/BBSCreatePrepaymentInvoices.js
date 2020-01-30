@@ -30,11 +30,16 @@ function(runtime, search, record) {
         	name: 'custscript_bbs_amp_item'
         });
     	
+    	var qmpItem = currentScript.getParameter({
+        	name: 'custscript_bbs_qmp_item'
+        });
+    	
     	// initialize variables
     	var contractRecord;
     	var customer;
     	var location;
-    	var ampAmt;
+    	var invoiceAmt;
+    	var invoiceItem;
     	var invoiceID;
     	
     	// create search to find contracts to process
@@ -42,7 +47,7 @@ function(runtime, search, record) {
     		type: 'customrecord_bbs_contract',
     		
     		columns: [{
-    			name: 'internalid'
+    			name: 'custrecord_bbs_contract_billing_type'
     		},
     				{
     			name: 'custrecord_bbs_contract_customer'
@@ -56,6 +61,9 @@ function(runtime, search, record) {
     		},
     				{
     			name: 'custrecord_bbs_contract_min_ann_use'
+    		},
+    				{
+    			name: 'custrecord_bbs_contract_qu_min_use'
     		}],
     		
     		filters: [{
@@ -66,7 +74,7 @@ function(runtime, search, record) {
     				{
     			name: 'custrecord_bbs_contract_billing_type',
     			operator: 'anyof',
-    			values: ['4'] // 4 = AMP
+    			values: ['3', '4', '5'] // 3 = QMP, 4 = AMP, 5 = QUR
     		},
     				{
     			name: 'custrecord_bbs_contract_status',
@@ -84,9 +92,7 @@ function(runtime, search, record) {
     	contractSearch.run().each(function(result) {
     		
     		// get the internal ID of the contract record from the search results
-    		contractRecord = result.getValue({
-    			name: 'internalid'
-    		});
+    		contractRecord = result.id;
     		
     		log.audit({
     			title: 'Processing Contract Record',
@@ -109,13 +115,36 @@ function(runtime, search, record) {
 		    	name: 'custrecord_bbs_contract_currency'
 		    });
 		    
-		    // get the minimum annual usage from the search results
-		    ampAmt = result.getValue({
-		    	name: 'custrecord_bbs_contract_min_ann_use'
+		    // get the billing type from the search results
+		    billingType = result.getValue({
+		    	name: 'custrecord_bbs_contract_billing_type'
 		    });
 		    
-		    // use parseFloat to convert to decimal number
-		    ampAmt = parseFloat(ampAmt);
+		    // check if the billing type is 3 (QMP) or 5 (QUR)
+		    if (billingType == '3' || billingType == '5')
+		    	{
+		    		// set the invoiceAmt to be the minimum quarterly usage
+		    		invoiceAmt = result.getValue({
+		    			name: 'custrecord_bbs_contract_qu_min_use'
+		    		});
+		    		
+		    		// set the invoiceItem to be the qmpItem
+		    		invoiceItem = qmpItem;
+		    	}
+		    // if the billing type is 4 (AMP)
+		    else if (billingType == '4')
+		    	{
+		    		// set the invoiceAmt to be the minimum annual usage
+		    		invoiceAmt = result.getValue({
+		    			name: 'custrecord_bbs_contract_min_ann_use'
+		    		});
+		    		
+		    		// set the invoiceItem to be the ampItem
+		    		invoiceItem = ampItem;
+		    	}
+		    	
+		    // use parseFloat to convert to floating point number
+		    invoiceAmt = parseFloat(invoiceAmt);
 		    	
 		    try
 				{
@@ -162,7 +191,7 @@ function(runtime, search, record) {
 	    			invoice.setCurrentSublistValue({
 	    				sublistId: 'item',
 	    				fieldId: 'item',
-	    				value: ampItem
+	    				value: invoiceItem
 	    			});
 	    			
 	    			invoice.setCurrentSublistValue({
@@ -174,7 +203,7 @@ function(runtime, search, record) {
 	    			invoice.setCurrentSublistValue({
 	    				sublistId: 'item',
 	    				fieldId: 'rate',
-	    				value: ampAmt
+	    				value: invoiceAmt
 	    			});
 	    			
 	    			invoice.setCurrentSublistValue({
@@ -203,19 +232,19 @@ function(runtime, search, record) {
 	    				id: contractRecord,
 	    				values: {
 	    					custrecord_bbs_contract_initial_invoice: true,
-	    					custrecord_bbs_contract_prepayment_inv: ampAmt
+	    					custrecord_bbs_contract_prepayment_inv: invoiceAmt
 	    				}
 	    			});
 	    			
 	    			log.audit({
-	    				title: 'AMP Invoice Created',
+	    				title: 'Initial Invoice Created',
 	    				details: 'Invoice ID: ' + invoiceID + ' | Contract Record ID: ' + contractRecord
 	    			});
 				}
 			catch(e)
 				{
 					log.error({
-						title: 'Error creating AMP Invoice for Contract Record ' + contractRecord,
+						title: 'Error Creating Initial Invoice for Contract Record ' + contractRecord,
 						details: e
 					});
 				}

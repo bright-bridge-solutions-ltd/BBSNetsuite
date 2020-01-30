@@ -268,7 +268,7 @@ function(url, runtime, record, search, format, task) {
     	{
 	    	// declare and initialize variables
     		var setupFeeInvoice = 'F';
-    		var prepaymentInvoice = 'T';
+    		var prepaymentInvoice = 'F';
     	
     		// get the minimum usage from the current record			
 			var qmpAmt = currentRecord.getValue({
@@ -277,6 +277,31 @@ function(url, runtime, record, search, format, task) {
 			
 			// use parseFloat to convert to decimal number
 			qmpAmt = parseFloat(qmpAmt);
+			
+			// get the contract start date from the currentRecord object
+			var contractStart = currentRecord.getValue({
+				fieldId: 'custrecord_bbs_contract_start_date'
+			});
+			
+			// format contractStart as a date object
+			format.parse({
+    			type: format.Type.DATE,
+    			value: contractStart
+    		});
+			
+			// Create a new date object to return today's date
+			var todayDate = new Date();
+			todayDate = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate());
+			
+			// calculate 30 days after today's date
+			var thirtyDaysAfterToday = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()+30);
+			
+			// check that the contractStart is within 30 days of today's date
+			if (contractStart <= thirtyDaysAfterToday)
+				{
+					// set the prepaymentInvoice variable to 'T'
+					prepaymentInvoice = 'T';
+				}
 			
 			// get the value of the 'setup fee' field from the currentRecord object
 	    	var setupFee = currentRecord.getValue({
@@ -375,7 +400,7 @@ function(url, runtime, record, search, format, task) {
     	{
     		// declare and initialize variables
 			var setupFeeInvoice = 'F';
-			var prepaymentInvoice = 'T';
+			var prepaymentInvoice = 'F';
     	
     		// get the minimum usage from the currentRecord object			
 			var qmpAmt = currentRecord.getValue({
@@ -384,6 +409,31 @@ function(url, runtime, record, search, format, task) {
 			
 			// use parseFloat to convert to decimal number
 			qmpAmt = parseFloat(qmpAmt);
+			
+			// get the contract start date from the currentRecord object
+			var contractStart = currentRecord.getValue({
+				fieldId: 'custrecord_bbs_contract_start_date'
+			});
+			
+			// format contractStart as a date object
+			format.parse({
+    			type: format.Type.DATE,
+    			value: contractStart
+    		});
+			
+			// Create a new date object to return today's date
+			var todayDate = new Date();
+			todayDate = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate());
+			
+			// calculate 30 days after today's date
+			var thirtyDaysAfterToday = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()+30);
+			
+			// check that the contractStart is within 30 days of today's date
+			if (contractStart <= thirtyDaysAfterToday)
+				{
+					// set the prepaymentInvoice variable to 'T'
+					prepaymentInvoice = 'T';
+				}
 			
 			// get the value of the 'setup fee' field from the currentRecord object
 	    	var setupFee = currentRecord.getValue({
