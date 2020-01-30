@@ -39,7 +39,10 @@ function(sftp, file, search, xml, record, runtime, email)
 				      search.createColumn({name: "custrecord_bbs_comet_attachments_folder", 	label: "Attachments Folder"}),
 				      search.createColumn({name: "custrecord_bbs_comet_email_sender", 			label: "Email Sender"}),
 				      search.createColumn({name: "custrecord_bbs_comet_email_recipients", 		label: "Email Recipients"}),
-				      search.createColumn({name: "custrecord_bbs_comet_file_extension", 		label: "File Extension"})
+				      search.createColumn({name: "custrecord_bbs_comet_file_extension", 		label: "File Extension"}),
+				      search.createColumn({name: "custrecord_bbs_comet_so_form", 				label: "Sales Order Form"}),
+				      search.createColumn({name: "custrecord_bbs_comet_payment_type", 			label: "Payment Type"}),
+				      
 				   ]
 				}));
 			
@@ -58,6 +61,8 @@ function(sftp, file, search, xml, record, runtime, email)
 					var integrationEmailSender		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_email_sender"});
 					var integrationEmailRecipients	= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_email_recipients"});
 					var integrationFileExtension	= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_file_extension"});
+					var integrationFormId			= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_so_form"});
+					var integrationPaymentMethod	= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_payment_type"});
 					
 					//Create a connection
 					//
@@ -239,10 +244,14 @@ function(sftp, file, search, xml, record, runtime, email)
 																								});
 															
 															salesOrderRecord.setValue({
+																						fieldId:	'customform',
+																						value:		integrationFormId					
+																						});
+			
+															salesOrderRecord.setValue({
 																						fieldId:	'otherrefnum',
 																						value:		headerOrderNo
 																						});
-															
 															
 															salesOrderRecord.setValue({
 																						fieldId:	'trandate',
@@ -254,6 +263,11 @@ function(sftp, file, search, xml, record, runtime, email)
 																						value:		'B'					//Pending Fulfilment
 																						});
 															
+															salesOrderRecord.setValue({
+																						fieldId:	'paymentmethod',
+																						value:		integrationPaymentMethod					
+																						});
+			
 															//Shipping Address
 															//
 															var shippingSubrecord = salesOrderRecord.getSubrecord({fieldId: 'shippingaddress'});
@@ -413,9 +427,22 @@ function(sftp, file, search, xml, record, runtime, email)
 																				{
 																					//Move the file to the processed directory
 																					//
-																						
-																					//TODO	
-																					
+																					try
+																						{
+																							objConnection.move({
+																												from:	'./' + fileName,
+																												to:		integrationProcessed + '/' + fileName
+																												});
+																						}
+																					catch(err)
+																						{
+																							log.error({
+																										title: 		'Error moving file in SFTP site ' + fileName,
+																										details: 	err
+																										});
+																							
+																							emailMessage += 'Error moving file from  ./' + fileName + ' to ' + integrationProcessed + ' - ' + err.message + '\n\n';
+																						}
 																				}
 																			else
 																				{
