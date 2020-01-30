@@ -190,7 +190,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="300px" footer="nlfooter" footer-height="10px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="10px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
   
 <#if subsidiary.id == "10"> <!--India-->
   <table class="header" style="width: 30%;">
