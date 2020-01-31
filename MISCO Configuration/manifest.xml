@@ -1,4 +1,47 @@
 <manifest projecttype="ACCOUNTCUSTOMIZATION">
   <projectname>MISCO Configuration</projectname>
   <frameworkversion>1.0</frameworkversion>
+  <dependencies>
+    <features>
+      <feature required="true">CUSTOMRECORDS</feature>
+      <feature required="true">ADVRECEIVING</feature>
+      <feature required="false">TIMETRACKING</feature>
+      <feature required="true">OPPORTUNITIES</feature>
+      <feature required="true">SERVERSIDESCRIPTING</feature>
+      <feature required="false">WEBSERVICES</feature>
+      <feature required="false">EXTREMELIST</feature>
+      <feature required="false">INVENTORY</feature>
+      <feature required="true">CUSTOMSEGMENTS</feature>
+      <feature required="false">IPADDRESSRULES</feature>
+      <feature required="true">PAYABLES</feature>
+      <feature required="false">MAILMERGE</feature>
+      <feature required="true">RECEIVABLES</feature>
+      <feature required="true">EXPREPORTS</feature>
+      <feature required="false">MULTILOCINVT</feature>
+      <feature required="true">CRM</feature>
+      <feature required="true">ACCOUNTING</feature>
+      <feature required="false">WEBSITE</feature>
+    </features>
+    <objects>
+      <object>custtab_str_item_tab</object>
+      <object>custentity_str_taf_de_gobd_taxno</object>
+      <object>custtab_59_4452715_573</object>
+      <object>custtab_str_entity_tab_2</object>
+      <object>custitem_str_supplementary_units</object>
+      <object>custtab_str_item_tab_2</object>
+      <object>customrecord_cseg_bbs_division</object>
+      <object>custitem_str_supplementary_unit_code</object>
+      <object>custitem_ste_taxschedule</object>
+      <object>custitem_ste_taxschedule_coachingtext</object>
+      <object>custtab_str_entity_tab</object>
+      <object>custitem_str_commodity_code</object>
+      <object>custitem_ste_item_taxitem_type</object>
+    </objects>
+    <files>
+      <file>/SuiteScripts/MISCO (UK Computer Group)/BBS Comet Integration/BBSCometSFTP.js</file>
+      <file>/SuiteScripts/MISCO (UK Computer Group)/BBS Comet Integration/BBSFulfillDropShipSalesOrdersMR.js</file>
+      <file>/SuiteScripts/MISCO (UK Computer Group)/BBS Comet Integration/BBSBillSalesOrdersMR.js</file>
+      <file>/SuiteScripts/MISCO (UK Computer Group)/BBS Comet Integration/BBSCredentialsSuitelet.js</file>
+    </files>
+  </dependencies>
 </manifest>
