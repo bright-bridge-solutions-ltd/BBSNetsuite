@@ -92,85 +92,14 @@ function(message, url, https, search) {
     		fieldId: 'billingtypeselect'
     	});
     	
-    	// get the value of the subsidiary field from the currentRecord object
-    	var subsidiary = currentRecord.getValue({
-    		fieldId: 'subsidiaryselect'
-    	});
-    	
-    	// get the text value of the subsidiary field from the currentRecord object
-    	var subsidiaryText = currentRecord.getText({
-    		fieldId: 'subsidiaryselect'
-    	});
-    	
-    	// create search to find open sales orders for this billing type where the usage updated checkbox is NOT ticked
-    	var salesOrderSearch = search.create({
-    		type: search.Type.SALES_ORDER,
-    		
-    		columns: [{
-    			name: 'tranid',
-    			summary: 'GROUP'
-    		}],
-    		
-    		filters: [{
-    			name: 'status',
-    			operator: 'anyof',
-    			values: ['SalesOrd:F'] // SalesOrd:F = Sales Order:Pending Billing
-    		},
-    		     	{
-    			name: 'custrecord_bbs_contract_billing_type',
-    			join: 'custbody_bbs_contract_record',
-    			operator: 'anyof',
-    			values: [billingType]
-    		},
-    				{
-    			name: 'subsidiary',
-    			operator: 'anyof',
-    			values: [subsidiary]
-    		},
-    				{
-    			name: 'custcol_bbs_usage_updated',
-    			operator: 'is',
-    			values: ['F']
-    		},
-    				{
-    			name: 'mainline',
-    			operator: 'is',
-    			values: ['F']
-    		},
-    				{
-    			name: 'cogs',
-    			operator: 'is',
-    			values: ['F']
-    		},
-    				{
-    			name: 'shipping',
-    			operator: 'is',
-    			values: ['F']
-    		},
-    				{
-    			name: 'taxline',
-    			operator: 'is',
-    			values: ['F']
-    		}],
-    		
-    	});
-    	
-    	// run search and process search results
-    	salesOrderSearch.run().each(function(result) {
-    		
-    		// increase the salesOrders variable
-    		salesOrders++;
-    		
-    	});
-    	
-    	// check if the salesOrders variable is greater than 0
-    	if (salesOrders > 0)
+    	// check if the billing type is 'BUR'
+    	if (billingTypeText == 'BUR')
     		{
 	    		// display an error message
 				message.create({
 					type: message.Type.ERROR,
 			        title: 'Error',
-			        message: 'The billing process for ' + billingTypeText + ' cannot be started as there are open sales orders for the ' + subsidiaryText + ' subsidiary where the usage on the contract record has not been updated.<br><br><a href="https://5554661-sb1.app.netsuite.com/app/common/search/searchresults.nl?searchid=397&AQT_CUSTRECORD_BBS_CONTRACT_BILLING_TYPE=' + billingType + '&Transaction_SUBSIDIARY=' + subsidiary + 'target="_blank">Click Here</a> to view details of these orders (this will open in a new tab/window)'
+			        message: 'The ' + billingTypeText + ' billing type is not currently supported.<br><br>Please select a different billing type and try again.'
 				}).show();
 				
 				// prevent the Suitelet from being submitted
@@ -178,10 +107,98 @@ function(message, url, https, search) {
     		}
     	else
     		{
-    			// allow the Suitelet to be submitted
-    			return true;
-    		}
-    	
+		    	// get the value of the subsidiary field from the currentRecord object
+		    	var subsidiary = currentRecord.getValue({
+		    		fieldId: 'subsidiaryselect'
+		    	});
+		    	
+		    	// get the text value of the subsidiary field from the currentRecord object
+		    	var subsidiaryText = currentRecord.getText({
+		    		fieldId: 'subsidiaryselect'
+		    	});
+		    	
+		    	// check if the billingType
+		    	
+		    	// create search to find open sales orders for this billing type where the usage updated checkbox is NOT ticked
+		    	var salesOrderSearch = search.create({
+		    		type: search.Type.SALES_ORDER,
+		    		
+		    		columns: [{
+		    			name: 'tranid',
+		    			summary: 'GROUP'
+		    		}],
+		    		
+		    		filters: [{
+		    			name: 'status',
+		    			operator: 'anyof',
+		    			values: ['SalesOrd:F'] // SalesOrd:F = Sales Order:Pending Billing
+		    		},
+		    		     	{
+		    			name: 'custrecord_bbs_contract_billing_type',
+		    			join: 'custbody_bbs_contract_record',
+		    			operator: 'anyof',
+		    			values: [billingType]
+		    		},
+		    				{
+		    			name: 'subsidiary',
+		    			operator: 'anyof',
+		    			values: [subsidiary]
+		    		},
+		    				{
+		    			name: 'custcol_bbs_usage_updated',
+		    			operator: 'is',
+		    			values: ['F']
+		    		},
+		    				{
+		    			name: 'mainline',
+		    			operator: 'is',
+		    			values: ['F']
+		    		},
+		    				{
+		    			name: 'cogs',
+		    			operator: 'is',
+		    			values: ['F']
+		    		},
+		    				{
+		    			name: 'shipping',
+		    			operator: 'is',
+		    			values: ['F']
+		    		},
+		    				{
+		    			name: 'taxline',
+		    			operator: 'is',
+		    			values: ['F']
+		    		}],
+		    		
+		    	});
+		    	
+		    	// run search and process search results
+		    	salesOrderSearch.run().each(function(result) {
+		    		
+		    		// increase the salesOrders variable
+		    		salesOrders++;
+		    		
+		    	});
+		    	
+		    	// check if the salesOrders variable is greater than 0
+		    	if (salesOrders > 0)
+		    		{
+			    		// display an error message
+						message.create({
+							type: message.Type.ERROR,
+					        title: 'Error',
+					        message: 'The billing process for ' + billingTypeText + ' cannot be started as there are open sales orders for the ' + subsidiaryText + ' subsidiary where the usage on the contract record has not been updated.<br><br><a href="https://5554661-sb1.app.netsuite.com/app/common/search/searchresults.nl?searchid=397&AQT_CUSTRECORD_BBS_CONTRACT_BILLING_TYPE=' + billingType + '&Transaction_SUBSIDIARY=' + subsidiary + 'target="_blank">Click Here</a> to view details of these orders (this will open in a new tab/window)'
+						}).show();
+						
+						// prevent the Suitelet from being submitted
+						return false;
+		    		}
+		    	else
+		    		{
+		    			// allow the Suitelet to be submitted
+		    			return true;
+		    		}
+    		} 	
     }
 
     return {
