@@ -80,8 +80,8 @@ function(runtime, search, record, format, task) {
     				{
     			name: 'custrecord_bbs_contract_billing_type',
     			join: 'custrecord_bbs_contract_period_contract',
-    			operator: 'noneof',
-    			values: ['1'] // 1 = PAYG
+    			operator: 'anyof',
+    			values: [subsidiary]
     		},
     				{
     			name: 'custrecord_bbs_contract_period_prod_use',

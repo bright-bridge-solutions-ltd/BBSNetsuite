@@ -32,14 +32,9 @@ function(search, record) {
     			values: ['T']
     		},
     				{
-    			name: 'datecreated',
-    			operator: 'within',
-    			values: ['17/01/2020', '20/01/2020']
-    		},
-    				{
-    			name: 'internalid',
-    			operator: 'noneof',
-    			values: ['3955', '4333', '3933', '3934', '3935', '3936', '3937']
+    			name: 'custbody1',
+    			operator: 'is',
+    			values: ['T']
     		}],
     	});
 

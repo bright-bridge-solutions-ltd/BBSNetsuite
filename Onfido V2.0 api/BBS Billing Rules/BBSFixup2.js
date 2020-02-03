@@ -18,7 +18,7 @@ function(search, record) {
      */
     function getInputData() {
     	
-    	// create search to find sales order records to be updated
+    	// create search to find contract records to be updated
     	return search.create({
 			type: 'customrecord_bbs_contract',
 			
@@ -27,9 +27,9 @@ function(search, record) {
 			}],
 			
 			filters: [{
-				name: 'custrecord_bbs_contract_customer',
+				name: 'internalid',
 				operator: 'anyof',
-				values: ['2619', '3236', '3182', '3263', '3344', '3287', '2339', '2610', '3304']
+				values: ['47', '50', '64', '93', '95', '114', '119', '126', '137', '140', '210', '251', '291', '431', '489', '493', '505', '506', '507', '508', '584', '602', '614', '639', '651']
 			}],
 		});
 
@@ -46,7 +46,7 @@ function(search, record) {
     	// retrieve search results
     	var searchResult = JSON.parse(context.value);
     	
-    	// get the internal ID of the sales order record
+    	// get the internal ID of the product detail record
     	var recordID = searchResult.id;
     	
     	log.audit({
@@ -56,7 +56,7 @@ function(search, record) {
     	
     	try
     		{
-	    		// delete the sales order record
+	    		// delete the contract record
 				record.delete({
 					type: 'customrecord_bbs_contract',
 					id: recordID

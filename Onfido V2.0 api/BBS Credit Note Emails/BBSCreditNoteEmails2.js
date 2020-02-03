@@ -25,9 +25,15 @@ function(search, record, render, email) {
     			values: ['T']
     		},
     				{
-    			name: 'custbody_bbs_credit_note_error',
-    			operator: 'is',
-    			values: ['T']
+    			name: 'datecreated',
+    			operator: 'within',
+    			values: ['today']
+    		},
+    				{
+    			name: 'context',
+    			join: 'systemnotes',
+    			operator: 'anyof',
+    			values: ['CSV']
     		}],
     		
     		columns: [{
