@@ -103,6 +103,8 @@ function prRecordRecalcUE(type)
 						
 						var prToProcess = {};
 						var applyCount = record.getLineItemCount('apply');
+						var invoiceObject = {};
+						var invoiceArray = [];
 						
 						//Loop through all of the apply to sublist
 						//
@@ -122,21 +124,55 @@ function prRecordRecalcUE(type)
 											{
 												var appliedTranId = record.getLineItemValue('apply', 'internalid', int);
 												
+												invoiceObject[appliedTranId] = appliedTranId;
+												
+												
 												//See if there is a PR record linked to this transaction
 												//
-												var presentationId = nlapiLookupField('invoice', appliedTranId, 'custbody_bbs_pr_id', false);
+												//var presentationId = nlapiLookupField('invoice', appliedTranId, 'custbody_bbs_pr_id', false);
 												
 												//Does this transaction have a pr linked to it?
 												//
-												if(presentationId != null && presentationId != '')
-													{
+												//if(presentationId != null && presentationId != '')
+												//	{
 														//Build up a list of PR records to process
 														//
-														prToProcess[presentationId] = presentationId;
-													}
+												//		prToProcess[presentationId] = presentationId;
+												//	}
+												
 											}
 									}
 							}
+						
+						for ( var invoiceObjectId in invoiceObject) 
+							{
+								invoiceArray.push(invoiceObjectId)
+							}
+						
+						//New code to get list of PR records to update
+						//
+						var invoiceSearch = nlapiSearchRecord("invoice",null,
+								[
+								   ["type","anyof","CustInvc"], 
+								   "AND", 
+								   ["mainline","is","T"], 
+								   "AND", 
+								   ["internalid","anyof",invoiceArray]
+								], 
+								[
+								   new nlobjSearchColumn("custbody_bbs_pr_id",null,"GROUP")
+								]
+								);
+						
+						if(invoiceSearch != null && invoiceSearch.length > 0)
+							{
+								for (var int2 = 0; int2 < invoiceSearch.length; int2++) 
+									{
+										var prId = invoiceSearch[int2].getValue("custbody_bbs_pr_id",null,"GROUP");
+										prToProcess[prId] = prId;
+									}
+							}
+						
 						
 						//Now process any PR records that have been affected
 						//
