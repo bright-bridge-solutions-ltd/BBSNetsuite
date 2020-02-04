@@ -44,12 +44,25 @@ function() {
 		    		fieldId: 'custbody_project_tag_header'
 		    	});
 		    	
-		    	// set the 'Project Tag' sublist field on the current line using the projectTag variable
-		    	currentRecord.setCurrentSublistValue({
-		    		sublistId: 'expense',
-		    		fieldId: 'custcol_project_tag_line',
-		    		value: projectTag
-		    	});
+		    	// check if the record type is 'vendorbill' or 'vendorcredit'
+		    	if (currentRecord.type == 'vendorbill' || currentRecord.type == 'vendorcredit')
+		    		{
+		    			// set the 'Project Tag' expense sublist field on the current line using the projectTag variable
+				    	currentRecord.setCurrentSublistValue({
+				    		sublistId: 'expense',
+				    		fieldId: 'custcol_project_tag_line',
+				    		value: projectTag
+				    	});
+		    		}
+		    	else if (currentRecord.type == 'purchaseorder') // if the record type is 'purchaseorder'
+		    		{
+		    			// set the 'Project Tag' item sublist field on the current line using the projectTag variable
+				    	currentRecord.setCurrentSublistValue({
+				    		sublistId: 'item',
+				    		fieldId: 'custcol_project_tag_line',
+				    		value: projectTag
+				    	});
+		    		}
     		}
     }
 
@@ -99,13 +112,25 @@ function() {
     		fieldId: 'custbody_project_tag_header'
     	});
     	
-    	// set the 'Project Tag' sublist field on the current line using the projectTag variable
-    	currentRecord.setCurrentSublistValue({
-    		sublistId: 'expense',
-    		fieldId: 'custcol_project_tag_line',
-    		value: projectTag
-    	});
-
+    	// check if the record type is 'vendorbill' or 'vendorcredit'
+    	if (currentRecord.type == 'vendorbill' || currentRecord.type == 'vendorcredit')
+    		{
+    			// set the 'Project Tag' expense sublist field on the current line using the projectTag variable
+		    	currentRecord.setCurrentSublistValue({
+		    		sublistId: 'expense',
+		    		fieldId: 'custcol_project_tag_line',
+		    		value: projectTag
+		    	});
+    		}
+    	else if (currentRecord.type == 'purchaseorder') // if the record type is 'purchaseorder'
+    		{
+    			// set the 'Project Tag' item sublist field on the current line using the projectTag variable
+		    	currentRecord.setCurrentSublistValue({
+		    		sublistId: 'item',
+		    		fieldId: 'custcol_project_tag_line',
+		    		value: projectTag
+		    	});
+    		}
     }
 
     /**
