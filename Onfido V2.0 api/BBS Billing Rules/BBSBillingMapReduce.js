@@ -3,8 +3,8 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/search', 'N/record', 'N/format', 'N/task', 'N/currency'],
-function(runtime, search, record, format, task, currency) {
+define(['N/runtime', 'N/search', 'N/record', 'N/format', 'N/task'],
+function(runtime, search, record, format, task) {
 	
 	// retrieve script parameters
 	var currentScript = runtime.getCurrentScript();
@@ -119,10 +119,6 @@ function(runtime, search, record, format, task, currency) {
 					{
 				name: 'custrecord_bbs_contract_currency',
 				join: 'custbody_bbs_contract_record'
-			},
-					{
-				name: 'currency',
-				join: 'subsidiary'
 			}],
 			
 			filters: [{
@@ -155,15 +151,10 @@ function(runtime, search, record, format, task, currency) {
     				{
     			name: 'custrecord_bbs_contract_billing_type',
     			join: 'custbody_bbs_contract_record',
-    			operator: 'noneof',
-    			values: ['7'] // 7 = BUR
-    		},
-    				{
-    			name: 'custrecord_bbs_contract_billing_type',
-    			join: 'custbody_bbs_contract_record',
     			operator: 'anyof',
     			values: [billingType]
     		}],
+
 		});
     }
 
@@ -189,7 +180,6 @@ function(runtime, search, record, format, task, currency) {
     	var customer;
     	var mgmtFeeAmt;
     	var contractCurrency;
-    	var subsidiaryCurrency
     	var netAmt;
     	var monthlyMinimum;
     	
@@ -213,9 +203,6 @@ function(runtime, search, record, format, task, currency) {
 		// get the contract currency from the search results
 		contractCurrency = searchResult.values["custrecord_bbs_contract_currency.custbody_bbs_contract_record"].value;
 		
-		// get the subsidiary currency from the search results
-		subsidiaryCurrency = searchResult.values["currency.subsidiary"].value;
-		
 		//============================================================================================
 		// CHECK THE BILLING TYPE AND CALL THE RELEVANT FUNCTION FOR PRE-PROCESSING OF THE SALES ORDER
 		//============================================================================================
@@ -223,14 +210,14 @@ function(runtime, search, record, format, task, currency) {
 		// AMBMA billing type
 		if (billingType == 6)
 			{
-				// call the AMBMA function. Pass record ID, contractRecord, contractCurrency and subsidiaryCurrency
-				AMBMA(recordID, contractRecord, contractCurrency, subsidiaryCurrency);
+				// call the AMBMA function. Pass record ID, contractRecord and contractCurrency
+				AMBMA(recordID, contractRecord, contractCurrency);
 			}
 		// AMP billing type
 		else if (billingType == 4)
 			{
-				// call the AMP function. Pass in the recordID and contractRecord, contractCurrency and subsidiaryCurrency
-				AMP(recordID, contractRecord, contractCurrency, subsidiaryCurrency);
+				// call the AMP function. Pass in the recordID and contractRecord and contractCurrency
+				AMP(recordID, contractRecord, contractCurrency);
 			}
 		// PAYG billing type
 		else if (billingType == 1)
@@ -241,14 +228,14 @@ function(runtime, search, record, format, task, currency) {
 		// QMP billing type
 		else if (billingType == 3)
 			{
-				// call the QMP function. Pass record ID, contractRecord, contractCurrency and subsidiaryCurrency
-				QMP(recordID, contractRecord, contractCurrency, subsidiaryCurrency);
+				// call the QMP function. Pass record ID, contractRecord and contractCurrency
+				QMP(recordID, contractRecord, contractCurrency);
 			}
 		// QUR billing type
 		else if (billingType == 5)
 			{
-				// call the QUR function. Pass record ID, contractRecord, contractCurrency and subsidiaryCurrency
-				QUR(recordID, contractRecord, contractCurrency, subsidiaryCurrency);
+				// call the QUR function. Pass record ID, contractRecord and contractCurrency
+				QUR(recordID, contractRecord, contractCurrency);
 			}
 		// UIOLI billing type
 		else if (billingType == 2)
@@ -278,7 +265,7 @@ function(runtime, search, record, format, task, currency) {
 	// SEPARATE FUNCTIONS FOR EACH BILLING TYPE
 	//=========================================
     
-    function AMBMA(recordID, contractRecord, contractCurrency, subsidiaryCurrency)
+    function AMBMA(recordID, contractRecord, contractCurrency)
 	    {
 	    	// set the billingType variable to AMBMA
     		billingType = 'AMBMA';
@@ -634,17 +621,17 @@ function(runtime, search, record, format, task, currency) {
 					// call function to close the sales order. Pass in soRecord object
     				closeSalesOrder(soRecord);
 				
-					// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance. Pass in recordID, billingType, contractCurrency and subsidiaryCurrency (True = Clearing Journal YES)
-	    			createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, true);
+					// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance. Pass in recordID, billingType and contractCurrency (True = Clearing Journal YES)
+	    			createRevRecJournal(recordID, billingType, contractCurrency, true);
 				}
 			else
 				{
-					// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType, contractCurrency and subsidiaryCurrency (False = Clearing Journal NO)
-	    			createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, false);
+					// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType and contractCurrency (False = Clearing Journal NO)
+	    			createRevRecJournal(recordID, billingType, contractCurrency, false);
 				}
 	    }
     
-    function AMP(recordID, contractRecord, contractCurrency, subsidiaryCurrency)
+    function AMP(recordID, contractRecord, contractCurrency)
     	{
 	    	// set the billingType variable to AMP
 			billingType = 'AMP';
@@ -747,13 +734,13 @@ function(runtime, search, record, format, task, currency) {
 							updatePeriodDetail(recordID, contractRecord);
 				    	}
 				    
-				    // call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID, billingType, contractCurrency and subsidiaryCurrency (True = Clearing Journal YES)
-	    		    createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, true);
+				    // call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID, billingType and contractCurrency (True = Clearing Journal YES)
+	    		    createRevRecJournal(recordID, billingType, contractCurrency, true);
 		    	}
 		    else // this is calendar month end and NOT the end of the contract
 		    	{
-			    	// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType, contractCurrency and subsidiaryCurrency (False = Clearing Journal NO)
-		    		createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, false);
+			    	// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType and contractCurrency (False = Clearing Journal NO)
+		    		createRevRecJournal(recordID, billingType, contractCurrency, false);
 		    	}
     	}
     
@@ -766,7 +753,7 @@ function(runtime, search, record, format, task, currency) {
 			updatePeriodDetail(recordID, contractRecord);
 	    }
     
-    function QMP(recordID, contractRecord, contractCurrency, subsidiaryCurrency)
+    function QMP(recordID, contractRecord, contractCurrency)
     	{
     		// set the billingType variable to QMP
 			billingType = 'QMP';
@@ -971,14 +958,14 @@ function(runtime, search, record, format, task, currency) {
 					    	// check if this is either the end of the contract or the early termination date has passed
 						    if (invoiceDate.getTime() >= contractEnd.getTime() || earlyEndDate != '' && invoiceDate.getTime() >= earlyEndDate.getTime())
 						    	{
-							    	// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID, billingType, contractRecord and subsidiaryCurrency (True = Clearing Journal YES)
-						    		createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, true);
+							    	// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID, billingType and contractCurrency (True = Clearing Journal YES)
+						    		createRevRecJournal(recordID, billingType, contractCurrency, true);
 						    	}
 						    // else if this is the end of a contract quarter
 						    else
 						    	{
-							    	// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID, billingType, contractCurrency, subsidiaryCurrency and minimumUsage (True = Clearing Journal YES)
-						    		createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, true, minimumUsage);
+							    	// call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID, billingType, contractCurrency and minimumUsage (True = Clearing Journal YES)
+						    		createRevRecJournal(recordID, billingType, contractCurrency, true, minimumUsage);
 						    	}
 				    	}
     			}			
@@ -1023,13 +1010,13 @@ function(runtime, search, record, format, task, currency) {
 					// check if deferredRevAmt is greater than 0
 					if (deferredRevAmt > 0)
 						{
-							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType, contractCurrency and subsidiaryCurrency (False = Clearing Journal NO)
-							createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, false);
+							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType and contractCurrency (False = Clearing Journal NO)
+							createRevRecJournal(recordID, billingType, contractCurrency, false);
 						}
 				}
     	}
     
-    function QUR(recordID, contractRecord, contractCurrency, subsidiaryCurrency)
+    function QUR(recordID, contractRecord, contractCurrency)
 	    {
     		// declare and initiate variables
 			var quarterEnd;
@@ -1306,8 +1293,8 @@ function(runtime, search, record, format, task, currency) {
 					// check if we have deferredRevAmt is greater than 0
 					if (deferredRevAmt > 0)
 						{
-							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType, contractCurrency and subsidiaryCurrency (True = Clearing Journal YES)
-		    				createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, true);
+							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType and contractCurrency (True = Clearing Journal YES)
+		    				createRevRecJournal(recordID, billingType, contractCurrency, true);
 						}
 				}
 			// else check if the invoiceDate is equal to the quarterEnd
@@ -1505,8 +1492,8 @@ function(runtime, search, record, format, task, currency) {
 					// check if deferredRevAmt is greater than 0
 					if (deferredRevAmt > 0)
 						{
-							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType, contractCurrency, subsidiaryCurrency and nextInvoiceAmount (False = Clearing Journal NO)
-			    			createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, false, nextInvoiceAmount);
+							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType, contractCurrency and nextInvoiceAmount (False = Clearing Journal NO)
+			    			createRevRecJournal(recordID, billingType, contractCurrency, false, nextInvoiceAmount);
 						}
 				}
 			// else this is a month end
@@ -1565,13 +1552,13 @@ function(runtime, search, record, format, task, currency) {
 					// check if quarterStart is true and deferredRevAmt minus lastPrepaymentAmount is greater than 0
 					if (quarterStart == true && (deferredRevAmt - lastPrepaymentAmount) > 0)
 						{
-							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType contractCurrency, subsidiaryCurrency and lastPrepaymentAmount (False = Clearing Journal NO)
-	    		    		createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, false, lastPrepaymentAmount);
+							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType, contractCurrency and lastPrepaymentAmount (False = Clearing Journal NO)
+	    		    		createRevRecJournal(recordID, billingType, contractCurrency, false, lastPrepaymentAmount);
 						}
 					else if (deferredRevAmt > 0) // check if deferredRevAmt is greater than 0
 						{
-							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType, contractCurrency, subsidiaryCurrency and (False = Clearing Journal NO)
-				    		createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, false);
+							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType and contractCurrency (False = Clearing Journal NO)
+				    		createRevRecJournal(recordID, billingType, contractCurrency, false);
 						}				
 				}
 	    }
@@ -2280,7 +2267,7 @@ function(runtime, search, record, format, task, currency) {
 	// FUNCTION TO CREATE A REVENUE RECOGNITION JOURNAL
 	//=================================================
     
-    function createRevRecJournal(recordID, billingType, contractCurrency, subsidiaryCurrency, clearingJournal, minimumUsage)
+    function createRevRecJournal(recordID, billingType, contractCurrency, clearingJournal, minimumUsage)
 	    {
 	    	// declare new date object. Global variable so can be accessed throughout the script
 	    	invoiceDate = new Date();
@@ -2398,13 +2385,6 @@ function(runtime, search, record, format, task, currency) {
 		    		
 		    		thisMonthUsage = parseFloat(thisMonthUsage); // use parseFloat to convert to a floating point number
 		    		
-		    		// check if the contractCurrency variable is NOT equal to the subsidiaryCurrency variable
-		    		if (contractCurrency != subsidiaryCurrency)
-		    			{
-		    				// call function to convert thisMonthUsage to subsidiary currency. Pass contractCurrency, subsidiaryCurrency and thisMonthUsage. Converted amount will be returned
-		    				thisMonthUsage = currencyConversion(contractCurrency, subsidiaryCurrency, thisMonthUsage);		    			
-		    			}
-		    		
 		    		// check if thisMonthUsage is greater than 0 AND clearingJournal is false OR clearingJournal is true
 		    		if ((thisMonthUsage > 0 && clearingJournal == false) || clearingJournal == true)
 		    			{
@@ -2421,7 +2401,7 @@ function(runtime, search, record, format, task, currency) {
 								    	fieldId: 'trandate',
 								    	value: invoiceDate
 								    });
-							    		
+								    
 								    journalRecord.setValue({
 								    	fieldId: 'memo',
 								    	value: billingType + ' + ' + journalDate
@@ -2449,7 +2429,7 @@ function(runtime, search, record, format, task, currency) {
 								    		
 								    journalRecord.setValue({
 								    	fieldId: 'currency',
-								    	value: subsidiaryCurrency
+								    	value: contractCurrency
 								    });
 								    
 								    journalRecord.setValue({
@@ -2586,13 +2566,6 @@ function(runtime, search, record, format, task, currency) {
 														    	});
 														    	
 														    	lineAmount = parseFloat(lineAmount); // use parseFloat to convert to floating point number
-														    	
-														    	// check if contractCurrency is NOT equal to subsidiaryCurrency
-													    		if (contractCurrency != subsidiaryCurrency)
-													    			{
-													    				// call function to convert lineAmount to the subsidiary currency
-													    				lineAmount = currencyConversion(contractCurrency, subsidiaryCurrency, lineAmount)
-													    			}
 														    	
 														    	// add the lineAmount to the total variable
 														    	total += lineAmount;
@@ -2947,13 +2920,6 @@ function(runtime, search, record, format, task, currency) {
 												    	});
 												    	
 												    	lineAmount = parseFloat(lineAmount); // use parseFloat to convert to floating point number
-												    	
-												    	// check if contractCurrency is NOT equal to subsidiaryCurrency
-											    		if (contractCurrency != subsidiaryCurrency)
-											    			{
-											    				// call function to convert lineAmount to the subsidiary currency
-											    				lineAmount = currencyConversion(contractCurrency, subsidiaryCurrency, lineAmount)
-											    			}
 												    	
 												    	// add the lineAmount to the total variable
 												    	total += lineAmount;
@@ -3458,25 +3424,6 @@ function(runtime, search, record, format, task, currency) {
     		// day 0 is the last day in the current month
     	 	return new Date(year, month+1, 0).getDate(); // return the last day of the month
 	    }
-    
-    // ==========================================
-    // FUNCTION TO GET THE CURRENCY EXCHANGE RATE
-    // ==========================================
-    
-    function currencyConversion(sourceCurrency, targetCurrency, amount)
-    	{
-    		// find the exchange rate
-    		var exchangeRate = currency.exchangeRate({
-    			source: sourceCurrency,
-    			target: targetCurrency
-    		});
-    		
-    		// calculate the amount by the exchange rate
-    		var amtConverted = parseFloat(amount * exchangeRate).toFixed(2);
-    		
-    		// return amtConverted
-    		return amtConverted;  		
-    	}
     
     function summarize(context)
 	    {
