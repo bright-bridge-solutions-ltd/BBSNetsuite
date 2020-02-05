@@ -171,6 +171,16 @@ function invoicingScheduled(type)
 												}
 										}
 									
+									//Loop through the shipping lines & remove them
+									//
+									var invLines = invoiceRecord.getLineItemCount('shipgroup');
+									
+									for (var int2 = invLines; int2 >= 1; int2--) 
+										{
+											invoiceRecord.removeLineItem('shipgroup', int2, false);
+										}
+									
+									
 									var invoiceId = null;
 									
 									try

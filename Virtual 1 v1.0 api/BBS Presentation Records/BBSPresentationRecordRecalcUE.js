@@ -169,7 +169,11 @@ function prRecordRecalcUE(type)
 								for (var int2 = 0; int2 < invoiceSearch.length; int2++) 
 									{
 										var prId = invoiceSearch[int2].getValue("custbody_bbs_pr_id",null,"GROUP");
-										prToProcess[prId] = prId;
+										
+										if(prId != null && prId != '')
+											{
+												prToProcess[prId] = prId;
+											}
 									}
 							}
 						
