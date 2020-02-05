@@ -18,18 +18,24 @@ function(search, record) {
      */
     function getInputData() {
     	
-    	// create search to find contract records to be updated
+    	// create search to find journal records to be deleted
     	return search.create({
-			type: 'customrecord_bbs_contract',
+			type: search.Type.JOURNAL_ENTRY,
 			
 			columns: [{
-				name: 'internalid'
+				name: 'internalid',
+				summary: 'GROUP'
 			}],
 			
 			filters: [{
-				name: 'internalid',
+				name: 'custbody_bbs_contract_record',
 				operator: 'anyof',
-				values: ['47', '50', '64', '93', '95', '114', '119', '126', '137', '140', '210', '251', '291', '431', '489', '493', '505', '506', '507', '508', '584', '602', '614', '639', '651']
+				values: ['39','41','324','325','326','327','431','540','545','5','17','22','23','24','35','300','301','302','303','304','305','306','307','308','309','310','311','312','313','314','315','316','317','318','319','320','321','322','323','347','348','354','445','446','447','448','450','451','452','481','484','487','495','502','513','514','515','522','550','573','649','671']
+			},
+					{
+				name: 'datecreated',
+				operator: 'onorafter',
+				values: ['04/02/2020']
 			}],
 		});
 
@@ -46,31 +52,31 @@ function(search, record) {
     	// retrieve search results
     	var searchResult = JSON.parse(context.value);
     	
-    	// get the internal ID of the product detail record
-    	var recordID = searchResult.id;
+    	// get the internal ID of the journal record
+    	var recordID = searchResult.values['GROUP(internalid)'].value
     	
     	log.audit({
-    		title: 'Processing Contract Record',
-    		details: 'Internal ID: ' + recordID
+    		title: 'Processing Journal Record',
+    		details: recordID
     	});
     	
     	try
     		{
-	    		// delete the contract record
+	    		// delete the journal record
 				record.delete({
-					type: 'customrecord_bbs_contract',
+					type: record.Type.JOURNAL_ENTRY,
 					id: recordID
 				});
 
 		    	log.audit({
-		    		title: 'Contract Record Deleted',
+		    		title: 'Journal Record Deleted',
 		    		details: 'Record ID: ' + recordID
 		    	});
     		}
     	catch(e)
     		{
     			log.error({
-    				title: 'Error Deleting Contract Record',
+    				title: 'Error Deleting Journal Record',
     				details: 'Record ID: ' + recordID + '<br>Error: ' + e
     			});
     		}
