@@ -256,7 +256,7 @@ function(runtime, search, record, format, task) {
 				// get the management fee amount from the search results
 				mgmtFeeAmt = searchResult.values["custrecord_bbs_contract_mgmt_fee_amt.custbody_bbs_contract_record"];
 			
-				// call function to create invoice for monthly management fee. Pass in ID of contract record, customer, mgmtFeeAmt, contractCurrency
+				// call function to create invoice for monthly management fee. Pass in ID of contract record, customer, mgmtFeeAmt and contractCurrency
 				createMgmtFeeInvoice(contractRecord, customer, mgmtFeeAmt, contractCurrency);
 			}
     }
@@ -433,7 +433,7 @@ function(runtime, search, record, format, task) {
     			
     		});
     		
-    		// check if the cumulativeInvoicesSearchResult variable is empty
+    		// check if the cumulativeInvoicesSearchResult variable is null
     		if (cumulativeInvoicesSearchResult == '')
     			{
     				// set the cumulativeInvoicesSearchResult variable to 0
@@ -482,7 +482,7 @@ function(runtime, search, record, format, task) {
     			
     		});
     		
-    		// check if the thisMonthUsage variable is empty
+    		// check if the thisMonthUsage variable is null
     		if (thisMonthUsage == '')
     			{
     				// set the thisMonthUsage to 0
@@ -523,7 +523,7 @@ function(runtime, search, record, format, task) {
     			
     		});
     		
-    		// check if the cumulativeUsage variable is empty
+    		// check if the cumulativeUsage variable is null
     		if (cumulativeUsage == '')
     			{
     				// set the cumulativeUsage to 0
@@ -535,9 +535,9 @@ function(runtime, search, record, format, task) {
     		// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
 			var deferredRevAmt = calculateDeferredRev(contractRecord);
 			
-			log.debug({
-				title: 'Script Check',
-				details: 'Monthly Minimum: ' + monthlyMinimum + ' | Cumulative Monthly Minimum: ' + cumulativeMinimums + ' | Cumulative Invoice Total: ' + cumulativeInvoices + ' | This Month Usage: ' + thisMonthUsage + ' | Cumulative Usage: ' + cumulativeUsage + ' | Deferred Rev Amt: ' + deferredRevAmt
+			log.audit({
+				title: 'AMBMA Check',
+				details: 'Monthly Minimum: ' + monthlyMinimum + '<br>Cumulative Monthly Minimum: ' + cumulativeMinimums + '<br>Cumulative Invoice Total: ' + cumulativeInvoices + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Usage: ' + cumulativeUsage + '<br>Deferred Rev Amt: ' + deferredRevAmt
 			});
 			
 			/*
@@ -595,7 +595,7 @@ function(runtime, search, record, format, task) {
 				{
 					log.audit({
 						title: 'Unable to Create Next Prepayment Invoice',
-						details: 'Contract Record ID: ' + contractRecord + ' | Reason: This would have resulted in a zero value invoice'
+						details: 'Contract Record ID: ' + contractRecord + '<br>Reason: This would have resulted in a zero value invoice'
 					});
 		
 		    		// update fields on the contract record
@@ -680,7 +680,7 @@ function(runtime, search, record, format, task) {
     			
     		});
     		
-    		// check if the cumulativeUsage variable is empty
+    		// check if the cumulativeUsage variable is null
     		if (cumulativeUsage == '')
     			{
     				// set the cumulativeUsage to 0
@@ -904,9 +904,9 @@ function(runtime, search, record, format, task) {
 			// calculate calculated deferred revenue position
 			var calculatedDeferredRevenue = parseFloat(minimumUsage - cumulativeUsage);
     		
-    		log.debug({
-    			title: 'Script Check',
-    			details: 'Minimum Usage: ' + minimumUsage + ' | This Month Usage: ' + thisMonthUsage + ' | Cumulative Usage: ' + cumulativeUsage + ' | Actual Deferred Revenue Balance: ' + deferredRevAmt + ' | Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
+    		log.audit({
+    			title: 'QMP Check',
+    			details: 'Minimum Usage: ' + minimumUsage + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Usage: ' + cumulativeUsage + '<br>Actual Deferred Revenue Balance: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
     		});
     		
     		// check if the invoiceDate is equal to the quarterEnd OR the invoiceDate is greater than (after) or equal to the earlyEndDate
@@ -1058,8 +1058,15 @@ function(runtime, search, record, format, task) {
 			var earlyEndDate = contractRecordLookup.custrecord_bbs_contract_early_end_date;
 			var lastPrepaymentAmount = contractRecordLookup.custrecord_bbs_contract_prepayment_inv;
 			
+			// check if lastPrepaymentAmount is null
+			if (lastPrepaymentAmount == '')
+				{
+					// set lastPrepaymentAmount to 0
+					lastPrepaymentAmount = 0;
+				}
+			
 			// use parseFloat to convert lastPrepaymentAmount to a floating point number
-    		lastPrepaymentAmount = parseFloat(lastPrepaymentAmount);
+			lastPrepaymentAmount = parseFloat(lastPrepaymentAmount);
 			
 			// check if earlyEndDate returns a value
 			if (earlyEndDate)
@@ -1257,9 +1264,9 @@ function(runtime, search, record, format, task) {
 			// use parseFloat to convert calculatedDeferredRevenue to a floating point number
 			calculatedDeferredRevenue = parseFloat(calculatedDeferredRevenue);
 			
-			log.debug({
-    			title: 'Script Check',
-    			details: 'Minimum Usage: ' + minimumUsage + ' | This Month Usage: ' + thisMonthUsage + ' | Cumulative Qtr Usage: ' + cumulativeQtrUsage + ' | Cumulative Usage to Date: ' + cumulativeUsage + ' | Last Prepayment Invoice: ' + lastPrepaymentAmount + ' | Actual Deferred Revenue Balance: ' + deferredRevAmt + ' | Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
+			log.audit({
+    			title: 'QUR Check',
+    			details: 'Minimum Usage: ' + minimumUsage + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Qtr Usage: ' + cumulativeQtrUsage + '<br>Cumulative Usage to Date: ' + cumulativeUsage + '<br>Last Prepayment Invoice: ' + lastPrepaymentAmount + '<br>Actual Deferred Revenue Balance: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
     		});
 		
 			// check if the invoiceDate is greater than (after) or equal to the contractEnd OR the invoiceDate is greater than (after) or equal to the earlyEndDate
@@ -1333,7 +1340,7 @@ function(runtime, search, record, format, task) {
 								{
 									log.audit({
 				    					title: 'Unable to Create Next Prepayment Invoice',
-				    					details: 'Contract Record ID: ' + contractRecord + ' | Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
+				    					details: 'Contract Record ID: ' + contractRecord + '<br>Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
 				    				});
 									
 									// set the nextInvoiceAmount variable to 0
@@ -1353,7 +1360,7 @@ function(runtime, search, record, format, task) {
 								{
 									log.audit({
 				    					title: 'Unable to Create Next Prepayment Invoice',
-				    					details: 'Contract Record ID: ' + contractRecord + ' | Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
+				    					details: 'Contract Record ID: ' + contractRecord + '<br>Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
 				    				});
 									
 									// set the nextInvoiceAmount variable to 0
@@ -1394,7 +1401,7 @@ function(runtime, search, record, format, task) {
 								{
 									log.audit({
 				    					title: 'Unable to Create Next Prepayment Invoice',
-				    					details: 'Contract Record ID: ' + contractRecord + ' | Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
+				    					details: 'Contract Record ID: ' + contractRecord + '<br>Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
 				    				});
 									
 									// set the nextInvoiceAmount variable to 0
@@ -1414,7 +1421,7 @@ function(runtime, search, record, format, task) {
 								{
 									log.audit({
 				    					title: 'Unable to Create Next Prepayment Invoice',
-				    					details: 'Contract Record ID: ' + contractRecord + ' | Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
+				    					details: 'Contract Record ID: ' + contractRecord + '<br>Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
 				    				});
 									
 									// set the nextInvoiceAmount variable to 0
@@ -1455,7 +1462,7 @@ function(runtime, search, record, format, task) {
 								{
 									log.audit({
 				    					title: 'Unable to Create Next Prepayment Invoice',
-				    					details: 'Contract Record ID: ' + contractRecord + ' | Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
+				    					details: 'Contract Record ID: ' + contractRecord + '<br>Unable to create next prepayment invoice as this would have resulted in a zero value invoice'
 				    				});
 									
 									// set the nextInvoiceAmount variable to 0
@@ -1680,14 +1687,14 @@ function(runtime, search, record, format, task) {
     		
 		    		log.audit({
 						title: 'Sales Order Billed',
-						details: 'Invoice ID: ' + invoiceID + ' | Sales Order ID: ' + recordID
+						details: 'Invoice ID: ' + invoiceID + '<br>Sales Order ID: ' + recordID
 					});
     			}
     		catch(error)
 	    		{
 	    			log.error({
 	    				title: 'Error Billing Sales Order',
-	    				details: 'Sales Order ID: ' + recordID + ' | Error: ' + error
+	    				details: 'Sales Order ID: ' + recordID + '<br>Error: ' + error
 	    			});
 	    		}
     	}
@@ -1889,14 +1896,14 @@ function(runtime, search, record, format, task) {
 	    			
 	    			log.audit({
 	    				title: 'Management Fee Invoice Created',
-	    				details: 'Invoice ID: ' + invoiceID + ' | Contract ID: ' + contractRecord
+	    				details: 'Invoice ID: ' + invoiceID + '<br>Contract ID: ' + contractRecord
 	    			});   				
     			}
     		catch(error)
     			{
     				log.error({
     					title: 'Error Creating Mgmt Fee Invoice',
-    					details: 'Contract ID: ' + contractRecord + ' | Error: ' + error
+    					details: 'Contract ID: ' + contractRecord + '<br>Error: ' + error
     				});
     			}
     	}
@@ -2045,14 +2052,14 @@ function(runtime, search, record, format, task) {
 			    			
 			    	log.audit({
 			    		title: 'Next Prepayment Invoice Created',
-			    		details: 'Invoice ID: ' + invoiceID + ' | Contract ID: ' + contractRecord
+			    		details: 'Invoice ID: ' + invoiceID + '<br>Contract ID: ' + contractRecord
 			    	});   				
 				}
 			catch(error)
 				{
 					log.error({
 						title: 'Error Creating Next Prepayment Invoice',
-						details: 'Contract ID: ' + contractRecord + ' | Error: ' + error
+						details: 'Contract ID: ' + contractRecord + '<br>Error: ' + error
 					});
 				}
 			
@@ -2117,7 +2124,7 @@ function(runtime, search, record, format, task) {
 	    		{
 	    			log.error({
 			    		title: 'Error Closing Sales Order',
-			    		details: 'Sales Order ID: ' + recordID + ' | Error: ' + error
+			    		details: 'Sales Order ID: ' + recordID + '<br>Error: ' + error
 			    	});
 	    		}
 	    }
@@ -2258,7 +2265,7 @@ function(runtime, search, record, format, task) {
 		    	{
 		    		log.error({
 			    		title: 'Error Adding Adjustment Item to Sales Order',
-			    		details: 'Sales Order ID: ' + recordID + ' | Error: ' + error
+			    		details: 'Sales Order ID: ' + recordID + '<br>Error: ' + error
 			    	});
 		    	}
 	    }
@@ -3231,14 +3238,14 @@ function(runtime, search, record, format, task) {
 													
 									log.audit({
 										title: 'Journal Created',
-										details: 'Journal ID: ' + journalID + ' | Sales Order ID: ' + recordID
+										details: 'Journal ID: ' + journalID + '<br>Sales Order ID: ' + recordID
 									});
 				    			}
 					   		catch(error)
 					   			{
 						   			log.error({
 										title: 'Error Creating Journal',
-										details: 'Sales Order ID: ' + recordID + ' | Error: ' + error
+										details: 'Sales Order ID: ' + recordID + '<br>Error: ' + error
 									});
 					   			}
 		    			}
@@ -3247,7 +3254,7 @@ function(runtime, search, record, format, task) {
 			    {
 			    	log.audit({
 						title: 'Unable to Create Journal',
-						details: 'Sales Order ID: ' + recordID + ' | Reason: Insufficient Deferred Revenue Balance'
+						details: 'Sales Order ID: ' + recordID + '<br>Reason: Insufficient Deferred Revenue Balance'
 					});
 			    }
 	    }
@@ -3354,7 +3361,7 @@ function(runtime, search, record, format, task) {
     					{
     						log.error({
     							title: 'Error Updating Period Detail Record',
-    							details: 'Sales Order ID: ' + salesOrderID + ' | Error: ' + e
+    							details: 'Sales Order ID: ' + salesOrderID + '<br>Error: ' + e
     						});
     					}
         		});
