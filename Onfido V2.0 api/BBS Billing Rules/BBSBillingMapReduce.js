@@ -94,6 +94,11 @@ function(runtime, search, record, format, task) {
      */
     function getInputData() {
     	
+    	log.audit({
+    		title: '*** BEGINNING OF BILLING RUN ***',
+    		details: 'Billing Type: ' + billingTypeText + '<br>Subsidiary: ' + subsidiaryText
+    	});
+    	
     	// create search to find sales orders to be billed
     	return search.create({
     		type: search.Type.SALES_ORDER,

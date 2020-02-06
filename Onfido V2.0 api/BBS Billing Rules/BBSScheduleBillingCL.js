@@ -150,6 +150,10 @@ function(message, url, https, search) {
 		    			values: ['F']
 		    		},
 		    				{
+		    			name: 'custcol_bbs_so_search_date',
+		    			operator: 'isnotempty'
+		    		},
+		    				{
 		    			name: 'mainline',
 		    			operator: 'is',
 		    			values: ['F']
