@@ -48,7 +48,7 @@ function(runtime) {
 			        	var recordID = scriptContext.newRecord.id;
 			        	
 			        	// set client script to run on the form
-			        	scriptContext.form.clientScriptFileId = 2332;
+			        	scriptContext.form.clientScriptFileId = 13933;
 			    	
 			    		// add button to the form
 			    		scriptContext.form.addButton({
