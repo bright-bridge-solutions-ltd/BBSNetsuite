@@ -140,6 +140,12 @@ function(message, url, https, search) {
 		    			values: [billingType]
 		    		},
 		    				{
+		    			name: 'custrecord_bbs_contract_exc_auto_bill',
+		    			join: 'custbody_bbs_contract_record',
+		    			operator: 'is',
+		    			values: ['F']
+		    		},
+		    				{
 		    			name: 'subsidiary',
 		    			operator: 'anyof',
 		    			values: [subsidiary]
@@ -191,7 +197,7 @@ function(message, url, https, search) {
 						message.create({
 							type: message.Type.ERROR,
 					        title: 'Error',
-					        message: 'The billing process for ' + billingTypeText + ' cannot be started as there are open sales orders for the ' + subsidiaryText + ' subsidiary where the usage on the contract record has not been updated.<br><br><a href="https://5554661-sb1.app.netsuite.com/app/common/search/searchresults.nl?searchid=397&AQT_CUSTRECORD_BBS_CONTRACT_BILLING_TYPE=' + billingType + '&Transaction_SUBSIDIARY=' + subsidiary + 'target="_blank">Click Here</a> to view details of these orders (this will open in a new tab/window)'
+					        message: 'The billing process for ' + billingTypeText + ' cannot be started as there are open sales orders for the ' + subsidiaryText + ' subsidiary where the usage on the contract record has not been updated.<br><br><a href="https://5554661.app.netsuite.com/app/common/search/searchresults.nl?searchtype=Transaction&Transaction_SUBSIDIARY=' + subsidiary + '&BDY_CUSTRECORD_BBS_CONTRACT_BILLING_TYPE=' + billingType + '&style=NORMAL&report=&grid=&searchid=883">Click Here</a> to view details of these orders (this will open in a new tab/window)'
 						}).show();
 						
 						// prevent the Suitelet from being submitted
