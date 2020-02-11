@@ -198,7 +198,6 @@ function(runtime, search, record, format, email) {
 				createProduct(contractRecordID, contractRecordText, itemID, itemText, tranID);
 			}
     	
-    	// create search to find period detail records to be updated
 		var periodDetailSearch = search.create({
 			type: 'customrecord_bbs_contract_period',
 			
@@ -230,7 +229,7 @@ function(runtime, search, record, format, email) {
 				values: [monthEnd]
     		}],
 		});
-		
+    	
 		// run search and process search results
 		periodDetailSearch.run().each(function(result) {
 			

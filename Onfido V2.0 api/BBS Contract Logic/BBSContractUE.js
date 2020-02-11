@@ -123,29 +123,86 @@ function(url, runtime, record, search, format, task) {
     				fieldId: 'custrecord_bbs_contract_consol_inv'
     			});
     			
-    			// check if the consolInvReq variable returns 1 (Yes)
-    			if (consolInvReq == 1)
+    			// lookup fields on the customer record
+    			var customerLookup = search.lookupFields({
+    				type: search.Type.CUSTOMER,
+    				id: customer,
+    				columns: ['parent']
+    			});
+    			
+    			// get values from the customerLookup object
+    			var parentCustomer = customerLookup.parent[0].value;
+    			
+    			// check that the customer is not equal to parentCustomer
+    			if (customer != parentCustomer)
     				{
-    					// untick the 'Exclude from Consolidated Invoicing' checkbox on the customer record
-    					record.submitFields({
-    						type: record.Type.CUSTOMER,
-    						id: customer,
-    						values: {
-    							custentity_nsts_ci_exclude_ci: false
-    						}
-    					});
+	    				// check if the consolInvReq variable returns 1 (Yes)
+	        			if (consolInvReq == 1)
+	        				{
+	        					// untick the 'Exclude from Consolidated Invoicing' checkbox on the parent and customer records
+		        				record.submitFields({
+	        						type: record.Type.CUSTOMER,
+	        						id: parentCustomer,
+	        						values: {
+	        							custentity_nsts_ci_exclude_ci: false
+	        						}
+	        					});
+	        				
+	        					record.submitFields({
+	        						type: record.Type.CUSTOMER,
+	        						id: customer,
+	        						values: {
+	        							custentity_nsts_ci_exclude_ci: false
+	        						}
+	        					});
+	        				}
+	        			// if the consolInvReq variable returns 2 (No)
+	        			else if (consolInvReq == 2)
+	        				{
+	    	    				// tick the 'Exclude from Consolidated Invoicing' checkbox on the parent and customer records
+		        				record.submitFields({
+	    							type: record.Type.CUSTOMER,
+	    							id: parentCustomer,
+	    							values: {
+	    								custentity_nsts_ci_exclude_ci: true
+	    							}
+	    						});
+	        				
+		        				record.submitFields({
+	    							type: record.Type.CUSTOMER,
+	    							id: customer,
+	    							values: {
+	    								custentity_nsts_ci_exclude_ci: true
+	    							}
+	    						});
+	        				}
     				}
-    			// if the consolInvReq variable returns 2 (No)
-    			else if (consolInvReq == 2)
+    			else // customer is equal to parentCustomer
     				{
-	    				// tick the 'Exclude from Consolidated Invoicing' checkbox on the customer record
-						record.submitFields({
-							type: record.Type.CUSTOMER,
-							id: customer,
-							values: {
-								custentity_nsts_ci_exclude_ci: true
-							}
-						});
+	    				// check if the consolInvReq variable returns 1 (Yes)
+	        			if (consolInvReq == 1)
+	        				{
+	        					// untick the 'Exclude from Consolidated Invoicing' checkbox on the customer record
+	        					record.submitFields({
+	        						type: record.Type.CUSTOMER,
+	        						id: customer,
+	        						values: {
+	        							custentity_nsts_ci_exclude_ci: false
+	        						}
+	        					});
+	        				}
+	        			// if the consolInvReq variable returns 2 (No)
+	        			else if (consolInvReq == 2)
+	        				{
+	    	    				// tick the 'Exclude from Consolidated Invoicing' checkbox on the customer record
+	    						record.submitFields({
+	    							type: record.Type.CUSTOMER,
+	    							id: customer,
+	    							values: {
+	    								custentity_nsts_ci_exclude_ci: true
+	    							}
+	    						});
+	        				}
     				}
     			
     			// check if the record is being edited
