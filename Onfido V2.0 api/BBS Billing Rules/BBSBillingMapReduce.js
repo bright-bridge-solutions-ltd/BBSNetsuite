@@ -1808,6 +1808,9 @@ function(runtime, search, record, format, task) {
 			// retrieve values from the customerLookup
 			var location = customerLookup.custentity_bbs_location[0].value;
 			
+			// call function to calculate the accounting period. Pass invoiceDate
+			var accountingPeriod = calculateAccountingPeriod(invoiceDate);
+			
 			try
 	    		{
 					// create a new invoice record
@@ -1825,6 +1828,11 @@ function(runtime, search, record, format, task) {
 	    			invoice.setValue({
 	    				fieldId: 'trandate',
 	    				value: invoiceDate
+	    			});
+	    			
+	    			invoice.setText({
+	    				fieldId: 'postingperiod',
+	    				value: accountingPeriod
 	    			});
 	    			
 	    			invoice.setValue({
@@ -1941,6 +1949,9 @@ function(runtime, search, record, format, task) {
 					
 			// retrieve values from the customerLookup
 			var location = customerLookup.custentity_bbs_location[0].value;
+			
+			// call function to calculate the accounting period. Pass invoiceDate
+			var accountingPeriod = calculateAccountingPeriod(invoiceDate);
 		    	
 		    try
 				{
@@ -1960,6 +1971,11 @@ function(runtime, search, record, format, task) {
 						fieldId: 'trandate',
 						value: invoiceDate
 					});
+					
+					invoice.setText({
+	    				fieldId: 'postingperiod',
+	    				value: accountingPeriod
+	    			});
 							
 					invoice.setValue({
 						fieldId: 'custbody_bbs_contract_record',
@@ -3436,6 +3452,22 @@ function(runtime, search, record, format, task) {
     		// day 0 is the last day in the current month
     	 	return new Date(year, month+1, 0).getDate(); // return the last day of the month
 	    }
+    
+    // =======================================
+    // FUNCTION TO CALCULATE ACCOUNTING PERIOD
+    // =======================================
+    
+    function calculateAccountingPeriod(date)
+    	{
+    		// create array of months
+    		var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    		
+    		// calculate the posting period
+    		var postingPeriod = months[date.getMonth()] + ' ' + date.getFullYear();
+    		
+    		// return the posting period
+    		return postingPeriod;
+    	}
     
     function summarize(context)
 	    {
