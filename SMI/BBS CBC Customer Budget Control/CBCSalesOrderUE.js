@@ -719,7 +719,14 @@ function processErrors(_record, _errors, _type)
 			//
 			if(errorText != null && errorText != '')
 				{
-					nlapiSubmitField('salesorder', recordId, 'orderstatus', 'A', false);
+					try
+						{
+							nlapiSubmitField('salesorder', recordId, 'orderstatus', 'A', false);
+						}
+					catch(err)
+						{
+						
+						}
 				}
 		}
 	

@@ -2,9 +2,9 @@
 <pdf>
 <head>
 	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
-  	<link name="WorkSans" type="font" subtype="opentype" src="https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=37338&amp;c=5554661_SB1&amp;h=8405786539e632199200&amp;_xt=.otf" src-bold="https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=37339&amp;c=5554661_SB1&amp;h=51b66d9833053be2cd34&amp;_xt=.otf" src-italic="https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=37340&amp;c=5554661_SB1&amp;h=19b16825b34ba5486a54&amp;_xt=.otf" src-bolditalic="https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=37341&amp;c=5554661_SB1&amp;h=8a33438751bbe5e3f6f4&amp;_xt=.otf" bytes="2" />
+  	<link name="WorkSans" type="font" subtype="opentype" src="https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=39748&amp;c=5554661_SB1&amp;h=e8661f57adf6156e2914&amp;_xt=.otf" src-bold="https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=39744&amp;c=5554661_SB1&amp;h=8bd7276a890242f13477&amp;_xt=.otf" src-italic="https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=39747&amp;c=5554661_SB1&amp;h=f7e0584ed02d864188e5&amp;_xt=.otf" src-bolditalic="https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=39746&amp;c=5554661_SB1&amp;h=a368b8759f822074e87b&amp;_xt=.otf" bytes="2" />
 
-	<#assign logoInfo>https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=9544&amp;c=5554661_SB1&amp;h=3c1a74753ea9e8671a1c</#assign>
+	<#assign logoInfo>https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=23854&amp;c=5554661_SB1&amp;h=ed6fd4315864dacf5a48</#assign>
   	<#assign todaysDate = .now>
 	<#assign summary_info = contract.custrecord_bbs_contract_usage_json?eval>
 	<#assign regInfo>Company Registration No: 07479524.  Registered Office: 3 Finsbury Avenue, 5th Floor, London, EC2M 2PA, United Kingdom.</#assign>
@@ -40,7 +40,7 @@
     			<tr>
 					<td style="font-size:22px; padding-top: 55px;">USAGE STATEMENT</td>
 					<td align="right">&nbsp;</td>
-					<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:130px;" /></td>
+					<td align="right"><img src="${logoInfo}" style="float: right; width:300px; height:96px;" /></td>
     			</tr>
           	</table>
           	
@@ -58,7 +58,7 @@
 			   			<table class="header" style="width: 100%;">
 							<tr>
 								<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; ">Statement Date</td>
-								<td align="right" style="padding-right: 2px;border-top: 1px solid black; border-right: 1px solid black;">${todaysDate?string["dd/MM/yyyy"]}</td>
+								<td align="right" style="padding-right: 2px;border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_early_end_date?string["dd/MM/yyyy"]}</td>
 							</tr>
 							<tr>
 								<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; ">Contract Start Date</td>
