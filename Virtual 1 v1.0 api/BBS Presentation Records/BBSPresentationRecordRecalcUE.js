@@ -151,18 +151,23 @@ function prRecordRecalcUE(type)
 						
 						//New code to get list of PR records to update
 						//
-						var invoiceSearch = nlapiSearchRecord("invoice",null,
-								[
-								   ["type","anyof","CustInvc"], 
-								   "AND", 
-								   ["mainline","is","T"], 
-								   "AND", 
-								   ["internalid","anyof",invoiceArray]
-								], 
-								[
-								   new nlobjSearchColumn("custbody_bbs_pr_id",null,"GROUP")
-								]
-								);
+						var invoiceSearch = null;
+						
+						if(invoiceArray.length > 0)
+							{
+								invoiceSearch = nlapiSearchRecord("invoice",null,
+										[
+										   ["type","anyof","CustInvc"], 
+										   "AND", 
+										   ["mainline","is","T"], 
+										   "AND", 
+										   ["internalid","anyof",invoiceArray]
+										], 
+										[
+										   new nlobjSearchColumn("custbody_bbs_pr_id",null,"GROUP")
+										]
+										);
+							}
 						
 						if(invoiceSearch != null && invoiceSearch.length > 0)
 							{

@@ -43,76 +43,79 @@ function(search,config) {
     	//
     	if(configRecord != null)
     		{
-    			var accountId = configRecord.getValue({fieldId: 'companyid'});
-    			urlPrefix = 'https://' + accountId.replace('_','-') + '.app.netsuite.com/';
-		    		
-		    	//Search for contracts for the customer or custmomer's parent where there are files attached
-		    	//
-		    	var customrecord_bbs_contractSearchObj = search.create({
-		    		   type: "customrecord_bbs_contract",
-		    		   filters:
-		    		   [
-		    		      ["custrecord_bbs_contract_status","anyof","1"], 				//Approved
-		    		      "AND", 
-		    		      ["file.availablewithoutlogin","is","T"], 						//Available without login
-		    		      "AND", 
-		    		      [["custrecord_bbs_contract_customer","anyof",customer], 		//Contract customer is the customer in question
-		    		      "OR", 
-		    		      ["custrecord_bbs_contract_customer.parent","anyof",customer]]	//Or the contract customer's parent is the customer in question
-		    		   ],
-		    		   columns:
-		    		   [
-		    		      search.createColumn({
-						    		    	  name: "name", 
-						    		    	  label: "ID"
-		    		    		  			}),
-		    		      search.createColumn({
-		    		    	  					name: "custrecord_bbs_contract_status", 
-		    		    	  					label: "Status"
-		    		    	  				}),
-		    		      search.createColumn({
-							    				name: "name",
-							    		        join: "file",
-							    		        label: "Name"
-		    		      					}),
-		    		      search.createColumn({
-							    		        name: "url",
-							    		        join: "file",
-							    		        label: "URL"
-		    		      					}),
-		    		      search.createColumn({
-							    		        name: "description",
-							    		        join: "file",
-							    		        label: "Description"
-		    		      					}),
-		    		      search.createColumn({
-							    		        name: "created",
-							    		        join: "file",
-							    		        sort: search.Sort.DESC,
-							    		        label: "Date Created"
-		    		      					})
-		    		   ]
-		    		});
-		    	
-		    		//Get the count of records
-		    		//
-		    		//var searchResultCount = customrecord_bbs_contractSearchObj.runPaged().count;
-		
-		    		//Loop round the search results
-		    		//
-		    		customrecord_bbs_contractSearchObj.run().each(function(result)
-		    			{
-		    				var fileName = result.getValue({name: 'name', join: 'file'});
-		    				var fileDescription = result.getValue({name: 'description', join: 'file'});
-		    				var fileDate = result.getValue({name: 'created', join: 'file'});
-		    				var fileUrl = urlPrefix + result.getValue({name: 'url', join: 'file'});
-		    				
-		    				//Add an entry to the output array
-		    				//
-		    				resultSet.push(new fileDescriptor(fileName, fileDescription, fileDate, fileUrl));
-		    				
-		    				return true;
-		    			});
+    			if(!isNaN(customer))
+    				{
+		    			var accountId = configRecord.getValue({fieldId: 'companyid'});
+		    			urlPrefix = 'https://' + accountId.replace('_','-') + '.app.netsuite.com/';
+				    		
+				    	//Search for contracts for the customer or custmomer's parent where there are files attached
+				    	//
+				    	var customrecord_bbs_contractSearchObj = search.create({
+				    		   type: "customrecord_bbs_contract",
+				    		   filters:
+				    		   [
+				    		      ["custrecord_bbs_contract_status","anyof","1"], 				//Approved
+				    		      "AND", 
+				    		      ["file.availablewithoutlogin","is","T"], 						//Available without login
+				    		      "AND", 
+				    		      [["custrecord_bbs_contract_customer","anyof",customer], 		//Contract customer is the customer in question
+				    		      "OR", 
+				    		      ["custrecord_bbs_contract_customer.parent","anyof",customer]]	//Or the contract customer's parent is the customer in question
+				    		   ],
+				    		   columns:
+				    		   [
+				    		      search.createColumn({
+								    		    	  name: "name", 
+								    		    	  label: "ID"
+				    		    		  			}),
+				    		      search.createColumn({
+				    		    	  					name: "custrecord_bbs_contract_status", 
+				    		    	  					label: "Status"
+				    		    	  				}),
+				    		      search.createColumn({
+									    				name: "name",
+									    		        join: "file",
+									    		        label: "Name"
+				    		      					}),
+				    		      search.createColumn({
+									    		        name: "url",
+									    		        join: "file",
+									    		        label: "URL"
+				    		      					}),
+				    		      search.createColumn({
+									    		        name: "description",
+									    		        join: "file",
+									    		        label: "Description"
+				    		      					}),
+				    		      search.createColumn({
+									    		        name: "created",
+									    		        join: "file",
+									    		        sort: search.Sort.DESC,
+									    		        label: "Date Created"
+				    		      					})
+				    		   ]
+				    		});
+				    	
+				    		//Get the count of records
+				    		//
+				    		//var searchResultCount = customrecord_bbs_contractSearchObj.runPaged().count;
+				
+				    		//Loop round the search results
+				    		//
+				    		customrecord_bbs_contractSearchObj.run().each(function(result)
+				    			{
+				    				var fileName = result.getValue({name: 'name', join: 'file'});
+				    				var fileDescription = result.getValue({name: 'description', join: 'file'});
+				    				var fileDate = result.getValue({name: 'created', join: 'file'});
+				    				var fileUrl = urlPrefix + result.getValue({name: 'url', join: 'file'});
+				    				
+				    				//Add an entry to the output array
+				    				//
+				    				resultSet.push(new fileDescriptor(fileName, fileDescription, fileDate, fileUrl));
+				    				
+				    				return true;
+				    			});
+    				}
     		}
     	
     		//Return the results

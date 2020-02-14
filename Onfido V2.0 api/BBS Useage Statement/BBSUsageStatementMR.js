@@ -532,8 +532,9 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    				{
 	    					//Get the amount of the pre-payment
 	    					//
-	    					var amount = Number(_prePayments[int].getValue({name: 'amount'}));
-	    					
+	    					//var amount = Number(_prePayments[int].getValue({name: 'amount'}));
+	    					var amount = Number(_prePayments[int].getValue({name: 'formulacurrency'}));
+    					
 	    					//Update the summary value
 	    					//
 	    					summaryObject.invoiceSummary[int].value = format.format({value: amount, type: format.Type.CURRENCY});
@@ -901,7 +902,8 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    		      search.createColumn({name: "datecreated", label: "Date Created", sort: search.Sort.ASC}),
 	    		      search.createColumn({name: "tranid", 		label: "Document Number"}),
 	    		      search.createColumn({name: "amount", 		label: "Amount"}),
-	    		      search.createColumn({name: "trandate", 	label: "Date"})
+	    		      search.createColumn({name: "trandate", 	label: "Date"}),
+	    		      search.createColumn({name: "formulacurrency", formula: "{totalamount} - {taxtotal}",label: "Net amount"})
 	    		   ]
 	    		}));
 	    		
