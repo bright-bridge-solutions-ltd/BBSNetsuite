@@ -64,6 +64,13 @@ function portletName(portletObj, column)
 	//
 	portletObj.setTitle(portletCaption);
 	
+	//See if the user is allowed to see all users or not
+	//
+	var currentUser = context.getUser();
+	var currentRole = context.getRole();
+	var allUsers = (currentRole == 3 ? 'T' : nlapiLookupField('employee', currentUser, '', false)); //Administrator is allowed to see all employees
+	
+	
 	//Add a field to select the employee from
 	//
 	var employeeField = portletObj.addField('custpage_select_employee', 'select', 'Employee', null);
@@ -87,7 +94,10 @@ function portletName(portletObj, column)
 					var empId = employeeSearch[int].getId();
 					var empName = employeeSearch[int].getValue('entityid');
 					
-					employeeField.addSelectOption(empId, empName, false);
+					if(allUsers == 'T' || currentUser == empId)
+						{
+							employeeField.addSelectOption(empId, empName, false);
+						}
 				}
 		}
 	

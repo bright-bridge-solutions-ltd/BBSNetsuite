@@ -334,7 +334,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
 					    	
 					    	//Get the period usage data for the contract
 					    	//
-					    	var periodRecords = findPeriodRecords(resultContractId, today);
+					    	var periodRecords = findPeriodRecords(resultContractId, statementDate); //today);
 					    	
 					    	//Build a JSON string to hold the summary data for the template
 					    	//
@@ -342,7 +342,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
 					    	
 					    	//Merge data with the template
 					    	//
-					    	var pdfFile = mergeTemplate(resultContractId, pdfTemplateId, jsonSummary, contractRecord, subsidiaryRecord);
+					    	var pdfFile = mergeTemplate(resultContractId, pdfTemplateId, jsonSummary, contractRecord, subsidiaryRecord, statementDate);
 					    	
 					    	//Save file to the filing cabinet 
 					    	//
@@ -532,8 +532,9 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    				{
 	    					//Get the amount of the pre-payment
 	    					//
-	    					var amount = Number(_prePayments[int].getValue({name: 'amount'}));
-	    					
+	    					//var amount = Number(_prePayments[int].getValue({name: 'amount'}));
+	    					var amount = Number(_prePayments[int].getValue({name: 'formulacurrency'}));
+    					
 	    					//Update the summary value
 	    					//
 	    					summaryObject.invoiceSummary[int].value = format.format({value: amount, type: format.Type.CURRENCY});
@@ -901,7 +902,8 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    		      search.createColumn({name: "datecreated", label: "Date Created", sort: search.Sort.ASC}),
 	    		      search.createColumn({name: "tranid", 		label: "Document Number"}),
 	    		      search.createColumn({name: "amount", 		label: "Amount"}),
-	    		      search.createColumn({name: "trandate", 	label: "Date"})
+	    		      search.createColumn({name: "trandate", 	label: "Date"}),
+	    		      search.createColumn({name: "formulacurrency", formula: "{totalamount} - {taxtotal}",label: "Net amount"})
 	    		   ]
 	    		}));
 	    		
@@ -989,7 +991,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
     //Function to merge the pdf template with the data elements
     //=============================================================================================
     //
-    function mergeTemplate(_contractId, _pdfTemplateId, _jsonSummary, _contractRecord, _subsidiaryRecord)
+    function mergeTemplate(_contractId, _pdfTemplateId, _jsonSummary, _contractRecord, _subsidiaryRecord, _statementDate)
     	{
     		var pdfFile = null;
     		
@@ -1004,6 +1006,16 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    										value:				_jsonSummary,
 	    										ignoreFieldChange:	true
 	    										});
+	    				
+	    				_contractRecord.setValue({
+												fieldId:			'custrecord_bbs_contract_early_end_date',
+												value:				format.parse({
+																					value: _statementDate, 
+																					type: format.Type.DATE
+																				}),
+												ignoreFieldChange:	true
+												});
+	    				
     					}
     				catch(err)
     					{

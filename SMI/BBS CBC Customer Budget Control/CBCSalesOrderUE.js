@@ -714,6 +714,7 @@ function processErrors(_record, _errors, _type)
 			//Update the sales order with the error text
 			//
 			nlapiSubmitField('salesorder', recordId, 'custbody_cbc_errors', errorText, false);
+<<<<<<< HEAD
 			
 			//Set the order status to be 'Pending approval'
 			//
@@ -721,6 +722,25 @@ function processErrors(_record, _errors, _type)
 				{
 					nlapiSubmitField('salesorder', recordId, 'orderstatus', 'A', false);
 				}
+=======
+<<<<<<< HEAD
+			
+			//Set the order status to be 'Pending approval'
+			//
+			if(errorText != null && errorText != '')
+				{
+					try
+						{
+							nlapiSubmitField('salesorder', recordId, 'orderstatus', 'A', false);
+						}
+					catch(err)
+						{
+						
+						}
+				}
+=======
+>>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite.git
+>>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite.git
 		}
 	
 
