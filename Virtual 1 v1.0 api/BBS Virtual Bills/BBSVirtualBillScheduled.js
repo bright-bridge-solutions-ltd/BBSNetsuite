@@ -14,8 +14,12 @@ function scheduled(type)
 {
 	//Get the virtual bill to process
 	//
-	var context = nlapiGetContext();
-	var virtualBillId = context.getSetting('SCRIPT', 'custscript_bbs_vbill_id');
+	var virtualBillId = nlapiGetContext().getSetting('SCRIPT', 'custscript_bbs_vbill_id');			//Virtual bill id to process - passed from UE script
+	
+	var productGroupsSummary = {};
+	var billingTypeSummary = {};
+	var billingTypes = {};
+	var productGroups = {};
 	
 	//Get the virtual bill lines to be processed
 	//
@@ -25,22 +29,269 @@ function scheduled(type)
 		{
 			//Process the billing lines
 			//
-			processLines(billLinesToProcess);
+			processLines(billLinesToProcess, billingTypeSummary, productGroupsSummary, billingTypes, productGroups);
+			
+			//Update the Virtual Bill header with the totals for each category
+			//
+			updateVirtualBill(virtualBillId, billingTypeSummary);
+			
+			//Create a Supplier Bill from the product groups summary
+			//
+			var supplierBillId = createSupplierBill(virtualBillId, productGroupsSummary, billingTypes, productGroups)
+			
+			//Update the virtual bill with the link to the supplier bill
+			//
+			if(supplierBillId != null)
+				{
+					updateVirtualBillLinks(virtualBillId, supplierBillId);
+				}
 		}
 }
 
-function processLines(_billLinesToProcess)
+function updateVirtualBillLinks(_virtualBillId, _supplierBillId)
 {
-	var productGroupsSummary = {};
-	var billingTypeSummary = {};
+	checkResources();
 	
+	try
+		{
+			//Get the total from the supplier bill
+			//
+			var billFields = nlapiLookupField('vendorbill', _supplierBillId, ['total','taxtotal'], false);
+			var billTotal = Number(billFields['total']) + Number(billFields['taxtotal']);					//Taxtotal is negative
+			
+			//Update the virtual bill
+			//
+			nlapiSubmitField('customrecord_bbs_virtual_bill', _virtualBillId, ['custrecord_bbs_sup_inv','custrecord_bbs_sup_inv_amt'], [_supplierBillId, billTotal], false);
+		}
+	catch(err)
+		{
+			nlapiLogExecution('ERROR', 'Error updating virtual bill with links to supplier bill', err.message);
+		}
+}
+
+function createSupplierBill(_virtualBillId, _productGroupsSummary, _billingTypes, _productGroups)
+{
+	checkResources();
+	
+	var context = nlapiGetContext();
+	var reconciledOneOffProductId 		= context.getSetting('SCRIPT', 'custscript_bbs_rec_oneoff_id');		//Item - company preferences
+	var reconciledRentalProductId 		= context.getSetting('SCRIPT', 'custscript_bbs_rec_rental_id');		//Item - company preferences
+	var reconciledUsageProductId 		= context.getSetting('SCRIPT', 'custscript_bbs_rec_usage_id');		//Item - company preferences
+	var unreconciledOneOffProductId 	= context.getSetting('SCRIPT', 'custscript_bbs_unrec_oneoff_id');	//Item - company preferences
+	var unreconciledRentalProductId 	= context.getSetting('SCRIPT', 'custscript_bbs_unrec_rental_id');	//Item - company preferences
+	var unreconciledUsageProductId 		= context.getSetting('SCRIPT', 'custscript_bbs_unrec_usage_id');	//Item - company preferences
+	var customFormId 					= context.getSetting('SCRIPT', 'custscript_bbs_form_id');			//Form to use for the supplier bill - company preferences
+	
+	var billId = null;
+	var supplierFields = nlapiLookupField('customrecord_bbs_virtual_bill', _virtualBillId, ['custrecord_bbs_supplier','custrecord_bbs_sup_inv'], false);
+	var supplierId = supplierFields['custrecord_bbs_supplier'];
+	var existingSupplierBillId = supplierFields['custrecord_bbs_sup_inv'];
+	var billIsOkToProcess = true;
+	
+	try
+		{
+			var supplierBillRecord = null;
+		
+			if(existingSupplierBillId != null && existingSupplierBillId != '')
+				{
+					//Get the existing supplier bill
+					//
+					supplierBillRecord = nlapiLoadRecord('vendorbill', existingSupplierBillId, {recordmode: 'dynamic'});
+				
+					//Get the status of the bill
+					//
+					var billStatus = supplierBillRecord.getFieldValue('status');
+					
+					//Get the posting period of the bill
+					//
+					var billPostingPeriod = supplierBillRecord.getFieldValue('postingperiod');
+					
+					//See if the posting period of the bill is still open
+					//
+					var isPeriodOpen = checkAccountingPeriod(billPostingPeriod);
+					
+					//Ok to modify the bill if the bill is still open & the period is still open
+					//
+					if(billStatus == 'Open' && isPeriodOpen == true)
+						{
+							//Remove all of the existing lines
+							//
+							var itemLineCount = supplierBillRecord.getLineItemCount('item');
+							
+							for(var int = itemLineCount; int > 0; int--)
+								{
+									supplierBillRecord.removeLineItem('item', int);
+								}
+							
+							billIsOkToProcess = true;
+						}
+					else
+						{
+							billIsOkToProcess = false;
+						}
+				}
+			else
+				{
+					//Create the basic supplier bill record
+					//
+					supplierBillRecord = nlapiCreateRecord('vendorbill', {recordmode: 'dynamic', entity: supplierId});
+					
+					//Set some header fields
+					//
+					supplierBillRecord.setFieldValue('customform', customFormId);	
+					supplierBillRecord.setFieldValue('approvalstatus', 2);									//Approved
+					supplierBillRecord.setFieldValue('tranid', 'From Virtual Bill #' + _virtualBillId);
+					supplierBillRecord.setFieldValue('department', 1);										//Board
+					supplierBillRecord.setFieldValue('custbody_linked_virtual_bill', _virtualBillId);
+					
+					billIsOkToProcess = true;
+				}
+			
+			//Process the lines if we are ok to process
+			//
+			if(billIsOkToProcess)
+				{
+					for ( var productGroupsSummaryKey in _productGroupsSummary) 
+						{
+							checkResources();
+							
+							var keyElements = productGroupsSummaryKey.split('|'); 	//[0] = Unreconciled/Reconciled, [1] = Billing Type (One Off, Rental, Usage), [2] = Product Group
+							var productGroupSummaryValue = _productGroupsSummary[productGroupsSummaryKey];
+							
+							//Only bother to process items where the value is > 0
+							//
+							if(productGroupSummaryValue > 0)
+								{
+									//Work out what product to use
+									//
+									var productId = null;
+									
+									switch(keyElements[0] + keyElements[1])
+										{
+											case 'UnreconciledOne Off':
+												productId = unreconciledOneOffProductId;
+												break;
+												
+											case 'UnreconciledRental':
+												productId = unreconciledRentalProductId;
+												break;
+												
+											case 'UnreconciledUsage':
+												productId = unreconciledUsageProductId;
+												break;
+												
+											case 'ReconciledOne Off':
+												productId = reconciledOneOffProductId;
+												break;
+												
+											case 'ReconciledRental':
+												productId = reconciledRentalProductId;
+												break;
+												
+											case 'ReconciledUsage':
+												productId = reconciledUsageProductId;
+												break;
+										}
+									
+									if(productId != null)
+										{
+											supplierBillRecord.selectNewLineItem('item');
+											
+											supplierBillRecord.setCurrentLineItemValue('item', 'item', productId);
+											supplierBillRecord.setCurrentLineItemValue('item', 'quantity', 1);
+											supplierBillRecord.setCurrentLineItemValue('item', 'rate', _productGroupsSummary[productGroupsSummaryKey]);
+											supplierBillRecord.setCurrentLineItemValue('item', 'cseg_bbs_product_gr', _productGroups[keyElements[2]]);
+											supplierBillRecord.setCurrentLineItemValue('item', 'class', _billingTypes[keyElements[1]]);
+											
+											supplierBillRecord.commitLineItem('item');
+										}
+								}
+						}
+					
+					checkResources();
+					
+					//Save the record
+					//
+					billId = nlapiSubmitRecord(supplierBillRecord, true, true);
+				}
+			else
+				{
+					//Bill is not ok to process as it is either paid or the posting period is closed
+					//Therefore we must create a journal
+					//
+				
+				
+					//TODO
+				
+				
+				}
+		}
+	catch(err)
+		{
+			billId = null;
+			nlapiLogExecution('ERROR', 'Error creating supplier bill', err.message);
+		}
+	
+	return billId;
+}
+
+function checkAccountingPeriod(_billPostingPeriod)
+{
+	var isOpen = false;
+	
+	var accountingperiodSearch = nlapiSearchRecord("accountingperiod",null,
+			[
+			   ["internalid","anyof",_billPostingPeriod], 
+			   "AND", 
+			   ["aplocked","is","F"], 
+			   "AND", 
+			   ["alllocked","is","F"], 
+			   "AND", 
+			   ["closed","is","F"]
+			], 
+			[
+			   new nlobjSearchColumn("periodname").setSort(false)
+			]
+			);
+	
+	if(accountingperiodSearch != null && accountingperiodSearch.length == 1)
+		{
+			isOpen = true;
+		}
+	
+	return isOpen;
+}
+
+function updateVirtualBill(_virtualBillId, _billingTypeSummary)
+{
+	checkResources();
+	
+	nlapiSubmitField(
+					'customrecord_bbs_virtual_bill', 
+					_virtualBillId, 
+					[
+					 'custrecord_bbs_unrec_usage','custrecord_bbs_unrec_oneoff','custrecord_bbs_unrec_rental','custrecord_bbs_unrec_amt_total',
+					 'custrecord_bbs_rec_usage','custrecord_bbs_rec_oneoff','custrecord_bbs_rec_rental','custrecord_bbs_rec_amt_total'], 
+					[
+					 _billingTypeSummary['Usage'].unreconciled, _billingTypeSummary['One Off'].unreconciled, _billingTypeSummary['Rental'].unreconciled,
+					 _billingTypeSummary['Usage'].unreconciled + _billingTypeSummary['One Off'].unreconciled + _billingTypeSummary['Rental'].unreconciled,
+					 _billingTypeSummary['Usage'].reconciled, _billingTypeSummary['One Off'].reconciled, _billingTypeSummary['Rental'].reconciled,
+					 _billingTypeSummary['Usage'].reconciled + _billingTypeSummary['One Off'].reconciled + _billingTypeSummary['Rental'].reconciled
+					 ], 
+					false
+					);
+}
+
+
+function processLines(_billLinesToProcess, _billingTypeSummary, _productGroupsSummary, _billingTypes, _productGroups)
+{
 	//Init the object that is used to summarise by billing type
 	//
-	initBillingTypeSummary(billingTypeSummary);
+	initBillingTypeSummary(_billingTypeSummary);
 	
 	//Init the object that is used to summarise by status(recon or unrecon) / billing type / custom segment
 	//
-	initProductGroupsSummary(productGroupsSummary);
+	initProductGroupsSummary(_productGroupsSummary, _billingTypes, _productGroups);
 	
 	//Loop through the result lines
 	//
@@ -48,7 +299,7 @@ function processLines(_billLinesToProcess)
 		{
 			checkResources();
 			
-			processResultLine(_billLinesToProcess[int], billingTypeSummary, productGroupsSummary);
+			processResultLine(_billLinesToProcess[int], _billingTypeSummary, _productGroupsSummary);
 		}
 
 	
@@ -56,6 +307,8 @@ function processLines(_billLinesToProcess)
 
 function processResultLine(_billLineToProcess, _billingTypeSummary, _productGroupsSummary)
 {
+	checkResources();
+	
 	//Get data from search results
 	//
 	var billLineAmount 		= Number(_billLineToProcess.getValue("custrecord_bbs_amount")); 
@@ -99,14 +352,20 @@ function processResultLine(_billLineToProcess, _billingTypeSummary, _productGrou
 	
 	//Update the billing type summary object
 	//
-	
-	
-	
-	
+	if(poFindResult.status == 1)	//Reconciled
+		{
+			_billingTypeSummary[billLineType].reconciled += billLineAmount;
+		}
+	else
+		{
+			_billingTypeSummary[billLineType].unreconciled += billLineAmount;
+		}
 }
 
 function findMatchingPo(_billLineSupplier, _billLineRef, _billLineAmount, _billLineMonth)
 {
+	checkResources();
+	
 	//Run a search to find matching po line
 	//
 	var purchaseorderSearch = nlapiSearchRecord("purchaseorder",null,
@@ -176,8 +435,10 @@ function poFindResultObj(_poId, _poLineId, _status, _poLineAmount)
 	this.poAmount = _poLineAmount;
 }
 
-function initProductGroupsSummary(_productGroupsSummary)
+function initProductGroupsSummary(_productGroupsSummary, _billingTypes, _productGroups)
 {
+	checkResources();
+	
 	var billStatus = ['Unreconciled', 'Reconciled'];
 	
 	//Find all the billing types
@@ -212,6 +473,7 @@ function initProductGroupsSummary(_productGroupsSummary)
 				{
 					var billingTypeId = classificationSearch[int1].getId();
 					var billingTypeName = classificationSearch[int1].getValue('name');
+					_billingTypes[billingTypeName] = billingTypeId;
 					
 					//Loop through the product groups
 					//
@@ -219,6 +481,7 @@ function initProductGroupsSummary(_productGroupsSummary)
 						{
 							var productGroupId = productGroupSearch[int2].getId();
 							var productGroupName = productGroupSearch[int2].getValue('name');
+							_productGroups[productGroupName] = productGroupId;
 							
 							var key = status + '|' + billingTypeName + '|' + productGroupName;
 							
@@ -229,9 +492,10 @@ function initProductGroupsSummary(_productGroupsSummary)
 }
 
 
-
 function initBillingTypeSummary(_billingTypeSummary)
 {
+	checkResources();
+	
 	//Find all the billing types
 	//
 	var classificationSearch = nlapiSearchRecord("classification",null,
@@ -251,7 +515,7 @@ function initBillingTypeSummary(_billingTypeSummary)
 					var billingTypeId = classificationSearch[int].getId();
 					var billingTypeName = classificationSearch[int].getValue('name');
 					
-					_billingTypeSummary[billingTypeId] = new billingTypeObject(billingTypeId, billingTypeName);
+					_billingTypeSummary[billingTypeName] = new billingTypeObject(billingTypeId, billingTypeName);
 				}
 		}
 }
@@ -266,6 +530,8 @@ function billingTypeObject(_id, _name)
 
 function getVirtualBillLines(_id)
 {
+	checkResources();
+	
 	var customrecord_bbs_vb_lineSearch = nlapiSearchRecord("customrecord_bbs_vb_line",null,
 			[
 			   ["custrecord_bbs_vb","anyof",_id]
