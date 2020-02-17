@@ -714,6 +714,13 @@ function processErrors(_record, _errors, _type)
 			//Update the sales order with the error text
 			//
 			nlapiSubmitField('salesorder', recordId, 'custbody_cbc_errors', errorText, false);
+			
+			//Set the order status to be 'Pending approval'
+			//
+			if(errorText != null && errorText != '')
+				{
+					nlapiSubmitField('salesorder', recordId, 'orderstatus', 'A', false);
+				}
 		}
 	
 
