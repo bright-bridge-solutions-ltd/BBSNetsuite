@@ -6,6 +6,58 @@
  *
  */
 
+
+
+/**
+ * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
+ * @appliedtorecord recordType
+ *   
+ * @param {String} type Operation types: create, edit, view, copy, print, email
+ * @param {nlobjForm} form Current form
+ * @param {nlobjRequest} request Request object
+ * @returns {Void}
+ */
+function virtualBillBL(type, form, request)
+{
+	if (type == 'view') 
+		{
+			var thisRecord = nlapiGetNewRecord();
+			var recId = thisRecord.getId();
+
+			var cmd ="try{";			
+			cmd +=  "Ext.Ajax.timeout = (60000*5);";
+			cmd += "var myMask = new Ext.LoadMask(Ext.getBody(), {msg:'Submitting Virtual Bill For Reconciliation...'});";
+		    cmd += "myMask.show();";
+		    cmd += "Ext.Ajax.request({";
+		    cmd += "    url: '" + nlapiResolveURL('SUITELET', 'customscript_bbs_vbill_suitelet', 'customdeploy_bbs_vbill_suitelet') + "',";
+		    cmd += "    method: 'GET',";
+		    cmd += "    headers: {'Content-Type': 'application/json'},";
+		    cmd += "    params: {";
+		    cmd += "     record_id: '" + recId + "'";
+		    cmd += "    },";
+		    cmd += "    success: function (response, result) {";
+		    cmd += "  myMask.hide();";
+		    cmd += "  window.location = response.responseText";
+		    cmd += "    },";
+		    cmd += "    failure: function (response, result) {";
+		    cmd += "  myMask.hide();";
+		    cmd += "     alert(response.responseText);";
+		    cmd += "    }";
+		    cmd += "});";
+		    cmd += "}";
+		    cmd += "catch (e) {";
+		    cmd += "        if (e instanceof nlobjError) {";
+		    cmd += "            alert(e.getCode() + '\n' + e.getDetails());";
+		    cmd += "        }";
+		    cmd += "        else {";
+		    cmd += "            alert(e.toString());";
+		    cmd += "        }";
+		    cmd += "    }";
+		    
+			form.addButton('custpage_bbs_but_recon','ReRun Reconciliation',cmd);
+		}
+}
+
 /**
  * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
  * @appliedtorecord recordType
@@ -63,6 +115,6 @@ function virtualBillAS(type)
 	//
 	if(triggerRecon)
 		{
-			nlapiScheduleScript('customscvript_bbs_vbill_recon', null, {custscript_bbs_vbill_id: newRecordId})
+			nlapiScheduleScript('customscript_bbs_vbill_recon', null, {custscript_bbs_vbill_id: newRecordId})
 		}
 }

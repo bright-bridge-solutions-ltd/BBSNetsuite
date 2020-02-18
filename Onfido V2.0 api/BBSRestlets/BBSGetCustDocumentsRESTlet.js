@@ -20,7 +20,8 @@ function(search,config) {
     {
     	var configRecord = null;
     	var urlPrefix = null;
-    	var customer = requestParams.customerId;
+//    	var customer = requestParams.customerId;
+    	var salesforceId = requestParams.salesforceId;
     	var resultSet = [];
     	
     	//Load the company config
@@ -43,8 +44,8 @@ function(search,config) {
     	//
     	if(configRecord != null)
     		{
-    			if(!isNaN(customer))
-    				{
+//    			if(!isNaN(customer))
+//    				{
 		    			var accountId = configRecord.getValue({fieldId: 'companyid'});
 		    			urlPrefix = 'https://' + accountId.replace('_','-') + '.app.netsuite.com/';
 				    		
@@ -58,9 +59,10 @@ function(search,config) {
 				    		      "AND", 
 				    		      ["file.availablewithoutlogin","is","T"], 						//Available without login
 				    		      "AND", 
-				    		      [["custrecord_bbs_contract_customer","anyof",customer], 		//Contract customer is the customer in question
-				    		      "OR", 
-				    		      ["custrecord_bbs_contract_customer.parent","anyof",customer]]	//Or the contract customer's parent is the customer in question
+				    		      ["custrecord_bbs_contract_customer.accountnumber","is",salesforceId]
+//				    		      [["custrecord_bbs_contract_customer","anyof",customer], 		//Contract customer is the customer in question
+//				    		      "OR", 
+//				    		      ["custrecord_bbs_contract_customer.parent","anyof",customer]]	//Or the contract customer's parent is the customer in question
 				    		   ],
 				    		   columns:
 				    		   [
@@ -115,7 +117,7 @@ function(search,config) {
 				    				
 				    				return true;
 				    			});
-    				}
+ //   				}
     		}
     	
     		//Return the results

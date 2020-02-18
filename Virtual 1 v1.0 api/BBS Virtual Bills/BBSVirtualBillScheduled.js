@@ -35,18 +35,49 @@ function scheduled(type)
 			//
 			updateVirtualBill(virtualBillId, billingTypeSummary);
 			
-			//Create a Supplier Bill from the product groups summary
+			//Create a Supplier Bill from the product groups summary (returns -1 if the bill cannot be updated, so a journal must be processed instead)
 			//
 			var supplierBillId = createSupplierBill(virtualBillId, productGroupsSummary, billingTypes, productGroups)
 			
-			//Update the virtual bill with the link to the supplier bill
+			//Update the virtual bill with the link to the supplier bill if appropriate
 			//
-			if(supplierBillId != null)
+			if(supplierBillId != null && supplierBillId != -1)
 				{
 					updateVirtualBillLinks(virtualBillId, supplierBillId);
 				}
+			
+			//Process as a journal if required, i.e. the bill cannot be updated
+			//
+			if(supplierBillId == -1)
+				{
+					var journalId = createJournalRecord(virtualBillId, productGroupsSummary, billingTypes, productGroups);
+					
+					//Update the virtual bill with the link to the journal if appropriate
+					//
+					if(journalId != null && journalId != -1)
+						{
+							updateVirtualBillJournalLink(virtualBillId, journalId);
+						}
+				}
 		}
 }
+
+function updateVirtualBillJournalLink(_virtualBillId, _journalId)
+{
+	checkResources();
+	
+	try
+		{
+			//Update the virtual bill
+			//
+			nlapiSubmitField('customrecord_bbs_virtual_bill', _virtualBillId, 'custrecord_bbs_linked_journal', _journalId, false);
+		}
+	catch(err)
+		{
+			nlapiLogExecution('ERROR', 'Error updating virtual bill with links to journal', err.message);
+		}
+}
+
 
 function updateVirtualBillLinks(_virtualBillId, _supplierBillId)
 {
@@ -68,6 +99,183 @@ function updateVirtualBillLinks(_virtualBillId, _supplierBillId)
 			nlapiLogExecution('ERROR', 'Error updating virtual bill with links to supplier bill', err.message);
 		}
 }
+
+
+function createJournalRecord(_virtualBillId, _productGroupsSummary, _billingTypes, _productGroups)
+{
+	checkResources();
+	
+	var context = nlapiGetContext();
+	var reconciledOneOffAccountId 		= context.getSetting('SCRIPT', 'custscript_bbs_rec_oneoff_acc_id');		//Account - company preferences
+	var reconciledRentalAccountId 		= context.getSetting('SCRIPT', 'custscript_bbs_rec_rental_acc_id');		//Account - company preferences
+	var reconciledUsageAccountId 		= context.getSetting('SCRIPT', 'custscript_bbs_rec_usage_acc_id');		//Account - company preferences
+	var unreconciledOneOffAccountId 	= context.getSetting('SCRIPT', 'custscript_bbs_unrec_oneoff_acc_id');	//Account - company preferences
+	var unreconciledRentalAccountId 	= context.getSetting('SCRIPT', 'custscript_bbs_unrec_rental_acc_id');	//Account - company preferences
+	var unreconciledUsageAccountId 		= context.getSetting('SCRIPT', 'custscript_bbs_unrec_usage_acc_id');	//Account - company preferences
+	//var customFormId 					= context.getSetting('SCRIPT', 'custscript_bbs_form_id');				//Form to use for the supplier bill - company preferences
+	var currentUser 					= context.getUser();
+	var emailFromUser			 		= context.getSetting('SCRIPT', 'custscript_bbs_email_from');		//Employee - company preferences
+	
+	var journalId = null;
+	var existingJournalId = nlapiLookupField('customrecord_bbs_virtual_bill', _virtualBillId, 'custrecord_bbs_linked_journal', false);
+	var journalIsOkToProcess = true;
+	
+	try
+		{
+			var journalRecord = null;
+		
+			if(existingJournalId != null && existingJournalId != '')
+				{
+					//Get the existing journal
+					//
+					journalRecord = nlapiLoadRecord('journalentry', existingJournalId, {recordmode: 'dynamic'});
+				
+					//Get the status of the journal
+					//
+					var journalStatus = journalRecord.getFieldValue('status');
+					
+					//Get the posting period of the journal
+					//
+					var journalPostingPeriod = journalRecord.getFieldValue('postingperiod');
+					
+					//See if the posting period of the journal is still open
+					//
+					var isPeriodOpen = checkAccountingPeriod(journalPostingPeriod);
+					
+					//Ok to modify the journal if the journal is still open & the period is still open
+					//
+					if((journalStatus == 'Approved for Posting' || journalStatus == 'Pending Approval') && isPeriodOpen == true)
+						{
+							//Remove all of the existing lines
+							//
+							var itemLineCount = journalRecord.getLineItemCount('line');
+							
+							for(var int = itemLineCount; int > 0; int--)
+								{
+									journalRecord.removeLineItem('line', int);
+								}
+							
+							journalIsOkToProcess = true;
+						}
+					else
+						{
+							journalIsOkToProcess = false;
+						}
+				}
+			else
+				{
+					//Create the basic journal record
+					//
+					journalRecord = nlapiCreateRecord('journalentry', {recordmode: 'dynamic'});
+					
+					//Set some header fields
+					//
+					//journalRecord.setFieldValue('customform', customFormId);	
+					journalRecord.setFieldValue('approvalstatus', 2);									//Approved
+					journalRecord.setFieldValue('custbody_linked_virtual_bill', _virtualBillId);
+					
+					journalIsOkToProcess = true;
+				}
+			
+			//Process the lines if we are ok to process
+			//
+			if(journalIsOkToProcess)
+				{
+					for ( var productGroupsSummaryKey in _productGroupsSummary) 
+						{
+							checkResources();
+							
+							var keyElements = productGroupsSummaryKey.split('|'); 	//[0] = Unreconciled/Reconciled, [1] = Billing Type (One Off, Rental, Usage), [2] = Product Group
+							var productGroupSummaryValue = _productGroupsSummary[productGroupsSummaryKey];
+							
+							//Only bother to process items where the value is > 0
+							//
+							if(productGroupSummaryValue > 0)
+								{
+									//Work out what product to use
+									//
+									var productId = null;
+									
+									switch(keyElements[0] + keyElements[1])
+										{
+											case 'UnreconciledOne Off':
+												productId = unreconciledOneOffAccountId;
+												break;
+												
+											case 'UnreconciledRental':
+												productId = unreconciledRentalAccountId;
+												break;
+												
+											case 'UnreconciledUsage':
+												productId = unreconciledUsageAccountId;
+												break;
+												
+											case 'ReconciledOne Off':
+												productId = reconciledOneOffAccountId;
+												break;
+												
+											case 'ReconciledRental':
+												productId = reconciledRentalAccountId;
+												break;
+												
+											case 'ReconciledUsage':
+												productId = reconciledUsageAccountId;
+												break;
+										}
+									
+									if(productId != null)
+										{
+											journalRecord.selectNewLineItem('item');
+											
+											journalRecord.setCurrentLineItemValue('item', 'item', productId);
+											journalRecord.setCurrentLineItemValue('item', 'quantity', 1);
+											journalRecord.setCurrentLineItemValue('item', 'rate', _productGroupsSummary[productGroupsSummaryKey]);
+											journalRecord.setCurrentLineItemValue('item', 'cseg_bbs_product_gr', _productGroups[keyElements[2]]);
+											journalRecord.setCurrentLineItemValue('item', 'class', _billingTypes[keyElements[1]]);
+											
+											journalRecord.commitLineItem('item');
+										}
+								}
+						}
+					
+					checkResources();
+					
+					//Save the record
+					//
+					journalId = nlapiSubmitRecord(journalRecord, true, true);
+				}
+			else
+				{
+					//The journal is not ok to process as it is either in the wrong state or the posting period is closed
+					//At this point there is nothing else we can do apart from notify the user by email
+					//
+					
+					if(currentUser != null && currentUser != '' && emailFromUser != null && emailFromUser != '')
+						{
+							var body = 'Unable to update the Journal record (id = ' + existingJournalId + ') for Virtual Bill (id = ' + _virtualBillId + ') as journal is in incorrect state, or posting period is closed';
+							
+							try
+								{
+									nlapiSendEmail(emailFromUser, currentUser, 'Failure to create/update journal for Virtual Bill', body, null, null, null, null, false, false, null);
+								}
+							catch(err)
+								{
+									nlapiLogExecution('ERROR', 'Unable to send email to user', err.message);
+								}
+						}
+				
+					journalId = -1;
+				}
+		}
+	catch(err)
+		{
+			journalId = null;
+			nlapiLogExecution('ERROR', 'Error creating journal record', err.message);
+		}
+	
+	return journalId;	
+}
+
 
 function createSupplierBill(_virtualBillId, _productGroupsSummary, _billingTypes, _productGroups)
 {
@@ -219,11 +427,7 @@ function createSupplierBill(_virtualBillId, _productGroupsSummary, _billingTypes
 					//Bill is not ok to process as it is either paid or the posting period is closed
 					//Therefore we must create a journal
 					//
-				
-				
-					//TODO
-				
-				
+					billId = -1;
 				}
 		}
 	catch(err)
@@ -234,6 +438,7 @@ function createSupplierBill(_virtualBillId, _productGroupsSummary, _billingTypes
 	
 	return billId;
 }
+
 
 function checkAccountingPeriod(_billPostingPeriod)
 {
@@ -261,6 +466,7 @@ function checkAccountingPeriod(_billPostingPeriod)
 	
 	return isOpen;
 }
+
 
 function updateVirtualBill(_virtualBillId, _billingTypeSummary)
 {
@@ -304,6 +510,7 @@ function processLines(_billLinesToProcess, _billingTypeSummary, _productGroupsSu
 
 	
 }
+
 
 function processResultLine(_billLineToProcess, _billingTypeSummary, _productGroupsSummary)
 {
@@ -361,6 +568,7 @@ function processResultLine(_billLineToProcess, _billingTypeSummary, _productGrou
 			_billingTypeSummary[billLineType].unreconciled += billLineAmount;
 		}
 }
+
 
 function findMatchingPo(_billLineSupplier, _billLineRef, _billLineAmount, _billLineMonth)
 {
@@ -427,6 +635,7 @@ function findMatchingPo(_billLineSupplier, _billLineRef, _billLineAmount, _billL
 	return new poFindResultObj(resultPoId, resultPoLineId, resultStatus, poLineAmount);
 }
 
+
 function poFindResultObj(_poId, _poLineId, _status, _poLineAmount)
 {
 	this.poId = _poId;
@@ -434,6 +643,7 @@ function poFindResultObj(_poId, _poLineId, _status, _poLineAmount)
 	this.status = _status;
 	this.poAmount = _poLineAmount;
 }
+
 
 function initProductGroupsSummary(_productGroupsSummary, _billingTypes, _productGroups)
 {
@@ -520,6 +730,7 @@ function initBillingTypeSummary(_billingTypeSummary)
 		}
 }
 
+
 function billingTypeObject(_id, _name)
 {
 	this.reconciled = Number(0);
@@ -527,6 +738,7 @@ function billingTypeObject(_id, _name)
 	this.name = _name;
 	this.id = _id;
 }
+
 
 function getVirtualBillLines(_id)
 {
@@ -554,6 +766,7 @@ function getVirtualBillLines(_id)
 
 	return customrecord_bbs_vb_lineSearch;
 }
+
 
 function getResults(search)
 {
@@ -590,6 +803,7 @@ function getResults(search)
 	
 	return searchResultSet;
 }
+
 
 function checkResources()
 {
