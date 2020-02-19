@@ -22,7 +22,13 @@ function suitelet(type)
 			
 			nlapiScheduleScript('customscript_bbs_vbill_recon', null, {custscript_bbs_vbill_id: recId});
 			
-			response.write("https://5117415-sb2.app.netsuite.com/app/common/custom/custrecordentry.nl?rectype=118&id=" + recId + "&whence=', 'Virtual Bill', 'height=1056, width=816, resizable=yes, scrollbars=yes, toolbar=no, menubar=no'");
+			var configRecord = nlapiLoadConfiguration('companyinformation');
+			var accountId = configRecord.getFieldValue('companyid');
+			
+			var urlPrefix = 'https://' + accountId.replace('_','-') + '.app.netsuite.com/';
+	    	
+			
+			response.write(urlPrefix + "app/common/custom/custrecordentry.nl?rectype=118&id=" + recId + "&whence="); //', 'Virtual Bill', 'height=1056, width=816, resizable=yes, scrollbars=yes, toolbar=no, menubar=no'");
 		}
 	catch (e) 
 		{

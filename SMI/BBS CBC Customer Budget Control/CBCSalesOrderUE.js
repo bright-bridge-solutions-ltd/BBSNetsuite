@@ -57,120 +57,128 @@ function cbcSalesOrderBeforeLoad(type, form, request)
 //
 function cbcSalesOrderAfterSubmit(type)
 {
-	//Get the old & new records
-	//
-	var oldRecord = nlapiGetOldRecord();
-	var newRecord = nlapiGetNewRecord();
-
-	var contactItemObject = {};
-	var errors = [];
-	
-	nlapiLogExecution('DEBUG', 'Sales Order UE', type);
-	
-	//Process depending on type of action
-	//
-	if(type == 'create')
+	try
 		{
-			//Get the summarised items by contact values from the new record
+			//Get the old & new records
 			//
-			nlapiLogExecution('DEBUG', 'New Record', JSON.stringify(newRecord));
+			var oldRecord = nlapiGetOldRecord();
+			var newRecord = nlapiGetNewRecord();
 		
-			getItemsFromSoRecord(newRecord, contactItemObject, 'A'); //Add mode
-			nlapiLogExecution('DEBUG', 'Get Items', JSON.stringify(contactItemObject));
+			var contactItemObject = {};
+			var errors = [];
 			
-			//Update the list with the alloc type & equivalent points usage from the customer items table
-			//
-			updateItemsWithAllocAndPoints(newRecord, contactItemObject);
-			nlapiLogExecution('DEBUG', 'Update Items', JSON.stringify(contactItemObject));
+			nlapiLogExecution('DEBUG', 'Sales Order UE', type);
 			
-			//Work out what we have used against the contacts allowed usage
+			//Process depending on type of action
 			//
-			var orderDate = newRecord.getFieldValue('trandate');
+			if(type == 'create')
+				{
+					//Get the summarised items by contact values from the new record
+					//
+					nlapiLogExecution('DEBUG', 'New Record', JSON.stringify(newRecord));
+				
+					getItemsFromSoRecord(newRecord, contactItemObject, 'A'); //Add mode
+					nlapiLogExecution('DEBUG', 'Get Items', JSON.stringify(contactItemObject));
+					
+					//Update the list with the alloc type & equivalent points usage from the customer items table
+					//
+					updateItemsWithAllocAndPoints(newRecord, contactItemObject);
+					nlapiLogExecution('DEBUG', 'Update Items', JSON.stringify(contactItemObject));
+					
+					//Work out what we have used against the contacts allowed usage
+					//
+					var orderDate = newRecord.getFieldValue('trandate');
+					
+					calculateContactsUsage(contactItemObject, errors, orderDate);
+					nlapiLogExecution('DEBUG', 'Errors', errors);
+					
+					//Process any errors
+					//
+					processErrors(newRecord, errors, type);
+				}		
+		
+			if(type == 'edit')
+				{
+					//Get the summarised items by contact values from the new record
+					//
+					getItemsFromSoRecord(newRecord, contactItemObject, 'A'); //Add mode
+					
+					//Get the summarised items by contact values from the old record
+					//
+					getItemsFromSoRecord(oldRecord, contactItemObject, 'S'); //Subtract mode
+					
+					//Update the list with the alloc type & equivalent points usage from the customer items table
+					//
+					updateItemsWithAllocAndPoints(newRecord, contactItemObject);
+					
+					//Work out what we have used against the contacts allowed usage
+					//
+					var orderDate = newRecord.getFieldValue('trandate');
+					
+					calculateContactsUsage(contactItemObject, errors, orderDate);
+					
+					//Process any errors
+					//
+					processErrors(newRecord, errors, type);
+					}
 			
-			calculateContactsUsage(contactItemObject, errors, orderDate);
+			if(type == 'cancel')
+				{
+					//Get the summarised items by contact values from the new record
+					//
+					getItemsFromSoRecord(newRecord, contactItemObject, 'A'); //Add mode
+					
+					//Get the summarised items by contact values from the old record
+					//
+					getItemsFromSoRecord(oldRecord, contactItemObject, 'S'); //Subtract mode
+					
+					//If we have now cancelled the order we need to look at what items are outstanding, so as we can credit the allocations
+					//
+					processCancelledItems(newRecord, contactItemObject);
 			
-			//Process any errors
-			//
-			processErrors(newRecord, errors, type);
-		}		
-
-	if(type == 'edit')
-		{
-			//Get the summarised items by contact values from the new record
-			//
-			getItemsFromSoRecord(newRecord, contactItemObject, 'A'); //Add mode
+					//Update the list with the alloc type & equivalent points usage from the customer items table
+					//
+					updateItemsWithAllocAndPoints(newRecord, contactItemObject);
+					
+					//Work out what we have used against the contacts allowed usage
+					//
+					var orderDate = newRecord.getFieldValue('trandate');
+					
+					calculateContactsUsage(contactItemObject, errors, orderDate);
+					
+					//Process any errors
+					//
+					processErrors(newRecord, errors, type);
+				}
+		
+			if(type == 'delete')
+				{
+					//Get the summarised items by contact values from the old record
+					//
+					getItemsFromSoRecord(oldRecord, contactItemObject, 'S'); //Subtract mode
+					
+					//Update the list with the alloc type & equivalent points usage from the customer items table
+					//
+					updateItemsWithAllocAndPoints(oldRecord, contactItemObject);
+					
+					//Work out what we have used against the contacts allowed usage
+					//
+					calculateContactsUsage(contactItemObject, errors, null);
+					
+					//Process any errors
+					//
+					processErrors(newRecord, errors, type);
+				}
+		
 			
-			//Get the summarised items by contact values from the old record
-			//
-			getItemsFromSoRecord(oldRecord, contactItemObject, 'S'); //Subtract mode
+			var govUsage = nlapiGetContext().getRemainingUsage();
 			
-			//Update the list with the alloc type & equivalent points usage from the customer items table
-			//
-			updateItemsWithAllocAndPoints(newRecord, contactItemObject);
-			
-			//Work out what we have used against the contacts allowed usage
-			//
-			var orderDate = newRecord.getFieldValue('trandate');
-			
-			calculateContactsUsage(contactItemObject, errors, orderDate);
-			
-			//Process any errors
-			//
-			processErrors(newRecord, errors, type);
-			}
-	
-	if(type == 'cancel')
-		{
-			//Get the summarised items by contact values from the new record
-			//
-			getItemsFromSoRecord(newRecord, contactItemObject, 'A'); //Add mode
-			
-			//Get the summarised items by contact values from the old record
-			//
-			getItemsFromSoRecord(oldRecord, contactItemObject, 'S'); //Subtract mode
-			
-			//If we have now cancelled the order we need to look at what items are outstanding, so as we can credit the allocations
-			//
-			processCancelledItems(newRecord, contactItemObject);
-	
-			//Update the list with the alloc type & equivalent points usage from the customer items table
-			//
-			updateItemsWithAllocAndPoints(newRecord, contactItemObject);
-			
-			//Work out what we have used against the contacts allowed usage
-			//
-			var orderDate = newRecord.getFieldValue('trandate');
-			
-			calculateContactsUsage(contactItemObject, errors, orderDate);
-			
-			//Process any errors
-			//
-			processErrors(newRecord, errors, type);
+			var dummy = 'debug';
 		}
-
-	if(type == 'delete')
+	catch(err)
 		{
-			//Get the summarised items by contact values from the old record
-			//
-			getItemsFromSoRecord(oldRecord, contactItemObject, 'S'); //Subtract mode
-			
-			//Update the list with the alloc type & equivalent points usage from the customer items table
-			//
-			updateItemsWithAllocAndPoints(oldRecord, contactItemObject);
-			
-			//Work out what we have used against the contacts allowed usage
-			//
-			calculateContactsUsage(contactItemObject, errors, null);
-			
-			//Process any errors
-			//
-			processErrors(newRecord, errors, type);
+			nlapiLogExecution('ERROR', 'Error processing CBC sales order logic', err.message);
 		}
-
-	
-	var govUsage = nlapiGetContext().getRemainingUsage();
-	
-	var dummy = 'debug';
 }
 
 
@@ -180,8 +188,8 @@ function cbcSalesOrderAfterSubmit(type)
 //
 function processCancelledItems(_soRecord, _contactItemObject)
 {
-	var newRecordOrderPlacedBy = _soRecord.getFieldValue('custbody_cbc_order_placed_by');
-	var newRecordOrderPlacedByText = _soRecord.getFieldText('custbody_cbc_order_placed_by');
+	var newRecordOrderPlacedBy = _soRecord.getFieldValue('custbody_bbs_opportunity_contact');
+	var newRecordOrderPlacedByText = _soRecord.getFieldText('custbody_bbs_opportunity_contact');
 	var newLinesCount = _soRecord.getLineItemCount('item');
 	
 	
@@ -200,8 +208,8 @@ function processCancelledItems(_soRecord, _contactItemObject)
 			var newLineQuantityFulfilled = _soRecord.getLineItemValue('item','quantityfulfilled',int);
 			var newLineAmount = _soRecord.getLineItemValue('item','amount',int);
 			var newLineRate = _soRecord.getLineItemValue('item','rate',int);
-			var newLineManpackContact = _soRecord.getLineItemValue('item','custcol_cbc_manpack_contact',int);
-			var newLineManpackContactText = _soRecord.getLineItemText('item','custcol_cbc_manpack_contact',int);
+			var newLineManpackContact = _soRecord.getLineItemValue('item','custcol_bbs_contact_sales_lines',int);
+			var newLineManpackContactText = _soRecord.getLineItemText('item','custcol_bbs_contact_sales_lines',int);
 			
 			//Allow for nulls
 			//
@@ -237,8 +245,8 @@ function processCancelledItems(_soRecord, _contactItemObject)
 
 function getItemsFromSoRecord(_soRecord, _contactItemObject, _mode)
 {
-	var newRecordOrderPlacedBy = _soRecord.getFieldValue('custbody_cbc_order_placed_by');
-	var newRecordOrderPlacedByText = _soRecord.getFieldText('custbody_cbc_order_placed_by');
+	var newRecordOrderPlacedBy = _soRecord.getFieldValue('custbody_bbs_opportunity_contact');
+	var newRecordOrderPlacedByText = _soRecord.getFieldText('custbody_bbs_opportunity_contact');
 	var newLinesCount = _soRecord.getLineItemCount('item');
 	var contactGrades = {};
 	
@@ -257,8 +265,8 @@ function getItemsFromSoRecord(_soRecord, _contactItemObject, _mode)
 			var newLineItemText = _soRecord.getLineItemText('item','item',int);
 			var newLineQuantity = _soRecord.getLineItemValue('item','quantity',int);
 			var newLineAmount = _soRecord.getLineItemValue('item','amount',int);
-			var newLineManpackContact = _soRecord.getLineItemValue('item','custcol_cbc_manpack_contact',int);
-			var newLineManpackContactText = _soRecord.getLineItemText('item','custcol_cbc_manpack_contact',int);
+			var newLineManpackContact = _soRecord.getLineItemValue('item','custcol_bbs_contact_sales_lines',int);
+			var newLineManpackContactText = _soRecord.getLineItemText('item','custcol_bbs_contact_sales_lines',int);
 			var newLineClosed = _soRecord.getLineItemValue('item','isclosed',int);
 			
 			//Allow for nulls
@@ -709,21 +717,18 @@ function processErrors(_record, _errors, _type)
 			errorText += _errors[int] + "\n";
 		}
 	
-	if(type != 'delete')
+	if(_type != 'delete')
 		{
 			//Update the sales order with the error text
 			//
-			nlapiSubmitField('salesorder', recordId, 'custbody_cbc_errors', errorText, false);
-<<<<<<< HEAD
-			
-			//Set the order status to be 'Pending approval'
-			//
-			if(errorText != null && errorText != '')
+			try
 				{
-					nlapiSubmitField('salesorder', recordId, 'orderstatus', 'A', false);
+					nlapiSubmitField('salesorder', recordId, 'custbody_cbc_errors', errorText, false);
 				}
-=======
-<<<<<<< HEAD
+			catch(err)
+				{
+					nlapiLogExecution('ERROR', 'Error updating error text on sales order ' + recordId, err.message);
+				}
 			
 			//Set the order status to be 'Pending approval'
 			//
@@ -735,12 +740,9 @@ function processErrors(_record, _errors, _type)
 						}
 					catch(err)
 						{
-						
+							nlapiLogExecution('ERROR', 'Error updating order status to pending approval on sales order ' + recordId, err.message);
 						}
 				}
-=======
->>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite.git
->>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite.git
 		}
 	
 
@@ -757,7 +759,10 @@ function processErrors(_record, _errors, _type)
 			emailText += '\n';
 			emailText += 'Follow this link to see the sales order ' + soURL + '\n';
 			
-			nlapiSendEmail(userId, userId, 'CUSTOMER BUDGET CONTROL', emailText);
+			if(userId != null && userId != '')
+				{
+					nlapiSendEmail(userId, userId, 'CUSTOMER BUDGET CONTROL', emailText);
+				}
 		}
 }
 

@@ -144,3 +144,40 @@ function userEventBeforeLoad(type, form, request)
 				}
 		}
 }
+
+/**
+ * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
+ * @appliedtorecord recordType
+ * 
+ * @param {String} type Operation types: create, edit, delete, xedit,
+ *                      approve, cancel, reject (SO, ER, Time Bill, PO & RMA only)
+ *                      pack, ship (IF only)
+ *                      dropship, specialorder, orderitems (PO only) 
+ *                      paybills (vendor payments)
+ * @returns {Void}
+ */
+function caseAfterSubmit(type)
+{
+	if(type == 'edit' || type == 'create' || type == 'xedit')
+		{
+			var newRecord = nlapiGetNewRecord();
+			var recordId = newRecord.getId();
+			
+			var escalateTo = null;
+			
+			var escalateCount = newRecord.getLineItemCount('escalateto');
+			
+			for (var int = 1; int <= escalateCount; int++) 
+				{
+					escalateTo = newRecord.getLineItemValue('escalateto', 'escalatee', int);
+				}
+			try
+				{
+					nlapiSubmitField('supportcase', recordId, 'custevent_bbs_escalated_to', escalateTo, false);
+				}
+			catch(err)
+				{
+				
+				}
+		}
+}

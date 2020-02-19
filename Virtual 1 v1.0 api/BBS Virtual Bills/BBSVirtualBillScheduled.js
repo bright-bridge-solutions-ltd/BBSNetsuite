@@ -12,54 +12,54 @@
  */
 function scheduled(type) 
 {
-	//Get the virtual bill to process
-	//
-	var virtualBillId = nlapiGetContext().getSetting('SCRIPT', 'custscript_bbs_vbill_id');			//Virtual bill id to process - passed from UE script
-	
-	var productGroupsSummary = {};
-	var billingTypeSummary = {};
-	var billingTypes = {};
-	var productGroups = {};
-	
-	//Get the virtual bill lines to be processed
-	//
-	var billLinesToProcess = getVirtualBillLines(virtualBillId);
-	
-	if(billLinesToProcess != null && billLinesToProcess.length > 0)
-		{
-			//Process the billing lines
-			//
-			processLines(billLinesToProcess, billingTypeSummary, productGroupsSummary, billingTypes, productGroups);
+		//Get the virtual bill to process
+		//
+		var virtualBillId = nlapiGetContext().getSetting('SCRIPT', 'custscript_bbs_vbill_id');			//Virtual bill id to process - passed from UE script
 			
-			//Update the Virtual Bill header with the totals for each category
-			//
-			updateVirtualBill(virtualBillId, billingTypeSummary);
+		var productGroupsSummary = {};
+		var billingTypeSummary = {};
+		var billingTypes = {};
+		var productGroups = {};
 			
-			//Create a Supplier Bill from the product groups summary (returns -1 if the bill cannot be updated, so a journal must be processed instead)
-			//
-			var supplierBillId = createSupplierBill(virtualBillId, productGroupsSummary, billingTypes, productGroups)
+		//Get the virtual bill lines to be processed
+		//
+		var billLinesToProcess = getVirtualBillLines(virtualBillId);
 			
-			//Update the virtual bill with the link to the supplier bill if appropriate
-			//
-			if(supplierBillId != null && supplierBillId != -1)
-				{
-					updateVirtualBillLinks(virtualBillId, supplierBillId);
-				}
-			
-			//Process as a journal if required, i.e. the bill cannot be updated
-			//
-			if(supplierBillId == -1)
-				{
-					var journalId = createJournalRecord(virtualBillId, productGroupsSummary, billingTypes, productGroups);
+		if(billLinesToProcess != null && billLinesToProcess.length > 0)
+			{
+				//Process the billing lines - populates the billing type summary, product group summary, billing types & product groups objects
+				//
+				processLines(billLinesToProcess, billingTypeSummary, productGroupsSummary, billingTypes, productGroups);
 					
-					//Update the virtual bill with the link to the journal if appropriate
-					//
-					if(journalId != null && journalId != -1)
-						{
-							updateVirtualBillJournalLink(virtualBillId, journalId);
-						}
-				}
-		}
+				//Update the Virtual Bill header with the totals for each category
+				//
+				updateVirtualBill(virtualBillId, billingTypeSummary);
+					
+				//Create a Supplier Bill from the product groups summary (returns -1 if the bill cannot be updated, so a journal must be processed instead)
+				//
+				var supplierBillId = createSupplierBill(virtualBillId, productGroupsSummary, billingTypes, productGroups)
+					
+				//Update the virtual bill with the link to the supplier bill if appropriate
+				//
+				if(supplierBillId != null && supplierBillId != -1)
+					{
+						updateVirtualBillLinks(virtualBillId, supplierBillId);
+					}
+					
+				//Process as a journal if required, i.e. the bill cannot be updated
+				//
+				if(supplierBillId == -1)
+					{
+						var journalId = createJournalRecord(virtualBillId, productGroupsSummary, billingTypes, productGroups);
+						
+						//Update the virtual bill with the link to the journal if appropriate
+						//
+						if(journalId != null && journalId != -1)
+							{
+								updateVirtualBillJournalLink(virtualBillId, journalId);
+							}
+					}
+			}
 }
 
 function updateVirtualBillJournalLink(_virtualBillId, _journalId)
@@ -117,8 +117,11 @@ function createJournalRecord(_virtualBillId, _productGroupsSummary, _billingType
 	var emailFromUser			 		= context.getSetting('SCRIPT', 'custscript_bbs_email_from');		//Employee - company preferences
 	
 	var journalId = null;
-	var existingJournalId = nlapiLookupField('customrecord_bbs_virtual_bill', _virtualBillId, 'custrecord_bbs_linked_journal', false);
 	var journalIsOkToProcess = true;
+	
+	var supplierFields 			= nlapiLookupField('customrecord_bbs_virtual_bill', _virtualBillId, ['custrecord_bbs_linked_journal','custrecord_bbs_sup_inv'], false);
+	var existingSupplierBillId 	= supplierFields['custrecord_bbs_sup_inv'];
+	var existingJournalId 		= supplierFields['custrecord_bbs_linked_journal'];
 	
 	try
 		{
@@ -181,59 +184,73 @@ function createJournalRecord(_virtualBillId, _productGroupsSummary, _billingType
 			//
 			if(journalIsOkToProcess)
 				{
+					//_productGroupsSummary object will hold all of the summary info based on the contents of the virtual bill
+					//We need to compare this with a summary based on the contents of the supplier bill
+					//
+				
+					//Get the product group summary based on the supplier bill
+					//
+					var supplierBillProductGroupsSummary = generateSupplierBillProductGroupSummary(existingSupplierBillId);
+
+					//Loop through the product group summary from the virtual bill & then compare to the product group summary from the 
+					//existing supplier bill to get the difference
+					//
 					for ( var productGroupsSummaryKey in _productGroupsSummary) 
 						{
 							checkResources();
+							
+							var virtualBillValue = _productGroupsSummary[productGroupsSummaryKey];
+							var supplierBillValue = supplierBillProductGroupsSummary[productGroupsSummaryKey];
+							var differenceValue = virtualBillValue - supplierBillValue;
 							
 							var keyElements = productGroupsSummaryKey.split('|'); 	//[0] = Unreconciled/Reconciled, [1] = Billing Type (One Off, Rental, Usage), [2] = Product Group
 							var productGroupSummaryValue = _productGroupsSummary[productGroupsSummaryKey];
 							
 							//Only bother to process items where the value is > 0
 							//
-							if(productGroupSummaryValue > 0)
+							if(differenceValue != 0)
 								{
-									//Work out what product to use
+									//Work out what account to use
 									//
-									var productId = null;
+									var accountId = null;
 									
 									switch(keyElements[0] + keyElements[1])
 										{
 											case 'UnreconciledOne Off':
-												productId = unreconciledOneOffAccountId;
+												accountId = unreconciledOneOffAccountId;
 												break;
 												
 											case 'UnreconciledRental':
-												productId = unreconciledRentalAccountId;
+												accountId = unreconciledRentalAccountId;
 												break;
 												
 											case 'UnreconciledUsage':
-												productId = unreconciledUsageAccountId;
+												accountId = unreconciledUsageAccountId;
 												break;
 												
 											case 'ReconciledOne Off':
-												productId = reconciledOneOffAccountId;
+												accountId = reconciledOneOffAccountId;
 												break;
 												
 											case 'ReconciledRental':
-												productId = reconciledRentalAccountId;
+												accountId = reconciledRentalAccountId;
 												break;
 												
 											case 'ReconciledUsage':
-												productId = reconciledUsageAccountId;
+												accountId = reconciledUsageAccountId;
 												break;
 										}
 									
-									if(productId != null)
+									if(accountId != null)
 										{
-											journalRecord.selectNewLineItem('item');
+											journalRecord.selectNewLineItem('line');
 											
-											journalRecord.setCurrentLineItemValue('item', 'item', productId);
-											journalRecord.setCurrentLineItemValue('item', 'quantity', 1);
-											journalRecord.setCurrentLineItemValue('item', 'rate', _productGroupsSummary[productGroupsSummaryKey]);
-											journalRecord.setCurrentLineItemValue('item', 'cseg_bbs_product_gr', _productGroups[keyElements[2]]);
-											journalRecord.setCurrentLineItemValue('item', 'class', _billingTypes[keyElements[1]]);
+											journalRecord.setCurrentLineItemValue('line', 'account', accountId);
+											journalRecord.setCurrentLineItemValue('line', 'credit', differenceValue);
+											journalRecord.setCurrentLineItemValue('line', 'cseg_bbs_product_gr', _productGroups[keyElements[2]]);
+											journalRecord.setCurrentLineItemValue('line', 'class', _billingTypes[keyElements[1]]);
 											
-											journalRecord.commitLineItem('item');
+											journalRecord.commitLineItem('line');
 										}
 								}
 						}
@@ -274,6 +291,67 @@ function createJournalRecord(_virtualBillId, _productGroupsSummary, _billingType
 		}
 	
 	return journalId;	
+}
+
+function generateSupplierBillProductGroupSummary(_existingSupplierBillId)
+{
+	var context = nlapiGetContext();
+	var reconciledOneOffProductId 		= context.getSetting('SCRIPT', 'custscript_bbs_rec_oneoff_id');		//Item - company preferences
+	var reconciledRentalProductId 		= context.getSetting('SCRIPT', 'custscript_bbs_rec_rental_id');		//Item - company preferences
+	var reconciledUsageProductId 		= context.getSetting('SCRIPT', 'custscript_bbs_rec_usage_id');		//Item - company preferences
+	var unreconciledOneOffProductId 	= context.getSetting('SCRIPT', 'custscript_bbs_unrec_oneoff_id');	//Item - company preferences
+	var unreconciledRentalProductId 	= context.getSetting('SCRIPT', 'custscript_bbs_unrec_rental_id');	//Item - company preferences
+	var unreconciledUsageProductId 		= context.getSetting('SCRIPT', 'custscript_bbs_unrec_usage_id');	//Item - company preferences
+
+	var supplierBillProductGroupsSummary = {};
+	var dummyBillingTypes = {};
+	var dummyProductGroups = {};
+	
+	//Set up the product group summary with all possible combinations
+	//
+	initProductGroupsSummary(supplierBillProductGroupsSummary, dummyBillingTypes, dummyProductGroups);
+	
+	//Get the supplier bill & process to update the product group summary
+	//
+	var existingBillRecord = null;
+	
+	try 
+		{
+			existingBillRecord = nlapiLoadRecord('vendorbill', _existingSupplierBillId);
+		} 
+	catch(err) 
+		{
+			existingBillRecord = null;
+		}
+	
+	if(existingBillRecord != null)
+		{
+			var billLines 			= existingBillRecord.getLineItemCount('item');
+			var reconciledItems 	= [reconciledOneOffProductId, reconciledRentalProductId, reconciledUsageProductId];
+			var unreconciledItems 	= [unreconciledOneOffProductId, unreconciledRentalProductId, unreconciledUsageProductId];
+			
+			for(var billLine = 1; billLine <= billLines; billLine++)
+				{
+					//Get data from the line
+					//
+					var lineItem 			= existingBillRecord.getLineItemValue('item', 'item', billLine);
+					var lineAmount 			= Number(existingBillRecord.getLineItemValue('item', 'amount', billLine));
+					var lineProductGroup 	= existingBillRecord.getLineItemText('item', 'cseg_bbs_product_gr', billLine);
+					var lineBillingType 	= existingBillRecord.getLineItemText('item', 'class', billLine);
+					
+					//Work out whether the item is reconciled or unreconciled
+					//
+					var lineReconStatus = (reconciledItems.indexOf(lineItem) != -1 ? 'Reconciled' : 'Unreconciled');
+					
+					//Construct the summary key
+					//
+					var lineKey = lineReconStatus + '|' + lineBillingType + '|' + lineProductGroup;
+					
+					supplierBillProductGroupsSummary[lineKey] += lineAmount;
+				}
+		}
+
+	return supplierBillProductGroupsSummary;
 }
 
 
