@@ -4,9 +4,8 @@
  * @NModuleScope SameAccount
  */
 define(['N/search', 'N/record', 'N/format', 'N/task'],
-
 function(search, record, format, task) {
-
+   
     /**
      * Marks the beginning of the Map/Reduce process and generates input data.
      *
@@ -19,15 +18,15 @@ function(search, record, format, task) {
      */
     function getInputData() {
     	
-    	// create search to find BBS Brightlime Transactions records
+    	// create search to find BBS Brightlime Charges records
     	return search.create({
-			type: 'customrecord_bbs_bl_trans',
+			type: 'customrecord_bbs_bl_charges',
 			
 			columns: [{
 				name: 'internalid'
 			},
 					{
-				name: 'custrecord_bbs_bl_trans_club_id',
+				name: 'custrecord_bbs_bl_charges_club_id',
 				sort: search.Sort.ASC,
 			}],
 			
@@ -55,28 +54,27 @@ function(search, record, format, task) {
     	// retrieve ID of the record from the search
     	var searchResult = JSON.parse(context.value);
 		var recordID = searchResult.id;
-		
 		try
-	    	{
-		        // load the BBS Brightlime Transactions record
-				var blTranRec = record.load ({
-					type: 'customrecord_bbs_bl_trans',
+    		{
+		        // load the BBS Brightlime Charges record
+				var blChargeRec = record.load ({
+					type: 'customrecord_bbs_bl_charges',
 					id: recordID
 				});
 				
 				// get the club ID from the loaded record
-				var clubID = blTranRec.getValue({
-					fieldId: 'custrecord_bbs_bl_trans_club_id'
+				var clubID = blChargeRec.getValue({
+					fieldId: 'custrecord_bbs_bl_charges_club_id'
 				});
 				
 				// get the subsidiary from the loaded record
-				var subsidiary = blTranRec.getValue({
-					fieldId: 'custrecord_bbs_bl_trans_subsidiary'
+				var subsidiary = blChargeRec.getValue({
+					fieldId: 'custrecord_bbs_bl_charges_subsidiary'
 				});
 				
 				// get the date from the loaded record
-				var journalDate = blTranRec.getValue({
-					fieldId: 'custrecord_bbs_bl_trans_date'
+				var journalDate = blChargeRec.getValue({
+					fieldId: 'custrecord_bbs_bl_charges_date'
 				});
 				
 				// format journalDate as a date object
@@ -90,8 +88,8 @@ function(search, record, format, task) {
 					details: 'Record ID: ' + recordID + '<br>Club ID: ' + clubID + '<br>Subsidiary: ' + subsidiary
 				});
 				
-				var lineCount = blTranRec.getLineCount ({
-					sublistId: 'recmachcustrecord_bbs_bl_trans_lines_parent'
+				var lineCount = blChargeRec.getLineCount ({
+					sublistId: 'recmachcustrecord_bbs_bl_charges_lines_parent'
 				});
 				
 				// create a new journal record
@@ -118,7 +116,7 @@ function(search, record, format, task) {
 				
 				journalRec.setValue({
 					fieldId: 'memo',
-					value: 'Brightlime Transaction Journal'
+					value: 'Brightlime Charge Journal'
 				});
 				
 				journalRec.setValue({
@@ -129,28 +127,28 @@ function(search, record, format, task) {
 				// loop through lineCount
 				for (var i = 0; i < lineCount; i++)
 					{
-						// get line values from the BBS Brightlime Transactions record
-						account = blTranRec.getSublistValue({
-							sublistId: 'recmachcustrecord_bbs_bl_trans_lines_parent',
-							fieldId: 'custrecord_bbs_bl_trans_lines_gl_code',
+						// get line values from the BBS Brightlime Charges record
+						account = blChargeRec.getSublistValue({
+							sublistId: 'recmachcustrecord_bbs_bl_charges_lines_parent',
+							fieldId: 'custrecord_bbs_bl_charges_lines_account',
 							line: i
 						});
 						
-						debit = blTranRec.getSublistValue({
-							sublistId: 'recmachcustrecord_bbs_bl_trans_lines_parent',
-							fieldId: 'custrecord_bbs_bl_trans_lines_debit',
+						debit = blChargeRec.getSublistValue({
+							sublistId: 'recmachcustrecord_bbs_bl_charges_lines_parent',
+							fieldId: 'custrecord_bbs_bl_charges_lines_debit',
 							line: i
 						});
 							
-						credit = blTranRec.getSublistValue({
-							sublistId: 'recmachcustrecord_bbs_bl_trans_lines_parent',
-							fieldId: 'custrecord_bbs_bl_trans_lines_credit',
+						credit = blChargeRec.getSublistValue({
+							sublistId: 'recmachcustrecord_bbs_bl_charges_lines_parent',
+							fieldId: 'custrecord_bbs_bl_charges_lines_credit',
 							line: i
 						});
 							
-						location = blTranRec.getSublistValue({
-							sublistId: 'recmachcustrecord_bbs_bl_trans_lines_parent',
-							fieldId: 'custrecord_bbs_bl_trans_lines_location',
+						location = blChargeRec.getSublistValue({
+							sublistId: 'recmachcustrecord_bbs_bl_charges_lines_parent',
+							fieldId: 'custrecord_bbs_bl_charges_lines_club',
 							line: i
 						});
 						
@@ -171,7 +169,7 @@ function(search, record, format, task) {
 							fieldId: 'debit',
 							value: debit
 						});
-
+	
 						// set the credit column on the new journal line
 						journalRec.setCurrentSublistValue({
 							sublistId: 'line',
@@ -188,7 +186,7 @@ function(search, record, format, task) {
 						journalRec.commitLine({
 							sublistId: 'line'
 						});
-
+	
 					}
 				
 				// submit the journal record
@@ -196,20 +194,21 @@ function(search, record, format, task) {
 				
 				log.audit({
 					title: 'Journal Created',
-					details: 'Journal Record: ' + journalRec + '<br>Tran Record: ' + recordID + '<br>Club ID: ' + clubID
-				});		
+					details: 'Journal Record: ' + journalRec + '<br>Charge Record: ' + recordID + '<br>Club ID: ' + clubID
+				});			
 		}
 	catch (e) // catch any errors
 		{
 			// log the error
 			log.error({
 				title: 'An Error Occurred Creating a Journal Record',
-				details: 'Tran Record: ' + recordID + '<br>Club ID: ' + clubID + '<br>Error: ' + e
+				details: 'Charge Record: ' + recordID + '<br>Club ID: ' + clubID + '<br>Error: ' + e
 			});
 		}
 
     }
- 
+
+
     /**
      * Executes when the summarize entry point is triggered and applies to the result set.
      *
@@ -217,12 +216,12 @@ function(search, record, format, task) {
      * @since 2015.1
      */
     function summarize(summary) {
-
+    	
     	// create a map/reduce task
     	var mapReduceTask = task.create({
     	    taskType: task.TaskType.MAP_REDUCE,
-    	    scriptId: 'customscript_bbs_delete_bl_trans_lines',
-    	    deploymentId: 'customdeploy_bbs_delete_bl_trans_lines'
+    	    scriptId: 'customscript_bbs_delete_bl_charges_lines',
+    	    deploymentId: 'customdeploy_bbs_delete_bl_charges_lines'
     	});
     	
     	// submit the map/reduce task
@@ -230,8 +229,9 @@ function(search, record, format, task) {
     	
     	log.audit({
     		title: 'Script scheduled',
-    		details: 'BBS Delete Brightlime Trans Lines script has been scheduled.<br>Job ID: ' + mapReduceTaskID
+    		details: 'BBS Delete Brightlime Charges Lines script has been scheduled. Job ID ' + mapReduceTaskID
     	});
+
     }
 
     return {

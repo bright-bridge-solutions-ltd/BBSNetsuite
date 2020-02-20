@@ -3,8 +3,8 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/search', 'N/record', 'N/task'],
-function(search, record, task) {
+define(['N/search', 'N/record'],
+function(search, record) {
    
     /**
      * Marks the beginning of the Map/Reduce process and generates input data.
@@ -18,9 +18,9 @@ function(search, record, task) {
      */
     function getInputData() {
     	
-    	// create search to find BBS Brightlime Transactions Lines records
+    	// create search to find BBS Brightlime Charges records
     	return search.create({
-			type: 'customrecord_bbs_bl_trans_lines',
+			type: 'customrecord_bbs_bl_charges',
 			
 			columns: [{
 				name: 'internalid'
@@ -41,7 +41,7 @@ function(search, record, task) {
      */
     function map(context) {
     	
-    	// retrieve ID of the record ID from the search
+    	// retrieve ID of the record from the search
     	var searchResult = JSON.parse(context.value);
 		var recordID = searchResult.id;
 		
@@ -49,7 +49,7 @@ function(search, record, task) {
 			{
 				// delete the record
 	    		record.delete({
-	    			type: 'customrecord_bbs_bl_trans_lines',
+	    			type: 'customrecord_bbs_bl_charges',
 	    			id: recordID
 	    		});
 	    		
@@ -67,7 +67,7 @@ function(search, record, task) {
 			}
 
     }
-
+    
     /**
      * Executes when the summarize entry point is triggered and applies to the result set.
      *
@@ -75,21 +75,12 @@ function(search, record, task) {
      * @since 2015.1
      */
     function summarize(summary) {
-
-    	// create a map/reduce task
-    	var mapReduceTask = task.create({
-    	    taskType: task.TaskType.MAP_REDUCE,
-    	    scriptId: 'customscript_bbs_delete_bl_trans',
-    	    deploymentId: 'customdeploy_bbs_delete_bl_trans'
-    	});
-    	
-    	// submit the map/reduce task
-    	var mapReduceTaskID = mapReduceTask.submit();
     	
     	log.audit({
-    		title: 'Script scheduled',
-    		details: 'BBS Delete Brightlime Trans script has been scheduled.<br>Job ID: ' + mapReduceTaskID
+    		title: '*** END OF SCRIPT ***',
+    		details: ''
     	});
+    	
     }
 
     return {

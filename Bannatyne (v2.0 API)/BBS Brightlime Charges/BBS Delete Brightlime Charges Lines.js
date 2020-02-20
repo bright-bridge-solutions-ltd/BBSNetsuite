@@ -18,9 +18,9 @@ function(search, record, task) {
      */
     function getInputData() {
     	
-    	// create search to find BBS Brightlime Transactions Lines records
+    	// create search to find BBS Brightlime Charges Lines records
     	return search.create({
-			type: 'customrecord_bbs_bl_trans_lines',
+			type: 'customrecord_bbs_bl_charges_lines',
 			
 			columns: [{
 				name: 'internalid'
@@ -49,7 +49,7 @@ function(search, record, task) {
 			{
 				// delete the record
 	    		record.delete({
-	    			type: 'customrecord_bbs_bl_trans_lines',
+	    			type: 'customrecord_bbs_bl_charges_lines',
 	    			id: recordID
 	    		});
 	    		
@@ -60,7 +60,7 @@ function(search, record, task) {
 			}
 		catch (e)
 			{
-				log.audit({
+				log.error({
 					title: 'Error Deleting Record',
 					details: 'Record ID: ' + recordID + '<br>Error: ' + e
 				});
@@ -79,8 +79,8 @@ function(search, record, task) {
     	// create a map/reduce task
     	var mapReduceTask = task.create({
     	    taskType: task.TaskType.MAP_REDUCE,
-    	    scriptId: 'customscript_bbs_delete_bl_trans',
-    	    deploymentId: 'customdeploy_bbs_delete_bl_trans'
+    	    scriptId: 'customscript_bbs_delete_bl_charges',
+    	    deploymentId: 'customdeploy_bbs_delete_bl_charges'
     	});
     	
     	// submit the map/reduce task
@@ -88,8 +88,9 @@ function(search, record, task) {
     	
     	log.audit({
     		title: 'Script scheduled',
-    		details: 'BBS Delete Brightlime Trans script has been scheduled.<br>Job ID: ' + mapReduceTaskID
+    		details: 'BBS Delete Brightlime Charges script has been scheduled<br>Job ID: ' + mapReduceTaskID
     	});
+
     }
 
     return {
