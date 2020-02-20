@@ -4,7 +4,6 @@
  * @NModuleScope SameAccount
  */
 define(['N/search', 'N/record'],
-
 function(search, record) {
    
     /**
@@ -19,8 +18,8 @@ function(search, record) {
      */
     function getInputData() {
     	
-    	// create search to find BBS Brightlime Transactions Lines records
-    	var brightlimeTransactionsSearch = search.create({
+    	// create search to find BBS Brightlime Transactions records
+    	return search.create({
 			type: 'customrecord_bbs_bl_trans',
 			
 			columns: [{
@@ -31,38 +30,6 @@ function(search, record) {
 			
 			],
 		});
-    	
-    	// create new array to hold search results
-    	var searchResults = new Array();
-    	
-    	// declare variables
-    	var recordID;
-    	
-    	// run each result and get ID and push it to array
-    	brightlimeTransactionsSearch.run().each(function(result) {
-    		
-    		// get the record ID from the search results
-    		recordID = result.getValue ({
-    			name: 'internalid'
-    		});
-    		
-    		// push search result to searchResults array
-    		searchResults.push({
-    			'id': recordID
-    		});
-    		
-    		// continue processing results
-    		return true;
-    	});
-    	
-    	// log number of search results found
-    	log.audit({
-    		title: 'Search Results',
-    		details: 'Search found ' + searchResults.length + ' results'
-    	});
-    	
-    	// pass array to Map() function
-    	return searchResults;
 
     }
 
@@ -94,16 +61,32 @@ function(search, record) {
 		catch (e)
 			{
 				log.audit({
-					title: 'Error deleting record ' + recordID,
-					details: 'Error: ' + e
+					title: 'Error Deleting Record',
+					details: 'Record ID: ' + recordID + '<br>Error: ' + e
 				});
 			}
 
     }
 
+    /**
+     * Executes when the summarize entry point is triggered and applies to the result set.
+     *
+     * @param {Summary} summary - Holds statistics regarding the execution of a map/reduce script
+     * @since 2015.1
+     */
+    function summarize(summary) {
+    	
+    	log.audit({
+    		title: '*** END OF SCRIPT ***',
+    		details: ''
+    	});
+    	
+    }
+
     return {
         getInputData: getInputData,
-        map: map
+        map: map,
+        summarize: summarize
     };
     
 });
