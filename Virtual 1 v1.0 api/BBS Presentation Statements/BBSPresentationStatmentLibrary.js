@@ -90,20 +90,14 @@ function libGenerateStatement(partnerId)
 									var templateFile = nlapiLoadFile(pdfTemplateId);
 									var templateContents = templateFile.getValue();
 								
-									//Calculate the aging & the totals
+									//Calculate the aging totals
 									//
-									var aging1 = Number(0);
-									var aging2 = Number(0);
-									var aging3 = Number(0);
-									var aging4 = Number(0);
-									var aging5 = Number(0);
-									var totalAmount = Number(0);
-									var totalDisputed = Number(0);
-									var totalPayment = Number(0);
+									var totalOpenBalance = Number(0);
+									var totalOverdueAmount = Number(0);
 									var statementRecord = nlapiCreateRecord('customrecord_bbs_pr_statement');
 									var hasItemsToPrint = false;
 									
-									//Do we have any results to processs
+									//Do we have any results to process
 									//
 									if(customrecord_bbs_presentation_recordSearch !=  null && customrecord_bbs_presentation_recordSearch.length > 0)
 										{
@@ -115,41 +109,23 @@ function libGenerateStatement(partnerId)
 											//
 											for (var int = 0; int < customrecord_bbs_presentation_recordSearch.length; int++) 
 												{
-													var resultsAge = Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_inv_age"));
-													var resultsOutstandingDebt = Number(customrecord_bbs_presentation_recordSearch[int].getValue("formulacurrency"));
-													var resultsDisputed = Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_inv_disputed"));
 													var resultsTranType = customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_type");
-													var resultsToBePaid = Number(0);
+													var openBalance = Number(0);
+													var overdueAmount = Number(0);
 													
 													if(resultsTranType == 2) // Invoices
 														{
-															resultsToBePaid = Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_inv_outstanding"));
+															openBalance = Number(customrecord_bbs_presentation_recordSearch[int].getValue("formulacurrency"));
+															overdueAmount = Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_inv_outstanding"));
 														}
-													else					//Credit Notes
+													else //Credit Notes
 														{
-															resultsToBePaid = (Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_cn_unapplied")) * Number(-1.0));
+															overdueAmount = (Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_cn_unapplied")) * Number(-1.0));
 														}
 													
-													//Do aging for invoice type pr records
-													//
-													if(resultsTranType == 2)
-														{
-															aging1 += (resultsAge <= 0 ? resultsOutstandingDebt : Number(0));
-															aging2 += (resultsAge >= 1  && resultsAge <= 30 ? resultsOutstandingDebt : Number(0));
-															aging3 += (resultsAge >= 31  && resultsAge <= 60 ? resultsOutstandingDebt : Number(0));
-															aging4 += (resultsAge >= 61  && resultsAge <= 90 ? resultsOutstandingDebt : Number(0));
-															aging5 += (resultsAge > 90 ? resultsOutstandingDebt : Number(0));
-														}
-													else
-														{
-															//Credit notes
-															//
-															aging1 += resultsToBePaid;
-														}
-													
-													//Add up the totals as well
-													//
-													totalDisputed += resultsDisputed;
+													// add to totals
+													totalOpenBalance += openBalance;
+													totalOverdueAmount += overdueAmount;
 												}
 										}
 									
@@ -157,18 +133,8 @@ function libGenerateStatement(partnerId)
 									//
 									if(hasItemsToPrint)
 										{
-											totalAmount = aging2 + aging3 + aging4 + aging5;
-											totalPayment = totalAmount + totalDisputed;
-											
-											statementRecord.setFieldValue('custrecord_bbs_pr_stat_age_1', aging1);
-											statementRecord.setFieldValue('custrecord_bbs_pr_stat_age_2', aging2);
-											statementRecord.setFieldValue('custrecord_bbs_pr_stat_age_3', aging3);
-											statementRecord.setFieldValue('custrecord_bbs_pr_stat_age_4', aging4);
-											statementRecord.setFieldValue('custrecord_bbs_pr_stat_age_5', aging5);
-											statementRecord.setFieldValue('custrecord_bbs_pr_stat_total_amount', totalAmount);
-											statementRecord.setFieldValue('custrecord_bbs_pr_stat_query_amount', totalDisputed);
-											statementRecord.setFieldValue('custrecord_bbs_pr_stat_payment_amount', totalPayment);
-											
+											statementRecord.setFieldValue('custrecord_bbs_pr_statement_open', totalOpenBalance);
+											statementRecord.setFieldValue('custrecord_bbs_pr_statement_overdue', totalOverdueAmount);
 											
 											//Create a renderer
 											//
