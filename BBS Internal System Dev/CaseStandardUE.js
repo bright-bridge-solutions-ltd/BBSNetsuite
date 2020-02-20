@@ -149,6 +149,42 @@ function userEventBeforeLoad(type, form, request)
  * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
  * @appliedtorecord recordType
  * 
+ * @param {String} type Operation types: create, edit, delete, xedit
+ *                      approve, reject, cancel (SO, ER, Time Bill, PO & RMA only)
+ *                      pack, ship (IF)
+ *                      markcomplete (Call, Task)
+ *                      reassign (Case)
+ *                      editforecast (Opp, Estimate)
+ * @returns {Void}
+ */
+function caseBeforeSubmit(type)
+{
+	if(type == 'edit' || type == 'create')
+		{
+			var escalateTo = null;
+			
+			var escalateCount = nlapiGetLineItemCount('escalateto')
+			
+			for (var int = 1; int <= escalateCount; int++) 
+				{
+					escalateTo = nlapiGetLineItemValue('escalateto', 'escalatee', int);
+				}
+			try
+				{
+					nlapiSetFieldValue('custevent_bbs_escalated_to', escalateTo, false, true);
+				}
+			catch(err)
+				{
+				
+				}
+		}
+}
+
+
+/**
+ * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
+ * @appliedtorecord recordType
+ * 
  * @param {String} type Operation types: create, edit, delete, xedit,
  *                      approve, cancel, reject (SO, ER, Time Bill, PO & RMA only)
  *                      pack, ship (IF only)

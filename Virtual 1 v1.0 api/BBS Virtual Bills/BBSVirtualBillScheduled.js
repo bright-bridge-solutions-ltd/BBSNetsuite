@@ -16,10 +16,10 @@ function scheduled(type)
 		//
 		var virtualBillId = nlapiGetContext().getSetting('SCRIPT', 'custscript_bbs_vbill_id');			//Virtual bill id to process - passed from UE script
 			
-		var productGroupsSummary = {};
-		var billingTypeSummary = {};
-		var billingTypes = {};
-		var productGroups = {};
+		var productGroupsSummary 	= {};
+		var billingTypeSummary 		= {};
+		var billingTypes 			= {};
+		var productGroups 			= {};
 			
 		//Get the virtual bill lines to be processed
 		//
@@ -303,9 +303,9 @@ function generateSupplierBillProductGroupSummary(_existingSupplierBillId)
 	var unreconciledRentalProductId 	= context.getSetting('SCRIPT', 'custscript_bbs_unrec_rental_id');	//Item - company preferences
 	var unreconciledUsageProductId 		= context.getSetting('SCRIPT', 'custscript_bbs_unrec_usage_id');	//Item - company preferences
 
-	var supplierBillProductGroupsSummary = {};
-	var dummyBillingTypes = {};
-	var dummyProductGroups = {};
+	var supplierBillProductGroupsSummary 	= {};
+	var dummyBillingTypes 					= {};
+	var dummyProductGroups 					= {};
 	
 	//Set up the product group summary with all possible combinations
 	//
@@ -368,11 +368,11 @@ function createSupplierBill(_virtualBillId, _productGroupsSummary, _billingTypes
 	var unreconciledUsageProductId 		= context.getSetting('SCRIPT', 'custscript_bbs_unrec_usage_id');	//Item - company preferences
 	var customFormId 					= context.getSetting('SCRIPT', 'custscript_bbs_form_id');			//Form to use for the supplier bill - company preferences
 	
-	var billId = null;
-	var supplierFields = nlapiLookupField('customrecord_bbs_virtual_bill', _virtualBillId, ['custrecord_bbs_supplier','custrecord_bbs_sup_inv'], false);
-	var supplierId = supplierFields['custrecord_bbs_supplier'];
-	var existingSupplierBillId = supplierFields['custrecord_bbs_sup_inv'];
-	var billIsOkToProcess = true;
+	var billId 					= null;
+	var supplierFields 			= nlapiLookupField('customrecord_bbs_virtual_bill', _virtualBillId, ['custrecord_bbs_supplier','custrecord_bbs_sup_inv'], false);
+	var supplierId 				= supplierFields['custrecord_bbs_supplier'];
+	var existingSupplierBillId 	= supplierFields['custrecord_bbs_sup_inv'];
+	var billIsOkToProcess 		= true;
 	
 	try
 		{
@@ -557,7 +557,9 @@ function updateVirtualBill(_virtualBillId, _billingTypeSummary)
 					 'custrecord_bbs_unrec_usage','custrecord_bbs_unrec_oneoff','custrecord_bbs_unrec_rental','custrecord_bbs_unrec_amt_total',
 					 'custrecord_bbs_rec_usage','custrecord_bbs_rec_oneoff','custrecord_bbs_rec_rental','custrecord_bbs_rec_amt_total'], 
 					[
-					 _billingTypeSummary['Usage'].unreconciled, _billingTypeSummary['One Off'].unreconciled, _billingTypeSummary['Rental'].unreconciled,
+					 _billingTypeSummary['Usage'].unreconciled, 
+					 _billingTypeSummary['One Off'].unreconciled, 
+					 _billingTypeSummary['Rental'].unreconciled,
 					 _billingTypeSummary['Usage'].unreconciled + _billingTypeSummary['One Off'].unreconciled + _billingTypeSummary['Rental'].unreconciled,
 					 _billingTypeSummary['Usage'].reconciled, _billingTypeSummary['One Off'].reconciled, _billingTypeSummary['Rental'].reconciled,
 					 _billingTypeSummary['Usage'].reconciled + _billingTypeSummary['One Off'].reconciled + _billingTypeSummary['Rental'].reconciled
@@ -683,11 +685,11 @@ function findMatchingPo(_billLineSupplier, _billLineRef, _billLineAmount, _billL
 			]
 			);
 
-	var resultPoId = null;
-	var resultPoLineId = null;
-	var resultStatus = null;
-	var resultProdGrp = null;
-	var poLineAmount = Number(0);
+	var resultPoId 	= null;
+	var resultPoLineId 	= null;
+	var resultStatus 	= null;
+	var resultProdGrp 	= null;
+	var poLineAmount 	= Number(0);
 	
 	if(purchaseorderSearch != null && purchaseorderSearch.length > 0)
 		{
@@ -716,10 +718,10 @@ function findMatchingPo(_billLineSupplier, _billLineRef, _billLineAmount, _billL
 
 function poFindResultObj(_poId, _poLineId, _status, _poLineAmount)
 {
-	this.poId = _poId;
-	this.poLineId = _poLineId;
-	this.status = _status;
-	this.poAmount = _poLineAmount;
+	this.poId 		= _poId;
+	this.poLineId 	= _poLineId;
+	this.status 	= _status;
+	this.poAmount 	= _poLineAmount;
 }
 
 
@@ -811,10 +813,10 @@ function initBillingTypeSummary(_billingTypeSummary)
 
 function billingTypeObject(_id, _name)
 {
-	this.reconciled = Number(0);
-	this.unreconciled = Number(0);
-	this.name = _name;
-	this.id = _id;
+	this.reconciled 	= Number(0);
+	this.unreconciled 	= Number(0);
+	this.name 			= _name;
+	this.id 			= _id;
 }
 
 
