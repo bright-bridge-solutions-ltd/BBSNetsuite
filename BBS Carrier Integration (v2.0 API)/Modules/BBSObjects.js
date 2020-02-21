@@ -1,8 +1,17 @@
 define(
 function() 
 {
+	//=========================================================================
+	//Top level objects
+	//=========================================================================
+	//
+	
+	//Object to hold the connection configuration
+	//
 	function _configuration(_primaryCarrier, _username, _passsword, _url, _majorId, _minorId, _intermediateId)
 		{
+			//Constructor
+			//
 			this.primaryCarrier	= _primaryCarrier;
 			this.username		= _username;
 			this.password		= _passsword;
@@ -12,9 +21,12 @@ function()
 			this.intermediateId	= _intermediateId;
 		}
 	
-	
+	//Object to hold the basic carrier info, service codes & packaging codes
+	//
 	function _shippingItemInfo(_primaryCarrier, _packCodeReq, _name, _carrierCode, _carrierId)
 		{
+			//Constructor
+			//
 			this.primaryCarrier			= _primaryCarrier;
 			this.packageCodeRequired	= _packCodeReq;
 			this.subcarrierName			= _name;
@@ -23,17 +35,25 @@ function()
 			this.serviceCodes 			= [];
 			this.packageCodes			= [];
 			
+			//Method - add service codes
+			//
 			this.addServiceCode			= function (_serviceCode, _serviceDescription, _servicePalletParcel, _servicePalletParcelText)
 				{
 					this.serviceCodes.push(new serviceCodeObj(_serviceCode, _serviceDescription, _servicePalletParcel, _servicePalletParcelText));
 				};
-				
+			
+			//Method - add packaging codes
+			//
 			this.addPackageCode			= function (_packageCode, _packageDescription)
 				{
 					this.packageCodes.push(new packageCodeObj(_packageCode, _packageDescription));
 				};
 		}
 	
+	//=========================================================================
+	//Lower level objects
+	//=========================================================================
+	//
 	function serviceCodeObj(_serviceCode, _serviceDescription, _servicePalletParcel, _servicePalletParcelText)
 		{
 			this.serviceCode 				= _serviceCode;
@@ -49,7 +69,9 @@ function()
 		}
 
 	
-	//Return functions
+	//=========================================================================
+	//Return objects that are available in this module 
+	//=========================================================================
 	//
     return 	{
         		carrierConfiguration:		_configuration,

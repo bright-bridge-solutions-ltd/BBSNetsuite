@@ -1,6 +1,12 @@
 define(['N/record', 'N/search', '/SuiteScripts/BBS Carrier Integration/Modules/BBSObjects'],
 function(record, search, BBSObjects) 
 {
+	//=========================================================================
+	//Main functions
+	//=========================================================================
+	//
+	
+	
 	//Function to get the configuration info from the config record id
 	//
 	function _getConfig(_configId)
@@ -134,6 +140,11 @@ function(record, search, BBSObjects)
 			return shippingCarrierInfo;
 		}
 	
+	
+	//=========================================================================
+	//Helper functions
+	//=========================================================================
+	//
 	function getResults(_searchObject)
 		{
 			var results = [];
@@ -151,9 +162,12 @@ function(record, search, BBSObjects)
 			return results;
 		}
 	
-	//Return functions
+	
+	//=========================================================================
+	//Return functions that are available in this module 
+	//=========================================================================
 	//
-    return 	{
+   return 	{
 	    		getConfig:				_getConfig,
 	    		lookupShippingItem:		_lookupShippingItem
     		};
