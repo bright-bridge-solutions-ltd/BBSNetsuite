@@ -68,8 +68,24 @@ function portletName(portletObj, column)
 	//
 	var currentUser = context.getUser();
 	var currentRole = context.getRole();
-	var allUsers = (currentRole == 3 ? 'T' : nlapiLookupField('employee', currentUser, '', false)); //Administrator is allowed to see all employees
+	//var allUsers = (currentRole == 3 ? 'T' : nlapiLookupField('employee', currentUser, 'custentity_bbs_emp_override', false)); //Administrator is allowed to see all employees
+	var employeeListString = nlapiLookupField('employee', currentUser, 'custentity_bbs_emp_override', false);
 	
+	var employeeList = [];
+	
+	if(employeeListString != null && employeeListString != '')
+		{
+			employeeList = employeeListString.split(',');
+		}
+	
+	employeeList.push(currentUser);
+	
+	var allUsers = 'F';
+	
+	if(currentRole == 3 || currentRole == 1015 || currentRole == 1010)
+		{
+			allUsers = 'T';
+		}
 	
 	//Add a field to select the employee from
 	//
@@ -94,7 +110,7 @@ function portletName(portletObj, column)
 					var empId = employeeSearch[int].getId();
 					var empName = employeeSearch[int].getValue('entityid');
 					
-					if(allUsers == 'T' || currentUser == empId)
+					if(allUsers == 'T' || employeeList.indexOf(Number(empId)) != -1)
 						{
 							employeeField.addSelectOption(empId, empName, false);
 						}

@@ -7,6 +7,7 @@
  */
 
 
+
 function cbcSalesOrderBeforeLoad(type, form, request)
 {
 	if (type =='edit' || type == 'view')
@@ -57,6 +58,10 @@ function cbcSalesOrderBeforeLoad(type, form, request)
 //
 function cbcSalesOrderAfterSubmit(type)
 {
+	Number.prototype.round = function(places) {
+		  return +(Math.round(this + "e+" + places)  + "e-" + places);
+		}
+	
 	try
 		{
 			//Get the old & new records
@@ -520,15 +525,18 @@ function calculateContactsUsage(_contactItemObject, _errors, _orderDate)
 								//
 								if(totalAmount < 0)
 									{
-										totalAmount = Math.round(Math.abs(totalAmount)) * -1.0;
+										totalAmount = Math.abs(totalAmount) * -1.0;
 									}
 								else
 									{
-										totalAmount = Math.round(totalAmount) ;
+										totalAmount = totalAmount ;
 									}
 								
+								totalAmount = totalAmount.round(2);
+								
 								var newBudgetUsage = budgetUsgae + totalAmount;
-									
+								newBudgetUsage = newBudgetUsage.round(2);
+								
 								nlapiSubmitField('customrecord_cbc_contact_record', budgetId, 'custrecord_cbc_contact_usage', newBudgetUsage, false);
 								
 								if(newBudgetUsage > budgetQuantity)

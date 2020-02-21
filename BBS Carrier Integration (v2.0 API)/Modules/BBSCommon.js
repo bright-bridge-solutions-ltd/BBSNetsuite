@@ -104,8 +104,31 @@ function(record, search, BBSObjects)
 					
 					//Now get any related package codes
 					//
+					var customrecord_bbs_carrier_package_codesSearchObj = getResults(search.create({
+						   type: "customrecord_bbs_carrier_package_codes",
+						   filters:
+						   [
+						      ["isinactive","is","F"], 
+						      "AND", 
+						      ["custrecord_bbs_car_pack_car","anyof",carrierId]
+						   ],
+						   columns:
+						   [
+						      search.createColumn({name: "custrecord_bbs_car_pack_code", label: "Package Code"}),
+						      search.createColumn({name: "custrecord_bbs_car_pack_desc", label: "Package Description"})
+						   ]
+						}));
 					
-					
+					if(customrecord_bbs_carrier_package_codesSearchObj != null && customrecord_bbs_carrier_package_codesSearchObj.length > 0)
+						{
+							for (var int = 0; int < customrecord_bbs_carrier_package_codesSearchObj.length; int++) 
+								{
+									var packageCode 			= customrecord_bbs_carrier_package_codesSearchObj[int].getValue({name: 'custrecord_bbs_car_pack_code'});
+									var packageDescription 		= customrecord_bbs_carrier_package_codesSearchObj[int].getValue({name: 'custrecord_bbs_car_pack_desc'});
+									
+									shippingCarrierInfo.addPackageCode(packageCode, packageDescription);
+								}
+						}					
 				}
 			
 			return shippingCarrierInfo;

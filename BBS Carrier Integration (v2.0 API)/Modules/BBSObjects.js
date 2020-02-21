@@ -18,8 +18,8 @@ function()
 			this.primaryCarrier			= _primaryCarrier;
 			this.packageCodeRequired	= _packCodeReq;
 			this.subcarrierName			= _name;
-			this.carrierCode			= _carrierCode;
-			this.carrierCodeId			= _carrierId;
+			this.subCarrierCode			= _carrierCode;
+			this.subCarrierCodeId		= _carrierId;
 			this.serviceCodes 			= [];
 			this.packageCodes			= [];
 			
@@ -27,16 +27,27 @@ function()
 				{
 					this.serviceCodes.push(new serviceCodeObj(_serviceCode, _serviceDescription, _servicePalletParcel, _servicePalletParcelText));
 				};
+				
+			this.addPackageCode			= function (_packageCode, _packageDescription)
+				{
+					this.packageCodes.push(new packageCodeObj(_packageCode, _packageDescription));
+				};
 		}
 	
 	function serviceCodeObj(_serviceCode, _serviceDescription, _servicePalletParcel, _servicePalletParcelText)
 		{
 			this.serviceCode 				= _serviceCode;
-			this.serviceDesacription		= _serviceDescription;
+			this.serviceDescription			= _serviceDescription;
 			this.servicePalletParcel		= _servicePalletParcel;
 			this.servicePalletParcelText	= _servicePalletParcelText;
 		}
 	
+	function packageCodeObj(_packageCode, _packageDescription)
+		{
+			this.packageCode 				= _packageCode;
+			this.packageDescription			= _packageDescription;
+		}
+
 	
 	//Return functions
 	//

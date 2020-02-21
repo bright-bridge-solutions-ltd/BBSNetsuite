@@ -12,6 +12,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.wst.jsdt.launching.baseBrowserLibrary"/>
-	<classpathentry kind="con" path="com.netsuite.ide.eclipse.suitescript_2_0.library"/>
+	<classpathentry kind="con" path="com.netsuite.ide.eclipse.suitescript.library"/>
 	<classpathentry kind="output" path=""/>
 </classpath>
