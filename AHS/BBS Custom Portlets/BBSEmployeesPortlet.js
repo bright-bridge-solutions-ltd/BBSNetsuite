@@ -71,18 +71,24 @@ function portletName(portletObj, column)
 	//var allUsers = (currentRole == 3 ? 'T' : nlapiLookupField('employee', currentUser, 'custentity_bbs_emp_override', false)); //Administrator is allowed to see all employees
 	var employeeListString = nlapiLookupField('employee', currentUser, 'custentity_bbs_emp_override', false);
 	
-	var employeeList = [];
+	var employeeList = {};
+	var employeeListTemp = [];
 	
 	if(employeeListString != null && employeeListString != '')
 		{
-			employeeList = employeeListString.split(',');
+			employeeListTemp = employeeListString.split(',');
 		}
 	
-	employeeList.push(currentUser);
+	for (var int = 0; int < employeeListTemp.length; int++) 
+		{
+			employeeList[employeeListTemp[int]] = employeeListTemp[int];
+		}
+	
+	employeeList[currentUser] = currentUser;
 	
 	var allUsers = 'F';
 	
-	if(currentRole == 3 || currentRole == 1015 || currentRole == 1010)
+	if(currentRole == 3 || currentRole == 1015 || currentRole == 1010)	//3=Administrator, 1015=AHS MD, 1010=AHS Sales Manager
 		{
 			allUsers = 'T';
 		}
@@ -110,7 +116,7 @@ function portletName(portletObj, column)
 					var empId = employeeSearch[int].getId();
 					var empName = employeeSearch[int].getValue('entityid');
 					
-					if(allUsers == 'T' || employeeList.indexOf(Number(empId)) != -1)
+					if(allUsers == 'T' || employeeList.hasOwnProperty(empId))
 						{
 							employeeField.addSelectOption(empId, empName, false);
 						}
