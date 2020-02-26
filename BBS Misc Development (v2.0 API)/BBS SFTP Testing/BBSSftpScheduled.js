@@ -18,13 +18,12 @@ function(sftp) {
      */
     function execute(scriptContext) 
 	    {
-	    	var username = 'Jitterbit.User';
-	    	var password = '170fd4eaa2bf4b23b7668bbd551aca5c';
-	    	var url = 'tbgftp.hostedftp.com';
+	    	var username = 'comet';
+	    	var password = '2ed57edb53974831846251ac264932ef';
+	    	var url = 'sftp.comet.co.uk';
 	    	var port = 22;
-	    	var directory = '/bl_dir_BrBr-2/large files';
-	    	var hostkey = 'AAAAB3NzaC1yc2EAAAADAQABAAABAQC4ZIMHa5GWDaRmXAxhG8rAU6VrSNSanEDVk2O+h22dJIPZsaNl9jc0kll4WeB4hbsjISiyjAKRpK6oHiGF8I2ImRFFjGS7/fUnoLMPEWF2asJ6YnsTZvOX+wR1aCJNAg9nwhJVH6uznVmQ/M2ZrkY64G7C2UHY+hQYHouLRRdY6KiQuM4R/Z5SdN5BKjJhKLYHU5p/GaU7n/JwzkUHrVazdvNEZaQhiQpIK+YmnHZZAbyzY9WHn/lsQ4KskFkkadhUUKws2J8D0uIlLJZW0XwG2mpjXt+sTUfQdL94jWo+/sdvGdjdL0cHXVxOUpO7K07moIxsPqNvCNzZYBugm/0v';
-	
+	    	var directory = '.';
+	    	var hostkey = 'AAAAB3NzaC1yc2EAAAADAQABAAABgQC0a/Ts9kjg5V11bTGZc5q7Y4yM1tZH/mXbsAeS6E7WAo/LrR6oTSYVs5KKtPTz3lzEW0GnieT4tF+Vkg1k0zkhWw4nAvnlTfRzVZM7gWn56YuV0UIV0pdp/ZVzVF2FH9CUmn9vURTUohjI55cLVIQqGJQM5lGIKNk45Pg4G33trS+XlLBpPVkV2q3se96SiTghsP1/i0Ge4KwbbWNCaQLX44YHuS7wk67Ju3pZ16E1YCIhiWQocPo3yxoOhX2lxpxO333C7pUwWFUBgyft3cnihtwmcn/wuCmGVaA5pbJxZ1jwqnVrO2ZRe3n5XJlRpYJVRBHaLKa9ix1fxne21awZBoDxn/42oX8dynnh5FqXYj2V9bAPoTW/ScjWD9fytFMSkPu0yev1i1GAgagcDKFr4/FFCnSkIHQn5pw22rGq5hAduNizavZFOc5gXGgrw/maD4gQC5amCv/KYfKfiRWaPQkAJq544RheArzlQ/SyAxRC1NAUaqEXae3NfFrenec=';	
 	    	var objConnection = sftp.createConnection({
 	    	    username: username,
 	    	    passwordGuid: password,

@@ -57,39 +57,44 @@ function(record, search, xml, BBSObjects)
 			
 			//Search for carriers linked to the shipping item
 			//
-			var customrecord_bbs_carriersSearchObj = getResults(search.create({
-				   type: "customrecord_bbs_carriers",
+			var customrecord_bbs_carrier_service_codesSearchObj = getResults(search.create({
+				type: "customrecord_bbs_carrier_service_codes",
 				   filters:
 				   [
-				      ["custrecord_bbs_carrier_shippintg_item","anyof",_shippingItemId], 
+				      ["custrecord_bbs_sc_shipping_item","anyof",_shippingItemId], 
 				      "AND", 
 				      ["isinactive","is","F"]
 				   ],
 				   columns:
 				   [
-				      search.createColumn({name: "custrecord_bbs_carrier_code", label: "Carrier Code"}),
-				      search.createColumn({name: "name",label: "Name"}),
-				      search.createColumn({name: "custrecord_bbs_carrier_pack_code_req", label: "Package Code Required"}),
-				      search.createColumn({name: "custrecord_bbs_primary_carrier", label: "Primary Carrier/Integrator"}),
-				      search.createColumn({name: "custrecord_bbs_carrier_contract_no", label: "Contract Number"})
+				      search.createColumn({name: "custrecord_bbs_sc_carrier", label: "Carrier"}),
+				      search.createColumn({name: "custrecord_bbs_sc_code", label: "Service Code"}),
+				      search.createColumn({name: "custrecord_bbs_sc_desc", label: "Product Description"}),
+				      search.createColumn({name: "custrecord_bbs_sc_pp", label: "Pallet / Parcel"}),
+				      search.createColumn({name: "custrecord_bbs_sc_shipping_item", label: "Related Shipping Item"}),
+				      search.createColumn({name: "custrecord_bbs_carrier_contract_no", join: "CUSTRECORD_BBS_SC_CARRIER", label: "Contract Number"}),
+				      search.createColumn({name: "custrecord_bbs_carrier_code", join: "CUSTRECORD_BBS_SC_CARRIER", label: "Carrier Code"}),
+				      search.createColumn({name: "custrecord_bbs_carrier_pack_code_req", join: "CUSTRECORD_BBS_SC_CARRIER", label: "Package Code Required"}),
+				      search.createColumn({name: "custrecord_bbs_primary_carrier", join: "CUSTRECORD_BBS_SC_CARRIER", label: "Primary Carrier/Integrator"})
 				   ]
 				}));
 				
 			//Process the search results
 			//
-			if(customrecord_bbs_carriersSearchObj != null && customrecord_bbs_carriersSearchObj.length == 1)
+			if(customrecord_bbs_carrier_service_codesSearchObj != null && customrecord_bbs_carrier_service_codesSearchObj.length == 1)
 				{
-					var primaryCarrier 		= customrecord_bbs_carriersSearchObj[0].getValue({name: 'custrecord_bbs_primary_carrier'});
-					var primaryCarrierName 	= customrecord_bbs_carriersSearchObj[0].getText({name: 'custrecord_bbs_primary_carrier'});
-					var packCodeReq 		= customrecord_bbs_carriersSearchObj[0].getValue({name: 'custrecord_bbs_carrier_pack_code_req'});
-					var name 				= customrecord_bbs_carriersSearchObj[0].getValue({name: 'name'});
-					var carrierCode 		= customrecord_bbs_carriersSearchObj[0].getValue({name: 'custrecord_bbs_carrier_code'});
-					var carrierContractNo	= customrecord_bbs_carriersSearchObj[0].getValue({name: 'custrecord_bbs_carrier_contract_no'});
-					var carrierId 			= customrecord_bbs_carriersSearchObj[0].id;
+					var primaryCarrier 		= customrecord_bbs_carrier_service_codesSearchObj[0].getValue({name: 'custrecord_bbs_primary_carrier', join: "CUSTRECORD_BBS_SC_CARRIER"});
+					var primaryCarrierName 	= customrecord_bbs_carrier_service_codesSearchObj[0].getText({name: 'custrecord_bbs_primary_carrier', join: "CUSTRECORD_BBS_SC_CARRIER"});
+					var packCodeReq 		= customrecord_bbs_carrier_service_codesSearchObj[0].getValue({name: 'custrecord_bbs_carrier_pack_code_req', join: "CUSTRECORD_BBS_SC_CARRIER"});
+					var name 				= customrecord_bbs_carrier_service_codesSearchObj[0].getText({name: 'custrecord_bbs_sc_carrier'});
+					var carrierCode 		= customrecord_bbs_carrier_service_codesSearchObj[0].getValue({name: 'custrecord_bbs_carrier_code', join: "CUSTRECORD_BBS_SC_CARRIER"});
+					var carrierContractNo	= customrecord_bbs_carrier_service_codesSearchObj[0].getValue({name: 'custrecord_bbs_carrier_contract_no', join: "CUSTRECORD_BBS_SC_CARRIER"});
+					var carrierId 			= customrecord_bbs_carrier_service_codesSearchObj[0].getValue({name: 'custrecord_bbs_sc_carrier'})
+					var serviceCode 		= customrecord_bbs_carrier_service_codesSearchObj[0].getValue({name: 'custrecord_bbs_sc_code'});
 					
 					//Create a shipping item info object
 					//
-					shippingCarrierInfo = new BBSObjects.shippingItemInfo(primaryCarrier, primaryCarrierName, packCodeReq, name, carrierCode, carrierId, carrierContractNo);
+					shippingCarrierInfo = new BBSObjects.shippingItemInfo(primaryCarrier, primaryCarrierName, packCodeReq, name, carrierCode, carrierId, carrierContractNo, serviceCode);
 					
 					//Now get any related service codes
 					//
