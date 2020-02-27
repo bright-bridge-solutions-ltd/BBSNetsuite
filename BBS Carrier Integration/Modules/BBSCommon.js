@@ -355,7 +355,7 @@ function(record, search, xml, BBSObjects)
 	    		lookupShippingItem:		_lookupShippingItem,
 	    		isNullOrEmpty:			_isNullOrEmpty,
 	    		isNull:					_isNull,
-	    		xmlToJson:				_xmlToJson,
+	    		xml2Json:				_xmlToJson,
 	    		json2xml:				_json2xml
     		};
     
