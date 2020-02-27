@@ -32,7 +32,7 @@ function(record) {
 	    	    });
 
     			// set a client script to run on the form
-    			scriptContext.form.clientScriptFileId = 3407771;
+    			scriptContext.form.clientScriptFileId = 4643003;
     			
     			// add button to the form
 	    		scriptContext.form.addButton({
@@ -42,22 +42,9 @@ function(record) {
 	    		});
     		}   	
     }
-    
-    function afterSubmit(scriptContext)
-    	{
-    		// submit the 'custevent_bbs_event_internal_id' field
-    		record.submitFields({
-    			type: record.Type.CALENDAR_EVENT,
-    			id: scriptContext.newRecord.id,
-    			values: {
-    				custevent_bbs_event_internal_id: scriptContext.newRecord.id  			
-    			}
-    		});
-    	}
 
     return {
-        beforeLoad: beforeLoad,
-        afterSubmit: afterSubmit
+        beforeLoad: beforeLoad
     };
     
 });

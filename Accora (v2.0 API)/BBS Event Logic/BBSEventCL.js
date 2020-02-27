@@ -23,22 +23,8 @@ function(url, dialog) {
 					}
 				});
 				
-				// get the URL of the 'SCPQ-STE-Start-Product' Suitelet
-				var suiteletURL = url.resolveScript({
-					scriptId: 'customscript_scpq_ste_start_product',
-					deploymentId: 'customdeploy_scpq_start_product',
-					params: {
-						rectype: 'estimate',
-						entity: company,
-						isNew: 'T'
-					}
-				});
-				
 				// open a new quote in a new tab/window
 				window.open(newQuoteURL);
-				
-				// open the 'SCPQ-STE-Start-Product' Suitelet in a new tab/window
-				window.open(suiteletURL);
 			}
 		else // company parameter is empty
 			{
