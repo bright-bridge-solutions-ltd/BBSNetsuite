@@ -18,67 +18,6 @@ var xmlObj = xml.Parser.fromString({text: str});
 var jsonObj = BBSCommon.xmlToJson(xmlObj.documentElement);
 
 
-var a = {};
-
-a.RequestedShipments = {};
-a.RequestedShipments.ShipRequests = {};
-a.RequestedShipments.ShipRequests.AuthenticationDetails = {};
-a.RequestedShipments.ShipRequests.AuthenticationDetails.VersionId = {};
-a.RequestedShipments.ShipRequests.AuthenticationDetails.VersionId.Major = '5';
-a.RequestedShipments.ShipRequests.AuthenticationDetails.VersionId.Minor = '0';
-a.RequestedShipments.ShipRequests.AuthenticationDetails.VersionId.Intermediate = '1';
-a.RequestedShipments.ShipRequests.AuthenticationDetails.UserID = 'UKFLOOR';
-a.RequestedShipments.ShipRequests.AuthenticationDetails.UserPassword = 'BRIGHT455';
-
-a.RequestedShipments.ShipRequests.Shipments = {};
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment = {};
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient = {};
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.SequenceId = 1;
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.ShipmentReference = 'test';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.ConsigneeReference = '';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact = {};
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.Company = 'Peter Test';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress = {};
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.Street = 'SOUTH STREET';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.District = '';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.County = 'WEST SUSSEX';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.Town = 'CHICHESTER';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.Postcode = 'LE10 3PG';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.CountryCode = 'GB';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactPerson = {};
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactPerson.PersonName = 'Fred Smith';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactPerson.Mobile = '';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactPerson.E_Mail = '';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment = {}
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.SaveNotValid = 'false';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.DespatchDate = '2020-02-25';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.CarrierService = {};
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.CarrierService.ContractNo = '123456';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.CarrierService.Carrier = 'HERMES';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.CarrierService.RouteMapCode = '';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.CarrierService.ServiceCode = 'NDAY';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.SaturdayDeliv = 'false';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.ConsolidateShipment = 'false';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.Instructions = '';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.TotalWeight = '2';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.Packs = '2';
-a.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.ShipmentID = '1';
-a.RequestedShipments.ShipRequests.PrintSpec = {};
-a.RequestedShipments.ShipRequests.PrintSpec.MergeDocs = 'false';
-a.RequestedShipments.ShipRequests.PrintSpec.PrintDocs = 'false';
-a.RequestedShipments.ShipRequests.PrintSpec.LabelPrinter = '';
-a.RequestedShipments.ShipRequests.PrintSpec.LabelSpecType = 'PDF';
-
-
-
-
-
-
-
-
-var b = BBSCommon.json2xml(a, '') 
-
-
 var z = '';
 
 
