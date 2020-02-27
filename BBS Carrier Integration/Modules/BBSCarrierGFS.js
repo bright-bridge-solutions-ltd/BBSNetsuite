@@ -108,7 +108,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 		{
 			//Create a JSON object that represents the structure of the GFS specific request
 			//
-			var cancelShipmentRequestGFS = new _cancelSequestShipmentsGFS();
+			var cancelShipmentRequestGFS = new _cancelShipmentRequestGFS();
 			
 			//Populate the object with the data from the incoming standard message
 			//i.e. populate cancelShipmentRequestGFS with data from _cancelShipmentRequest
@@ -227,6 +227,22 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			this.RequestedCommitShipments.CarrierShipments.CarrierServiceGroups.ServiceType = '';
 		}
 		
+	function _cancelShipmentRequestGFS()
+		{
+			this.RequestedDeleteShipments = {};
+			this.RequestedDeleteShipments.Shipments = {};
+			this.RequestedDeleteShipments.Shipments.AuthenticationDetails = {};
+			this.RequestedDeleteShipments.Shipments.AuthenticationDetails.VersionId = {};
+			this.RequestedDeleteShipments.Shipments.AuthenticationDetails.VersionId.Major = '';
+			this.RequestedDeleteShipments.Shipments.AuthenticationDetails.VersionId.Minor = '';
+			this.RequestedDeleteShipments.Shipments.AuthenticationDetails.VersionId.Intermediate = '';
+			this.RequestedDeleteShipments.Shipments.AuthenticationDetails.UserID = '';
+			this.RequestedDeleteShipments.Shipments.AuthenticationDetails.UserPassword = '';
+			this.RequestedDeleteShipments.Shipments.RequestedShipments = {};
+			this.RequestedDeleteShipments.Shipments.RequestedShipments.ConsignmentNo = '';
+			this.RequestedDeleteShipments.Shipments.RequestedShipments.Carrier = '';
+		}
+	
 	//=========================================================================
 	//Return functions that are available in this module 
 	//=========================================================================
