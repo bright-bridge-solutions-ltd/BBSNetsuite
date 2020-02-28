@@ -168,6 +168,121 @@ function(record, search, xml, BBSObjects)
 			return shippingCarrierInfo;
 		}
 	
+	//Function to find contact details
+	//
+	function _findContactDetails(_customerID)
+		{
+			// lookup fields on the customer record
+			var customerLookup = search.lookupFields({
+				type: search.Type.CUSTOMER,
+				id: _customerID,
+				columns: ['email', 'phone']
+			});
+			
+			// return values from the customerLookup object
+			var customerEmail = customerLookup.email;
+			var customerPhone = customerLookup.phone;
+			
+			// create a contact object
+			var contactInfo = new BBSObjects.contactObject(customerPhone, customerEmail);
+			
+			// return the contact object
+			return contactInfo;
+		}
+	
+	//Function to find address details
+	//
+	function _findAddressDetails(_addressID)
+		{
+			// create search to find address fields for the selected address
+			var addressSearch = search.create({
+				type: search.Type.CUSTOMER,
+				
+				filters: [{
+					name: 'formulanumeric',
+					formula: '{address.addressinternalid}',
+					operator: 'equalto',
+					values: [_addressID]
+				}],
+				
+				columns: [{
+					name: 'addressee',
+					join: 'address'
+				},
+						{
+					name: 'address1',
+					join: 'address'
+				},
+						{
+					name: 'address2',
+					join: 'address'
+				},
+						{
+					name: 'city',
+					join: 'address'
+				},
+						{
+					name: 'state',
+					join: 'address'
+				},
+						{
+					name: 'zipcode',
+					join: 'address'
+				},
+						{
+					name: 'countrycode',
+					join: 'address'
+				}],
+			});
+			
+			// run search and process results
+			addressSearch.run().each(function(result){
+				
+				// get address fields from the search
+				addresse = result.getValue({
+					name: 'addressee',
+					join: 'address'
+				});
+				
+				addressLine1 = result.getValue({
+					name: 'address1',
+					join: 'address'
+				});
+				
+				addressLine2 = result.getValue({
+					name: 'address2',
+					join: 'address'
+				});
+				
+				city = result.getValue({
+					name: 'city',
+					join: 'address'
+				});
+				
+				county = result.getValue({
+					name: 'state',
+					join: 'address'
+				});
+				
+				postcode = result.getValue({
+					name: 'zipcode',
+					join: 'address'
+				});
+				
+				country = result.getValue({
+					name: 'countrycode',
+					join: 'address'
+				});
+				
+			});
+			
+			// create an address object
+			var shippingAddress = new BBSObjects.addressObject(addresse, addressLine1, addressLine2, city, county, postcode, country);
+			
+			// return the address object
+			return shippingAddress;				
+		}
+	
 	
 	//Function to replace a null value with a specific value
 	//
@@ -356,7 +471,9 @@ function(record, search, xml, BBSObjects)
 	    		isNullOrEmpty:			_isNullOrEmpty,
 	    		isNull:					_isNull,
 	    		xml2Json:				_xmlToJson,
-	    		json2xml:				_json2xml
+	    		json2xml:				_json2xml,
+	    		findContactDetails:		_findContactDetails,
+	    		findAddressDetails:		_findAddressDetails
     		};
     
 });

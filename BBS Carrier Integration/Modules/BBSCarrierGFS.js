@@ -67,7 +67,11 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 		{
 			//Create a JSON object that represents the structure of the GFS specific request
 			//
-			var processShipmentRequestGFS = new _processShipmentRequestGFS();
+			var processShipmentRequestGFS = new _processShipmentRequestGFS(_processShipmentRequest);
+			
+			//Return the response
+			//
+			return processShipmentRequestGFS;
 			
 			//Populate the object with the data from the incoming standard message
 			//i.e. populate processShipmentRequestGFS with data from _processShipmentRequest
@@ -77,7 +81,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			
 			//Convert the gfs request object into xml
 			//
-			var xmlRequest = BBSCommon.json2xml(shipmentRequestGFS);
+			var xmlRequest = BBSCommon.json2xml(processShipmentRequestGFS);
 			
 			//Fixup any missing bit of the xml e.g. xml namespaces
 			//
@@ -98,7 +102,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			
 			//Return the response
 			//
-			return processShipmentResponse;
+			return processShipmentRequestGFS;
 		}
 
 	
@@ -119,6 +123,8 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			//Convert the gfs request object into xml
 			//
 			var xmlRequest = BBSCommon.json2xml(cancelShipmentRequestGFS);
+			
+			
 			
 			//Fixup any missing bit of the xml e.g. xml namespaces
 			//
@@ -154,55 +160,55 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 	//GFS Specific Objects
 	//=========================================================================
 	//
-	function _processShipmentRequestGFS()
+	function _processShipmentRequestGFS(shippingRequestData)
 		{
 			this.RequestedShipments = {};
 			this.RequestedShipments.ShipRequests = {};
 			this.RequestedShipments.ShipRequests.AuthenticationDetails = {};
 			this.RequestedShipments.ShipRequests.AuthenticationDetails.VersionId = {};
-			this.RequestedShipments.ShipRequests.AuthenticationDetails.VersionId.Major = '';
-			this.RequestedShipments.ShipRequests.AuthenticationDetails.VersionId.Minor = '';
-			this.RequestedShipments.ShipRequests.AuthenticationDetails.VersionId.Intermediate = '';
-			this.RequestedShipments.ShipRequests.AuthenticationDetails.UserID = '';
-			this.RequestedShipments.ShipRequests.AuthenticationDetails.UserPassword = '';
+			this.RequestedShipments.ShipRequests.AuthenticationDetails.VersionId.Major = shippingRequestData.configuration.majorId;
+			this.RequestedShipments.ShipRequests.AuthenticationDetails.VersionId.Minor = shippingRequestData.configuration.minorId;
+			this.RequestedShipments.ShipRequests.AuthenticationDetails.VersionId.Intermediate = shippingRequestData.configuration.intermediateId;
+			this.RequestedShipments.ShipRequests.AuthenticationDetails.UserID = shippingRequestData.configuration.username;
+			this.RequestedShipments.ShipRequests.AuthenticationDetails.UserPassword = shippingRequestData.configuration.password;
 			this.RequestedShipments.ShipRequests.Shipments = {};
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment = {};
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient = {};
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.SequenceId = '';
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.ShipmentReference = '';
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.ConsigneeReference = '';
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.SequenceId = '1';
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.ShipmentReference = shippingRequestData.shippingReference;
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.ConsigneeReference = shippingRequestData.shippingReference;
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact = {};
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.Company = '';
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.Company = shippingRequestData.address.addresse;
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress = {};
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.Street = '';
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.District = '';
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.County = '';
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.Town = '';
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.Postcode = '';
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.CountryCode = '';
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.Street = shippingRequestData.address.line1;
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.District = shippingRequestData.address.line2;
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.County = shippingRequestData.address.county;
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.Town = shippingRequestData.address.town;
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.Postcode = shippingRequestData.address.postcode;
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.CountryCode = shippingRequestData.address.country;
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactPerson = {};
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactPerson.PersonName = '';
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactPerson.Mobile = '';
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactPerson.E_Mail = '';
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactPerson.PersonName = shippingRequestData.address.addresse;
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactPerson.Mobile = shippingRequestData.contact.mobileNumber;
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactPerson.E_Mail = shippingRequestData.contact.emailAddress;
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment = {}
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.SaveNotValid = '';
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.DespatchDate = '';
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.SaveNotValid = 'false';
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.DespatchDate = shippingRequestData.shippingDate;
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.CarrierService = {};
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.CarrierService.ContractNo = '';
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.CarrierService.Carrier = '';
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.CarrierService.ContractNo = shippingRequestData.shippingItemInfo.carrierContractNo;
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.CarrierService.Carrier = shippingRequestData.shippingItemInfo.subCarrierCode;
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.CarrierService.RouteMapCode = '';
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.CarrierService.ServiceCode = '';
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.SaturdayDeliv = '';
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.ConsolidateShipment = '';
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.CarrierService.ServiceCode = shippingRequestData.shippingItemInfo.serviceCode;
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.SaturdayDeliv = 'false';
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.ConsolidateShipment = 'false';
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.Instructions = '';
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.TotalWeight = '';
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.Packs = '';
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.ShipmentID = '';
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.TotalWeight = shippingRequestData.weight;
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.Packs = shippingRequestData.packageCount;
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.ShipmentID = '1';
 			this.RequestedShipments.ShipRequests.PrintSpec = {};
-			this.RequestedShipments.ShipRequests.PrintSpec.MergeDocs = '';
-			this.RequestedShipments.ShipRequests.PrintSpec.PrintDocs = '';
+			this.RequestedShipments.ShipRequests.PrintSpec.MergeDocs = 'false';
+			this.RequestedShipments.ShipRequests.PrintSpec.PrintDocs = 'false';
 			this.RequestedShipments.ShipRequests.PrintSpec.LabelPrinter = '';
-			this.RequestedShipments.ShipRequests.PrintSpec.LabelSpecType = '';
+			this.RequestedShipments.ShipRequests.PrintSpec.LabelSpecType = 'PDF';
 		}
 	
 	function _commitShipmentsRequestGFS()

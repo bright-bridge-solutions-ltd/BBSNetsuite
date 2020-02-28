@@ -57,12 +57,11 @@ function()
 	
 	//Object to hold the request to create a shipment
 	//
-	function _processShipmentRequest(_configuration, _shippingItemInfo, _shippingReference, _address, _contact, _companyName, _shippingDate, _weight, _packageCount, _labelFormat)
+	function _processShipmentRequest(_configuration, _shippingItemInfo, _shippingReference, _address, _contact, _shippingDate, _weight, _packageCount, _labelFormat)
 		{
 			this.configuration		= _configuration;		//Configuration object
 			this.shippingItemInfo	= _shippingItemInfo;	//Shipping info object
 			this.shippingReference	= _shippingReference;
-			this.companyName		= _companyName;
 			this.shippingDate		= _shippingDate;
 			this.weight				= _weight;
 			this.packageCount		= _packageCount;
@@ -156,8 +155,9 @@ function()
 			this.packageDescription			= _packageDescription;
 		}
 
-	function _addressObject(_line1, line2, _town, _county, _postCode, _countryCode)
+	function _addressObject(_addresse, _line1, _line2, _town, _county, _postCode, _countryCode)
 		{
+			this.addresse		= _addresse;
 			this.line1			= _line1;
 			this.line2			= _line2;
 			this.town			= _town;
@@ -166,9 +166,8 @@ function()
 			this.countryCode	= _countryCode;
 		}
 	
-	function _contactObject(_name, _mobileNumber, _emailaddress)
+	function _contactObject(_mobileNumber, _emailaddress)
 		{
-			this.name 			= _name;
 			this.mobileNumber 	= _mobileNumber;
 			this.emailAddress	= _emailaddress;
 		}
