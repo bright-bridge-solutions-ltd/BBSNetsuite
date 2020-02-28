@@ -6,10 +6,8 @@
   
   	<!--Default assigns-->
   	<#assign logoInfo>https://5554661.app.netsuite.com/core/media/media.nl?id=23854&amp;c=5554661&amp;h=268a7aa2af99ce665d56</#assign>
-  	<#assign regInfo>Company Registration No: 07479524.  Registered Office: 3 Finsbury Avenue, 5th Floor, London, EC2M 2PA, United Kingdom.</#assign>
 	<#assign emailInfo>accounts@onfido.com</#assign>
 	<#assign telInfo>02081333628</#assign>
-	<#assign vatInfo>VAT No: GB 159 2397 76</#assign>
   	<#assign ibanLabel>IBAN:</#assign>
   	<#assign signature>https://5554661.app.netsuite.com/core/media/media.nl?id=53618&amp;c=5554661&amp;h=de3261d7385e0236ef53</#assign>
       
@@ -17,21 +15,33 @@
    	<!--Reassign based on subsidiary-->
   	<#if subsidiary.id == "10"> <!--India-->
       <#assign emailInfo>billing@onfido.com</#assign>
+      <#assign vatInfo></#assign>
+      <#assign regInfo></#assign>
     </#if>
   
   	<#if subsidiary.id == "15"> <!--Singapore-->
+  		<#assign vatInfo></#assign>
+  		<#assign regInfo>Company Registration No: 201915799K. Registered Office: 20 Tanjong Pagar Road, Singapore, 088443</#assign>
     </#if>
   
   	<#if subsidiary.id == "6"> <!--France-->
+  		<#assign vatInfo>VAT No: FR52848016176</#assign>
+  		<#assign regInfo>Siren Number: 848 016 176. Registered Office: 4 Place de la Défense COURBEVOIE 92974 Paris la Défense CEDEX</#assign>
     </#if>
   
   	<#if subsidiary.id == "8"> <!--Portugal-->
+  		<#assign vatInfo>VAT No: PT514029820</#assign>
+  		<#assign regInfo>Company Registration No: 514029820. Registered Office: Avenida D João II, n°46 - 4A, 1990-095 Lisboa</#assign>
     </#if>
   
   	<#if subsidiary.id == "5"> <!--Uk-->
+  		<#assign vatInfo>VAT No: GB 159 2397 76</#assign>
+  		<#assign regInfo>Company Registration No: 07479524. Registered Office: 3 Finsbury Avenue, 5th Floor, London, EC2M 2PA, United Kingdom</#assign>
     </#if>
   
   	<#if subsidiary.id == "9"> <!--USA-->
+  		<#assign vatInfo></#assign>
+  		<#assign regInfo>Registered Office: Suite 623, Werqwise, 149 New Montgomery St., San Francisco, CA 94105</#assign>
     </#if>
   
   
