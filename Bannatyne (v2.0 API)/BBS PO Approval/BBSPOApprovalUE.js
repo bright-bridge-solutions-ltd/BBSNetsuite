@@ -57,10 +57,10 @@ function(runtime) {
     			 * 
     			 * workflowState = 'Pending L2 Approval'
     			 * AND
-    			 * currentUser = nextApprover OR userRole = 3 (Administrator) OR currentUser = 3849 (Angela Trevor)
+    			 * currentUser = nextApprover OR userRole = 3 (Administrator) OR currentUser = 3849 (Angela Trevor) or currentUser = 5096 (Kelly Spence)
     			 */
     			
-    			if ((workflowState == 'Pending L1 Approval' && ((currentUser = nextApprover || userRole == 3) || (currentUser == 178 && approvalRouting == 1))) || (workflowState == 'Pending L2 Approval' && (currentUser == nextApprover || userRole == 3 || currentUser == 3849)))
+    			if ((workflowState == 'Pending L1 Approval' && ((currentUser = nextApprover || userRole == 3) || (currentUser == 178 && approvalRouting == 1))) || (workflowState == 'Pending L2 Approval' && (currentUser == nextApprover || userRole == 3 || currentUser == 3849 || currentUser == 5096)))
     				{
     					// get the ID of the current record
     					var recordID = currentRecord.id;
