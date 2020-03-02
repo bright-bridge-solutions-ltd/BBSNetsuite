@@ -1,4 +1,4 @@
-define(['N/encode', 'N/format', 'N/https', 'N/record', 'N/runtime', 'N/search', 'N/xml',
+define(['N/encode', 'N/format', 'N/http', 'N/record', 'N/runtime', 'N/search', 'N/xml',
         '/SuiteScripts/BBS Carrier Integration/Modules/BBSObjects',								//Objects used to pass info back & forth
         '/SuiteScripts/BBS Carrier Integration/Modules/BBSCommon'								//Common code
         ],
@@ -13,7 +13,7 @@ define(['N/encode', 'N/format', 'N/https', 'N/record', 'N/runtime', 'N/search', 
  * @param {BBSObjects} BBSObjects
  * @param {BBSCommon} BBSCommon
  */
-function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCommon) 
+function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSCommon) 
 {
 	//=========================================================================
 	//Main functions - This module implements the integration to GFS
@@ -65,44 +65,90 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 	//
 	function gfsProcessShipments(_processShipmentRequest)
 		{
-			//Create a JSON object that represents the structure of the GFS specific request
-			//
-			var processShipmentRequestGFS = new _processShipmentRequestGFS(_processShipmentRequest);
-			
-			//Return the response
-			//
-			return processShipmentRequestGFS;
-			
-			//Populate the object with the data from the incoming standard message
-			//i.e. populate processShipmentRequestGFS with data from _processShipmentRequest
-			//
-			
-			//TODO
-			
-			//Convert the gfs request object into xml
-			//
-			var xmlRequest = BBSCommon.json2xml(processShipmentRequestGFS);
-			
-			//Fixup any missing bit of the xml e.g. xml namespaces
-			//
-			
-			//TODO
-			
-			//Send the request to GFS
-			//
-			var xmlResponse = 'something goes here to send the request to gfs';  //TODO call the web service
-			
-			//Convert the xml response back into a JSON object so that it is easier to manipulate
-			//
-			var responseObject = BBSCommon.xml2Json(xmlResponse);
-			
-			//Convert the GFS response object to the standard commit shipments response object
-			//
-			var processShipmentResponse = new BBSObjects.processShipmentResponse();	//TODO fill in parameters to this call etc,
-			
-			//Return the response
-			//
-			return processShipmentRequestGFS;
+			try
+				{		
+					//Create a JSON object that represents the structure of the GFS specific request
+					//
+					var processShipmentRequestGFS = new _processShipmentRequestGFS(_processShipmentRequest);
+					
+					//Populate the object with the data from the incoming standard message
+					//i.e. populate processShipmentRequestGFS with data from _processShipmentRequest
+					//
+					
+					// Declare xmlRequest variable and set SOAP envelope
+					var xmlRequest = '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><SOAP-ENV:Body xmlns:s0="http://justshoutgfs.com/Client/Ship/v5/" xmlns:s1="http://www.w3.org/2001/XMLSchema">';
+					
+					//Convert the gfs request object into xml. Add to xmlRequest variable
+					//
+					xmlRequest += BBSCommon.json2xml(processShipmentRequestGFS);
+					
+					//Fixup any missing bit of the xml e.g. xml namespaces and add envelope
+					//
+					xmlRequest = xmlRequest.replace('<v5:RequestedShipments>','<s0:RequestedShipments>');
+					xmlRequest = xmlRequest.replace('<v5:ShipRequests>','<v5:ShipRequests xmlns:v5="http://justshoutgfs.com/Client/Ship/v5/">');
+					xmlRequest = xmlRequest.replace('</v5:RequestedShipments>','</s0:RequestedShipments>');
+					
+					//Add closing SOAP envelope tags
+					//
+					xmlRequest += '</SOAP-ENV:Body></SOAP-ENV:Envelope>';
+					
+					//Send the request to GFS
+					//
+					var xmlResponse = http.post({
+					     url: _processShipmentRequest.configuration.url,
+					     body: xmlRequest
+					});
+					
+					//Parse the xmlResponse string and convert it to XML
+					//
+					xmlResponse = xml.Parser.fromString({
+						text: xmlResponse.body
+					});
+					
+					//Convert the xml response back into a JSON object so that it is easier to manipulate
+					//
+					var responseObject = BBSCommon.xml2Json(xmlResponse);
+					
+					//Get the status of the response from the responseObject
+					//
+					var responseStatus = responseObject['soap:Envelope']['soap:Body']['ProcessedShipments']['ProcessShipmentsResult']['ResponseStatus']['#text'];
+					
+					//Check the responseObject to see whether a success or error/failure message was returned
+					//
+					if (responseStatus == 'SUCCESS')
+						{
+							//Get the packages from the responseObject
+							var packages = responseObject['soap:Envelope']['soap:Body']['ProcessedShipments']['ProcessShipmentsResult']['Shipments']['ProcessedShipment']['Packages'];
+							
+							//Convert the GFS response object to the standard process shipments response object
+							//
+							var processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, null, packages);
+						}
+					else if (responseStatus == 'ERROR' || responseStatus == 'FAILURE')
+						{
+							//Get the message from the responseObject
+							//
+							var responseMessage = responseObject['soap:Envelope']['soap:Body']['ProcessedShipments']['ProcessShipmentsResult']['Shipments']['ProcessedShipment']['ShipmentStatus']['StatusDescription']['#text'];
+						
+							//Convert the GFS response object to the standard process shipments response object
+							//
+							var processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, responseMessage);
+						}
+					
+					//Return the response
+					//
+					return processShipmentResponse;
+				}
+			catch(e)
+				{
+					//Set the shipment response using the error caught
+					//
+					var processShipmentResponse = new BBSObjects.processShipmentResponse('ERROR', e);
+					
+					//Return the response
+					//
+					return processShipmentResponse;
+				}
 		}
 
 	
@@ -110,42 +156,80 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 	//
 	function gfsCancelShipments(_cancelShipmentRequest)
 		{
-			//Create a JSON object that represents the structure of the GFS specific request
-			//
-			var cancelShipmentRequestGFS = new _cancelShipmentRequestGFS();
-			
-			//Populate the object with the data from the incoming standard message
-			//i.e. populate cancelShipmentRequestGFS with data from _cancelShipmentRequest
-			//
-			
-			//TODO
-			
-			//Convert the gfs request object into xml
-			//
-			var xmlRequest = BBSCommon.json2xml(cancelShipmentRequestGFS);
-			
-			
-			
-			//Fixup any missing bit of the xml e.g. xml namespaces
-			//
-			
-			//TODO
-			
-			//Send the request to GFS
-			//
-			var xmlResponse = 'something goes here to send the request to gfs';  //TODO call the web service
-			
-			//Convert the xml response back into a JSON object so that it is easier to manipulate
-			//
-			var responseObject = BBSCommon.xml2Json(xmlResponse);
-			
-			//Convert the GFS response object to the standard commit shipments response object
-			//
-			var cancelShipmentResponse = new BBSObjects.cancelShipmentResponse();	//TODO fill in parameters to this call etc,
-			
-			//Return the response
-			//
-			return cancelShipmentResponse;
+			try
+				{
+					//Create a JSON object that represents the structure of the GFS specific request
+					//
+					var cancelShipmentRequestGFS = new _cancelShipmentRequestGFS(_cancelShipmentRequest);
+					
+					//Populate the object with the data from the incoming standard message
+					//i.e. populate cancelShipmentRequestGFS with data from _cancelShipmentRequest
+					//
+					
+					// Declare xmlRequest variable and set SOAP envelope
+					var xmlRequest = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v5="http://justshoutgfs.com/Client/Ship/v5/"><soapenv:Body>';
+					
+					//Convert the gfs request object into xml. Add to xmlRequest variable
+					//
+					xmlRequest += BBSCommon.json2xml(cancelShipmentRequestGFS);
+					
+					//Add closing SOAP envelope tags
+					//
+					xmlRequest += '</soapenv:Body></soapenv:Envelope>';
+					
+					//Send the request to GFS
+					//
+					var xmlResponse = http.post({
+					     url: _cancelShipmentRequest.configuration.url,
+					     body: xmlRequest
+					});
+					
+					//Parse the xmlResponse string and convert it to XML
+					//
+					xmlResponse = xml.Parser.fromString({
+						text: xmlResponse.body
+					});
+					
+					//Convert the xml response back into a JSON object so that it is easier to manipulate
+					//
+					var responseObject = BBSCommon.xml2Json(xmlResponse);
+					
+					//Get the status of the response from the responseObject
+					//
+					var responseStatus = responseObject['soap:Envelope']['soap:Body']['ProcessedDeleteShipments']['DeleteShipmentsResult']['Shipments']['Status']['Status']['#text'];
+					
+					//Check responseStatus to see whether a success or error/failure message was returned
+					//
+					if (responseStatus == 'SUCCESS')
+						{
+							//Convert the GFS response object to the standard commit shipments response object
+							//
+							var cancelShipmentResponse = new BBSObjects.cancelShipmentResponse(responseStatus, null);
+						}
+					else if (responseStatus == 'ERROR' || responseStatus == 'FAILURE')
+						{
+							//Get the error message from the responseObject
+							var responseMessage = responseObject['soap:Envelope']['soap:Body']['ProcessedDeleteShipments']['DeleteShipmentsResult']['Shipments']['Status']['StatusDescription']['#text'];
+							
+							//Convert the GFS response object to the standard commit shipments response object
+							//
+							var cancelShipmentResponse = new BBSObjects.cancelShipmentResponse(responseStatus, responseMessage);
+						}
+					
+					//Return the response
+					//
+					return cancelShipmentResponse;
+				}
+			catch(e)
+				{
+					//Set the shipment response using the error caught
+					//
+					var processShipmentResponse = new BBSObjects.processShipmentResponse('ERROR', e);
+					
+					//Return the response
+					//
+					return processShipmentResponse;
+				}
 		}
 
 	
@@ -184,8 +268,8 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.District = shippingRequestData.address.line2;
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.County = shippingRequestData.address.county;
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.Town = shippingRequestData.address.town;
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.Postcode = shippingRequestData.address.postcode;
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.CountryCode = shippingRequestData.address.country;
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.Postcode = shippingRequestData.address.postCode;
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactAddress.CountryCode = shippingRequestData.address.countryCode;
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactPerson = {};
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactPerson.PersonName = shippingRequestData.address.addresse;
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Recipient.AddressAndContact.ContactPerson.Mobile = shippingRequestData.contact.mobileNumber;
@@ -233,20 +317,20 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			this.RequestedCommitShipments.CarrierShipments.CarrierServiceGroups.ServiceType = '';
 		}
 		
-	function _cancelShipmentRequestGFS()
+	function _cancelShipmentRequestGFS(shippingRequestData)
 		{
 			this.RequestedDeleteShipments = {};
 			this.RequestedDeleteShipments.Shipments = {};
 			this.RequestedDeleteShipments.Shipments.AuthenticationDetails = {};
 			this.RequestedDeleteShipments.Shipments.AuthenticationDetails.VersionId = {};
-			this.RequestedDeleteShipments.Shipments.AuthenticationDetails.VersionId.Major = '';
-			this.RequestedDeleteShipments.Shipments.AuthenticationDetails.VersionId.Minor = '';
-			this.RequestedDeleteShipments.Shipments.AuthenticationDetails.VersionId.Intermediate = '';
-			this.RequestedDeleteShipments.Shipments.AuthenticationDetails.UserID = '';
-			this.RequestedDeleteShipments.Shipments.AuthenticationDetails.UserPassword = '';
+			this.RequestedDeleteShipments.Shipments.AuthenticationDetails.VersionId.Major = shippingRequestData.configuration.majorId;
+			this.RequestedDeleteShipments.Shipments.AuthenticationDetails.VersionId.Minor = shippingRequestData.configuration.minorId;
+			this.RequestedDeleteShipments.Shipments.AuthenticationDetails.VersionId.Intermediate = shippingRequestData.configuration.intermediateId;
+			this.RequestedDeleteShipments.Shipments.AuthenticationDetails.UserID = shippingRequestData.configuration.username;
+			this.RequestedDeleteShipments.Shipments.AuthenticationDetails.UserPassword = shippingRequestData.configuration.password;
 			this.RequestedDeleteShipments.Shipments.RequestedShipments = {};
-			this.RequestedDeleteShipments.Shipments.RequestedShipments.ConsignmentNo = '';
-			this.RequestedDeleteShipments.Shipments.RequestedShipments.Carrier = '';
+			this.RequestedDeleteShipments.Shipments.RequestedShipments.ConsignmentNo = shippingRequestData.consignmentNumber;
+			this.RequestedDeleteShipments.Shipments.RequestedShipments.Carrier = shippingRequestData.carrier;
 		}
 	
 	//=========================================================================
