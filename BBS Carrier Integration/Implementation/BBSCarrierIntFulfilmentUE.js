@@ -111,20 +111,14 @@ function(runtime, record, search, file, email, BBSObjects, BBSCommon, BBSCarrier
 	    								// check if month is less than 10
 	    								if (month < 10)
 	    									{
-	    										// convert month to a string
-	    										month = JSON.stringify(month);
-	    										
-	    										// add a 0 to the start of the month string
+	    										// add a 0 to the start of the month
 	    										month = '0' + month;
 	    									}
 	    								
 	    								// check if date is less than 10
 	    								if (date < 10)
 	    									{
-	    										// convert date to a string
-	    										date = JSON.stringify(date);
-	    										
-	    										// add a 0 to the start of the date string
+	    										// add a 0 to the start of the date
 	    										date = '0' + date;
 	    									}
 	    								
@@ -150,11 +144,6 @@ function(runtime, record, search, file, email, BBSObjects, BBSCommon, BBSCarrier
 			    									//Send the request to the specific carrier
 			    									//
 			    									var processShipmentsResponse = BBSCarrierGFS.carrierProcessShipments(processShipmentsRequest);	//Pass in the info gleaned from the IF record here
-			    									
-			    									log.debug({
-			    										title: 'processShipmentsResponse',
-			    										details: processShipmentsResponse
-			    									});
 			    									
 			    									// check if we have got a success message back
 			    									if (processShipmentsResponse['status'] == 'SUCCESS')
