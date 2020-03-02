@@ -117,14 +117,25 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 					//
 					if (responseStatus == 'SUCCESS')
 						{
+							//Get the consignment number from the responseObject
+							//
+							var consignmentNumber = responseObject['soap:Envelope']['soap:Body']['ProcessedShipments']['ProcessShipmentsResult']['Shipments']['ProcessedShipment']['ConsignmentNo']['#text']
+						
 							//Get the packages from the responseObject
 							var packages = responseObject['soap:Envelope']['soap:Body']['ProcessedShipments']['ProcessShipmentsResult']['Shipments']['ProcessedShipment']['Packages'];
 							
 							//Convert the GFS response object to the standard process shipments response object
 							//
-							var processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, null, packages);
+							var processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, null, consignmentNumber);
+							
+							// loop through packages
+							for (var i=0; i < packages.length; i++)
+								{
+									// add packages to processShipmentResponse
+									processShipmentResponse.addPackage(packages[i]['SequenceID']['#text'],packages[i]['PackageNo']['#text'],packages[i]['Labels']['Image']['#text'],packages[i]['Labels']['DocumentType']['#text']);
+								}
 						}
-					else if (responseStatus == 'ERROR' || responseStatus == 'FAILURE')
+					else
 						{
 							//Get the message from the responseObject
 							//
@@ -292,7 +303,7 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 			this.RequestedShipments.ShipRequests.PrintSpec.MergeDocs = 'false';
 			this.RequestedShipments.ShipRequests.PrintSpec.PrintDocs = 'false';
 			this.RequestedShipments.ShipRequests.PrintSpec.LabelPrinter = '';
-			this.RequestedShipments.ShipRequests.PrintSpec.LabelSpecType = 'PNG';
+			this.RequestedShipments.ShipRequests.PrintSpec.LabelSpecType = shippingRequestData.labelFormat;
 		}
 	
 	function _commitShipmentsRequestGFS()
