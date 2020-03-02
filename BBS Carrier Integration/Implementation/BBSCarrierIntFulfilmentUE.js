@@ -154,8 +154,8 @@ function(runtime, record, search, file, email, BBSObjects, BBSCommon, BBSCarrier
 			    											
 			    											// create a PDF of the courier label and store in the file cabinet
 					    									var courierLabel = file.create({
-					    										fileType: file.Type.PDF,
-					    										name: consignmentNumber + '.pdf',
+					    										fileType: file.Type.PNGIMAGE,
+					    										name: consignmentNumber + '.png',
 					    										contents: labelImage,
 					    										folder: fileCabinetFolder,
 					    										isOnline: true

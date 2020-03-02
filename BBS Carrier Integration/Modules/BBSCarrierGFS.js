@@ -292,7 +292,7 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 			this.RequestedShipments.ShipRequests.PrintSpec.MergeDocs = 'false';
 			this.RequestedShipments.ShipRequests.PrintSpec.PrintDocs = 'false';
 			this.RequestedShipments.ShipRequests.PrintSpec.LabelPrinter = '';
-			this.RequestedShipments.ShipRequests.PrintSpec.LabelSpecType = 'PDF';
+			this.RequestedShipments.ShipRequests.PrintSpec.LabelSpecType = 'PNG';
 		}
 	
 	function _commitShipmentsRequestGFS()
