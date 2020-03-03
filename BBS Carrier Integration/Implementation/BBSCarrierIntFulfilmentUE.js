@@ -327,25 +327,68 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 	    									fieldId: 'custbody_bbs_number_of_packages'
 	    								});
 	    								
+	    								// check if packageCount is empty
+	    								if (packageCount == '')
+	    									{
+	    										// set packageCount to 1
+	    										packageCount = 1;
+	    									}
+	    								
 	    								var customerID = newRecord.getValue({
 	    									fieldId: 'entity'
 	    								});
 	    								
-	    								var addressID = newRecord.getValue({
-	    									fieldId: 'shipaddresslist'
+	    								// reload the item fulfillment record
+	    								var itemFulfillmentRecord = record.load({
+	    									type: record.Type.ITEM_FULFILLMENT,
+	    									id: recordID
 	    								});
+	    								
+	    								// get the shipping address subrecord
+	    								var shippingAddressSubrecord = itemFulfillmentRecord.getSubrecord({
+	    									fieldId: 'shippingaddress'
+	    								});
+	    								
+	    								// get shipping address fields
+	    								var addresse = shippingAddressSubrecord.getValue({
+	    									fieldId: 'addressee'
+	    								});
+	    								
+	    								var addressLine1 = shippingAddressSubrecord.getValue({
+	    									fieldId: 'addr1'
+	    								});
+	    								
+	    								var addressLine2 = shippingAddressSubrecord.getValue({
+	    									fieldId: 'addr2'
+	    								});
+	    								
+	    								var city = shippingAddressSubrecord.getValue({
+	    									fieldId: 'city'
+	    								});
+	    								
+	    								var county = shippingAddressSubrecord.getValue({
+	    									fieldId: 'state'
+	    								});
+	    								
+	    								var postcode = shippingAddressSubrecord.getValue({
+	    									fieldId: 'zip'
+	    								});
+	    								
+	    								var country = shippingAddressSubrecord.getValue({
+	    									fieldId: 'country'
+	    								});
+	    								
+	    								// create an address object
+	    								var shippingAddress = new BBSObjects.addressObject(addresse, addressLine1, addressLine2, city, county, postcode, country);
 	    								
 	    								// get today's date
 	    								var today = new Date();
 	    								
-	    								// format in the following format YYYY-MM-DD
+	    								// format today's date in the following format YYYY-MM-DD
 	    								var despatchDate = today.format('Y-m-d');
 	    								
 	    								// call function to find contact details for the customer. Contact object will be returned
 	    								var contactInfo = new BBSCommon.findContactDetails(customerID);
-	    								
-	    								// call function to find the full address. Address object will be returned
-	    								var shippingAddress = new BBSCommon.findAddressDetails(addressID);
 	    								
 	    								//Build up the process shipments request object
 	    								//
