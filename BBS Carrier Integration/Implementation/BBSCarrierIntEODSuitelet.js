@@ -3,7 +3,7 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/search', 'N/task', 'N/ui/serverWidget', 'N/ui/dialog', 'N/ui/message','N/format', 'N/http','N/record',
+define(['N/runtime', 'N/search', 'N/task', 'N/ui/serverWidget', 'N/ui/dialog', 'N/ui/message','N/format', 'N/http','N/record','N/xml','N/render','N/file',
         '/SuiteScripts/BBS Carrier Integration/Modules/BBSObjects',		//Objects used to pass info back & forth
         '/SuiteScripts/BBS Carrier Integration/Modules/BBSCommon',		//Common code
         '/SuiteScripts/BBS Carrier Integration/Modules/BBSCarrierGFS'	//GFS integration module
@@ -16,7 +16,7 @@ define(['N/runtime', 'N/search', 'N/task', 'N/ui/serverWidget', 'N/ui/dialog', '
  * @param {dialog} dialog
  * @param {message} message
  */
-function(runtime, search, task, serverWidget, dialog, message, format, http, record, BBSObjects, BBSCommon, BBSCarrierGFS) 
+function(runtime, search, task, serverWidget, dialog, message, format, http, record, xml, render, file, BBSObjects, BBSCommon, BBSCarrierGFS) 
 {
    
     /**
@@ -186,26 +186,58 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 											var commitShipmentRequest = new BBSObjects.commitShipmentRequest(integrationObject, carrierName, 'ANY', '1', 'PDF');
 										
 											switch(integratorName)
-	    									{
-			    								case 'GFS':
-			    								
-			    									//Send the request to the specific carrier
-			    									//
-			    									var commitShipmentResponse = BBSCarrierGFS.carrierCommitShipments(commitShipmentRequest);	
-			    									
-			    									//Process the response from the carrier
-			    									//
-			    									
-			    									break;
-			    									
-			    								//Other integration implementations go here
-			    								//
-	    									}
-	    								
+		    									{
+				    								case 'GFS':
+				    								
+				    									//Send the request to the specific carrier
+				    									//
+				    									var commitShipmentResponse = BBSCarrierGFS.carrierCommitShipments(commitShipmentRequest);	
+				    									
+				    									//Process the response from the carrier
+				    									//
+				    									if(commitShipmentResponse.status == 'SUCCESS')
+				    										{
+				    											//Do something with the manifest file
+				    											//
+				    											var manifestFile = file.create({
+				    																			name:			'manifest.pdf',
+				    																			fileType:		file.Type.PDF,
+				    																			contents:		commitShipmentResponse.manifest,
+				    																			description:	'Manifest File',
+				    																			folder:			-4,
+				    																			isOnline:		true
+				    																			});
+				    											
+				    											context.response.writeFile({	
+				    																		file:		manifestFile,
+				    																		isInline:	true
+				    																		});
+				    										}
+				    									else
+				    										{
+				    											//Show the warning / error message
+				    											//
+				    											var xml = "<?xml version=\"1.0\"?>\n<!DOCTYPE pdf PUBLIC \"-//big.faceless.org//report\" \"report-1.1.dtd\">\n";
+				    											xml += "<pdf>"
+				    											xml += "<head>";
+				    											xml += "</head>";
+				    											xml += "<body padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+				    											xml += "<p>" + commitShipmentResponse.status + ' : ' + commitShipmentResponse.message + "</p>";
+				    											xml += "</body>";
+				    											xml += "</pdf>";
+				    											
+				    											//Return the pdf to the user
+				    											//
+				    											context.response.renderPdf(xml);
+				    										}
+				    									
+				    									
+				    									break;
+				    									
+				    								//Other integration implementations go here
+				    								//
+		    									}
 										}
-									
-									
-									
 								}
 						}
 		        }
@@ -229,6 +261,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 	
 	    	return results;
 	    }
+
 
     
     return {onRequest: onRequest};

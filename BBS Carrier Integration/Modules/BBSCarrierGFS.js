@@ -23,42 +23,100 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 	//Function to commit the shipments to the GFS core systems at the end of day
 	//
 	function gfsCommitShipments(_commitShipmentRequest)
-		{
-			//Create a JSON object that represents the structure of the GFS specific request
-			//
-			var commitShipmentsRequestGFS = new _commitShipmentsRequestGFS();
-			
-			//Populate the object with the data from the incoming standard message
-			//i.e. populate commitShipmentsRequestGFS with data from _commitShipmentRequest
-			//
-			
-			//TODO
-			
-			//Convert the gfs request object into xml
-			//
-			var xmlRequest = BBSCommon.json2xml(commitShipmentGFS);
-			
-			//Fixup any missing bit of the xml e.g. xml namespaces
-			//
-			
-			//TODO
-			
-			//Send the request to GFS
-			//
-			var xmlResponse = 'something goes here to send the request to gfs';  //TODO call the web service
-			
-			//Convert the xml response back into a JSON object so that it is easier to manipulate
-			//
-			var responseObject = BBSCommon.xml2Json(xmlResponse);
-			
-			//Convert the GFS response object to the standard commit shipments response object
-			//
-			var commitShipmentResponse = new BBSObjects.commitShipmentResponse();	//TODO fill in parameters to this call etc,
-			
-			//Return the response
-			//
-			return commitShipmentResponse;
-		}
+	{
+		try
+			{
+				//Create a JSON object that represents the structure of the GFS specific request
+				//
+				var commitShipmentsRequestGFS = new _commitShipmentsRequestGFS();
+				
+				//Populate the object with the data from the incoming standard message
+				//i.e. populate commitShipmentsRequestGFS with data from _commitShipmentRequest
+				//
+				
+				commitShipmentsRequestGFS.RequestedCommitShipments.CarrierShipments.ManifestCopies 									= _commitShipmentRequest.manifestCopies;
+				commitShipmentsRequestGFS.RequestedCommitShipments.CarrierShipments.PrintSpecification.MergeDocs 					= 'false';
+				commitShipmentsRequestGFS.RequestedCommitShipments.CarrierShipments.PrintSpecification.PrintDocs 					= 'false';
+				commitShipmentsRequestGFS.RequestedCommitShipments.CarrierShipments.PrintSpecification.ThermalPdf 					= 'false';
+				commitShipmentsRequestGFS.RequestedCommitShipments.CarrierShipments.PrintSpecification.LabelSpecType 				= _commitShipmentRequest.manifestType;
+				commitShipmentsRequestGFS.RequestedCommitShipments.CarrierShipments.CarrierServiceGroups.Carrier 					= _commitShipmentRequest.carrier;
+				commitShipmentsRequestGFS.RequestedCommitShipments.CarrierShipments.CarrierServiceGroups.ServiceType 				= _commitShipmentRequest.serviceType;
+				commitShipmentsRequestGFS.RequestedCommitShipments.CarrierShipments.AuthenticationDetails.VersionId.Major 			= _commitShipmentRequest.configuration.majorId;
+				commitShipmentsRequestGFS.RequestedCommitShipments.CarrierShipments.AuthenticationDetails.VersionId.Minor 			= _commitShipmentRequest.configuration.minorId;
+				commitShipmentsRequestGFS.RequestedCommitShipments.CarrierShipments.AuthenticationDetails.VersionId.Intermediate 	= _commitShipmentRequest.configuration.intermediateId;
+				commitShipmentsRequestGFS.RequestedCommitShipments.CarrierShipments.AuthenticationDetails.UserID 					= _commitShipmentRequest.configuration.username;
+				commitShipmentsRequestGFS.RequestedCommitShipments.CarrierShipments.AuthenticationDetails.UserPassword 				= _commitShipmentRequest.configuration.password;
+				
+				// Declare xmlRequest variable and set SOAP envelope
+				var xmlRequest = '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:v5="http://justshoutgfs.com/Client/Ship/v5/"><SOAP-ENV:Body>';
+				
+				//Convert the gfs request object into xml
+				//
+				xmlRequest += BBSCommon.json2xml(commitShipmentsRequestGFS);
+		
+				//Add closing SOAP envelope tags
+				//
+				xmlRequest += '</SOAP-ENV:Body></SOAP-ENV:Envelope>';
+		
+				//Send the request to GFS
+				//
+				var xmlResponse = http.post({
+				     							url: _commitShipmentRequest.configuration.url,
+				     							body: xmlRequest
+											});
+				
+				//Parse the xmlResponse string and convert it to XML
+				//
+				xmlResponse = xml.Parser.fromString({text: xmlResponse.body});
+				
+				//Convert the xml response back into a JSON object so that it is easier to manipulate
+				//
+				var responseObject = BBSCommon.xml2Json(xmlResponse);
+				
+				//Get the status of the response from the responseObject
+				//
+				var responseStatus = responseObject['soap:Envelope']['soap:Body']['ProcessedCommitShipments']['CommitShipmentsResult']['Status']['#text'];
+				
+				//Check the responseObject to see whether a success or error/failure message was returned
+				//
+				if (responseStatus == 'SUCCESS')
+					{
+						//Get the packages from the responseObject
+						//
+						var manifestImage = responseObject['soap:Envelope']['soap:Body']['ProcessedCommitShipments']['CommitShipmentsResult']['CarrierDocuments']['PrintDocument']['Image']['#text'];
+						
+						//Convert the GFS response object to the standard commit shipments response object
+						//
+						var commitShipmentResponse = new BBSObjects.commitShipmentResponse(responseStatus, '', manifestImage);
+						
+					}
+				else if (responseStatus == 'ERROR' || responseStatus == 'FAILURE' || responseStatus == 'WARNING')
+					{
+						//Get the message from the responseObject
+						//
+						var responseMessage = responseObject['soap:Envelope']['soap:Body']['ProcessedCommitShipments']['CommitShipmentsResult']['CarrierDocuments']['ResponseDetails']['StatusMessage']['#text'];
+					
+						//Convert the GFS response object to the standard commit shipments response object
+						//
+						var commitShipmentResponse = new BBSObjects.commitShipmentResponse(responseStatus, responseMessage, null);	
+					}
+		
+				//Return the response
+				//
+				return commitShipmentResponse;
+			}
+		catch(e)
+			{
+				//Set the shipment response using the error caught
+				//
+				var commitShipmentResponse = new BBSObjects.commitShipmentResponse('ERROR', e);
+				
+				//Return the response
+				//
+				return commitShipmentResponse;
+			}
+	}
+
 	
 	
 	//Function to send a shipment request to GFS
