@@ -167,52 +167,65 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 					//
 					var responseObject = BBSCommon.xml2Json(xmlResponse);
 					
-					//Get the status of the response from the responseObject
-					//
-					var responseStatus = responseObject['soap:Envelope']['soap:Body']['ProcessedShipments']['ProcessShipmentsResult']['ResponseStatus']['#text'];
-					
-					//Check the responseObject to see whether a success or error/failure message was returned
-					//
-					if (responseStatus == 'SUCCESS')
+					// check if we have a soap fault
+					if (responseObject['soap:Envelope']['soap:Body']['soap:Fault'])
 						{
-							//Get the consignment number from the responseObject
-							//
-							var consignmentNumber = responseObject['soap:Envelope']['soap:Body']['ProcessedShipments']['ProcessShipmentsResult']['Shipments']['ProcessedShipment']['ConsignmentNo']['#text']
-						
-							//Get the packages from the responseObject
-							var packages = responseObject['soap:Envelope']['soap:Body']['ProcessedShipments']['ProcessShipmentsResult']['Shipments']['ProcessedShipment']['Packages'];
+							// get the soap fault
+							var responseMessage = responseObject['soap:Envelope']['soap:Body']['soap:Fault']['faultstring']['#text'];
 							
 							//Convert the GFS response object to the standard process shipments response object
 							//
-							var processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, null, consignmentNumber);
-							
-							// check if we have more than one package
-							if (packages.length)
-								{
-									// loop through packages
-									for (var i = 0; i < packages.length; i++)
-										{
-											// add packages to processShipmentResponse
-											processShipmentResponse.addPackage(packages[i]['SequenceID']['#text'],packages[i]['PackageNo']['#text'],packages[i]['Labels']['Image']['#text'],packages[i]['Labels']['DocumentType']['#text']);
-										}
-								}
-							else // only one package
-								{
-									// add packages to processShipmentResponse
-									processShipmentResponse.addPackage(packages['SequenceID']['#text'],packages['PackageNo']['#text'],packages['Labels']['Image']['#text'],packages['Labels']['DocumentType']['#text']);
-								}
+							var processShipmentResponse = new BBSObjects.processShipmentResponse(null, responseMessage);
 						}
 					else
 						{
-							//Get the message from the responseObject
+							//Get the status of the response from the responseObject
 							//
-							var responseMessage = responseObject['soap:Envelope']['soap:Body']['ProcessedShipments']['ProcessShipmentsResult']['Shipments']['ProcessedShipment']['ShipmentStatus']['StatusDescription']['#text'];
-						
-							//Convert the GFS response object to the standard process shipments response object
+							var responseStatus = responseObject['soap:Envelope']['soap:Body']['ProcessedShipments']['ProcessShipmentsResult']['ResponseStatus']['#text'];
+							
+							//Check the responseObject to see whether a success or error/failure message was returned
 							//
-							var processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, responseMessage);
+							if (responseStatus == 'SUCCESS')
+								{
+									//Get the consignment number from the responseObject
+									//
+									var consignmentNumber = responseObject['soap:Envelope']['soap:Body']['ProcessedShipments']['ProcessShipmentsResult']['Shipments']['ProcessedShipment']['ConsignmentNo']['#text']
+								
+									//Get the packages from the responseObject
+									var packages = responseObject['soap:Envelope']['soap:Body']['ProcessedShipments']['ProcessShipmentsResult']['Shipments']['ProcessedShipment']['Packages'];
+									
+									//Convert the GFS response object to the standard process shipments response object
+									//
+									var processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, null, consignmentNumber);
+									
+									// check if we have more than one package
+									if (packages.length)
+										{
+											// loop through packages
+											for (var i = 0; i < packages.length; i++)
+												{
+													// add packages to processShipmentResponse
+													processShipmentResponse.addPackage(packages[i]['SequenceID']['#text'],packages[i]['PackageNo']['#text'],packages[i]['Labels']['Image']['#text'],packages[i]['Labels']['DocumentType']['#text']);
+												}
+										}
+									else // only one package
+										{
+											// add packages to processShipmentResponse
+											processShipmentResponse.addPackage(packages['SequenceID']['#text'],packages['PackageNo']['#text'],packages['Labels']['Image']['#text'],packages['Labels']['DocumentType']['#text']);
+										}
+								}
+							else
+								{
+									//Get the message from the responseObject
+									//
+									var responseMessage = responseObject['soap:Envelope']['soap:Body']['ProcessedShipments']['ProcessShipmentsResult']['Shipments']['ProcessedShipment']['ShipmentStatus']['StatusDescription']['#text'];
+								
+									//Convert the GFS response object to the standard process shipments response object
+									//
+									var processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, responseMessage);
+								}
 						}
-					
+							
 					//Return the response
 					//
 					return processShipmentResponse;

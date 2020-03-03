@@ -30,7 +30,7 @@ function(search, render) {
     	// build up the XML
     	xml = "<?xml version=\"1.0\"?>\n<!DOCTYPE pdf PUBLIC \"-//big.faceless.org//report\" \"report-1.1.dtd\">\n";
 		xml += "<pdf>"
-		xml += "<body>";
+		xml += "<body padding=\"20px 20px 20px 20px\" size=\"A4\">";
     	
     	// create search to find courier labels attached to the item fulfilment
     	var fileSearch = search.create({
@@ -65,7 +65,7 @@ function(search, render) {
     		imageURL = imageURL.replace(/&/g, '&amp;'); // replace the & symbol with &amp;
     		
     		// add image to the xml
-    		xml += '<img src="' + imageURL + '" style="height: 1100px; width: 700px;"/>'
+    		xml += '<img src="' + imageURL + '" style="height: 1000px; width: 700px;"/>'
     		
     		// continue processing search results
     		return true;
