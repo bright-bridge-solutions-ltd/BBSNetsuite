@@ -186,11 +186,20 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 							//
 							var processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, null, consignmentNumber);
 							
-							// loop through packages
-							for (var i=0; i < packages.length; i++)
+							// check if we have more than one package
+							if (packages.length)
+								{
+									// loop through packages
+									for (var i = 0; i < packages.length; i++)
+										{
+											// add packages to processShipmentResponse
+											processShipmentResponse.addPackage(packages[i]['SequenceID']['#text'],packages[i]['PackageNo']['#text'],packages[i]['Labels']['Image']['#text'],packages[i]['Labels']['DocumentType']['#text']);
+										}
+								}
+							else // only one package
 								{
 									// add packages to processShipmentResponse
-									processShipmentResponse.addPackage(packages[i]['SequenceID']['#text'],packages[i]['PackageNo']['#text'],packages[i]['Labels']['Image']['#text'],packages[i]['Labels']['DocumentType']['#text']);
+									processShipmentResponse.addPackage(packages['SequenceID']['#text'],packages['PackageNo']['#text'],packages['Labels']['Image']['#text'],packages['Labels']['DocumentType']['#text']);
 								}
 						}
 					else

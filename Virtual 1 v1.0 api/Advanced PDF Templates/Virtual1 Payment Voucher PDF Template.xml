@@ -2,7 +2,7 @@
 <pdf>
 <head>
 
-  	<link name="Montserrat" type="font" subtype="opentype" src="https://system.eu1.netsuite.com/core/media/media.nl?id=1434&amp;c=5117415_SB1&amp;h=9f0c70eae5232e02168a&amp;_xt=.ttf" src-bold="https://system.eu1.netsuite.com/core/media/media.nl?id=1435&amp;c=5117415_SB1&amp;h=f330fe8bca81f8f2cbeb&amp;_xt=.ttf"  bytes="2" />
+  	<link name="Montserrat" type="font" subtype="opentype" src="https://5117415.app.netsuite.com/core/media/media.nl?id=1056&amp;c=5117415&amp;h=ad351ab8b2e8d1f95b4c&amp;_xt=.ttff" src-bold="https://5117415.app.netsuite.com/core/media/media.nl?id=1055&amp;c=5117415&amp;h=ffd4a85025eb08527793&amp;_xt=.ttf"  bytes="2" />
 	<#assign todaysDate = .now>
 	
 	<macrolist>
@@ -20,7 +20,7 @@
         <macro id="nlheader">
             <table class="header" style="width: 100%;">
 			<tr>
-				<td align="left"><img src="https://system.eu1.netsuite.com/core/media/media.nl?id=1333&amp;c=5117415_SB1&amp;h=fe6f7221ff6a620f5628" style="float: left; width:131px; height:75px;" /></td>
+				<td align="left"><img src="https://5117415.app.netsuite.com/core/media/media.nl?id=737&amp;c=5117415&amp;h=171a5fc472e678688b27" style="float: left; width:131px; height:75px;" /></td>
 			</tr>
 			</table>
 

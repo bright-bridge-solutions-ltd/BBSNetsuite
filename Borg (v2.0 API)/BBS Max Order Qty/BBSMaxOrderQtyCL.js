@@ -3,11 +3,11 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/search', 'N/ui/dialog'],
+define(['N/runtime', 'N/search', 'N/ui/dialog'],
 /**
  * @param {search} search
  */
-function(search, dialog) {
+function(runtime, search, dialog) {
     
     /**
      * Function to be executed after page is initialized.
@@ -117,6 +117,12 @@ function(search, dialog) {
 			sublistId: 'item',
 			fieldId: 'item'
 		});
+		
+		// log the current user and role
+    	log.audit({
+    		title: 'Script Check',
+    		details: 'Item ID: ' + itemID + '<br>User ID: ' + runtime.getCurrentUser().name + '<br>User Role: ' + runtime.getCurrentUser().role
+    	});
 		
 		// lookup fields on the item record
 		var itemRecordLookup = search.lookupFields({

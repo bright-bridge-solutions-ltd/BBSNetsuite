@@ -7,6 +7,7 @@
 
 define([
         'N/runtime',
+        'N/url',
 		'N/record',
         'N/search',
         'N/file',
@@ -18,7 +19,7 @@ define([
 /**
  * @param {record} record
  */
-function(runtime, record, search, file, email, BBSObjects, BBSCommon, BBSCarrierGFS) 
+function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCarrierGFS) 
 {
 	
 	//=============================================================================================
@@ -205,6 +206,55 @@ function(runtime, record, search, file, email, BBSObjects, BBSCommon, BBSCarrier
 
 	}).call(this);
 	
+	/**
+     * Function definition to be triggered before record is loaded.
+     *
+     * @param {Object} scriptContext
+     * @param {Record} scriptContext.newRecord - New record
+     * @param {string} scriptContext.type - Trigger type
+     * @param {Form} scriptContext.form - Current form
+     * @Since 2015.2
+     */
+    function carrierIntFulfilmentBL(scriptContext) {
+    	
+    	
+    	// check that the record is being viewed
+    	if (scriptContext.type == 'view')
+    		{
+	    		// get the current record
+    			var currentRecord = scriptContext.newRecord;
+    			
+    			// get the value of the BBS [CI] CONSIGNMENT NUMBER field
+    			var consignmentNumber = currentRecord.getValue({
+	    	    	fieldId: 'custbody_bbs_ci_consignment_number'
+	    	    });
+    			
+    			// check if the consignmentNumber variable returns a value
+    			if (consignmentNumber)
+    				{
+	    				// get the internal ID of the current record
+	    	        	var currentRecordID = currentRecord.id;
+	    	        	
+	    	        	// define URL of Suitelet
+						var suiteletURL = url.resolveScript({
+							scriptId: 'customscript_bbs_carrier_int_label_sl',
+							deploymentId: 'customdeploy_bbs_carrier_int_label_sl',
+							params: {
+								'id': currentRecordID
+							}
+						});
+	    	        	
+	    	        	// add button to the form
+	    	    		scriptContext.form.addButton({
+	    	    			id: 'custpage_print_courier_labels',
+	    	    			label: 'Print Courier Labels',
+	    	    			functionName: "window.open('" + suiteletURL + "');" // call Suitelet when button is clicked
+	    	    		});
+    				}
+    		}
+    	
+    }
+	
     /**
      * Function definition to be triggered before record is loaded.
      *
@@ -355,7 +405,8 @@ function(runtime, record, search, file, email, BBSObjects, BBSCommon, BBSCarrier
 							    									var courierLabelFileID = courierLabel.save();
 							    									
 							    									// attach the file to the item fulfilment
-					    											record.attach({
+					    											record.
+					    											attach({
 					    												record: {
 					    													type: 'file',
 					    													id: courierLabelFileID
@@ -367,7 +418,7 @@ function(runtime, record, search, file, email, BBSObjects, BBSCommon, BBSCarrier
 					    											});
 					    											
 					    											// check if this is the first package
-					    											if (i = 0)
+					    											if (i == 0)
 					    												{
 						    												// reload the file
 									    									courierLabel = file.load({
@@ -543,7 +594,8 @@ function(runtime, record, search, file, email, BBSObjects, BBSCommon, BBSCarrier
 
 
     return 	{
-        	afterSubmit: carrierIntFulfilmentAS
+        		beforeLoad: carrierIntFulfilmentBL,
+    			afterSubmit: carrierIntFulfilmentAS
     		};
     
 });

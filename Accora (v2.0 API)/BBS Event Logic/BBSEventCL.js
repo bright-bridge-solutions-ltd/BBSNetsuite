@@ -10,23 +10,25 @@ function(url, dialog) {
     	
     }
 	
-	function createQuote(company) {
+	function createQuote(customer, event, contact) {
 		
-		// check if the company parameter returns a value
-		if (company)
+		// check if the customer parameter returns a value
+		if (customer)
 			{
 				// get the URL to create a new quote record
 				var newQuoteURL = url.resolveTaskLink({
 					id: 'EDIT_TRAN_ESTIMATE',
 					params: {
-						entity: company
+						entity: customer,
+						custbody_acc_tran_contact: contact,
+						custbody_bbs_related_event: event
 					}
 				});
 				
 				// open a new quote in a new tab/window
 				window.open(newQuoteURL);
 			}
-		else // company parameter is empty
+		else // customer parameter is empty
 			{
 				// show an alert to the user
 				dialog.alert({

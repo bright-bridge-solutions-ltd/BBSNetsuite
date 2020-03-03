@@ -26,19 +26,27 @@ function(record) {
 	    		// get the current record
 	        	var currentRecord = scriptContext.newRecord;
 	        	
+	        	// get the internal id of the current record
+	        	var recordID = currentRecord.id;
+	        	
 	    	    // get the value of the 'Company Name' field
-	    	    var company = currentRecord.getValue({
+	    	    var customer = currentRecord.getValue({
 	    	    	fieldId: 'company'
+	    	    });
+	    	    
+	    	    // get the value of the 'Contact' field
+	    	    var contact = currentRecord.getValue({
+	    	    	fieldId: 'contact'
 	    	    });
 
     			// set a client script to run on the form
-    			scriptContext.form.clientScriptFileId = 4643003;
+    			scriptContext.form.clientScriptFileId = 3407771;
     			
     			// add button to the form
 	    		scriptContext.form.addButton({
 	    			id: 'custpage_create_quote',
 	    			label: 'Create Quote',
-	    			functionName: 'createQuote(' + company + ')' // call client script when button is clicked. Pass company variable
+	    			functionName: 'createQuote(' + customer + ',' + recordID + ',' + contact + ')' // call client script when button is clicked. Pass company variable
 	    		});
     		}   	
     }
