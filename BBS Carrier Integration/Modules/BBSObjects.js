@@ -8,7 +8,7 @@ function()
 	
 	//Object to hold the connection configuration
 	//
-	function _configuration(_primaryCarrier, _username, _passsword, _url, _majorId, _minorId, _intermediateId)
+	function _configuration(_primaryCarrier, _username, _passsword, _url, _majorId, _minorId, _intermediateId, _labelFormat)
 		{
 			//Constructor
 			//
@@ -19,6 +19,7 @@ function()
 			this.majorId		= _majorId;
 			this.minorId		= _minorId;
 			this.intermediateId	= _intermediateId;
+			this.labelFormat	= _labelFormat;
 		}
 	
 	
@@ -57,7 +58,7 @@ function()
 	
 	//Object to hold the request to create a shipment
 	//
-	function _processShipmentRequest(_configuration, _shippingItemInfo, _shippingReference, _address, _contact, _shippingDate, _weight, _packageCount, _labelFormat)
+	function _processShipmentRequest(_configuration, _shippingItemInfo, _shippingReference, _address, _contact, _shippingDate, _weight, _packageCount)
 		{
 			this.configuration		= _configuration;		//Configuration object
 			this.shippingItemInfo	= _shippingItemInfo;	//Shipping info object
@@ -65,7 +66,6 @@ function()
 			this.shippingDate		= _shippingDate;
 			this.weight				= _weight;
 			this.packageCount		= _packageCount;
-			this.labelFormat		= _labelFormat;
 			this.address			= _address;				//Address object
 			this.contact			= _contact;				//Contact object
 		}

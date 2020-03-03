@@ -41,8 +41,9 @@ function(record, search, xml, BBSObjects)
 					var configMajor 		= configRecord.getValue({fieldId: 'custrecord_bbs_config_major'});
 					var configMinor 		= configRecord.getValue({fieldId: 'custrecord_bbs_config_minor'});
 					var configIntermediate 	= configRecord.getValue({fieldId: 'custrecord_bbs_config_intermediate'});
+					var configLabelFormat	= configRecord.getValue({fieldId: 'custrecord_bbs_config_label_format'});
 				
-					carrierConfig = new BBSObjects.carrierConfiguration(configCarrier, configUser, configPassword, configUrl, configMajor, configMinor, configIntermediate);
+					carrierConfig = new BBSObjects.carrierConfiguration(configCarrier, configUser, configPassword, configUrl, configMajor, configMinor, configIntermediate, configLabelFormat);
 				}
 			
 			return carrierConfig;
