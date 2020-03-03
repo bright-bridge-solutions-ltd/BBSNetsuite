@@ -75,6 +75,7 @@ function prUpdate(type)
 			
 			if(keyElements[0] == 'Invoice')
 				{
+					prodBatchRecord.setFieldValue('customform', PR_INVOICE_FORM_ID);
 					prodBatchRecord.setFieldValue('custrecord_bbs_pr_type', '2');
 					prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner', keyElements[1]);
 					prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_pay_term', keyElements[3]);
@@ -83,15 +84,14 @@ function prUpdate(type)
 					prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner_contact', keyElements[4]);
 					prodBatchRecord.setFieldValue('custrecord_bbs_pr_billing_type', keyElements[2]);
 					prodBatchRecord.setFieldValue('custrecord_bbs_pr_inv_proc_by_dd','0');
-					prodBatchRecord.setFieldValue('customform', PR_INVOICE_FORM_ID);
 					prPrefix = 'SINV';
 				}
 			else
 				{
+					prodBatchRecord.setFieldValue('customform', PR_CREDIT_FORM_ID);
 					prodBatchRecord.setFieldValue('custrecord_bbs_pr_type', '1');
 					prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner', keyElements[1]);
 					prodBatchRecord.setFieldValue('custrecord_bbs_pr_partner_contact', keyElements[2]);
-					prodBatchRecord.setFieldValue('customform', PR_CREDIT_FORM_ID);
 					prPrefix = 'SCRE';
 				}
 			
