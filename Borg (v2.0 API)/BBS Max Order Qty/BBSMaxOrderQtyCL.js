@@ -118,53 +118,57 @@ function(runtime, search, dialog) {
 			fieldId: 'item'
 		});
 		
-		// log the current user and role
-    	log.audit({
-    		title: 'Script Check',
-    		details: 'Item ID: ' + itemID + '<br>User ID: ' + runtime.getCurrentUser().name + '<br>User Role: ' + runtime.getCurrentUser().role
-    	});
-		
-		// lookup fields on the item record
-		var itemRecordLookup = search.lookupFields({
-			type: search.Type.ITEM,
-			id: itemID,
-			columns: ['custitem_bbs_max_order_quantity']
-		});
-				
-		// get the max order quantity from the itemRecordLookup object
-		var maxOrderQty = itemRecordLookup.custitem_bbs_max_order_quantity;
-		
-		// check if we have a max order quantity on the item
-		if (maxOrderQty)
+		// check that we have an item
+		if (itemID)
 			{
-				// get the quantity for the current line
-				var quantity = currentRecord.getCurrentSublistValue({
-					sublistId: 'item',
-					fieldId: 'quantity'
-				});
+				// log the current user and role
+		    	log.audit({
+		    		title: 'Script Check',
+		    		details: 'Item ID: ' + itemID + '<br>User ID: ' + runtime.getCurrentUser().name + '<br>User Role: ' + runtime.getCurrentUser().role
+		    	});
 				
-				// check if the line quantity is greater than maxOrderQty
-				if (quantity > maxOrderQty)
+				// lookup fields on the item record
+				var itemRecordLookup = search.lookupFields({
+					type: search.Type.ITEM,
+					id: itemID,
+					columns: ['custitem_bbs_max_order_quantity']
+				});
+						
+				// get the max order quantity from the itemRecordLookup object
+				var maxOrderQty = itemRecordLookup.custitem_bbs_max_order_quantity;
+				
+				// check if we have a max order quantity on the item
+				if (maxOrderQty)
 					{
-						// display an alert warning the user
-						dialog.alert({
-							title: '⚠️ Max Order Qty Warning',
-							message: 'The quantity you have entered is greater than the maximum allowed order quantity for this item.<br><br>The maximum allowed order quantity for this item is <b>' + maxOrderQty + '</b>.<br><br>Please amend the quantity and try again.'
+						// get the quantity for the current line
+						var quantity = currentRecord.getCurrentSublistValue({
+							sublistId: 'item',
+							fieldId: 'quantity'
 						});
 						
-						// do not allow the line to be saved
-						return false;
+						// check if the line quantity is greater than maxOrderQty
+						if (quantity > maxOrderQty)
+							{
+								// display an alert warning the user
+								dialog.alert({
+									title: '⚠️ Max Order Qty Warning',
+									message: 'The quantity you have entered is greater than the maximum allowed order quantity for this item.<br><br>The maximum allowed order quantity for this item is <b>' + maxOrderQty + '</b>.<br><br>Please amend the quantity and try again.'
+								});
+								
+								// do not allow the line to be saved
+								return false;
+							}
+						else // line quantity is less than or equal to maxOrderQty
+							{
+								// allow the line to be saved
+								return true;
+							}
 					}
-				else // line quantity is less than or equal to maxOrderQty
+				else // no max order quantity on the item
 					{
 						// allow the line to be saved
 						return true;
 					}
-			}
-		else // no max order quantity on the item
-			{
-				// allow the line to be saved
-				return true;
 			}
 
     }
