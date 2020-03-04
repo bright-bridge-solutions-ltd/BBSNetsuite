@@ -507,8 +507,6 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 			    								//Other integration implementations go here
 			    								//
 	    									}
-	    								
-	    								
 	    							
 	    							}
 	    					}
