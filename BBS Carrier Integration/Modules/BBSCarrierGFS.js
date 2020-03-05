@@ -373,7 +373,7 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.CarrierService.Carrier = shippingRequestData.shippingItemInfo.subCarrierCode;
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.CarrierService.RouteMapCode = '';
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.CarrierService.ServiceCode = shippingRequestData.shippingItemInfo.serviceCode;
-			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.SaturdayDeliv = 'false';
+			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.SaturdayDeliv = (shippingRequestData.isSaturday ? 'true' : 'false');
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.ConsolidateShipment = 'false';
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.Instructions = '';
 			this.RequestedShipments.ShipRequests.Shipments.RequestedShipment.Shipment.TotalWeight = shippingRequestData.weight;

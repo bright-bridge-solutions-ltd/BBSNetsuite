@@ -12,11 +12,12 @@
  */
 function scheduled(type) 
 {
+
 	//Get the parameters
 	//
 	var context = nlapiGetContext();
-	var accountParcels = context.getSetting('SCRIPT', 'custscript_bbs_acc_parcel');
-	var accountConsignments = context.getSetting('SCRIPT', 'custscript_bbs_acc_cons');
+	var accountParcels = context.getSetting('SCRIPT', 'custscript_bbs_acc_parcel_missing');
+	var accountConsignments = context.getSetting('SCRIPT', 'custscript_bbs_acc_cons_missing');
 	
 	
 	var journalArray = [
@@ -113,7 +114,7 @@ function scheduled(type)
 						'JN10026163'
 						];
 	
-	for (var int = 0; int < journalArray.length; int++) 
+	for (var int5 = 0; int5 < journalArray.length; int5++) 
 		{
 			checkResources();
 		
@@ -123,7 +124,7 @@ function scheduled(type)
 					   "AND", 
 					   ["line","equalto","0"], 
 					   "AND", 
-					   ["numbertext","is",journalArray[int]]
+					   ["numbertext","is",journalArray[int5]]
 					], 
 					[
 					   new nlobjSearchColumn("internalid")
@@ -387,6 +388,66 @@ function scheduled(type)
 		}
 }
 
+function getSummaryValues(_record, _type, _summaryValues, _sublistName)
+{
+	var lines = _record.getLineItemCount(_sublistName);
+	var multiplier = Number(1);
+	
+	for (var int = 1; int <= lines; int++) 
+		{
+			var carrier = isNull(_record.getLineItemValue(_sublistName, 'class', int), '');
+			var contract = isNull(_record.getLineItemValue(_sublistName, 'location', int), '');
+			var group = isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_prodgrp', int), '');
+			var service = isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_service', int), '');
+			var charge = isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_chrgetype', int), '');
+			var operations = isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_ops_method', int), '');
+			var department = isNull(_record.getLineItemValue(_sublistName, 'department', int), '');
+			var supplier = isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_supplier', int), '');
+			var customer = isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_customer', int), '');
+			
+			var summaryKey = carrier + '|' + contract + '|' + group + '|' + service + '|' + charge + '|' + operations + '|' + department + '|' + supplier + '|' + customer;
+			
+			var parcels = Number(_record.getLineItemValue(_sublistName, 'custcol_bbs_parcels', int));
+			var consignments = Number(_record.getLineItemValue(_sublistName, 'custcol_bbs_consignments', int));
+			
+			switch(_type)
+				{
+					case 'O':
+						multiplier = Number(-1);
+						break;
+						
+					case 'N':
+						multiplier = Number(1);
+						break;	
+				}
+			
+			parcels = parcels * multiplier;
+			consignments = consignments * multiplier;
+			
+			if(!_summaryValues[summaryKey])
+				{
+					_summaryValues[summaryKey] = [parcels, consignments];
+				}
+			else
+				{
+					_summaryValues[summaryKey][0] += parcels;
+					_summaryValues[summaryKey][1] += consignments;
+				}
+		}
+}
+
+function isNull(_string, _replacer)
+{
+	if(_string == null)
+		{
+			return _replacer;
+		}
+	else
+		{
+			return _string;
+		}
+}
+
 function checkResources()
 {
 	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
@@ -396,3 +457,7 @@ function checkResources()
 			nlapiYieldScript();
 		}
 }
+
+
+
+

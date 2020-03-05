@@ -327,6 +327,10 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 	    									fieldId: 'custbody_bbs_number_of_packages'
 	    								});
 	    								
+	    								var transactionDate = newRecord.getValue({
+	    									fieldId: 'trandate'
+	    								});
+	    								
 	    								// check if packageCount is empty
 	    								if (packageCount == '')
 	    									{
@@ -381,18 +385,36 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 	    								// create an address object
 	    								var shippingAddress = new BBSObjects.addressObject(addresse, addressLine1, addressLine2, city, county, postcode, country);
 	    								
-	    								// get today's date
-	    								var today = new Date();
+	    								// get today's date without the time component
+	    								var today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
 	    								
-	    								// format today's date in the following format YYYY-MM-DD
-	    								var despatchDate = today.format('Y-m-d');
+	    								//If the transaction date is in the past then use today's date as the despatch date
+	    								//
+	    								var despatchDate = '';
+	    								var tempDate = null;
+	    								
+	    								if(transactionDate.getTime() < today.getTime())
+	    									{
+	    										tempDate = today;
+	    									}
+	    								else
+	    									{
+	    										tempDate = transactionDate;
+	    									}
+	    								
+	    								//See if the despatch date is a Saturday
+	    								//
+	    								var isSaturday = (tempDate.getDay() == 6 ? true : false);
+	    								
+	    								// format the date in the following format YYYY-MM-DD
+	    								despatchDate = tempDate.format('Y-m-d');
 	    								
 	    								// call function to find contact details for the customer. Contact object will be returned
 	    								var contactInfo = new BBSCommon.findContactDetails(customerID);
 	    								
 	    								//Build up the process shipments request object
 	    								//
-	    								var processShipmentsRequest = new BBSObjects.processShipmentRequest(integrationDetails, shippingCarrierInfo, shipmentReference, shippingAddress, contactInfo, despatchDate, weight, packageCount, 'PNG');
+	    								var processShipmentsRequest = new BBSObjects.processShipmentRequest(integrationDetails, shippingCarrierInfo, shipmentReference, shippingAddress, contactInfo, despatchDate, weight, packageCount, isSaturday);
 	    								
 	    								//Work out which integration module to use
 	    								//
