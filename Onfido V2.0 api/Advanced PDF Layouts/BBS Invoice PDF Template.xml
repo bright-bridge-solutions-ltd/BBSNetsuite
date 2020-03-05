@@ -14,11 +14,11 @@
       
    	<!--Reassign based on subsidiary-->
   	<#if subsidiary.id == "10"> <!--India-->
-      <#assign ibanLabel>IFSC:</#assign>
-      <#assign emailInfo>billing@onfido.com</#assign>
-      <#assign vatInfo></#assign>
-      <#assign regInfo></#assign>
-    </#if>
+      	<#assign ibanLabel>IFSC:</#assign>
+      	<#assign emailInfo>billing@onfido.com</#assign>
+      	<#assign regInfo>Registration No: U74999MH2018FTC305598. Registered Office:  Unit No. 9, Corporate Park II, 9th floor, VN Purav Marg, Near Swastik Chambers, Chembur, Mumbai City, Maharashtra 400071, India</#assign>
+      	<#assign vatInfo>${record.subsidiarytaxregnum?keep_before("(")}</#assign>
+	</#if>
   
   	<#if subsidiary.id == "15"> <!--Singapore-->
   		<#assign vatInfo></#assign>
@@ -60,7 +60,7 @@
           
 			<table class="header" style="width: 100%; margin-top: 10px;">
         		<tr>
-        			<td rowspan="7" colspan="2" style="font-size:12pt">${record.billaddress}<br/><br/>VAT Number: ${record.entitytaxregnum}</td>
+        			<td rowspan="7" colspan="2" style="font-size:12pt">${record.billaddress}<#if record.entitytaxregnum?has_content><br/><br/>VAT Number: ${record.entitytaxregnum}</#if></td>
         			<td>&nbsp;</td>
         			<td colspan="2" style="font-size:12pt"><b>Invoice Date</b></td>
         			<td rowspan="7" colspan="2" style="font-size:12pt">${subsidiary.mainaddress_text}<br/>${vatInfo}<br/>billing@onfido.com</td>
@@ -104,6 +104,18 @@
         <macro id="nlfooter">
 
 			<table class="footer" style="width: 100%;">
+          		<#if subsidiary.id == "6"> <!-- France -->
+          			<tr padding-bottom="10">
+          				<td colspan="9" style="font-size: 8pt;">In accordance with Articles L. 441-3 and L. 441-6 of the French Commercial Code: late penalties, equal to 3 times the legal interest rate, and compensation of € 40 are due if payment is not made at the latest the day after the due date payment indicated on the invoice.<br/></td>
+          			</tr>
+          			<tr padding-bottom="10">
+          				<td colspan="9" style="font-size: 8pt;">Conformément aux articles L. 441-3 et L. 441-6 du code de commerce, les pénalités de retards sont égales à 3 fois le taux d’intérêt légal, et une indemnité de 40 € sont dues à défaut de règlement le jour suivant la date de paiement figurant sur la facture.<br/></td>
+          			</tr>
+          			<tr padding-bottom="10">
+          				<td colspan="9" style="font-size: 8pt">Recipient of the service may be liable for VAT according to reverse charge mechanism.<br/></td>
+          			</tr>
+          		</#if>
+          		
           		<tr>
                   	<td colspan="8" style="font-size: 6pt;">${regInfo}</td>
 					<td align="right" style="font-size: 6pt;">Page <pagenumber/> of <totalpages/></td>
@@ -200,7 +212,11 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="10px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+<#if subsidiary.id == "6"> <!-- France -->
+	<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="125px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+<#else>
+	<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="10px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+</#if>
   
 <#if subsidiary.id == "10"> <!--India-->
   <table class="header" style="width: 30%;">
@@ -228,20 +244,20 @@
           <#if item_index==0>
               <thead>
                   <tr>
-                      <th colspan="12" style="font-size: 12pt;">Description</th>
-                      <th align="center" colspan="3" style="font-size: 12pt;">Quantity</th>
+                      <th colspan="10" style="font-size: 12pt;">Description</th>
+                      <th align="center" colspan="4" style="font-size: 12pt;">Quantity</th>
                       <th align="right" colspan="4" style="font-size: 12pt;">Unit Price</th>
                       <th align="right" colspan="4" style="padding: 10px 6px; white-space: nowrap; font-size: 12pt;">Tax Rate</th>
-                      <th align="right" colspan="4" style="font-size: 12pt;">Amount</th>
+                      <th align="right" colspan="5" style="font-size: 12pt;">Amount</th>
                   </tr>
               </thead>
           </#if>
           <tr>
-              <td class="itemtable" colspan="12" style="font-size: 12pt;">${item.salesDescription}</td>
-              <td class="itemtable" align="center" colspan="3" line-height="150%" style="font-size: 12pt;">${item.quantity?string["#,##0"]}</td>
+              <td class="itemtable" colspan="10" style="font-size: 12pt;">${item.salesDescription}</td>
+              <td class="itemtable" align="center" colspan="4" line-height="150%" style="font-size: 12pt;">${item.quantity?string["#,##0"]}</td>
               <td class="itemtable" align="right" colspan="4" style="font-size: 12pt;">${item.symbol}${item.unitPrice?string["#,##0.00"]}</td>
               <td class="itemtable" align="right" colspan="4" style="font-size: 12pt;">${item.vatRate}</td>
-              <td class="itemtable" align="right" colspan="4" style="font-size: 12pt;">${item.symbol}${item.amount?string["#,##0.00"]}</td>
+              <td class="itemtable" align="right" colspan="5" style="font-size: 12pt;">${item.symbol}${item.amount?string["#,##0.00"]}</td>
           </tr>
       </#list>
   </table>
@@ -254,11 +270,34 @@
       <td align="right" style="font-size: 12pt;"><b>${record.subtotal@label}</b></td>
       <td align="right" style="font-size: 12pt;">${record.subtotal}</td>
       </tr>
+      
+      <#if subsidiary.id == "10"> <!-- India -->
+      	<#if record.taxtotal36?has_content> <!-- if CGST populated -->
+	      <tr>
+	      	<td colspan="4">&nbsp;</td>
+	      	<td align="right" style="font-size: 12pt;"><b>CGST (9%)</b></td>
+	      	<td align="right" style="font-size: 12pt;">${record.taxtotal36}</td>
+	      </tr>
+	      <tr>
+	      	<td colspan="4">&nbsp;</td>
+	      	<td align="right" style="font-size: 12pt;"><b>SGST (9%)</b></td>
+	      	<td align="right" style="font-size: 12pt;">${record.taxtotal37}</td>
+	      </tr>
+	     <#else>
+	     	<tr>
+		      	<td colspan="4">&nbsp;</td>
+		      	<td align="right" style="font-size: 12pt;"><b>IGST (18%)</b></td>
+		      	<td align="right" style="font-size: 12pt;">${record.taxtotal35}</td>
+	      </tr>
+	     </#if>
+      <#else>
       <tr>
       <td colspan="4">&nbsp;</td>
-      <td align="right" style="font-size: 12pt;"><b>${record.taxtotal@label}</b></td>
-      <td align="right" style="font-size: 12pt;">${record.taxtotal}</td>
+      	<td align="right" style="font-size: 12pt;"><b>Tax</b></td>
+      	<td align="right" style="font-size: 12pt;">${record.taxtotal}</td>
       </tr>
+      </#if>
+      
       <tr>
       <td colspan="4">&nbsp;</td>
       <td align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.total@label}</b></td>
@@ -289,19 +328,19 @@
     </tr>
     <tr>
       <td style="font-size: 12pt;"><#if subsidiary.id == "9"><!--USA-->ABA:<#else>Sort Code:</#if></td>
-      <td style="font-size: 12pt;">${record.custbody_bbs_bank_sort_code}</td>
+      <td colspan="2" style="font-size: 12pt;">${record.custbody_bbs_bank_sort_code}</td>
     </tr>
     <tr>
       <td style="font-size: 12pt;">Account Number:</td>
-      <td style="font-size: 12pt;">${record.custbody_bbs_bank_account_number}</td>
+      <td colspan="2" style="font-size: 12pt;">${record.custbody_bbs_bank_account_number}</td>
     </tr>
     <tr>
       <td style="font-size: 12pt;">${ibanLabel}</td>
-      <td style="font-size: 12pt;">${record.custbody_bbs_bank_iban}</td>
+      <td colspan="2" style="font-size: 12pt;">${record.custbody_bbs_bank_iban}</td>
     </tr>
     <tr>
       <td style="font-size: 12pt;">SWIFT:</td>
-      <td style="font-size: 12pt;">${record.custbody_bbs_bank_bic}</td>
+      <td colspan="2" style="font-size: 12pt;">${record.custbody_bbs_bank_bic}</td>
     </tr>
 </table>
   
@@ -312,11 +351,11 @@
       </tr>
       <tr>
         <td>GSTIN:</td>
-        <td>06AACCO6506A1ZZ</td>
+        <td colspan="2">${vatInfo}</td>
       </tr>
       <tr>
         <td>PAN:</td>
-        <td>${subsidiary.custrecord_in_permanent_account_number}</td>
+        <td colspan="2">${subsidiary.custrecord_in_permanent_account_number}</td>
       </tr>
   </table>
 </#if>

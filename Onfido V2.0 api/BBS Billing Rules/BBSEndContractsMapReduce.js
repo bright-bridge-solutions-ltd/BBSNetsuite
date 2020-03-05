@@ -77,6 +77,9 @@ function(runtime, config, search, record, email) {
     			 name: 'name'
     		 },
     		 			{
+    			 name: 'custrecord_bbs_contract_customer'
+    		 },
+    		 			{
     			 name: 'custrecord_bbs_contract_billing_type'
     		 },
     		 			{
@@ -108,6 +111,9 @@ function(runtime, config, search, record, email) {
 		
 		// get the ID of the contract record from the search results
 		var contractRecord = searchResult.values['name'];
+		
+		// get the customer name from the search results
+		var customerName = searchResult.values['custrecord_bbs_contract_customer'].text;
 		
 		// get the billing type from the search results
 		var billingType = searchResult.values['custrecord_bbs_contract_billing_type'].text;
@@ -143,7 +149,7 @@ function(runtime, config, search, record, email) {
 				// write the contractRecord and contract details to the context so that it can be retrieved in the summary stage
 				context.write({
 					key: contractRecord,
-					value: '<tr><td>' + contractRecord + '</td><td>' + subsidiaryText + '</td><td>' + billingType + '</td><td>' + startDate + '</td><td>' + endDate + '</td></tr>'
+					value: '<tr><td>' + contractRecord + '</td><td>' + customerName + '</td><td>' + subsidiaryText + '</td><td>' + billingType + '</td><td>' + startDate + '</td><td>' + endDate + '</td></tr>'
 				});
 
 			}
@@ -180,6 +186,7 @@ function(runtime, config, search, record, email) {
     	var endedContractsTable = '<table border="1">';
     	endedContractsTable += '<tr>';
     	endedContractsTable += '<td><b>Contract Record</b></td>';
+    	endedContractsTable += '<td><b>Customer Name</b></td>';
     	endedContractsTable += '<td><b>Subsidiary</b></td>';
     	endedContractsTable += '<td><b>Billing Type</b></td>';
     	endedContractsTable += '<td><b>Start Date</b></td>';
