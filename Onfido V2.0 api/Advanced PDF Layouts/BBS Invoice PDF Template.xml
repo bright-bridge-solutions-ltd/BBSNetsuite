@@ -11,7 +11,6 @@
   	<#assign ibanLabel>IBAN:</#assign>
   	<#assign signature>https://5554661.app.netsuite.com/core/media/media.nl?id=53618&amp;c=5554661&amp;h=de3261d7385e0236ef53</#assign>
       
-      
    	<!--Reassign based on subsidiary-->
   	<#if subsidiary.id == "10"> <!--India-->
       	<#assign ibanLabel>IFSC:</#assign>
@@ -44,10 +43,7 @@
   		<#assign vatInfo></#assign>
   		<#assign regInfo>Registered Office: Suite 623, Werqwise, 149 New Montgomery St., San Francisco, CA 94105</#assign>
     </#if>
-  
-  
 
-  
     <macrolist>
         <macro id="nlheader">
 			<table class="header" style="width: 100%;">
@@ -96,8 +92,6 @@
         			<td colspan="2" style="font-size:12pt">&nbsp;</td>
         			<td colspan="2" style="font-size:12pt">&nbsp;</td>
         		</tr>
-              	    		
-        		
           	</table>
         </macro>
 
