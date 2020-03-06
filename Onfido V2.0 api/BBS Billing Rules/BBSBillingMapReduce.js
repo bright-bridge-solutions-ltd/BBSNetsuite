@@ -729,8 +729,19 @@ function(runtime, search, record, format, task) {
 				    // else if cumulativeUsage is greater than minimumUsage
 				    else
 				    	{
-				    		// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, minimumUsage  and contractRecord
-			    			addCreditLine(soRecord, billingType, minimumUsage, contractRecord);
+				    		// calculate the overage
+				    		var overage = parseFloat(cumulativeUsage - minimumUsage);
+				    		
+				    		// get the sales order total
+				    		var soTotal = soRecord.getValue({
+				    			fieldId: 'subtotal'
+				    		});
+				    		
+				    		// calculate the credit line amount by subtracting overage from soTotal
+				    		var creditLineAmount = parseFloat(soTotal - overage);
+				    	
+				    		// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, creditLineAmount  and contractRecord
+			    			addCreditLine(soRecord, billingType, creditLineAmount, contractRecord);
 			    		
 			    			// call function to transform the sales order to an invoice. Pass in recordID
 			    			createInvoice(recordID);

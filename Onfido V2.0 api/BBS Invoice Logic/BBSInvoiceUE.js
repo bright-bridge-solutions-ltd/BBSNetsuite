@@ -350,27 +350,32 @@ function(file, record, render, runtime, search, email)
 									itemVatRate = Number(0);
 								}
 							
-							//See if we have this product in the summary yet
+							// build up the key for the summary
+							// itemId + itemUnitPrice
+							var key = padding_left(itemId, '0', 6) + 
+				        	padding_left(itemUnitPrice, '0', 6);
+							
+							//See if we have the key in the summary
 							//
-							if(!summary[itemId])
+							if(!summary[key])
 								{
 									//Add it to the summary
-									summary[itemId] = new itemSummaryInfo(itemId, itemDescription, itemUnitPrice, itemQuantity, itemAmount, itemVatAmount, itemVatRate, currencySymbol);
+									summary[key] = new itemSummaryInfo(itemId, itemDescription, itemUnitPrice, itemQuantity, itemAmount, itemVatAmount, itemVatRate, currencySymbol);
 								}
 							else
 								{
 									//Update the summary
 									//
-									summary[itemId].quantity += itemQuantity;
-									summary[itemId].amount += itemAmount;
-									summary[itemId].vatAmount += itemVatAmount;
+									summary[key].quantity += itemQuantity;
+									summary[key].amount += itemAmount;
+									summary[key].vatAmount += itemVatAmount;
 								}
 						}
 		    	
 			    	//Update the record with the new summary info
 			    	//
 			    	var outputArray = [];
-			    	for ( var summaryKey in summary) 
+			    	for (var summaryKey in summary) 
 				    	{
 			    			outputArray.push(summary[summaryKey]);
 						}
@@ -383,7 +388,7 @@ function(file, record, render, runtime, search, email)
 			    				values: {
 			    					custbody_bbs_json_summary: JSON.stringify(outputArray)
 			    				}
-			    			})
+			    			});
 			    		}
 			    	catch(err)
 			    		{
@@ -409,13 +414,39 @@ function(file, record, render, runtime, search, email)
 		  	this.vatAmount				= Number(_vatAmount);
 		  	this.vatRate				= _itemVatRate + '%';
 		  	this.symbol					= _currencySymbol;
-		  }
+	  	}
+    
+    //=============================================================================
+    //Functions
+    //=============================================================================
+    //
+    
+    //Left padding s with c to a total of n chars
+    //
+    function padding_left(s, c, n) 
+	    {
+	    	if (! s || ! c || s.length >= n) 
+	    		{
+	    			return s;
+	    		}
+	    	
+	    	var max = (n - s.length)/c.length;
+	    	
+	    	for (var i = 0; i < max; i++) 
+	    		{
+	    			s = c + s;
+	    		}
+	    	
+	    	return s;
+	    }
 
   
     //=============================================================================
     //Return function definition to NS
     //=============================================================================
 	//
-    return {afterSubmit: invoiceAS};
+    return {
+    	afterSubmit: invoiceAS
+    };
     
 });
