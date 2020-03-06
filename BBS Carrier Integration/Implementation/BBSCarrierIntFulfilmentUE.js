@@ -309,43 +309,67 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 	    								//Get the internal ID of the record
 	    								//
 	    								var recordID = newRecord.id;
-	    							
+	    								
 	    								//Get the integration info 
 	    								//
 	    								integrationDetails = BBSCommon.getConfig(shippingCarrierInfo.primaryCarrier);
 	    								
-	    								// get the required information from the current record to build up the label
-	    								var shipmentReference = newRecord.getValue({
-	    									fieldId: 'tranid'
-	    								});
-	    								
-	    								var weight = newRecord.getValue({
-	    									fieldId: 'custbody_bbs_total_weight'
-	    								});
-	    								
-	    								var packageCount = newRecord.getValue({
-	    									fieldId: 'custbody_bbs_number_of_packages'
-	    								});
-	    								
-	    								var transactionDate = newRecord.getValue({
-	    									fieldId: 'trandate'
-	    								});
-	    								
-	    								// check if packageCount is empty
-	    								if (packageCount == '')
-	    									{
-	    										// set packageCount to 1
-	    										packageCount = 1;
-	    									}
-	    								
-	    								var customerID = newRecord.getValue({
-	    									fieldId: 'entity'
-	    								});
-	    								
 	    								// reload the item fulfillment record
 	    								var itemFulfillmentRecord = record.load({
 	    									type: record.Type.ITEM_FULFILLMENT,
-	    									id: recordID
+	    									id: recordID,
+	    									isDynamic: true
+	    								});
+	    								
+	    								// get the required information from the item fulfilment record to build up the label
+	    								var shipmentReference = itemFulfillmentRecord.getValue({
+	    									fieldId: 'tranid'
+	    								});
+	    								
+	    								var weight = itemFulfillmentRecord.getValue({
+	    									fieldId: 'custbody_bbs_total_weight'
+	    								});
+	    								
+	    								var transactionDate = itemFulfillmentRecord.getValue({
+	    									fieldId: 'trandate'
+	    								});
+	    								
+	    								var totalWeight = itemFulfillmentRecord.getValue({
+	    									fieldId: 'custbody_bbs_total_weight'
+	    								});
+	    								
+	    								var packageCount = itemFulfillmentRecord.getValue({
+	    									fieldId: 'custbody_bbs_number_of_packages'
+	    								});
+	    								
+	    								// check if totalWeight and packageCount are empty
+	    								if (totalWeight == '' && packageCount == '')
+	    									{
+	    										// set totalWeight to 0
+	    										totalWeight = 0;
+	    									
+	    										// get count of lines on the package sublist
+	    										packageCount = itemFulfillmentRecord.getLineCount({
+	    											sublistId: 'package'
+	    										});
+	    										
+	    										// loop through package sublist lines
+	    										for (var i = 0; i < packageCount; i++)
+	    											{
+	    												// get the weight for the line
+	    												var weight = itemFulfillmentRecord.getSublistValue({
+	    													sublistId: 'package',
+	    													fieldId: 'packageweight',
+	    													line: i
+	    												});
+	    												
+	    												// add the weight to the totalWeight variable
+	    												totalWeight += weight;
+	    											}
+	    									}
+	    								
+	    								var customerID = itemFulfillmentRecord.getValue({
+	    									fieldId: 'entity'
 	    								});
 	    								
 	    								// get the shipping address subrecord
@@ -441,6 +465,25 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 			    													// get package data
 			    													var labelImage = packages[i]['labelImage'];
 			    													var labelFileType = packages[i]['labelType'];
+			    													var packageNumber = packages[i]['packageNumber'];
+			    													
+			    													// select the line on the packages sublist on the item record
+			    													itemFulfillmentRecord.selectLine({
+			    														sublistId: 'package',
+			    														line: i
+			    													});
+			    													
+			    													// set the tracking number field on the sublist line
+			    													itemFulfillmentRecord.setCurrentSublistValue({
+			    														sublistId: 'package',
+			    														fieldId: 'packagetrackingnumber',
+			    														value: packageNumber
+			    													});
+			    													
+			    													// commit the changes to the sublist line
+			    													itemFulfillmentRecord.commitLine({
+			    														sublistId: 'package'
+			    													});
 			    													
 			    													// if labelFileType is PNG
 			    													if (labelFileType == 'PNG')
@@ -448,7 +491,7 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 				    														// create a PNG of the courier label and store in the file cabinet
 									    									var courierLabel = file.create({
 									    										fileType: file.Type.PNGIMAGE,
-									    										name: packages[i]['packageNumber'] + '.' + labelFileType,
+									    										name: packageNumber + '.' + labelFileType,
 									    										contents: labelImage,
 									    										folder: fileCabinetFolder,
 									    										isOnline: true
@@ -459,7 +502,7 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 				    														// create a PDF of the courier label and store in the file cabinet
 									    									var courierLabel = file.create({
 									    										fileType: file.Type.PDF,
-									    										name: packages[i]['packageNumber'] + '.' + labelFileType,
+									    										name: packageNumber + '.' + labelFileType,
 									    										contents: labelImage,
 									    										folder: fileCabinetFolder,
 									    										isOnline: true
@@ -470,8 +513,7 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 							    									var courierLabelFileID = courierLabel.save();
 							    									
 							    									// attach the file to the item fulfilment
-					    											record.
-					    											attach({
+					    											record.attach({
 					    												record: {
 					    													type: 'file',
 					    													id: courierLabelFileID
@@ -495,14 +537,19 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 									    									courierLabelFileURL += courierLabel.url;
 	
 							    											// update the item fulfilment record
-							    											record.submitFields({
-									    										type: record.Type.ITEM_FULFILLMENT,
-									    										id: recordID,
-									    										values: {
-									    											custbody_bbs_ci_consignment_number: consignmentNumber,
-									    											custbody_bbs_ci_consignment_error: null,
-									    											custbody_bbs_ci_label_image: courierLabelFileURL
-									    										}
+									    									itemFulfillmentRecord.setValue({
+									    										fieldId: 'custbody_bbs_ci_consignment_number',
+									    										value: consignmentNumber
+									    									});
+									    									
+									    									itemFulfillmentRecord.setValue({
+									    										fieldId: 'custbody_bbs_ci_consignment_error',
+									    										value: null
+									    									});
+									    									
+									    									itemFulfillmentRecord.setValue({
+									    										fieldId: 'custbody_bbs_ci_label_image',
+									    										value: courierLabelFileURL
 									    									});
 					    												}
 			    												}
@@ -513,14 +560,19 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 			    											var errorMessages = processShipmentsResponse['message'];
 			    										
 			    											// update the item fulfilment record
-				    										record.submitFields({
-					    										type: record.Type.ITEM_FULFILLMENT,
-					    										id: recordID,
-					    										values: {
-					    											custbody_bbs_ci_consignment_number: null,
-					    											custbody_bbs_ci_consignment_error: errorMessages,
-					    											custbody_bbs_ci_label_image: null
-					    										}
+			    											itemFulfillmentRecord.setValue({
+					    										fieldId: 'custbody_bbs_ci_consignment_number',
+					    										value: null
+					    									});
+					    									
+					    									itemFulfillmentRecord.setValue({
+					    										fieldId: 'custbody_bbs_ci_consignment_error',
+					    										value: errorMessages
+					    									});
+					    									
+					    									itemFulfillmentRecord.setValue({
+					    										fieldId: 'custbody_bbs_ci_label_image',
+					    										value: null
 					    									});
 			    										}
 			    									
@@ -529,6 +581,9 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 			    								//Other integration implementations go here
 			    								//
 	    									}
+	    								
+	    								// save the item fulfilment record
+	    								itemFulfillmentRecord.save();
 	    							
 	    							}
 	    					}
