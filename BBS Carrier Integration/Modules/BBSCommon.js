@@ -76,7 +76,9 @@ function(record, search, xml, BBSObjects)
 				      search.createColumn({name: "custrecord_bbs_carrier_contract_no", join: "CUSTRECORD_BBS_SC_CARRIER", label: "Contract Number"}),
 				      search.createColumn({name: "custrecord_bbs_carrier_code", join: "CUSTRECORD_BBS_SC_CARRIER", label: "Carrier Code"}),
 				      search.createColumn({name: "custrecord_bbs_carrier_pack_code_req", join: "CUSTRECORD_BBS_SC_CARRIER", label: "Package Code Required"}),
-				      search.createColumn({name: "custrecord_bbs_primary_carrier", join: "CUSTRECORD_BBS_SC_CARRIER", label: "Primary Carrier/Integrator"})
+				      search.createColumn({name: "custrecord_bbs_primary_carrier", join: "CUSTRECORD_BBS_SC_CARRIER", label: "Primary Carrier/Integrator"}),
+				      search.createColumn({name: "custrecord_bbs_carrier_meter_no", join: "CUSTRECORD_BBS_SC_CARRIER", label: "Meter Number"})
+				      
 				   ]
 				}));
 				
@@ -92,10 +94,11 @@ function(record, search, xml, BBSObjects)
 					var carrierContractNo	= customrecord_bbs_carrier_service_codesSearchObj[0].getValue({name: 'custrecord_bbs_carrier_contract_no', join: "CUSTRECORD_BBS_SC_CARRIER"});
 					var carrierId 			= customrecord_bbs_carrier_service_codesSearchObj[0].getValue({name: 'custrecord_bbs_sc_carrier'})
 					var serviceCode 		= customrecord_bbs_carrier_service_codesSearchObj[0].getValue({name: 'custrecord_bbs_sc_code'});
+					var meterNumber			= customrecord_bbs_carrier_service_codesSearchObj[0].getValue({name: 'custrecord_bbs_carrier_meter_no', join: "CUSTRECORD_BBS_SC_CARRIER"});
 					
 					//Create a shipping item info object
 					//
-					shippingCarrierInfo = new BBSObjects.shippingItemInfo(primaryCarrier, primaryCarrierName, packCodeReq, name, carrierCode, carrierId, carrierContractNo, serviceCode);
+					shippingCarrierInfo = new BBSObjects.shippingItemInfo(primaryCarrier, primaryCarrierName, packCodeReq, name, carrierCode, carrierId, carrierContractNo, serviceCode, meterNumber);
 					
 					//Now get any related service codes
 					//

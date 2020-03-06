@@ -25,7 +25,7 @@ function()
 	
 	//Object to hold the basic carrier info, service codes & packaging codes
 	//
-	function _shippingItemInfo(_primaryCarrier, _primaryCarrierName, _packCodeReq, _name, _carrierCode, _carrierId, _carrierContractNo, _serviceCode)
+	function _shippingItemInfo(_primaryCarrier, _primaryCarrierName, _packCodeReq, _name, _carrierCode, _carrierId, _carrierContractNo, _serviceCode, _meterNumber)
 		{
 			//Constructor
 			//
@@ -37,6 +37,7 @@ function()
 			this.subCarrierCodeId		= _carrierId;
 			this.carrierContractNo		= _carrierContractNo;
 			this.serviceCode 			= _serviceCode;
+			this.meterNumber			= _meterNumber;
 			this.serviceCodes 			= [];
 			this.packageCodes			= [];
 			
