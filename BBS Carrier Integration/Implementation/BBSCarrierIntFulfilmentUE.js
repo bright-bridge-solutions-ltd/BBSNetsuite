@@ -6,7 +6,8 @@
 
 
 define([
-        'N/runtime',
+        'N/config',
+		'N/runtime',
         'N/url',
 		'N/record',
         'N/search',
@@ -19,7 +20,7 @@ define([
 /**
  * @param {record} record
  */
-function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCarrierGFS) 
+function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCarrierGFS) 
 {
 	
 	//=============================================================================================
@@ -301,11 +302,15 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 	    				if(!BBSCommon.isNullOrEmpty(shippingMethod) && shippingStatus == 'B' && BBSCommon.isNullOrEmpty(consignmentNo))
 	    					{
 	    						shippingCarrierInfo = BBSCommon.lookupShippingItem(shippingMethod);
-	    					
+	    						
 	    						//Did we get back any carrier integration data?
 	    						//
 	    						if(shippingCarrierInfo)
 	    							{
+	    								//Get the internal ID of the carrier
+	    								//
+	    								var shippingCarrier = shippingCarrierInfo.subCarrierCodeId;
+	    							
 	    								//Get the internal ID of the record
 	    								//
 	    								var recordID = newRecord.id;
@@ -453,6 +458,25 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 			    									// check if we have got a success message back
 			    									if (processShipmentsResponse['status'] == 'SUCCESS')
 			    										{
+			    											// get the company URL
+			    											var companyURL = getCompanyUrl();
+			    											
+			    											log.debug({
+			    												title: 'Company URL',
+			    												details: companyURL
+			    											});
+			    										
+			    											// set the shipping carrier field on the record
+				    										itemFulfillmentRecord.setValue({
+					    										fieldId: 'custbody_bbs_ci_shipping_carrier',
+					    										value: shippingCarrier
+					    									});
+				    										
+				    										// get the tracking URL for the selected shipping carrier
+				    										var trackingURL = itemFulfillmentRecord.getValue({
+				    											fieldId: 'custbody_bbs_ci_tracking_url'
+				    										});
+			    										
 			    											// get the consignment number and label
 			    											var consignmentNumber = processShipmentsResponse['consignmentNumber'];
 			    											
@@ -490,35 +514,33 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 							    									try
 							    										{
 							    											var customRecord = record.create({
-							    																			type:		'customrecord_bbs_if_additional_fields',
-							    																			isDynamic:	true
+							    																				type:		'customrecord_bbs_if_additional_fields',
+							    																				isDynamic:	true
 							    																			});
 							    											customRecord.setValue({
 							    																	fieldId:	'custrecord_bbs_if_fulfilment',
 							    																	value:		recordID
-							    																	});
+							    																});
 							    											
 							    											customRecord.setValue({
 							    																	fieldId:	'custrecord_bbs_if_package_key',
 							    																	value:		packageNumber
-							    																	});
+							    																});
 		    											
 							    											customRecord.setValue({
 							    																	fieldId:	'custrecord_bbs_custom_field_1',
-							    																	value:		'http://acme.com?id=' + packageNumber
-							    																	});
+							    																	value:		trackingURL + packageNumber
+							    																});
 									
 							    											customRecord.save({
 							    																enableSourcing: 		false,
 							    																ignoreMandatoryFields:	true
-							    																});
+							    															});
 							    										}
 							    									catch(err)
 							    										{
 							    										
 							    										}
-							    									
-			    													
 			    													
 			    													// if labelFileType is PNG
 			    													if (labelFileType == 'PNG')
@@ -567,8 +589,9 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 									    									    id: courierLabelFileID
 									    									});
 					    												
-					    													// get the file's URL
-									    									var courierLabelFileURL = 'https://system.netsuite.com';
+					    													// build up the file's URL
+									    									var courierLabelFileURL = 'https://';
+									    									courierLabelFileURL += companyURL;
 									    									courierLabelFileURL += courierLabel.url;
 	
 							    											// update the item fulfilment record
@@ -576,7 +599,6 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 									    										fieldId: 'custbody_bbs_ci_consignment_number',
 									    										value: consignmentNumber
 									    									});
-									    									
 									    									
 									    									itemFulfillmentRecord.setValue({
 									    										fieldId: 'custbody_bbs_ci_consignment_error',
@@ -608,6 +630,11 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 					    									
 					    									itemFulfillmentRecord.setValue({
 					    										fieldId: 'custbody_bbs_ci_label_image',
+					    										value: null
+					    									});
+					    									
+					    									itemFulfillmentRecord.setValue({
+					    										fieldId: 'custbody_bbs_ci_shipping_carrier',
 					    										value: null
 					    									});
 			    										}
@@ -745,6 +772,29 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 	    				break;
     			}
 	    }
+    
+    // ===============================
+    // FUNCTION TO GET THE COMPANY URL
+    // ===============================
+    function getCompanyUrl()
+    	{
+    		// load the company information
+    		var companyInformation = config.load({
+    			type: config.Type.COMPANY_INFORMATION
+    		});
+    		
+    		// get the account id
+    		var accountId = companyInformation.getValue({
+    			fieldId: 'companyid'
+    		});
+    		
+    		// return the company URL
+    		return url.resolveDomain({
+    			hostType: url.HostType.APPLICATION,
+    			accountId: accountId
+    		});
+    	}
+    
 
 
     return 	{
