@@ -3,7 +3,7 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['N/search', 'N/render'],
+define(['N/search', 'N/render', 'N/xml'],
 /**
  * @param {runtime} runtime
  * @param {search} search
@@ -12,7 +12,7 @@ define(['N/search', 'N/render'],
  * @param {dialog} dialog
  * @param {message} message
  */
-function(search, render) {
+function(search, render, xml) {
 	   
     /**
      * Definition of the Suitelet script trigger point.
@@ -28,9 +28,9 @@ function(search, render) {
     	var recordID = context.request.parameters.id;
     	
     	// build up the XML
-    	xml = "<?xml version=\"1.0\"?>\n<!DOCTYPE pdf PUBLIC \"-//big.faceless.org//report\" \"report-1.1.dtd\">\n";
-		xml += "<pdf>"
-		xml += "<body padding=\"20px 20px 20px 20px\" size=\"A4\">";
+    	var xmlString = "<?xml version=\"1.0\"?>\n<!DOCTYPE pdf PUBLIC \"-//big.faceless.org//report\" \"report-1.1.dtd\">\n";
+    	xmlString += "<pdf>"
+    	xmlString += "<body padding=\"20px 20px 20px 20px\" size=\"A4\">";
     	
     	// create search to find courier labels attached to the item fulfilment
     	var fileSearch = search.create({
@@ -62,10 +62,11 @@ function(search, render) {
     			join: 'file'
     		});
     		
-    		imageURL = imageURL.replace(/&/g, '&amp;'); // replace the & symbol with &amp;
+    		//imageURL = imageURL.replace(/&/g, '&amp;'); // replace the & symbol with &amp;
+    		imageURL = xml.escape({xmlText: imageURL});  // replace the & symbol with &amp;
     		
     		// add image to the xml
-    		xml += '<img src="' + imageURL + '" style="height: 1000px; width: 700px;"/>'
+    		xmlString += '<img src="' + imageURL + '" style="height: 1000px; width: 700px;"/>'
     		
     		// continue processing search results
     		return true;
@@ -73,11 +74,11 @@ function(search, render) {
     	});
     	
     	// add closing xml tags
-    	xml += "</body>";
-    	xml += "</pdf>";
+    	xmlString += "</body>";
+    	xmlString += "</pdf>";
     	
     	// return the PDF to the user
-    	context.response.renderPdf(xml);
+    	context.response.renderPdf(xmlString);
     	
     }
 	    	
