@@ -485,6 +485,41 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 			    														sublistId: 'package'
 			    													});
 			    													
+			    													//Create the data required to generate the hyperlink to tracking info
+							    									//
+							    									try
+							    										{
+							    											var customRecord = record.create({
+							    																			type:		'customrecord_bbs_if_additional_fields',
+							    																			isDynamic:	true
+							    																			});
+							    											customRecord.setValue({
+							    																	fieldId:	'custrecord_bbs_if_fulfilment',
+							    																	value:		recordID
+							    																	});
+							    											
+							    											customRecord.setValue({
+							    																	fieldId:	'custrecord_bbs_if_package_key',
+							    																	value:		packageNumber
+							    																	});
+		    											
+							    											customRecord.setValue({
+							    																	fieldId:	'custrecord_bbs_custom_field_1',
+							    																	value:		'http://acme.com?id=' + packageNumber
+							    																	});
+									
+							    											customRecord.save({
+							    																enableSourcing: 		false,
+							    																ignoreMandatoryFields:	true
+							    																});
+							    										}
+							    									catch(err)
+							    										{
+							    										
+							    										}
+							    									
+			    													
+			    													
 			    													// if labelFileType is PNG
 			    													if (labelFileType == 'PNG')
 			    														{
@@ -541,6 +576,7 @@ function(runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCa
 									    										fieldId: 'custbody_bbs_ci_consignment_number',
 									    										value: consignmentNumber
 									    									});
+									    									
 									    									
 									    									itemFulfillmentRecord.setValue({
 									    										fieldId: 'custbody_bbs_ci_consignment_error',
