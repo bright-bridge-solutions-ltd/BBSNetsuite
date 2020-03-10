@@ -18,7 +18,7 @@ function(record, ui, search) {
     function beforeLoad(scriptContext) {
     	
     	// check the record is being viewed
-    	if (scriptContext.type == 'view')
+    	if (scriptContext.type == 'view' || scriptContext.type == 'edit')
     		{
     			addField(scriptContext.form, scriptContext.newRecord);
     			hideField(scriptContext.form);

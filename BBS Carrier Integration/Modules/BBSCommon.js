@@ -280,73 +280,75 @@ function(record, search, xml, BBSObjects)
 	
 	//Function to convert a JSON object to an xml representation of that object
 	//
-	function _json2xml(o, tab) 
-	{
-		var toXml = function(v, name, ind) 
-	      	{
-				var xml = "";
-
-				if (v instanceof Array) 
-	            	{
-						for (var i=0, n=v.length; i<n; i++)
-							{
-	            	   			xml += ind + toXml(v[i], name, ind+"\t") + "\n";
-							}
-	            	}
-				else if (typeof(v) == "object") 
-	            	{
-						var hasChild = false;
-	               
-						xml += ind + "<v5:" + name;
-
-						for (var m in v) 
-							{
-								if (m.charAt(0) == "@")
-									{
-										xml += " " + m.substr(1) + "=\"" + v[m].toString() + "\"";
-									}
-								else
-									{
-										hasChild = true;
-									}
-							}
-	               
-				xml += hasChild ? ">" : "/>";
-
-				if (hasChild) 
-	                  {
-	                     for (var m in v) 
-	                        {
-	                           if (m == "#text")
-	                        	   {
-	                        	   		xml += v[m];
-	                        	   }
-	                           else if (m.charAt(0) != "@")
-	                        	   {
-	                        	   		xml += toXml(v[m], m, ind+"\t");
-	                        	   }
-	                        }
-	                     
-	                     xml += (xml.charAt(xml.length-1)=="\n"?ind:"") + "</v5:" + name + ">";
-	                  }
-	            }
-	         else 
-	            {
-	               xml += ind + "<v5:" + name + ">" + v.toString() +  "</v5:" + name + ">";
-	            }
-
-	         return xml;
-	      }
-
+	function _json2xml(o, tab, prefix) 
+		{
+	        prefix = (prefix == null ? '' : prefix);
+	
+	        var toXml = function(v, name, ind, prefix) 
+		      	{
+					var xml = "";
+		
+					if (v instanceof Array) 
+		            	{
+							for (var i=0, n=v.length; i<n; i++)
+								{
+		            	   			xml += ind + toXml(v[i], name, ind+"\t", prefix) + "\n";
+								}
+		            	}
+					else if (typeof(v) == "object") 
+		            	{
+							var hasChild = false;
+		               
+							xml += ind + "<" + prefix + name;
+		
+							for (var m in v) 
+								{
+									if (m.charAt(0) == "@")
+										{
+											xml += " " + m.substr(1) + "=\"" + v[m].toString() + "\"";
+										}
+									else
+										{
+											hasChild = true;
+										}
+								}
+		               
+							xml += hasChild ? ">" : "/>";
+		
+							if (hasChild) 
+				                  {
+				                     for (var m in v) 
+				                        {
+				                           if (m == "#text")
+				                        	   {
+				                        	   		xml += v[m];
+				                        	   }
+				                           else if (m.charAt(0) != "@")
+				                        	   {
+				                        	   		xml += toXml(v[m], m, ind+"\t", prefix);
+				                        	   }
+				                        }
+				                     
+				                     xml += (xml.charAt(xml.length-1)=="\n"?ind:"") + "</" + prefix + name + ">";
+				                  }
+			            }
+			         else 
+			            {
+			        	 	xml += ind + "<" + prefix + name + ">" + v.toString() +  "</" + prefix + name + ">";
+			            }
+		
+					return xml;
+		      	}
+	
 	      var xml="";
-
+	
 	   for (var m in o)
 		   {
-		   	xml += toXml(o[m], m, "");
+		   		xml += toXml(o[m], m, "",prefix);
 		   }
 	   
-	   return tab ? xml.replace(/\t/g, tab) : xml.replace(/\t|\n/g, "");
-	}
+	   		return tab ? xml.replace(/\t/g, tab) : xml.replace(/\t|\n/g, "");
+		}
 
 
 	

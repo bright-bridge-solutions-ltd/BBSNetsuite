@@ -52,7 +52,7 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 				
 				//Convert the gfs request object into xml
 				//
-				xmlRequest += BBSCommon.json2xml(commitShipmentsRequestGFS);
+				xmlRequest += BBSCommon.json2xml(commitShipmentsRequestGFS,'', 'v5:');
 		
 				//Add closing SOAP envelope tags
 				//
@@ -138,7 +138,7 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 					
 					//Convert the gfs request object into xml. Add to xmlRequest variable
 					//
-					xmlRequest += BBSCommon.json2xml(processShipmentRequestGFS);
+					xmlRequest += BBSCommon.json2xml(processShipmentRequestGFS, '', 'v5:');
 					
 					//Fixup any missing bit of the xml e.g. xml namespaces and add envelope
 					//
@@ -262,7 +262,7 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 					
 					//Convert the gfs request object into xml. Add to xmlRequest variable
 					//
-					xmlRequest += BBSCommon.json2xml(cancelShipmentRequestGFS);
+					xmlRequest += BBSCommon.json2xml(cancelShipmentRequestGFS, '', 'v5:');
 					
 					//Add closing SOAP envelope tags
 					//
