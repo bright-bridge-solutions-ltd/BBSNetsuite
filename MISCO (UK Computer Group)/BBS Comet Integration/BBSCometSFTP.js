@@ -3,11 +3,11 @@
  * @NScriptType ScheduledScript
  * @NModuleScope SameAccount
  */
-define(['N/sftp', 'N/file', 'N/search', 'N/xml', 'N/record', 'N/runtime', 'N/email'],
+define(['N/sftp', 'N/file', 'N/search', 'N/xml', 'N/record', 'N/runtime', 'N/email', 'N/format'],
 /**
  * @param {sftp, file, search, xml, record, runtime, email} 
  */
-function(sftp, file, search, xml, record, runtime, email) 
+function(sftp, file, search, xml, record, runtime, email, format) 
 {
    
     /**
@@ -25,7 +25,9 @@ function(sftp, file, search, xml, record, runtime, email)
     		//
     		var customrecord_bbs_comet_integrationSearchObj = getResults(search.create({
 				   type: 	"customrecord_bbs_comet_integration",
-				   filters:	[],
+				   filters:	[
+				           	 	["isinactive","is","F"]
+				           	 ],
 				   columns:
 				   [
 				      search.createColumn({name: "custrecord_bbs_comet_username", 				label: "SFTP Username"}),
@@ -231,7 +233,8 @@ function(sftp, file, search, xml, record, runtime, email)
 															var headerOrderTotal	= getDataElement(output, 'output.Order.OrderHeader.OrderTotal.ExclusiveVAT');
 															var headerOrderVat		= getDataElement(output, 'output.Order.OrderHeader.OrderTotal.VAT');
 
-															var headerDate 			= rawDateArray[2] + '/' + rawDateArray[1] + '/' + rawDateArray[0];
+															var headerDateString 	= rawDateArray[2] + '/' + rawDateArray[1] + '/' + rawDateArray[0];
+															var headerDate 			= format.parse({value: headerDateString, type: format.Type.DATE});
 															
 															//Create sales order record
 															//
@@ -255,7 +258,7 @@ function(sftp, file, search, xml, record, runtime, email)
 															
 															salesOrderRecord.setValue({
 																						fieldId:	'trandate',
-																						value:		new Date(headerDate)
+																						value:		headerDate
 																						});
 															
 															salesOrderRecord.setValue({
@@ -294,11 +297,13 @@ function(sftp, file, search, xml, record, runtime, email)
 															//
 															for (var int2 = 0; int2 < output.Order.OrderLines.length; int2++) 
 																{
-																	var lineProduct = output.Order.OrderLines[int2].ProductLine.ManufacturerArticleNo;
-																	var lineQuantity = output.Order.OrderLines[int2].ProductLine.Quantity;
-																	var lineSupplier = output.Order.OrderLines[int2].ProductLine.Supplier;
-																	var linePrice = output.Order.OrderLines[int2].ProductLine.Price;
-																
+																	var lineProduct 		= output.Order.OrderLines[int2].ProductLine.ManufacturerArticleNo;
+																	var lineQuantity 		= output.Order.OrderLines[int2].ProductLine.Quantity;
+																	var lineSupplier 		= output.Order.OrderLines[int2].ProductLine.Supplier;
+																	var linePoPrice 		= output.Order.OrderLines[int2].ProductLine.Price;
+																	var lineSalesRate 		= output.Order.OrderLines[int2].ProductLine.SalesPrice.ExclusiveVAT;
+																	var lineSalesAmount 	= output.Order.OrderLines[int2].ProductLine.TotalPrice.ExclusiveVAT;
+																	
 																	//Find item 
 																	//
 																	var itemId = null;
@@ -343,9 +348,22 @@ function(sftp, file, search, xml, record, runtime, email)
 																			
 																			salesOrderRecord.setCurrentSublistValue({
 																								    				sublistId: 	'item',
-																								    				fieldId: 	'amount',
-																								    				value: 		linePrice
+																								    				fieldId: 	'rate',
+																								    				value: 		lineSalesRate
 																								    				});
+										
+																			salesOrderRecord.setCurrentSublistValue({
+																								    				sublistId: 	'item',
+																								    				fieldId: 	'amount',
+																								    				value: 		lineSalesAmount
+																								    				});
+	
+																			salesOrderRecord.setCurrentSublistValue({
+																								    				sublistId: 	'item',
+																								    				fieldId: 	'porate',
+																								    				value: 		linePoPrice
+																								    				});
+
 										
 																			salesOrderRecord.commitLine({
 																										sublistId: 	'item'
@@ -593,7 +611,14 @@ function(sftp, file, search, xml, record, runtime, email)
 			    								       var attributeValue = _nodes[int].getAttribute({name : attribute});
 			    								       var attributeName = '@' + attribute;
 			    								       var cmd = "_output." + a + ".attributes['" + attributeName + "'] = '" + attributeValue + "'";
-			    								       eval(cmd);
+			    								       try
+			    								       		{
+			    								    	   		eval(cmd.replace('\n',''));
+			    								       		}
+			    								       catch(err)
+			    								       		{
+			    								    	   
+			    								       		}
 			    								 }
 			    					  	  	
 			    				  	  		processNodes(childNodes, a, _output, false, -1);
@@ -607,7 +632,15 @@ function(sftp, file, search, xml, record, runtime, email)
 			    				  	  			{
 			    				  	  				var cmd = 'if(_output.' + _prefix + '.length <= ' + _arrayIndex + '){_output.' + _prefix + '.push(new Object())}';
 			    				  	  				
-			    				  	  				eval(cmd);
+			    				  	  				try
+			    				  	  					{
+			    				  	  						eval(cmd.replace('\n',''));
+			    				  	  					}
+			    				  	  				catch(err)
+			    				  	  					{
+			    				  	  					
+			    				  	  					}
+			    				  	  				
 			    				  	  				var path =  _prefix + '[' + _arrayIndex + ']' + '.' + a;
 			    				  	  			}
 			    				  	  		else
@@ -629,8 +662,15 @@ function(sftp, file, search, xml, record, runtime, email)
 			    					  	  			var cmd = "_output." + path + " = {}";
 			    					  	  		}
 			    					  	  		
-			    				  	  		eval(cmd);
-			
+			    				  	  		try
+			    				  	  			{
+			    				  	  				eval(cmd.replace('\n',''));
+			    				  	  			}
+			    				  	  		catch(err)
+			    				  	  			{
+			    				  	  			
+			    				  	  			}
+			    				  	  		
 			    					  	  	var firstAttribute = true;
 			    					  	  	
 			    					  	  	for(var attribute in c)
@@ -638,14 +678,31 @@ function(sftp, file, search, xml, record, runtime, email)
 			    					  	  			if(firstAttribute)
 			    					  	  				{
 			    					  	  					var cmd = "_output." + path + ".attributes = {}";
-			    					  	  					eval(cmd);
+			    					  	  					
+			    					  	  					try
+			    					  	  						{
+			    					  	  							eval(cmd.replace('\n',''));
+			    					  	  						}
+			    					  	  					catch(err)
+			    					  	  						{
+			    					  	  						
+			    					  	  						}
+			    					  	  					
 			    					  	  					firstAttribute = false;
 			    					  	  				}
 			    					  	  			
 			    								       var attributeValue = _nodes[int].getAttribute({name : attribute});
 			    								       var attributeName = '@' + attribute;
 			    								       var cmd = "_output." + path + ".attributes['" + attributeName + "'] = '" + attributeValue + "'";
-			    								       eval(cmd);
+			    								       
+			    								       try
+				    								       	{
+				    								    	   eval(cmd.replace('\n',''));
+				    								       	}
+			    								       catch(err)
+			    								       		{
+			    								    	   
+			    								       		}
 			    								 }
 			    				  	  	
 			    				  	  		processNodes(childNodes, path, _output, isArray, arrayIndex);
@@ -658,8 +715,16 @@ function(sftp, file, search, xml, record, runtime, email)
 			    						var pathParts = path.split('.');
 			
 			    						var cmd = "_output." + path + " = '" + value + "'";
-			    						eval(cmd);
-			
+			    						
+			    						try
+			    							{
+			    								eval(cmd.replace('\n',''));
+			    							}
+			    						catch(err)
+			    							{
+			    							
+			    							}
+			    						
 			    						//log.debug({title: path + ' = ' + value});
 			    					}
 			    	    }

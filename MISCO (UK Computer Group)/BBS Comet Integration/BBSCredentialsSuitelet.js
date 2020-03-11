@@ -23,11 +23,30 @@ function(serverWidget, http, search, record, runtime, redirect)
     {
     	if (context.request.method === http.Method.GET) 
 	    	{
+    			var allowedDomain = '';
+    		
     			//Get script parameters
     			//
     			var currentScript = runtime.getCurrentScript();
     		
-    			var allowedDomain = currentScript.getParameter({name: 'custscript_bbs_sftp_allowed_domain'});
+    			//Find the integration record
+    			//
+    			var customrecord_bbs_comet_integrationSearchObj = getResults(search.create({
+    				   type: 	"customrecord_bbs_comet_integration",
+    				   filters:		[
+    				           	 		["isinactive","is","F"]
+    				           	 	],
+    				   columns:
+			    				   [
+			    				      search.createColumn({name: "custrecord_bbs_comet_url", label: "SFTP Site URL Or IP Address"})
+			    				   ]
+    				}));
+    			
+    			if(customrecord_bbs_comet_integrationSearchObj != null && customrecord_bbs_comet_integrationSearchObj.length == 1)
+    				{
+    					allowedDomain = customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_url"});
+    				}
+
     			
 	    		//Create a form
 				//
@@ -63,7 +82,9 @@ function(serverWidget, http, search, record, runtime, redirect)
 	    		
 	    		var customrecord_bbs_comet_integrationSearchObj = getResults(search.create({
 	    			   type: 	"customrecord_bbs_comet_integration",
-	    			   filters:	[],
+	    			   filters:	[
+	    			           	 ["isinactive","is","F"]
+	    			           	 ],
 	    			   columns:
 	    			   [
 	    			      search.createColumn({name: "name", sort: search.Sort.ASC, label: "Name"})

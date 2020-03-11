@@ -29,7 +29,9 @@ function(record, runtime, search) {
 			//
 			var customrecord_bbs_comet_integrationSearchObj = getResults(search.create({
 				   type: 	"customrecord_bbs_comet_integration",
-				   filters:	[],
+				   filters:	[
+				           	 	["isinactive","is","F"]
+				           	 ],
 				   columns:
 				   [
 				      search.createColumn({name: "custrecord_bbs_comet_cash_sale_cust", 		label: "Cash Sale Customer"})
