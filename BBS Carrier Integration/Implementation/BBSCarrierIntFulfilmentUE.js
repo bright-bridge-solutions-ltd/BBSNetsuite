@@ -13,9 +13,9 @@ define([
         'N/search',
         'N/file',
         'N/email',
-        '/SuiteScripts/BBS Carrier Integration/Modules/BBSObjects',		//Objects used to pass info back & forth
-        '/SuiteScripts/BBS Carrier Integration/Modules/BBSCommon',		//Common code
-        '/SuiteScripts/BBS Carrier Integration/Modules/BBSCarrierGFS'	//GFS integration module
+        '../Modules/BBSObjects',		//Objects used to pass info back & forth
+        '../Modules/BBSCommon',			//Common code
+        '../Modules/BBSCarrierGFS'		//GFS integration module
         ],
 /**
  * @param {record} record

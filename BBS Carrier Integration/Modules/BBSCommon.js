@@ -1,5 +1,5 @@
 define(['N/record', 'N/search', 'N/xml', 
-        '/SuiteScripts/BBS Carrier Integration/Modules/BBSObjects'
+        './BBSObjects'
         ],
 function(record, search, xml, BBSObjects) 
 {

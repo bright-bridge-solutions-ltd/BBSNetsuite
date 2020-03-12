@@ -4,9 +4,9 @@
  * @NModuleScope SameAccount
  */
 define(['N/runtime', 'N/search', 'N/task', 'N/ui/serverWidget', 'N/ui/dialog', 'N/ui/message','N/format', 'N/http','N/record','N/xml','N/render','N/file',
-        '/SuiteScripts/BBS Carrier Integration/Modules/BBSObjects',		//Objects used to pass info back & forth
-        '/SuiteScripts/BBS Carrier Integration/Modules/BBSCommon',		//Common code
-        '/SuiteScripts/BBS Carrier Integration/Modules/BBSCarrierGFS'	//GFS integration module
+        '../Modules/BBSObjects',		//Objects used to pass info back & forth
+        '../Modules/BBSCommon',			//Common code
+        '../Modules/BBSCarrierGFS'		//GFS integration module
         ],
 /**
  * @param {runtime} runtime

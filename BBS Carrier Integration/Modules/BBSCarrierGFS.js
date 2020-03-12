@@ -1,6 +1,6 @@
 define(['N/encode', 'N/format', 'N/http', 'N/record', 'N/runtime', 'N/search', 'N/xml',
-        '/SuiteScripts/BBS Carrier Integration/Modules/BBSObjects',								//Objects used to pass info back & forth
-        '/SuiteScripts/BBS Carrier Integration/Modules/BBSCommon'								//Common code
+        './BBSObjects',								//Objects used to pass info back & forth
+        './BBSCommon'								//Common code
         ],
 /**
  * @param {encode} encode
