@@ -3,11 +3,11 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/format', 'N/search'],
+define(['N/format', 'N/search', 'N/record'],
 /**
  * @param {search} search
  */
-function(format, search) {
+function(format, search, record) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -32,6 +32,19 @@ function(format, search) {
      * @Since 2015.2
      */
     function beforeSubmit(scriptContext) {
+
+    }
+
+    /**
+     * Function definition to be triggered before record is loaded.
+     *
+     * @param {Object} scriptContext
+     * @param {Record} scriptContext.newRecord - New record
+     * @param {Record} scriptContext.oldRecord - Old record
+     * @param {string} scriptContext.type - Trigger type
+     * @Since 2015.2
+     */
+    function afterSubmit(scriptContext) {
     	
     	// declare and initialize variables
     	contractRecord = null;
@@ -40,6 +53,9 @@ function(format, search) {
     	
     	// get the current record object
     	var currentRecord = scriptContext.newRecord;
+    	
+    	// get the internal id of the record
+    	var recordID = currentRecord.id;
     	
     	// get the item
     	var item = currentRecord.getValue({
@@ -128,97 +144,52 @@ function(format, search) {
 		// check if we have a contract and item record
 		if (contractRecord != null && itemRecord != null)
 			{
-				// set the contract record field on the current record
-				currentRecord.setValue({
-					fieldId: 'custrecord_bbs_ims_usage_data_contract',
-					value: contractRecord
-				});
-				
-				// set the item record field on the current record
-				currentRecord.setValue({
-					fieldId: 'custrecord_bbs_ims_usage_data_item_rec',
-					value: itemRecord
-				});
-				
-				// set the error messages field on the current record to null
-				currentRecord.setValue({
-					fieldId: 'custrecord_bbs_ims_usage_data_errors',
-					value: null
+				record.submitFields({
+					type: 'customrecord_bbs_ims_usage_data',
+					id: recordID,
+					values: {
+						custrecord_bbs_ims_usage_data_contract: contractRecord,
+						custrecord_bbs_ims_usage_data_item_rec: itemRecord,
+						custrecord_bbs_ims_usage_data_errors: null
+					}
 				});
 			}
 		else if (contractRecord == null && itemRecord != null) // if we have got an item record but we don't have a contract record
 			{
-				// set the contract record field on the current record to null
-				currentRecord.setValue({
-					fieldId: 'custrecord_bbs_ims_usage_data_contract',
-					value: null
-				});
-				
-				// set the item record field on the current record
-				currentRecord.setValue({
-					fieldId: 'custrecord_bbs_ims_usage_data_item_rec',
-					value: itemRecord
-				});
-				
-				// set the error messages field on the current record
-				currentRecord.setValue({
-					fieldId: 'custrecord_bbs_ims_usage_data_errors',
-					value: 'No matching contract record found'
+				record.submitFields({
+					type: 'customrecord_bbs_ims_usage_data',
+					id: recordID,
+					values: {
+						custrecord_bbs_ims_usage_data_contract: null,
+						custrecord_bbs_ims_usage_data_item_rec: itemRecord,
+						custrecord_bbs_ims_usage_data_errors: 'No matching contract record found'
+					}
 				});
 			}
 		else if (contractRecord != null && itemRecord == null) // if we have got a contract record but we don't have an item record
 			{
-				// set the contract record field on the current record
-				currentRecord.setValue({
-					fieldId: 'custrecord_bbs_ims_usage_data_contract',
-					value: contractRecord
-				});
-				
-				// set the item record field on the current record to null
-				currentRecord.setValue({
-					fieldId: 'custrecord_bbs_ims_usage_data_item_rec',
-					value: null
-				});
-				
-				// set the error messages field on the current record
-				currentRecord.setValue({
-					fieldId: 'custrecord_bbs_ims_usage_data_errors',
-					value: 'No matching item record found'
+				record.submitFields({
+					type: 'customrecord_bbs_ims_usage_data',
+					id: recordID,
+					values: {
+						custrecord_bbs_ims_usage_data_contract: contractRecord,
+						custrecord_bbs_ims_usage_data_item_rec: null,
+						custrecord_bbs_ims_usage_data_errors: 'No matching item record found'
+					}
 				});
 			}
 		else if (contractRecord == null && itemRecord == null) // if we have neither got an item record or a contract record
 			{
-				// set the contract record field on the current record to null
-				currentRecord.setValue({
-					fieldId: 'custrecord_bbs_ims_usage_data_contract',
-					value: null
-				});
-				
-				// set the item record field on the current record to null
-				currentRecord.setValue({
-					fieldId: 'custrecord_bbs_ims_usage_data_item_rec',
-					value: null
-				});
-				
-				// set the error messages field on the current record
-				currentRecord.setValue({
-					fieldId: 'custrecord_bbs_ims_usage_data_errors',
-					value: 'No matching contract record found<br>No matching item record found'
+				record.submitFields({
+					type: 'customrecord_bbs_ims_usage_data',
+					id: recordID,
+					values: {
+						custrecord_bbs_ims_usage_data_contract: null,
+						custrecord_bbs_ims_usage_data_item_rec: null,
+						custrecord_bbs_ims_usage_data_errors: 'No matching contract record found<br>No matching item record found'
+					}
 				});
 			}
-
-    }
-
-    /**
-     * Function definition to be triggered before record is loaded.
-     *
-     * @param {Object} scriptContext
-     * @param {Record} scriptContext.newRecord - New record
-     * @param {Record} scriptContext.oldRecord - Old record
-     * @param {string} scriptContext.type - Trigger type
-     * @Since 2015.2
-     */
-    function afterSubmit(scriptContext) {
 
     }
 
