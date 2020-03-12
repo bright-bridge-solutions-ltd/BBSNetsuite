@@ -49,12 +49,21 @@ function invoicingScheduled(type)
 			
 			if(fulfilmentRecord)
 				{
+					//Get the shipping cost from the fulfilment
+					//
+					var fulfimentShippingCost = Number(fulfilmentRecord.getFieldValue('shippingcost'));
+					
 					//Get the sales order (10 GU's)
 					//
 					var salesOrderId = fulfilmentRecord.getFieldValue('createdfrom');
 					
 					if(salesOrderId != null && salesOrderId != '')
 						{
+							//Get the carrier info from the sales order
+							//
+							var orderShipCarrier = nlapiLookupField('salesorder', salesOrderId, 'shipcarrier', false);
+							var orderShipMethod = nlapiLookupField('salesorder', salesOrderId, 'shipmethod', false);
+						
 							//Transform the sales order into an invoice
 							//
 							var transformValues = {};
@@ -80,6 +89,9 @@ function invoicingScheduled(type)
 									invoiceRecord.setFieldValue('trandate', dateParam);
 									invoiceRecord.setFieldValue('postingperiod', periodParam);
 									invoiceRecord.setFieldValue('custbody_bbs_created_from_fulfillment',ffidsParam[int]);
+									//invoiceRecord.setFieldValue('shipcarrier', orderShipCarrier);
+									invoiceRecord.setFieldValue('shipmethod', orderShipMethod);
+									invoiceRecord.setFieldValue('shippingcost', fulfimentShippingCost);
 									
 									//Loop through the invoice lines setting the quantities to zero
 									//
