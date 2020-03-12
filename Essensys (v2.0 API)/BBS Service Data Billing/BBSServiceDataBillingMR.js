@@ -70,12 +70,12 @@ function(runtime, search, record, render) {
     				{
     			name: 'custrecord_bbs_service_data_start_date',
     			operator: 'notafter',
-    			values: ['lastmonth']
+    			values: ['lastmonth'] // lastmonth means end of last month
     		},
     				{
     			name: 'custrecord_bbs_service_data_end_date',
     			operator: 'notbefore',
-    			values: ['lastmonth']
+    			values: ['startoflastmonth']
     		},
     				{
     			name: 'internalid',
@@ -96,6 +96,11 @@ function(runtime, search, record, render) {
     	
     	// retrieve search results
     	var searchResult = JSON.parse(context.value);
+    	
+    	log.debug({
+    		title: "Script Check",
+    		details: searchResult
+    	});
     	
     	// retrieve search results
     	var siteID = searchResult.values['GROUP(custrecord_bbs_service_data_site_record)'].value;
@@ -146,18 +151,18 @@ function(runtime, search, record, render) {
 						summary: 'GROUP'
 					},
 							{
-						name: 'custrecord_bbs_service_data_service_name',
-						summary: 'MAX'
+						name: 'formulatext',
+						summary: 'MAX',
+						formula: "CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN CONCAT({custrecord_bbs_service_data_service_name}, CONCAT(CONCAT('<br>Start Date: ', {custrecord_bbs_service_data_start_date}), CONCAT('<br>End Date: ', {custrecord_bbs_service_data_end_date}))) ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN CONCAT({custrecord_bbs_service_data_service_name}, CONCAT(CONCAT('<br>Start Date: ', LAST_DAY(ADD_MONTHS({custrecord_bbs_service_data_end_date}, -1))+1), CONCAT('<br>End Date: ', {custrecord_bbs_service_data_end_date}))) ELSE CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') -1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN CONCAT({custrecord_bbs_service_data_service_name}, CONCAT(CONCAT('<br>Start Date: ', {custrecord_bbs_service_data_start_date}), CONCAT('<br>End Date: ', LAST_DAY({custrecord_bbs_service_data_start_date})))) ELSE CONCAT({custrecord_bbs_service_data_service_name}, CONCAT(CONCAT('<br>Start Date: ', LAST_DAY(ADD_MONTHS({today}, -2))+1), CONCAT('<br>End Date: ', LAST_DAY(ADD_MONTHS({today}, -1))))) END END END"
 					},
 							{
 						name: 'formulacurrency',
 						summary: 'GROUP',
-						formula: "ROUND(CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * TO_CHAR({custrecord_bbs_service_data_end_date},'DD') ELSE CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') -1 THEN ({custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD')) * (TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD') +1) ELSE {custrecord_bbs_service_data_sales_price} END END,2)"
+						formula: "ROUND(CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * (TO_CHAR({custrecord_bbs_service_data_end_date},'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD')) - 1 ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * TO_CHAR({custrecord_bbs_service_data_end_date},'DD') ELSE CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') -1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD')) * (TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD') +1) ELSE {custrecord_bbs_service_data_op_cost} END END END, 2)"
 					},
 							{
-						name: 'formulanumeric',
-						summary: 'MAX',
-						formula: "COUNT({internalid})"
+						name: 'custrecord_bbs_service_data_quantity',
+						summary: 'SUM'
 					}],
 					
 					filters: [{
@@ -173,18 +178,23 @@ function(runtime, search, record, render) {
 							{
 		    			name: 'custrecord_bbs_service_data_start_date',
 		    			operator: 'notafter',
-		    			values: ['lastmonth']
+		    			values: ['lastmonth'] // lastmonth means end of last month
 		    		},
 		    				{
 		    			name: 'custrecord_bbs_service_data_end_date',
 		    			operator: 'notbefore',
-		    			values: ['lastmonth']
+		    			values: ['startoflastmonth']
 		    		}],
 					
 				});
 				
 				// run search and process results
 				serviceDataSearch.run().each(function(result) {
+					
+					log.debug({
+						title: 'Result',
+						details: result
+					});
 					
 					// retrieve search results
 					var item = result.getValue({
@@ -193,7 +203,7 @@ function(runtime, search, record, render) {
 					});
 					
 					var description = result.getValue({
-						name: 'custrecord_bbs_service_data_service_name',
+						name: 'formulatext',
 						summary: 'MAX'
 					});
 					
@@ -203,12 +213,9 @@ function(runtime, search, record, render) {
 					});
 					
 					var quantity = result.getValue({
-						name: 'formulanumeric',
-						summary: 'MAX'
+						name: 'custrecord_bbs_service_data_quantity',
+						summary: 'SUM'
 					});
-					
-					// multiply rate by quantity
-					rate = rate * quantity;
 					
 					// select a new line on the invoice record
 					invoiceRecord.selectNewLine({
@@ -230,6 +237,12 @@ function(runtime, search, record, render) {
 					
 					invoiceRecord.setCurrentSublistValue({
 						sublistId: 'item',
+						fieldId: 'quantity',
+						value: quantity
+					});
+					
+					invoiceRecord.setCurrentSublistValue({
+						sublistId: 'item',
 						fieldId: 'rate',
 						value: rate
 					});
@@ -240,7 +253,7 @@ function(runtime, search, record, render) {
 						value: siteID
 					});
 					
-					// commmit the line
+					// commit the line
 					invoiceRecord.commitLine({
 						sublistId: 'item'
 					});
@@ -316,26 +329,11 @@ function(runtime, search, record, render) {
 			var invoiceTranID = PDF_File.name;
 			invoiceTranID = invoiceTranID.replace("Invoice_", ""); // remove 'Invoice_' from string
 			
-			// get date parts which will be used in the file name
-			var fileDateMonth = invoiceDate.getMonth()+1;
-			
-			// check if fileDateMonth is less than 10
-			if (fileDateMonth < 10)
-				{
-					// convert to string
-					fileDateMonth = JSON.stringify(invoiceDate.getMonth()+1);
-					
-					// build up string with 0 at the start
-					fileDateMonth = '0' + fileDateMonth;
-				}
-			
-			var fileDate = invoiceDate.getDate();
-			var fileDateYear = invoiceDate.getFullYear();
-			fileDateYear = JSON.stringify(fileDateYear); // convert from object to string
-			fileDateYear = fileDateYear.substring(2, 4); // remove first 2 characters from string
+			// format the invoice date in the following format YYMMDD
+			var fileDate = invoiceDate.format('ymd');
 			
 			// set the file name
-			PDF_File.name = siteAlias + ' - ' + fileDateYear + fileDateMonth + fileDate + ' - ' + invoiceTranID;
+			PDF_File.name = siteAlias + ' - ' + fileDate + ' - ' + invoiceTranID;
 			
 			// set the attachments folder
 			PDF_File.folder = fileCabinetFolder;
@@ -357,6 +355,190 @@ function(runtime, search, record, render) {
 					});
 				}
     	}
+    
+    //=============================================================================================
+	//Prototypes
+	//=============================================================================================
+	//
+	
+	//Date & time formatting prototype 
+	//
+	(function() {
+
+		Date.shortMonths = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
+		Date.longMonths = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ];
+		Date.shortDays = [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ];
+		Date.longDays = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
+
+		// defining patterns
+		var replaceChars = {
+		// Day
+		d : function() {
+			return (this.getDate() < 10 ? '0' : '') + this.getDate();
+		},
+		D : function() {
+			return Date.shortDays[this.getDay()];
+		},
+		j : function() {
+			return this.getDate();
+		},
+		l : function() {
+			return Date.longDays[this.getDay()];
+		},
+		N : function() {
+			return (this.getDay() == 0 ? 7 : this.getDay());
+		},
+		S : function() {
+			return (this.getDate() % 10 == 1 && this.getDate() != 11 ? 'st' : (this.getDate() % 10 == 2 && this.getDate() != 12 ? 'nd' : (this.getDate() % 10 == 3 && this.getDate() != 13 ? 'rd' : 'th')));
+		},
+		w : function() {
+			return this.getDay();
+		},
+		z : function() {
+			var d = new Date(this.getFullYear(), 0, 1);
+			return Math.ceil((this - d) / 86400000);
+		}, // Fixed now
+		// Week
+		W : function() {
+			var target = new Date(this.valueOf());
+			var dayNr = (this.getDay() + 6) % 7;
+			target.setDate(target.getDate() - dayNr + 3);
+			var firstThursday = target.valueOf();
+			target.setMonth(0, 1);
+			if (target.getDay() !== 4) {
+				target.setMonth(0, 1 + ((4 - target.getDay()) + 7) % 7);
+			}
+			var retVal = 1 + Math.ceil((firstThursday - target) / 604800000);
+
+			return (retVal < 10 ? '0' + retVal : retVal);
+		},
+		// Month
+		F : function() {
+			return Date.longMonths[this.getMonth()];
+		},
+		m : function() {
+			return (this.getMonth() < 9 ? '0' : '') + (this.getMonth() + 1);
+		},
+		M : function() {
+			return Date.shortMonths[this.getMonth()];
+		},
+		n : function() {
+			return this.getMonth() + 1;
+		},
+		t : function() {
+			var year = this.getFullYear(), nextMonth = this.getMonth() + 1;
+			if (nextMonth === 12) {
+				year = year++;
+				nextMonth = 0;
+			}
+			return new Date(year, nextMonth, 0).getDate();
+		},
+		// Year
+		L : function() {
+			var year = this.getFullYear();
+			return (year % 400 == 0 || (year % 100 != 0 && year % 4 == 0));
+		}, // Fixed now
+		o : function() {
+			var d = new Date(this.valueOf());
+			d.setDate(d.getDate() - ((this.getDay() + 6) % 7) + 3);
+			return d.getFullYear();
+		}, //Fixed now
+		Y : function() {
+			return this.getFullYear();
+		},
+		y : function() {
+			return ('' + this.getFullYear()).substr(2);
+		},
+		// Time
+		a : function() {
+			return this.getHours() < 12 ? 'am' : 'pm';
+		},
+		A : function() {
+			return this.getHours() < 12 ? 'AM' : 'PM';
+		},
+		B : function() {
+			return Math.floor((((this.getUTCHours() + 1) % 24) + this.getUTCMinutes() / 60 + this.getUTCSeconds() / 3600) * 1000 / 24);
+		}, // Fixed now
+		g : function() {
+			return this.getHours() % 12 || 12;
+		},
+		G : function() {
+			return this.getHours();
+		},
+		h : function() {
+			return ((this.getHours() % 12 || 12) < 10 ? '0' : '') + (this.getHours() % 12 || 12);
+		},
+		H : function() {
+			return (this.getHours() < 10 ? '0' : '') + this.getHours();
+		},
+		i : function() {
+			return (this.getMinutes() < 10 ? '0' : '') + this.getMinutes();
+		},
+		s : function() {
+			return (this.getSeconds() < 10 ? '0' : '') + this.getSeconds();
+		},
+		u : function() {
+			var m = this.getMilliseconds();
+			return (m < 10 ? '00' : (m < 100 ? '0' : '')) + m;
+		},
+		// Timezone
+		e : function() {
+			return /\((.*)\)/.exec(new Date().toString())[1];
+		},
+		I : function() {
+			var DST = null;
+			for (var i = 0; i < 12; ++i) {
+				var d = new Date(this.getFullYear(), i, 1);
+				var offset = d.getTimezoneOffset();
+
+				if (DST === null)
+					DST = offset;
+				else
+					if (offset < DST) {
+						DST = offset;
+						break;
+					}
+					else
+						if (offset > DST)
+							break;
+			}
+			return (this.getTimezoneOffset() == DST) | 0;
+		},
+		O : function() {
+			return (-this.getTimezoneOffset() < 0 ? '-' : '+') + (Math.abs(this.getTimezoneOffset() / 60) < 10 ? '0' : '') + Math.floor(Math.abs(this.getTimezoneOffset() / 60)) + (Math.abs(this.getTimezoneOffset() % 60) == 0 ? '00' : ((Math.abs(this.getTimezoneOffset() % 60) < 10 ? '0' : '')) + (Math
+					.abs(this.getTimezoneOffset() % 60)));
+		},
+		P : function() {
+			return (-this.getTimezoneOffset() < 0 ? '-' : '+') + (Math.abs(this.getTimezoneOffset() / 60) < 10 ? '0' : '') + Math.floor(Math.abs(this.getTimezoneOffset() / 60)) + ':' + (Math.abs(this.getTimezoneOffset() % 60) == 0 ? '00' : ((Math.abs(this.getTimezoneOffset() % 60) < 10 ? '0' : '')) + (Math
+					.abs(this.getTimezoneOffset() % 60)));
+		}, // Fixed now
+		T : function() {
+			return this.toTimeString().replace(/^.+ \(?([^\)]+)\)?$/, '$1');
+		},
+		Z : function() {
+			return -this.getTimezoneOffset() * 60;
+		},
+		// Full Date/Time
+		c : function() {
+			return this.format("Y-m-d\\TH:i:sP");
+		}, // Fixed now
+		r : function() {
+			return this.toString();
+		},
+		U : function() {
+			return this.getTime() / 1000;
+		}
+		};
+
+		// Simulates PHP's date function
+		Date.prototype.format = function(format) {
+			var date = this;
+			return format.replace(/(\\?)(.)/g, function(_, esc, chr) {
+				return (esc === '' && replaceChars[chr]) ? replaceChars[chr].call(date) : chr;
+			});
+		};
+
+	}).call(this);
 
     return {
         getInputData: getInputData,
