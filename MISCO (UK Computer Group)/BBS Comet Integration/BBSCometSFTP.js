@@ -252,7 +252,7 @@ function(sftp, file, search, xml, record, runtime, email, format)
 																						});
 			
 															salesOrderRecord.setValue({
-																						fieldId:	'otherrefnum',
+																						fieldId:	'custbody_bbs_weborderref',
 																						value:		headerOrderNo
 																						});
 															
@@ -304,6 +304,16 @@ function(sftp, file, search, xml, record, runtime, email, format)
 																	var lineSalesRate 		= output.Order.OrderLines[int2].ProductLine.SalesPrice.ExclusiveVAT;
 																	var lineSalesAmount 	= output.Order.OrderLines[int2].ProductLine.TotalPrice.ExclusiveVAT;
 																	
+																	//lineSalesRate = Number(lineSalesRate);
+																	//lineSalesRate = Math.round(lineSalesRate * 100) / 100;
+																	
+																	//linePoPrice = Number(linePoPrice);
+																	//linePoPrice = Math.round(linePoPrice * 100) / 100;
+																	
+																	//lineSalesAmount = Number(lineSalesAmount);
+																	//lineSalesAmount = Math.round(lineSalesAmount * 100) / 100;
+																	
+																	
 																	//Find item 
 																	//
 																	var itemId = null;
@@ -330,6 +340,31 @@ function(sftp, file, search, xml, record, runtime, email, format)
 																	//
 																	if(itemId != null)
 																		{
+																			//Find the supplier
+																			//
+																			var supplierId = null;
+																			
+																			var vendorSearchObj = getResults(search.create({
+																												   type: 	"vendor",
+																												   filters:
+																															   [
+																															      ["entityid","is",lineSupplier]
+																															   ],
+																												   columns:
+																															   [
+																															      search.createColumn({
+																																			         name: 	"entityid",
+																																			         sort: 	search.Sort.ASC,
+																																			         label: "Name"
+																															      					})
+																															   ]
+																												}));
+																			
+																			if(vendorSearchObj != null && vendorSearchObj.length >= 1)
+																				{	
+																					supplierId = vendorSearchObj[0].id;
+																				}
+																		
 																			salesOrderRecord.selectNewLine({
 																						    				sublistId: 'item'
 																						    				});
@@ -358,9 +393,30 @@ function(sftp, file, search, xml, record, runtime, email, format)
 																								    				value: 		lineSalesAmount
 																								    				});
 	
+																			if(supplierId != null)
+																				{
+																					salesOrderRecord.setCurrentSublistValue({
+																										    				sublistId: 	'item',
+																										    				fieldId: 	'povendor',
+																										    				value: 		supplierId
+																										    				});
+																				}
+																			
 																			salesOrderRecord.setCurrentSublistValue({
 																								    				sublistId: 	'item',
 																								    				fieldId: 	'porate',
+																								    				value: 		linePoPrice
+																								    				});
+
+																			salesOrderRecord.setCurrentSublistValue({
+																								    				sublistId: 	'item',
+																								    				fieldId: 	'costestimatetype',
+																								    				value: 		'CUSTOM'
+																								    				});
+																			
+																			salesOrderRecord.setCurrentSublistValue({
+																								    				sublistId: 	'item',
+																								    				fieldId: 	'costestimaterate',
 																								    				value: 		linePoPrice
 																								    				});
 
