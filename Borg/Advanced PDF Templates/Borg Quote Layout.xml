@@ -2,14 +2,14 @@
 <pdf>
 <head>
 	
-	<#assign font_futura_light =  "https://3976137-sb1.app.netsuite.com/core/media/media.nl?id=2954819&c=3976137_SB1&h=aa4274acf6b4fdf482e5&_xt=.ttf" />
-	<#assign font_futura_medium = "https://3976137-sb1.app.netsuite.com/core/media/media.nl?id=2954820&c=3976137_SB1&h=3b6e00d14514b4ab7c46&_xt=.ttf" />	
+	<#assign font_futura_light =  "https://3976137.app.netsuite.com/core/media/media.nl?id=3399123&amp;c=3976137&amp;h=7917b62431a11b4980e7&_xt=.ttf" />
+	<#assign font_futura_medium = "https://3976137.app.netsuite.com/core/media/media.nl?id=3399122&amp;c=3976137&amp;h=4d2d7c35c4770d83a7b6&_xt=.ttf" />
 	<link type="font" name="Futura" subtype="TrueType" src="${font_futura_light?html}" src-bold="${font_futura_medium?html}" />
     <macrolist>
         <macro id="nlheader">
             <table class="header" style="width: 100%;">
             	<tr>
-					<td rowspan="3" colspan="3"><img src="https://3976137.app.netsuite.com/core/media/media.nl?id=3216011&c=3976137&h=a62872ae3572bbadb77c" style="float: left;" /></td>
+					<td rowspan="3" colspan="3"><img src="https://3976137.app.netsuite.com/core/media/media.nl?id=3216011&amp;c=3976137&amp;h=a62872ae3572bbadb77c" style="float: left;" /></td>
 					<td><span class="header"><br/>Telephone<br />+44(0)1362 695 006<br />Email<br />sales@borgandoverstrom.com<br /><br /><strong>borgandoverstrom.com</strong></span></td>
 					<td><span class="header"><br/>${companyInformation.addressText}</span></td>
 				</tr>
@@ -53,7 +53,7 @@
             padding: 0px 0px;
         }
 		td p { 
-			align:left 
+			align:left;
 		}
         b {
             font-weight: bold;
@@ -131,6 +131,7 @@
         	font-size: 10pt;
         	line-height: 14pt;
             font-weight: bold;
+          	color:#0000FF;
         }
         span.terms {
         	font-size: 8pt;
@@ -189,11 +190,11 @@
 		<tr>
 			<!-- check if we have an item image -->
 			<#if item.custcol_bbs_item_image?length gt 0>
-    			<td style="padding-top:10px;" align="left" colspan="8"><img src="${item.custcol_bbs_item_image}" style="width: 120px; height: 80px;"/></td>
+              <td style="padding-top:10px;" align="left" colspan="8"><img src="${item.custcol_bbs_item_image}" style="width: 120px; height: 80px;"/></td>
     		<#else>
       			<td colspan="8">&nbsp;</td>
    			</#if>
-			<td style="padding-top:10px;" colspan="6"><span class="itemname">${item.item}</span></td>
+			<td style="padding-top:10px;" colspan="6"><span class="itemname"><a href="https://store.borgandoverstrom.com/${item.item}" target="_blank">${item.item}</a></span></td>
 			<td style="padding-top:10px;" colspan="7"><span class="address">${item.description}</span></td>
 			<td style="padding-top:10px;" colspan="5">&nbsp;</td>
 			<td style="padding-top:10px;" align="left" colspan="4"><span class="address">${item.quantity}</span></td>

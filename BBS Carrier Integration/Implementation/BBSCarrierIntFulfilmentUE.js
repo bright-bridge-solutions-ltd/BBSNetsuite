@@ -358,18 +358,30 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    											sublistId: 'package'
 	    										});
 	    										
-	    										// loop through package sublist lines
-	    										for (var i = 0; i < packageCount; i++)
+	    										// where packageCount is not 0
+	    										if (packageCount > 0)
 	    											{
-	    												// get the weight for the line
-	    												var weight = itemFulfillmentRecord.getSublistValue({
-	    													sublistId: 'package',
-	    													fieldId: 'packageweight',
-	    													line: i
-	    												});
+			    										// loop through package sublist lines
+			    										for (var i = 0; i < packageCount; i++)
+			    											{
+			    												// get the weight for the line
+			    												var weight = itemFulfillmentRecord.getSublistValue({
+			    													sublistId: 'package',
+			    													fieldId: 'packageweight',
+			    													line: i
+			    												});
+			    												
+			    												// add the weight to the totalWeight variable
+			    												totalWeight += weight;
+			    											}
+	    											}
+	    										else
+	    											{
+	    												// set totalWeight to 1
+	    												totalWeight = 1;
 	    												
-	    												// add the weight to the totalWeight variable
-	    												totalWeight += weight;
+	    												// set packageCount to 1
+	    												packageCount = 1;
 	    											}
 	    									}
 	    								
@@ -443,7 +455,7 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    								
 	    								//Build up the process shipments request object
 	    								//
-	    								var processShipmentsRequest = new BBSObjects.processShipmentRequest(integrationDetails, shippingCarrierInfo, shipmentReference, shippingAddress, contactInfo, despatchDate, weight, packageCount, isSaturday);
+	    								var processShipmentsRequest = new BBSObjects.processShipmentRequest(integrationDetails, shippingCarrierInfo, shipmentReference, shippingAddress, contactInfo, despatchDate, totalWeight, packageCount, isSaturday);
 	    								
 	    								//Work out which integration module to use
 	    								//
@@ -461,11 +473,6 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 			    											// get the company URL
 			    											var companyURL = getCompanyUrl();
 			    											
-			    											log.debug({
-			    												title: 'Company URL',
-			    												details: companyURL
-			    											});
-			    										
 			    											// set the shipping carrier field on the record
 				    										itemFulfillmentRecord.setValue({
 					    										fieldId: 'custbody_bbs_ci_shipping_carrier',
@@ -496,6 +503,23 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 			    														sublistId: 'package',
 			    														line: i
 			    													});
+			    													
+			    													// get the weight for the current line
+			    													var packageWeight = itemFulfillmentRecord.getCurrentSublistValue({
+			    														sublistId: 'package',
+			    														fieldId: 'packageweight'
+			    													});
+			    													
+			    													// if there is no weight on the line
+			    													if (!packageWeight)
+			    														{
+			    															// set the package weight to 1
+			    															itemFulfillmentRecord.setCurrentSublistValue({
+			    																sublistId: 'package',
+			    																fieldId: 'packageweight',
+			    																value: 1
+			    															});
+			    														}
 			    													
 			    													// set the tracking number field on the sublist line
 			    													itemFulfillmentRecord.setCurrentSublistValue({

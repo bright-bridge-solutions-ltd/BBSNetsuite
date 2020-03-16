@@ -21,7 +21,7 @@ function(record, ui, search) {
     	if (scriptContext.type == 'view' || scriptContext.type == 'edit')
     		{
     			addField(scriptContext.form, scriptContext.newRecord);
-    			hideField(scriptContext.form);
+    			hideField(scriptContext.form, scriptContext.newRecord);
     		}
 
     }
@@ -51,10 +51,10 @@ function(record, ui, search) {
     function afterSubmit(scriptContext) {
     	
     	// check that the record is being created or edited
-    	if (scriptContext.type == 'create' && scriptContext.type == 'edit')
+    	if (scriptContext.type == 'create' || scriptContext.type == 'edit')
     		{
     			// get the current record
-    			var currentRecord = scriptContext.newRecord();
+    			var currentRecord = scriptContext.newRecord;
     			
     			// get internal ID of the current record
     			var recordID = currentRecord.id;
@@ -74,41 +74,20 @@ function(record, ui, search) {
     						line: i
     					});
     					
-    					var customField = currentRecord.getSublistValue({
-    						sublistId: 'package',
-    						fieldId: 'custompage_trackingurl',
-    						line: i
-    					});
-    					
-    					if (checkMVF(fulfilmentId, packageId))
-    						{
-    							record.submitFields({
-    								type: 'customrecord_bbs_if_additional_fields',
-    								id: myfid,
-    								values: {
-    									custrecord_bbs_custom_field_1: trackingURL
-    								}
-    							});
-    						}
-    					else
+    					if (!checkMVF(recordID, packageId))
     						{
     							var rec = record.create({
     								type: 'customrecord_bbs_if_additional_fields'
     							});
     							
-    							rec.setFieldValue({
+    							rec.setValue({
     								fieldId: 'custrecord_bbs_if_fulfilment',
     								value: recordID
     							});
     							
-    							rec.setFieldValue({
+    							rec.setValue({
     								fieldId: 'custrecord_bbs_if_package_key',
     								value: packageId
-    							});
-    							
-    							rec.setFieldValue({
-    								fieldId: 'custrecord_bbs_custom_field_1',
-    								value: customField
     							});
     							
     							rec.save();
@@ -121,106 +100,126 @@ function(record, ui, search) {
     
     function addField(form, currentRecord)
     	{
-    		// get the package sublist
-    		var packagesSublist = form.getSublist({
-    			id: 'package'
-    		});
+	    	// get the value of the [BBS CI] Shipping Carrier field
+			var shippingCarrier = currentRecord.getValue({
+				fieldId: 'custbody_bbs_ci_shipping_carrier'
+			});
+			
+			// check we have a shipping carrier
+			if (shippingCarrier)
+				{
+					// call function to get the carrier's tracking URL
+					var carrierTrackingURL = getTrackingURL(shippingCarrier);
+				
+					// get the package sublist
+		    		var packagesSublist = form.getSublist({
+		    			id: 'package'
+		    		});
     		
-    		// check we can get the sublist
-    		if (packagesSublist != null)
-    			{
-    				// add new fields to the package sublist
-    				var packageNumberField = packagesSublist.addField({
-    					id: 'custpage_trackingnumber',
-    					type: ui.FieldType.TEXT,
-    					label: 'Package Tracking Number'
-    				});
-    			
-    				var trackingLinkField = packagesSublist.addField({
-    					id: 'custpage_trackinglink',
-    					type: ui.FieldType.URL,
-    					label: 'Package Tracking Link'
-    				});
-    				
-    				// set the link text and display type
-    				packageNumberField.updateDisplayType({
-    					displayType: ui.FieldDisplayType.DISABLED
-    				});
-    				
-    				trackingLinkField.updateDisplayType({
-    				    displayType: ui.FieldDisplayType.DISABLED
-    				});
-    				
-    				trackingLinkField.linkText = 'Click Here to Track';
-    				
-    				// get count of package sublist lines
-    				var packageCount = currentRecord.getLineCount({
-    					sublistId: 'package'
-    				});
-    				
-    				// get the internal ID of the current record
-    				var fulfilmentId = currentRecord.id;
-    				
-    				// loop through package count
-    				for (var i = 0; packageCount != null && i < packageCount; i++)
-    					{
-    						// get the package tracking number
-    						var packageId = currentRecord.getSublistValue({
-    							sublistId: 'package',
-    							fieldId: 'packagetrackingnumber',
-    							line: i
-    						});
-    						
-    						if (checkMVF(fulfilmentId, packageId)) 
-    			        		{
-    								var fieldLookup = search.lookupFields({
-    									type: 'customrecord_bbs_if_additional_fields',
-    									id: mvfid,
-    									columns: ['custrecord_bbs_custom_field_1', 'custrecord_bbs_if_package_key']
-    								});
-    								
-    								var trackingNumber = fieldLookup.custrecord_bbs_if_package_key;
-    								var trackingLink = fieldLookup.custrecord_bbs_custom_field_1;
-    								
-    								currentRecord.setSublistValue({
-    									sublistId: 'package',
-    									fieldId: 'custpage_trackingnumber',
-    									value: trackingNumber,
-    									line: i
-    								});
-    								
-    								currentRecord.setSublistValue({
-    									sublistId: 'package',
-    									fieldId: 'custpage_trackinglink',
-    									value: trackingLink,
-    									line: i
-    								});
-    			        		}
-    					}
-    			}
+		    		// check we can get the sublist
+		    		if (packagesSublist != null)
+		    			{
+		    				// add new fields to the package sublist
+		    				var packageNumberField = packagesSublist.addField({
+		    					id: 'custpage_trackingnumber',
+		    					type: ui.FieldType.TEXT,
+		    					label: 'Package Tracking Number'
+		    				});
+		    			
+		    				var trackingLinkField = packagesSublist.addField({
+		    					id: 'custpage_trackinglink',
+		    					type: ui.FieldType.URL,
+		    					label: 'Package Tracking Link'
+		    				});
+		    				
+		    				// set the link text and display type
+		    				packageNumberField.updateDisplayType({
+		    					displayType: ui.FieldDisplayType.DISABLED
+		    				});
+		    				
+		    				trackingLinkField.updateDisplayType({
+		    				    displayType: ui.FieldDisplayType.DISABLED
+		    				});
+		    				
+		    				trackingLinkField.linkText = 'Click Here to Track';
+		    				
+		    				// get count of package sublist lines
+		    				var packageCount = currentRecord.getLineCount({
+		    					sublistId: 'package'
+		    				});
+		    				
+		    				// get the internal ID of the current record
+		    				var fulfilmentId = currentRecord.id;
+		    				
+		    				// loop through package count
+		    				for (var i = 0; packageCount != null && i < packageCount; i++)
+		    					{
+		    						// get the package tracking number
+		    						var packageId = currentRecord.getSublistValue({
+		    							sublistId: 'package',
+		    							fieldId: 'packagetrackingnumber',
+		    							line: i
+		    						});
+		    						
+		    						if (checkMVF(fulfilmentId, packageId)) 
+		    			        		{
+		    								var fieldLookup = search.lookupFields({
+		    									type: 'customrecord_bbs_if_additional_fields',
+		    									id: mvfid,
+		    									columns: ['custrecord_bbs_if_package_key']
+		    								});
+		    								
+		    								var trackingNumber = fieldLookup.custrecord_bbs_if_package_key;
+		    								
+		    								currentRecord.setSublistValue({
+		    									sublistId: 'package',
+		    									fieldId: 'custpage_trackingnumber',
+		    									value: trackingNumber,
+		    									line: i
+		    								});
+		    								
+		    								currentRecord.setSublistValue({
+		    									sublistId: 'package',
+		    									fieldId: 'custpage_trackinglink',
+		    									value: carrierTrackingURL + trackingNumber,
+		    									line: i
+		    								});
+		    			        		}
+		    					}
+		    			}
+				}
     		
     	}
     
-    function hideField(form)
+    function hideField(form, currentRecord)
 	    {
-	    	// get the packages sublist
-    		var packagesSublist = form.getSublist({
-    			id: 'package'
-    		});
-    		
-    		// check we can get the sublist
-    		if (packagesSublist != null)
-    			{
-    				// get the package tracking number field
-    				var trackingNumberField = packagesSublist.getField({
-    					id: 'packagetrackingnumber'
-    				});
-    				
-    				// set the field to hidden
-    				trackingNumberField.updateDisplayType({
-    					displayType: ui.FieldDisplayType.HIDDEN
-    				});
-    			}
+	    	// get the value of the [BBS CI] Shipping Carrier field
+			var shippingCarrier = currentRecord.getValue({
+				fieldId: 'custbody_bbs_ci_shipping_carrier'
+			});
+			
+			// check we have a shipping carrier
+			if (shippingCarrier)
+				{
+		    		// get the packages sublist
+		    		var packagesSublist = form.getSublist({
+		    			id: 'package'
+		    		});
+		    		
+		    		// check we can get the sublist
+		    		if (packagesSublist != null)
+		    			{
+		    				// get the package tracking number field
+		    				var trackingNumberField = packagesSublist.getField({
+		    					id: 'packagetrackingnumber'
+		    				});
+		    				
+		    				// set the field to hidden
+		    				trackingNumberField.updateDisplayType({
+		    					displayType: ui.FieldDisplayType.HIDDEN
+		    				});
+		    			}
+				}
 	    }
     
     function checkMVF(_fulfilmentId, _packageId)
@@ -275,6 +274,19 @@ function(record, ui, search) {
 	    			return false;
 	    		}
 	    }
+    
+    function getTrackingURL(carrier)
+    	{
+    		// lookup fields on the carrier codes record
+    		var carrierLookup = search.lookupFields({
+    			type: 'customrecord_bbs_carriers',
+    			id: carrier,
+    			columns: ['custrecord_bbs_carrier_code_track_url']
+    		});
+    		
+    		// return the tracking URL to the main script function
+    		return carrierLookup.custrecord_bbs_carrier_code_track_url;
+    	}
 
     return {
         beforeLoad: beforeLoad,
