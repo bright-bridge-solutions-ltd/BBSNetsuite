@@ -307,7 +307,7 @@ function(runtime, search, record, render) {
     	
     	log.audit({
     		title: '*** END OF SCRIPT ***',
-    		details: 'Units Used: ' + context.usage + '<br>Number of Yields: ' + context.yields
+    		details: 'Duration: ' + summary.seconds + ' seconds<br>Units Used: ' + summary.usage + '<br>Yields: ' + summary.yields
     	});
 
     }

@@ -3480,16 +3480,11 @@ function(runtime, search, record, format, task) {
     		return postingPeriod;
     	}
     
-    function summarize(context)
+    function summarize(summary)
 	    {
 	    	log.audit({
-	    		title: 'Units Used',
-	    		details: context.usage
-	    	});
-	    	
-	    	log.audit({
-	    		title: 'Number of Yields',
-	    		details: context.yields
+	    		title: '*** END OF SCRIPT ***',
+	    		details: 'Duration: ' + summary.seconds + ' seconds<br>Units Used: ' + summary.usage + '<br>Yields: ' + summary.yields
 	    	});
 	    	
 	    	// =================================================================================================

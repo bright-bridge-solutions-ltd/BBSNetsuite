@@ -155,6 +155,11 @@ function(search, record, format) {
      * @since 2015.1
      */
     function summarize(summary) {
+    	
+    	log.audit({
+    		title: '*** END OF SCRIPT ***',
+    		details: 'Duration: ' + summary.seconds + ' seconds<br>Units Used: ' + summary.usage + '<br>Yields: ' + summary.yields
+    	});
 
     }
     
