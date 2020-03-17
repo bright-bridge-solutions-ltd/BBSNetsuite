@@ -478,11 +478,6 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 					    										fieldId: 'custbody_bbs_ci_shipping_carrier',
 					    										value: shippingCarrier
 					    									});
-				    										
-				    										// get the tracking URL for the selected shipping carrier
-				    										var trackingURL = itemFulfillmentRecord.getValue({
-				    											fieldId: 'custbody_bbs_ci_tracking_url'
-				    										});
 			    										
 			    											// get the consignment number and label
 			    											var consignmentNumber = processShipmentsResponse['consignmentNumber'];
@@ -549,11 +544,6 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 							    											customRecord.setValue({
 							    																	fieldId:	'custrecord_bbs_if_package_key',
 							    																	value:		packageNumber
-							    																});
-		    											
-							    											customRecord.setValue({
-							    																	fieldId:	'custrecord_bbs_custom_field_1',
-							    																	value:		trackingURL + packageNumber
 							    																});
 									
 							    											customRecord.save({
