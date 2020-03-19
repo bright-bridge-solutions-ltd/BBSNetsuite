@@ -79,6 +79,11 @@ function(search, record, format) {
     	// call function to run search to check if we have an open sales order for this contract. Pass contractRecordID
     	var salesOrderID = checkForOpenSalesOrder(contractRecordID);
     	
+    	log.debug({
+    		title: 'salesOrderID',
+    		details: salesOrderID
+    	});
+    	
     	// check if we have an open sales order
     	if (salesOrderID != null)
     		{
@@ -358,7 +363,6 @@ function(search, record, format) {
 						// check if itemAdded is true
 						if (itemAdded == true)
 							{
-			    				
 			    				salesOrderRecord.setCurrentSublistValue({
 			    					sublistId: 'item',
 			    					fieldId: 'quantity',
@@ -396,16 +400,12 @@ function(search, record, format) {
 			    								IMSDataRecords.push(IMSDataRecordsSearch[i]); // Push to IMSDataRecords array
 			    							}
 			    					}
+
 							}
 
 						// continue processing results
 						return true;
 	    			
-	    			});
-	    			
-	    			log.debug({
-	    				title: "Trying to save sales order",
-	    				details: ''
 	    			});
 	    			
 	    			// submit the sales order record

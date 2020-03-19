@@ -55,6 +55,9 @@ function(runtime, search, record) {
     		},
     				{
     			name: 'transferlocation'
+    		},
+    				{
+    			name: 'subsidiary'
     		}],
     		
     	});
@@ -73,6 +76,7 @@ function(runtime, search, record) {
     	var searchResult = JSON.parse(context.value);
     	var recordID = searchResult.id;
     	var transferLocation = searchResult.values['transferlocation'].value;
+    	var subsidiary = searchResult.values['subsidiary'].value;
     	
     	log.audit({
     		title: 'Processing Transfer Order',
@@ -91,8 +95,8 @@ function(runtime, search, record) {
     			// check if a receipt has been created
     			if (receiptCreated == true)
     				{
-    					// call function to create an inventory adjustment. Pass recordID and transferLocation
-    					createInventoryAdjustment(recordID, transferLocation);
+    					// call function to create an inventory adjustment. Pass recordID, transferLocation and subsidiary
+    					createInventoryAdjustment(recordID, transferLocation, subsidiary);
     				}
     		}
 
@@ -261,7 +265,7 @@ function(runtime, search, record) {
     // FUNCTION TO CREATE AN INVENTORY ADJUSTMENT
     // ==========================================
     
-    function createInventoryAdjustment(recordID, adjustmentLocation)
+    function createInventoryAdjustment(recordID, adjustmentLocation, subsidiary)
     	{
     		try
     			{
@@ -274,7 +278,7 @@ function(runtime, search, record) {
     				// set header fields on the inventory adjustment record
     				inventoryAdjustment.setValue({
     					fieldId: 'subsidiary',
-    					value: 4 // 4 = Bannatyne Fitness Ltd
+    					value: subsidiary
     				});
     				
     				inventoryAdjustment.setValue({

@@ -24,12 +24,16 @@
 			</table>
           <hr></hr> <!-- Horizontal Line -->
         </macro>
-        <macro id="nlfooter">
-            <table style="margin-left:100px;">
-				<tr>
-					<td><img rotate="90" src="${record.custbody_bbs_ci_label_image}" style="width: 350px; height: 525px;"/></td>
-				</tr>
-			</table>
+		<macro id="nlfooter">
+           
+           <#if record.custbody_bbs_ci_label_image?has_content> <!-- Only print label if we have one and this is the first page -->
+	            <table style="margin-left:100px;">
+					<tr>
+						<td><img rotate="90" src="${record.custbody_bbs_ci_label_image}" style="width: 350px; height: 525px;"/></td>
+					</tr>
+				</table>
+			</#if>
+			
         </macro>
     </macrolist>
     <style type="text/css">* {
@@ -114,9 +118,14 @@
             color: #333333;
             height: 1px;
         }
+        #page1 {
+        	footer: nlfooter;
+        	footer-height: 360pt;
+        } 
 </style>
 </head>
-<body header="nlheader" header-height="150pt" footer="nlfooter" footer-height="360pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+<body header="nlheader" header-height="75pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
     
     <table style="width: 100%; margin-top: 10px;">
     	<tr>
@@ -141,11 +150,13 @@
 	
 	<#if record.item?has_content>
 		<table style="width: 100%; margin-top: 10px;">
-			<tr>
-				<td colspan="4" style="border-left: 2px solid black; border-top: 2px solid black; border-bottom: 1px solid black;"><b>Code</b></td>
-				<td colspan="6" style="border-left: 2px solid black; border-top: 2px solid black; border-bottom: 1px solid black;"><b>Product Details</b></td>
-				<td colspan="2" align="center" style="border-left: 2px solid black; border-right: 2px solid black; border-top: 2px solid black; border-bottom: 1px solid black;"><b>Quantity</b></td>
-			</tr>
+			<thead>
+				<tr>
+					<td colspan="4" style="border-left: 2px solid black; border-top: 2px solid black; border-bottom: 1px solid black;"><b>Code</b></td>
+					<td colspan="6" style="border-left: 2px solid black; border-top: 2px solid black; border-bottom: 1px solid black;"><b>Product Details</b></td>
+					<td colspan="2" align="center" style="border-left: 2px solid black; border-right: 2px solid black; border-top: 2px solid black; border-bottom: 1px solid black;"><b>Quantity</b></td>
+				</tr>
+			</thead>
 			<#list record.item as item>
 				<tr>
 					<td colspan="4" style="border-left: 2px solid black; border-bottom: 1px solid black;">${item.item}</td>
