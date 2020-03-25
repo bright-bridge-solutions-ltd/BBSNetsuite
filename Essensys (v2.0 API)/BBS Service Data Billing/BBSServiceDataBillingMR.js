@@ -18,6 +18,10 @@ function(runtime, search, record, render, file, task) {
     	name: 'custscript_bbs_service_data_bill_folder'
     });
 	
+	subsidiary = currentScript.getParameter({
+		name: 'custscript_bbs_subsidiary_select'
+	});
+	
 	// declare new date object. Global variable so can be accessed throughout the script
 	invoiceDate = new Date();
 	invoiceDate.setDate(0); // set date to be the last day of the previous month
@@ -39,9 +43,10 @@ function(runtime, search, record, render, file, task) {
     		type: 'customrecord_bbs_service_data',
 
     		filters: [{
-    			name: 'custrecord_bbs_service_data_customer_rec',
-    			operator: 'noneof',
-    			values: ['@NONE@']
+    			name: 'subsidiary',
+    			join: 'custrecord_bbs_service_data_customer_rec',
+    			operator: 'anyof',
+    			values: [subsidiary]
     		},
     				{
     			name: 'custrecord_bbs_service_data_start_date',
@@ -66,6 +71,31 @@ function(runtime, search, record, render, file, task) {
     				{
     			name: 'internalid',
     			join: 'custrecord_bbs_service_data_location',
+    			summary: 'MAX'
+    		},
+    				{
+    			name: 'custrecord_bbs_site_address_1',
+    			join: 'custrecord_bbs_service_data_site_record',
+    			summary: 'MAX'
+    		},
+    				{
+    			name: 'custrecord_bbs_site_address_2',
+    			join: 'custrecord_bbs_service_data_site_record',
+    			summary: 'MAX'
+    		},
+    				{
+    			name: 'custrecord_bbs_site_address_city',
+    			join: 'custrecord_bbs_service_data_site_record',
+    			summary: 'MAX'
+    		},
+    				{
+    			name: 'custrecord_bbs_site_address_state',
+    			join: 'custrecord_bbs_service_data_site_record',
+    			summary: 'MAX'
+    		},
+    				{
+    			name: 'custrecord_bbs_site_address_zip',
+    			join: 'custrecord_bbs_service_data_site_record',
     			summary: 'MAX'
     		},
     				{
@@ -99,6 +129,11 @@ function(runtime, search, record, render, file, task) {
     	var siteAlias = searchResult.values['MAX(custrecord_bbs_service_data_site_alias)'];
     	var customerID = searchResult.values['MAX(internalid.custrecord_bbs_service_data_customer_rec)'];
     	var locationID = searchResult.values['MAX(internalid.custrecord_bbs_service_data_location)'];
+    	var address1 = searchResult.values['MAX(custrecord_bbs_site_address_1.custrecord_bbs_service_data_site_record)'];
+    	var address2 = searchResult.values['MAX(custrecord_bbs_site_address_2.custrecord_bbs_service_data_site_record)'];
+    	var addressCity = searchResult.values['MAX(custrecord_bbs_site_address_city.custrecord_bbs_service_data_site_record)'];
+    	var addressCounty = searchResult.values['MAX(custrecord_bbs_site_address_state.custrecord_bbs_service_data_site_record)'];
+    	var addressPostcode = searchResult.values['MAX(custrecord_bbs_site_address_zip.custrecord_bbs_service_data_site_record)'];   	
     	var serviceDataRecords = searchResult.values['MAX(formulatext)'];
     	serviceDataRecords = serviceDataRecords.split('|'); // split on '|' as needs to be an array to set multi-select field
     	
@@ -123,7 +158,7 @@ function(runtime, search, record, render, file, task) {
 					value: invoiceDate
 				});
 				
-				invoiceRecord.setValue({
+				invoiceRecord.setText({
 					fieldId: 'location',
 					value: locationID
 				});
@@ -131,6 +166,37 @@ function(runtime, search, record, render, file, task) {
 				invoiceRecord.setValue({
 					fieldId: 'custbody_bbs_service_data_records',
 					value: serviceDataRecords
+				});
+				
+				// get the shipping address subrecord
+				var shippingAddressSubrecord = invoiceRecord.getSubrecord({
+				    fieldId: 'shippingaddress'
+				});
+				
+				// set fields on the shipping address subrecord
+				shippingAddressSubrecord.setValue({
+					fieldId: 'addr1',
+					value: address1
+				});
+					
+				shippingAddressSubrecord.setValue({
+					fieldId: 'addr2',
+					value: address2
+				});
+						
+				shippingAddressSubrecord.setValue({
+					fieldId: 'city',
+					value: addressCity
+				});
+						
+				shippingAddressSubrecord.setValue({
+					fieldId: 'state',
+					value: addressCounty
+				});
+						
+				shippingAddressSubrecord.setValue({
+					fieldId: 'zip',
+					value: addressPostcode
 				});
 				
 				// create search to find service data records to be billed

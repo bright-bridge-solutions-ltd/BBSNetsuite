@@ -27,6 +27,10 @@ function(runtime, search, file) {
         	name: 'custscript_bbs_service_data_bill_folder'
         });
     	
+    	subsidiary = currentScript.getParameter({
+    		name: 'custscript_bbs_subsidiary_select'
+    	});
+    	
     	// set the date of the report
     	var reportDate = new Date();
     	reportDate.setDate(1); // set date to be the first day of the current month
@@ -68,9 +72,10 @@ function(runtime, search, file) {
 				type: 'customrecord_bbs_service_data',
 				
 				filters: [{
-	    			name: 'custrecord_bbs_service_data_customer_rec',
-	    			operator: 'noneof',
-	    			values: ['@NONE@']
+	    			name: 'subsidiary',
+	    			join: 'custrecord_bbs_service_data_customer_rec',
+	    			operator: 'anyof',
+	    			values: [subsidiary]
 	    		},
 	    				{
 	    			name: 'custrecord_bbs_service_data_start_date',
@@ -183,9 +188,10 @@ function(runtime, search, file) {
     			type: 'customrecord_bbs_service_data',
     			
     			filters: [{
-	    			name: 'custrecord_bbs_service_data_customer_rec',
-	    			operator: 'noneof',
-	    			values: ['@NONE@']
+	    			name: 'subsidiary',
+	    			join: 'custrecord_bbs_service_data_customer_rec',
+	    			operator: 'anyof',
+	    			values: [subsidiary]
 	    		},
 	    				{
 	    			name: 'custrecord_bbs_service_data_start_date',
@@ -277,10 +283,11 @@ function(runtime, search, file) {
     			type: 'customrecord_bbs_service_data',
     			
 	    		filters: [{
-		    		name: 'custrecord_bbs_service_data_customer_rec',
-		    		operator: 'noneof',
-		    		values: ['@NONE@']
-		    	},
+	    			name: 'subsidiary',
+	    			join: 'custrecord_bbs_service_data_customer_rec',
+	    			operator: 'anyof',
+	    			values: [subsidiary]
+	    		},
 		    			{
 		    		name: 'custrecord_bbs_service_data_start_date',
 		    		operator: 'notafter',
@@ -433,9 +440,10 @@ function(runtime, search, file) {
 				type: 'customrecord_bbs_service_data',
 				
 				filters: [{
-	    			name: 'custrecord_bbs_service_data_customer_rec',
-	    			operator: 'noneof',
-	    			values: ['@NONE@']
+	    			name: 'subsidiary',
+	    			join: 'custrecord_bbs_service_data_customer_rec',
+	    			operator: 'anyof',
+	    			values: [subsidiary]
 	    		},
 	    				{
 	    			name: 'custrecord_bbs_service_data_start_date',
