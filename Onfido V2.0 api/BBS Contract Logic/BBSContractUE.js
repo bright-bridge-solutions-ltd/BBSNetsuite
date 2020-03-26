@@ -297,7 +297,7 @@ function(url, runtime, record, search, format, task) {
 	        					if (difference > 0)
 	        						{
 	    	    						// call function to create a prepayment invoice
-	    	    						createPrepaymentInvoice(currentRecordID, difference, billingType);
+	    	    						createInitialInvoices(currentRecordID, difference, billingType, 'F', 'T');
 	        						}
 	        				}
 	        			// check if the oldAnnMin and newAnnMin variables are NOT the same (IE contract has been edited and annual minimum amount has been changed)
@@ -310,7 +310,7 @@ function(url, runtime, record, search, format, task) {
 	    						if (difference > 0)
 	    							{
 	    								// call function to create a prepayment invoice
-	    	    						createPrepaymentInvoice(currentRecordID, difference, billingType);
+	    								createInitialInvoices(currentRecordID, difference, billingType, 'F', 'T');
 	    							}
 	        				}
     	    		}

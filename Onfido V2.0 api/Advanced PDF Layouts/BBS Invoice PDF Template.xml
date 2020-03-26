@@ -311,17 +311,17 @@
 </table>
   
 <table class="header" style="width: 100%; margin-top: 20px; page-break-inside: avoid;">
-  	<tr>
+	<tr>
       <td style="font-size: 12pt;">Bank:</td>
-      <td style="font-size: 12pt;">${record.custbody_bbs_bank_name}</td>
-      <#if subsidiary.id == "10"> <!--India-->
-      	<td colspan="1" rowspan="5" align="center"><img src="${signature}" style="float: right; width:250px; height:105px;"/></td>
+      <td colspan="2" style="font-size: 12pt;">${record.custbody_bbs_bank_name}</td>
+       <#if subsidiary.id == "10"> <!-- India -->
+      	<td rowspan="5" align="center"><img src="${signature}" style="float: right; width:250px; height:105px;"/></td>
       <#else>
-        <td colspan="1" rowspan="5" align="center" style="font-size: 12pt;">&nbsp;</td>
+        <td rowspan="5" align="center" style="font-size: 12pt;">&nbsp;</td>
       </#if>
     </tr>
     <tr>
-      <td style="font-size: 12pt;"><#if subsidiary.id == "9"><!--USA-->ABA:<#else>Sort Code:</#if></td>
+      <td style="font-size: 12pt;"><#if subsidiary.id == "9"><!-- USA -->ABA:<#else>Sort Code:</#if></td>
       <td colspan="2" style="font-size: 12pt;">${record.custbody_bbs_bank_sort_code}</td>
     </tr>
     <tr>
