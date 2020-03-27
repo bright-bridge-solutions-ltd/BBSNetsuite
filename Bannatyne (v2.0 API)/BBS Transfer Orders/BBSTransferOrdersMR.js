@@ -37,7 +37,7 @@ function(runtime, search, record) {
     		filters: [{
     			name: 'status',
     			operator: 'anyof',
-    			values: ['TrnfrOrd:B'] // TrnfrOrd:B = Transfer Order:Pending Fulfillment
+    			values: ['TrnfrOrd:E', 'TrnfrOrd:F'] // TrnfrOrd:E = Transfer Order:Pending Receipt/Partially Fulfilled, TrnfrOrd:F = Transfer Order:Pending Receipt
     		},
     				{
     			name: 'mainline',
@@ -83,21 +83,14 @@ function(runtime, search, record) {
     		details: recordID
     	});
     	
-    	// call function to fulfill the transfer order. Pass recordID
-    	var fulfillmentCreated = fulfillTransferOrder(recordID);
-    	
-    	// check if a fulfillment has been created
-    	if (fulfillmentCreated == true)
-    		{
-    			// call function to receive the transfer order. Pass recordID and transferLocation
-    			var receiptCreated = receiveTransferOrder(recordID, transferLocation);
+    	// call function to receive the transfer order. Pass recordID and transferLocation
+    	var itemReceiptID = receiveTransferOrder(recordID, transferLocation);
     			
-    			// check if a receipt has been created
-    			if (receiptCreated == true)
-    				{
-    					// call function to create an inventory adjustment. Pass recordID, transferLocation and subsidiary
-    					createInventoryAdjustment(recordID, transferLocation, subsidiary);
-    				}
+    	// check if an receipt has been created
+    	if (itemReceiptID)
+    		{
+    			// call function to create an inventory adjustment. Pass itemReceiptID, transferLocation and subsidiary
+    			createInventoryAdjustment(itemReceiptID, transferLocation, subsidiary);
     		}
 
     }
@@ -127,69 +120,6 @@ function(runtime, search, record) {
     	});
 
     }
-    
-    // ======================================
-    // FUNCTION TO FULFILL THE TRANSFER ORDER
-    // ======================================
-    function fulfillTransferOrder(recordID)
-    	{
-    		try
-    			{
-    				// transform the transfer order to an item fulfillment
-    				var itemFulfillment = record.transform({
-    					fromType: record.Type.TRANSFER_ORDER,
-    					fromId: recordID,
-    					toType: record.Type.ITEM_FULFILLMENT,
-    					isDynamic: true
-    				});
-    				
-    				// get count of items
-    				var lineCount = itemFulfillment.getLineCount({
-    					sublistId: 'item'
-    				});
-    				
-    				// loop through line count
-    				for (var i = 0; i < lineCount; i++)
-    					{
-	    					// select the line
-    						itemFulfillment.selectLine({
-								sublistId: 'item',
-								line: i
-							});
-    					
-    						// set the 'Fulfill' checkbox on the line
-    						itemFulfillment.setCurrentSublistValue({
-    							sublistId: 'item',
-    							fieldId: 'itemreceive',
-    							value: true
-    						});
-    						
-    						// save the changes to the line
-    						itemFulfillment.commitLine({
-    							sublistId: 'item'
-    						});
-    					}
-
-    				// save the item fulfillment
-    				var itemFulfillmentID = itemFulfillment.save();
-    				
-    				log.audit({
-    					title: 'Item Fulfillment Created',
-    					details: itemFulfillmentID
-    				});
-    				
-    				return true;
-    			}
-    		catch(e)
-    			{
-    				log.error({
-    					title: 'Error Creating Item Fulfillment',
-    					details: e
-    				});
-    				
-    				return false;
-    			}
-    	}
     
     // ======================================
     // FUNCTION TO RECEIVE THE TRANSFER ORDER
@@ -248,7 +178,7 @@ function(runtime, search, record) {
 						details: itemReceiptID
 					});
 					
-					return true;
+					return itemReceiptID;
 				}
 			catch(e)
 				{
@@ -257,7 +187,7 @@ function(runtime, search, record) {
 						details: e
 					});
 					
-					return false;
+					return;
 				}
     	}
     
@@ -265,121 +195,145 @@ function(runtime, search, record) {
     // FUNCTION TO CREATE AN INVENTORY ADJUSTMENT
     // ==========================================
     
-    function createInventoryAdjustment(recordID, adjustmentLocation, subsidiary)
+    function createInventoryAdjustment(itemReceiptID, adjustmentLocation, subsidiary)
     	{
-    		try
+    		// load the item receipt
+    		var itemReceiptRecord = record.load({
+    			type: record.Type.ITEM_RECEIPT,
+    			id: itemReceiptID
+    		});
+    				
+    		// get count of lines on the item receipt
+    		var lineCount = itemReceiptRecord.getLineCount({
+    			sublistId: 'item'
+    		});
+    		
+    		// loop through line count
+    		for (var i = 0; i < lineCount; i++)
     			{
-    				// create an inventory adjustment
-    				var inventoryAdjustment = record.create({
-    					type: record.Type.INVENTORY_ADJUSTMENT,
-    					isDynamic: true
+    				// get the item, quantity and item type from the line
+    				var itemID = itemReceiptRecord.getSublistValue({
+    					sublistId: 'item',
+    					fieldId: 'item',
+    					line: i
     				});
     				
-    				// set header fields on the inventory adjustment record
-    				inventoryAdjustment.setValue({
-    					fieldId: 'subsidiary',
-    					value: subsidiary
+    				var quantity = itemReceiptRecord.getSublistValue({
+    					sublistId: 'item',
+    					fieldId: 'quantity',
+    					line: i
     				});
     				
-    				inventoryAdjustment.setValue({
-    					fieldId: 'account',
-    					value: writeoffAccount
+    				var itemType = itemReceiptRecord.getSublistValue({
+    					sublistId: 'item',
+    					fieldId: 'itemtype',
+    					line: i
     				});
     				
-    				inventoryAdjustment.setValue({
-    					fieldId: 'adjlocation',
-    					value: adjustmentLocation
-    				});
+    				// if the itemType is 'InvtPart'
+					if (itemType == 'InvtPart')
+						{
+							// lookup fields on the item record
+							var itemRecordLookup = search.lookupFields({
+				    			type: record.Type.INVENTORY_ITEM,
+				    			id: itemID,
+				    			columns: ['custitem_bbs_auto_write_off', 'expenseaccount']
+				    		});
+						}
+					else if (itemType == 'NonInvtPart') // if the itemType is 'NonInvtPart'
+						{
+							// lookup fields on the item record
+		    				var itemRecordLookup = search.lookupFields({
+		    					type: record.Type.NON_INVENTORY_ITEM,
+		    					id: itemID,
+		    					columns: ['custitem_bbs_auto_write_off', 'expenseaccount']
+		    				});
+						}
+    						
+    				// retrieve values from the item lookup
+    				var doNotWriteOff = itemRecordLookup.custitem_bbs_auto_write_off;
+    				var adjustmentAccount = itemRecordLookup.expenseaccount[0].value;
     				
-    				// load the transfer order record
-    				var transferOrder = record.load({
-    					type: record.Type.TRANSFER_ORDER,
-    					id: recordID
-    				});
-    				
-    				// get count of lines on the transfer order
-    				var lineCount = transferOrder.getLineCount({
-    					sublistId: 'item'
-    				});
-    				
-    				// loop through line count
-    				for (var i = 0; i < lineCount; i++)
+    				// check if the do not write off flag on the item record is NOT ticked
+    				if (doNotWriteOff == false)
     					{
-    						// get the item from the line
-    						var item = transferOrder.getSublistValue({
-    							sublistId: 'item',
-    							fieldId: 'item',
-    							line: i
-    						});
-    						
-    						// get the transfer quantity from the line
-    						var quantity = transferOrder.getSublistValue({
-    							sublistId: 'item',
-    							fieldId: 'quantity',
-    							line: i
-    						});
-    						
-    						// lookup fields on the item record
-    						var itemLookup = search.lookupFields({
-    							type: 'item',
-    							id: item,
-    							columns: ['custitem_bbs_auto_write_off']
-    						});
-    						
-    						// retrieve values from the item lookup
-    						var writeOff = itemLookup.custitem_bbs_auto_write_off;
-    						
-    						// check if the write off flag on the item record is NOT ticked
-    						if (writeOff == false)
-    							{
-		    						// select a new line on the inventory adjustment
-		    						inventoryAdjustment.selectNewLine({
-		    							sublistId: 'inventory'
-		    						});
-		    						
-		    						// set fields on the new line
-		    						inventoryAdjustment.setCurrentSublistValue({
-		    							sublistId: 'inventory',
-		    							fieldId: 'item',
-		    							value: item
-		    						});
-		    						
-		    						inventoryAdjustment.setCurrentSublistValue({
-		    							sublistId: 'inventory',
-		    							fieldId: 'location',
-		    							value: adjustmentLocation
-		    						});
-		    						
-		    						inventoryAdjustment.setCurrentSublistValue({
-		    							sublistId: 'inventory',
-		    							fieldId: 'adjustqtyby',
-		    							value: (quantity * -1)
-		    						});
-		    						
-		    						// commit the line
-		    						inventoryAdjustment.commitLine({
-		    							sublistId: 'inventory'
-		    						});
-    							}
-    						
+	    					try
+	        					{
+			        				// create a new inventory adjustment record
+			        				var inventoryAdjustment = record.create({
+			        					type: record.Type.INVENTORY_ADJUSTMENT,
+			        					isDynamic: true
+			        				});
+			        						
+			        				// set header fields on the adjustment
+			        				inventoryAdjustment.setValue({
+			        					fieldId: 'subsidiary',
+			        					value: subsidiary
+			        				});
+			        						
+			        				inventoryAdjustment.setValue({
+			        					fieldId: 'account',
+			        					value: adjustmentAccount
+			        				});
+			        						
+			        				inventoryAdjustment.setValue({
+			        					fieldId: 'adjlocation',
+			        					value: adjustmentLocation
+			        				});
+			        						
+			        				// select a new line on the inventory adjustment
+			        				inventoryAdjustment.selectNewLine({
+			        					sublistId: 'inventory'
+			        				});
+			        						
+			        				// set fields on the new line
+			        				inventoryAdjustment.setCurrentSublistValue({
+				    					sublistId: 'inventory',
+				    					fieldId: 'item',
+				    					value: itemID
+				    				});
+				    						
+				    				inventoryAdjustment.setCurrentSublistValue({
+				    					sublistId: 'inventory',
+				    					fieldId: 'location',
+				    					value: adjustmentLocation
+				    				});
+				    						
+				    				inventoryAdjustment.setCurrentSublistValue({
+				    					sublistId: 'inventory',
+				    					fieldId: 'adjustqtyby',
+				    					value: (quantity * -1)
+				    				});
+				    						
+				    				// commit the line
+				    				inventoryAdjustment.commitLine({
+				    					sublistId: 'inventory'
+				    				});
+				    						
+				    				// save the inventory adjustment
+				    	    		var inventoryAdjustmentID = inventoryAdjustment.save();
+				    	    				
+				    	    		log.audit({
+				    	    			title: 'Inventory Adjustment Created',
+				    	    			details: 'Record ID: ' + inventoryAdjustmentID + '<br>Item ID: ' + itemID
+				    	    		});
+	        					}
+	        				catch(e)
+	        					{
+	        						log.error({
+	        							title: 'Error Creating Inventory Adjustment',
+	        							details: 'Item ID: ' + itemID + '<br>Error:' + e
+	        						});
+	        					}
     					}
-    				
-    				// save the inventory adjustment
-    				var inventoryAdjustmentID = inventoryAdjustment.save();
-    				
-    				log.audit({
-    					title: 'Inventory Adjustment Created',
-    					details: inventoryAdjustmentID
-    				});
+    				else // do not write off is ticked
+    					{
+    						log.audit({
+    							title: 'Inventory Adjustment Not Created',
+    							details: 'Item ID: ' + itemID + '<br>Reason: Do Not Write Off is Ticked'
+    						});
+    					}
     			}
-    		catch(e)
-    			{
-    				log.error({
-    					title: 'Error Creating Inventory Adjustment',
-    					details: e
-    				});
-    			}
-
     	}
     
     

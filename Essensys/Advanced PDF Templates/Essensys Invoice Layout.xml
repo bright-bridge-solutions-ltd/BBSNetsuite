@@ -1,0 +1,260 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	
+	<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
+	
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;">
+            	<tr>
+            		<td colspan="6">&nsbp;</td>
+            		<td colspan="4" align="left"><img src="${logoInfo}" style="width: 200px; height: 50px; margin-bottom: 10px;" /></td>
+            	</tr>
+            	<tr style="margin-bottom: 10px;">
+            		<td colspan="6"><span class="title">INVOICE</span></td>
+            		<td colspan="4" rowspan="3"><span class="address">${subsidiary.mainaddress_text}<br/><br/>${subsidiary.email}<#if subsidiary.id == "2"><!-- UK --><br/><br/>VAT: GB ${subsidiary.federalidnumber}</#if></span></td>
+           		</tr>
+           		<tr style="margin-bottom: 5px;">
+           			<td colspan="6"><span class="subtitle">INVOICE TO:</span></td>
+           		</tr>
+           		<tr style="margin-bottom: 10px;">
+           			<td colspan="6"><span class="address">${record.billaddress}</span></td>
+           		</tr>
+           		<tr style="margin-bottom: 5px;">
+           			<td colspan="6"><span class="subtitle">Cost Centre/Location:</span></td>
+           		</tr>
+           		<tr style="margin-bottom: 5px;">
+           			<td colspan="6" rowspan="6"><span class="address">${record.shipaddress}</span></td>
+           			<td colspan="2"><span class="subtitle">DATE:</span></td>
+           			<td colspan="2"><span class="address">${record.trandate}</span></td>
+           		</tr>
+           		<tr style="margin-bottom: 5px;">
+           			<td colspan="2"><span class="subtitle">INVOICE NO:</span></td>
+           			<td colspan="2"><span class="address">${record.tranid}</span></td>
+           		</tr>
+           		<tr style="margin-bottom: 5px;">
+           			<td colspan="2"><span class="subtitle">CUSTOMER REF:</span></td>
+           			<td colspan="2"><span class="address">${record.otherrefnum}</span></td>
+           		</tr>
+           		<tr style="margin-bottom: 5px;">
+           			<td colspan="2"><span class="subtitle">DUE DATE:</span></td>
+           			<td colspan="2"><span class="address">${record.duedate}</span></td>
+           		</tr>
+           		<tr style="margin-bottom: 5px;">
+           			<td colspan="2"><span class="subtitle">BILLING REF:</span></td>
+           			<td colspan="2"><span class="address">${record.memo}</span></td>
+           		</tr>
+           		<tr style="margin-bottom: 5px;">
+           			<td colspan="2"><span class="subtitle">PAYMENT TERMS:</span></td>
+           			<td colspan="2"><span class="address">${record.terms}</span></td>
+           		</tr>
+           	</table>
+        </macro>
+        <macro id="nlfooter">
+        	<table style="width: 100%;">
+        		<tr>
+        			<td align="center"><span style="font-size: 8pt;">Registered Company: ${subsidiary.mainaddress_text?replace("<br />", " ")}<!-- Replace Line Breaks --> <#if subsidiary.id == '3'><!-- US -->EIN:<#else>Company No:</#if> ${subsidiary.custrecord_bbs_company_no}</span></td>
+        		</tr>
+        	</table>
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 9pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #d3d3d3;
+            color: #333333;
+            border-bottom: 2px solid black;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { 
+			align:left;
+		}
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 5px;
+            padding-top: 5px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 16pt;
+            color: #A9A9A9;
+        }
+        span.subtitle {
+            font-size: 10pt;
+            color: #A9A9A90;
+        }
+        span.address {
+        	font-size: 10pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+        a { 
+        	text-decoration: none;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="240pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+<#if record.item?has_content>
+	<table class="itemtable" style="width: 100%; margin-top: 10px; border-top: 2px solid black; border-right: 2px solid black;"><!-- start items -->
+		<#list record.item as item>
+			<#if item_index == 0>
+				<thead>
+					<tr>
+						<th colspan="10" style="border-left: 2px solid black;">CLIENT SERVICES</th>
+						<th colspan="8" style="border-left: 2px solid black;">SERVICE PERIOD</th>
+						<th align="right" colspan="4" style="border-left: 2px solid black;">QUANTITY</th>
+						<th align="right" colspan="4" style="border-left: 2px solid black;">UNIT PRICE</th>
+						<th align="right" colspan="4" style="border-left: 2px solid black;">AMOUNT</th>
+					</tr>
+				</thead>
+			</#if>
+			<tr>
+				<td colspan="10" line-height="150%" style="border-left: 2px solid black;">${item.description}</td>
+				<td colspan="8" style="border-left: 2px solid black;">${item.custcol_bbs_date_from} to ${item.custcol_bbs_date_to}</td>
+				<td align="right" colspan="4" style="border-left: 2px solid black;">${item.quantity}</td>
+				<td align="right" colspan="4" style="border-left: 2px solid black;">${item.rate}</td>
+				<td align="right" colspan="4" style="border-left: 2px solid black;">${item.amount}</td>
+			</tr>
+		</#list>
+			<tr style="border-top: 2px solid black;">
+				<td colspan="10">&nbsp;</td>
+				<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>SUB TOTAL</b></td>
+				<td colspan="4" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black;">${record.subtotal}</td>
+			</tr>
+			<#if subsidiary.id == "2"><!-- UK -->
+				<tr>
+					<td colspan="10">&nbsp;</td>
+					<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>20% Standard Vat Rate</b></td>
+					<td colspan="4" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black;">${record.taxtotal}</td>
+				</tr>
+			</#if>
+			<tr>
+				<td colspan="10">&nbsp;</td>
+				<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3"><b>TOTAL DUE</b></td>
+				<td colspan="4" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black;">${record.total}</td>
+			</tr>
+	</table><!-- end items -->
+</#if>
+
+<hr/>
+<table style="width: 100%;"> <!-- Bank Details -->
+	<tr>
+		<td colspan="6"><b>Please remit your <#if subsidiary.id == '3'><!-- US -->ACH/Wire Payment to:<#else>Payment to ${subsidiary.name}</#if></b></td>
+	</tr>
+	<tr>
+		<#if subsidiary.id == '3'><!-- US -->
+			<td><span class="subtitle">Bank Name</span></td>
+			<td colspan="2"><b>${subsidiary.custrecord_bbs_bank_name}</b></td>
+			<td><span class="subtitle">Bank Address</span></td>
+			<td colspan="2">&nsbp;</td>
+		<#else>
+			<td colspan="6"><b>BACS Payments to ${subsidiary.custrecord_bbs_bank_name}</b></td>
+		</#if>
+	</tr>
+	<tr>
+		<td><span class="subtitle">Account No</span></td>
+		<td><b>${subsidiary.custrecord_bbs_account_no}</b></td>
+		<#if subsidiary.id == '3'><!-- US -->
+			<td><span class="subtitle">ABA No</span></td>
+			<td><b>${subsidiary.custrecord_bbs_aba_no}</b></td>
+			<td><span class="subtitle">SWIFT Code</span></td>
+			<td><b>${subsidiary.custrecord_bbs_swift_code}</b></td>
+		<#else>
+			<td><span class="subtitle">Sort Code</span></td>
+			<td><b>${subsidiary.custrecord_bbs_sort_code}</b></td>
+			<td>&nsbp;</td>
+			<td>&nsbp;</td>
+		</#if>
+	</tr>
+</table>
+<hr/>
+
+</body>
+</pdf>

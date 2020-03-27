@@ -18,9 +18,9 @@ function(search, record) {
      */
     function getInputData() {
     	
-    	// create search to find BBS Brightlime Charges records
+    	// create search to find customrecord_bbs_brightlime_charges
     	return search.create({
-			type: 'customrecord_bbs_bl_charges',
+			type: 'customrecord_bbs_brightlime_charges',
 			
 			columns: [{
 				name: 'internalid'
@@ -49,7 +49,7 @@ function(search, record) {
 			{
 				// delete the record
 	    		record.delete({
-	    			type: 'customrecord_bbs_bl_charges',
+	    			type: 'customrecord_bbs_brightlime_charges',
 	    			id: recordID
 	    		});
 	    		
@@ -78,7 +78,7 @@ function(search, record) {
     	
     	log.audit({
     		title: '*** END OF SCRIPT ***',
-    		details: ''
+    		details: summary
     	});
     	
     }

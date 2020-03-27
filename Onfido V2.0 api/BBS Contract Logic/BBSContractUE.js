@@ -335,6 +335,21 @@ function(url, runtime, record, search, format, task) {
 			// use parseFloat to convert to decimal number
 			qmpAmt = parseFloat(qmpAmt);
 			
+			// get the value of the 'Usage Invoice Billed' checkbox from the currentRecord object
+			var usageInvoiceBilled = currentRecord.getValue({
+				fieldId: 'custrecord_bbs_contract_initial_invoice'
+			});
+			
+			// get the value of the 'setup fee' field from the currentRecord object
+	    	var setupFee = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_setup_fee'
+	    	});
+	    	
+	    	// get the value of the 'setup fee billed' field from the currentRecord object
+	    	var setupFeeBilled = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_setup_fee_billed'
+	    	});
+			
 			// get the contract start date from the currentRecord object
 			var contractStart = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_start_date'
@@ -353,22 +368,12 @@ function(url, runtime, record, search, format, task) {
 			// calculate 30 days after today's date
 			var thirtyDaysAfterToday = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()+30);
 			
-			// check that the contractStart is within 30 days of today's date
-			if (contractStart <= thirtyDaysAfterToday)
+			// check that the contractStart is within 30 days of today's date and the usageInvoiceBilled variable is false
+			if (contractStart <= thirtyDaysAfterToday && usageInvoiceBilled == false)
 				{
 					// set the prepaymentInvoice variable to 'T'
 					prepaymentInvoice = 'T';
 				}
-			
-			// get the value of the 'setup fee' field from the currentRecord object
-	    	var setupFee = currentRecord.getValue({
-	    		fieldId: 'custrecord_bbs_contract_setup_fee'
-	    	});
-	    	
-	    	// get the value of the 'setup fee billed' field from the currentRecord object
-	    	var setupFeeBilled = currentRecord.getValue({
-	    		fieldId: 'custrecord_bbs_contract_setup_fee_billed'
-	    	});
 	    	
 	    	// check if the setupFee variable returns true (checkbox is ticked) and setupFeeBilled variable returns false (checkbox is NOT ticked)
 	    	if (setupFee == true && setupFeeBilled == false)
@@ -398,6 +403,21 @@ function(url, runtime, record, search, format, task) {
 			
 			// use parseFloat to convert to decimal number
 			ampAmt = parseFloat(ampAmt);
+			
+			// get the value of the 'Usage Invoice Billed' checkbox from the currentRecord object
+			var usageInvoiceBilled = currentRecord.getValue({
+				fieldId: 'custrecord_bbs_contract_initial_invoice'
+			});
+			
+			// get the value of the 'setup fee' field from the currentRecord object
+	    	var setupFee = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_setup_fee'
+	    	});
+	    	
+	    	// get the value of the 'setup fee billed' field from the currentRecord object
+	    	var setupFeeBilled = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_setup_fee_billed'
+	    	});
     	
     		// get the contract start date from the currentRecord object
 			var contractStart = currentRecord.getValue({
@@ -417,22 +437,12 @@ function(url, runtime, record, search, format, task) {
 			// calculate 30 days after today's date
 			var thirtyDaysAfterToday = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()+30);
 			
-			// check that the contractStart is within 30 days of today's date
-			if (contractStart <= thirtyDaysAfterToday)
+			// check that the contractStart is within 30 days of today's date and the usageInvoiceBilled variable is false
+			if (contractStart <= thirtyDaysAfterToday && usageInvoiceBilled == false)
 				{
 					// set the prepaymentInvoice variable to 'T'
 					prepaymentInvoice = 'T';
 				}
-			
-			// get the value of the 'setup fee' field from the currentRecord object
-	    	var setupFee = currentRecord.getValue({
-	    		fieldId: 'custrecord_bbs_contract_setup_fee'
-	    	});
-	    	
-	    	// get the value of the 'setup fee billed' field from the currentRecord object
-	    	var setupFeeBilled = currentRecord.getValue({
-	    		fieldId: 'custrecord_bbs_contract_setup_fee_billed'
-	    	});
 	    	
 	    	// check if the setupFee variable returns true (checkbox is ticked) and setupFeeBilled variable returns false (checkbox is NOT ticked)
 	    	if (setupFee == true && setupFeeBilled == false)
@@ -467,6 +477,21 @@ function(url, runtime, record, search, format, task) {
 			// use parseFloat to convert to decimal number
 			qmpAmt = parseFloat(qmpAmt);
 			
+			// get the value of the 'Usage Invoice Billed' checkbox from the currentRecord object
+			var usageInvoiceBilled = currentRecord.getValue({
+				fieldId: 'custrecord_bbs_contract_initial_invoice'
+			});
+			
+			// get the value of the 'setup fee' field from the currentRecord object
+	    	var setupFee = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_setup_fee'
+	    	});
+	    	
+	    	// get the value of the 'setup fee billed' field from the currentRecord object
+	    	var setupFeeBilled = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_setup_fee_billed'
+	    	});
+			
 			// get the contract start date from the currentRecord object
 			var contractStart = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_start_date'
@@ -485,24 +510,14 @@ function(url, runtime, record, search, format, task) {
 			// calculate 30 days after today's date
 			var thirtyDaysAfterToday = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()+30);
 			
-			// check that the contractStart is within 30 days of today's date
-			if (contractStart <= thirtyDaysAfterToday)
+			// check that the contractStart is within 30 days of today's date and the usageInvoiceBilled variable is false
+			if (contractStart <= thirtyDaysAfterToday && usageInvoiceBilled == false)
 				{
 					// set the prepaymentInvoice variable to 'T'
 					prepaymentInvoice = 'T';
 				}
 			
-			// get the value of the 'setup fee' field from the currentRecord object
-	    	var setupFee = currentRecord.getValue({
-	    		fieldId: 'custrecord_bbs_contract_setup_fee'
-	    	});
-	    	
-	    	// get the value of the 'setup fee billed' field from the currentRecord object
-	    	var setupFeeBilled = currentRecord.getValue({
-	    		fieldId: 'custrecord_bbs_contract_setup_fee_billed'
-	    	});
-	    	
-	    	// check if the setupFee variable returns true (checkbox is ticked) and setupFeeBilled variable returns false (checkbox is NOT ticked)
+			// check if the setupFee variable returns true (checkbox is ticked) and setupFeeBilled variable returns false (checkbox is NOT ticked)
 	    	if (setupFee == true && setupFeeBilled == false)
 	    		{
 		    		// set setupFeeInvoice variable to 'T'
