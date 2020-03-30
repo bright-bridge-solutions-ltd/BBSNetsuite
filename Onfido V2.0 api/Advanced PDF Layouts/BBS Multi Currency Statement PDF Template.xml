@@ -53,7 +53,7 @@
     			<tr>
 					<td style="font-size:22px; padding-top: 55px;">STATEMENT</td>
 					<td align="right">&nbsp;</td>
-                  	<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:100px;"/></td>
+                  	<td align="right"><img src="${logoInfo}" style="float: right; width:300px; height:100px;"/></td>
     			</tr>
           	</table>
           
