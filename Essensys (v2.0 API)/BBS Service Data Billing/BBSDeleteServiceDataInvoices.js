@@ -3,12 +3,8 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/record', 'N/search'],
-/**
- * @param {render} render
- * @param {search} search
- */
-function(record, search) {
+define(['N/search', 'N/record'],
+function(search, record) {
    
     /**
      * Marks the beginning of the Map/Reduce process and generates input data.
@@ -22,11 +18,27 @@ function(record, search) {
      */
     function getInputData() {
     	
-    	// load search to find records to be processed
-    	return search.load({
-    		type: 'customrecord_bbs_service_data',
-    		id: 'customsearch_bbs_delete_service_data_rec'
+    	// create search to find records to be deleted
+    	return search.create({
+    		type: search.Type.INVOICE,
+    		
+    		filters: [{
+    			name: 'mainline',
+    			operator: 'is',
+    			values: ['T']
+    		},
+    				{
+    			name: 'formulatext',
+    			operator: 'isnotempty',
+    			formula: '{custbody_bbs_service_data_records}'
+    		}],
+    		
+    		columns:[{
+    			name: 'tranid'
+    		}],
+    		
     	});
+    	
 
     }
 
@@ -39,29 +51,31 @@ function(record, search) {
     function map(context) {
     	
     	// retrieve search results
-    	var searchResult = JSON.parse(context.value);
-    	
-    	// get the internal id of the record
+    	var searchResult = JSON.parse(context.value);	
     	var recordID = searchResult.id;
+    	
+    	var tranID = searchResult.getValue({
+    		name: 'tranid'
+    	});
     	
     	try
     		{
     			// delete the record
     			record.delete({
-    				type: 'customrecord_bbs_service_data',
+    				type: record.Type.INVOICE,
     				id: recordID
     			});
     			
     			log.audit({
-    				title: 'Record Deleted',
-    				details: recordID
+    				title: 'Invoice Record Deleted',
+    				details: tranID
     			});
     		}
     	catch(e)
     		{
     			log.error({
-    				title: 'Error Deleting Record',
-    				details: 'Record ID: ' + recordID + '<br>Error: ' + e
+    				title: 'Error Deleting Invoice Record',
+    				details: 'Invoice: ' + tranID + '<br>Error: ' + e
     			});
     		}
 
@@ -84,18 +98,14 @@ function(record, search) {
      * @param {Summary} summary - Holds statistics regarding the execution of a map/reduce script
      * @since 2015.1
      */
-    function summarize(context) {
-    	
-    	log.audit({
-    		title: '*** END OF SCRIPT ***',
-    		details: 'Units Used: ' + context.usage + '<br>Number of Yields: ' + context.yields
-    	});
+    function summarize(summary) {
 
     }
 
     return {
         getInputData: getInputData,
         map: map,
+        reduce: reduce,
         summarize: summarize
     };
     

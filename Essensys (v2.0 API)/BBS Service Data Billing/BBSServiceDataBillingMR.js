@@ -49,6 +49,16 @@ function(runtime, search, record, format, render, file, task) {
     			values: [subsidiary]
     		},
     				{
+    			name: 'custrecord_bbs_service_data_site_record',
+    			operator: 'noneof',
+    			values: ['@NONE@']
+    		},
+    				{
+    			name: 'custrecord_bbs_service_data_product_rec',
+    			operator: 'noneof',
+    			values: ['@NONE@']
+    		},
+    				{
     			name: 'custrecord_bbs_service_data_start_date',
     			operator: 'notafter',
     			values: ['lastmonth'] // lastmonth means end of last month
@@ -219,17 +229,17 @@ function(runtime, search, record, format, render, file, task) {
     					{
 		    			name: 'formuladate',
 		    			formula: "CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_start_date} ELSE LAST_DAY(ADD_MONTHS({today},-2))+1 END",
-		    			summary: 'MAX'
+		    			summary: 'GROUP'
 		    		},
 		    				{
 		    			name: 'formuladate',
 		    			formula: "CASE WHEN TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_end_date} ELSE LAST_DAY(ADD_MONTHS({today}, -1)) END",
-		    			summary: 'MAX'
+		    			summary: 'GROUP'
 		    		},
 							{
 						name: 'formulacurrency',
 						summary: 'GROUP',
-						formula: "ROUND(CASE WHEN {custrecord_bbs_service_data_frequency} = 'One off' THEN {custrecord_bbs_service_data_op_cost} ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * (TO_CHAR({custrecord_bbs_service_data_end_date},'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD')) - 1 ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * TO_CHAR({custrecord_bbs_service_data_end_date},'DD') ELSE CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') -1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD')) * (TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD') +1) ELSE {custrecord_bbs_service_data_op_cost} END END END END, 2)"
+						formula: "ROUND(CASE WHEN {custrecord_bbs_service_data_op_cost} = 0 THEN 0 ELSE CASE WHEN {custrecord_bbs_service_data_frequency} = 'One off' THEN {custrecord_bbs_service_data_op_cost} ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * (TO_CHAR({custrecord_bbs_service_data_end_date},'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD')) - 1 ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * TO_CHAR({custrecord_bbs_service_data_end_date},'DD') ELSE CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') -1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD')) * (TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD') +1) ELSE {custrecord_bbs_service_data_op_cost} END END END END END, 2)"
 					},
 							{
 						name: 'custrecord_bbs_service_data_quantity',
@@ -246,6 +256,16 @@ function(runtime, search, record, format, render, file, task) {
 						operator: 'anyof',
 						values: [siteID]
 					},
+							{
+		    			name: 'custrecord_bbs_service_data_customer_rec',
+		    			operator: 'noneof',
+		    			values: ['@NONE@']
+		    		},
+		    				{
+		    			name: 'custrecord_bbs_service_data_product_rec',
+		    			operator: 'noneof',
+		    			values: ['@NONE@']
+		    		},
 							{
 		    			name: 'custrecord_bbs_service_data_start_date',
 		    			operator: 'notafter',

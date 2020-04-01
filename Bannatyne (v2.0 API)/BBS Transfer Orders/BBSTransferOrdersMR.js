@@ -3,21 +3,13 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/search', 'N/record'],
+define(['N/search', 'N/record'],
 /**
  * @param {record} record
  * @param {search} search
  */
-function(runtime, search, record) {
+function(search, record) {
    
-	// retrieve script parameters
-	var currentScript = runtime.getCurrentScript();
-	
-	// script parameters are global variables so can be accessed throughout the script
-	writeoffAccount = currentScript.getParameter({
-    	name: 'custscript_bbs_writeoff_account'
-    });
-	
 	/**
      * Marks the beginning of the Map/Reduce process and generates input data.
      *
@@ -43,11 +35,6 @@ function(runtime, search, record) {
     			name: 'mainline',
     			operator: 'is',
     			values: ['T']
-    		},
-    				{
-    			name: 'internalid',
-    			operator: 'is',
-    			values: ['4146154']
     		}],
     		
     		columns: [{
@@ -224,40 +211,35 @@ function(runtime, search, record) {
     					line: i
     				});
     				
-    				var itemType = itemReceiptRecord.getSublistValue({
-    					sublistId: 'item',
-    					fieldId: 'itemtype',
-    					line: i
-    				});
-    				
-    				// if the itemType is 'InvtPart'
-					if (itemType == 'InvtPart')
-						{
-							// lookup fields on the item record
-							var itemRecordLookup = search.lookupFields({
-				    			type: record.Type.INVENTORY_ITEM,
-				    			id: itemID,
-				    			columns: ['custitem_bbs_auto_write_off', 'expenseaccount']
-				    		});
-						}
-					else if (itemType == 'NonInvtPart') // if the itemType is 'NonInvtPart'
-						{
-							// lookup fields on the item record
-		    				var itemRecordLookup = search.lookupFields({
-		    					type: record.Type.NON_INVENTORY_ITEM,
-		    					id: itemID,
-		    					columns: ['custitem_bbs_auto_write_off', 'expenseaccount']
-		    				});
-						}
+    				// lookup fields on the item record
+					var itemRecordLookup = search.lookupFields({
+				    	type: record.Type.INVENTORY_ITEM,
+				    	id: itemID,
+				    	columns: ['custitem_bbs_auto_write_off', 'expenseaccount', 'class']
+				    });
     						
     				// retrieve values from the item lookup
     				var doNotWriteOff = itemRecordLookup.custitem_bbs_auto_write_off;
     				var adjustmentAccount = itemRecordLookup.expenseaccount[0].value;
+    				var lineOfBusiness = itemRecordLookup.class[0].value;
     				
     				// check if the do not write off flag on the item record is NOT ticked
     				if (doNotWriteOff == false)
     					{
-	    					try
+	    					// lookup fields on the location record
+	        				var locationRecordLookup = search.lookupFields({
+	        					type: record.Type.LOCATION,
+	        					id: adjustmentLocation,
+	        					columns: ['custrecord_n103_cseg1', 'custrecord_n103_cseg2', 'custrecord_n103_cseg3', 'custrecord_n103_cseg4']
+	        				});
+	        				
+	        				// retrieve values from the location lookup
+	        				var spaRegion = locationRecordLookup.custrecord_n103_cseg1[0].value;
+	        				var clubRegion = locationRecordLookup.custrecord_n103_cseg2[0].value;
+	        				var salesRegion = locationRecordLookup.custrecord_n103_cseg3[0].value;
+	        				var estatesRegion = locationRecordLookup.custrecord_n103_cseg4[0].value;
+
+    						try
 	        					{
 			        				// create a new inventory adjustment record
 			        				var inventoryAdjustment = record.create({
@@ -279,6 +261,31 @@ function(runtime, search, record) {
 			        				inventoryAdjustment.setValue({
 			        					fieldId: 'adjlocation',
 			        					value: adjustmentLocation
+			        				});
+			        				
+			        				inventoryAdjustment.setValue({
+			        					fieldId: 'custbody_cseg1',
+			        					value: spaRegion
+	        						});
+			        				
+			        				inventoryAdjustment.setValue({
+			        					fieldId: 'custbody_cseg2',
+			        					value: clubRegion
+			        				});
+			        				
+			        				inventoryAdjustment.setValue({
+			        					fieldId: 'custbody_cseg3',
+			        					value: salesRegion
+			        				});
+			        				
+			        				inventoryAdjustment.setValue({
+			        					fieldId: 'custbody_cseg4',
+			        					value: estatesRegion
+			        				});
+			        				
+			        				inventoryAdjustment.setValue({
+			        					fieldId: 'class',
+			        					value: lineOfBusiness
 			        				});
 			        						
 			        				// select a new line on the inventory adjustment

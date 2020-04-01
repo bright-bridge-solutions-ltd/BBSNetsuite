@@ -34,8 +34,9 @@ function(search) {
     	if (scriptContext.type == 'create' || scriptContext.type == 'edit')
     		{
 		    	// declare and initialize variables
-		    	var siteRecord;
-		    	var itemRecord;
+		    	var siteRecord = null;
+		    	var itemRecord = null;
+		    	var validationErrors = '';
 		    	
 		    	// get the current record object
 		    	var currentRecord = scriptContext.newRecord;
@@ -87,11 +88,28 @@ function(search) {
 				    		}
 				    	else // no site record found
 				    		{
+					    		// set the 'BBS Site Record' field on the current record to null
+				    			currentRecord.setValue({
+				    				fieldId: 'custrecord_bbs_service_data_site_record',
+				    				value: null
+				    			});
+				    		
 				    			log.error({
 				    				title: 'No Matching Site Record Found',
 				    				details: 'Site Alias: ' + siteAlias
 				    			});
+				    			
+				    			validationErrors += 'No Matching Site Record Found<br>';
+				    			
+				    			log.debug({
+				    				title: 'Validation Errors',
+				    				details: validationErrors
+				    			});
 				    		}
+		    		}
+		    	else
+		    		{
+		    			validationErrors += 'Site Alias Field is Empty<br>';
 		    		}
 		    	
 		    	// check we have a product
@@ -131,12 +149,31 @@ function(search) {
 				    		}
 				    	else // no item record found
 				    		{
+					    		// set the 'BBS Item Record' field on the current record to null
+				    			currentRecord.setValue({
+				    				fieldId: 'custrecord_bbs_service_data_product_rec',
+				    				value: null
+				    			});
+				    		
 				    			log.error({
-				    				title: 'No Matching Item Record Found',
+				    				title: 'No Matching Product Record Found',
 				    				details: 'Item Alias: ' + parentProduct
 				    			});
+				    			
+				    			validationErrors += 'No Matching Product Record Found<br>';
 				    		}
 		    		}
+		    	else
+		    		{
+		    			validationErrors += 'Parent Product Field is Empty<br>';
+		    		}
+		    	
+		    	// set the 'Validation Errors' field on the current record
+		    	currentRecord.setValue({
+		    		fieldId: 'custrecord_bbs_service_data_validate_err',
+		    		value: validationErrors
+		    	});
+		    	
     		}
 
     }

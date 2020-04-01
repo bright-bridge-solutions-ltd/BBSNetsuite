@@ -54,6 +54,7 @@ function(search, record, format, task) {
     	// retrieve ID of the record from the search
     	var searchResult = JSON.parse(context.value);
 		var recordID = searchResult.id;
+		
 		try
     		{
 		        // load the BBS Brightlime Charges record

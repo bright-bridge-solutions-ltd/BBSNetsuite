@@ -3,12 +3,8 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/record', 'N/search'],
-/**
- * @param {render} render
- * @param {search} search
- */
-function(record, search) {
+define(['N/search', 'N/record'],
+function(search, record) {
    
     /**
      * Marks the beginning of the Map/Reduce process and generates input data.
@@ -22,10 +18,18 @@ function(record, search) {
      */
     function getInputData() {
     	
-    	// load search to find records to be processed
-    	return search.load({
-    		type: 'customrecord_bbs_service_data',
-    		id: 'customsearch_bbs_delete_service_data_rec'
+    	// create search to find records to be deleted
+    	return search.create({
+			type: 'customrecord_bbs_brightlime_charges',
+			
+			columns: [{
+				name: 'internalid'
+			}],
+			
+			filters: [
+			
+			],
+		
     	});
 
     }
@@ -38,45 +42,37 @@ function(record, search) {
      */
     function map(context) {
     	
-    	// retrieve search results
+    	// retrieve ID of the record from the search
     	var searchResult = JSON.parse(context.value);
-    	
-    	// get the internal id of the record
-    	var recordID = searchResult.id;
-    	
-    	try
-    		{
-    			// delete the record
-    			record.delete({
-    				type: 'customrecord_bbs_service_data',
-    				id: recordID
-    			});
-    			
-    			log.audit({
-    				title: 'Record Deleted',
-    				details: recordID
-    			});
-    		}
-    	catch(e)
-    		{
-    			log.error({
-    				title: 'Error Deleting Record',
-    				details: 'Record ID: ' + recordID + '<br>Error: ' + e
-    			});
-    		}
+		var recordID = searchResult.id;
+		
+		log.audit({
+			title: 'Processing BL Charge Record',
+			details: recordID
+		});
+		
+		try
+			{
+				// delete the BL Charge Record
+				record.delete({
+					type: 'customrecord_bbs_brightlime_charges',
+					id: recordID
+				});
+				
+				log.audit({
+					title: 'BL Charge Record Deleted',
+					details: recordID
+				});
+			}
+		catch(e)
+			{
+				log.error({
+					title: 'Error Deleting BL Charge Record',
+					details: 'Record ID: ' + recordID + '<br>Error: ' + e
+				});
+			}
 
     }
-
-    /**
-     * Executes when the reduce entry point is triggered and applies to each group.
-     *
-     * @param {ReduceSummary} context - Data collection containing the groups to process through the reduce stage
-     * @since 2015.1
-     */
-    function reduce(context) {
-
-    }
-
 
     /**
      * Executes when the summarize entry point is triggered and applies to the result set.
@@ -84,11 +80,11 @@ function(record, search) {
      * @param {Summary} summary - Holds statistics regarding the execution of a map/reduce script
      * @since 2015.1
      */
-    function summarize(context) {
+    function summarize(summary) {
     	
     	log.audit({
     		title: '*** END OF SCRIPT ***',
-    		details: 'Units Used: ' + context.usage + '<br>Number of Yields: ' + context.yields
+    		details: 'Duration: ' + summary.seconds + ' seconds<br>Units Used: ' + summary.usage + '<br>Yields: ' + summary.yields
     	});
 
     }

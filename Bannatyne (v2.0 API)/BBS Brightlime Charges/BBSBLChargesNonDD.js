@@ -3,8 +3,8 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/search', 'N/record'],
-function(runtime, search, record) {
+define(['N/runtime', 'N/search', 'N/record', 'N/task'],
+function(runtime, search, record, task) {
 	
 	// retrieve script parameters
 	var currentScript = runtime.getCurrentScript();
@@ -46,11 +46,6 @@ function(runtime, search, record) {
     			name: 'custrecord_bbs_bl_dd_nondd',
     			operator: 'is',
     			values: ['F']
-    		},
-    				{
-    			name: 'custrecord_bbs_brightlime_club_id',
-    			operator: 'anyof',
-    			values: [36]
     		}],
     		
     		columns: [{
@@ -129,7 +124,7 @@ function(runtime, search, record) {
     	    		});
     	    		
     	    		var amount = result.getValue({
-    	    			name: 'custrecord_bbs_bl_amount'
+    	    			name: 'formulacurrency'
     	    		});
     	    		
     	    		var blTranID = result.getValue({
@@ -148,7 +143,11 @@ function(runtime, search, record) {
     	    			name: 'custrecord_bbs_bl_member_id'
     	    		});
     	    		
-    	    		var blChargeCode = result.getValue({
+    	    		var blMemberCode = result.getValue({
+    	    			name: 'custrecord_bbs_bl_charge_member_code'
+    	    		})
+    	    		
+    	    		var blChargeCodeDesc = result.getValue({
     	    			name: 'custrecord_bbs_description2',
     	    			join: 'custrecord_bbs_brightlime_charge_code'
     	    		});
@@ -188,6 +187,24 @@ function(runtime, search, record) {
     	    			value: blTranID
     	    		});
     	    		
+    	    		// check if blChargeCodeDesc is 'Wellness'
+    	    		if (blChargeCodeDesc == 'Wellness')
+    	    			{
+    	    				journalRec.setCurrentSublistValue({
+    	    					sublistId: 'line',
+    	    					fieldId: 'class',
+    	    					value: 3 // 3 = Spa
+    	    				});
+    	    			}
+    	    		else
+    	    			{
+	    	    			journalRec.setCurrentSublistValue({
+		    					sublistId: 'line',
+		    					fieldId: 'class',
+		    					value: 1 // 1 = Gym
+		    				});
+    	    			}
+    	    		
     	    		journalRec.setCurrentSublistValue({
     	    			sublistId: 'line',
     	    			fieldId: 'location',
@@ -203,7 +220,13 @@ function(runtime, search, record) {
     	    		journalRec.setCurrentSublistValue({
     	    			sublistId: 'line',
     	    			fieldId: 'custcol_bbs_brightlime_charge_code',
-    	    			value: blChargeCode
+    	    			value: blChargeCodeDesc
+    	    		});
+    	    		
+    	    		journalRec.setCurrentSublistValue({
+    	    			sublistId: 'line',
+    	    			fieldId: 'custcol_bbs_brightlime_member_code',
+    	    			value: blMemberCode
     	    		});
     	    		
     	    		journalRec.commitLine({
@@ -259,6 +282,24 @@ function(runtime, search, record) {
     	    			value: blTranID
     	    		});
     	    		
+    	    		// check if blChargeCodeDesc is 'Wellness'
+    	    		if (blChargeCodeDesc == 'Wellness')
+    	    			{
+    	    				journalRec.setCurrentSublistValue({
+    	    					sublistId: 'line',
+    	    					fieldId: 'class',
+    	    					value: 3 // 3 = Spa
+    	    				});
+    	    			}
+    	    		else
+    	    			{
+	    	    			journalRec.setCurrentSublistValue({
+		    					sublistId: 'line',
+		    					fieldId: 'class',
+		    					value: 1 // 1 = Gym
+		    				});
+    	    			}
+    	    		
     	    		journalRec.setCurrentSublistValue({
     	    			sublistId: 'line',
     	    			fieldId: 'location',
@@ -274,7 +315,13 @@ function(runtime, search, record) {
     	    		journalRec.setCurrentSublistValue({
     	    			sublistId: 'line',
     	    			fieldId: 'custcol_bbs_brightlime_charge_code',
-    	    			value: blChargeCode
+    	    			value: blChargeCodeDesc
+    	    		});
+    	    		
+    	    		journalRec.setCurrentSublistValue({
+    	    			sublistId: 'line',
+    	    			fieldId: 'custcol_bbs_brightlime_member_code',
+    	    			value: blMemberCode
     	    		});
     	    		
     	    		journalRec.commitLine({
@@ -323,6 +370,26 @@ function(runtime, search, record) {
      * @since 2015.1
      */
     function summarize(summary) {
+    	
+    	log.audit({
+    		title: '*** END OF SCRIPT ***',
+    		details: 'Duration: ' + summary.seconds + ' seconds<br>Units Used: ' + summary.usage + '<br>Yields: ' + summary.yields
+    	});
+    	
+    	// create a map/reduce task
+    	var mapReduceTask = task.create({
+    	    taskType: task.TaskType.MAP_REDUCE,
+    	    scriptId: 'customscript_bbs_bl_charges_dd',
+    	    deploymentId: 'customdeploy_bbs_bl_charges_dd'
+    	});
+    	
+    	// submit the map/reduce task
+    	var mapReduceTaskID = mapReduceTask.submit();
+    	
+    	log.audit({
+    		title: 'Script scheduled',
+    		details: 'BBS BL Charges DD script has been scheduled. Job ID ' + mapReduceTaskID
+    	});
 
     }
     
@@ -355,7 +422,8 @@ function(runtime, search, record) {
         			name: 'custrecord_bbs_bl_gl_account_id'
         		},
         				{
-        			name: 'custrecord_bbs_bl_amount'
+        			name: 'formulacurrency',
+        			formula: "{custrecord_bbs_bl_amount} - {custrecord_bbs_bl_vat_amount}"
         		},
         				{
         			name: 'custrecord_bbs_bl_bantrans_serial'
@@ -371,6 +439,9 @@ function(runtime, search, record) {
         			name: 'custrecord_bbs_bl_member_id',
         		},
         				{
+        			name: 'custrecord_bbs_bl_charge_member_code'
+        		},
+        				{
         			name: 'custrecord_bbs_description2',
 	    			join: 'custrecord_bbs_brightlime_charge_code'
         		}],
@@ -381,7 +452,6 @@ function(runtime, search, record) {
     return {
         getInputData: getInputData,
         map: map,
-        reduce: reduce,
         summarize: summarize
     };
     

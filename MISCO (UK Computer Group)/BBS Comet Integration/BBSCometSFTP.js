@@ -469,6 +469,8 @@ function(sftp, file, search, xml, record, runtime, email, format)
 																										    				value: 		lineSalesAmount
 																										    				});
 			
+																					//If we have found the supplier then we can explicitly set it
+																					//
 																					if(supplierId != null)
 																						{
 																							salesOrderRecord.setCurrentSublistValue({
@@ -496,7 +498,13 @@ function(sftp, file, search, xml, record, runtime, email, format)
 																										    				value: 		linePoPrice
 																										    				});
 		
-												
+																					salesOrderRecord.setCurrentSublistValue({
+																										    				sublistId: 	'item',
+																										    				fieldId: 	'createpo',
+																										    				value: 		'DropShip'
+																										    				});
+
+			
 																					salesOrderRecord.commitLine({
 																												sublistId: 	'item'
 																												});

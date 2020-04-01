@@ -211,32 +211,41 @@ function(search, dialog) {
      */
 	function validateLine(scriptContext) {
 	    	
-	    	// get the current record object
-	    	var currentRecord = scriptContext.currentRecord;
+	    	// check we are dealing with the item sublist
+			if (scriptContext.sublistId == 'item')
+				{
+					// get the current record object
+					var currentRecord = scriptContext.currentRecord;
 	    	
-	    	// get the value of the 'description' field for the current line
-	    	var description = currentRecord.getCurrentSublistValue({
-	    		sublistId: 'item',
-	    		fieldId: 'description'
-	    	});
-	    	
-	    	// check if a description was entered by the user
-	    	if (description)
-	    		{
-	    			// allow the line to be saved
-	    			return true;
-	    		}
-	    	else // a description was NOT entered
-	    		{
-	    			// show an alert to the user
-	    			dialog.alert({
-	    				title: '⚠️ Please enter a description',
-	    				message: 'The line cannot be saved as a description has not been entered.<br><br>Please enter a description and try again.'
-	    			});
-	
-	    			// do not allow the line to be saved
-	    			return false;
-	    		}
+			    	// get the value of the 'description' field for the current line
+			    	var description = currentRecord.getCurrentSublistValue({
+			    		sublistId: 'item',
+			    		fieldId: 'description'
+			    	});
+			    	
+			    	// check if a description was entered by the user
+			    	if (description)
+			    		{
+			    			// allow the line to be saved
+			    			return true;
+			    		}
+			    	else // a description was NOT entered
+			    		{
+			    			// show an alert to the user
+			    			dialog.alert({
+			    				title: '⚠️ Please enter a description',
+			    				message: 'The line cannot be saved as a description has not been entered.<br><br>Please enter a description and try again.'
+			    			});
+			
+			    			// do not allow the line to be saved
+			    			return false;
+			    		}
+				}
+			else
+				{
+					// allow the line to be saved
+					return true;
+				}
 	    }
 
     /**
