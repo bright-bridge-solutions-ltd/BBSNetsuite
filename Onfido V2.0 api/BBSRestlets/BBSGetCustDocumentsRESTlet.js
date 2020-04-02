@@ -300,7 +300,7 @@ function(search,config) {
 				    						
 				    						//Add an entry to the output array using the extended properties found in the description
 						    				//
-						    				resultSet.push(new fileDescriptor(fileName, descriptionObj.description, fileDate, fileUrl, descriptionObj.startDate, descriptionObj.endDate, descriptionObj.amount, descriptionObj.currency));
+						    				resultSet.push(new fileDescriptor(fileName, descriptionObj.description, descriptionObj.tranDate, fileUrl, descriptionObj.startDate, descriptionObj.endDate, descriptionObj.amount, descriptionObj.currency));
 						    				
 				    					}
 				    				catch(err)

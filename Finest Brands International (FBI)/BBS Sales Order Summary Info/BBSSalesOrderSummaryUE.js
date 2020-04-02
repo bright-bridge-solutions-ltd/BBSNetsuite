@@ -271,7 +271,7 @@ function salesOrderSummaryAS(type)
 							        												itemInfo.custitem_fbi_item_colour, 
 							        												itemInfo.custitem_fbi_item_size2, 
 							        												parentInfo.location, 
-							        												parentInfo.salesdescription,
+							        												(parentInfo.salesdescription == null ? '' : parentInfo.salesdescription),
 							        												itemInfoText.custitem_fbi_item_colour,
 							        												itemInfoText.custitem_fbi_item_size2,
 							        												parentInfoText.location,

@@ -211,21 +211,18 @@ function(file, record, render, runtime, search, email)
 	    {
     		//Get runtime parameters
     		//
-    		var currentScript = runtime.getCurrentScript();
-    		var attachmentsFolder = currentScript.getParameter({name: 'custscript_bbs_attachments_folder'});
-    		var emailTemplate = currentScript.getParameter({name: 'custscript_bbs_email_template'});
-    		var emailSender = currentScript.getParameter({name: 'custscript_bbs_invoice_email_sender'});
-    		
-    		var today = new Date();
-    		
-    		var newRecord = scriptContext.newRecord;
-			var newRecordId = newRecord.id;
-			var newRecordType = newRecord.type;
+    		var currentScript 		= runtime.getCurrentScript();
+    		var attachmentsFolder 	= currentScript.getParameter({name: 'custscript_bbs_attachments_folder'});
+    		var emailTemplate 		= currentScript.getParameter({name: 'custscript_bbs_email_template'});
+    		var emailSender 		= currentScript.getParameter({name: 'custscript_bbs_invoice_email_sender'});
+    		var today 				= new Date();
+    		var newRecord 			= scriptContext.newRecord;
+			var newRecordId 		= newRecord.id;
+			var newRecordType 		= newRecord.type;
 			
 			//Update the record with the JSON summary of the products by unit price
 			//
 			updateTransactionSummary(newRecord);
-			
 			
     		//Have we got an attachments folder defined
     		//
@@ -235,7 +232,6 @@ function(file, record, render, runtime, search, email)
     				//
     				if(scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
     					{
-    						
     						var thisRecord = null;
     						
     						//Read in the invoice record
@@ -253,18 +249,56 @@ function(file, record, render, runtime, search, email)
     						//
     						if(thisRecord != null)
 		    					{
-    								//Get data from the invoice record
+    								//Get data from the invoice record header
     								//
-		    						var thisContract = thisRecord.getText({fieldId: 'custbody_bbs_contract_record'});
-		    						var thisContractId = thisRecord.getValue({fieldId: 'custbody_bbs_contract_record'});
-		    						var thisCustomer = thisRecord.getText({fieldId: 'entity'});
-		    						var thisCustomerId = thisRecord.getValue({fieldId: 'entity'});
-		    						var thisInvoiceNumber = thisRecord.getText({fieldId: 'tranid'});
+		    						var thisContract 		= thisRecord.getText({fieldId: 'custbody_bbs_contract_record'});
+		    						var thisContractId 		= thisRecord.getValue({fieldId: 'custbody_bbs_contract_record'});
+		    						var thisCustomer 		= thisRecord.getText({fieldId: 'entity'});
+		    						var thisCustomerId 		= thisRecord.getValue({fieldId: 'entity'});
+		    						var thisInvoiceNumber 	= thisRecord.getValue({fieldId: 'tranid'});
+		    						var thisInvoiceDate 	= thisRecord.getValue({fieldId: 'trandate'}).format('d/m/Y');
+		    						var thisInvoiceTotal 	= thisRecord.getValue({fieldId: 'total'});
+		    						var thisInvoiceCurrency	= thisRecord.getText({fieldId: 'currency'});
+		    						var thisSalesOrder 		= thisRecord.getValue({fieldId: 'createdfrom'});
 		    						
 		    						//If we have the contract on the invoice, then go ahead
 		    						//
 		    						if(thisContract != null && thisContract != '')
 		    							{
+		    								//Calculate the earliest & latest transaction dates from the item sublist
+		    								//
+		    								var startDate = null;
+		    								var endDate = null;
+		    								
+		    								var lines = thisRecord.getLineCount({sublistId: 'item'});
+		    								
+		    								for (var int = 0; int < lines; int++) 
+			    								{
+													var searchDate = thisRecord.getSublistValue({
+																								sublistId:		'item',
+																								fieldId:		'custcol_bbs_so_search_date',
+																								line:			int
+																								});
+													if(int == 0 && searchDate != null && searchDate != '')
+														{
+															startDate 	= new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
+															endDate 	= new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
+														}
+													else
+														{
+															if(searchDate != null && searchDate != '' && searchDate.getTime() < startDate.getTime())
+																{
+																	startDate = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
+																}
+															
+															if(searchDate != null && searchDate != '' && searchDate.getTime() > endDate.getTime())
+																{
+																	endDate = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
+																}
+														}
+												}
+		    							
+		    							
 				    						var fileId = null;
 				    						
 				    						//Generate the pdf file
@@ -291,8 +325,7 @@ function(file, record, render, runtime, search, email)
 				    									
 				    								case record.Type.CREDIT_MEMO:
 				    									recordName = 'Credit';
-				    									break;
-				    										
+				    									break;	
 				    							}
 				    						
 				    						//Set the file name
@@ -305,14 +338,16 @@ function(file, record, render, runtime, search, email)
 				    						
 				    						//Set the file description
 				    						//
-				    						var fileProperties = new filePropertiesObj(recordName + " # " + thisInvoiceNumber + " For Contract # " + thisContract, 
-				    								'', //thisRecord.getValue({fieldId: 'trandate'}).format('d/m/Y'), 
-				    								'', 
-				    								thisRecord.getValue({fieldId: 'total'}), 
-				    								thisRecord.getText({fieldId: 'currency'}));
+				    						var fileProperties = new filePropertiesObj(
+				    								recordName + " # " + thisInvoiceNumber + " For Contract # " + thisContract, 
+				    								(startDate == null ? '' : startDate.format('d/m/Y')), 
+				    								(endDate == null ? '' : endDate.format('d/m/Y')), 
+				    								thisInvoiceTotal, 
+				    								thisInvoiceCurrency,
+				    								thisInvoiceDate
+				    								);
 				    						
 				    						transactionFile.description = JSON.stringify(fileProperties);
-				    						
 				    						//transactionFile.description = recordName + " # " + thisInvoiceNumber + " For Contract # " + thisContract;
 				    						
 				    						//Try to save the file to the filing cabinet
@@ -627,13 +662,14 @@ function(file, record, render, runtime, search, email)
 		  	this.symbol					= _currencySymbol;
 	  	}
     
-    function filePropertiesObj(_description, _startDate, _endDate, _amount, _currency)
+    function filePropertiesObj(_description, _startDate, _endDate, _amount, _currency, _tranDate)
     	{
     		this.description 	= _description;
     		this.startDate		= _startDate;
     		this.endDate		= _endDate;
     		this.amount			= _amount;
     		this.currency		= _currency;
+    		this.tranDate		= _tranDate;
     	}
 
     //=============================================================================
