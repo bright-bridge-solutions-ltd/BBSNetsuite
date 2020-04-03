@@ -72,6 +72,11 @@ function(runtime, search, file) {
 				type: 'customrecord_bbs_service_data',
 				
 				filters: [{
+	    			name: 'isinactive',
+	    			operator: 'is',
+	    			values: ['F']
+	    		},
+						{
 	    			name: 'subsidiary',
 	    			join: 'custrecord_bbs_service_data_customer_rec',
 	    			operator: 'anyof',
@@ -187,6 +192,11 @@ function(runtime, search, file) {
     			type: 'customrecord_bbs_service_data',
     			
     			filters: [{
+	    			name: 'isinactive',
+	    			operator: 'is',
+	    			values: ['F']
+	    		},
+    					{
 	    			name: 'subsidiary',
 	    			join: 'custrecord_bbs_service_data_customer_rec',
 	    			operator: 'anyof',
@@ -281,6 +291,11 @@ function(runtime, search, file) {
     			type: 'customrecord_bbs_service_data',
     			
 	    		filters: [{
+	    			name: 'isinactive',
+	    			operator: 'is',
+	    			values: ['F']
+	    		},
+	    				{
 	    			name: 'subsidiary',
 	    			join: 'custrecord_bbs_service_data_customer_rec',
 	    			operator: 'anyof',
@@ -437,6 +452,11 @@ function(runtime, search, file) {
 				type: 'customrecord_bbs_service_data',
 				
 				filters: [{
+	    			name: 'isinactive',
+	    			operator: 'is',
+	    			values: ['F']
+	    		},
+						{
 	    			name: 'subsidiary',
 	    			join: 'custrecord_bbs_service_data_customer_rec',
 	    			operator: 'anyof',
