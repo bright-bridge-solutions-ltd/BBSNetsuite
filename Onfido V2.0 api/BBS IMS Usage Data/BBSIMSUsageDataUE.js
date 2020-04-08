@@ -275,7 +275,7 @@ function(format, search, record) {
         		}],
         		
         		columns: [{
-        			name: 'internalid'
+        			name: 'externalid'
         		}],
     			
     		});
@@ -283,9 +283,9 @@ function(format, search, record) {
     		// run search and process results
     		salesOrderSearch.run().each(function(result){
     			
-    			// get the internal id of the sales order
+    			// get the external id of the sales order
     			salesOrderID = result.getValue({
-    				name: 'internalid'
+    				name: 'externalid'
     			});
     			
     		});

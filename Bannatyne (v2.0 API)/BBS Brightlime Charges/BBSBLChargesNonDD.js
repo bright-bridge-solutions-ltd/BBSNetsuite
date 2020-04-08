@@ -73,6 +73,13 @@ function(runtime, search, record, task) {
     	
     	// retrieve search results
     	var searchResult = JSON.parse(context.value);
+    	
+    	log.debug({
+    		title: 'Search Result',
+    		details: searchResult
+    	});
+    	
+    	
     	var clubID = searchResult.values['GROUP(custrecord_bbs_brightlime_club_id)'].value;
     	var clubName = searchResult.values['GROUP(custrecord_bbs_brightlime_club_id)'].text;
     	var subsidiary = searchResult.values['MAX(internalid.custrecord_bbs_bl_subsidiary1)'];
@@ -376,7 +383,7 @@ function(runtime, search, record, task) {
     		details: 'Duration: ' + summary.seconds + ' seconds<br>Units Used: ' + summary.usage + '<br>Yields: ' + summary.yields
     	});
     	
-    	// create a map/reduce task
+    	/*// create a map/reduce task
     	var mapReduceTask = task.create({
     	    taskType: task.TaskType.MAP_REDUCE,
     	    scriptId: 'customscript_bbs_bl_charges_dd',
@@ -389,7 +396,7 @@ function(runtime, search, record, task) {
     	log.audit({
     		title: 'Script scheduled',
     		details: 'BBS BL Charges DD script has been scheduled. Job ID ' + mapReduceTaskID
-    	});
+    	});*/
 
     }
     

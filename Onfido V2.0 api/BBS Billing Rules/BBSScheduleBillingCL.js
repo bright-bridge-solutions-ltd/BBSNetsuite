@@ -12,7 +12,7 @@ function(message, url, https, search) {
     		parent.close();
     	}
     
-    function createQMPInvoices(scriptContext)
+    function createQMPInvoices()
     	{
     		// ==============================================================
 			// CALL BACKEND SUITELET TO SCHEDULE 'Create QMP Invoices' SCRIPT
@@ -63,6 +63,27 @@ function(message, url, https, search) {
 			
 			// open the 'Create Consolidated Invoices' Suitelet in a new tab/window
     		window.open(reloadURL, '_blank');
+    	}
+    
+    function updateContractUsage()
+    	{
+	    	// define URL of Suitelet
+			var suiteletURL = url.resolveScript({
+				scriptId: 'customscript_bbs_update_con_usage_sl',
+				deploymentId: 'customdeploy_bbs_update_con_usage_sl'
+			});
+			
+			// call a backend Suitelet to schedule the BBS Update Contract Usage MR script
+			https.get({
+				url: suiteletURL
+			});
+			
+			// display a confirmation message
+			message.create({
+				type: message.Type.CONFIRMATION,
+		        title: 'Contract Usage Update Scheduled',
+		        message: 'Contract Usage Update script has been scheduled successfully.'
+			}).show();
     	}
     
     /**
@@ -215,7 +236,8 @@ function(message, url, https, search) {
     	saveRecord: saveRecord,
     	cancelButton: cancelButton,
     	createQMPInvoices: createQMPInvoices,
-    	createConsolidatedInvoices:  createConsolidatedInvoices
+    	createConsolidatedInvoices:  createConsolidatedInvoices,
+    	updateContractUsage: updateContractUsage
     };
     
 });
