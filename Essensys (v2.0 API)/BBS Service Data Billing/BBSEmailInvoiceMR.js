@@ -17,6 +17,24 @@ function(runtime, search, email, render, record) {
 		name: 'custscript_bbs_invoice_email_template'
 	});
 	
+	subsidiary = currentScript.getParameter({
+		name: 'custscript_bbs_subsidiary_select'
+	});
+	
+	// if subsidiary is 2 (UK)
+	if (subsidiary == 2)
+		{
+			emailSender = currentScript.getParameter({
+				name: 'custscript_bbs_ar_uk_email_sender'
+			});
+		}
+	else if (subsidiary == 3) // if subsidiary is 3 (US)
+		{
+			emailSender = currentScript.getParameter({
+				name: 'custscript_bbs_ar_us_email_sender'
+			});
+		}
+	
 	/**
      * Marks the beginning of the Map/Reduce process and generates input data.
      *
@@ -60,10 +78,12 @@ function(runtime, search, email, render, record) {
     	});
     	
     	// call function to return the customer's email address. Pass invoiceID
-    	var customerEmail = getCustomerEmail(invoiceID);
+    	var customerEmailAddresses = getCustomerEmail(invoiceID);
+    	var customerEmail1 = customerEmailAddresses.email1;
+    	var customerEmail2 = customerEmailAddresses.email2;
     	
-    	// call function to send the email. Pass invoiceID and customerEmail
-    	var emailSent = sendEmail(invoiceID, customerEmail);
+    	// call function to send the email. Pass invoiceID, customerEmail1 and customerEmail2
+    	var emailSent = sendEmail(invoiceID, customerEmail1, customerEmail2);
     	
     	// check emailSent returns true
     	if (emailSent == true)
@@ -105,7 +125,7 @@ function(runtime, search, email, render, record) {
     		var invoiceLookup = search.lookupFields({
     			type: search.Type.INVOICE,
     			id: invoiceID,
-    			columns: ['.entity']
+    			columns: ['entity']
     		});
     		
     		// get the customer ID from the invoiceLookup object
@@ -115,60 +135,94 @@ function(runtime, search, email, render, record) {
     		var customerLookup = search.lookupFields({
     			type: search.Type.CUSTOMER,
     			id: customerID,
-    			columns: ['email']
+    			columns: ['custentity_bbs_cust_trans_email', 'custentity_bbs_cust_trans_cc']
     		});
     		
-    		return customerLookup.email;   
+    		return {
+    			email1: customerLookup.custentity_bbs_cust_trans_email,
+    			email2: customerLookup.custentity_bbs_cust_trans_cc
+    		};
+
     	}
     
-    function sendEmail(invoiceID, customerEmail)
+    function sendEmail(invoiceID, customerEmail1, customerEmail2)
     	{
-    		try
+    		// check that we have an email address
+    		if (customerEmail1)
     			{
-    				// create an email merger
-					var mergeResult = render.mergeEmail({
-						templateId: emailTemplate,
-						transactionId: invoiceID
-					});
-					
-					// get the subject and body of the email merger
-					var emailSubject = mergeResult.subject;
-					var emailBody = mergeResult.body;
-					
-					// get the invoice PDF
-					var invoicePDF = render.transaction({
-					    entityId: invoiceID,
-					    printMode: render.PrintMode.PDF,
-					    inCustLocale: true
-					});
-    			
-					// send an email to the customer
-    				email.send({
-    					author: 3, // 3 = BrightBridge Solutions
-    					recipients: customerEmail,
-    					subject: emailSubject,
-    					body: emailBody,
-    					attachments: [invoicePDF],
-    					relatedRecords: {
-    						transactionId: invoiceID
-    					}
-    				});
-    				
-    				log.audit({
-    					title: 'Email Sent',
-    					details: 'Invoice ID: ' + invoiceID
-    				});
-    				
-    				return true;
+		    		try
+		    			{
+		    				// create an email merger
+							var mergeResult = render.mergeEmail({
+								templateId: emailTemplate,
+								transactionId: invoiceID
+							});
+							
+							// get the subject and body of the email merger
+							var emailSubject = mergeResult.subject;
+							var emailBody = mergeResult.body;
+							
+							// get the invoice PDF
+							var invoicePDF = render.transaction({
+							    entityId: invoiceID,
+							    printMode: render.PrintMode.PDF,
+							    inCustLocale: true
+							});
+		    			
+							// check if we have a CC email address
+							if (customerEmail2)
+								{
+									// send an email to the customer
+				    				email.send({
+				    					author: emailSender,
+				    					recipients: customerEmail1,
+				    					cc: [customerEmail2],
+				    					subject: emailSubject,
+				    					body: emailBody,
+				    					attachments: [invoicePDF],
+				    					relatedRecords: {
+				    						transactionId: invoiceID
+				    					}
+				    				});
+								}
+							else
+								{
+									// send an email to the customer
+				    				email.send({
+				    					author: emailSender,
+				    					recipients: customerEmail1,
+				    					subject: emailSubject,
+				    					body: emailBody,
+				    					attachments: [invoicePDF],
+				    					relatedRecords: {
+				    						transactionId: invoiceID
+				    					}
+				    				});
+								}
+		    				
+		    				log.audit({
+		    					title: 'Email Sent',
+		    					details: 'Invoice ID: ' + invoiceID
+		    				});
+		    				
+		    				return true;
+		    			}
+		    		catch(e)
+		    			{
+		    				log.error({
+		    					title: 'Unable to Send Email',
+		    					details: 'Invoice ID: ' + invoiceID + '<br>Error: ' + e
+		    				});
+		    				
+		    				return false;
+		    			}
     			}
-    		catch(e)
+    		else
     			{
     				log.error({
     					title: 'Unable to Send Email',
-    					details: 'Invoice ID: ' + invoiceID + '<br>Error: ' + e
+    					details: 'Missing Email Address'
     				});
-    				
-    				return false;
     			}
     	}
     

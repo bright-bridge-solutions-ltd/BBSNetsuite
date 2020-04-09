@@ -27,9 +27,11 @@ function(runtime, search, file) {
         	name: 'custscript_bbs_service_data_bill_folder'
         });
     	
-    	subsidiary = currentScript.getParameter({
+    	subsidiary = 3; // 3 = US
+    		
+    		/*currentScript.getParameter({
     		name: 'custscript_bbs_subsidiary_select'
-    	});
+    	});*/
     	
     	// set the date of the report
     	var reportDate = new Date();
@@ -62,7 +64,7 @@ function(runtime, search, file) {
 	    	});
     	
     		// specify the file name
-			var fileName = reportDate + '_summarytenantcharges.csv';
+			var fileName = reportDate + ' - summarytenantcharges.csv';
     	
     		// start off the CSV
 			var CSV = '"ClientID","ClientAmount","OperatorAmount","Margin","ClientName","StartDateTime","EndDateTime","Site","BillingRef","LinkInvoiceYear","LinkInvoiceMonth"\r\n';
@@ -182,7 +184,7 @@ function(runtime, search, file) {
 	    	});
     	
     		// specify the file name
-    		var fileName = reportDate + '_tenantcharges.csv';
+    		var fileName = reportDate + ' - tenantcharges.csv';
     		
     		// start off the CSV
     		var CSV = '"Quantity","Telephone","AccountCode","Product","Type","Due","UnitCost","Discount","Cost"\r\n';
@@ -283,7 +285,7 @@ function(runtime, search, file) {
     function createConsolidatedTenantsReport(reportDate)
     	{
 	    	log.audit({
-	    		title: 'CREATING CONSOLIDATED TENANTS REPORT'
+	    		title: 'CREATING CONSOLIDATED TENANTS REPORTS'
 	    	});
     		
     		// create search to find service data customers to create a report for
@@ -313,13 +315,10 @@ function(runtime, search, file) {
 		    	}],
 		    	
 		    	columns: [{
-		    		name: 'custrecord_bbs_service_data_customer_rec',
-		    		summary: 'GROUP'	
-		    	},
-		    			{
-		    		name: 'formulatext',
-		    		formula: "CASE WHEN {custrecord_bbs_service_data_customer_rec.custentity_code_accountalias} IS NOT NULL THEN {custrecord_bbs_service_data_customer_rec.custentity_code_accountalias} ELSE {custrecord_bbs_service_data_customer_rec} END",
-		    		summary: 'MAX'
+		    		name: 'parent',
+		    		join: 'custrecord_bbs_service_data_customer_rec',
+		    		summary: 'GROUP',
+		    		sort: search.Sort.ASC
 		    	}],
     		});
     		
@@ -331,21 +330,41 @@ function(runtime, search, file) {
     			
     			// get the customer name and ID from the search results
     			var customerID = result.getValue({
-    				name: 'custrecord_bbs_service_data_customer_rec',
+    				name: 'parent',
+    				join: 'custrecord_bbs_service_data_customer_rec',
     				summary: 'GROUP'
     			});
     			
-    			var customerName = result.getValue({
-    				name: 'formulatext',
-    				summary: 'MAX'
+    			var customerName = result.getText({
+    				name: 'parent',
+    				join: 'custrecord_bbs_service_data_customer_rec',
+    				summary: 'GROUP'
     			});
+    			
+    			// lookup fields on the customer record. Required as search cannot return fields on parent customer record
+    			var customerLookup = search.lookupFields({
+    				type: search.Type.CUSTOMER,
+    				id: customerID,
+    				columns: ['custentity_code_accountalias']
+    			});
+    			
+    			// get the account alias from the customer lookup
+    			var accountAlias = customerLookup.custentity_code_accountalias;
+    			
+    			// check if we have an account alias
+    			if (accountAlias)
+    				{
+    					// set customerName variable to be the accountAlias
+    					customerName = accountAlias;
+    				}
     			
     			// create search to find service data records to be included in the report
     			var serviceDataSearch = search.create({
     				type: 'customrecord_bbs_service_data',
     				
     				filters: [{
-    		    		name: 'custrecord_bbs_service_data_customer_rec',
+    		    		name: 'parent',
+    					join: 'custrecord_bbs_service_data_customer_rec',
     		    		operator: 'anyof',
     		    		values: [customerID]
     		    	},
@@ -364,7 +383,7 @@ function(runtime, search, file) {
     		    		name: 'custrecord_bbs_service_data_tenant_alias',
     		    		summary: 'GROUP'
     		    	},
-    		    	{
+    		    			{
     	    			name: 'formulacurrency',
     	    			formula: "(ROUND(CASE WHEN {custrecord_bbs_service_data_sales_price} = 0 THEN 0 ELSE CASE WHEN {custrecord_bbs_service_data_frequency} = 'One off' THEN {custrecord_bbs_service_data_sales_price} ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'DD') = TO_CHAR({custrecord_bbs_service_data_start_date},'DD') AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * (TO_CHAR({custrecord_bbs_service_data_end_date},'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD')) - 1 ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * TO_CHAR({custrecord_bbs_service_data_end_date},'DD') ELSE CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') -1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD')) * (TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD') +1) ELSE {custrecord_bbs_service_data_sales_price} END END END END END END, 2)) * {custrecord_bbs_service_data_quantity}",
     	    			summary: 'MAX'
@@ -428,7 +447,7 @@ function(runtime, search, file) {
     				}
     			
     			// specify the file name
-    			var fileName = reportDate + '_consolidated_tenants_' + customerName + '.csv';
+    			var fileName = reportDate + ' - ' + customerName + ' - consolidated_tenants.csv';
     			
     			// call function to create the CSV file
     			createCSV(fileName, CSV);
@@ -436,7 +455,7 @@ function(runtime, search, file) {
     			// continue processing additional results
     			return true;
     			
-    		});		
+    		});
     		
     	}
     
@@ -447,7 +466,7 @@ function(runtime, search, file) {
 	    	});
     	
     		// specify the file name
-    		var fileName = reportDate + '_consolidatedsummarytenantcharges.csv';
+    		var fileName = reportDate + ' - consolidatedsummarytenantcharges.csv';
     	
     		// start off the CSV
 			var CSV = '"ClientID","ClientAmount","OperatorAmount","Margin","ClientName","StartDateTime","EndDateTime","Site","BillingRef","LinkInvoiceYear","LinkInvoiceMonth"\r\n';

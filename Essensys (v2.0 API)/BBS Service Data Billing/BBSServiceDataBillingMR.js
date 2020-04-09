@@ -383,7 +383,7 @@ function(runtime, search, record, format, render, file, task) {
 				createPDFInvoice(invoiceID, siteAlias);
 				
 				// call function to create CSV report. Pass invoiceID, siteID and siteAlias variables
-				creatCSVReport(invoiceID, siteID, siteAlias);
+				createCSVReport(invoiceID, siteID, siteAlias);
 			}
 		catch(e)
 			{
@@ -463,7 +463,7 @@ function(runtime, search, record, format, render, file, task) {
 			var fileDate = invoiceDate.format('ymd');
 			
 			// set the file name
-			PDF_File.name = siteAlias + ' - ' + fileDate + ' - ' + invoiceTranID;
+			PDF_File.name = fileDate + ' - ' + siteAlias + ' - ' + invoiceTranID;
 			
 			// set the attachments folder
 			PDF_File.folder = fileCabinetFolder;
@@ -490,7 +490,7 @@ function(runtime, search, record, format, render, file, task) {
     // FUNCTION TO CREATE CSV REPORT
     // ===============================
     
-    function creatCSVReport(invoiceID, siteID, siteAlias)
+    function createCSVReport(invoiceID, siteID, siteAlias)
     	{
 	    	// lookup fields on the invoice record
     		var invoiceLookup = search.lookupFields({
@@ -508,7 +508,7 @@ function(runtime, search, record, format, render, file, task) {
 			fileDate = fileDate.format('ymd'); // format date in the following format YYMMDD
     	
     		// specify the file name
-    		var fileName = fileDate + '_reports_' + siteAlias + '.csv';
+    		var fileName = fileDate + '- ' + siteAlias + ' - reports.csv';
     		
     		// start off the CSV
     		var CSV = '"Accounts id","Account Name","Invoice Number","Date From","Date To","Product","Quantity","Operator Cost","Operator Total Cost","Tenant Alias","Tenant Name","Tenant Billing Reference","Tenant Cost","Tenant Total","Margin"\r\n';

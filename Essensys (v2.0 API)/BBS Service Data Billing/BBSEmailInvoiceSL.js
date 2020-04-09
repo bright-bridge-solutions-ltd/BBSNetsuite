@@ -67,7 +67,7 @@ function(ui, search, task, format, url, redirect, message) {
 				});
 				
 				// check the user has selected a subsidiary
-				if (subsidiary != null)
+				if (subsidiary)
 					{
 						// set value of 'Subsidiary' field
 						subsidiarySelect.defaultValue = subsidiary;
@@ -105,13 +105,6 @@ function(ui, search, task, format, url, redirect, message) {
 							displayType: ui.FieldDisplayType.INLINE
 						});
 					
-						// check if allowReEmail is true
-						if (allowReEmail == 'true')
-							{
-								// tick 'Allow Re-Email' checkbox
-								allowReEmailField.defaultValue = 'T';
-							}
-
 						// add a sublist to the form
 						var invoiceSublist = form.addSublist({
 							type: ui.SublistType.LIST,
@@ -130,6 +123,8 @@ function(ui, search, task, format, url, redirect, message) {
 							type: ui.FieldType.TEXT,
 							id: 'internalid',
 							label: 'Internal ID'
+						}).updateDisplayType({
+							displayType: ui.FieldDisplayType.HIDDEN
 						});
 						
 						invoiceSublist.addField({
@@ -145,26 +140,40 @@ function(ui, search, task, format, url, redirect, message) {
 						});
 						
 						invoiceSublist.addField({
+							type: ui.FieldType.TEXTAREA,
+							id: 'customeremailaddresses',
+							label: 'Customer Email Addresses'
+						});
+						
+						invoiceSublist.addField({
 							type: ui.FieldType.CURRENCY,
 							id: 'amount',
 							label: 'Amount'
 						});
 						
-						invoiceSublist.addField({
-							type: ui.FieldType.CHECKBOX,
-							id: 'emailsent',
-							label: 'Email Already Sent'
-						}).updateDisplayType({
-							displayType: ui.FieldDisplayType.INLINE
-						});
-						
-						invoiceSublist.addField({
-							type: ui.FieldType.DATE,
-							id: 'dateemailsent',
-							label: 'Date Email Sent'
-						}).updateDisplayType({
-							displayType: ui.FieldDisplayType.INLINE
-						});
+						// check if allowReEmail is true
+						if (allowReEmail == 'true')
+							{
+								// tick 'Allow Re-Email' checkbox
+								allowReEmailField.defaultValue = 'T';
+								
+								// add fields to sublist
+								invoiceSublist.addField({
+									type: ui.FieldType.CHECKBOX,
+									id: 'emailsent',
+									label: 'Email Already Sent'
+								}).updateDisplayType({
+									displayType: ui.FieldDisplayType.INLINE
+								});
+								
+								invoiceSublist.addField({
+									type: ui.FieldType.DATE,
+									id: 'dateemailsent',
+									label: 'Date Email Sent'
+								}).updateDisplayType({
+									displayType: ui.FieldDisplayType.INLINE
+								});
+							}
 						
 						// call function to search for invoice records. Pass subsdiary and allowReEmail variables
 						var searchResults = invoiceSearch(subsidiary, allowReEmail);
@@ -184,6 +193,10 @@ function(ui, search, task, format, url, redirect, message) {
 							
 							var customerName = result.getText({
 								name: 'mainname'
+							});
+							
+							var customerEmailAddresses = result.getValue({
+								name: 'formulatext'
 							});
 							
 							var amount = result.getValue({
@@ -215,6 +228,12 @@ function(ui, search, task, format, url, redirect, message) {
 								id: 'customername',
 								line: line,
 								value: customerName
+							});
+							
+							invoiceSublist.setSublistValue({
+								id: 'customeremailaddresses',
+								line: line,
+								value: customerEmailAddresses
 							});
 							
 							invoiceSublist.setSublistValue({
@@ -272,6 +291,9 @@ function(ui, search, task, format, url, redirect, message) {
     			// declare new array to hold IDs of invoices to be emailed
     			var invoicesArray = new Array();
     			
+    			// get the subsidiary
+    			var subsidiary = context.request.parameters.subsidiary;
+    			
     			// get count of lines on the sublist
     			var lineCount = context.request.getLineCount('invoicesublist');
     			
@@ -301,7 +323,7 @@ function(ui, search, task, format, url, redirect, message) {
     				}
     			
     			// call function to schedule BBSEmailInvoicesMR script to send emails
-    			sendEmails(invoicesArray);
+    			sendEmails(invoicesArray, subsidiary);
     			
     			// get the URL of the Suitelet
     			var suiteletURL = url.resolveScript({
@@ -359,6 +381,10 @@ function(ui, search, task, format, url, redirect, message) {
     				name: 'mainname'
     			},
     					{
+    				name: 'formulatext',
+    				formula: "CONCAT({customermain.custentity_bbs_cust_trans_email},CONCAT('<br>', {customermain.custentity_bbs_cust_trans_cc}))"
+    			},
+    					{
     				name: 'fxamount'
     			},
     					{
@@ -395,7 +421,7 @@ function(ui, search, task, format, url, redirect, message) {
     // FUNCTION TO CALL MAP/REDUCE SCRIPT TO SEND EMAILS
     // =================================================
     
-    function sendEmails(invoicesArray)
+    function sendEmails(invoicesArray, subsidiary)
     	{
 	    	// create a map/reduce task
 	    	var mapReduceTask = task.create({
@@ -403,7 +429,8 @@ function(ui, search, task, format, url, redirect, message) {
 	    	    scriptId: 'customscript_bbs_email_invoice_mr',
 	    	    deploymentId: 'customdeploy_bbs_email_invoice_mr',
 	    	    params: {
-	    	    	custscript_bbs_invoice_array: invoicesArray
+	    	    	custscript_bbs_invoice_array: invoicesArray,
+	    	    	custscript_bbs_subsidiary_select: subsidiary
 	    	    }
 	    	});
 	    	
