@@ -38,13 +38,16 @@ function(search, record) {
     		}],
     		
     		columns: [{
-    			name: 'tranid'
-    		},
-    				{
     			name: 'transferlocation'
     		},
     				{
-    			name: 'subsidiary'
+    			name: 'multisubsidiary',
+    		},
+    				{
+    			name: 'subsidiary',
+    		},
+    				{
+    			name: 'tosubsidiary'
     		}],
     		
     	});
@@ -63,7 +66,19 @@ function(search, record) {
     	var searchResult = JSON.parse(context.value);
     	var recordID = searchResult.id;
     	var transferLocation = searchResult.values['transferlocation'].value;
-    	var subsidiary = searchResult.values['subsidiary'].value;
+    	var intercompany = searchResult.values['multisubsidiary'];
+    	
+    	// check if intercompany is 'T'
+    	if (intercompany == 'T')
+    		{
+    			// get the tosubsidiary value from the search
+    			var subsidiary = searchResult.values['tosubsidiary'].value;
+    		}
+    	else // intercompany is 'F'
+    		{
+    			// get the subsidiary value from the search
+    			var subsidiary = searchResult.values['subsidiary'].value;
+    		}
     	
     	log.audit({
     		title: 'Processing Transfer Order',
@@ -76,8 +91,8 @@ function(search, record) {
     	// check if an receipt has been created
     	if (itemReceiptID)
     		{
-    			// call function to create an inventory adjustment. Pass itemReceiptID, transferLocation and subsidiary
-    			createInventoryAdjustment(itemReceiptID, transferLocation, subsidiary);
+    			// call function to create an inventory adjustment. Pass recordID, itemReceiptID, transferLocation and subsidiary
+    			createInventoryAdjustment(recordID, itemReceiptID, transferLocation, subsidiary);
     		}
 
     }
@@ -182,7 +197,7 @@ function(search, record) {
     // FUNCTION TO CREATE AN INVENTORY ADJUSTMENT
     // ==========================================
     
-    function createInventoryAdjustment(itemReceiptID, adjustmentLocation, subsidiary)
+    function createInventoryAdjustment(transferOrderID, itemReceiptID, adjustmentLocation, subsidiary)
     	{
     		// load the item receipt
     		var itemReceiptRecord = record.load({
@@ -219,12 +234,12 @@ function(search, record) {
 				    });
     						
     				// retrieve values from the item lookup
-    				var doNotWriteOff = itemRecordLookup.custitem_bbs_auto_write_off;
+    				var writeOff = itemRecordLookup.custitem_bbs_auto_write_off;
     				var adjustmentAccount = itemRecordLookup.expenseaccount[0].value;
     				var lineOfBusiness = itemRecordLookup.class[0].value;
     				
-    				// check if the do not write off flag on the item record is NOT ticked
-    				if (doNotWriteOff == false)
+    				// check if the write off flag on the item record is ticked
+    				if (writeOff == true)
     					{
 	    					// lookup fields on the location record
 	        				var locationRecordLookup = search.lookupFields({
@@ -287,6 +302,11 @@ function(search, record) {
 			        					fieldId: 'class',
 			        					value: lineOfBusiness
 			        				});
+			        				
+			        				inventoryAdjustment.setValue({
+			        					fieldId: 'custbody_bbs_related_transfer_order',
+			        					value: transferOrderID
+			        				});
 			        						
 			        				// select a new line on the inventory adjustment
 			        				inventoryAdjustment.selectNewLine({
@@ -333,11 +353,11 @@ function(search, record) {
 	        						});
 	        					}
     					}
-    				else // do not write off is ticked
+    				else // write off is NOT ticked
     					{
     						log.audit({
     							title: 'Inventory Adjustment Not Created',
-    							details: 'Item ID: ' + itemID + '<br>Reason: Do Not Write Off is Ticked'
+    							details: 'Item ID: ' + itemID + '<br>Reason: Write Off is NOT Ticked'
     						});
     					}
     			}

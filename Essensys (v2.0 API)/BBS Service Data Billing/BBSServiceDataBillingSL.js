@@ -26,6 +26,9 @@ function(ui, message, task, url, redirect) {
 	                hideNavBar: false
 	            });
 				
+				// set client script to run on the form
+				form.clientScriptFileId = 29771;
+				
 				// retrieve parameters that have been passed to the Suitelet
 				var subsidiary = context.request.parameters.subsidiary;
 				
@@ -75,6 +78,13 @@ function(ui, message, task, url, redirect) {
 				// add submit button to the form
    		 		form.addSubmitButton({
    		 			label : 'Submit'
+   		 		});
+   		 		
+   		 		// add button to the form to call 'Email Invoices' Suitelet
+   		 		form.addButton({
+   		 			id: 'emailinvoices',
+   		 			label: 'Email Invoices',
+   		 			functionName: 'emailInvoices()'
    		 		});
    		 		
    		 		// write the response to the page

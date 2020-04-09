@@ -427,10 +427,7 @@ function(file, record, render, runtime, search, email)
 						    								//
 						    								var mergeResult = render.mergeEmail({
 														    								    templateId: emailTemplate,
-														    								    customRecord: {
-																	    								        type: 'customrecord_bbs_contract',
-																	    								        id: Number(thisContractId)
-																	    								        }
+														    								    transactionId: newRecordId
 														    								    });
 						    								
 						    								//Was the merge ok?

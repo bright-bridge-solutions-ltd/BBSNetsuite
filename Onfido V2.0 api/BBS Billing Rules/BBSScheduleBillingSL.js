@@ -55,7 +55,7 @@ function(runtime, config, ui, message, task, redirect) {
 				});
 				
 				// set default value of the pageLogo field
-				pageLogo.defaultValue = "<img src='https://5554661.app.netsuite.com/core/media/media.nl?id=23854&c=5554661&h=268a7aa2af99ce665d56' alt='Onfido Logo' style='width: 250px; height: 102px;'>";
+				pageLogo.defaultValue = "<img src='https://5554661.app.netsuite.com/core/media/media.nl?id=23854&c=5554661&h=268a7aa2af99ce665d56' alt='Onfido Logo' style='width: 300px; height: 100px;'>";
 				
 				// add help inline HTML field to the form
 				var helpText = form.addField({
@@ -111,6 +111,13 @@ function(runtime, config, ui, message, task, redirect) {
    		 			id: 'custpage_create_consolidated_invoices',
    		 			label: 'Create Consolidated Invoices',
    		 			functionName: 'createConsolidatedInvoices()'
+   		 		});
+   		 		
+   		 		// add a button to the form to schedule BBS Update Contract Usage MR script
+   		 		form.addButton({
+   		 			id: 'custpage_update_contract_usage',
+   		 			label: 'Update Contract Usage',
+   		 			functionName: 'updateContractUsage()'
    		 		});
 				
 				// write the response to the page
