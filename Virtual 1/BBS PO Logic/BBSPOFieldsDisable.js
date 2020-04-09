@@ -44,11 +44,12 @@ function(currentRecord, record, runtime) {
 			    	var currentId 					= currentRecord.id;
 			    	var currentType 				= currentRecord.type;
 			    	var currentForm 				= currentRecord.getValue({fieldId: 'customform'}).toString();
+			    	var currentApprovalStatus		= currentRecord.getValue({fieldId: 'approvalstatus'});
 			    	var currentRole					= runtime.getCurrentUser().role.toString();
 			    	
-			    	//Only apply the logic if the form is in the list of applied forms & the users role is not in the list of excluded roles
+			    	//Only apply the logic if the form is in the list of applied forms, the users role is not in the list of excluded roles & the approval status is 2 (Approved)
 			    	//
-			    	if(formArray.indexOf(currentForm) != -1 && rolesArray.indexOf(currentRole) == -1)
+			    	if(formArray.indexOf(currentForm) != -1 && rolesArray.indexOf(currentRole) == -1 && currentApprovalStatus == 2)
 			    		{
 					    	//Get the list of fields in the main record & the item sublist
 					    	//

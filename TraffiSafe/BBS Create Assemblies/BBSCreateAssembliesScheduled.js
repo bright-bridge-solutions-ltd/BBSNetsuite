@@ -289,7 +289,7 @@ function createAssembliesScheduled(type)
 											newParentRecord.setFieldValue('stockunit', 1);
 											newParentRecord.setFieldValue('subsidiary', customerSubsidiary);
 											newParentRecord.setFieldValue('taxschedule', 1);
-											newParentRecord.setFieldValue('usebins', 'T');
+											//newParentRecord.setFieldValue('usebins', 'T');
 											newParentRecord.setFieldValue('location', subsidiaryDefaultLocation);
 											newParentRecord.setFieldValue('preferredlocation', subsidiaryDefaultLocation);
 											newParentRecord.setFieldValue('matchbilltoreceipt', 'T');
@@ -418,7 +418,7 @@ function createAssembliesScheduled(type)
 																	newChildRecord.setFieldValue('stockunit', 1);
 																	newChildRecord.setFieldValue('subsidiary', customerSubsidiary);
 																	newChildRecord.setFieldValue('taxschedule', 1);
-																	newChildRecord.setFieldValue('usebins', 'T');
+																	//newChildRecord.setFieldValue('usebins', 'T');
 																	newChildRecord.setFieldValue('location', subsidiaryDefaultLocation);
 																	newChildRecord.setFieldValue('preferredlocation', subsidiaryDefaultLocation);
 																	newChildRecord.setFieldValue('matchbilltoreceipt', 'T');

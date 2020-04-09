@@ -52,7 +52,7 @@ function poCheckBudgetAS(type)
 	var poType = newRecord.getFieldValue('custbody_po_type');
 	var poApprovalStage = newRecord.getFieldValue('custbody_bbs_opex_app_stag');
 	
-	if(type == 'create' || (type == 'edit' && (poApprovalStage == 'PO Rejected' || poApprovalStage == 'Pending Submission')))
+	if(type == 'create' || (type == 'edit' && (poApprovalStage == 6 || poApprovalStage == 1))) //PO Rejected, Pending Submission
 		{
 			//Get environment
 			//
@@ -129,7 +129,7 @@ function poCheckBudgetAS(type)
 													
 											//Find the ytd spend on the account
 											//
-											var accountSpend = findYTD(poLineItemAccount, poSubsidiary, poCostCentre, finCalDates, amoritizationAccount);
+											var accountSpend = findYTD(poLineItemAccount, poSubsidiary, poCostCentre, finCalDates, amoritizationAccount, poId);
 													
 											//Find the ytd budget for the account
 											//
@@ -301,7 +301,7 @@ function poCheckBudgetAS(type)
 		}
 
 
-		function findYTD(_account, _subsidiary, _costCentre, _calDates, _amortizationAccount)
+		function findYTD(_account, _subsidiary, _costCentre, _calDates, _amortizationAccount, _poId)
 		{
 			var ytdValue = Number(0);
 			
@@ -359,6 +359,44 @@ function poCheckBudgetAS(type)
 					if(transactionSearch != null && transactionSearch.length == 1)
 						{
 							ytdValue += Math.abs(Number(transactionSearch[0].getValue("amount",null,"SUM")));	
+						}
+					
+					//Find the total value of any open PO records (excluding the po we are working on)
+					//
+					var purchaseorderSearch = nlapiSearchRecord("purchaseorder",null,
+							[
+							   ["type","anyof","PurchOrd"], 
+							   "AND", 
+							   ["mainline","is","F"], 
+							   "AND", 
+							   ["cogs","is","F"], 
+							   "AND", 
+							   ["taxline","is","F"], 
+							   "AND", 
+							   ["shipping","is","F"], 
+							   "AND", 
+							   ["status","anyof","PurchOrd:D","PurchOrd:F","PurchOrd:E","PurchOrd:B"], 
+							   "AND", 
+							   ["account","anyof", _account], 
+							   "AND", 
+							   ["internalid","noneof", _poId],
+							   "AND", 
+							   ["class","anyof", _costCentre], 
+							   "AND", 
+							   ["trandate","within", _calDates.startDate, _calDates.endDate],
+							   "AND", 
+							   ["subsidiary","anyof", _subsidiary]
+							], 
+							[
+							   new nlobjSearchColumn("amount",null,"SUM")
+							]
+							);
+					
+					//Did we get any results?
+					//
+					if(purchaseorderSearch != null && purchaseorderSearch.length == 1)
+						{
+							ytdValue += Math.abs(Number(purchaseorderSearch[0].getValue("amount",null,"SUM")));	
 						}
 				}
 			

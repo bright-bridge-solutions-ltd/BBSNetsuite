@@ -247,8 +247,14 @@ function createJournalRecord(_virtualBillId, _productGroupsSummary, _billingType
 											
 											journalRecord.setCurrentLineItemValue('line', 'account', accountId);
 											journalRecord.setCurrentLineItemValue('line', 'credit', differenceValue);
-											journalRecord.setCurrentLineItemValue('line', 'cseg_bbs_product_gr', _productGroups[keyElements[2]]);
 											journalRecord.setCurrentLineItemValue('line', 'class', _billingTypes[keyElements[1]]);
+											
+											//Conditionally set the product group
+											//
+											if(keyElements[2] != 'NONE')
+												{
+													journalRecord.setCurrentLineItemValue('line', 'cseg_bbs_product_gr', _productGroups[keyElements[2]]);
+												}
 											
 											journalRecord.commitLineItem('line');
 										}
@@ -486,8 +492,14 @@ function createSupplierBill(_virtualBillId, _productGroupsSummary, _billingTypes
 											supplierBillRecord.setCurrentLineItemValue('item', 'item', productId);
 											supplierBillRecord.setCurrentLineItemValue('item', 'quantity', 1);
 											supplierBillRecord.setCurrentLineItemValue('item', 'rate', _productGroupsSummary[productGroupsSummaryKey]);
-											supplierBillRecord.setCurrentLineItemValue('item', 'cseg_bbs_product_gr', _productGroups[keyElements[2]]);
 											supplierBillRecord.setCurrentLineItemValue('item', 'class', _billingTypes[keyElements[1]]);
+											
+											//Conditionally set the product group
+											//
+											if(keyElements[2] != 'NONE')
+												{
+													supplierBillRecord.setCurrentLineItemValue('item', 'cseg_bbs_product_gr', _productGroups[keyElements[2]]);
+												}
 											
 											supplierBillRecord.commitLineItem('item');
 										}
@@ -561,7 +573,9 @@ function updateVirtualBill(_virtualBillId, _billingTypeSummary)
 					 _billingTypeSummary['One Off'].unreconciled, 
 					 _billingTypeSummary['Rental'].unreconciled,
 					 _billingTypeSummary['Usage'].unreconciled + _billingTypeSummary['One Off'].unreconciled + _billingTypeSummary['Rental'].unreconciled,
-					 _billingTypeSummary['Usage'].reconciled, _billingTypeSummary['One Off'].reconciled, _billingTypeSummary['Rental'].reconciled,
+					 _billingTypeSummary['Usage'].reconciled, 
+					 _billingTypeSummary['One Off'].reconciled, 
+					 _billingTypeSummary['Rental'].reconciled,
 					 _billingTypeSummary['Usage'].reconciled + _billingTypeSummary['One Off'].reconciled + _billingTypeSummary['Rental'].reconciled
 					 ], 
 					false
@@ -585,14 +599,14 @@ function processLines(_billLinesToProcess, _billingTypeSummary, _productGroupsSu
 		{
 			checkResources();
 			
-			processResultLine(_billLinesToProcess[int], _billingTypeSummary, _productGroupsSummary);
+			processResultLine(_billLinesToProcess[int], _billingTypeSummary, _productGroupsSummary, _productGroups);
 		}
 
 	
 }
 
 
-function processResultLine(_billLineToProcess, _billingTypeSummary, _productGroupsSummary)
+function processResultLine(_billLineToProcess, _billingTypeSummary, _productGroupsSummary, _productGroups)
 {
 	checkResources();
 	
@@ -611,8 +625,16 @@ function processResultLine(_billLineToProcess, _billingTypeSummary, _productGrou
 	//
 	var poFindResult = findMatchingPo(billLineSupplier, billLineRef, billLineAmount, billLineMonth);
 	
+	//
 	//Process the results of searching for a PO
 	//
+	
+	//If the bill line does not have a product group & there is one from the po line, then copy it into the billLineProdGrp variable
+	//
+	if((billLineProdGrp == null || billLineProdGrp == '') && poFindResult.poProductGroup != null && poFindResult.poProductGroup != '')
+		{
+			billLineProdGrp = poFindResult.poProductGroup;
+		}
 	
 	//Update the virtual bill line with the status of the search & also the matching po & amount
 	//
@@ -621,8 +643,8 @@ function processResultLine(_billLineToProcess, _billingTypeSummary, _productGrou
 			nlapiSubmitField(
 							'customrecord_bbs_vb_line', 
 							billLineId, 
-							['custrecord_bbs_vbl_status','custrecord_bbs_po_amt','custrecord_bbs_rel_po'], 
-							[poFindResult.status, poFindResult.poAmount, poFindResult.poId], 
+							['custrecord_bbs_vbl_status','custrecord_bbs_po_amt','custrecord_bbs_rel_po','custrecord_bbs_prod_group'], 
+							[poFindResult.status, poFindResult.poAmount, poFindResult.poId, _productGroups[poFindResult.poProductGroup]], 
 							false
 							);
 		}
@@ -633,7 +655,7 @@ function processResultLine(_billLineToProcess, _billingTypeSummary, _productGrou
 	
 	//Update the product group summary info object
 	//
-	var productGroupSummaryKey = (poFindResult.status == 1 ? 'Reconciled' : 'Unreconciled') + '|' + billLineType + '|' + billLineProdGrp;
+	var productGroupSummaryKey = (poFindResult.status == 1 ? 'Reconciled' : 'Unreconciled') + '|' + billLineType + '|' + (billLineProdGrp == null || billLineProdGrp == '' ? 'NONE' : billLineProdGrp);
 	
 	_productGroupsSummary[productGroupSummaryKey] += billLineAmount;
 	
@@ -712,16 +734,17 @@ function findMatchingPo(_billLineSupplier, _billLineRef, _billLineAmount, _billL
 			resultStatus = 4;	//Unreconciled - No PO Found
 		}
 	
-	return new poFindResultObj(resultPoId, resultPoLineId, resultStatus, poLineAmount);
+	return new poFindResultObj(resultPoId, resultPoLineId, resultStatus, poLineAmount, resultProdGrp);
 }
 
 
-function poFindResultObj(_poId, _poLineId, _status, _poLineAmount)
+function poFindResultObj(_poId, _poLineId, _status, _poLineAmount, _poProductGroup)
 {
-	this.poId 		= _poId;
-	this.poLineId 	= _poLineId;
-	this.status 	= _status;
-	this.poAmount 	= _poLineAmount;
+	this.poId 			= _poId;
+	this.poLineId 		= _poLineId;
+	this.status 		= _status;
+	this.poAmount 		= _poLineAmount;
+	this.poProductGroup	= _poProductGroup;
 }
 
 
@@ -729,7 +752,7 @@ function initProductGroupsSummary(_productGroupsSummary, _billingTypes, _product
 {
 	checkResources();
 	
-	var billStatus = ['Unreconciled', 'Reconciled'];
+	var billStatus = ['Reconciled','Unreconciled'];
 	
 	//Find all the billing types
 	//
@@ -767,14 +790,23 @@ function initProductGroupsSummary(_productGroupsSummary, _billingTypes, _product
 					
 					//Loop through the product groups
 					//
-					for (var int2 = 0; int2 < productGroupSearch.length; int2++) 
+					if(status == 'Reconciled')
 						{
-							var productGroupId = productGroupSearch[int2].getId();
-							var productGroupName = productGroupSearch[int2].getValue('name');
-							_productGroups[productGroupName] = productGroupId;
-							
-							var key = status + '|' + billingTypeName + '|' + productGroupName;
-							
+							for (var int2 = 0; int2 < productGroupSearch.length; int2++) 
+								{
+									var productGroupId = productGroupSearch[int2].getId();
+									var productGroupName = productGroupSearch[int2].getValue('name');
+									_productGroups[productGroupName] = productGroupId;
+									
+									var key = status + '|' + billingTypeName + '|' + productGroupName;
+									
+									_productGroupsSummary[key] = Number(0);
+								}
+						}
+					else
+						{
+							var key = status + '|' + billingTypeName + '|' + 'NONE';
+						
 							_productGroupsSummary[key] = Number(0);
 						}
 				}
@@ -840,7 +872,8 @@ function getVirtualBillLines(_id)
 			   new nlobjSearchColumn("custrecord_bbs_vbl_type"), 
 			   new nlobjSearchColumn("custrecord_bbs_unique_ref"), 
 			   new nlobjSearchColumn("custrecord_bbs_vb"),
-			   new nlobjSearchColumn("custrecord_bbs_supplier","CUSTRECORD_BBS_VB",null)
+			   new nlobjSearchColumn("custrecord_bbs_supplier","CUSTRECORD_BBS_VB",null),
+			   new nlobjSearchColumn("internalid").setSort(false)
 			]
 			);
 
