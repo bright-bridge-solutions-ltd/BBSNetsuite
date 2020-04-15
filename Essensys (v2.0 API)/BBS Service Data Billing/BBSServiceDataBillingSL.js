@@ -87,6 +87,13 @@ function(ui, message, task, url, redirect) {
    		 			functionName: 'emailInvoices()'
    		 		});
    		 		
+   		 		// add button to the form to call 'Connect Sync' Suitelet
+   		 		form.addButton({
+   		 			id: 'connectfilesync',
+   		 			label: 'Connect File Sync',
+   		 			functionName: 'connectFileSync()'
+   		 		});
+   		 		
    		 		// write the response to the page
 				context.response.writePage(form);
 			}

@@ -162,10 +162,23 @@ function(url) {
 			// open the 'Suitelet in a new tab/window
     		window.open(suiteletURL, '_blank');
     	}
+    
+    function connectFileSync()
+    	{
+	    	// get the URL of the Suitelet
+			var suiteletURL = url.resolveScript({
+				scriptId: 'customscript_bbs_connect_file_sync_sl',
+				deploymentId: 'customdeploy_bbs_connect_file_sync_sl'
+			});
+			
+			// open the 'Suitelet in a new tab/window
+			window.open(suiteletURL, '_blank');
+    	}
 
     return {
         pageInit: pageInit,
-        emailInvoices: emailInvoices
+        emailInvoices: emailInvoices,
+        connectFileSync: connectFileSync
     };
     
 });

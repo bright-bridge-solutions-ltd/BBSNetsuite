@@ -122,7 +122,8 @@ function assemblyBuildAS(type)
 								}
 						}
 				}
-			
+
+/*
 			//Get the inventory detail sub-record for the assembly build
 			//
 			var invDetail = newRecord.viewSubrecord('inventorydetail');
@@ -145,7 +146,7 @@ function assemblyBuildAS(type)
 					
 					var componentBin = '';
 					
-					//Find the preferred bin for the locxation in question
+					//Find the preferred bin for the location in question
 					//
 					for (var int5 = 1; int5 <= binCount; int5++) 
 					{
@@ -180,5 +181,6 @@ function assemblyBuildAS(type)
 			  					}
 						}
 				}
+*/
 		}
 }

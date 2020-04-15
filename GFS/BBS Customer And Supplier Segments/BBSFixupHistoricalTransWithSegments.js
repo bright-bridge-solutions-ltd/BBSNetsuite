@@ -150,7 +150,7 @@ function processCustomers()
 			   ["customer.custentity_bbs_customer_segment","noneof","@NONE@"], 
 			   "AND", 
 			   ["mainline","is","T"]
-			], sub
+			], 
 			[
 			   new nlobjSearchColumn("type"), 
 			   new nlobjSearchColumn("tranid"), 

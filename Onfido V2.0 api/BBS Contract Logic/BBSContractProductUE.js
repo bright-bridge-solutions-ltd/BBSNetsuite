@@ -48,9 +48,11 @@ function(record, search, format) {
     	
     	// declare and initiate variables
     	var quarter = 0;
+    	var half = 0;
     	var monthlyMinimum;
     	var thisMonthlyMinimum;
     	var quarterStart = false;
+    	var halfStart = false;
     	
     	// get the ID of the submitted record
     	var currentRecordID = scriptContext.newRecord.id;
@@ -70,7 +72,7 @@ function(record, search, format) {
     	var contractRecordLookup = search.lookupFields({
     		type: 'customrecord_bbs_contract',
 			id: contractRecordID,
-			columns: ['custrecord_bbs_contract_term', 'custrecord_bbs_contract_start_date', 'custrecord_bbs_contract_billing_type', 'custrecord_bbs_contract_min_ann_use', 'custrecord_bbs_contract_mon_min_use', 'custrecord_bbs_contract_qu_min_use']
+			columns: ['custrecord_bbs_contract_term', 'custrecord_bbs_contract_start_date', 'custrecord_bbs_contract_billing_type', 'custrecord_bbs_contract_min_ann_use', 'custrecord_bbs_contract_mon_min_use', 'custrecord_bbs_contract_qu_min_use', 'custrecord_bbs_contract_bi_ann_use']
 		});
     	
     	// get the billing type from the parent record
@@ -83,8 +85,7 @@ function(record, search, format) {
     			var annualMinimum = contractRecordLookup.custrecord_bbs_contract_min_ann_use;
     			
     			// divide annualMinimum by 12 to calculate monthlyMinimum
-    			monthlyMinimum = parseFloat(annualMinimum / 12);
-    			monthlyMinimum.toFixed(2);
+    			monthlyMinimum = parseFloat(annualMinimum / 12).toFixed(2);
     		}
     	// check if the billing type is 3 (QMP) or 5 (QUR)
     	else if (billingType == '3' || billingType == '5')
@@ -93,14 +94,22 @@ function(record, search, format) {
 				var qtrMinimum = contractRecordLookup.custrecord_bbs_contract_qu_min_use;
 				
 				// divide qtrMinimum by 3 to calculate monthlyMinimum
-    			monthlyMinimum = parseFloat(qtrMinimum / 3);
-    			monthlyMinimum.toFixed(2);
+    			monthlyMinimum = parseFloat(qtrMinimum / 3).toFixed(2);
     		}
     	// check if the billing type is 2 (UIOLI)
     	else if (billingType == '2')
     		{
     			// get the monthly minimum from the parent record and set the monthlyMinimum variable with this value
     			monthlyMinimum = contractRecordLookup.custrecord_bbs_contract_mon_min_use;
+    		}
+    	// check if the billing type is 7 (BUR)
+    	else if (billingType == '7')
+    		{
+    			// get the minimum bi-annual usage from the contract
+    			var biAnnualMinimum = contractRecordLookup.custrecord_bbs_contract_bi_ann_use;
+    			
+    			// divide biAnnualMinimum by 6 to calculate monthlyMinimum
+    			monthlyMinimum = parseFloat(biAnnualMinimum / 6).toFixed(2);
     		}
 		
 		// get the contract start date from the parent record
@@ -121,6 +130,9 @@ function(record, search, format) {
     	// set quarterEndDate
     	var quarterEndDate = new Date(periodEndDate.getFullYear(), periodEndDate.getMonth()-1, 1);
     	
+    	// set halfEndDate
+    	var halfEndDate = new Date(periodEndDate.getFullYear(), periodEndDate.getMonth()-1, 1);
+    	
     	// get the contract term from the parent record
     	var contractTerm = contractRecordLookup.custrecord_bbs_contract_term;   	
     	contractTerm = parseInt(contractTerm); // convert to integer number
@@ -140,6 +152,9 @@ function(record, search, format) {
     			
     			// reset the quarterStart variable to false
     			quarterStart = false;
+    			
+    			// reset the halfStart variable to false
+    			halfStart = false;
     		
     			// create a new BBS Contract Period Detail record
     			var newRecord = record.create({
@@ -257,6 +272,30 @@ function(record, search, format) {
     					// increase the quarterEndDate by 3 months
 	        			quarterEndDate = new Date(quarterEndDate.getFullYear(), quarterEndDate.getMonth()+4, 0); // last day of the month
     				}
+    			
+    			// if statement to check this is the 6th contract period and not the last contract period
+    			if (ct % 6 === 1 && ct != contractTerm)
+    				{
+	    				// check this is NOT the first month
+						if (ct != 1)
+							{
+								// set the value of the halfStart variable to true
+								halfStart = true;
+							}
+					
+						// increase half variable by 1
+		    			half++;
+	        			
+		    			// if the half variable is 5
+	        			if (half == 5)
+	        				{
+		        				// reset half variable to 1
+		    					half = 1;
+	        				}
+						
+						// increase the halfEndDate by 6 months
+	        			halfEndDate = new Date(halfEndDate.getFullYear(), halfEndDate.getMonth()+7, 0); // last day of the month
+    				}
 	        			
 	        	// set the contract quarter field on the new record
 	    		newRecord.setValue({
@@ -270,12 +309,34 @@ function(record, search, format) {
 	    			value: quarterEndDate
 	    		});
 	    		
+	    		// set the contract half field on the new record
+	    		newRecord.setValue({
+	    			fieldId: 'custrecord_bbs_contract_period_half',
+	    			value: half
+	    		});
+	    		
+	    		// set the contract half end date field on the new record using the half end date object
+	    		newRecord.setValue({
+	    			fieldId: 'custrecord_bbs_contract_period_half_end',
+	    			value: halfEndDate
+	    		});
+
 	    		// check if quarterStart = true
 	    		if (quarterStart == true)
 	    			{
 	    				// tick the 'Start of New Quarter' checkbox on the new record
 	    				newRecord.setValue({
 	    					fieldId: 'custrecord_bbs_contract_period_qtr_start',
+	    					value: true
+	    				});
+	    			}
+	    		
+	    		// check if halfStart = true
+	    		if (halfStart == true)
+	    			{
+		    			// tick the 'Start of New Half' checkbox on the new record
+	    				newRecord.setValue({
+	    					fieldId: 'custrecord_bbs_contract_period_halfstart',
 	    					value: true
 	    				});
 	    			}
