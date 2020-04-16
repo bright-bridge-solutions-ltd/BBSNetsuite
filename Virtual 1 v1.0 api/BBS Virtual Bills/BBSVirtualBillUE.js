@@ -73,42 +73,37 @@ function virtualBillAS(type)
 {
 	//Determine if we need to trigger the reconciliation of the virtual bill record
 	//
-	var newRecord = nlapiGetNewRecord();
-	var triggerRecon = false;
-	var allLinesAddedNew = '';
-	var allLinesAddedOld = '';
-	var newRecordId = newRecord.getId();
+	var newRecord 			= nlapiGetNewRecord();
+	var triggerRecon 		= false;
+	var allLinesAddedNew 	= '';
+	var allLinesAddedOld 	= '';
+	var newRecordId 		= newRecord.getId();
 	
-	switch(type)
-		{
-			case 'create':
+	if(type == 'create')
+		{	
+			allLinesAddedNew = newRecord.getFieldValue('custrecord_all_lines_added');
 				
-				allLinesAddedNew = newRecord.getFieldValue('custrecord_all_lines_added');
+			//Record has been created with the all lines added flag set to true
+			//
+			if(allLinesAddedNew == 'T')
+				{
+					triggerRecon = true;
+				}		
+		}
 				
-				//Record has been created with the all lines added flag set to true
-				//
-				if(allLinesAddedNew == 'T')
-					{
-						triggerRecon = true;
-					}
-				
-				break;
-				
-			case 'edit':
-				
-				var oldRecord = nlapiGetOldRecord();
-				
-				allLinesAddedOld = oldRecord.getFieldValue('custrecord_all_lines_added');
-				allLinesAddedNew = newRecord.getFieldValue('custrecord_all_lines_added');
-				
-				//Record has been edited and the all lines added flag has been changed from false to true
-				//
-				if(allLinesAddedNew == 'T' && allLinesAddedOld != 'T')
-					{
-						triggerRecon = true;
-					}
+	if(type == 'edit')
+		{		
+			var oldRecord = nlapiGetOldRecord();
 			
-				break;
+			allLinesAddedOld = oldRecord.getFieldValue('custrecord_all_lines_added');
+			allLinesAddedNew = newRecord.getFieldValue('custrecord_all_lines_added');
+				
+			//Record has been edited and the all lines added flag has been changed from false to true
+			//
+			if(allLinesAddedNew == 'T' && allLinesAddedOld != 'T')
+				{
+					triggerRecon = true;
+				}
 		}
 	
 	//Call a scheduled script to reconcile the virtual bill

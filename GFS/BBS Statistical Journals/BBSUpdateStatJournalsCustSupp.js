@@ -43,6 +43,8 @@ function scheduled(type)
 	//
 	if(journalentrySearch != null && journalentrySearch.length > 0)
 		{
+			nlapiLogExecution('DEBUG', 'Number of journals to propcess = ' + journalentrySearch.length, '');
+		
 			//Loop through the results
 			//
 			for (var int = 0; int < journalentrySearch.length; int++) 
@@ -52,6 +54,7 @@ function scheduled(type)
 					//Get the stat journal id
 					//
 					var statJournalId = journalentrySearch[int].getValue("internalid",null,"GROUP");
+					nlapiLogExecution('DEBUG', 'Processing stat journal id = ' + statJournalId, '');
 					
 					if(statJournalId != null && statJournalId != '')
 						{
@@ -103,6 +106,8 @@ function scheduled(type)
 													
 													for (var int2 = 1; int2 <= lineCount; int2++) 
 														{
+															checkResources();
+														
 															var lineCustomer = originalJournalRecord.getLineItemValue('line', 'custcol_bbs_gfs_customer', int2);
 															var lineSupplier = originalJournalRecord.getLineItemValue('line', 'custcol_bbs_gfs_supplier', int2);
 														
@@ -133,7 +138,8 @@ function scheduled(type)
 													//
 													nlapiSubmitRecord(originalJournalRecord, false, true);
 												
-												
+													checkResources();
+													
 													//Work out the summary info that would have been written to the stat journal
 													//
 													var summaryValues = {};
@@ -146,6 +152,8 @@ function scheduled(type)
 													
 													for (var int2 = 1; int2 <= lineCount; int2++) 
 														{
+															checkResources();
+														
 															//Build up the key to lookup the summary value entry
 															//
 															var carrier = isNull(statJournalRecord.getLineItemValue('line', 'class', int2), '');
@@ -155,8 +163,8 @@ function scheduled(type)
 															var charge = isNull(statJournalRecord.getLineItemValue('line', 'custcol_cseg_bbs_chrgetype', int2), '');
 															var operations = isNull(statJournalRecord.getLineItemValue('line', 'cseg_bbs_ops_method', int2), '');
 															var department = isNull(statJournalRecord.getLineItemValue('line', 'department', int2), '');
-															var debit = Math.abs(Number(statJournalRecord.getLineItemValue('line', 'debit', int2)));
-															var credit = Math.abs(Number(statJournalRecord.getLineItemValue('line', 'credit', int2)));
+															var debit = Number(statJournalRecord.getLineItemValue('line', 'debit', int2));
+															var credit = Number(statJournalRecord.getLineItemValue('line', 'credit', int2));
 															var account = statJournalRecord.getLineItemValue('line', 'account', int2); //1121 = parcels, 1122 = consignments
 															
 															var amount = (credit != 0 ? credit : debit);
@@ -175,14 +183,16 @@ function scheduled(type)
 																				{
 																					//We have a match
 																					//
-																					var z = '';
+																					statJournalRecord.setLineItemValue('line', 'cseg_bbs_customer', int2, summaryKey.split('|')[8]);
+																					statJournalRecord.setLineItemValue('line', 'cseg_bbs_supplier', int2, summaryKey.split('|')[7]);
 																				}
 																			
 																			if(account == '1122' && summaryValues[summaryKey][1] == amount) //consignments
 																				{
 																					//We have a match
 																					//
-																					var z = '';
+																					statJournalRecord.setLineItemValue('line', 'cseg_bbs_customer', int2, summaryKey.split('|')[8]);
+																					statJournalRecord.setLineItemValue('line', 'cseg_bbs_supplier', int2, summaryKey.split('|')[7]);
 																				}
 																		}
 																}
@@ -256,22 +266,22 @@ function getSummaryValues(_record, _type, _summaryValues, _sublistName)
 	var lines = _record.getLineItemCount(_sublistName);
 	var multiplier = Number(1);
 	
-	for (var int = 1; int <= lines; int++) 
+	for (var int3 = 1; int3 <= lines; int3++) 
 		{
-			var carrier = isNull(_record.getLineItemValue(_sublistName, 'class', int), '');
-			var contract = isNull(_record.getLineItemValue(_sublistName, 'location', int), '');
-			var group = isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_prodgrp', int), '');
-			var service = isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_service', int), '');
-			var charge = isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_chrgetype', int), '');
-			var operations = isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_ops_method', int), '');
-			var department = isNull(_record.getLineItemValue(_sublistName, 'department', int), '');
-			var supplier = isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_supplier', int), '');
-			var customer = isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_customer', int), '');
+			var carrier = isNull(_record.getLineItemValue(_sublistName, 'class', int3), '');
+			var contract = isNull(_record.getLineItemValue(_sublistName, 'location', int3), '');
+			var group = isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_prodgrp', int3), '');
+			var service = isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_service', int3), '');
+			var charge = isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_chrgetype', int3), '');
+			var operations = isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_ops_method', int3), '');
+			var department = isNull(_record.getLineItemValue(_sublistName, 'department', int3), '');
+			var supplier = isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_supplier', int3), '');
+			var customer = isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_customer', int3), '');
 			
 			var summaryKey = carrier + '|' + contract + '|' + group + '|' + service + '|' + charge + '|' + operations + '|' + department + '|' + supplier + '|' + customer;
 			
-			var parcels = Number(_record.getLineItemValue(_sublistName, 'custcol_bbs_parcels', int));
-			var consignments = Number(_record.getLineItemValue(_sublistName, 'custcol_bbs_consignments', int));
+			var parcels = Number(_record.getLineItemValue(_sublistName, 'custcol_bbs_parcels', int3));
+			var consignments = Number(_record.getLineItemValue(_sublistName, 'custcol_bbs_consignments', int3));
 			
 			switch(_type)
 				{

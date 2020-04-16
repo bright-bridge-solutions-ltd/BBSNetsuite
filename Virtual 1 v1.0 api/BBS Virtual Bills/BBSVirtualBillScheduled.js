@@ -655,7 +655,16 @@ function processResultLine(_billLineToProcess, _billingTypeSummary, _productGrou
 	
 	//Update the product group summary info object
 	//
-	var productGroupSummaryKey = (poFindResult.status == 1 ? 'Reconciled' : 'Unreconciled') + '|' + billLineType + '|' + (billLineProdGrp == null || billLineProdGrp == '' ? 'NONE' : billLineProdGrp);
+	var productGroupSummaryKey = '';
+	
+	if(poFindResult.status == 1 ) //Reconciled
+		{
+			productGroupSummaryKey = 'Reconciled' + '|' + billLineType + '|' + billLineProdGrp;
+		}
+	else
+		{
+			productGroupSummaryKey = 'Unreconciled' + '|' + billLineType + '|' + 'NONE';
+		}
 	
 	_productGroupsSummary[productGroupSummaryKey] += billLineAmount;
 	
