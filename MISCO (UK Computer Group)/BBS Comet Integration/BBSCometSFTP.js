@@ -52,7 +52,7 @@ function(sftp, file, search, xml, record, runtime, email, format)
 						      search.createColumn({name: "custrecord_bbs_comet_file_extension", 		label: "File Extension"}),
 						      search.createColumn({name: "custrecord_bbs_comet_so_form", 				label: "Sales Order Form"}),
 						      search.createColumn({name: "custrecord_bbs_comet_payment_type", 			label: "Payment Type"}),
-						      
+						      search.createColumn({name: "custrecord_bbs_comet_division", 				label: "Division To Be Used For Sales Orders"})
 						   ]
 						}));
 					
@@ -73,6 +73,7 @@ function(sftp, file, search, xml, record, runtime, email, format)
 							var integrationFileExtension	= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_file_extension"});
 							var integrationFormId			= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_so_form"});
 							var integrationPaymentMethod	= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_payment_type"});
+							var integrationDivision			= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_division"});
 							
 							//Create a connection
 							//
@@ -278,7 +279,12 @@ function(sftp, file, search, xml, record, runtime, email, format)
 																								fieldId:	'paymentmethod',
 																								value:		integrationPaymentMethod					
 																								});
-					
+																	
+																	salesOrderRecord.setValue({
+																								fieldId:	'cseg_bbs_division',
+																								value:		integrationDivision					
+																								});
+
 																	//Shipping Address
 																	//
 																	var shippingSubrecord = salesOrderRecord.getSubrecord({fieldId: 'shippingaddress'});

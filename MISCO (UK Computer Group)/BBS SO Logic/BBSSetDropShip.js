@@ -6,6 +6,40 @@
  *
  */
 
+/**
+ * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
+ * @appliedtorecord recordType
+ *   
+ * @returns {Boolean} True to continue save, false to abort save
+ */
+function soSaveRecord()
+{
+	var formId 			= nlapiGetFieldValue('customform');
+	var customerId 		= nlapiGetFieldValue('entity');
+	var custDivision 	= nlapiLookupField('customer', customerId, 'cseg_bbs_division', false);
+	var cashSaleFormId	= nlapiGetContext().getSetting('SCRIPT', 'custscript_bbs_cash_sale_form');
+	var cometDivisionId	= nlapiGetContext().getSetting('SCRIPT', 'custscript_bbs_comet_division');
+	
+	//If the form being used is the cash sale one, then set the division to be 'Comet'
+	//
+	if(formId == cashSaleFormId)
+		{
+			nlapiSetFieldValue('cseg_bbs_division', cometDivisionId, true, true);
+		}
+	else
+		{
+			if(custDivision != null && custDivision != '')
+				{
+					nlapiSetFieldValue('cseg_bbs_division', custDivision, true, true);
+				}
+		}
+	
+	//Set payment method to be cash
+	//
+	nlapiSetFieldValue('paymentmethod', '1', true, true);	
+	
+    return true;
+}
 
 /**
  * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
