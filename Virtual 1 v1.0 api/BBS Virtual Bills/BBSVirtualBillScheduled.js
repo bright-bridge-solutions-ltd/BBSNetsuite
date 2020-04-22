@@ -532,22 +532,31 @@ function createSupplierBill(_virtualBillId, _productGroupsSummary, _billingTypes
 
 function checkAccountingPeriod(_billPostingPeriod)
 {
-	var isOpen = false;
+	var isOpen 					= false;
+	var accountingperiodSearch 	= null;
 	
-	var accountingperiodSearch = nlapiSearchRecord("accountingperiod",null,
-			[
-			   ["internalid","anyof",_billPostingPeriod], 
-			   "AND", 
-			   ["aplocked","is","F"], 
-			   "AND", 
-			   ["alllocked","is","F"], 
-			   "AND", 
-			   ["closed","is","F"]
-			], 
-			[
-			   new nlobjSearchColumn("periodname").setSort(false)
-			]
-			);
+	try
+		{
+			accountingperiodSearch = nlapiSearchRecord("accountingperiod",null,
+					[
+					   ["internalid","anyof",_billPostingPeriod], 
+					   "AND", 
+					   ["aplocked","is","F"], 
+					   "AND", 
+					   ["alllocked","is","F"], 
+					   "AND", 
+					   ["closed","is","F"]
+					], 
+					[
+					   new nlobjSearchColumn("periodname").setSort(false)
+					]
+					);
+		}
+	catch(err)
+		{
+			accountingperiodSearch 	= null;
+			nlapiLogExecution('ERROR', 'Error searching for accounting period, posting period id = ' + _billPostingPeriod, err.message);
+		}
 	
 	if(accountingperiodSearch != null && accountingperiodSearch.length == 1)
 		{
@@ -562,24 +571,31 @@ function updateVirtualBill(_virtualBillId, _billingTypeSummary)
 {
 	checkResources();
 	
-	nlapiSubmitField(
-					'customrecord_bbs_virtual_bill', 
-					_virtualBillId, 
-					[
-					 'custrecord_bbs_unrec_usage','custrecord_bbs_unrec_oneoff','custrecord_bbs_unrec_rental','custrecord_bbs_unrec_amt_total',
-					 'custrecord_bbs_rec_usage','custrecord_bbs_rec_oneoff','custrecord_bbs_rec_rental','custrecord_bbs_rec_amt_total'], 
-					[
-					 _billingTypeSummary['Usage'].unreconciled, 
-					 _billingTypeSummary['One Off'].unreconciled, 
-					 _billingTypeSummary['Rental'].unreconciled,
-					 _billingTypeSummary['Usage'].unreconciled + _billingTypeSummary['One Off'].unreconciled + _billingTypeSummary['Rental'].unreconciled,
-					 _billingTypeSummary['Usage'].reconciled, 
-					 _billingTypeSummary['One Off'].reconciled, 
-					 _billingTypeSummary['Rental'].reconciled,
-					 _billingTypeSummary['Usage'].reconciled + _billingTypeSummary['One Off'].reconciled + _billingTypeSummary['Rental'].reconciled
-					 ], 
-					false
-					);
+	try
+		{
+			nlapiSubmitField(
+							'customrecord_bbs_virtual_bill', 
+							_virtualBillId, 
+							[
+							 'custrecord_bbs_unrec_usage','custrecord_bbs_unrec_oneoff','custrecord_bbs_unrec_rental','custrecord_bbs_unrec_amt_total',
+							 'custrecord_bbs_rec_usage','custrecord_bbs_rec_oneoff','custrecord_bbs_rec_rental','custrecord_bbs_rec_amt_total'], 
+							[
+							 _billingTypeSummary['Usage'].unreconciled, 
+							 _billingTypeSummary['One Off'].unreconciled, 
+							 _billingTypeSummary['Rental'].unreconciled,
+							 _billingTypeSummary['Usage'].unreconciled + _billingTypeSummary['One Off'].unreconciled + _billingTypeSummary['Rental'].unreconciled,
+							 _billingTypeSummary['Usage'].reconciled, 
+							 _billingTypeSummary['One Off'].reconciled, 
+							 _billingTypeSummary['Rental'].reconciled,
+							 _billingTypeSummary['Usage'].reconciled + _billingTypeSummary['One Off'].reconciled + _billingTypeSummary['Rental'].reconciled
+							 ], 
+							false
+							);
+		}
+	catch(err)
+		{
+			nlapiLogExecution('ERROR', 'Error updating virtual bill summary fields', err.message);
+		}
 }
 
 
@@ -670,13 +686,22 @@ function processResultLine(_billLineToProcess, _billingTypeSummary, _productGrou
 	
 	//Update the billing type summary object
 	//
-	if(poFindResult.status == 1)	//Reconciled
+	try
 		{
-			_billingTypeSummary[billLineType].reconciled += billLineAmount;
+			if(poFindResult.status == 1)	//Reconciled
+				{
+					_billingTypeSummary[billLineType].reconciled += billLineAmount;
+				}
+			else
+				{
+					_billingTypeSummary[billLineType].unreconciled += billLineAmount;
+				}
 		}
-	else
+	catch(err)
 		{
-			_billingTypeSummary[billLineType].unreconciled += billLineAmount;
+			//try-catch block to prevent the script from failing if there is no line type specified
+			//
+			nlapiLogExecution('ERROR', 'Error updating billing type summary', err.message);
 		}
 }
 
@@ -687,36 +712,46 @@ function findMatchingPo(_billLineSupplier, _billLineRef, _billLineAmount, _billL
 	
 	//Run a search to find matching po line
 	//
-	var purchaseorderSearch = nlapiSearchRecord("purchaseorder",null,
-			[
-			   ["type","anyof","PurchOrd"], 
-			   "AND", 
-			   ["mainline","is","F"], 
-			   "AND", 
-			   ["cogs","is","F"], 
-			   "AND", 
-			   ["shipping","is","F"], 
-			   "AND", 
-			   ["taxline","is","F"], 
-			   "AND", 
-			   ["vendor.internalid","anyof",_billLineSupplier], 
-			    "AND", 
-			   ["custbody_bbs_rec_unique_id","is",_billLineRef], 
-			   "AND", 
-			   ["custcol_po_month","anyof",_billLineMonth]
-			], 
-			[
-			   new nlobjSearchColumn("custcol_po_month"), 
-			   new nlobjSearchColumn("amount"), 
-			   new nlobjSearchColumn("custbody_bbs_rec_unique_id"), 
-			   new nlobjSearchColumn("item"), 
-			   new nlobjSearchColumn("line.cseg_bbs_product_gr"), 
-			   new nlobjSearchColumn("line"), 
-			   new nlobjSearchColumn("lineuniquekey")
-			]
-			);
-
-	var resultPoId 	= null;
+	var purchaseorderSearch = null;
+	
+	try
+		{
+			purchaseorderSearch = nlapiSearchRecord("purchaseorder",null,
+					[
+					   ["type","anyof","PurchOrd"], 
+					   "AND", 
+					   ["mainline","is","F"], 
+					   "AND", 
+					   ["cogs","is","F"], 
+					   "AND", 
+					   ["shipping","is","F"], 
+					   "AND", 
+					   ["taxline","is","F"], 
+					   "AND", 
+					   ["vendor.internalid","anyof",_billLineSupplier], 
+					    "AND", 
+					   ["custbody_bbs_rec_unique_id","is",_billLineRef], 
+					   "AND", 
+					   ["custcol_po_month","anyof",_billLineMonth]
+					], 
+					[
+					   new nlobjSearchColumn("custcol_po_month"), 
+					   new nlobjSearchColumn("amount"), 
+					   new nlobjSearchColumn("custbody_bbs_rec_unique_id"), 
+					   new nlobjSearchColumn("item"), 
+					   new nlobjSearchColumn("line.cseg_bbs_product_gr"), 
+					   new nlobjSearchColumn("line"), 
+					   new nlobjSearchColumn("lineuniquekey")
+					]
+					);
+		}
+	catch(err)
+		{
+			purchaseorderSearch = null;
+			nlapiLogExecution('ERROR', 'Error searching for purchase order', err.message);
+		}
+	
+	var resultPoId 		= null;
 	var resultPoLineId 	= null;
 	var resultStatus 	= null;
 	var resultProdGrp 	= null;
@@ -793,9 +828,9 @@ function initProductGroupsSummary(_productGroupsSummary, _billingTypes, _product
 			//
 			for (var int1 = 0; int1 < classificationSearch.length; int1++) 
 				{
-					var billingTypeId = classificationSearch[int1].getId();
-					var billingTypeName = classificationSearch[int1].getValue('name');
-					_billingTypes[billingTypeName] = billingTypeId;
+					var billingTypeId 				= classificationSearch[int1].getId();
+					var billingTypeName 			= classificationSearch[int1].getValue('name');
+					_billingTypes[billingTypeName] 	= billingTypeId;
 					
 					//Loop through the product groups
 					//
@@ -803,9 +838,9 @@ function initProductGroupsSummary(_productGroupsSummary, _billingTypes, _product
 						{
 							for (var int2 = 0; int2 < productGroupSearch.length; int2++) 
 								{
-									var productGroupId = productGroupSearch[int2].getId();
-									var productGroupName = productGroupSearch[int2].getValue('name');
-									_productGroups[productGroupName] = productGroupId;
+									var productGroupId 					= productGroupSearch[int2].getId();
+									var productGroupName 				= productGroupSearch[int2].getValue('name');
+									_productGroups[productGroupName] 	= productGroupId;
 									
 									var key = status + '|' + billingTypeName + '|' + productGroupName;
 									
@@ -843,7 +878,7 @@ function initBillingTypeSummary(_billingTypeSummary)
 		{
 			for (var int = 0; int < classificationSearch.length; int++) 
 				{
-					var billingTypeId = classificationSearch[int].getId();
+					var billingTypeId 	= classificationSearch[int].getId();
 					var billingTypeName = classificationSearch[int].getValue('name');
 					
 					_billingTypeSummary[billingTypeName] = new billingTypeObject(billingTypeId, billingTypeName);
@@ -865,27 +900,36 @@ function getVirtualBillLines(_id)
 {
 	checkResources();
 	
-	var customrecord_bbs_vb_lineSearch = nlapiSearchRecord("customrecord_bbs_vb_line",null,
-			[
-			   ["custrecord_bbs_vb","anyof",_id]
-			], 
-			[
-			   new nlobjSearchColumn("custrecord_bbs_amount"), 
-			   new nlobjSearchColumn("custrecord_bbs_acc_to_debit"), 
-			   new nlobjSearchColumn("custrecord_bbs_months"), 
-			   new nlobjSearchColumn("custrecord_bbs_po_amt"), 
-			   new nlobjSearchColumn("custrecord_bbs_prod_group"), 
-			   new nlobjSearchColumn("custrecord_bbs_rel_bill"), 
-			   new nlobjSearchColumn("custrecord_bbs_rel_po"), 
-			   new nlobjSearchColumn("custrecord_bbs_vbl_status"), 
-			   new nlobjSearchColumn("custrecord_bbs_vbl_type"), 
-			   new nlobjSearchColumn("custrecord_bbs_unique_ref"), 
-			   new nlobjSearchColumn("custrecord_bbs_vb"),
-			   new nlobjSearchColumn("custrecord_bbs_supplier","CUSTRECORD_BBS_VB",null),
-			   new nlobjSearchColumn("internalid").setSort(false)
-			]
-			);
-
+	var customrecord_bbs_vb_lineSearch = null;
+	
+	try
+		{
+			customrecord_bbs_vb_lineSearch = nlapiSearchRecord("customrecord_bbs_vb_line",null,
+					[
+					   ["custrecord_bbs_vb","anyof",_id]
+					], 
+					[
+					   new nlobjSearchColumn("custrecord_bbs_amount"), 
+					   new nlobjSearchColumn("custrecord_bbs_acc_to_debit"), 
+					   new nlobjSearchColumn("custrecord_bbs_months"), 
+					   new nlobjSearchColumn("custrecord_bbs_po_amt"), 
+					   new nlobjSearchColumn("custrecord_bbs_prod_group"), 
+					   new nlobjSearchColumn("custrecord_bbs_rel_bill"), 
+					   new nlobjSearchColumn("custrecord_bbs_rel_po"), 
+					   new nlobjSearchColumn("custrecord_bbs_vbl_status"), 
+					   new nlobjSearchColumn("custrecord_bbs_vbl_type"), 
+					   new nlobjSearchColumn("custrecord_bbs_unique_ref"), 
+					   new nlobjSearchColumn("custrecord_bbs_vb"),
+					   new nlobjSearchColumn("custrecord_bbs_supplier","CUSTRECORD_BBS_VB",null),
+					   new nlobjSearchColumn("internalid").setSort(false)
+					]
+					);
+		}
+	catch(err)
+		{
+			customrecord_bbs_vb_lineSearch = null;
+			nlapiLogExecution('ERROR', 'Error finding virtual bill lines virtual bill id = ' + _id, err.message);
+		}
 	return customrecord_bbs_vb_lineSearch;
 }
 
