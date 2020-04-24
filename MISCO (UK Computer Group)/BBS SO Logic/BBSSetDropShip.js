@@ -77,6 +77,27 @@ function supplierPostSourcing(type, name)
 		}
 }
 
+
+/**
+ * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
+ * @appliedtorecord recordType
+ *   
+ * @param {String} type Sublist internal id
+ * @returns {Boolean} True to save line item, false to abort save
+ */
+function soValidateLine(type)
+{
+	//Sets the cost estimate type to be custom & updates the estimated extended cost
+	//
+	nlapiSetCurrentLineItemValue('item', 'costestimatetype', 'CUSTOM', true, true);
+	
+	var poRate = nlapiGetCurrentLineItemValue('item', 'porate');
+	nlapiSetCurrentLineItemValue('item', 'costestimaterate', poRate, true, true);
+	
+	
+    return true;
+}
+
 function getItemRecordType(girtItemType)
 {
 	var girtItemRecordType = '';

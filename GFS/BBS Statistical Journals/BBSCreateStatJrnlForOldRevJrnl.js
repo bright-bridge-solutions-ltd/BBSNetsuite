@@ -12,14 +12,14 @@
  */
 function scheduled(type) 
 {
-	//Creates a statistical journal for any financial journal that has been reversed today
+	//Creates a statistical journal for any financial journal that has been reversed in the past - this is a one off script
 	//
 	
 	//Get the parameters
 	//
 	var context 				= nlapiGetContext();
-	var accountParcels 			= context.getSetting('SCRIPT', 'custscript_bbs_rev_acc_parcel');
-	var accountConsignments 	= context.getSetting('SCRIPT', 'custscript_bbs_rev_acc_cons');
+	var accountParcels 			= context.getSetting('SCRIPT', 'custscript_bbs_old_rev_acc_parcel');
+	var accountConsignments 	= context.getSetting('SCRIPT', 'custscript_bbs_old_rev_acc_cons');
 	var summaryValues 			= {};
 	var originatingTransaction 	= null;
 	var transactionDate 		= null;
@@ -36,7 +36,7 @@ function scheduled(type)
 			   "AND", 
 			   ["accounttype","noneof","Stat"], 
 			   "AND", 
-			   ["reversaldate","on","today"], 
+			   ["reversaldate","isnotempty",""], 
 			   "AND", 
 			   ["mainline","is","T"], 
 			   "AND", 
@@ -184,6 +184,8 @@ function scheduled(type)
 									try
 										{
 											var statJournalId = nlapiSubmitRecord(statisticalJournal, true, true);
+											
+											nlapiLogExecution('DEBUG', 'Stat Journal Created Ok For Reversing Journal ' + originatingTransaction, '');
 										}
 									catch(err)
 										{
