@@ -60,7 +60,7 @@
           
 			<table class="header" style="width: 100%; margin-top: 10px;">
         		<tr>
-        			<td rowspan="7" colspan="2" style="font-size: 12pt">${record.billaddress}<br/><br/>VAT No: ${record.entitytaxregnum}</td>
+        			<td rowspan="7" colspan="2" style="font-size: 12pt">${record.billaddress}<br/><br/><#if subsidiary.id == "10"><!-- India -->GST Number: <#else>VAT Number: </#if>${record.entitytaxregnum}</td>
                   	<td>&nbsp;</td>
         			<td colspan="2" style="font-size: 12pt"><b>Credit Date</b></td>
         			<td rowspan="7" colspan="2" style="font-size: 12pt">${subsidiary.mainaddress_text}<br/>${vatInfo}<br/>billing@onfido.com</td>

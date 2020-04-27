@@ -64,6 +64,9 @@ function(runtime, search, record) {
     		},
     				{
     			name: 'custrecord_bbs_contract_qu_min_use'
+    		},
+    				{
+    			name: 'custrecord_bbs_contract_bi_ann_use'
     		}],
     		
     		filters: [{
@@ -74,7 +77,7 @@ function(runtime, search, record) {
     				{
     			name: 'custrecord_bbs_contract_billing_type',
     			operator: 'anyof',
-    			values: ['3', '4', '5'] // 3 = QMP, 4 = AMP, 5 = QUR
+    			values: ['3', '4', '5', '7'] // 3 = QMP, 4 = AMP, 5 = QUR, 7 = BUR
     		},
     				{
     			name: 'custrecord_bbs_contract_status',
@@ -137,6 +140,17 @@ function(runtime, search, record) {
 		    		// set the invoiceAmt to be the minimum annual usage
 		    		invoiceAmt = result.getValue({
 		    			name: 'custrecord_bbs_contract_min_ann_use'
+		    		});
+		    		
+		    		// set the invoiceItem to be the ampItem
+		    		invoiceItem = ampItem;
+		    	}
+		    // if the billing type is 7 (BUR)
+		    else if (billingType == '7')
+		    	{
+			    	// set the invoiceAmt to be the minimum biannual usage
+		    		invoiceAmt = result.getValue({
+		    			name: 'custrecord_bbs_contract_bi_ann_use'
 		    		});
 		    		
 		    		// set the invoiceItem to be the ampItem

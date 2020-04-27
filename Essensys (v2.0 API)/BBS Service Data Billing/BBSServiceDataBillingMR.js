@@ -22,6 +22,18 @@ function(runtime, search, record, format, render, file, task) {
 		name: 'custscript_bbs_subsidiary_select'
 	});
 	
+	// if subsidiary is 2 (UK)
+	if (subsidiary == 2)
+		{
+			// set filePrefix variable to UK
+			filePrefix = 'UK';
+		}
+	else if (subsidiary == 3) // if subsidiary is 3 (US)
+		{
+			// set filePrefix variable to US
+			filePrefix = 'US';
+		}
+	
 	// declare new date object. Global variable so can be accessed throughout the script
 	invoiceDate = new Date();
 	invoiceDate.setDate(0); // set date to be the last day of the previous month
@@ -463,7 +475,7 @@ function(runtime, search, record, format, render, file, task) {
 			var fileDate = invoiceDate.format('ymd');
 			
 			// set the file name
-			PDF_File.name = fileDate + ' - ' + siteAlias + ' - ' + invoiceTranID;
+			PDF_File.name = filePrefix + '-' + fileDate + '-' + siteAlias + '-' + invoiceTranID;
 			
 			// set the attachments folder
 			PDF_File.folder = fileCabinetFolder;
@@ -508,7 +520,7 @@ function(runtime, search, record, format, render, file, task) {
 			fileDate = fileDate.format('ymd'); // format date in the following format YYMMDD
     	
     		// specify the file name
-    		var fileName = fileDate + '- ' + siteAlias + ' - reports.csv';
+    		var fileName = filePrefix + '-' + fileDate + '-' + siteAlias + '-reports.csv';
     		
     		// start off the CSV
     		var CSV = '"Accounts id","Account Name","Invoice Number","Date From","Date To","Product","Quantity","Operator Cost","Operator Total Cost","Tenant Alias","Tenant Name","Tenant Billing Reference","Tenant Cost","Tenant Total","Margin"\r\n';

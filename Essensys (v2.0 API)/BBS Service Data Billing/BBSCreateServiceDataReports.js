@@ -27,11 +27,21 @@ function(runtime, search, file) {
         	name: 'custscript_bbs_service_data_bill_folder'
         });
     	
-    	subsidiary = 3; // 3 = US
-    		
-    		/*currentScript.getParameter({
+    	subsidiary = currentScript.getParameter({
     		name: 'custscript_bbs_subsidiary_select'
-    	});*/
+    	});
+    	
+    	// if subsidiary is 2 (UK)
+    	if (subsidiary == 2)
+    		{
+    			// set filePrefix variable to UK
+    			filePrefix = 'UK';
+    		}
+    	else if (subsidiary == 3) // if subsidiary is 3 (US)
+    		{
+    			// set filePrefix variable to US
+    			filePrefix = 'US';
+    		}
     	
     	// set the date of the report
     	var reportDate = new Date();
@@ -64,7 +74,7 @@ function(runtime, search, file) {
 	    	});
     	
     		// specify the file name
-			var fileName = reportDate + ' - summarytenantcharges.csv';
+			var fileName = filePrefix + '-' + reportDate + '-summarytenantcharges.csv';
     	
     		// start off the CSV
 			var CSV = '"ClientID","ClientAmount","OperatorAmount","Margin","ClientName","StartDateTime","EndDateTime","Site","BillingRef","LinkInvoiceYear","LinkInvoiceMonth"\r\n';
@@ -184,7 +194,7 @@ function(runtime, search, file) {
 	    	});
     	
     		// specify the file name
-    		var fileName = reportDate + ' - tenantcharges.csv';
+    		var fileName = filePrefix + '-' + reportDate + '-tenantcharges.csv';
     		
     		// start off the CSV
     		var CSV = '"Quantity","Telephone","AccountCode","Product","Type","Due","UnitCost","Discount","Cost"\r\n';
@@ -447,7 +457,7 @@ function(runtime, search, file) {
     				}
     			
     			// specify the file name
-    			var fileName = reportDate + ' - ' + customerName + ' - consolidated_tenants.csv';
+    			var fileName = filePrefix + '-' + reportDate + '-' + customerName + '-consolidated_tenants.csv';
     			
     			// call function to create the CSV file
     			createCSV(fileName, CSV);
@@ -466,7 +476,7 @@ function(runtime, search, file) {
 	    	});
     	
     		// specify the file name
-    		var fileName = reportDate + ' - consolidatedsummarytenantcharges.csv';
+    		var fileName = filePrefix + '-' + reportDate + '-consolidatedsummarytenantcharges.csv';
     	
     		// start off the CSV
 			var CSV = '"ClientID","ClientAmount","OperatorAmount","Margin","ClientName","StartDateTime","EndDateTime","Site","BillingRef","LinkInvoiceYear","LinkInvoiceMonth"\r\n';

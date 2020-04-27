@@ -20,6 +20,14 @@ function(url, runtime, record, search, format, task) {
 	ampItem = currentScript.getParameter({
     	name: 'custscript_bbs_amp_item'
     });
+	
+	deferredIncomeAccount = currentScript.getParameter({
+		name: 'custscript_bbs_def_inc_upfront'
+	});
+	
+	unusedMinimumsAccount = currentScript.getParameter({
+		name: 'custscript_bbs_unused_income_account'
+	});
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -48,7 +56,7 @@ function(url, runtime, record, search, format, task) {
 		    	
 		    	// if statement to check that the status variable returns 1 (Approved)
 		    	if (status == 1)
-		    		{	    		
+		    		{
 		    			// define suiteletURL variable
 			    		var suiteletURL = url.resolveScript({
 			    			scriptId: 'customscript_bbs_end_contract_sl',
@@ -246,26 +254,38 @@ function(url, runtime, record, search, format, task) {
 	    		    		fieldId: 'custrecord_bbs_contract_billing_type'
 	    		    	});
         			
-	        			// check that oldStatus variable does NOT return 1 and the newStatus variable DOES return 1 (IE contract has been edited and status changed to approved)
-	        			if (oldStatus != 1 && newStatus == 1) // 1 = Approved
+	        			// check that oldStatus variable returns 2 and the newStatus variable returns 1 (IE contract has been edited and status changed from Pending Approval to Approved)
+	        			if (oldStatus == 2 && newStatus == 1) // 2 = Pending Approval, 1 = Approved
 	        				{
-	    	    				// check if the billingType variable returns 3 (QMP)
+	    	    				// check if the billingType is 3 (QMP)
 	    				    	if (billingType == 3)
 	    				    		{
-	    				    			// call the QMP function. Pass currentRecord object and currentRecordID variable
+	    				    			// call the QMP function. Pass currentRecord object and billingType/currentRecordID variables
 	    				    			QMP(billingType, currentRecord, currentRecordID);
 	    				    		}
-	    				    	// if the billingType variable returns 4 (AMP)
+	    				    	// if the billingType is 4 (AMP)
 	    				    	else if (billingType == 4)
 	    				    		{
-	    				    			// call the AMP function. Pass currentRecord object and currentRecord variable
+	    				    			// call the AMP function. Pass currentRecord object and billingType/currentRecordID variables
 	    				    			AMP(billingType, currentRecord, currentRecordID);
 	    				    		}
-	    				    	// if the billingType variable returns 5 (QUR)
+	    				    	// if the billingType is 5 (QUR)
 	    				    	else if (billingType == 5)
 	    				    		{
-	    				    			// call the QUR function. Pass currentRecord object and currentRecord variable
+	    				    			// call the QUR function. Pass currentRecord object and billingType/currentRecordID variables
 	    				    			QUR(billingType, currentRecord, currentRecordID);
+	    				    		}
+	    				    	// if the billing type is 7 (BUR)
+	    				    	else if (billingType == 7)
+	    				    		{
+	    				    			// call the BUR function. Pass currentRecord object and billingType/currentRecordID variables
+	    				    			BUR(billingType, currentRecord, currentRecordID);
+	    				    		}
+	    				    	// if the billing type is 8 (Contract Extension)
+	    				    	else if (billingType == 8)
+	    				    		{
+	    				    			// call the contractExtension function. Pass currentRecord object and currentRecordID variables
+	    				    			contractExtension(currentRecord, currentRecordID);
 	    				    		}
 	    				    	else
 	    				    		{
@@ -528,6 +548,249 @@ function(url, runtime, record, search, format, task) {
 			createInitialInvoices(currentRecordID, qmpAmt, billingType, setupFeeInvoice, prepaymentInvoice);
     	}
     
+    // =================================
+    // FUNCTION FOR THE BUR BILLING TYPE
+    // =================================
+    
+    function BUR(billingType, currentRecord, currentRecordID)
+		{
+			// declare and initialize variables
+			var setupFeeInvoice = 'F';
+			var prepaymentInvoice = 'F';
+		
+			// get the minimum usage from the currentRecord object			
+			var burAmt = currentRecord.getValue({
+				fieldId: 'custrecord_bbs_contract_bi_ann_use'
+			});
+			
+			// use parseFloat to convert to decimal number
+			burAmt = parseFloat(burAmt);
+			
+			// get the value of the 'Usage Invoice Billed' checkbox from the currentRecord object
+			var usageInvoiceBilled = currentRecord.getValue({
+				fieldId: 'custrecord_bbs_contract_initial_invoice'
+			});
+			
+			// get the value of the 'setup fee' field from the currentRecord object
+	    	var setupFee = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_setup_fee'
+	    	});
+	    	
+	    	// get the value of the 'setup fee billed' field from the currentRecord object
+	    	var setupFeeBilled = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_setup_fee_billed'
+	    	});
+			
+			// get the contract start date from the currentRecord object
+			var contractStart = currentRecord.getValue({
+				fieldId: 'custrecord_bbs_contract_start_date'
+			});
+			
+			// format contractStart as a date object
+			format.parse({
+				type: format.Type.DATE,
+				value: contractStart
+			});
+			
+			// Create a new date object to return today's date
+			var todayDate = new Date();
+			todayDate = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate());
+			
+			// calculate 30 days after today's date
+			var thirtyDaysAfterToday = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()+30);
+			
+			// check that the contractStart is within 30 days of today's date and the usageInvoiceBilled variable is false
+			if (contractStart <= thirtyDaysAfterToday && usageInvoiceBilled == false)
+				{
+					// set the prepaymentInvoice variable to 'T'
+					prepaymentInvoice = 'T';
+				}
+			
+			// check if the setupFee variable returns true (checkbox is ticked) and setupFeeBilled variable returns false (checkbox is NOT ticked)
+	    	if (setupFee == true && setupFeeBilled == false)
+	    		{
+		    		// set setupFeeInvoice variable to 'T'
+	    			setupFeeInvoice = 'T';
+	    		}
+	    	
+	    	// call function to create initial invoices. Pass currentRecordID, burAmt, billingType, setupFeeInvoice and prepaymentInvoice
+			createInitialInvoices(currentRecordID, burAmt, billingType, setupFeeInvoice, prepaymentInvoice);
+		}
+    
+    // ================================================
+    // FUNCTION FOR THE CONTRACT EXTENSION BILLING TYPE
+    // ================================================
+    
+    function contractExtension(currentRecord, currentRecordID)
+		{
+    		// get today's date and format to a date (DD/MM/YYYY)
+    		var today = format.format({
+		    	type: format.Type.DATE,
+		    	value: new Date()
+		    });
+    	
+    		// get the deferred income balance (old contract)
+    		var deferredIncomeBalance = currentRecord.getValue({
+    			fieldId: 'custrecord_bbs_contract_old_def_inc_bal'
+    		});
+    		
+    		// get the subsidiary
+    		var subsidiary = currentRecord.getValue({
+    			fieldId: 'custrecord_bbs_contract_subsidiary'
+    		});
+    		
+    		// get the currency
+    		var currency = currentRecord.getValue({
+    			fieldId: 'custrecord_bbs_contract_currency'
+    		});
+    		
+    		// get the customer
+    		var customer = currentRecord.getValue({
+    			fieldId: 'custrecord_bbs_contract_customer'
+    		});
+    		
+    		// get the location
+    		var location = currentRecord.getValue({
+    			fieldId: 'custrecord_bbs_contract_location'
+    		});
+    		
+    		try
+    			{
+    				// create a journal record
+    				var journalRecord = record.create({
+    					type: record.Type.JOURNAL_ENTRY,
+    					isDynamic: true
+    				});
+    				
+    				// set header fields on the journal
+    				journalRecord.setValue({
+    					fieldId: 'subsidiary',
+    					value: subsidiary
+    				});
+    				
+    				journalRecord.setValue({
+    					fieldId: 'currency',
+    					value: currency
+    				});
+    				
+    				journalRecord.setValue({
+    					fieldId: 'memo',
+    					value: 'Contract Extension + ' + today
+    				});
+    				
+    				journalRecord.setValue({
+    					fieldId: 'custbody_bbs_contract_record',
+    					value: currentRecordID
+    				});
+    				
+    				// add a line to the journal to subtract balance from the unused minimums account
+    				journalRecord.selectNewLine({
+    					sublistId: 'line'
+    				});
+    				
+    				journalRecord.setCurrentSublistValue({
+    					sublistId: 'line',
+    					fieldId: 'account',
+    					value: unusedMinimumsAccount
+    				});
+    				
+    				journalRecord.setCurrentSublistValue({
+    					sublistId: 'line',
+    					fieldId: 'debit',
+    					value: deferredIncomeBalance
+    				});
+    				
+    				journalRecord.setCurrentSublistValue({
+    					sublistId: 'line',
+    					fieldId: 'memo',
+    					value: 'Amp Add-on + ' + today
+    				});
+    				
+    				journalRecord.setCurrentSublistValue({
+    					sublistId: 'line',
+    					fieldId: 'entity',
+    					value: customer
+    				});
+    				
+    				journalRecord.setCurrentSublistValue({
+    					sublistId: 'line',
+    					fieldId: 'location',
+    					value: location
+    				});
+    				
+    				journalRecord.setCurrentSublistValue({
+    					sublistId: 'line',
+    					fieldId: 'custcol_bbs_contract_record',
+    					value: currentRecordID
+    				});
+    				
+    				journalRecord.commitLine({
+    					sublistId: 'line'
+    				});
+    				
+    				// add a line to the journal to add balances to the deferred income account
+    				journalRecord.selectNewLine({
+    					sublistId: 'line'
+    				});
+    				
+    				journalRecord.setCurrentSublistValue({
+    					sublistId: 'line',
+    					fieldId: 'account',
+    					value: deferredIncomeAccount
+    				});
+    				
+    				journalRecord.setCurrentSublistValue({
+    					sublistId: 'line',
+    					fieldId: 'credit',
+    					value: deferredIncomeBalance
+    				});
+    				
+    				journalRecord.setCurrentSublistValue({
+    					sublistId: 'line',
+    					fieldId: 'memo',
+    					value: 'Contract Extension + ' + today
+    				});
+    				
+    				journalRecord.setCurrentSublistValue({
+    					sublistId: 'line',
+    					fieldId: 'entity',
+    					value: customer
+    				});
+    				
+    				journalRecord.setCurrentSublistValue({
+    					sublistId: 'line',
+    					fieldId: 'location',
+    					value: location
+    				});
+    				
+    				journalRecord.setCurrentSublistValue({
+    					sublistId: 'line',
+    					fieldId: 'custcol_bbs_contract_record',
+    					value: currentRecordID
+    				});
+    				
+    				journalRecord.commitLine({
+    					sublistId: 'line'
+    				});
+    				
+    				// save the journal record
+    				var journalID = journalRecord.save();
+    				
+    				log.audit({
+    					title: 'Journal Record Created',
+    					details: journalID
+    				});
+    			}
+    		catch(e)
+    			{
+    				log.error({
+    					title: 'Error Creating Journal',
+    					details: e
+    				});
+    			}
+    		
+		}
+    
     // ===================================
     // FUNCTION TO CREATE INITIAL INVOICES
     // ===================================
@@ -543,7 +806,7 @@ function(url, runtime, record, search, format, task) {
 					// set the prepaymentItem variable using the qmpItem variable
 					prepaymentItem = qmpItem;
 				}
-			else // billingType is 4 (AMP)
+			else if (billingType == '4' || billingType == '7') // billingType is 4 (AMP) or 7 (BUR)
 				{
 					// set the prepaymentItem variable using the ampItem variable
 					prepaymentItem = ampItem;

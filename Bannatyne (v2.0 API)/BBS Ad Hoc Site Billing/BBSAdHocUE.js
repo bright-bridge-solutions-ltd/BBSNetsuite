@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/config', 'N/runtime', 'N/record', 'N/format'],
-function(config, runtime, record, format) {
+define(['N/config', 'N/runtime', 'N/record', 'N/format', 'N/search'],
+function(config, runtime, record, format, search) {
 	
 	// retrieve script parameters
 	var currentScript = runtime.getCurrentScript();
@@ -478,7 +478,7 @@ function(config, runtime, record, format) {
     				});
     				
     				customerRecord.setValue({
-    					fieldId: 'vatregnumber',
+    					fieldId: 'custentity6',
     					value: companyNo
     				});
     				
@@ -658,7 +658,7 @@ function(config, runtime, record, format) {
 			
 			// get the line of business from the adHocSiteRecord object
 			var lineOfBusiness = adHocSiteRecord.getValue({
-				fieldId: 'custrecord_bbs_ad_hoc_site_gym_spa'
+				fieldId: 'custrecord_bbs_ad_hoc_site_line_business'
 			});
 			
 			// get the location from the adHocSiteRecord object
@@ -805,7 +805,7 @@ function(config, runtime, record, format) {
 			
 			// get the line of business from the adHocSiteRecord object
 			var lineOfBusiness = adHocSiteRecord.getValue({
-				fieldId: 'custrecord_bbs_ad_hoc_site_gym_spa'
+				fieldId: 'custrecord_bbs_ad_hoc_site_line_business'
 			});
 			
 			// get the location from the adHocSiteRecord object

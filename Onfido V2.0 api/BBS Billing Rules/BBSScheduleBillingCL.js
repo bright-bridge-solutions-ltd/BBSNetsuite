@@ -49,7 +49,7 @@ function(message, url, https, search, format, record) {
 						type: message.Type.ERROR,
 				        title: 'Error',
 				        message: 'The billing process for QMP has not yet completed so the creation of QMP invoices cannot start.<br><br>Please wait until you have received an email informing you that the billing process has completed and try again.'
-					}).show(5000); // show for 5 seconds	
+					}).show(5000); // show for 5 seconds
 				}		
     	}
     
@@ -120,46 +120,46 @@ function(message, url, https, search, format, record) {
     		fieldId: 'subsidiaryselect'
     	});
     	
-    	// call function to check if the billing run has already been ran this month. Pass billingType and subsidiary
-    	var billingAlreadyRan = searchBillingRun(billingType, subsidiary);
-    	
-    	// check if billingAlreadyRan is true
-    	if (billingAlreadyRan == true)
-    		{
-    			// display an error message
-	    		message.create({
+    	// call function to find open sales orders for this billing type where the usage updated checkbox is NOT ticked. Pass billingType and subsidiary variables
+		var salesOrders = searchSalesOrders(billingType, subsidiary);
+		
+		// check if the salesOrders variable is greater than 0
+		if (salesOrders > 0)
+		    {
+			    // display an error message
+				message.create({
 					type: message.Type.ERROR,
-			        title: 'Error',
-			        message: 'The ' + billingTypeText + ' billing run for the ' + subsidiaryText + ' subsidiary cannot be scheduled as it has already been ran this month.'
+					title: 'Error',
+					message: 'The billing process for ' + billingTypeText + ' cannot be scheduled as there are open sales orders for the ' + subsidiaryText + ' subsidiary where the usage on the contract record has not been updated.<br><br><a href="https://5554661.app.netsuite.com/app/common/search/searchresults.nl?searchtype=Transaction&Transaction_SUBSIDIARY=' + subsidiary + '&BDY_CUSTRECORD_BBS_CONTRACT_BILLING_TYPE=' + billingType + '&style=NORMAL&report=&grid=&searchid=883">Click Here</a> to view details of these orders (this will open in a new tab/window)'
 				}).show();
-	    		
-	    		// prevent the Suitelet from being submitted
-	    		return false;
-    		}
-    	else // billingAlreadyRan is false
-    		{
-    			// call function to find open sales orders for this billing type where the usage updated checkbox is NOT ticked. Pass billingType and subsidiary variables
-				var salesOrders = searchSalesOrders(billingType, subsidiary);
-				    	
-				// check if the salesOrders variable is greater than 0
-				if (salesOrders > 0)
-				    {
-					    // display an error message
-						message.create({
+						
+				// prevent the Suitelet from being submitted
+				return false;
+		   }
+		else
+			{
+				// call function to check if the billing run has already been ran this month. Pass billingType and subsidiary
+		    	var billingAlreadyRan = searchBillingRun(billingType, subsidiary);
+		    	
+		    	// check if billingAlreadyRan is true
+		    	if (billingAlreadyRan == true)
+		    		{
+		    			// display an error message
+			    		message.create({
 							type: message.Type.ERROR,
-							title: 'Error',
-							message: 'The billing process for ' + billingTypeText + ' cannot be scheduled as there are open sales orders for the ' + subsidiaryText + ' subsidiary where the usage on the contract record has not been updated.<br><br><a href="https://5554661.app.netsuite.com/app/common/search/searchresults.nl?searchtype=Transaction&Transaction_SUBSIDIARY=' + subsidiary + '&BDY_CUSTRECORD_BBS_CONTRACT_BILLING_TYPE=' + billingType + '&style=NORMAL&report=&grid=&searchid=883">Click Here</a> to view details of these orders (this will open in a new tab/window)'
+					        title: 'Error',
+					        message: 'The ' + billingTypeText + ' billing run for the ' + subsidiaryText + ' subsidiary cannot be scheduled as it has already been run this month.'
 						}).show();
-								
-						// prevent the Suitelet from being submitted
-						return false;
-				   }
-				else
-				   {
-				    	// allow the Suitelet to be submitted
-				    	return true;
-				   }
-    		}
+			    		
+			    		// prevent the Suitelet from being submitted
+			    		return false;
+		    		}
+		    	else
+		    		{
+		    			// allow the Suitelet to be submitted
+		    			return true;
+		    		}
+			}
     }
     
     // ================
@@ -391,6 +391,8 @@ function(message, url, https, search, format, record) {
 	    		salesOrders++;
 	    		
 	    	});
+	    	
+	    	return salesOrders;
     		
     	}
 

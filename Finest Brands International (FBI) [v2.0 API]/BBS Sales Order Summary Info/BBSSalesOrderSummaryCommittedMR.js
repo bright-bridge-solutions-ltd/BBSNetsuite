@@ -434,7 +434,7 @@ function(search, record) {
 				        });
 				      
 				        // loop through the summaries
-				        for (var key in sortedSummary) 
+				        for (var key in sortedSummary)
 				      		{
 								//Push a new instance of the output summary object onto the output array
 								//

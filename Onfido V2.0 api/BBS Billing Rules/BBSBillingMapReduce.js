@@ -218,11 +218,11 @@ function(runtime, search, record, format, task) {
 				// call the AMBMA function. Pass record ID, contractRecord and contractCurrency
 				AMBMA(recordID, contractRecord, contractCurrency);
 			}
-		// AMP billing type
-		else if (billingType == 4)
+		// AMP and Contract Extension billing types
+		else if (billingType == 4 || billingType == 8)
 			{
-				// call the AMP function. Pass recordID, contractRecord and contractCurrency
-				AMP(recordID, contractRecord, contractCurrency);
+				// call the AMP function. Pass billingType, recordID, contractRecord and contractCurrency
+				AMP(billingType, recordID, contractRecord, contractCurrency);
 			}
 		// BUR billing type
 		else if (billingType == 7)
@@ -642,10 +642,19 @@ function(runtime, search, record, format, task) {
 				}
 	    }
     
-    function AMP(recordID, contractRecord, contractCurrency)
+    function AMP(billingType, recordID, contractRecord, contractCurrency)
     	{
-	    	// set the billingType variable to AMP
-			billingType = 'AMP';
+	    	// check if the billingType is 4 (AMP)
+    		if (billingType == 4)
+    			{
+	    			// set the billingType variable to AMP
+	    			billingType = 'AMP';
+    			}
+    		else if (billingType == 8) // if the billingType is 8 (AMP Add-On)
+    			{
+    				// set the billingType variable to Contract Extension
+    				billingType = 'Contract Extension';
+    			}
 			
 			// lookup fields on the contract record
 		    var contractRecordLookup = search.lookupFields({
@@ -773,6 +782,7 @@ function(runtime, search, record, format, task) {
 			var contractHalf;
 			var thisMonthUsage = 0;
 			var halfStart = false;
+			var currentPeriod = 0;
 			var cumulativeHalfUsage = 0;
 			var cumulativeUsage = 0;
 			var calculatedDeferredRevenue = 0;
@@ -799,9 +809,9 @@ function(runtime, search, record, format, task) {
 			var contractRecordLookup = search.lookupFields({
 				type: 'customrecord_bbs_contract',
 				id: contractRecord,
-				columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_bi_ann_use', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_term', 'custrecord_bbs_contract_prepayment_inv']
+				columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_bi_ann_use', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_prepayment_inv']
 			});
-	    		
+			
 			var customer = contractRecordLookup.custrecord_bbs_contract_customer[0].value;
 			var minimumUsage = contractRecordLookup.custrecord_bbs_contract_bi_ann_use;
 			var contractEnd = contractRecordLookup.custrecord_bbs_contract_end_date;
@@ -853,6 +863,10 @@ function(runtime, search, record, format, task) {
 		    			{
 		    		name: 'custrecord_bbs_contract_period_halfstart',
 		    		summary: 'MAX'
+		    	},
+		    			{
+		    		name: 'custrecord_bbs_contract_period_period',
+		    		summary: 'MAX'
 		    	}],
 	    	
 				filters: [{
@@ -864,17 +878,12 @@ function(runtime, search, record, format, task) {
 					name: 'custrecord_bbs_contract_period_start',
 					operator: 'within',
 					values: ['lastmonth']
-				},
-						{
-					name: 'custrecord_bbs_contract_period_half_end',
-					operator: 'within',
-					values: ['lastmonth']
 				}],
 			
 			});
 	    	
 			// process search results
-			periodDetailSearch.run().each(function(result) {
+			periodDetailSearch.run().each(function(result){
 			
 				// get the half end date from the search results
 				halfEnd = result.getValue({
@@ -884,6 +893,11 @@ function(runtime, search, record, format, task) {
 				
 				contractHalf = result.getValue({
 					name: 'custrecord_bbs_contract_period_half',
+					summary: 'MAX'
+				});
+				
+				currentPeriod = result.getValue({
+					name: 'custrecord_bbs_contract_period_period',
 					summary: 'MAX'
 				});
 				
@@ -933,7 +947,7 @@ function(runtime, search, record, format, task) {
 			});
 			
 			// process search results
-			periodDetailHalfSearch.run().each(function(result) {
+			periodDetailHalfSearch.run().each(function(result){
 				
 				// get the cumulative usage for the current half from the search results
 				cumulativeHalfUsage = result.getValue({
@@ -970,7 +984,7 @@ function(runtime, search, record, format, task) {
 			});
 			
 			// process search results
-			periodDetailCumulativeSearch.run().each(function(result) {
+			periodDetailCumulativeSearch.run().each(function(result){
 				
 				// get the cumulative usage to date from the search results
 				cumulativeUsage = result.getValue({
@@ -1054,8 +1068,8 @@ function(runtime, search, record, format, task) {
 		    				createRevRecJournal(recordID, billingType, contractCurrency, true);
 						}
 				}
-			// else check if the invoiceDate is equal to the halfEnd
-			else if (invoiceDate.getTime() == halfEnd.getTime())
+			// else check if the invoiceDate is greater than or equal to the halfEnd date and this is not month 12 of the contract (pro rata contracts have 13 periods)
+			else if (invoiceDate.getTime() == halfEnd.getTime() && currentPeriod != 12)
 				{
 					// check if calculatedDeferredRevenue is less than 0
 					if (calculatedDeferredRevenue < 0)
@@ -1200,13 +1214,8 @@ function(runtime, search, record, format, task) {
 	    	    		    	}
 						}
 					
-					// check if halfStart is true and deferredRevAmt minus lastPrepaymentAmount is greater than 0
-					if (halfStart == true && (deferredRevAmt - lastPrepaymentAmount) > 0)
-						{
-							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType, contractCurrency and lastPrepaymentAmount (False = Clearing Journal NO)
-	    		    		createRevRecJournal(recordID, billingType, contractCurrency, false, lastPrepaymentAmount);
-						}
-					else if (deferredRevAmt > 0) // check if deferredRevAmt is greater than 0
+					// check if deferredRevAmt is greater than 0
+					if (deferredRevAmt > 0)
 						{
 							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType and contractCurrency (False = Clearing Journal NO)
 				    		createRevRecJournal(recordID, billingType, contractCurrency, false);
@@ -1232,6 +1241,7 @@ function(runtime, search, record, format, task) {
     		var quarterEnd;
     		var thisMonthUsage = 0;
     		var cumulativeUsage = 0;
+    		var currentPeriod = 0;
     		var amtToBill;
     		var creditLineAmt;
     	
@@ -1287,6 +1297,10 @@ function(runtime, search, record, format, task) {
 		    			{
 		    		name: 'custrecord_bbs_contract_period_prod_use',
 		    		summary: 'SUM'
+		    	},
+		    			{
+		    		name: 'custrecord_bbs_contract_period_period',
+		    		summary: 'MAX'
 		    	}],
 		    	
 		    	filters: [{
@@ -1320,6 +1334,11 @@ function(runtime, search, record, format, task) {
 	    		thisMonthUsage = result.getValue({
 	    			name: 'custrecord_bbs_contract_period_prod_use',
 	    			summary: 'SUM'
+	    		});
+	    		
+	    		currentPeriod = result.getValue({
+	    			name: 'custrecord_bbs_contract_period_period',
+	    			summary: 'MAX'
 	    		});
 	    		
     		});
@@ -1376,11 +1395,11 @@ function(runtime, search, record, format, task) {
     		
     		log.audit({
     			title: 'QMP Check',
-    			details: 'Minimum Usage: ' + minimumUsage + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Usage: ' + cumulativeUsage + '<br>Actual Deferred Revenue Balance: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
+    			details: 'Current Period: ' + currentPeriod + '<br>Minimum Usage: ' + minimumUsage + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Usage: ' + cumulativeUsage + '<br>Actual Deferred Revenue Balance: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
     		});
     		
     		// check if the invoiceDate is equal to the quarterEnd OR the invoiceDate is greater than (after) or equal to the earlyEndDate
-			if (invoiceDate.getTime() >= quarterEnd.getTime() || earlyEndDate != '' && invoiceDate.getTime() >= earlyEndDate.getTime())
+			if ((invoiceDate.getTime() == quarterEnd.getTime() && currentPeriod != 12) || earlyEndDate != '' && invoiceDate.getTime() >= earlyEndDate.getTime())
     			{
 					// check if calculatedDeferredRevenue is less than 0
 				    if (calculatedDeferredRevenue < 0)
@@ -1491,6 +1510,7 @@ function(runtime, search, record, format, task) {
     		// declare and initiate variables
 			var quarterEnd;
 			var contractQuarter;
+			var currentPeriod = 0;
 			var thisMonthUsage = 0;
 			var quarterStart = 0;
 			var cumulativeQtrUsage = 0;
@@ -1519,7 +1539,7 @@ function(runtime, search, record, format, task) {
 			var contractRecordLookup = search.lookupFields({
 				type: 'customrecord_bbs_contract',
 				id: contractRecord,
-				columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_qu_min_use', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_term', 'custrecord_bbs_contract_prepayment_inv']
+				columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_qu_min_use', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_prepayment_inv']
 			});
 	    		
 			var customer = contractRecordLookup.custrecord_bbs_contract_customer[0].value;
@@ -1573,6 +1593,10 @@ function(runtime, search, record, format, task) {
 		    			{
 		    		name: 'custrecord_bbs_contract_period_qtr_start',
 		    		summary: 'MAX'
+		    	},
+		    			{
+		    		name: 'custrecord_bbs_contract_period_period',
+		    		summary: 'MAX'
 		    	}],
 	    	
 				filters: [{
@@ -1604,6 +1628,11 @@ function(runtime, search, record, format, task) {
 				
 				contractQuarter = result.getValue({
 					name: 'custrecord_bbs_contract_period_quarter',
+					summary: 'MAX'
+				});
+				
+				currentPeriod = result.getValue({
+					name: 'custrecord_bbs_contract_period_period',
 					summary: 'MAX'
 				});
 				
@@ -1736,7 +1765,7 @@ function(runtime, search, record, format, task) {
 			
 			log.audit({
     			title: 'QUR Check',
-    			details: 'Minimum Usage: ' + minimumUsage + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Qtr Usage: ' + cumulativeQtrUsage + '<br>Cumulative Usage to Date: ' + cumulativeUsage + '<br>Last Prepayment Invoice: ' + lastPrepaymentAmount + '<br>Actual Deferred Revenue Balance: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
+    			details: 'Current Period: ' + currentPeriod + '<br>Minimum Usage: ' + minimumUsage + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Qtr Usage: ' + cumulativeQtrUsage + '<br>Cumulative Usage to Date: ' + cumulativeUsage + '<br>Last Prepayment Invoice: ' + lastPrepaymentAmount + '<br>Actual Deferred Revenue Balance: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
     		});
 		
 			// check if the invoiceDate is greater than (after) or equal to the contractEnd OR the invoiceDate is greater than (after) or equal to the earlyEndDate
@@ -1774,8 +1803,8 @@ function(runtime, search, record, format, task) {
 		    				createRevRecJournal(recordID, billingType, contractCurrency, true);
 						}
 				}
-			// else check if the invoiceDate is equal to the quarterEnd
-			else if (invoiceDate.getTime() == quarterEnd.getTime())
+			// else check if the invoiceDate is greater than or equal to the quarterEnd date and this is not month 12 of the contract (pro rata contracts have 13 periods)
+			else if (invoiceDate.getTime() == quarterEnd.getTime() && currentPeriod != 12)
 				{
 					// check if calculatedDeferredRevenue is less than 0
 					if (calculatedDeferredRevenue < 0)
@@ -2026,13 +2055,8 @@ function(runtime, search, record, format, task) {
 	    	    		    	}
 						}
 					
-					// check if quarterStart is true and deferredRevAmt minus lastPrepaymentAmount is greater than 0
-					if (quarterStart == true && (deferredRevAmt - lastPrepaymentAmount) > 0)
-						{
-							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType, contractCurrency and lastPrepaymentAmount (False = Clearing Journal NO)
-	    		    		createRevRecJournal(recordID, billingType, contractCurrency, false, lastPrepaymentAmount);
-						}
-					else if (deferredRevAmt > 0) // check if deferredRevAmt is greater than 0
+					// check if deferredRevAmt is greater than 0
+					if (deferredRevAmt > 0)
 						{
 							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType and contractCurrency (False = Clearing Journal NO)
 				    		createRevRecJournal(recordID, billingType, contractCurrency, false);
@@ -2638,8 +2662,8 @@ function(runtime, search, record, format, task) {
 					            value: qmpCreditItem
 					    	});
 			    		}
-			    	// check if the billingType returns AMP
-			    	else if (billingType == 'AMP')
+			    	// check if the billingType returns AMP or BUR
+			    	else if (billingType == 'AMP' || billingType == 'BUR')
 			    		{
 			    			// set the item on the new line
 					    	soRecord.setCurrentSublistValue({
