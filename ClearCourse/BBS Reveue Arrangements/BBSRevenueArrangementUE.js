@@ -84,82 +84,85 @@ function updateRevenueArrangement(_currentTransactionTranid, _currentLineUniqueK
 			]
 			);
 	
-	//Loop through the search results
-	//
-	for (var resultCounter = 0; resultCounter < revenueelementSearch.length; resultCounter++) 
+	if(revenueelementSearch != null && revenueelementSearch.length > 0)
 		{
-			var revArrangementId = revenueelementSearch[resultCounter].getValue("internalid","revenueArrangement");
-
-			//Have we got an associated revenue arrangement
+			//Loop through the search results
 			//
-			if(revArrangementId != null && revArrangementId != '')
+			for (var resultCounter = 0; resultCounter < revenueelementSearch.length; resultCounter++) 
 				{
-					var arrangementRecord = null;
-				
-					//Try to load the revenue arrangement record
+					var revArrangementId = revenueelementSearch[resultCounter].getValue("internalid","revenueArrangement");
+		
+					//Have we got an associated revenue arrangement
 					//
-					try
+					if(revArrangementId != null && revArrangementId != '')
 						{
-							arrangementRecord = nlapiLoadRecord('revenuearrangement', revArrangementId);
-						}
-					catch(err)
-						{
-							arrangementRecord = null;
-							nlapiLogExecution('ERROR', 'Error loading revenue arrangement, id = ' + revArrangementId, err.message);
-						}
-					
-					if(arrangementRecord != null)
-						{
-							var arrangementUpdated = false;
-							
-							//Process the revenue arrangement record elements
+							var arrangementRecord = null;
+						
+							//Try to load the revenue arrangement record
 							//
-							var elementCount = arrangementRecord.getLineItemCount('revenueelement');
-							
-							//Loop through the elements
-							//
-							for (var elementCounter = 1; elementCounter <= elementCount; elementCounter++) 
+							try
 								{
-									//Get the source from the line
-									//
-									var elementReferenceId 		= arrangementRecord.getLineItemValue('revenueelement', 'referenceid', elementCounter);
-									var elementSourceId 		= arrangementRecord.getLineItemValue('revenueelement', 'sourceid', elementCounter);
-									var elementRevRecStartDate 	= arrangementRecord.getLineItemValue('revenueelement', 'revrecstartdate', elementCounter);
-									var elementRevRecEndDate 	= arrangementRecord.getLineItemValue('revenueelement', 'revrecenddate', elementCounter);
+									arrangementRecord = nlapiLoadRecord('revenuearrangement', revArrangementId);
+								}
+							catch(err)
+								{
+									arrangementRecord = null;
+									nlapiLogExecution('ERROR', 'Error loading revenue arrangement, id = ' + revArrangementId, err.message);
+								}
+							
+							if(arrangementRecord != null)
+								{
+									var arrangementUpdated = false;
 									
-									//Check to make sure that everything matches
+									//Process the revenue arrangement record elements
 									//
-									if(elementReferenceId == _currentTransactionTranid && elementSourceId == _currentLineUniqueKey)
+									var elementCount = arrangementRecord.getLineItemCount('revenueelement');
+									
+									//Loop through the elements
+									//
+									for (var elementCounter = 1; elementCounter <= elementCount; elementCounter++) 
 										{
-											//Now see if the dates have changed
+											//Get the source from the line
 											//
-											if(elementRevRecStartDate != _startDate || elementRevRecEndDate != _endDate)
+											var elementReferenceId 		= arrangementRecord.getLineItemValue('revenueelement', 'referenceid', elementCounter);
+											var elementSourceId 		= arrangementRecord.getLineItemValue('revenueelement', 'sourceid', elementCounter);
+											var elementRevRecStartDate 	= arrangementRecord.getLineItemValue('revenueelement', 'revrecstartdate', elementCounter);
+											var elementRevRecEndDate 	= arrangementRecord.getLineItemValue('revenueelement', 'revrecenddate', elementCounter);
+											
+											//Check to make sure that everything matches
+											//
+											if(elementReferenceId == _currentTransactionTranid && elementSourceId == _currentLineUniqueKey)
 												{
-													//Update the element
+													//Now see if the dates have changed
 													//
-													arrangementRecord.setLineItemValue('revenueelement', 'revrecstartdate', elementCounter, _startDate);
-													arrangementRecord.setLineItemValue('revenueelement', 'revrecenddate', elementCounter, _endDate);
-													
-													arrangementUpdated = true;											
+													if(elementRevRecStartDate != _startDate || elementRevRecEndDate != _endDate)
+														{
+															//Update the element
+															//
+															arrangementRecord.setLineItemValue('revenueelement', 'revrecstartdate', elementCounter, _startDate);
+															arrangementRecord.setLineItemValue('revenueelement', 'revrecenddate', elementCounter, _endDate);
+															
+															arrangementUpdated = true;											
+														}
 												}
 										}
-								}
-						
-							//Save the revenue arrangement record
-							//
-							if(arrangementUpdated)
-								{
-									try
+								
+									//Save the revenue arrangement record
+									//
+									if(arrangementUpdated)
 										{
-											nlapiSubmitRecord(arrangementRecord, false, true);
-										}
-									catch(err)
-										{
-											nlapiLogExecution('ERROR', 'Error saving revenue arrangement, id = ' + revArrangementId, err.message);
+											try
+												{
+													nlapiSubmitRecord(arrangementRecord, false, true);
+												}
+											catch(err)
+												{
+													nlapiLogExecution('ERROR', 'Error saving revenue arrangement, id = ' + revArrangementId, err.message);
+												}
 										}
 								}
 						}
 				}
-		}	
+		}
 }
 

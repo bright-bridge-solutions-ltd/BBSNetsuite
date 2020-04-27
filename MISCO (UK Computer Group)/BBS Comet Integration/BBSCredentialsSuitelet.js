@@ -42,7 +42,7 @@ function(serverWidget, http, search, record, runtime, redirect)
 			    				   ]
     				}));
     			
-    			if(customrecord_bbs_comet_integrationSearchObj != null && customrecord_bbs_comet_integrationSearchObj.length == 1)
+    			if(customrecord_bbs_comet_integrationSearchObj != null && customrecord_bbs_comet_integrationSearchObj.length > 0)
     				{
     					allowedDomain = customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_url"});
     				}
@@ -91,32 +91,35 @@ function(serverWidget, http, search, record, runtime, redirect)
 	    			   ]
 	    			}));
 	    			
-	    		if(customrecord_bbs_comet_integrationSearchObj != null && customrecord_bbs_comet_integrationSearchObj.length == 1)
+	    		if(customrecord_bbs_comet_integrationSearchObj != null && customrecord_bbs_comet_integrationSearchObj.length > 0)
 	    			{
-	    				var integrationId = customrecord_bbs_comet_integrationSearchObj[0].id;
-	    				
-	    				//Update the integration record
-	    				//
-	    				try
-	    					{
-	    						record.submitFields({
-	    											type:		'customrecord_bbs_comet_integration',
-	    											id:			integrationId,
-	    											values:		{
-	    														'custrecord_bbs_comet_password': guid
-	    														},
-	    											options:	{
-	    														ignoreMandatoryFields:	true
-	    														}
-	    											});
-	    					}
-	    				catch(err)
-	    					{
-	    						log.error({
-	    									title: 'Error saving password token to configuration record',
-	    									details: err
-	    									});
-	    					}
+	    				for (var int = 0; int < customrecord_bbs_comet_integrationSearchObj.length; int++) 
+		    				{
+			    				var integrationId = customrecord_bbs_comet_integrationSearchObj[int].id;
+			    				
+			    				//Update the integration record
+			    				//
+			    				try
+			    					{
+			    						record.submitFields({
+			    											type:		'customrecord_bbs_comet_integration',
+			    											id:			integrationId,
+			    											values:		{
+			    														'custrecord_bbs_comet_password': guid
+			    														},
+			    											options:	{
+			    														ignoreMandatoryFields:	true
+			    														}
+			    											});
+			    					}
+			    				catch(err)
+			    					{
+			    						log.error({
+			    									title: 'Error saving password token to configuration record',
+			    									details: err
+			    									});
+			    					}
+		    				}
 	    			}
 
 	    		redirect.toTaskLink({
