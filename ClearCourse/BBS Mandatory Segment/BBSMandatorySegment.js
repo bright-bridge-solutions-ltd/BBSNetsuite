@@ -80,7 +80,7 @@ function segmentValidateLine(type)
 			if(currentSegmentValue == null || currentSegmentValue == '')
 				{
 					returnValue = false;
-					Ext.Msg.alert('⛔️️ Line Validateion Error', 'The column "Show" is mandatory for this subsidiary', Ext.emptyFn);
+					Ext.Msg.alert('⛔️️ Line Validation Error', 'The column "Show" is mandatory for this subsidiary', Ext.emptyFn);
 				}
 		}
 	

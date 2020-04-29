@@ -666,7 +666,8 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																												scriptId:		'customscript_bbs_sft_product_mr',	
 																												deploymentid:	null,
 																												params:			{
-																																	custscript_bbs_sftp_product_file_id:	fileId
+																																	custscript_bbs_sftp_product_file_id:	fileId,
+																																	custscript_bbs_sftp_config_id:			integrationId
 																																}
 																						});
 																						

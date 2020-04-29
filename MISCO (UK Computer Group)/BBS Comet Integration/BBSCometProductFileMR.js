@@ -4,8 +4,8 @@
  * @NModuleScope SameAccount
  */
 	
-define(['N/runtime', 'N/file', 'N/search'],
-function(runtime, file, search) 
+define(['N/runtime', 'N/file', 'N/search', 'N/record', 'N/url', 'N/email', 'N/config'],
+function(runtime, file, search, record, url, email, config) 
 {
 	var columnsEnum = new columnNames();
 
@@ -24,8 +24,18 @@ function(runtime, file, search)
 			this.brand					= 10;
 			this.gtin					= 11;
 			this.productType			= 12;
-			this.shipping				=13;
+			this.shipping				= 13;
 		}
+	
+	function productSummary(_id, _mpn, _description, _url, _price)
+		{
+			this.id				= _id;
+			this.mpn			= _mpn;
+			this.description	= _description;
+			this.url			= _url;
+			this.price			= _price;
+		}
+	
 	
     /**
      * Marks the beginning of the Map/Reduce process and generates input data.
@@ -41,13 +51,13 @@ function(runtime, file, search)
 	    {
 	    	//Get script parameter
 	    	//
-	    	var productFileId = '31865'; //runtime.getCurrentScript().getParameter({name: 'custscript_bbs_sftp_product_file_id'});
+	    	var productFileId = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_sftp_product_file_id'});
 	    	
 	    	//Debug logging
 	    	//
 	    	logMsg('D', 'Product File Id', productFileId)
 		   
-	    	//Read each line of the input file & add to the key/value pairs passed to the map stage
+	    	//Read the input file & pass to the map stage
 	    	//
 	    	var fileObject = null;
 	    	
@@ -62,29 +72,6 @@ function(runtime, file, search)
 	    		}
 	    	
 	    	return fileObject;
-	    	
-	    	/*
-	    	if(fileObject != null)
-	    		{
-	    			var iterator = fileObject.lines.iterator();
-	    				
-	    			//Skip the first line (CSV header)
-	    			//
-	    	        iterator.each(function () 
-	    	        	{
-	    	        		return false;
-	    	        	});
-	    	        
-	    	        //Process the rest of the lines
-	    	        //
-	    	        iterator.each(function (line)
-		    	        {
-		    	            var lineValues = line.value;
-		    	            
-		    	            return true;
-		    	          });
-	    		}
-	    	*/
 	    }
 
     /**
@@ -116,9 +103,16 @@ function(runtime, file, search)
 					    			columns[int] = columns[int].replace(/"/g,"");
 								}
 			    			
-			    			//Process the line data
+			    			//Process the line data, but only if we have all the correct number of columns extracted
 			    			//
-			    	    	processsLineData(columns);
+			    			if(columns.length == 14)
+			    				{
+			    					processsLineData(columns, context);
+			    				}
+			    			else
+			    				{
+			    					logMsg('E', 'Incorrect structure of import data for record ' + lineNumber, columns);
+			    				}
 			    		}
     			}
     		catch(err)
@@ -128,18 +122,6 @@ function(runtime, file, search)
 	    }
 
     /**
-     * Executes when the reduce entry point is triggered and applies to each group.
-     *
-     * @param {ReduceSummary} context - Data collection containing the groups to process through the reduce stage
-     * @since 2015.1
-     */
-    function reduce(context) 
-	    {
-	
-	    }
-
-
-    /**
      * Executes when the summarize entry point is triggered and applies to the result set.
      *
      * @param {Summary} summary - Holds statistics regarding the execution of a map/reduce script
@@ -147,7 +129,95 @@ function(runtime, file, search)
      */
     function summarize(summary) 
 	    {
-	
+    		try
+    			{
+	    			//Load the company config
+	    	    	//
+    				var companyConfigRecord = null;
+    				
+	    	    	try
+	    	    		{
+	    	    			companyConfigRecord = config.load({type: config.Type.COMPANY_INFORMATION});
+	    	    		}
+	    	    	catch(err)
+	    	    		{
+	    	    			companyConfigRecord = null;
+	    	    			logMsg('E', 'Error loading company config record', err);
+	    	    		}
+	    	    	
+	    	    	//If we got the company config ok
+	    	    	//
+	    	    	if(companyConfigRecord != null)
+	    	    		{
+		    	    		var accountId = companyConfigRecord.getValue({fieldId: 'companyid'});
+			    			var urlPrefix = 'https://' + accountId.replace('_','-') + '.app.netsuite.com';
+					    	
+				    		//Get the parameter holding the config record id
+				    		//
+				    		var configId = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_sftp_config_id'});
+				    		
+				    		if(configId != null && configId != '')
+				    			{
+				    				//Load the config record to get the email details
+				    				//
+				    				var configRecord = null;
+				    			
+				    				try
+				    					{
+						    				configRecord = record.load({
+						    												type:	'customrecord_bbs_comet_integration',
+						    												id:		configId
+						    												});
+				    					}
+				    				catch(err)
+				    					{
+				    						configRecord = null;
+				    						logMsg('E', 'Error loading config record', err);
+				    					}
+						    		
+				    				//Did we load the config record ok?
+				    				//
+				    				if(configRecord != null)	
+				    					{
+				    						var emailSender 		= configRecord.getValue({fieldId: 'custrecord_bbs_comet_email_sender'});
+				    						var emailRecipients 	= configRecord.getValue({fieldId: 'custrecord_bbs_comet_email_recipients'});
+										
+				    						var emailMsg = 'The following products have been created in Netsuite from website product integration\n\n\n';
+				    						
+				    						summary.output.iterator().each(function (key, value)
+				    				    	        {
+				    									var productInfo = JSON.parse(value);
+				    									
+				    									emailMsg += 'Internal Id ' + productInfo.id + '\n';
+				    									emailMsg += 'MPN ' + productInfo.mpn + '\n';
+				    									//emailMsg += 'Description ' + productInfo.description + '\n';
+				    									emailMsg += 'Price ' + productInfo.price + '\n';
+				    									emailMsg += 'URL ' + urlPrefix + productInfo.url + '\n\n\n';
+				    									
+				    				    	            return true;
+				    				    	        });
+								    		
+				    						try
+												{
+													email.send({
+													            author: 		emailSender,
+													            recipients: 	emailRecipients.split(';'),
+													            subject: 		'New Products Created From Website Integration',
+													            body: 			emailMsg,
+													        	});
+												}
+											catch(err)
+												{
+													logMsg('E', 'Error sending email notification', err);
+												}
+				    					}
+				    			}
+	    	    		}
+    			}
+    		catch(err)
+				{
+					logMsg('E', 'An Unexpected Error Occured In The Summarize Section', err);
+				}
 	    }
 
 	
@@ -193,9 +263,9 @@ function(runtime, file, search)
     } 
     
     
-	function processsLineData(_columns)
+	function processsLineData(_columns, _context)
 		{
-			logMsg('D', 'Trying to find product', _columns);
+			//logMsg('D', 'Trying to find product', _columns);
 			
 			//Only process if the item has a mpn
 			//
@@ -205,9 +275,9 @@ function(runtime, file, search)
 					
 					//If not found, then we need to create it
 					//
-			//		if(!itemId)
-			//			{
-							logMsg('D', 'Product not found - creating new one', _columns[columnsEnum.mpn]);
+					if(!itemId)
+						{
+							//logMsg('D', 'Product not found - creating new one', _columns[columnsEnum.mpn]);
 							
 							var itemExternalId 		= _columns[columnsEnum.mpn] + '_' + _columns[columnsEnum.id];
 							var itemDisplayName 	= _columns[columnsEnum.title];
@@ -221,27 +291,138 @@ function(runtime, file, search)
 							var itemPrice			= _columns[columnsEnum.price].replace(',','.').replace(' GBP','');
 							var itemBrand			= lookupItemBrand(_columns[columnsEnum.brand]);
 							var itemGtin			= _columns[columnsEnum.gtin];
-							var itemProductType		= lookupProductType(_columns[columnsEnum.productType]);
+							var itemProductType		= lookupProductType(_columns[columnsEnum.productType].replace(/>/g,":"));
 							var itemSupplier		= runtime.getCurrentScript().getParameter({name: 'custscript_bbs_sftp_product_supplier'});
-					    	
-							logMsg('D', 'itemExternalId', itemExternalId);
-							logMsg('D', 'itemDisplayName', itemDisplayName);
-							logMsg('D', 'itemDescription', itemDescription);
-							logMsg('D', 'itemProductCategory', itemProductCategory);
-							logMsg('D', 'itemWebsiteLink', itemWebsiteLink);
-							logMsg('D', 'itemImage', itemImage);
-							logMsg('D', 'itemMpn', itemMpn);
-							logMsg('D', 'itemPrice', itemPrice);
-							logMsg('D', 'itemGtin', itemGtin);
-							logMsg('D', 'itemSupplier', itemSupplier);
-							logMsg('D', 'itemCondition', itemCondition);
-							logMsg('D', 'itemAvailability', itemAvailability);
-							logMsg('D', 'itemBrand', itemBrand);
-							logMsg('D', 'itemProductType', itemProductType);
+
+							//Create the new product
+							//
+							var itemRecord = record.create({
+															type:		record.Type.INVENTORY_ITEM,
+															isDynamic:	true
+															});
 							
+							itemRecord.setValue({
+												fieldId:	'externalid',
+												value:		itemExternalId
+												});	
+
+							itemRecord.setValue({
+												fieldId:	'itemid',
+												value:		itemMpn
+												});	
+
+							itemRecord.setValue({
+												fieldId:	'displayname',
+												value:		itemDisplayName
+												});	
+
+							itemRecord.setValue({
+												fieldId:	'purchasedescription',
+												value:		itemDescription
+												});	
+														
+							itemRecord.setValue({
+												fieldId:	'salesdescription',
+												value:		itemDescription
+												});	
+
+							itemRecord.setValue({
+												fieldId:	'storedescription',
+												value:		itemDescription
+												});	
 							
+							itemRecord.setValue({
+												fieldId:	'class',
+												value:		itemProductCategory
+												});	
+
+							itemRecord.setValue({
+												fieldId:	'custitem_bbs_websitelink',
+												value:		itemWebsiteLink
+												});	
+
+							itemRecord.setValue({
+												fieldId:	'custitem_bbs_item_condition',
+												value:		itemCondition
+												});	
+
+							itemRecord.setValue({
+												fieldId:	'custitem_bbs_item_availability',
+												value:		itemAvailability
+												});	
+
+							itemRecord.setValue({
+												fieldId:	'mpn',
+												value:		itemMpn
+												});	
+
+							itemRecord.setValue({
+												fieldId:	'custitem_bbs_brand',
+												value:		itemBrand
+												});	
+
+							itemRecord.setValue({
+												fieldId:	'custitem_bbs_item_gtin',
+												value:		itemGtin
+												});	
+
+							itemRecord.setValue({
+												fieldId:	'department',
+												value:		itemProductType
+												});	
+
+				
+							itemRecord.setValue({
+												fieldId:	'isdropshipitem',
+												value:		true
+												});	
+
+							//Add the supplier sublist
+							//
+							itemRecord.selectNewLine({
+													sublistId:	'itemvendor'
+													});
 							
-				//		}
+							itemRecord.setCurrentSublistValue({
+																sublistId: 	'itemvendor',
+																fieldId: 	'vendor',
+																value: 		itemSupplier
+																});
+							
+							itemRecord.setCurrentSublistValue({
+																sublistId: 	'itemvendor',
+																fieldId: 	'preferredvendor',
+																value: 		true
+																});
+							
+							itemRecord.setCurrentSublistValue({
+																sublistId: 	'itemvendor',
+																fieldId: 	'purchaseprice',
+																value: 		itemPrice
+																});
+				
+							itemRecord.commitLine({
+													sublistId: 'itemvendor'
+													});
+							
+							//Save the new item
+							//
+							var itemId = itemRecord.save({	
+														enableSourcing:			true,
+														ignoreMandatoryFields:	true
+														});
+							
+							var itemUrl = url.resolveRecord({
+															recordType:		'inventoryitem',
+															recordId:		itemId,
+															isEditMode:		false
+															});
+							_context.write({
+											key:	itemId,
+											value:	new productSummary(itemId, itemMpn, itemDisplayName, itemUrl, itemPrice)
+											});
+
+						}
 					
 				}
 			else
@@ -290,7 +471,7 @@ function(runtime, file, search)
 		{
 			var categoryId = null;
 			
-			logMsg('D', 'Product category full search', _category);
+			//logMsg('D', 'Product category full search', _category);
 			
 			if(_category != '')
 				{
@@ -323,7 +504,7 @@ function(runtime, file, search)
 							//
 							var lastPart = _category.split(' : ')[_category.split(' : ').length -1];
 							
-							logMsg('D', 'Product category partial search', lastPart);
+							//logMsg('D', 'Product category partial search', lastPart);
 							
 							var classificationSearchObj = getResults(search.create({
 																				   type: 		"classification",
@@ -359,7 +540,7 @@ function(runtime, file, search)
 		{
 			var typeId = null;
 			
-			logMsg('D', 'Product type full search', _type);
+			//logMsg('D', 'Product type full search', _type);
 			
 			if(_type != '')
 				{
@@ -392,7 +573,7 @@ function(runtime, file, search)
 							//
 							var lastPart = _type.split(' : ')[_type.split(' : ').length -1];
 							
-							logMsg('D', 'Product type partial search', lastPart);
+							//logMsg('D', 'Product type partial search', lastPart);
 							
 							var departmentSearchObj = getResults(search.create({
 																				   type: 		"department",
@@ -418,7 +599,7 @@ function(runtime, file, search)
 						}
 				}
 			
-			return categoryId;
+			return typeId;
 		}
 	
 
@@ -499,7 +680,7 @@ function(runtime, file, search)
     return {
 	        getInputData: 	getInputData,
 	        map: 			map,
-	        reduce: 		reduce,
+	       // reduce: 		reduce,
 	        summarize: 		summarize
     };
     
