@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/search', 'N/format', 'N/ui/message'],
-function(search, format, message) {
+define(['N/search', 'N/format', 'N/ui/message', 'N/ui/dialog'],
+function(search, format, message, dialog) {
     
     /**
      * Function to be executed after page is initialized.
@@ -78,6 +78,51 @@ function(search, format, message) {
 		    				value: endDate
 		    			});	
 		    		}
+    		}
+    	else if (fieldId == 'custrecord_bbs_contract_end_date') // if the end date has been changed
+    		{
+	    		// get the value of the end date field
+	    		var endDate = currentRecord.getValue({
+					fieldId: 'custrecord_bbs_contract_end_date'
+				});
+	    		
+	    		// check the user has entered an end date
+	    		if (endDate)
+	    			{
+		    			// get the value of the start date field
+			    		var startDate = currentRecord.getValue({
+							fieldId: 'custrecord_bbs_contract_start_date'
+						});
+			    		
+			    		// get the value of the end date field
+			    		var endDate = currentRecord.getValue({
+							fieldId: 'custrecord_bbs_contract_end_date'
+						});
+		    		
+		    			// get the value of the contract term field
+			    		var contractTerm = currentRecord.getValue({
+		    				fieldId: 'custrecord_bbs_contract_term'
+		    			});
+			    		
+			    		// calculate what the end date should be
+			    		var calculatedEndDate = new Date(startDate.getFullYear(), startDate.getMonth()+contractTerm, startDate.getDate()-1);
+			    		
+			    		// check if the endDate is greater than the calculatedEndDate
+			    		if (endDate > calculatedEndDate)
+			    			{
+				    			// return user error
+			    				dialog.alert({
+			    					title: '⚠️ Error',
+			    					message: 'The end date you have entered is more than <b>' + contractTerm + '</b> months after the start date.<br><br>The end date has been moved to be <b>' + contractTerm + '</b> months after the start date.'
+			    				});
+			    				
+			    				// set the end date field on the record
+				    			currentRecord.setValue({
+				    				fieldId: 'custrecord_bbs_contract_end_date',
+				    				value: calculatedEndDate
+				    			});
+			    			}
+	    			}
     		}
     }
 

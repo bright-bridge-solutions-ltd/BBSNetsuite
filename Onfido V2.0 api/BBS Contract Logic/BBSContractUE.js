@@ -21,6 +21,10 @@ function(url, runtime, record, search, format, task) {
     	name: 'custscript_bbs_amp_item'
     });
 	
+	burItem = currentScript.getParameter({
+		name: 'custscript_bbs_bi_annual_min_prepay_item'
+	});
+	
 	deferredIncomeAccount = currentScript.getParameter({
 		name: 'custscript_bbs_def_inc_upfront'
 	});
@@ -703,7 +707,7 @@ function(url, runtime, record, search, format, task) {
     				journalRecord.setCurrentSublistValue({
     					sublistId: 'line',
     					fieldId: 'memo',
-    					value: 'Amp Add-on + ' + today
+    					value: 'Contract Extension + ' + today
     				});
     				
     				journalRecord.setCurrentSublistValue({
@@ -806,11 +810,17 @@ function(url, runtime, record, search, format, task) {
 					// set the prepaymentItem variable using the qmpItem variable
 					prepaymentItem = qmpItem;
 				}
-			else if (billingType == '4' || billingType == '7') // billingType is 4 (AMP) or 7 (BUR)
+			else if (billingType == '4') // billingType is 4 (AMP)
 				{
 					// set the prepaymentItem variable using the ampItem variable
 					prepaymentItem = ampItem;
 				}
+			else if (billingType == 7) // billing Type is 7 (BUR)
+				{
+					// set the prepaymentItem variable using the ampItem variable
+					prepaymentItem = burItem;
+				}
+
 			// =======================================================
 	    	// NOW SCHEDULE SCHEDULE SCRIPT TO CREATE INITIAL INVOICES
 	    	// =======================================================

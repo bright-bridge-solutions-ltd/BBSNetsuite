@@ -57,11 +57,6 @@ function(runtime, config, search, record) {
     			values: ['1'] // 1 = Approved
     		},
     				{
-    			name: 'custrecord_bbs_contract_subsidiary',
-    			operator: 'noneof',
-    			values: ['10'] // 10 = Onfido India
-    		},
-    				{
     			name: 'isinactive',
     			operator: 'is',
     			values: ['F']

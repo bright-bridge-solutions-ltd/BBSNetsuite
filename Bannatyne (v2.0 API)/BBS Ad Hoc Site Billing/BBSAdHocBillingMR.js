@@ -300,6 +300,11 @@ function(runtime, search, format, record) {
     					value: 'Monthly Invoice for ' + monthNames[today.getMonth()]
     				});
     				
+    				invoiceRecord.setValue({
+    					fieldId: 'custbody_bbs_ad_hoc_invoice_type',
+    					value: 2 // 2 = Ongoing
+    				});
+    				
     				/*
     				 * =======================================================================
     				 * ADD A LINE TO THE ITEMS SUBLIST FOR THE ITEM ASSOCIATED TO THE CONTRACT

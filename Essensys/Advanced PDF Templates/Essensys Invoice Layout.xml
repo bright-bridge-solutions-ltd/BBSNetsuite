@@ -38,7 +38,7 @@
            			<td colspan="6"><span class="subtitle">Cost Centre/Location:</span></td>
            		</tr>
            		<tr style="margin-bottom: 5px;">
-           			<td colspan="6" rowspan="6"><span class="address">${record.shipaddress}</span></td>
+           			<td colspan="6" rowspan="8"><span class="address">${record.shipaddress}</span></td>
            			<td colspan="2"><span class="subtitle">DATE:</span></td>
            			<td colspan="2"><span class="address">${record.trandate}</span></td>
            		</tr>
@@ -50,6 +50,13 @@
            			<td colspan="2"><span class="subtitle">CUSTOMER REF:</span></td>
            			<td colspan="2"><span class="address">${record.otherrefnum}</span></td>
            		</tr>
+           		<!-- Check we have a customer VAT number -->
+           		<#if record.vatregnum?has_content>
+	           		<tr style="margin-bottom: 5px;">
+	           			<td colspan="2"><span class="subtitle">CUSTOMER VAT NO:</span></td>
+	           			<td colspan="2"><span class="address">${record.vatregnum}</span></td>
+	           		</tr>
+	           	</#if>
            		<tr style="margin-bottom: 5px;">
            			<td colspan="2"><span class="subtitle">DUE DATE:</span></td>
            			<td colspan="2"><span class="address">${record.duedate}</span></td>
@@ -179,7 +186,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="240pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="260pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
 <#if record.item?has_content>
 	<table class="itemtable" style="width: 100%; margin-top: 10px; border-top: 2px solid black; border-right: 2px solid black;"><!-- start items -->
@@ -254,7 +261,17 @@
 		</#if>
 	</tr>
 </table>
-<hr/>
+
+<hr/> <!-- Horizontal Line -->
+
+<!-- Check we have a customer VAT number and the country is not UK-->
+<#if record.vatregnum?has_content && !record.billaddress?contains("United Kingdom")>
+	<table style="width: 100%;"> <!-- Bank Details -->
+		<tr>
+			<td><p align="center">Supplies in relation to this invoice are covered under Article 28C(A) of the EC Sixth Directive (77/388/EEC) and therefore zero rated under UK VAT law. The recipient of the invoice is required to account for the relevant tax.</p></td>
+		</tr>
+	</table>
+</#if>
 
 </body>
 </pdf>

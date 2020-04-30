@@ -32,6 +32,35 @@ function(config, runtime, record, format, search) {
      * @Since 2015.2
      */
     function beforeLoad(scriptContext) {
+    	
+    	// check the record is being viewed
+    	if (scriptContext.type == scriptContext.UserEventType.VIEW)
+    		{
+    			// get the current record
+    			var currentRecord = scriptContext.newRecord;
+    			
+    			// get the value of the approval status field
+    			var approvalStatus = currentRecord.getValue({
+    				fieldId: 'custrecord_bbs_ad_hoc_site_app_status'
+    			});
+    			
+    			// check the approval status is 2 (Pending Approval)
+    			if (approvalStatus == 2)
+    				{
+    					// get the ID of the record
+    					var recordID = currentRecord.id;
+    				
+    					// set client script to run on the form
+    					scriptContext.form.clientScriptFileId = 406811;
+    					
+    					// add button to the form
+			    		scriptContext.form.addButton({
+			    			id: 'custpage_reject',
+			    			label: 'Reject',
+			    			functionName: "reject(" + recordID + ")" // call client script when button is clicked. Pass recordID
+			    		});
+    				}
+    		}
 
     }
 
@@ -134,8 +163,11 @@ function(config, runtime, record, format, search) {
 	        					// check that the noDepositInvoice variable returns false
 	        					if (noDepositInvoice == false)
 	        						{
-		        						// call function to create a deposit invoice. Pass newRecord, currentRecordID and customer
-			    	        			createDepositInvoice(newRecord, currentRecordID, customer);
+		        						// set invoiceType
+	        							var invoiceType = 1; // 1 = Deposit
+	        						
+	        							// call function to create a deposit invoice. Pass newRecord, currentRecordID, customer and invoiceType
+			    	        			createDepositInvoice(newRecord, currentRecordID, customer, invoiceType);
 	        						}
 	        					
 	        					// check if the noProFormaInvoice variable returns false
@@ -175,22 +207,34 @@ function(config, runtime, record, format, search) {
 			    			    		
 			    			    		// get the day of the month from the startDate object
 			    						var startDay = startDate.getDate();
-			
-			    						// call function to calculate number of days in the current month
-			    						var daysInMonth = getDaysInMonth(startDate.getMonth(), startDate.getFullYear());
 			    						
-			    						// divide monthlyAmount by daysInMonth to calculate dailyAmount
-			    						var dailyAmount = (monthlyAmount / daysInMonth);
-			    						
-			    						// calculate the days remaining in the month by subtracting startDay from daysInMonth
-			    						var daysRemaining = (daysInMonth - startDay);
-			    						
-			    						// multiply dailyAmount by daysRemaining to calculate the pro rata invoice amount
-			    						var invoiceAmount = parseFloat(dailyAmount * daysRemaining);
-			    						invoiceAmount = invoiceAmount.toFixed(2);
+			    						// starts mid month
+			    						if (startDay != 1)
+			    							{
+				    							// call function to calculate number of days in the current month
+					    						var daysInMonth = getDaysInMonth(startDate.getMonth(), startDate.getFullYear());
+					    						
+					    						// divide monthlyAmount by daysInMonth to calculate dailyAmount
+					    						var dailyAmount = (monthlyAmount / daysInMonth);
+					    						
+					    						// calculate the days remaining in the month by subtracting startDay from daysInMonth
+					    						var daysRemaining = (daysInMonth - startDay);
+					    						
+					    						// multiply dailyAmount by daysRemaining to calculate the pro rata invoice amount
+					    						var invoiceAmount = parseFloat(dailyAmount * daysRemaining);
+					    						invoiceAmount = invoiceAmount.toFixed(2);
+			    							}
+			    						else // starts 1st of the month
+			    							{
+			    								// set the invoiceAmount to be the monthlyAmount
+			    								invoiceAmount = monthlyAmount;
+			    							}
 	        						
-			    						// call function to create a pro rata invoice. Pass newRecord, currentRecordID, customer and invoiceAmount
-			        					createProRataInvoice(newRecord, currentRecordID, customer, invoiceAmount);
+			    						// set invoice type
+			    						var invoiceType = 3; // 3 = Pro-Rata
+			    						
+			    						// call function to create a pro rata invoice. Pass newRecord, currentRecordID, customer, invoiceAmount, invoiceType
+			        					createProRataInvoice(newRecord, currentRecordID, customer, invoiceAmount, invoiceType);
 	        						}
     						}
     				}
@@ -346,24 +390,35 @@ function(config, runtime, record, format, search) {
 	    						});
 	    						
 	    						// get the day from the terminationDate object
-	    						var startDay = terminationDate.getDate();
+	    						var endDay = terminationDate.getDate();
 	    						
-	    						// call function to calculate number of days in the current month
-	    						var daysInMonth = getDaysInMonth(today.getMonth(), today.getFullYear());
+	    						if (endDay != 1) // ends mid month
+	    							{
+			    						// call function to calculate number of days in the end date's month
+			    						var daysInMonth = getDaysInMonth(endDay.getMonth(), endDay.getFullYear());
+			    						
+			    						// divide monthlyAmount by daysInMonth to calculate dailyAmount
+			    						var dailyAmount = (monthlyAmount / daysInMonth);
+			    						
+			    						// calculate the days remaining in the month by subtracting endDay from daysInMonth
+			    						var daysRemaining = (daysInMonth - endDay);
+			    						
+			    						// multiply dailyAmount by daysRemaining to calculate the pro rata invoice amount
+			    						var invoiceAmount = parseFloat(dailyAmount * daysRemaining);
+			    						invoiceAmount = invoiceAmount.toFixed(2);
+	    							}
+	    						else // ends 1st of the month
+	    							{
+	    								// set invoiceAmount to be the monthlyAmount
+	    								invoiceAmount = monthlyAmount;
+	    							}
 	    						
-	    						// divide monthlyAmount by daysInMonth to calculate dailyAmount
-	    						var dailyAmount = (monthlyAmount / daysInMonth);
+	    						// declare invoiceType
+	    						var invoiceType = 4; // 4 = Termination
 	    						
-	    						// calculate the days remaining in the month by subtracting startDay from daysInMonth
-	    						var daysRemaining = (daysInMonth - startDay);
-	    						
-	    						// multiply dailyAmount by daysRemaining to calculate the pro rata invoice amount
-	    						var invoiceAmount = parseFloat(dailyAmount * daysRemaining);
-	    						invoiceAmount = invoiceAmount.toFixed(2);
+	    						// call function to create a pro rata invoice. Pass newRecord, currentRecordID, customer, invoiceAmount and invoiceType
+	        					createProRataInvoice(newRecord, currentRecordID, customer, invoiceAmount, invoiceType);
     						}
-    					
-    					// call function to create a pro rata invoice. Pass newRecord, currentRecordID, customer and invoiceAmount
-    					createProRataInvoice(newRecord, currentRecordID, customer, invoiceAmount);
     				}
     		}
 
@@ -644,7 +699,7 @@ function(config, runtime, record, format, search) {
      * ====================================
      */
     
-    function createDepositInvoice(adHocSiteRecord, adHocSiteID, customer)
+    function createDepositInvoice(adHocSiteRecord, adHocSiteID, customer, invoiceType)
     	{
     		// get the deposit amount from the adHocSiteRecord object
 			var depositAmount = adHocSiteRecord.getValue({
@@ -709,6 +764,11 @@ function(config, runtime, record, format, search) {
     				invoiceRecord.setValue({
     					fieldId: 'custbody_bbs_ad_hoc_inv_desc',
     					value: 'Deposit Invoice'
+    				});
+    				
+    				invoiceRecord.setValue({
+    					fieldId: 'custbody_bbs_ad_hoc_invoice_type',
+    					value: invoiceType
     				});
     				
     				/*
@@ -796,7 +856,7 @@ function(config, runtime, record, format, search) {
      * =====================================
      */
     
-    function createProRataInvoice(adHocSiteRecord, adHocSiteID, customer, invoiceAmount)
+    function createProRataInvoice(adHocSiteRecord, adHocSiteID, customer, invoiceAmount, invoiceType)
     	{
 	    	// get the description of services from the adHocSiteRecord object
 			var description = adHocSiteRecord.getValue({
@@ -866,6 +926,11 @@ function(config, runtime, record, format, search) {
 					invoiceRecord.setValue({
     					fieldId: 'custbody_bbs_ad_hoc_inv_desc',
     					value: 'Pro Rata Invoice'
+    				});
+					
+					invoiceRecord.setValue({
+    					fieldId: 'custbody_bbs_ad_hoc_invoice_type',
+    					value: invoiceType
     				});
 					
 					/*

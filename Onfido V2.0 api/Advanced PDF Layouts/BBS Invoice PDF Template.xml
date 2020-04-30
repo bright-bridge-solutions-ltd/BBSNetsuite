@@ -56,10 +56,10 @@
           
 			<table class="header" style="width: 100%; margin-top: 10px;">
         		<tr>
-        			<td rowspan="8" colspan="2" style="font-size:12pt">${record.billaddress}<br/><br/><#if subsidiary.id == "10"><!-- India -->GST Number: <#else>VAT Number: </#if>${record.entitytaxregnum}</td>
+        			<td rowspan="10" colspan="2" style="font-size:12pt">${record.billaddress}<br/><br/><#if subsidiary.id == "10"><!-- India -->GST Number: <#else>VAT Number: </#if>${record.entitytaxregnum}</td>
         			<td>&nbsp;</td>
         			<td colspan="2" style="font-size:12pt"><b>Invoice Date</b></td>
-        			<td rowspan="8" colspan="2" style="font-size:12pt">${subsidiary.mainaddress_text}<br/>${vatInfo}<br/>billing@onfido.com</td>
+        			<td rowspan="10" colspan="2" style="font-size:12pt">${subsidiary.mainaddress_text}<br/>${vatInfo}<br/>billing@onfido.com</td>
         		</tr>
         		<tr>
         			<td>&nbsp;</td>
@@ -89,6 +89,25 @@
         			<td>&nbsp;</td>
         			<td colspan="2" style="font-size:12pt">${record.postingperiod}</td>
         		</tr>
+        		<#if record.otherrefnum?has_content>
+	        		<tr>
+	        			<td>&nbsp;</td>
+	        			<td colspan="2" style="font-size:12pt"><b>Customer PO</b></td>
+        			</tr>
+	        		<tr>
+	        			<td>&nbsp;</td>
+	        			<td colspan="2" style="font-size:12pt">${record.otherrefnum}</td>
+	        		</tr>
+	        	<#elseif record.custbody_bbs_contract_record.custrecord_bbs_contract_po_number?has_content>
+	        		<tr>
+	        			<td>&nbsp;</td>
+	        			<td colspan="2" style="font-size:12pt"><b>Customer PO</b></td>
+        			</tr>
+	        		<tr>
+	        			<td>&nbsp;</td>
+	        			<td colspan="2" style="font-size:12pt">${record.custbody_bbs_contract_record.custrecord_bbs_contract_po_number}</td>
+	        		</tr>
+	        	</#if>	        	
           </table>
               
         </macro>

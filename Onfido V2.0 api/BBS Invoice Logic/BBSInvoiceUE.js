@@ -399,11 +399,35 @@ function(file, record, render, runtime, search, email)
 						    						
 						    						if(billingLevel == 1)	//Parent level
 						    							{
-							    							emailAddress = search.lookupFields({
-																    				            type: 		search.Type.CUSTOMER,
-																    				            id: 		thisCustomerId,
-																    				            columns: 	['parentcustomer.custentity_bbs_invoice_email']
-																    				        	})['parentcustomer.custentity_bbs_invoice_email'];
+							    							// get the parent from the customer
+						    								var customerLookup = search.lookupFields({
+							    								type: search.Type.CUSTOMER,
+								    				            id: thisCustomerId,
+								    				            columns: ['parent', 'custentity_bbs_invoice_email']
+								    				        });
+							    							
+							    							// get the internal ID of the parent customer from the customerLookup
+						    								var parentCustomerId = customerLookup.parent[0].value;
+						    								
+						    								// check that the parent customer is not this customer
+						    								if (thisCustomerId != parentCustomerId)
+						    									{
+						    										// lookup fields on the parent customer
+						    										var parentCustomerLookup = search.lookupFields({
+									    								type: search.Type.CUSTOMER,
+										    				            id: parentCustomerId,
+										    				            columns: ['custentity_bbs_invoice_email']
+										    				        });
+						    										
+						    										// get the customer email address from the parentCustomerLookup
+						    										emailAddress = parentCustomerLookup.custentity_bbs_invoice_email;
+						    									}
+						    								else
+						    									{
+						    										// get the customer email address from the customerLookup
+						    										emailAddress = customerLookup.custentity_bbs_invoice_email;
+						    									}
+	
 							    						}
 						    						else	//Child level
 						    							{
@@ -439,11 +463,6 @@ function(file, record, render, runtime, search, email)
 							    									var emailSubject = mergeResult.subject;
 							    									var emailBody = mergeResult.body;
 							    									
-							    									log.debug({
-																	    title: 'customer id', 
-																	    details: thisCustomerId
-																	    });
-							    									
 							    									//Send the email
 							    									//
 							    									try
@@ -455,14 +474,15 @@ function(file, record, render, runtime, search, email)
 							    														body:			emailBody,
 							    														attachments:	emailAttachments,
 							    														relatedRecords: {
-							    																		entityId:	thisCustomerId
+							    																		entityId:	thisCustomerId,
+							    																		transactionId: newRecordId
 							    																		}
 							    														})		
 																			
 																		}
 																	catch(err)
 																		{
-																			log.debug({
+																			log.error({
 																					    title: 'Error sending email', 
 																					    details: err.message
 																					    });

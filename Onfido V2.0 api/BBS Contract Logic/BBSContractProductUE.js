@@ -286,8 +286,8 @@ function(record, search, format) {
 						// increase half variable by 1
 		    			half++;
 	        			
-		    			// if the half variable is 5
-	        			if (half == 5)
+		    			// if the half variable is 3
+	        			if (half == 3)
 	        				{
 		        				// reset half variable to 1
 		    					half = 1;

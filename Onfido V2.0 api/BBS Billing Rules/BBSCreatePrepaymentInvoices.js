@@ -34,6 +34,10 @@ function(runtime, search, record) {
         	name: 'custscript_bbs_qmp_item'
         });
     	
+    	var burItem = currentScript.getParameter({
+    		name: 'custscript_bbs_bi_annual_min_prepay_item'
+    	});
+    	
     	// initialize variables
     	var contractRecord;
     	var customer;
@@ -153,8 +157,8 @@ function(runtime, search, record) {
 		    			name: 'custrecord_bbs_contract_bi_ann_use'
 		    		});
 		    		
-		    		// set the invoiceItem to be the ampItem
-		    		invoiceItem = ampItem;
+		    		// set the invoiceItem to be the burItem
+		    		invoiceItem = burItem;
 		    	}
 		    	
 		    // use parseFloat to convert to floating point number

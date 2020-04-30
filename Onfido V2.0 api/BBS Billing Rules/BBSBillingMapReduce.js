@@ -26,6 +26,14 @@ function(runtime, search, record, format, task) {
 		name: 'custscript_bbs_credit_amp_item'
 	});
 	
+	burCreditItem = currentScript.getParameter({
+		name: 'custscript_bbs_credit_bi_annual_item'
+	});
+	
+	burItem = currentScript.getParameter({
+		name: 'custscript_bbs_bi_annual_min_prepay_item'
+	});
+	
 	qmpItem = currentScript.getParameter({
 		name: 'custscript_bbs_quarterly_min_prepay_item'
 	});
@@ -650,7 +658,7 @@ function(runtime, search, record, format, task) {
 	    			// set the billingType variable to AMP
 	    			billingType = 'AMP';
     			}
-    		else if (billingType == 8) // if the billingType is 8 (AMP Add-On)
+    		else if (billingType == 8) // if the billingType is 8 (Contract Extension)
     			{
     				// set the billingType variable to Contract Extension
     				billingType = 'Contract Extension';
@@ -809,7 +817,7 @@ function(runtime, search, record, format, task) {
 			var contractRecordLookup = search.lookupFields({
 				type: 'customrecord_bbs_contract',
 				id: contractRecord,
-				columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_bi_ann_use', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_prepayment_inv']
+				columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_bi_ann_use', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_prepayment_inv', 'custrecord_bbs_contract_term']
 			});
 			
 			var customer = contractRecordLookup.custrecord_bbs_contract_customer[0].value;
@@ -817,6 +825,7 @@ function(runtime, search, record, format, task) {
 			var contractEnd = contractRecordLookup.custrecord_bbs_contract_end_date;
 			var earlyEndDate = contractRecordLookup.custrecord_bbs_contract_early_end_date;
 			var lastPrepaymentAmount = contractRecordLookup.custrecord_bbs_contract_prepayment_inv;
+			var contractTerm = contractRecordLookup.custrecord_bbs_contract_term;
 			
 			// check if lastPrepaymentAmount is null
 			if (lastPrepaymentAmount == '')
@@ -1030,7 +1039,7 @@ function(runtime, search, record, format, task) {
 			
 			log.audit({
 				title: 'BUR Check',
-				details: 'Minimum Usage: ' + minimumUsage + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Half Usage: ' + cumulativeHalfUsage + '<br>Cumulative Usage to Date: ' + cumulativeUsage + '<br>Last Prepayment Invoice: ' + lastPrepaymentAmount + '<br>Actual Deferred Revenue Balance: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
+				details: 'Period ' + currentPeriod + ' of ' + contractTerm + '<br>Minimum Usage: ' + minimumUsage + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Half Usage: ' + cumulativeHalfUsage + '<br>Cumulative Usage to Date: ' + cumulativeUsage + '<br>Last Prepayment Invoice: ' + lastPrepaymentAmount + '<br>Actual Deferred Revenue Balance: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
 			});
 		
 			// check if the invoiceDate is greater than (after) or equal to the contractEnd OR the invoiceDate is greater than (after) or equal to the earlyEndDate
@@ -1069,7 +1078,7 @@ function(runtime, search, record, format, task) {
 						}
 				}
 			// else check if the invoiceDate is greater than or equal to the halfEnd date and this is not month 12 of the contract (pro rata contracts have 13 periods)
-			else if (invoiceDate.getTime() == halfEnd.getTime() && currentPeriod != 12)
+			else if (invoiceDate.getTime() == halfEnd.getTime() && currentPeriod != contractTerm)
 				{
 					// check if calculatedDeferredRevenue is less than 0
 					if (calculatedDeferredRevenue < 0)
@@ -1261,7 +1270,7 @@ function(runtime, search, record, format, task) {
 		    var contractRecordLookup = search.lookupFields({
 		    	type: 'customrecord_bbs_contract',
 		    	id: contractRecord,
-		    	columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_qu_min_use', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_end_date']
+		    	columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_qu_min_use', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_term']
 		    });
 		    		
 		    // return values from the contractRecordLookup
@@ -1269,6 +1278,7 @@ function(runtime, search, record, format, task) {
 		    var minimumUsage = contractRecordLookup.custrecord_bbs_contract_qu_min_use;
 		    var earlyEndDate = contractRecordLookup.custrecord_bbs_contract_early_end_date;
 		    var contractEnd = contractRecordLookup.custrecord_bbs_contract_end_date;
+		    var contractTerm = contractRecordLookup.custrecord_bbs_contract_term;
 		    
 		    // check if earlyEndDate returns a value
 		    if (earlyEndDate)
@@ -1395,11 +1405,11 @@ function(runtime, search, record, format, task) {
     		
     		log.audit({
     			title: 'QMP Check',
-    			details: 'Current Period: ' + currentPeriod + '<br>Minimum Usage: ' + minimumUsage + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Usage: ' + cumulativeUsage + '<br>Actual Deferred Revenue Balance: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
+    			details: 'Period ' + currentPeriod + ' of ' + contractTerm + '<br>Minimum Usage: ' + minimumUsage + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Usage: ' + cumulativeUsage + '<br>Actual Deferred Revenue Balance: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
     		});
     		
     		// check if the invoiceDate is equal to the quarterEnd OR the invoiceDate is greater than (after) or equal to the earlyEndDate
-			if ((invoiceDate.getTime() == quarterEnd.getTime() && currentPeriod != 12) || earlyEndDate != '' && invoiceDate.getTime() >= earlyEndDate.getTime())
+			if (invoiceDate.getTime() == quarterEnd.getTime() && currentPeriod != contractTerm || invoiceDate.getTime() >= contractEnd.getTime() || earlyEndDate != '' && invoiceDate.getTime() >= earlyEndDate.getTime())
     			{
 					// check if calculatedDeferredRevenue is less than 0
 				    if (calculatedDeferredRevenue < 0)
@@ -1539,7 +1549,7 @@ function(runtime, search, record, format, task) {
 			var contractRecordLookup = search.lookupFields({
 				type: 'customrecord_bbs_contract',
 				id: contractRecord,
-				columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_qu_min_use', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_prepayment_inv']
+				columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_qu_min_use', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_prepayment_inv', 'custrecord_bbs_contract_term']
 			});
 	    		
 			var customer = contractRecordLookup.custrecord_bbs_contract_customer[0].value;
@@ -1547,6 +1557,7 @@ function(runtime, search, record, format, task) {
 			var contractEnd = contractRecordLookup.custrecord_bbs_contract_end_date;
 			var earlyEndDate = contractRecordLookup.custrecord_bbs_contract_early_end_date;
 			var lastPrepaymentAmount = contractRecordLookup.custrecord_bbs_contract_prepayment_inv;
+			var contractTerm = contractRecordLookup.custrecord_bbs_contract_term;
 			
 			// check if lastPrepaymentAmount is null
 			if (lastPrepaymentAmount == '')
@@ -1765,7 +1776,7 @@ function(runtime, search, record, format, task) {
 			
 			log.audit({
     			title: 'QUR Check',
-    			details: 'Current Period: ' + currentPeriod + '<br>Minimum Usage: ' + minimumUsage + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Qtr Usage: ' + cumulativeQtrUsage + '<br>Cumulative Usage to Date: ' + cumulativeUsage + '<br>Last Prepayment Invoice: ' + lastPrepaymentAmount + '<br>Actual Deferred Revenue Balance: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
+    			details: 'Period ' + currentPeriod + ' of ' + contractTerm + '<br>Minimum Usage: ' + minimumUsage + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Qtr Usage: ' + cumulativeQtrUsage + '<br>Cumulative Usage to Date: ' + cumulativeUsage + '<br>Last Prepayment Invoice: ' + lastPrepaymentAmount + '<br>Actual Deferred Revenue Balance: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
     		});
 		
 			// check if the invoiceDate is greater than (after) or equal to the contractEnd OR the invoiceDate is greater than (after) or equal to the earlyEndDate
@@ -1803,8 +1814,8 @@ function(runtime, search, record, format, task) {
 		    				createRevRecJournal(recordID, billingType, contractCurrency, true);
 						}
 				}
-			// else check if the invoiceDate is greater than or equal to the quarterEnd date and this is not month 12 of the contract (pro rata contracts have 13 periods)
-			else if (invoiceDate.getTime() == quarterEnd.getTime() && currentPeriod != 12)
+			// else check if the invoiceDate is greater than or equal to the quarterEnd date
+			else if (invoiceDate.getTime() == quarterEnd.getTime() && currentPeriod != contractTerm)
 				{
 					// check if calculatedDeferredRevenue is less than 0
 					if (calculatedDeferredRevenue < 0)
@@ -2410,20 +2421,13 @@ function(runtime, search, record, format, task) {
     			}
     	}
     
-    //=================================================================
-	// FUNCTION TO CREATE THE NEXT MONTHLY/QUARTERLY PREPAYMENT INVOICE
-	//=================================================================
+    //=======================================================
+	// FUNCTION TO CREATE THE NEXT MONTHLY PREPAYMENT INVOICE
+	//=======================================================
     
     function createNextInvoice(billingType, contractRecord, customer, amount, currency, overage)
 		{
-    		// if the billingType returns 'QMP'
-    		if (billingType == 'QMP')
-		    	{
-		    		// set the invoice date to be the first of the month
-		        	invoiceDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth(), 1);
-		    	}
-		    // if the billingType is QUR
-		    else if (billingType == 'QUR')
+    		if (billingType == 'QUR' || billingType == 'BUR')
 		    	{
 		    		// set the invoice date to be the first of the next month
 		        	invoiceDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth()+1, 1);
@@ -2506,13 +2510,22 @@ function(runtime, search, record, format, task) {
 					    		value: ambmaItem
 					    	});
 			    		}
-			    	else // billingType is QMP or QUR
+			    	else if (billingType == 'QUR') // billingType is QUR
 			    		{
 			    			// set the item on the new line using the qmpItem
 				    		invoice.setCurrentSublistValue({
 					    		sublistId: 'item',
 					    		fieldId: 'item',
 					    		value: qmpItem
+					    	});
+			    		}
+			    	else if (billingType == 'BUR') // billingType is BUR
+			    		{
+			    			// set the item on the new line using the burItem
+				    		invoice.setCurrentSublistValue({
+					    		sublistId: 'item',
+					    		fieldId: 'item',
+					    		value: burItem
 					    	});
 			    		}
 			    			
@@ -2662,14 +2675,24 @@ function(runtime, search, record, format, task) {
 					            value: qmpCreditItem
 					    	});
 			    		}
-			    	// check if the billingType returns AMP or BUR
-			    	else if (billingType == 'AMP' || billingType == 'BUR')
+			    	// check if the billingType returns AMP 
+			    	else if (billingType == 'AMP')
 			    		{
 			    			// set the item on the new line
 					    	soRecord.setCurrentSublistValue({
 					            sublistId: 'item',
 					            fieldId: 'item',
 					            value: ampCreditItem
+					    	});
+			    		}
+			    	// check if the billingType returns BUR
+			    	else if (billingType == 'BUR')
+			    		{
+				    		// set the item on the new line
+					    	soRecord.setCurrentSublistValue({
+					            sublistId: 'item',
+					            fieldId: 'item',
+					            value: burCreditItem
 					    	});
 			    		}
 			
