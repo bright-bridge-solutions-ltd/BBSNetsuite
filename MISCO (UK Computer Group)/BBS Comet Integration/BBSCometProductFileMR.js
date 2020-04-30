@@ -45,33 +45,63 @@ function(runtime, file, search, record, url, email, config)
      * @property {string} type - Record type id
      *
      * @return {Array|Object|Search|RecordRef} inputSummary
-     * @since 2015.1
+     * @since 2015.1 
      */
     function getInputData() 
-	    {
-	    	//Get script parameter
-	    	//
-	    	var productFileId = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_sftp_product_file_id'});
-	    	
-	    	//Debug logging
-	    	//
-	    	logMsg('D', 'Product File Id', productFileId)
-		   
-	    	//Read the input file & pass to the map stage
-	    	//
-	    	var fileObject = null;
-	    	
-	    	try
-	    		{
-	    			fileObject = file.load({id: productFileId});
-	    		}
-	    	catch(err)
-	    		{
-	    			fileObject = null;
-	    			logMsg('E', 'Error loading file id =  ' + productFileId, err);
-	    		}
-	    	
-	    	return fileObject;
+	    { 
+    		try
+    			{
+	    			return search.create({
+	    				   type: "customrecord_bbs_comet_product_import",
+	    				   filters:
+	    				   [
+	    				   ],
+	    				   columns:
+	    				   [
+	    				      "custrecord_bbs_comet_pi_id",
+	    				      "custrecord_bbs_comet_pi_title",
+	    				      "custrecord_bbs_comet_pi_description",
+	    				      "custrecord_bbs_comet_pi_category",
+	    				      "custrecord_bbs_comet_pi_link",
+	    				      "custrecord_bbs_comet_pi_image",
+	    				      "custrecord_bbs_comet_pi_condition",
+	    				      "custrecord_bbs_comet_pi_availability",
+	    				      "custrecord_bbs_comet_pi_mpn",
+	    				      "custrecord_bbs_comet_pi_price",
+	    				      "custrecord_bbs_comet_pi_brand",
+	    				      "custrecord_bbs_comet_pi_gtin",
+	    				      "custrecord_bbs_comet_pi_prod_type",
+	    				      "custrecord_bbs_comet_pi_shipping"
+	    				   ]
+	    				});
+    			
+    			
+    			/*
+			    	//Get script parameter for the file id to process
+			    	//
+			    	var productFileId = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_sftp_product_file_id'});
+			    	
+			    	//Read the input file & pass to the map stage
+			    	//
+			    	var fileObject = null;
+			    	
+			    	try
+			    		{
+			    			fileObject = file.load({id: productFileId});
+			    		}
+			    	catch(err)
+			    		{
+			    			fileObject = null;
+			    			logMsg('E', 'Error loading file id =  ' + productFileId, err);
+			    		}
+			    	
+			    	return fileObject;
+	    		*/
+    			}
+    		catch(err)
+				{
+					logMsg('E', 'An Unexpected Error Occured in getInputData', err);
+				}
 	    }
 
     /**
@@ -84,6 +114,43 @@ function(runtime, file, search, record, url, email, config)
 	    {
     		try
     			{
+	    			//Retrieve search results
+    				//
+	    	    	var searchResult = JSON.parse(context.value);
+	    	    	
+	    	    	var columns 	= [];
+	    	    	var internalId 	= searchResult.id;
+	    	    	
+	    	    	columns.push(searchResult.values['custrecord_bbs_comet_pi_id']);
+	    	    	columns.push(searchResult.values['custrecord_bbs_comet_pi_title']);
+	    	    	columns.push(searchResult.values['custrecord_bbs_comet_pi_description']);
+	    	    	columns.push(searchResult.values['custrecord_bbs_comet_pi_category']);
+	    	    	columns.push(searchResult.values['custrecord_bbs_comet_pi_link']);
+	    	    	columns.push(searchResult.values['custrecord_bbs_comet_pi_image']);
+	    	    	columns.push(searchResult.values['custrecord_bbs_comet_pi_condition']);
+	    	    	columns.push(searchResult.values['custrecord_bbs_comet_pi_availability']);
+	    	    	columns.push(searchResult.values['custrecord_bbs_comet_pi_mpn']);
+	    	    	columns.push(searchResult.values['custrecord_bbs_comet_pi_price']);
+	    	    	columns.push(searchResult.values['custrecord_bbs_comet_pi_brand']);
+	    	    	columns.push(searchResult.values['custrecord_bbs_comet_pi_gtin']);
+	    	    	columns.push(searchResult.values['custrecord_bbs_comet_pi_prod_type']);
+	    	    	columns.push(searchResult.values['custrecord_bbs_comet_pi_shipping']);
+	    	    	
+	    	    	logMsg('D', 'Column data', columns);
+	    	    	
+	    	    	//Process the line data
+	    	    	//
+	    	    	processsLineData(columns, context);
+	    	    	
+	    	    	//Delete the data from the custom record
+	    	    	//
+	    	    	record.delete({
+	    	    					type:	'customrecord_bbs_comet_product_import',
+	    	    					id:		internalId
+	    	    					});
+	    	    	
+	    	    	
+    			/*
 			    	var rawLine 	= context.value;
 			    	var lineNumber	= Number(context.key)
 			    	
@@ -114,6 +181,7 @@ function(runtime, file, search, record, url, email, config)
 			    					logMsg('E', 'Incorrect structure of import data for record ' + lineNumber, columns);
 			    				}
 			    		}
+			    */
     			}
     		catch(err)
     			{
@@ -152,35 +220,35 @@ function(runtime, file, search, record, url, email, config)
 		    	    		var accountId = companyConfigRecord.getValue({fieldId: 'companyid'});
 			    			var urlPrefix = 'https://' + accountId.replace('_','-') + '.app.netsuite.com';
 					    	
-				    		//Get the parameter holding the config record id
+				    		//Get the parameter holding the integration record id
 				    		//
-				    		var configId = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_sftp_config_id'});
+				    		var integrationId = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_sftp_config_id'});
 				    		
-				    		if(configId != null && configId != '')
+				    		if(integrationId != null && integrationId != '')
 				    			{
 				    				//Load the config record to get the email details
 				    				//
-				    				var configRecord = null;
+				    				var integrationRecord = null;
 				    			
 				    				try
 				    					{
-						    				configRecord = record.load({
+				    						integrationRecord = record.load({
 						    												type:	'customrecord_bbs_comet_integration',
-						    												id:		configId
+						    												id:		integrationId
 						    												});
 				    					}
 				    				catch(err)
 				    					{
-				    						configRecord = null;
+				    						integrationRecord = null;
 				    						logMsg('E', 'Error loading config record', err);
 				    					}
 						    		
-				    				//Did we load the config record ok?
+				    				//Did we load the integration record ok?
 				    				//
-				    				if(configRecord != null)	
+				    				if(integrationRecord != null)	
 				    					{
-				    						var emailSender 		= configRecord.getValue({fieldId: 'custrecord_bbs_comet_email_sender'});
-				    						var emailRecipients 	= configRecord.getValue({fieldId: 'custrecord_bbs_comet_email_recipients'});
+				    						var emailSender 		= integrationRecord.getValue({fieldId: 'custrecord_bbs_comet_email_sender'});
+				    						var emailRecipients 	= integrationRecord.getValue({fieldId: 'custrecord_bbs_comet_email_recipients'});
 										
 				    						var emailMsg = 'The following products have been created in Netsuite from website product integration\n\n\n';
 				    						
@@ -188,11 +256,11 @@ function(runtime, file, search, record, url, email, config)
 				    				    	        {
 				    									var productInfo = JSON.parse(value);
 				    									
-				    									emailMsg += 'Internal Id ' + productInfo.id + '\n';
-				    									emailMsg += 'MPN ' + productInfo.mpn + '\n';
-				    									//emailMsg += 'Description ' + productInfo.description + '\n';
-				    									emailMsg += 'Price ' + productInfo.price + '\n';
-				    									emailMsg += 'URL ' + urlPrefix + productInfo.url + '\n\n\n';
+				    									emailMsg += 'Internal Id : ' 	+ productInfo.id + '\n';
+				    									emailMsg += 'MPN : ' 			+ productInfo.mpn + '\n';
+				    									emailMsg += 'Price : ' 			+ productInfo.price + '\n';
+				    									emailMsg += 'URL : ' 			+ urlPrefix + productInfo.url + '\n\n\n';
+				    							//		emailMsg += 'Description ' 		+ productInfo.description + '\n';
 				    									
 				    				    	            return true;
 				    				    	        });
@@ -223,50 +291,71 @@ function(runtime, file, search, record, url, email, config)
 	
     //Helper functions
 	//
-    function splitCSVButIgnoreCommasInDoublequotes(str) {  
-        //split the str first  
-        //then merge the elments between two double quotes  
-        var delimiter = ',';  
-        var quotes = '"';  
-        var elements = str.split(delimiter);  
-        var newElements = [];  
-        for (var i = 0; i < elements.length; ++i) {  
-            if (elements[i].indexOf(quotes) >= 0) {//the left double quotes is found  
-                var indexOfRightQuotes = -1;  
-                var tmp = elements[i];  
-                //find the right double quotes  
-                for (var j = i + 1; j < elements.length; ++j) {  
-                    if (elements[j].indexOf(quotes) >= 0) {  
-                        indexOfRightQuotes = j; 
-                        break;
-                    }  
-                }  
-                //found the right double quotes  
-                //merge all the elements between double quotes  
-                if (-1 != indexOfRightQuotes) {   
-                    for (var j = i + 1; j <= indexOfRightQuotes; ++j) {  
-                        tmp = tmp + delimiter + elements[j];  
-                    }  
-                    newElements.push(tmp);  
-                    i = indexOfRightQuotes;  
-                }  
-                else { //right double quotes is not found  
-                    newElements.push(elements[i]);  
-                }  
-            }  
-            else {//no left double quotes is found  
-                newElements.push(elements[i]);  
-            }  
-        }  
-
-        return newElements;  
-    } 
+    function splitCSVButIgnoreCommasInDoublequotes(str) 
+    	{  
+	        //Split the string first  
+	        //Then merge the elements between two double quotes  
+    		//
+	        var delimiter 	= ',';  
+	        var quotes 		= '"';  
+	        var elements 	= str.split(delimiter);  
+	        var newElements = []; 
+	        
+	        for (var i = 0; i < elements.length; ++i) 
+	        	{  
+	        		if (elements[i].indexOf(quotes) >= 0) 
+		            	{
+		            		//The left double quotes is found  
+		            		//
+			                var indexOfRightQuotes 	= -1;  
+			                var tmp 				= elements[i];  
+			                
+			                //Find the right double quotes 
+			                //
+			                for (var j = i + 1; j < elements.length; ++j) 
+			                	{  
+				                    if (elements[j].indexOf(quotes) >= 0) 
+				                    	{  
+					                        indexOfRightQuotes = j; 
+					                        break;
+				                    	}  
+			                	}  
+			                
+			                //Found the right double quotes  
+			                //Merge all the elements between double quotes  
+			                //
+			                if (-1 != indexOfRightQuotes) 
+			                	{   
+				                    for (var j = i + 1; j <= indexOfRightQuotes; ++j) 
+					                    {  
+					                        tmp = tmp + delimiter + elements[j];  
+					                    }  
+				                    
+				                    newElements.push(tmp);  
+				                    
+				                    i = indexOfRightQuotes;  
+				                }  
+			                else 
+			                	{ 
+			                		//Right double quotes is not found  
+			                		//
+				                    newElements.push(elements[i]);  
+				                }  
+		            	}  
+	        		else 
+	        			{
+		        			//No left double quotes is found  
+		        			//
+			                newElements.push(elements[i]);  
+			            }  
+	        	}  
+	
+	        return newElements;  
+    	} 
     
     
 	function processsLineData(_columns, _context)
 		{
-			//logMsg('D', 'Trying to find product', _columns);
-			
 			//Only process if the item has a mpn
 			//
 			if(_columns[columnsEnum.mpn] != '')
@@ -277,8 +366,6 @@ function(runtime, file, search, record, url, email, config)
 					//
 					if(!itemId)
 						{
-							//logMsg('D', 'Product not found - creating new one', _columns[columnsEnum.mpn]);
-							
 							var itemExternalId 		= _columns[columnsEnum.mpn] + '_' + _columns[columnsEnum.id];
 							var itemDisplayName 	= _columns[columnsEnum.title];
 							var itemDescription		= _columns[columnsEnum.description];
@@ -417,19 +504,19 @@ function(runtime, file, search, record, url, email, config)
 															recordId:		itemId,
 															isEditMode:		false
 															});
+							
+							//Add details of the new product to the key/value pairs to be passed to the summarise section
+							//
 							_context.write({
 											key:	itemId,
 											value:	new productSummary(itemId, itemMpn, itemDisplayName, itemUrl, itemPrice)
 											});
-
 						}
-					
 				}
 			else
 				{
 					logMsg('D', 'Product skipped, no mpn', '');
 				}
-			
 		}
     
 	
@@ -471,8 +558,6 @@ function(runtime, file, search, record, url, email, config)
 		{
 			var categoryId = null;
 			
-			//logMsg('D', 'Product category full search', _category);
-			
 			if(_category != '')
 				{
 					//Search for the product category using the full heirarchical name
@@ -503,8 +588,6 @@ function(runtime, file, search, record, url, email, config)
 							//If we did not find it, then try finding it by just using the last portion of the name
 							//
 							var lastPart = _category.split(' : ')[_category.split(' : ').length -1];
-							
-							//logMsg('D', 'Product category partial search', lastPart);
 							
 							var classificationSearchObj = getResults(search.create({
 																				   type: 		"classification",
@@ -540,8 +623,6 @@ function(runtime, file, search, record, url, email, config)
 		{
 			var typeId = null;
 			
-			//logMsg('D', 'Product type full search', _type);
-			
 			if(_type != '')
 				{
 					//Search for the product category using the full heirarchical name
@@ -572,8 +653,6 @@ function(runtime, file, search, record, url, email, config)
 							//If we did not find it, then try finding it by just using the last portion of the name
 							//
 							var lastPart = _type.split(' : ')[_type.split(' : ').length -1];
-							
-							//logMsg('D', 'Product type partial search', lastPart);
 							
 							var departmentSearchObj = getResults(search.create({
 																				   type: 		"department",
@@ -674,14 +753,12 @@ function(runtime, file, search, record, url, email, config)
 	    }
     
     
-    
     //Return functions to calling routine
 	//
     return {
 	        getInputData: 	getInputData,
 	        map: 			map,
-	       // reduce: 		reduce,
 	        summarize: 		summarize
-    };
+    		};
     
 });

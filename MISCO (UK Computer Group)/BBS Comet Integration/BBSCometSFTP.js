@@ -657,7 +657,35 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																		
 											    						if(fileId != null)
 											    							{
-												    							//Submit the scheduled job to process the file
+											    								//Create a csv import job to process the raw data
+											    								//
+											    								var csvImportTask = task.create({
+											    																taskType:		task.TaskType.CSV_IMPORT,
+											    																importFile:		downloadedFile,
+											    																mappingId:		'custimport_bbs_product_import'
+											    																});
+											    								
+											    								//Submit the job
+											    								//
+											    								var csvTaskId = csvImportTask.submit();
+											    								
+											    								//Wait until the job has finished
+											    								//
+											    								var csvTaskStatus = task.checkStatus({
+			    								    																taskId: csvTaskId
+			    								    																});
+											    								
+											    								while (csvTaskStatus.status == task.TaskStatus.PENDING || csvTaskStatus.status == task.TaskStatus.PROCESSING) 
+												    								{
+											    										sleep(30000);	//sleep 30 seconds
+											    										
+												    									csvTaskStatus = task.checkStatus({
+													    								    								taskId: csvTaskId
+													    								    							});
+																					}
+											    								
+
+												    							//Submit the map/reduce job to process the file
 																				//
 											    								try
 											    									{
@@ -782,6 +810,19 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
     			}
 	    }
 
+    //Sleep 
+    //
+    function sleep(milliseconds) 
+	    {
+	    	  const date = Date.now();
+	    	  
+	    	  var currentDate = null;
+	
+	    	  do{ currentDate = Date.now();
+	    		  } while (currentDate - date < milliseconds);
+	    }
+    
+    
     //Find the supplier
     //
     function findSupplier(_supplier)
