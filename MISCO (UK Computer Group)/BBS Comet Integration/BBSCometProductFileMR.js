@@ -74,29 +74,7 @@ function(runtime, file, search, record, url, email, config)
 	    				      "custrecord_bbs_comet_pi_shipping"
 	    				   ]
 	    				});
-    			
-    			
-    			/*
-			    	//Get script parameter for the file id to process
-			    	//
-			    	var productFileId = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_sftp_product_file_id'});
-			    	
-			    	//Read the input file & pass to the map stage
-			    	//
-			    	var fileObject = null;
-			    	
-			    	try
-			    		{
-			    			fileObject = file.load({id: productFileId});
-			    		}
-			    	catch(err)
-			    		{
-			    			fileObject = null;
-			    			logMsg('E', 'Error loading file id =  ' + productFileId, err);
-			    		}
-			    	
-			    	return fileObject;
-	    		*/
+
     			}
     		catch(err)
 				{
@@ -116,8 +94,9 @@ function(runtime, file, search, record, url, email, config)
     			{
 	    			//Retrieve search results
     				//
-	    	    	var searchResult = JSON.parse(context.value);
-	    	    	
+	    	    	var searchResult 	= JSON.parse(context.value);
+	    	    	var lineNumber		= context.key;
+			    	
 	    	    	var columns 	= [];
 	    	    	var internalId 	= searchResult.id;
 	    	    	
@@ -136,56 +115,23 @@ function(runtime, file, search, record, url, email, config)
 	    	    	columns.push(searchResult.values['custrecord_bbs_comet_pi_prod_type']);
 	    	    	columns.push(searchResult.values['custrecord_bbs_comet_pi_shipping']);
 	    	    	
-	    	    	logMsg('D', 'Column data', columns);
-	    	    	
 	    	    	//Process the line data
 	    	    	//
 	    	    	processsLineData(columns, context);
 	    	    	
-	    	    	//Delete the data from the custom record
+    			}
+    		catch(err)
+    			{
+    				logMsg('E', 'An Unexpected Error Occured Processing Line ' + lineNumber, err);
+    			}
+    		finally
+    			{
+	    			//Delete the data from the custom record
 	    	    	//
 	    	    	record.delete({
 	    	    					type:	'customrecord_bbs_comet_product_import',
 	    	    					id:		internalId
 	    	    					});
-	    	    	
-	    	    	
-    			/*
-			    	var rawLine 	= context.value;
-			    	var lineNumber	= Number(context.key)
-			    	
-			    	//Skip the first line as that is the column headers
-			    	//
-			    	if(lineNumber > 0)
-			    		{
-			    			//Split out the columns
-			    			//
-			    			//var columns = rawLine.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
-			    			var columns = splitCSVButIgnoreCommasInDoublequotes(rawLine);
-			    			
-			    			//Remove any double quotes from the line data
-			    			//
-			    			for (var int = 0; int < columns.length; int++) 
-						    	{
-					    			columns[int] = columns[int].replace(/"/g,"");
-								}
-			    			
-			    			//Process the line data, but only if we have all the correct number of columns extracted
-			    			//
-			    			if(columns.length == 14)
-			    				{
-			    					processsLineData(columns, context);
-			    				}
-			    			else
-			    				{
-			    					logMsg('E', 'Incorrect structure of import data for record ' + lineNumber, columns);
-			    				}
-			    		}
-			    */
-    			}
-    		catch(err)
-    			{
-    				logMsg('E', 'An Unexpected Error Occured Processing Line ' + lineNumber, err);
     			}
 	    }
 
@@ -291,69 +237,6 @@ function(runtime, file, search, record, url, email, config)
 	
     //Helper functions
 	//
-    function splitCSVButIgnoreCommasInDoublequotes(str) 
-    	{  
-	        //Split the string first  
-	        //Then merge the elements between two double quotes  
-    		//
-	        var delimiter 	= ',';  
-	        var quotes 		= '"';  
-	        var elements 	= str.split(delimiter);  
-	        var newElements = []; 
-	        
-	        for (var i = 0; i < elements.length; ++i) 
-	        	{  
-	        		if (elements[i].indexOf(quotes) >= 0) 
-		            	{
-		            		//The left double quotes is found  
-		            		//
-			                var indexOfRightQuotes 	= -1;  
-			                var tmp 				= elements[i];  
-			                
-			                //Find the right double quotes 
-			                //
-			                for (var j = i + 1; j < elements.length; ++j) 
-			                	{  
-				                    if (elements[j].indexOf(quotes) >= 0) 
-				                    	{  
-					                        indexOfRightQuotes = j; 
-					                        break;
-				                    	}  
-			                	}  
-			                
-			                //Found the right double quotes  
-			                //Merge all the elements between double quotes  
-			                //
-			                if (-1 != indexOfRightQuotes) 
-			                	{   
-				                    for (var j = i + 1; j <= indexOfRightQuotes; ++j) 
-					                    {  
-					                        tmp = tmp + delimiter + elements[j];  
-					                    }  
-				                    
-				                    newElements.push(tmp);  
-				                    
-				                    i = indexOfRightQuotes;  
-				                }  
-			                else 
-			                	{ 
-			                		//Right double quotes is not found  
-			                		//
-				                    newElements.push(elements[i]);  
-				                }  
-		            	}  
-	        		else 
-	        			{
-		        			//No left double quotes is found  
-		        			//
-			                newElements.push(elements[i]);  
-			            }  
-	        	}  
-	
-	        return newElements;  
-    	} 
-    
-    
 	function processsLineData(_columns, _context)
 		{
 			//Only process if the item has a mpn
@@ -400,22 +283,22 @@ function(runtime, file, search, record, url, email, config)
 
 							itemRecord.setValue({
 												fieldId:	'displayname',
-												value:		itemDisplayName
+												value:		itemDisplayName.substr(0,250)
 												});	
 
 							itemRecord.setValue({
 												fieldId:	'purchasedescription',
-												value:		itemDescription
+												value:		itemDescription.substr(0,250)
 												});	
 														
 							itemRecord.setValue({
 												fieldId:	'salesdescription',
-												value:		itemDescription
+												value:		itemDescription.substr(0,250)
 												});	
 
 							itemRecord.setValue({
 												fieldId:	'storedescription',
-												value:		itemDescription
+												value:		itemDescription.substr(0,250)
 												});	
 							
 							itemRecord.setValue({
