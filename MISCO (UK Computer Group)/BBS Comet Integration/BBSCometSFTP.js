@@ -25,6 +25,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
     		//Get the deployment parameter which will determine what integration type to use
     		//
     		var integrationTypeParam = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_comet_integration_type'}).toString();
+    		var supplierSuffixParam = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_comet_supplier_suffix'});
         	
     		if(integrationTypeParam != null && integrationTypeParam != '')
 		    	{
@@ -376,7 +377,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																										
 																										//Find the supplier
 																										//
-																										var supplierId = findSupplier(lineSupplier);
+																										var supplierId = findSupplier(lineSupplier, supplierSuffixParam);
 																										
 																									
 																										itemRecord.setCurrentSublistValue({
@@ -425,7 +426,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																							{
 																								//Find the supplier
 																								//
-																								var supplierId = findSupplier(lineSupplier);
+																								var supplierId = findSupplier(lineSupplier, supplierSuffixParam);
 																							
 																								salesOrderRecord.selectNewLine({
 																											    				sublistId: 'item'
@@ -759,7 +760,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 											    								//
 											    								var csvTaskId = csvImportTask.submit();
 				    								
-											    								
+											    								/*
 											    								//Wait until the job has finished
 											    								//
 											    								var csvTaskStatus = task.checkStatus({
@@ -804,7 +805,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 												    									emailMessage += 'Error Submitting MR Script To Process Product File id = ' + fileId + ' - ' + err.message + '\n\n';
 												    									fileProcessedOk = false;
 											    									}
-											    								
+											    								*/
 											    								
 											    								if(fileProcessedOk)
 																					{
@@ -919,7 +920,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
     
     //Find the supplier
     //
-    function findSupplier(_supplier)
+    function findSupplier(_supplier, _supplierSuffixParam)
     	{
     		var supplierId = null;
     		
@@ -927,7 +928,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 				   type: 	"vendor",
 				   filters:
 							   [
-							      ["entityid","is",_supplier]
+							      ["entityid","is",_supplier + _supplierSuffixParam]
 							   ],
 				   columns:
 							   [

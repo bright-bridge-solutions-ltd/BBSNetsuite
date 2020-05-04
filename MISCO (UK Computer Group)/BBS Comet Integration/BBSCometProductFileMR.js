@@ -122,14 +122,14 @@ function(runtime, file, search, record, url, email, config)
     			}
     		catch(err)
     			{
-    				logMsg('E', 'An Unexpected Error Occured Processing Line ' + lineNumber, err);
+    				logMsg('E', 'An Unexpected Error Occured Processing Line ' + lineNumber + ' MPN ' + searchResult.values['custrecord_bbs_comet_pi_mpn'], err);
     			}
     		finally
     			{
 	    			//Delete the data from the custom record
 	    	    	//
 	    	    	record.delete({
-	    	    					type:	'customrecord_bbs_comet_product_import',
+	    	   						type:	'customrecord_bbs_comet_product_import',
 	    	    					id:		internalId
 	    	    					});
     			}
@@ -252,7 +252,7 @@ function(runtime, file, search, record, url, email, config)
 							var itemExternalId 		= _columns[columnsEnum.mpn] + '_' + _columns[columnsEnum.id];
 							var itemDisplayName 	= _columns[columnsEnum.title];
 							var itemDescription		= _columns[columnsEnum.description];
-							var itemProductCategory	= lookupProductCategory(_columns[columnsEnum.googleProductCategory].replace(/>/g,":"));
+							var itemProductCategory	= lookupProductCategory(_columns[columnsEnum.googleProductCategory].replace(/>/g,":").replace(/&gt;/g,':'));
 							var itemWebsiteLink		= _columns[columnsEnum.link];
 							var itemImage			= _columns[columnsEnum.imageLink];
 							var itemCondition		= _columns[columnsEnum.condition];
@@ -261,7 +261,7 @@ function(runtime, file, search, record, url, email, config)
 							var itemPrice			= _columns[columnsEnum.price].replace(',','.').replace(' GBP','');
 							var itemBrand			= lookupItemBrand(_columns[columnsEnum.brand]);
 							var itemGtin			= _columns[columnsEnum.gtin];
-							var itemProductType		= lookupProductType(_columns[columnsEnum.productType].replace(/>/g,":"));
+							var itemProductType		= lookupProductType(_columns[columnsEnum.productType].replace(/>/g,":").replace(/&gt;/g,':'));
 							var itemSupplier		= runtime.getCurrentScript().getParameter({name: 'custscript_bbs_sftp_product_supplier'});
 
 							//Create the new product
@@ -398,7 +398,7 @@ function(runtime, file, search, record, url, email, config)
 				}
 			else
 				{
-					logMsg('D', 'Product skipped, no mpn', '');
+					logMsg('E', 'Product skipped, no mpn', '');
 				}
 		}
     
@@ -496,6 +496,11 @@ function(runtime, file, search, record, url, email, config)
 						}
 				}
 			
+			if(categoryId == null)
+				{
+					logMsg('D', 'Could not find product category "' + _category + '"', null);
+				}
+			
 			return categoryId;
 		}
 
@@ -559,6 +564,11 @@ function(runtime, file, search, record, url, email, config)
 									typeId = departmentSearchObj[0].id;
 								}
 						}
+				}
+			
+			if(typeId == null)
+				{
+					logMsg('D', 'Could not find product type "' + _type + '"', null);
 				}
 			
 			return typeId;
