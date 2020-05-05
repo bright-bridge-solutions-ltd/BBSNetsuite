@@ -122,7 +122,7 @@ function(runtime, file, search, record, url, email, config)
     			}
     		catch(err)
     			{
-    				logMsg('E', 'An Unexpected Error Occured Processing Line ' + lineNumber + ' MPN ' + searchResult.values['custrecord_bbs_comet_pi_mpn'], err);
+    				logMsg('E', 'An Unexpected Error Occured Processing MPN ' + searchResult.values['custrecord_bbs_comet_pi_mpn'], err);
     			}
     		finally
     			{
