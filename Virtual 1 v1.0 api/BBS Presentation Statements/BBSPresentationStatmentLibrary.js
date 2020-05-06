@@ -62,12 +62,13 @@ function libGenerateStatement(partnerId)
 											   ["custrecord_bbs_pr_status","anyof","1"]
 											], 
 											[
+											   new nlobjSearchColumn("custrecord_bbs_pr_type").setSort(true), 	//sort by record type 
 											   new nlobjSearchColumn("created"),
 											   new nlobjSearchColumn("name"),
-											   new nlobjSearchColumn("custrecord_bbs_pr_type"), 
 											   new nlobjSearchColumn("custrecord_bbs_pr_billing_type"), 
 											   new nlobjSearchColumn("custrecord_bbs_pr_inv_pay_term"), 
 											   new nlobjSearchColumn("custrecord_bbs_pr_inv_due_date"), 
+											   new nlobjSearchColumn("formulanumeric").setFormula("CASE WHEN FLOOR({custrecord_bbs_pr_inv_age}) <= 0 THEN null ELSE FLOOR({custrecord_bbs_pr_inv_age}) END"), 
 											   new nlobjSearchColumn("custrecord_bbs_pr_inv_age"), 
 											   new nlobjSearchColumn("custrecord_bbs_pr_inv_sub_total"), 
 											   new nlobjSearchColumn("custrecord_bbs_pr_inv_tax_total"), 
@@ -81,7 +82,9 @@ function libGenerateStatement(partnerId)
 											   new nlobjSearchColumn("custrecord_bbs_pr_cn_applied"), 
 											   new nlobjSearchColumn("custrecord_bbs_pr_cn_unapplied"),
 											   new nlobjSearchColumn("custrecord_bbs_pr_inv_age"),
-											   new nlobjSearchColumn("formulacurrency").setFormula("NVL({custrecord_bbs_pr_inv_total},0) - NVL({custrecord_bbs_pr_inv_paid},0)")
+											   new nlobjSearchColumn("formulacurrency").setFormula("NVL({custrecord_bbs_pr_inv_total},0) - NVL({custrecord_bbs_pr_inv_paid},0)"),
+											   new nlobjSearchColumn("custrecord_bbs_sage_date"),
+											   new nlobjSearchColumn("custrecord_bbs_sage_ref")
 											   ]
 											));
 								
@@ -116,7 +119,17 @@ function libGenerateStatement(partnerId)
 													if(resultsTranType == 2) // Invoices
 														{
 															openBalance = Number(customrecord_bbs_presentation_recordSearch[int].getValue("formulacurrency"));
-															overdueAmount = Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_inv_outstanding"));
+															
+															//Only calculate overdue if age > 0 days
+															//
+															if(Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_inv_age")) > 0)
+																{
+																	overdueAmount = Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_inv_outstanding"));
+																}
+															else 	
+																{
+																	overdueAmount = Number(0);
+																}
 														}
 													else //Credit Notes
 														{
