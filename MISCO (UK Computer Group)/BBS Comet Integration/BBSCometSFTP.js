@@ -928,7 +928,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 				   type: 	"vendor",
 				   filters:
 							   [
-							      ["entityid","is",_supplier + _supplierSuffixParam]
+							      ["entityid","is",_supplier + ' ' + _supplierSuffixParam]
 							   ],
 				   columns:
 							   [

@@ -326,8 +326,13 @@ function(runtime, file, search, record, url, email, config)
 												value:		itemMpn
 												});	
 
+						//	itemRecord.setValue({
+						//						fieldId:	'custitem_bbs_brand',
+						//						value:		itemBrand
+						//						});	
+							
 							itemRecord.setValue({
-												fieldId:	'custitem_bbs_brand',
+												fieldId:	'cseg_brand2',
 												value:		itemBrand
 												});	
 
@@ -410,7 +415,7 @@ function(runtime, file, search, record, url, email, config)
 			var brandId = null;
 			
 			var brandSearchObj = getResults(search.create({
-																   type: 		"customlist_bbs_brandlist",
+																   type: 		"customrecord_cseg_brand2",
 																   filters:
 																			   [
 																			      ["name","is",_brand]
