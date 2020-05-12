@@ -29,20 +29,28 @@ function scheduled(type)
 			{
 				//Process the billing lines - populates the billing type summary, product group summary, billing types & product groups objects
 				//
+				checkResources();
+			
 				processLines(billLinesToProcess, billingTypeSummary, productGroupsSummary, billingTypes, productGroups);
 					
 				//Update the Virtual Bill header with the totals for each category
 				//
+				checkResources();
+				
 				updateVirtualBill(virtualBillId, billingTypeSummary);
 					
 				//Create a Supplier Bill from the product groups summary (returns -1 if the bill cannot be updated, so a journal must be processed instead)
 				//
+				checkResources();
+				
 				var supplierBillId = createSupplierBill(virtualBillId, productGroupsSummary, billingTypes, productGroups)
 					
 				//Update the virtual bill with the link to the supplier bill if appropriate
 				//
 				if(supplierBillId != null && supplierBillId != -1)
 					{
+						checkResources();
+						
 						updateVirtualBillLinks(virtualBillId, supplierBillId);
 					}
 					
@@ -50,12 +58,16 @@ function scheduled(type)
 				//
 				if(supplierBillId == -1)
 					{
+						checkResources();
+						
 						var journalId = createJournalRecord(virtualBillId, productGroupsSummary, billingTypes, productGroups);
 						
 						//Update the virtual bill with the link to the journal if appropriate
 						//
 						if(journalId != null && journalId != -1)
 							{
+								checkResources();
+								
 								updateVirtualBillJournalLink(virtualBillId, journalId);
 							}
 					}
@@ -904,7 +916,7 @@ function getVirtualBillLines(_id)
 	
 	try
 		{
-			customrecord_bbs_vb_lineSearch = nlapiSearchRecord("customrecord_bbs_vb_line",null,
+			customrecord_bbs_vb_lineSearch = getResults(nlapiCreateSearch("customrecord_bbs_vb_line",
 					[
 					   ["custrecord_bbs_vb","anyof",_id]
 					], 
@@ -923,7 +935,7 @@ function getVirtualBillLines(_id)
 					   new nlobjSearchColumn("custrecord_bbs_supplier","CUSTRECORD_BBS_VB",null),
 					   new nlobjSearchColumn("internalid").setSort(false)
 					]
-					);
+					));
 		}
 	catch(err)
 		{
