@@ -204,6 +204,9 @@ function createJournalRecord(_virtualBillId, _productGroupsSummary, _billingType
 					//
 					var supplierBillProductGroupsSummary = generateSupplierBillProductGroupSummary(existingSupplierBillId);
 
+					//nlapiLogExecution('DEBUG', 'supplierBillProductGroupsSummary', JSON.stringify(supplierBillProductGroupsSummary));
+					//nlapiLogExecution('DEBUG', '_productGroupsSummary', JSON.stringify(_productGroupsSummary));
+					
 					//Loop through the product group summary from the virtual bill & then compare to the product group summary from the 
 					//existing supplier bill to get the difference
 					//
@@ -361,6 +364,10 @@ function generateSupplierBillProductGroupSummary(_existingSupplierBillId)
 					//
 					var lineReconStatus = (reconciledItems.indexOf(lineItem) != -1 ? 'Reconciled' : 'Unreconciled');
 					
+					if(lineProductGroup == null || lineProductGroup == '')
+						{
+							lineProductGroup = 'NONE';
+						}
 					//Construct the summary key
 					//
 					var lineKey = lineReconStatus + '|' + lineBillingType + '|' + lineProductGroup;
