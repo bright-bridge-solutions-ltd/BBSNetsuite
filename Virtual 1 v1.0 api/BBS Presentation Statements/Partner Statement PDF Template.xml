@@ -196,7 +196,7 @@
 						</#if>
 						
 						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_pr_inv_total}</td>
-						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.formulacurrency}</td>
+						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_pr_inv_outstanding}</td>
 						<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E; padding-left:30px;">${line.custrecord_bbs_pr_inv_due_date}</td>
 						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.formulanumeric}</td>
 					<!-- 	<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_pr_inv_outstanding}</td> -->
@@ -211,7 +211,7 @@
 						<#if line.custrecord_bbs_sage_date?has_content>
 							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_sage_date?string["dd/MM/yy"]}</td>
 						<#else>
-							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.created?string["dd/MM/yy"]}</td>
+							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_presentation_record_date?string["dd/MM/yy"]}</td>
 						</#if>
 						
 						<#if line.custrecord_bbs_sage_ref?has_content>
@@ -221,7 +221,7 @@
 						</#if>
 						
 						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">(${line.custrecord_bbs_pr_cn_total})</td>
-						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">(${line.formulacurrency})</td>
+						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">(${line.custrecord_bbs_pr_cn_unapplied})</td>
 						<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E; padding-left:30px;">&nbsp;</td>
 						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">&nbsp;</td>
 						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">(${line.custrecord_bbs_pr_cn_unapplied})</td>

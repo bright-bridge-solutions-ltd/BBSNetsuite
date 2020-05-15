@@ -218,6 +218,8 @@ function createJournalRecord(_virtualBillId, _productGroupsSummary, _billingType
 							var supplierBillValue = supplierBillProductGroupsSummary[productGroupsSummaryKey];
 							var differenceValue = virtualBillValue - supplierBillValue;
 							
+							differenceValue = Math.round((differenceValue + 0.00001) * 100) / 100;
+							
 							var keyElements = productGroupsSummaryKey.split('|'); 	//[0] = Unreconciled/Reconciled, [1] = Billing Type (One Off, Rental, Usage), [2] = Product Group
 							var productGroupSummaryValue = _productGroupsSummary[productGroupsSummaryKey];
 							

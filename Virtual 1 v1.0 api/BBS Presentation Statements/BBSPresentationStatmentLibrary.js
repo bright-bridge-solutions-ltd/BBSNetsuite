@@ -59,7 +59,9 @@ function libGenerateStatement(partnerId)
 											[
 											   ["custrecord_bbs_pr_partner","anyof",partnerId], 
 											   "AND", 
-											   ["custrecord_bbs_pr_status","anyof","1"]
+											   ["custrecord_bbs_pr_status","anyof","1"],	//Open
+											   "AND",
+											   ["custrecord_bbs_pr_type","anyof","1","2"]	//Credit, or Invoice
 											], 
 											[
 											   new nlobjSearchColumn("custrecord_bbs_pr_type").setSort(true), 	//sort by record type 
@@ -84,7 +86,8 @@ function libGenerateStatement(partnerId)
 											   new nlobjSearchColumn("custrecord_bbs_pr_inv_age"),
 											   new nlobjSearchColumn("formulacurrency").setFormula("NVL({custrecord_bbs_pr_inv_total},0) - NVL({custrecord_bbs_pr_inv_paid},0)"),
 											   new nlobjSearchColumn("custrecord_bbs_sage_date"),
-											   new nlobjSearchColumn("custrecord_bbs_sage_ref")
+											   new nlobjSearchColumn("custrecord_bbs_sage_ref"),
+											   new nlobjSearchColumn("custrecord_bbs_presentation_record_date")
 											   ]
 											));
 								
@@ -157,8 +160,9 @@ function libGenerateStatement(partnerId)
 													
 													if(resultsTranType == 2) // Invoices
 														{
-															openBalance = Number(customrecord_bbs_presentation_recordSearch[int].getValue("formulacurrency"));
-															
+															//openBalance = Number(customrecord_bbs_presentation_recordSearch[int].getValue("formulacurrency"));
+															openBalance = Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_inv_outstanding"));
+														
 															//Only calculate overdue if age > 0 days
 															//
 															if(Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_inv_age")) > 0)
@@ -172,6 +176,8 @@ function libGenerateStatement(partnerId)
 														}
 													else //Credit Notes
 														{
+															openBalance = (Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_cn_unapplied")) * Number(-1.0));
+														
 															overdueAmount = (Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_cn_unapplied")) * Number(-1.0));
 														}
 													
