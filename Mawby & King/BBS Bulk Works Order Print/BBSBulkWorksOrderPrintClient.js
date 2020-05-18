@@ -41,7 +41,7 @@ function clientFieldChanged(type, name, linenum)
 
 function clientSaveRecord()
 {
-	var stage = nlapiGetFieldValue('custpage_param_stage');
+	var stage = nlapiGetFieldValue('custpage_stage');
 	var returnStatus = false;
 	var message = '';
 	
