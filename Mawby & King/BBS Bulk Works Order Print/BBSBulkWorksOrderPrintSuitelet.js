@@ -7,12 +7,6 @@
  */
 
 
-//=============================================================================================
-//Configuration
-//=============================================================================================
-//	
-
-	
 /**
  * @param {nlobjRequest} request Request object
  * @param {nlobjResponse} response Response object
@@ -20,7 +14,6 @@
  */
 function woBulkPrintSuitelet(request, response)
 {
-
 	//=============================================================================================
 	//Prototypes
 	//=============================================================================================
@@ -210,7 +203,6 @@ function woBulkPrintSuitelet(request, response)
 	//Start of main code
 	//=============================================================================================
 	//
-	
 	if (request.getMethod() == 'GET') 
 		{
 			//Get request - so return a form for the user to process
@@ -218,21 +210,20 @@ function woBulkPrintSuitelet(request, response)
 			
 			//Get parameters
 			//
-			var allowReprint = request.getParameter('allowreprint');
-			var customerId = request.getParameter('customerid');
-			var stage = Number(request.getParameter('stage'));
-			var thickness = request.getParameter('thickness');
-			var thicknessText = request.getParameter('thicknesstext');
-			var mode = 'C'; 												//U = update existing production batch, C = create a production batch
-			var productType = request.getParameter('producttype'); 
+			var allowReprint 	= request.getParameter('allowreprint');
+			var customerId 		= request.getParameter('customerid');
+			var stage 			= Number(request.getParameter('stage'));
+			var thickness 		= request.getParameter('thickness');
+			var thicknessText 	= request.getParameter('thicknesstext');
+			var productType 	= request.getParameter('producttype'); 
 			var productTypeText = request.getParameter('producttypetext'); 
-			var batches = request.getParameter('batches'); 
-			var glassSpec = request.getParameter('glassspec'); 
-			var glassSpecText = request.getParameter('glassspectext'); 
-			var startDate = request.getParameter('startdate');
-			var endDate = request.getParameter('enddate');
-			var stockFlag = request.getParameter('stockflag');
-			var stockFlagText = request.getParameter('stockflagtext');
+			var batches 		= request.getParameter('batches'); 
+			var glassSpec 		= request.getParameter('glassspec'); 
+			var glassSpecText 	= request.getParameter('glassspectext'); 
+			var startDate 		= request.getParameter('startdate');
+			var endDate 		= request.getParameter('enddate');
+			var stockFlag 		= request.getParameter('stockflag');
+			var stockFlagText 	= request.getParameter('stockflagtext');
 			
 			stage = (stage == null || stage == '' || stage == 0 ? 1 : stage);
 			
@@ -246,12 +237,6 @@ function woBulkPrintSuitelet(request, response)
 			var stageField = form.addField('custpage_stage', 'integer', 'stage');
 			stageField.setDisplayType('hidden');
 			stageField.setDefaultValue(stage);
-			
-			//Store the mode in a field in the form so that it can be retrieved in the POST section of the code
-			//
-			var modeField = form.addField('custpage_mode', 'text', 'Mode');
-			modeField.setDisplayType('hidden');
-			modeField.setDefaultValue(mode);
 			
 			//Store the glass spec in a field in the form so that it can be retrieved in the POST section of the code
 			//
@@ -277,7 +262,6 @@ function woBulkPrintSuitelet(request, response)
 			stockflagtextField.setDisplayType('hidden');
 			stockflagtextField.setDefaultValue(stockFlagText);
 			
-	
 			//Set the form title
 			//
 			form.setTitle('Bulk Print Works Orders');
@@ -289,309 +273,281 @@ function woBulkPrintSuitelet(request, response)
 			//Work out what the form layout should look like based on the stage number
 			//
 			switch(stage)
-			{
-				case 1:	
-					//Add a select field to pick the customer from
-					//
-					var customerField = form.addField('custpage_customer_select', 'select', 'Works Order Customer', 'customer', 'custpage_grp2');
-					var producttypeField = form.addField('custpage_product_type_select', 'select', 'Product Type', 'customlist_bbs_item_product_type','custpage_grp2');
-					var glassspecField = form.addField('custpage_glass_spec_select', 'select', 'Glass Spec', null,'custpage_grp2');
-					var thicknessField = form.addField('custpage_thickness_select', 'select', 'Thickness', 'customlist_bbs_item_thickness','custpage_grp2');
-					var stockflagField = form.addField('custpage_stockflag_select', 'select', 'Stock / Processed', 'customlist_bbs_item_stock_processed','custpage_grp2');
-					
-					
-					//Hide the glass spec by default
-					//
-					//glassspecField.setDisplayType('hidden');
-					
-					var startDateField = form.addField('custpage_start_date', 'date', 'Ship Date Range From', null,'custpage_grp2');
-					var endDateField = form.addField('custpage_end_date', 'date', 'Ship Date Range To', null,'custpage_grp2');
-					
-					var today = new Date();
-					var todayString = nlapiDateToString(today);
-					
-					//startDateField.setDefaultValue(todayString);
-					//endDateField.setDefaultValue(todayString);
-					startDateField.setLayoutType('normal', 'startcol');
-					
-					//Add the allow reprint option
-					//
-					var allowReprintField = form.addField('custpage_allow_reprint_select', 'checkbox', 'Allow Reprint', null,'custpage_grp2');
-					
-					
-					//Find the glass specs
-					//
-					var glassSpecSearch = nlapiSearchRecord("noninventoryresaleitem",null,
-							[
-							   ["type","anyof","NonInvtPart"], 
-							   "AND", 
-							   ["subtype","anyof","Resale"], 
-							   "AND", 
-							   ["custitem_bbs_item_product_type","anyof","5"]
-							], 
-							[
-							   new nlobjSearchColumn("itemid").setSort(false), 
-							   new nlobjSearchColumn("salesdescription")			   
-							]
-							);
-					
-					glassspecField.addSelectOption(0, '', true);
-					
-					if(glassSpecSearch)
-						{
-							for (var int4 = 0; int4 < glassSpecSearch.length; int4++) 
-								{
-									var glassSpecId = glassSpecSearch[int4].getId();
-									var glassSpecDesc = glassSpecSearch[int4].getValue("salesdescription");
-									
-									glassspecField.addSelectOption(glassSpecId, glassSpecDesc, false);
-								}
-						}
-					
-					//Add a submit button to the form
-					//
-					form.addSubmitButton('Select Works Orders');
-					
-					break;
-			
-			case 2:	
-					//Filter the items to display based on the criteria chosen in stage 1
-					//
-					
-			
-					var customerField = form.addField('custpage_customer_select', 'text', 'Assembly Customer', null, 'custpage_grp2');
-					customerField.setDisplayType('disabled');
-					
-					if(customerId != '')
-						{
-							var text = nlapiLookupField('customer', customerId, 'companyname', false);
-							customerField.setDefaultValue(text);
-						}
-					
-					
-					var producttypeField = form.addField('custpage_product_type_select', 'text', 'Product Type', null, 'custpage_grp2');
-					producttypeField.setDisplayType('disabled');
-					producttypeField.setDefaultValue(productTypeText);
-	
-					
-					var glassspecField = form.addField('custpage_glass_spec_select', 'text', 'Glass Spec', null, 'custpage_grp2');
-					glassspecField.setDisplayType('disabled');
-					glassspecField.setDefaultValue(glassSpecText);
-					
-					if(productType != '5')
-						{
-							glassspecField.setDisplayType('hidden');
-						}
-					
-					var thicknessField = form.addField('custpage_thickness_select', 'text', 'Thickness', null, 'custpage_grp2');
-					thicknessField.setDisplayType('disabled');
-					thicknessField.setDefaultValue(thicknessText);
-	
-					var stockflagField = form.addField('custpage_stockflag_select', 'text', 'Stock / Processed', null, 'custpage_grp2');
-					stockflagField.setDisplayType('disabled');
-					stockflagField.setDefaultValue(stockFlagText);
-					
-					var startDateField = form.addField('custpage_start_date', 'date', 'Ship Date Range From', null,'custpage_grp2');
-					startDateField.setDisplayType('disabled');
-					startDateField.setLayoutType('normal', 'startcol');
-					
-					if(startDate != '')
-						{
-							startDateField.setDefaultValue(startDate);
-						}
-					
-					var endDateField = form.addField('custpage_end_date', 'date', 'Ship Date Range To', null,'custpage_grp2');
-					endDateField.setDisplayType('disabled');
-					
-					if(endDate != '')
-						{
-							endDateField.setDefaultValue(endDate);
-						}
-					
-					var allowReprintField = form.addField('custpage_allow_reprint_select', 'checkbox', 'Allow Reprint', null, 'custpage_grp2');
-					allowReprintField.setDisplayType('disabled');
-					allowReprintField.setDefaultValue(allowReprint);
-	
-					var tab = form.addTab('custpage_tab_items', 'Works Orders To Select');
-					tab.setLabel('Works Orders To Select');
-					
-					var tab2 = form.addTab('custpage_tab_items2', '');
-					
-					form.addField('custpage_tab2', 'text', 'test', null, 'custpage_tab_items2');
-					
-					var subList = form.addSubList('custpage_sublist_items', 'list', 'Works Orders To Select', 'custpage_tab_items');
-					
-					subList.setLabel('Works Orders To Select');
-					
-					//Add a mark/unmark button
-					//
-					subList.addMarkAllButtons();
-					
-					
-					var listSelect = subList.addField('custpage_sublist_tick', 'checkbox', 'Select', null);
-					var listWoNo = subList.addField('custpage_sublist_wo_no', 'text', 'Works Order No', null);
-					var listSoNo = subList.addField('custpage_sublist_so_no', 'text', 'Sales Order No', null);
-					var listCustomer = subList.addField('custpage_sublist_customer', 'text', 'WO Customer', null);
-					var listAssembly = subList.addField('custpage_sublist_assembly', 'text', 'Assembly', null);
-					var listQty = subList.addField('custpage_sublist_qty', 'float', 'Qty Required', null);
-					var listShipDate = subList.addField('custpage_sublist_ship_date', 'date', 'Ship Date', null);
-					var listShipPlanned = subList.addField('custpage_sublist_ship_planned', 'date', 'Planned Date', null);
-					var listDate = subList.addField('custpage_sublist_date', 'date', 'Date Entered', null);
-					var listProductType = subList.addField('custpage_sublist_product_type', 'text', 'Product Type', null);
-					var listGlassSpec = subList.addField('custpage_sublist_glass_spec', 'text', 'Glass Spec', null);
-					var listThickness = subList.addField('custpage_sublist_thickness', 'text', 'Thickness', null);
-					var listStockFlag = subList.addField('custpage_sublist_stock_flag', 'text', 'Stock / Processed', null);
-					var listPrintQty = subList.addField('custpage_sublist_copies', 'integer', 'Print Copies', null);
-					//listPrintQty.setDisplayType('entry');
-					
-					var listPrinted = subList.addField('custpage_sublist_printed', 'checkbox', 'Printed', null);
-					listPrinted.setDisplayType('disabled');
-					
-					var listId = subList.addField('custpage_sublist_id', 'text', 'Id', null);
-					listId.setDisplayType('hidden');
-					
-					var listSoTranId = subList.addField('custpage_sublist_so_tranid', 'text', 'Sales Order TranId', null);
-					listSoTranId.setDisplayType('hidden');
-					
-					var listCustEntityId = subList.addField('custpage_sublist_cust_entityid', 'text', 'Customer EntityId', null);
-					listCustEntityId.setDisplayType('hidden');
-					
-					
-					var filterArray = [
-					                   ["mainline","is","T"], 
-					                   "AND", 
-					                   ["type","anyof","WorkOrd"], 
-					                   "AND", 
-					                   ["custbody_bbs_wo_batch","anyof","@NONE@"], 
-					                   "AND", 
-					                   ["status","anyof","WorkOrd:A","WorkOrd:B","WorkOrd:D"]
-					                ];
-					
-					if(customerId != '')
-						{
-							filterArray.push("AND",["entity","anyof",customerId]);
-						}
-					
-					if(allowReprint != 'T')
-						{
-							filterArray.push("AND",["custbody_bbs_wo_printed","is",'F']);
-						}
-					
-					if(thickness != '')
-						{
-							filterArray.push("AND",["item.custitem_bbs_item_thickness","anyof",thickness]);
-						}
-					
-					if(stockFlag != '')
-						{
-							filterArray.push("AND",["item.custitem_bbs_item_stocked","is",stockFlag]);
-						}
-				
-					//Search by product type except if the product type filter is set to 'glass spec'
-					//
-					if(productType != '' && productType != '5')
-						{
-							filterArray.push("AND",["item.custitem_bbs_item_product_type","anyof",productType]);
-						}
-					
-					if(glassSpec != '' && glassSpec != '0')
-						{
-							filterArray.push("AND",["item.custitem_bbs_glass_spec","anyof",glassSpec]);
-						}
-					
-					if(startDate != '')
-						{
-							filterArray.push("AND",["createdfrom.shipdate","onorafter",startDate]);
-						}
-					
-					if(endDate != '')
-						{
-							filterArray.push("AND",["createdfrom.shipdate","onorbefore",endDate]);
-						}
+				{
+					case 1:	
+						//Add select fields
+						//
+						var customerField = form.addField('custpage_customer_select', 'select', 'Works Order Customer', 'customer', 'custpage_grp2');
+						var producttypeField = form.addField('custpage_product_type_select', 'select', 'Product Type', 'customlist_bbs_item_product_type','custpage_grp2');
+						var glassspecField = form.addField('custpage_glass_spec_select', 'select', 'Glass Spec', null,'custpage_grp2');
+						var thicknessField = form.addField('custpage_thickness_select', 'select', 'Thickness', 'customlist_bbs_item_thickness','custpage_grp2');
+						var stockflagField = form.addField('custpage_stockflag_select', 'select', 'Stock / Processed', 'customlist_bbs_item_stock_processed','custpage_grp2');
+												
+						//Hide the glass spec by default
+						//
+						//glassspecField.setDisplayType('hidden');
 						
-					var woSearch = nlapiCreateSearch("transaction", filterArray, 
-							[
-							   new nlobjSearchColumn("tranid",null,null), 
-							   new nlobjSearchColumn("entity",null,null), 
-							   new nlobjSearchColumn("item",null,null), 
-							   new nlobjSearchColumn("custitem_bbs_item_belongs_to","item",null), 
-							   new nlobjSearchColumn("custitem_bbs_item_thickness","item",null), 
-							   new nlobjSearchColumn("custitem_bbs_item_stocked","item",null), 
-							   new nlobjSearchColumn("custitem_bbs_item_product_type","item",null), 
-							   new nlobjSearchColumn("custitem_bbs_glass_spec","item",null), 
-							   new nlobjSearchColumn("quantity",null,null), 
-							   new nlobjSearchColumn("datecreated",null,null), 
-							   new nlobjSearchColumn("createdfrom",null,null),
-							   new nlobjSearchColumn("tranid","createdFrom",null), 
-							   new nlobjSearchColumn("externalid","customer",null),
-							   new nlobjSearchColumn("shipdate","createdFrom",null),
-							   new nlobjSearchColumn("custbody_bbs_sales_planned_ship","createdFrom",null),
-							   new nlobjSearchColumn("custbody_bbs_wo_copies",null,null),
-							   new nlobjSearchColumn("custbody_bbs_wo_printed",null,null)
-							]
-							);
-							
-					var searchResult = woSearch.runSearch();
-			
-					//Get the initial set of results
-					//
-					var start = 0;
-					var end = 1000;
-					var searchResultSet = searchResult.getResults(start, end);
-					var resultlen = searchResultSet.length;
-			
-					//If there is more than 1000 results, page through them
-					//
-					while (resultlen == 1000) 
-						{
-								start += 1000;
-								end += 1000;
-			
-								var moreSearchResultSet = searchResult.getResults(start, end);
-								resultlen = moreSearchResultSet.length;
-			
-								searchResultSet = searchResultSet.concat(moreSearchResultSet);
-						}
+						var startDateField = form.addField('custpage_start_date', 'date', 'Ship Date Range From', null,'custpage_grp2');
+						var endDateField = form.addField('custpage_end_date', 'date', 'Ship Date Range To', null,'custpage_grp2');
 						
-					//Copy the results to the sublist
-					//
-					var line = Number(0);
-					var memberItemRecords = {};
-					var fullFinishItems = {};
-					
-					for (var int = 0; int < searchResultSet.length; int++) 
-						{
-							line++;
+						var today = new Date();
+						var todayString = nlapiDateToString(today);
+						
+						//startDateField.setDefaultValue(todayString);
+						//endDateField.setDefaultValue(todayString);
+						startDateField.setLayoutType('normal', 'startcol');
+						
+						//Add the allow reprint option
+						//
+						var allowReprintField = form.addField('custpage_allow_reprint_select', 'checkbox', 'Allow Reprint', null,'custpage_grp2');
+						
+						//Find the glass specs
+						//
+						var glassSpecSearch = nlapiSearchRecord("noninventoryresaleitem",null,
+								[
+								   ["type","anyof","NonInvtPart"], 
+								   "AND", 
+								   ["subtype","anyof","Resale"], 
+								   "AND", 
+								   ["custitem_bbs_item_product_type","anyof","5"]
+								], 
+								[
+								   new nlobjSearchColumn("itemid").setSort(false), 
+								   new nlobjSearchColumn("salesdescription")			   
+								]
+								);
+						
+						glassspecField.addSelectOption(0, '', true);
+						
+						if(glassSpecSearch)
+							{
+								for (var int4 = 0; int4 < glassSpecSearch.length; int4++) 
+									{
+										var glassSpecId = glassSpecSearch[int4].getId();
+										var glassSpecDesc = glassSpecSearch[int4].getValue("salesdescription");
+										
+										glassspecField.addSelectOption(glassSpecId, glassSpecDesc, false);
+									}
+							}
+						
+						//Add a submit button to the form
+						//
+						form.addSubmitButton('Select Works Orders');
+						
+						break;
 				
-							subList.setLineItemValue('custpage_sublist_wo_no', line, searchResultSet[int].getValue('tranid'));
-							subList.setLineItemValue('custpage_sublist_so_no', line, searchResultSet[int].getText('createdfrom'));
-							subList.setLineItemValue('custpage_sublist_customer', line, searchResultSet[int].getText('entity'));
-							subList.setLineItemValue('custpage_sublist_assembly', line, searchResultSet[int].getText('item'));
-							subList.setLineItemValue('custpage_sublist_qty', line, searchResultSet[int].getValue('quantity'));
+				case 2:	
+						//Filter the items to display based on the criteria chosen in stage 1
+						//
+						var customerField = form.addField('custpage_customer_select', 'text', 'Assembly Customer', null, 'custpage_grp2');
+						customerField.setDisplayType('disabled');
+						
+						if(customerId != '')
+							{
+								var text = nlapiLookupField('customer', customerId, 'companyname', false);
+								customerField.setDefaultValue(text);
+							}
+						
+						var producttypeField = form.addField('custpage_product_type_select', 'text', 'Product Type', null, 'custpage_grp2');
+						producttypeField.setDisplayType('disabled');
+						producttypeField.setDefaultValue(productTypeText);
 							
-							subList.setLineItemValue('custpage_sublist_date', line, searchResultSet[int].getValue('datecreated').split(' ')[0]);
-							
-							subList.setLineItemValue('custpage_sublist_id', line, searchResultSet[int].getId());
-							subList.setLineItemValue('custpage_sublist_so_tranid', line, searchResultSet[int].getValue('tranid','createdFrom'));
-							subList.setLineItemValue('custpage_sublist_cust_entityid', line, searchResultSet[int].getValue('externalid','customer'));
-							subList.setLineItemValue('custpage_sublist_ship_date', line, searchResultSet[int].getValue("shipdate","createdFrom"));
-							subList.setLineItemValue('custpage_sublist_ship_planned', line, searchResultSet[int].getValue("custbody_bbs_sales_planned_ship","createdFrom"));
-							
-							subList.setLineItemValue('custpage_sublist_product_type', line, searchResultSet[int].getText('custitem_bbs_item_product_type', 'item'));
-							subList.setLineItemValue('custpage_sublist_glass_spec', line, searchResultSet[int].getText('custitem_bbs_glass_spec'));
-							subList.setLineItemValue('custpage_sublist_thickness', line, searchResultSet[int].getText('custitem_bbs_item_thickness', 'item'));
-							subList.setLineItemValue('custpage_sublist_stock_flag', line, searchResultSet[int].getText("custitem_bbs_item_stocked","item"));
-							
-							subList.setLineItemValue('custpage_sublist_copies', line, searchResultSet[int].getValue('custbody_bbs_wo_copies'));
-							subList.setLineItemValue('custpage_sublist_printed', line, searchResultSet[int].getValue('custbody_bbs_wo_printed'));
-							
-						}
-			
-					form.addSubmitButton('Bulk Print Works Orders');
+						var glassspecField = form.addField('custpage_glass_spec_select', 'text', 'Glass Spec', null, 'custpage_grp2');
+						glassspecField.setDisplayType('disabled');
+						glassspecField.setDefaultValue(glassSpecText);
+						
+						if(productType != '5')
+							{
+								glassspecField.setDisplayType('hidden');
+							}
+						
+						var thicknessField = form.addField('custpage_thickness_select', 'text', 'Thickness', null, 'custpage_grp2');
+						thicknessField.setDisplayType('disabled');
+						thicknessField.setDefaultValue(thicknessText);
 		
-					break;
-	
-				}
+						var stockflagField = form.addField('custpage_stockflag_select', 'text', 'Stock / Processed', null, 'custpage_grp2');
+						stockflagField.setDisplayType('disabled');
+						stockflagField.setDefaultValue(stockFlagText);
+						
+						var startDateField = form.addField('custpage_start_date', 'date', 'Ship Date Range From', null,'custpage_grp2');
+						startDateField.setDisplayType('disabled');
+						startDateField.setLayoutType('normal', 'startcol');
+						
+						if(startDate != '')
+							{
+								startDateField.setDefaultValue(startDate);
+							}
+						
+						var endDateField = form.addField('custpage_end_date', 'date', 'Ship Date Range To', null,'custpage_grp2');
+						endDateField.setDisplayType('disabled');
+						
+						if(endDate != '')
+							{
+								endDateField.setDefaultValue(endDate);
+							}
+						
+						var allowReprintField = form.addField('custpage_allow_reprint_select', 'checkbox', 'Allow Reprint', null, 'custpage_grp2');
+						allowReprintField.setDisplayType('disabled');
+						allowReprintField.setDefaultValue(allowReprint);
+		
+						var tab = form.addTab('custpage_tab_items', 'Works Orders To Select');
+						tab.setLabel('Works Orders To Select');
+						
+						var tab2 = form.addTab('custpage_tab_items2', '');
+						
+						form.addField('custpage_tab2', 'text', 'test', null, 'custpage_tab_items2');
+						
+						var subList = form.addSubList('custpage_sublist_items', 'list', 'Works Orders To Select', 'custpage_tab_items');
+						
+						subList.setLabel('Works Orders To Select');
+						
+						//Add a mark/unmark button
+						//
+						subList.addMarkAllButtons();
+						
+						//Add the sublist fields
+						//
+						var listSelect 		= subList.addField('custpage_sublist_tick', 'checkbox', 'Select', null);
+						var listWoNo 		= subList.addField('custpage_sublist_wo_no', 'text', 'Works Order No', null);
+						var listSoNo 		= subList.addField('custpage_sublist_so_no', 'text', 'Sales Order No', null);
+						var listCustomer 	= subList.addField('custpage_sublist_customer', 'text', 'WO Customer', null);
+						var listAssembly 	= subList.addField('custpage_sublist_assembly', 'text', 'Assembly', null);
+						var listQty 		= subList.addField('custpage_sublist_qty', 'float', 'Qty Required', null);
+						var listShipDate 	= subList.addField('custpage_sublist_ship_date', 'date', 'Ship Date', null);
+						var listShipPlanned = subList.addField('custpage_sublist_ship_planned', 'date', 'Planned Date', null);
+						var listDate 		= subList.addField('custpage_sublist_date', 'date', 'Date Entered', null);
+						var listProductType = subList.addField('custpage_sublist_product_type', 'text', 'Product Type', null);
+						var listGlassSpec 	= subList.addField('custpage_sublist_glass_spec', 'text', 'Glass Spec', null);
+						var listThickness 	= subList.addField('custpage_sublist_thickness', 'text', 'Thickness', null);
+						var listStockFlag 	= subList.addField('custpage_sublist_stock_flag', 'text', 'Stock / Processed', null);
+						var listPrintQty 	= subList.addField('custpage_sublist_copies', 'integer', 'Print Copies', null);
+						//listPrintQty.setDisplayType('entry');
+						
+						var listPrinted = subList.addField('custpage_sublist_printed', 'checkbox', 'Printed', null);
+						listPrinted.setDisplayType('disabled');
+						
+						var listId = subList.addField('custpage_sublist_id', 'text', 'Id', null);
+						listId.setDisplayType('hidden');
+						
+						var listSoTranId = subList.addField('custpage_sublist_so_tranid', 'text', 'Sales Order TranId', null);
+						listSoTranId.setDisplayType('hidden');
+						
+						var listCustEntityId = subList.addField('custpage_sublist_cust_entityid', 'text', 'Customer EntityId', null);
+						listCustEntityId.setDisplayType('hidden');
+						
+						//Build the filter array
+						//
+						var filterArray = [
+						                   ["mainline","is","T"], 
+						                   "AND", 
+						                   ["type","anyof","WorkOrd"], 
+						                   "AND", 
+						                   ["status","anyof","WorkOrd:A","WorkOrd:B","WorkOrd:D"]
+						                ];
+						
+						if(customerId != '')
+							{
+								filterArray.push("AND",["entity","anyof",customerId]);
+							}
+						
+						if(allowReprint != 'T')
+							{
+								filterArray.push("AND",["custbody_bbs_wo_printed","is",'F']);
+							}
+						
+						if(thickness != '')
+							{
+								filterArray.push("AND",["item.custitem_bbs_item_thickness","anyof",thickness]);
+							}
+						
+						if(stockFlag != '')
+							{
+								filterArray.push("AND",["item.custitem_bbs_item_stocked","is",stockFlag]);
+							}
+					
+						//Search by product type except if the product type filter is set to 'glass spec'
+						//
+						if(productType != '' && productType != '5')
+							{
+								filterArray.push("AND",["item.custitem_bbs_item_product_type","anyof",productType]);
+							}
+						
+						if(glassSpec != '' && glassSpec != '0')
+							{
+								filterArray.push("AND",["item.custitem_bbs_glass_spec","anyof",glassSpec]);
+							}
+						
+						if(startDate != '')
+							{
+								filterArray.push("AND",["createdfrom.shipdate","onorafter",startDate]);
+							}
+						
+						if(endDate != '')
+							{
+								filterArray.push("AND",["createdfrom.shipdate","onorbefore",endDate]);
+							}
+							
+						var woSearch = getResults(nlapiCreateSearch("transaction", filterArray, 
+								[
+								   new nlobjSearchColumn("tranid",null,null), 
+								   new nlobjSearchColumn("entity",null,null), 
+								   new nlobjSearchColumn("item",null,null), 
+								   new nlobjSearchColumn("custitem_bbs_item_belongs_to","item",null), 
+								   new nlobjSearchColumn("custitem_bbs_item_thickness","item",null), 
+								   new nlobjSearchColumn("custitem_bbs_item_stocked","item",null), 
+								   new nlobjSearchColumn("custitem_bbs_item_product_type","item",null), 
+								   new nlobjSearchColumn("custitem_bbs_glass_spec","item",null), 
+								   new nlobjSearchColumn("quantity",null,null), 
+								   new nlobjSearchColumn("datecreated",null,null), 
+								   new nlobjSearchColumn("createdfrom",null,null),
+								   new nlobjSearchColumn("tranid","createdFrom",null), 
+								   new nlobjSearchColumn("externalid","customer",null),
+								   new nlobjSearchColumn("shipdate","createdFrom",null),
+								   new nlobjSearchColumn("custbody_bbs_sales_planned_ship","createdFrom",null),
+								   new nlobjSearchColumn("custbody_bbs_wo_copies",null,null),
+								   new nlobjSearchColumn("custbody_bbs_wo_printed",null,null)
+								]
+								));
+								
+						if(woSearch != null && woSearch.length > 0)
+							{
+								//Copy the results to the sublist
+								//
+								var line = Number(0);
+								
+								for (var int = 0; int < woSearch.length; int++) 
+									{
+										line++;
+							
+										subList.setLineItemValue('custpage_sublist_wo_no', line, woSearch[int].getValue('tranid'));
+										subList.setLineItemValue('custpage_sublist_so_no', line, woSearch[int].getText('createdfrom'));
+										subList.setLineItemValue('custpage_sublist_customer', line, woSearch[int].getText('entity'));
+										subList.setLineItemValue('custpage_sublist_assembly', line, woSearch[int].getText('item'));
+										subList.setLineItemValue('custpage_sublist_qty', line, woSearch[int].getValue('quantity'));
+										
+										subList.setLineItemValue('custpage_sublist_date', line, woSearch[int].getValue('datecreated').split(' ')[0]);
+										
+										subList.setLineItemValue('custpage_sublist_id', line, woSearch[int].getId());
+										subList.setLineItemValue('custpage_sublist_so_tranid', line, woSearch[int].getValue('tranid','createdFrom'));
+										subList.setLineItemValue('custpage_sublist_cust_entityid', line, woSearch[int].getValue('externalid','customer'));
+										subList.setLineItemValue('custpage_sublist_ship_date', line, woSearch[int].getValue("shipdate","createdFrom"));
+										subList.setLineItemValue('custpage_sublist_ship_planned', line, woSearch[int].getValue("custbody_bbs_sales_planned_ship","createdFrom"));
+										
+										subList.setLineItemValue('custpage_sublist_product_type', line, woSearch[int].getText('custitem_bbs_item_product_type', 'item'));
+										subList.setLineItemValue('custpage_sublist_glass_spec', line, woSearch[int].getText('custitem_bbs_glass_spec'));
+										subList.setLineItemValue('custpage_sublist_thickness', line, woSearch[int].getText('custitem_bbs_item_thickness', 'item'));
+										subList.setLineItemValue('custpage_sublist_stock_flag', line, woSearch[int].getText("custitem_bbs_item_stocked","item"));
+										
+										subList.setLineItemValue('custpage_sublist_copies', line, woSearch[int].getValue('custbody_bbs_wo_copies'));
+										subList.setLineItemValue('custpage_sublist_printed', line, woSearch[int].getValue('custbody_bbs_wo_printed'));	
+									}
+							}
+						
+						form.addSubmitButton('Bulk Print Works Orders');
+			
+						break;
+		
+					}
 			
 			//Write the response
 			//
@@ -610,39 +566,37 @@ function woBulkPrintSuitelet(request, response)
 				{
 					case 1:
 		
-						var customerId = request.getParameter('custpage_customer_select');
-						var allowReprint = request.getParameter('custpage_allow_reprint_select');
-						var thickness = request.getParameter('custpage_thickness_select');
-						var thicknesstext = request.getParameter('custpage_thickness_text');
-						var mode = request.getParameter('custpage_mode');
-						var producttype = request.getParameter('custpage_product_type_select');
+						var customerId 		= request.getParameter('custpage_customer_select');
+						var allowReprint 	= request.getParameter('custpage_allow_reprint_select');
+						var thickness 		= request.getParameter('custpage_thickness_select');
+						var thicknesstext 	= request.getParameter('custpage_thickness_text');
+						var producttype 	= request.getParameter('custpage_product_type_select');
 						var producttypetext = request.getParameter('custpage_prod_type_text');
-						var glassspec = request.getParameter('custpage_glass_spec_select');
-						var glassspectext = request.getParameter('custpage_glass_spec_text');
-						var startDate = request.getParameter('custpage_start_date');
-						var endDate = request.getParameter('custpage_end_date');
-						var stockflag = request.getParameter('custpage_stockflag_select');
-						var stockflagtext = request.getParameter('custpage_stockflag_text');
-						var otherrefnum = request.getParameter('custpage_stockflag_text');
+						var glassspec 		= request.getParameter('custpage_glass_spec_select');
+						var glassspectext 	= request.getParameter('custpage_glass_spec_text');
+						var startDate 		= request.getParameter('custpage_start_date');
+						var endDate 		= request.getParameter('custpage_end_date');
+						var stockflag 		= request.getParameter('custpage_stockflag_select');
+						var stockflagtext 	= request.getParameter('custpage_stockflag_text');
+						var otherrefnum 	= request.getParameter('custpage_stockflag_text');
 						
 						
 						//Build up the parameters so we can call this suitelet again, but move it on to the next stage
 						//
-						var params = new Array();
-						params['customerid'] = customerId;
-						params['allowreprint'] = allowReprint;
-						params['stage'] = '2';
-						params['thickness'] = thickness;
-						params['thicknesstext'] = thicknesstext;
-						params['mode'] = mode;
-						params['producttype'] = producttype;
-						params['producttypetext'] = producttypetext;
-						params['glassspec'] = glassspec;
-						params['glassspectext'] = glassspectext;
-						params['startdate'] = startDate;
-						params['enddate'] = endDate;
-						params['stockflag'] = stockflag;
-						params['stockflagtext'] = stockflagtext;
+						var params 					= new Array();
+						params['customerid'] 		= customerId;
+						params['allowreprint'] 		= allowReprint;
+						params['stage'] 			= '2';
+						params['thickness'] 		= thickness;
+						params['thicknesstext'] 	= thicknesstext;
+						params['producttype'] 		= producttype;
+						params['producttypetext'] 	= producttypetext;
+						params['glassspec'] 		= glassspec;
+						params['glassspectext'] 	= glassspectext;
+						params['startdate'] 		= startDate;
+						params['enddate'] 			= endDate;
+						params['stockflag'] 		= stockflag;
+						params['stockflagtext'] 	= stockflagtext;
 						
 						response.sendRedirect('SUITELET',nlapiGetContext().getScriptId(), nlapiGetContext().getDeploymentId(), null, params);
 						
@@ -650,18 +604,18 @@ function woBulkPrintSuitelet(request, response)
 						
 					case 2:
 						
-						var lineCount = request.getLineItemCount('custpage_sublist_items');
-						var woObj = [];
-						var today = new Date();
-						var now = today.toUTCString();
+						var lineCount 	= request.getLineItemCount('custpage_sublist_items');
+						var woObj 		= [];
+						var today 		= new Date();
+						var now 		= today.toUTCString();
 						
 						//
 						//=====================================================================
 						// Start the xml off with the basic header info & the start of a pdfset
 						//=====================================================================
 						//
-						var xml = "<?xml version=\"1.0\"?>\n<!DOCTYPE pdf PUBLIC \"-//big.faceless.org//report\" \"report-1.1.dtd\">\n<pdfset>";  // Main XML
-						var xmlPt = ''; // Production Ticket XML
+						var xml 	= "<?xml version=\"1.0\"?>\n<!DOCTYPE pdf PUBLIC \"-//big.faceless.org//report\" \"report-1.1.dtd\">\n<pdfset>";  // Main XML
+						var xmlPt 	= ''; 
 						
 						
 						//Loop round the sublist to find rows that are ticked
@@ -697,6 +651,7 @@ function woBulkPrintSuitelet(request, response)
 								   new nlobjSearchColumn("memo"), 
 								   new nlobjSearchColumn("quantity"), 
 								   new nlobjSearchColumn("custbody_bbs_wo_copies"), 
+								   new nlobjSearchColumn("custbody_bbs_wo_printed",null,null),
 								   new nlobjSearchColumn("tranid","createdFrom",null), 
 								   new nlobjSearchColumn("custbody_bbs_order_packing_notes","createdFrom",null), 
 								   new nlobjSearchColumn("custbody_bbs_order_internal_note","createdFrom",null), 
@@ -737,6 +692,7 @@ function woBulkPrintSuitelet(request, response)
 										var woMemo 			= workorderSearch[resultCounter].getValue("memo");
 										var woQuantity 		= workorderSearch[resultCounter].getValue("quantity");
 										var woCopies 		= Number(workorderSearch[resultCounter].getValue("custbody_bbs_wo_copies"));
+										var woPrinted 		= workorderSearch[resultCounter].getValue("custbody_bbs_wo_printed");
 										var woSalesOrder	= workorderSearch[resultCounter].getValue("tranid","createdFrom");
 										var woShipDate		= workorderSearch[resultCounter].getValue("shipdate","createdFrom");
 										var woPackNotes 	= workorderSearch[resultCounter].getValue("custbody_bbs_order_packing_notes","createdFrom");
@@ -762,25 +718,27 @@ function woBulkPrintSuitelet(request, response)
 										
 										woCopies = (woCopies == null || woCopies == 0 ? 1 : woCopies);
 										
-										//Update the Wo to say it has been printed
+										//Update the WO to say it has been printed
 										//
-										try
+										if(woPrinted != 'T')
 											{
-												nlapiSubmitField('workorder', woId, 'custbody_bbs_wo_printed', 'T', false);
+												try
+													{
+														nlapiSubmitField('workorder', woId, 'custbody_bbs_wo_printed', 'T', false);
+													}
+												catch(err)
+													{
+														nlapiLogExecution('ERROR', 'Error updating printed flag on works order id = ' + woId, err.message);
+													}
 											}
-										catch(err)
-											{
-												nlapiLogExecution('ERROR', 'Error updating printed flag on works order id = ' + woId, err.message);
-											}
-
+										
 										//Process each work order into a pdf
 										//
-										xmlPt = '';
+										xmlPt 		= '';
 										var tickBox = 'https://5030713.app.netsuite.com/core/media/media.nl?id=4900&amp;c=5030713&amp;h=bca6ab8ca058a2e137be';
 										
 										for (var copyCounter = 1; copyCounter <= woCopies; copyCounter++) 
 											{	
-										
 												//Header & style sheet
 												//
 												xmlPt += "<pdf>"
@@ -815,7 +773,6 @@ function woBulkPrintSuitelet(request, response)
 												//Body
 												//
 												xmlPt += "<body padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
-												
 												xmlPt += "<table class=\"header\" style=\"width: 100%;\"><tr>";
 												xmlPt += "<td>&nbsp;</td>";
 												xmlPt += "<td align=\"right\">&nbsp;</td>";
@@ -828,17 +785,14 @@ function woBulkPrintSuitelet(request, response)
 												xmlPt += "<td align=\"right\">&nbsp;</td>";
 												xmlPt += "</tr>";
 												xmlPt += "</table>";
-												
-												
+																								
 												xmlPt += "<table style=\"width: 100%; margin-top: 20px;\">";
-												
 												xmlPt += "<tr>";
 												xmlPt += "<td align=\"left\" style=\"font-size:12px; padding-left: 5px; padding-bottom: 5px;\"><b>Order Details</b></td>";
 												xmlPt += "</tr>";
 												xmlPt += "</table>";
 												
-												xmlPt += "<table style=\"width: 100%; border: 1px solid black; \">";
-												
+												xmlPt += "<table style=\"width: 100%; border: 1px solid black; \">";												
 												xmlPt += "<tr style=\"line-height: 200%;\">";
 												xmlPt += "<td colspan=\"2\" align=\"left\" style=\"font-size:12px; padding-left: 5px; padding-bottom: 2px;\"><b>Sales Order Id:</b></td>";
 												xmlPt += "<td colspan=\"1\" align=\"left\" style=\"font-size:12px; padding-bottom: 2px;\"><b>" + woSalesOrder + "</b></td>";
@@ -1048,27 +1002,20 @@ function woBulkPrintSuitelet(request, response)
 														xmlPt += "<td colspan=\"1\" align=\"left\" style=\"font-size:10px; padding-left: 5px; padding-top: 4px;\">&nbsp;</td>";
 													}
 												xmlPt += "<td colspan=\"3\" align=\"left\" style=\"font-size:10px; padding-bottom: 2px;\">Wrapping</td>";
-												xmlPt += "</tr>";
-												
+												xmlPt += "</tr>";									
 												xmlPt += "</table>";
 												
 												xmlPt += "</td>";
-												xmlPt += "</tr>";
-												
-												
+												xmlPt += "</tr>";											
 												xmlPt += "</table>";
-												
-												
-												
-												xmlPt += "<table style=\"width: 100%; margin-top: 20px;\">";
-												
+																								
+												xmlPt += "<table style=\"width: 100%; margin-top: 20px;\">";												
 												xmlPt += "<tr>";
 												xmlPt += "<td align=\"left\" style=\"font-size:12px; padding-left: 5px; padding-bottom: 5px;\"><b>Production Data</b></td>";
 												xmlPt += "</tr>";
 												xmlPt += "</table>";
 												
-												xmlPt += "<table style=\"width: 100%; border: 1px solid black; \">";
-												
+												xmlPt += "<table style=\"width: 100%; border: 1px solid black; \">";											
 												xmlPt += "<tr style=\"line-height: 200%;\">";
 												xmlPt += "<td colspan=\"1\" align=\"left\" style=\"font-size:12px; padding-left: 5px; padding-bottom: 2px;\"><b>Works Order:</b></td>";
 												xmlPt += "<td colspan=\"2\" align=\"left\" style=\"font-size:12px; padding-bottom: 2px; margin-right: 10px;\"><b>" + woNumber + "</b></td>";
@@ -1144,6 +1091,8 @@ function woBulkPrintSuitelet(request, response)
 												xmlPt += "</pdf>";
 											}
 										
+										//Update the main xml string
+										//
 										xml += xmlPt;
 									}
 								
@@ -1160,13 +1109,25 @@ function woBulkPrintSuitelet(request, response)
 								
 								//Convert to pdf using the BFO library
 								//
-								var pdfFileObject = nlapiXMLToPDF(xml);
+								var pdfFileObject = null;
 								
+								try
+									{
+										pdfFileObject = nlapiXMLToPDF(xml);
+									}
+								catch(err)
+									{
+										pdfFileObject = null;
+										nlapiLogExecution('ERROR', 'Error generating PDF output', err.message);
+									}
 								
 								//Send back the output in the response message
 								//
-								response.setContentType('PDF', 'Works Order Documents', 'inline');
-								response.write(pdfFileObject.getValue());
+								if(pdfFileObject != null)
+									{
+										response.setContentType('PDF', 'Works Order Documents', 'inline');
+										response.write(pdfFileObject.getValue());
+									}
 							}
 						
 						break;
@@ -1178,41 +1139,6 @@ function woBulkPrintSuitelet(request, response)
 //Functions
 //=====================================================================
 //
-function getItemRecType(ItemType)
-	{
-		var itemType = '';
-		
-		switch(ItemType)
-		{
-			case 'InvtPart':
-				itemType = 'inventoryitem';
-				break;
-				
-			case 'Assembly':
-				itemType = 'assemblyitem';
-				break;
-				
-			case 'NonInvtPart':
-				itemType = 'noninventoryitem';
-				break;
-		}
-	
-		return itemType;
-	}
-
-function removePrefix(fullString)
-	{
-		var returnString = fullString;
-		
-		var colon = fullString.indexOf(' : ');
-		
-		if(colon > -1)
-			{
-				returnString = fullString.substr(colon + 2);
-			}
-		
-		return returnString;
-	}
 
 function getResults(search)
 	{
@@ -1220,44 +1146,32 @@ function getResults(search)
 		
 		//Get the initial set of results
 		//
-		var start = 0;
-		var end = 1000;
+		var start 			= 0;
+		var end 			= 1000;
 		var searchResultSet = searchResult.getResults(start, end);
-		var resultlen = searchResultSet.length;
+		var resultlen 		= searchResultSet.length;
 	
 		//If there is more than 1000 results, page through them
 		//
 		while (resultlen == 1000) 
 			{
-					start += 1000;
-					end += 1000;
+					start 	+= 1000;
+					end 	+= 1000;
 	
 					var moreSearchResultSet = searchResult.getResults(start, end);
-					resultlen = moreSearchResultSet.length;
-	
-					searchResultSet = searchResultSet.concat(moreSearchResultSet);
+					
+					if(moreSearchResultSet != null)
+						{
+							resultlen 		= moreSearchResultSet.length;
+							searchResultSet = searchResultSet.concat(moreSearchResultSet);
+						}
+					else
+						{
+							resultlen = 0;
+						}
 			}
 		
 		return searchResultSet;
-	}
-
-//left padding s with c to a total of n chars
-//
-function padding_left(s, c, n) 
-	{
-		if (! s || ! c || s.length >= n) 
-		{
-			return s;
-		}
-		
-		var max = (n - s.length)/c.length;
-		
-		for (var i = 0; i < max; i++) 
-		{
-			s = c + s;
-		}
-		
-		return s;
 	}
 
 function findCustPartNo(_customerId, _itemId)

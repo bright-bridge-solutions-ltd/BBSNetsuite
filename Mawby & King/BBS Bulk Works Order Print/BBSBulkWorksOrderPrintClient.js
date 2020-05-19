@@ -78,39 +78,6 @@ function clientSaveRecord()
     return returnStatus;
 }
 
-function getResults(search)
-{
-	var searchResult = search.runSearch();
-	
-	//Get the initial set of results
-	//
-	var start = 0;
-	var end = 1000;
-	var searchResultSet = searchResult.getResults(start, end);
-	var resultlen = searchResultSet.length;
-
-	//If there is more than 1000 results, page through them
-	//
-	while (resultlen == 1000) 
-		{
-				start += 1000;
-				end += 1000;
-
-				var moreSearchResultSet = searchResult.getResults(start, end);
-				
-				if(moreSearchResultSet != null)
-					{
-						resultlen = moreSearchResultSet.length;
-						searchResultSet = searchResultSet.concat(moreSearchResultSet);
-					}
-				else
-					{
-						resultlen = 0;
-					}
-		}
-	
-	return searchResultSet;
-}
 
 
 
