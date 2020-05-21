@@ -28,7 +28,7 @@ function processCustomers()
 			//   "AND", 
 			//   ["category","anyof",CUSTOMER_CATEGORY], 
 			   "AND", 
-			   ["custentity_bbs_customer_segment","anyof","@NONE@"]
+			   ["cseg_bbs_customer","anyof","@NONE@"]
 			], 
 			[
 			   new nlobjSearchColumn("entityid").setSort(false)
@@ -44,7 +44,7 @@ function processCustomers()
 					var customerId = customerSearch[int].getId();
 					var customerName = customerSearch[int].getValue('entityid');
 					
-					createSegment('customer', customerId, 'custentity_bbs_customer_segment', customerName, 'customrecord_cseg_bbs_customer');
+					createSegment('customer', customerId, 'cseg_bbs_customer', customerName, 'customrecord_cseg_bbs_customer');
 				}
 		}
 }
@@ -57,7 +57,7 @@ function processSuppliers()
 			   "AND", 
 			   ["category","anyof",SUPPLIER_CATEGORY], 
 			   "AND", 
-			   ["custentity_bbs_supplier_segment","anyof","@NONE@"]
+			   ["cseg_bbs_supplier","anyof","@NONE@"]
 			], 
 			[
 			   new nlobjSearchColumn("entityid").setSort(false)
@@ -73,7 +73,7 @@ function processSuppliers()
 					var customerId = vendorSearch[int].getId();
 					var customerName = vendorSearch[int].getValue('entityid');
 					
-					createSegment('vendor', customerId, 'custentity_bbs_supplier_segment', customerName, 'customrecord_cseg_bbs_supplier');
+					createSegment('vendor', customerId, 'cseg_bbs_supplier', customerName, 'customrecord_cseg_bbs_supplier');
 				}
 		}
 }
