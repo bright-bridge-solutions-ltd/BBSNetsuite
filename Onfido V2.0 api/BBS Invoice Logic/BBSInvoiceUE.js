@@ -580,6 +580,23 @@ function(file, record, render, runtime, search, email)
 							    line: int
 							}));
 		
+							//Get the item display name from the item record
+							//
+							var itemDisplayName = itemDescription;
+							
+							try
+								{
+									itemDisplayName = search.lookupFields({
+																			type:		search.Type.NON_INVENTORY_ITEM,
+																			id:			itemId,
+																			columns:	'displayname'
+																		}).displayname;
+								}
+							catch(err)
+								{
+								
+								}
+							
 							var itemVatRate = Number(0);
 							
 							try
@@ -597,15 +614,14 @@ function(file, record, render, runtime, search, email)
 							
 							// build up the key for the summary
 							// itemId + itemUnitPrice
-							var key = padding_left(itemId, '0', 6) + 
-				        	padding_left(itemUnitPrice, '0', 6);
+							var key = padding_left(itemId, '0', 6) + padding_left(itemUnitPrice, '0', 6);
 							
 							//See if we have the key in the summary
 							//
 							if(!summary[key])
 								{
 									//Add it to the summary
-									summary[key] = new itemSummaryInfo(itemId, itemDescription, itemUnitPrice, itemQuantity, itemAmount, itemVatAmount, itemVatRate, currencySymbol);
+									summary[key] = new itemSummaryInfo(itemId, itemDisplayName, itemUnitPrice, itemQuantity, itemAmount, itemVatAmount, itemVatRate, currencySymbol);
 								}
 							else
 								{
@@ -628,12 +644,12 @@ function(file, record, render, runtime, search, email)
 			    	try
 			    		{
 			    			record.submitFields({
-			    				type: thisRecord.type,
-			    				id: thisRecord.id,
-			    				values: {
-			    					custbody_bbs_json_summary: JSON.stringify(outputArray)
-			    				}
-			    			});
+							    				type: 	thisRecord.type,
+							    				id: 	thisRecord.id,
+							    				values: {
+							    						custbody_bbs_json_summary: JSON.stringify(outputArray)
+							    						}
+			    								});
 			    		}
 			    	catch(err)
 			    		{
