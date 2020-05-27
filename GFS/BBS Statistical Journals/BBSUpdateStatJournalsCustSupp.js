@@ -115,7 +115,7 @@ function scheduled(type)
 															//
 															if(lineCustomer != null && lineCustomer != '')
 																{
-																	var customerSegment = nlapiLookupField('customer', lineCustomer, 'custentity_bbs_customer_segment', false);
+																	var customerSegment = nlapiLookupField('customer', lineCustomer, 'cseg_bbs_customer', false);
 																	
 																	if(customerSegment != null && customerSegment != '')
 																		{
@@ -125,7 +125,7 @@ function scheduled(type)
 															
 															if(lineSupplier != null && lineSupplier != '')
 																{
-																	var supplierSegment = nlapiLookupField('vendor', lineSupplier, 'custentity_bbs_supplier_segment', false);
+																	var supplierSegment = nlapiLookupField('vendor', lineSupplier, 'cseg_bbs_supplier', false);
 																	
 																	if(supplierSegment != null && supplierSegment != '')
 																		{
