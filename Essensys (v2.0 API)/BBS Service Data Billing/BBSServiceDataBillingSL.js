@@ -3,9 +3,9 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['N/ui/serverWidget', 'N/ui/message', 'N/task', 'N/url', 'N/redirect'],
+define(['N/ui/serverWidget', 'N/ui/message', 'N/task', 'N/url', 'N/redirect', 'N/runtime'],
 
-function(ui, message, task, url, redirect) {
+function(ui, message, task, url, redirect, runtime) {
    
     /**
      * Definition of the Suitelet script trigger point.
@@ -104,6 +104,9 @@ function(ui, message, task, url, redirect) {
 				
 				// get the text value of the subsidiary select field
     			var subsidiaryText = context.request.parameters.inpt_subsidiaryselect;
+    			
+    			// get the internal ID of the current user
+    			var currentUser = runtime.getCurrentUser().id;
 				
 				// =====================================================
 		    	// SCHEDULE MAP/REDUCE SCRIPT TO CREATE ARREARS INVOICES
@@ -115,7 +118,9 @@ function(ui, message, task, url, redirect) {
 		    	    scriptId: 'customscript_bbs_service_data_billing_mr',
 		    	    deploymentId: 'customdeploy_bbs_service_data_billing_mr',
 		    	    params: {
-    	    	    	custscript_bbs_subsidiary_select: subsidiary
+    	    	    	custscript_bbs_subsidiary_select: subsidiary,
+    	    	    	custscript_bbs_subsidiary_text: subsidiaryText,
+    	    	    	custscript_bbs_service_data_billing_user: currentUser
     	    	    }
 		    	});
 		    	

@@ -79,7 +79,6 @@ function(runtime, search, record, task) {
     		details: searchResult
     	});
     	
-    	
     	var clubID = searchResult.values['GROUP(custrecord_bbs_brightlime_club_id)'].value;
     	var clubName = searchResult.values['GROUP(custrecord_bbs_brightlime_club_id)'].text;
     	var subsidiary = searchResult.values['MAX(internalid.custrecord_bbs_bl_subsidiary1)'];

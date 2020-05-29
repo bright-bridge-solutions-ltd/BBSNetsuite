@@ -112,9 +112,9 @@ function(runtime, search, format, record) {
     			values: ['today']
     		},
     				{
-    			name: 'internalid',
-    			operator: 'anyof',
-    			values: ['60']
+    			name: 'custrecord_bbs_ad_hoc_site_customer',
+    			operator: 'noneof',
+    			values: ['@NONE@']
     		}],
     	});
 

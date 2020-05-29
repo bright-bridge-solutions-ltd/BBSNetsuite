@@ -23,7 +23,15 @@ function(ui, search, task, format, url, redirect, message) {
     			var allowReEmail = context.request.parameters.allowreemail;
     			var scriptScheduled = context.request.parameters.scriptscheduled;
     			var subsidiary = context.request.parameters.subsidiary;
-    		
+    			var dateFrom = context.request.parameters.datefrom;
+    			var dateTo = context.request.parameters.dateto;
+    			var invoiceType = context.request.parameters.invoicetype;
+    			
+    			log.debug({
+    				title: 'Script Check',
+    				details: dateFrom + '<br>' + dateTo
+    			});
+    			
     			// create form
 				var form = ui.createForm({
 	                title: 'Email Service Data Invoices',
@@ -42,7 +50,7 @@ function(ui, search, task, format, url, redirect, message) {
 					}
 				
 				// set client script to run on the page
-				form.clientScriptFileId = 28569;
+				form.clientScriptFileId = 24332;
 				
 				// add fields to the form
 				var pageLogo = form.addField({
@@ -73,6 +81,61 @@ function(ui, search, task, format, url, redirect, message) {
 						subsidiarySelect.defaultValue = subsidiary;
 					
 						// add fields to the form
+						var dateFromField = form.addField({
+							id: 'datefrom',
+							type: ui.FieldType.DATE,
+							label: 'Date From'
+						});
+						
+						var dateToField = form.addField({
+							id: 'dateto',
+							type: ui.FieldType.DATE,
+							label: 'Date To'
+						});
+						
+						// check if dateFrom and dateTo are empty
+						if (dateFrom == null && dateTo == null)
+							{
+								// set value of date from/to fields to today
+								dateFromField.defaultValue = new Date();
+								dateToField.defaultValue = new Date();
+							}
+						else
+							{
+								// set value of date from/to fields using date parameters
+								dateFromField.defaultValue = dateFrom;
+								dateToField.defaultValue = dateTo;
+							}
+						
+						var invoiceTypeField = form.addField({
+							id: 'invoicetype',
+							type: ui.FieldType.SELECT,
+							label: 'Invoice Type'
+						});
+						
+						// add select options to the invoice type field
+						invoiceTypeField.addSelectOption({
+							value: 0,
+							text: ''
+						});
+						
+						invoiceTypeField.addSelectOption({
+							value: 1,
+							text: 'Advance'
+						});
+						
+						invoiceTypeField.addSelectOption({
+							value: 2,
+							text: 'Arrears'
+						});
+						
+						// check if we have an invoiceType
+						if (invoiceType)
+							{
+								// set value of the invoiceType field
+								invoiceTypeField.defaultValue = invoiceType;
+							}
+						
 						var numberOfInvoices = form.addField({
 							id: 'numberofinvoices',
 							type: ui.FieldType.INTEGER,
@@ -92,6 +155,14 @@ function(ui, search, task, format, url, redirect, message) {
 						});
 						
 						// update break types
+						dateFromField.updateBreakType({
+						    breakType : ui.FieldBreakType.STARTCOL
+						});
+						
+						invoiceTypeField.updateBreakType({
+						    breakType : ui.FieldBreakType.STARTCOL
+						});
+						
 						numberOfInvoices.updateBreakType({
 						    breakType : ui.FieldBreakType.STARTCOL
 						});
@@ -175,8 +246,8 @@ function(ui, search, task, format, url, redirect, message) {
 								});
 							}
 						
-						// call function to search for invoice records. Pass subsdiary and allowReEmail variables
-						var searchResults = invoiceSearch(subsidiary, allowReEmail);
+						// call function to search for invoice records. Pass subsdiary, allowReEmail, dateFrom, dateTo and invoiceType variables
+						var searchResults = invoiceSearch(subsidiary, allowReEmail, dateFrom, dateTo, invoiceType);
 						
 						// initiate line variable
 						var line = 0;
@@ -347,7 +418,7 @@ function(ui, search, task, format, url, redirect, message) {
     // FUNCTION TO SEARCH FOR INVOICE RECORDS TO BE PROCESSED
     // ======================================================
     
-    function invoiceSearch(subsidiary, allowReEmail)
+    function invoiceSearch(subsidiary, allowReEmail, dateFrom, dateTo, invoiceType)
     	{
     		// create search to find invoice records to be processed
     		var invoiceSearch = search.create({
@@ -362,16 +433,6 @@ function(ui, search, task, format, url, redirect, message) {
     				name: 'subsidiary',
     				operator: 'anyof',
     				values: [subsidiary]
-    			},
-    					{
-    				name: 'datecreated',
-    				operator: 'on',
-    				values: 'today'
-    			},
-    					{
-    				name: 'formulatext',
-    				operator: 'isnotempty',
-    				formula: '{custbody_bbs_service_data_records}'
     			}],
     			
     			columns: [{
@@ -411,6 +472,70 @@ function(ui, search, task, format, url, redirect, message) {
 	
     				// add the filter using .push() method
     				searchFilters.push(newSearchFilter);
+    			}
+    		
+    		// check if dateFrom and dateTo are not null
+    		if (dateFrom != null && dateTo != null)
+    			{
+	    			// get the current search filters
+					var searchFilters = invoiceSearch.filters;
+					
+					// create new filter
+					var newSearchFilter = search.createFilter({
+	    		            name: 'datecreated',
+	    		            operator: 'within',
+	    		            values: [dateFrom, dateTo]
+	    		        });
+	
+					// add the filter using .push() method
+					searchFilters.push(newSearchFilter);
+    			}
+    		else
+    			{
+	    			// get the current search filters
+					var searchFilters = invoiceSearch.filters;
+					
+					// create new filter
+					var newSearchFilter = search.createFilter({
+	    		            name: 'datecreated',
+	    		            operator: 'within',
+	    		            values: ['today']
+	    		        });
+	
+					// add the filter using .push() method
+					searchFilters.push(newSearchFilter);
+    			}
+    		
+    		// check if invoiceType returns 1 (Advance)
+    		if (invoiceType == 1)
+    			{
+	    			// get the current search filters
+					var searchFilters = invoiceSearch.filters;
+    			
+    				// create new filter
+					var newSearchFilter = search.createFilter({
+		    				name: 'formulatext',
+		    				operator: 'isempty',
+		    				formula: '{custbody_bbs_service_data_records}'
+		    		});
+	
+					// add the filter using .push() method
+					searchFilters.push(newSearchFilter);
+    			}
+    		else if (invoiceType == 2) // if invoiceType is 2 (Arrears)
+    			{
+	    			// get the current search filters
+					var searchFilters = invoiceSearch.filters;
+					
+					// create new filter
+					var newSearchFilter = search.createFilter({
+		    				name: 'formulatext',
+		    				operator: 'isnotempty',
+		    				formula: '{custbody_bbs_service_data_records}'
+		    		});
+	
+					// add the filter using .push() method
+					searchFilters.push(newSearchFilter);
     			}
     		
     		return invoiceSearch.run();

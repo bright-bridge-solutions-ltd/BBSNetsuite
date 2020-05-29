@@ -3,7 +3,7 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/config', 'N/runtime', 'N/record', 'N/format', 'N/search'],
+define(['N/config', 'N/runtime', 'N/record', 'N/format', 'N/search', 'N/url'],
 function(config, runtime, record, format, search) {
 	
 	// retrieve script parameters
@@ -32,12 +32,15 @@ function(config, runtime, record, format, search) {
      * @Since 2015.2
      */
     function beforeLoad(scriptContext) {
-    	
-    	// check the record is being viewed
+		
+		// check the record is being viewed
     	if (scriptContext.type == scriptContext.UserEventType.VIEW)
     		{
     			// get the current record
     			var currentRecord = scriptContext.newRecord;
+    			
+    			// get the internal ID of the current record
+    			var currentRecordID = currentRecord.id;
     			
     			// get the value of the approval status field
     			var approvalStatus = currentRecord.getValue({
@@ -119,7 +122,7 @@ function(config, runtime, record, format, search) {
     			});			
     			
     			// check if the oldStatus variable returns 2 (Pending Approval) and the newStatus variable returns 1 (Approved)
-    			if (oldApprovalStatus != 1 && newApprovalStatus == 1)
+    			if (oldApprovalStatus == 2 && newApprovalStatus == 1)
     				{
     					// get the value of the customer field from the newRecord object
     					var customer = newRecord.getValue({
@@ -208,27 +211,18 @@ function(config, runtime, record, format, search) {
 			    			    		// get the day of the month from the startDate object
 			    						var startDay = startDate.getDate();
 			    						
-			    						// starts mid month
-			    						if (startDay != 1)
-			    							{
-				    							// call function to calculate number of days in the current month
-					    						var daysInMonth = getDaysInMonth(startDate.getMonth(), startDate.getFullYear());
+			    						// call function to calculate number of days in the current month
+					    				var daysInMonth = getDaysInMonth(startDate.getMonth(), startDate.getFullYear());
 					    						
-					    						// divide monthlyAmount by daysInMonth to calculate dailyAmount
-					    						var dailyAmount = (monthlyAmount / daysInMonth);
+					    				// divide monthlyAmount by daysInMonth to calculate dailyAmount
+					    				var dailyAmount = (monthlyAmount / daysInMonth);
 					    						
-					    						// calculate the days remaining in the month by subtracting startDay from daysInMonth
-					    						var daysRemaining = (daysInMonth - startDay);
+					    				// calculate the days remaining in the month by subtracting startDay from daysInMonth
+					    				var daysRemaining = ((daysInMonth - startDay) + 1);
 					    						
-					    						// multiply dailyAmount by daysRemaining to calculate the pro rata invoice amount
-					    						var invoiceAmount = parseFloat(dailyAmount * daysRemaining);
-					    						invoiceAmount = invoiceAmount.toFixed(2);
-			    							}
-			    						else // starts 1st of the month
-			    							{
-			    								// set the invoiceAmount to be the monthlyAmount
-			    								invoiceAmount = monthlyAmount;
-			    							}
+					    				// multiply dailyAmount by daysRemaining to calculate the pro rata invoice amount
+					    				var invoiceAmount = parseFloat(dailyAmount * daysRemaining);
+					    				invoiceAmount = invoiceAmount.toFixed(2);
 	        						
 			    						// set invoice type
 			    						var invoiceType = 3; // 3 = Pro-Rata
@@ -392,26 +386,18 @@ function(config, runtime, record, format, search) {
 	    						// get the day from the terminationDate object
 	    						var endDay = terminationDate.getDate();
 	    						
-	    						if (endDay != 1) // ends mid month
-	    							{
-			    						// call function to calculate number of days in the end date's month
-			    						var daysInMonth = getDaysInMonth(endDay.getMonth(), endDay.getFullYear());
+	    						// call function to calculate number of days in the end date's month
+			    				var daysInMonth = getDaysInMonth(endDay.getMonth(), endDay.getFullYear());
 			    						
-			    						// divide monthlyAmount by daysInMonth to calculate dailyAmount
-			    						var dailyAmount = (monthlyAmount / daysInMonth);
+			    				// divide monthlyAmount by daysInMonth to calculate dailyAmount
+			    				var dailyAmount = (monthlyAmount / daysInMonth);
 			    						
-			    						// calculate the days remaining in the month by subtracting endDay from daysInMonth
-			    						var daysRemaining = (daysInMonth - endDay);
+			    				// calculate the days remaining in the month by subtracting endDay from daysInMonth
+			    				var daysRemaining = (daysInMonth - (endDay+1));
 			    						
-			    						// multiply dailyAmount by daysRemaining to calculate the pro rata invoice amount
-			    						var invoiceAmount = parseFloat(dailyAmount * daysRemaining);
-			    						invoiceAmount = invoiceAmount.toFixed(2);
-	    							}
-	    						else // ends 1st of the month
-	    							{
-	    								// set invoiceAmount to be the monthlyAmount
-	    								invoiceAmount = monthlyAmount;
-	    							}
+			    				// multiply dailyAmount by daysRemaining to calculate the pro rata invoice amount
+			    				var invoiceAmount = parseFloat(dailyAmount * daysRemaining);
+			    				invoiceAmount = invoiceAmount.toFixed(2);
 	    						
 	    						// declare invoiceType
 	    						var invoiceType = 4; // 4 = Termination

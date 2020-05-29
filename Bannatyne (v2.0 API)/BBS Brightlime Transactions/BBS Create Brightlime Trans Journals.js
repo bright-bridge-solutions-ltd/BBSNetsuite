@@ -32,7 +32,7 @@ function(search, record, format, task) {
 			}],
 			
 			filters: [
-			
+				
 			],
 		});
 
@@ -50,7 +50,14 @@ function(search, record, format, task) {
     	var account;
     	var debit;
     	var credit;
+    	var grossAmt;
     	var location;
+    	var taxCode;
+    	var taxAccount;
+    	var blClubID;
+    	var blTranID;
+    	var blMop;
+    	var blSource;
     	
     	// retrieve ID of the record from the search
     	var searchResult = JSON.parse(context.value);
@@ -64,7 +71,7 @@ function(search, record, format, task) {
 					id: recordID
 				});
 				
-				// get the club ID from the loaded record
+				// get the club ID
 				var clubID = blTranRec.getValue({
 					fieldId: 'custrecord_bbs_bl_trans_club_id'
 				});
@@ -147,10 +154,52 @@ function(search, record, format, task) {
 							fieldId: 'custrecord_bbs_bl_trans_lines_credit',
 							line: i
 						});
+						
+						grossAmt = blTranRec.getSublistValue({
+							sublistId: 'recmachcustrecord_bbs_bl_trans_lines_parent',
+							fieldId: 'custrecord_bbs_bl_trans_lines_gross_amt',
+							line: i
+						});
 							
 						location = blTranRec.getSublistValue({
 							sublistId: 'recmachcustrecord_bbs_bl_trans_lines_parent',
 							fieldId: 'custrecord_bbs_bl_trans_lines_location',
+							line: i
+						});
+						
+						taxCode = blTranRec.getSublistValue({
+							sublistId: 'recmachcustrecord_bbs_bl_trans_lines_parent',
+							fieldId: 'custrecord_bbs_bl_trans_lines_tax_code',
+							line: i
+						});
+						
+						taxAccount = blTranRec.getSublistValue({
+							sublistId: 'recmachcustrecord_bbs_bl_trans_lines_parent',
+							fieldId: 'custrecord_bbs_bl_trans_lines_tax_acc',
+							line: i
+						});
+						
+						blTranID = blTranRec.getSublistValue({
+							sublistId: 'recmachcustrecord_bbs_bl_trans_lines_parent',
+							fieldId: 'custrecord_bbs_bl_trans_id',
+							line: i
+						});
+						
+						blClubID = blTranRec.getSublistText({
+							sublistId: 'recmachcustrecord_bbs_bl_trans_lines_parent',
+							fieldId: 'custrecord_bbs_bl_trans_lines_club',
+							line: i
+						});
+						
+						blMop = blTranRec.getSublistText({
+							sublistId: 'recmachcustrecord_bbs_bl_trans_lines_parent',
+							fieldId: 'custrecord_bbs_bl_trans_mop_line',
+							line: i
+						});
+						
+						blSource = blTranRec.getSublistText({
+							sublistId: 'recmachcustrecord_bbs_bl_trans_lines_parent',
+							fieldId: 'custrecord_bbs_bl_trans_source',
 							line: i
 						});
 						
@@ -159,25 +208,47 @@ function(search, record, format, task) {
 							sublistId: 'line'
 						});
 						
+						// set fields on the line
 						journalRec.setCurrentSublistValue({
 							sublistId: 'line',
 							fieldId: 'account',
 							value: account
 						});
 						
-						// set the debit column on the new journal line
 						journalRec.setCurrentSublistValue({
 							sublistId: 'line',
 							fieldId: 'debit',
 							value: debit
 						});
-
-						// set the credit column on the new journal line
+						
 						journalRec.setCurrentSublistValue({
 							sublistId: 'line',
 							fieldId: 'credit',
 							value: credit
 						});
+						
+						// check if we have a tax code
+						if (taxCode)
+							{
+								journalRec.setCurrentSublistValue({
+									sublistId: 'line',
+									fieldId: 'taxcode',
+									value: taxCode
+								});
+								
+								journalRec.setCurrentSublistValue({
+									sublistId: 'line',
+									fieldId: 'grossamt',
+									value: grossAmt
+								});
+								
+								journalRec.setCurrentSublistValue({
+									sublistId: 'line',
+									fieldId: 'tax1acct',
+									value: taxAccount
+								});
+
+							}
 						
 						journalRec.setCurrentSublistValue({
 							sublistId: 'line',
@@ -185,6 +256,31 @@ function(search, record, format, task) {
 							value: location
 						});
 						
+						journalRec.setCurrentSublistValue({
+							sublistId: 'line',
+							fieldId: 'custcol_bbs_brightlime_trans_id',
+							value: blTranID
+						});
+						
+						journalRec.setCurrentSublistValue({
+							sublistId: 'line',
+							fieldId: 'custcol_bbs_brightlime_club',
+							value: blClubID
+						});
+						
+						journalRec.setCurrentSublistValue({
+							sublistId: 'line',
+							fieldId: 'custcol_bbs_brightlime_mop',
+							value: blMop
+						});
+						
+						journalRec.setCurrentSublistValue({
+							sublistId: 'line',
+							fieldId: 'custcol_bbs_brightlime_source',
+							value: blSource
+						});						
+						
+						// commit the line
 						journalRec.commitLine({
 							sublistId: 'line'
 						});

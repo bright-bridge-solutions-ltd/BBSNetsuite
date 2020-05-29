@@ -246,6 +246,9 @@ function(search, format, message, dialog) {
     	// get the current record object
     	var currentRecord = scriptContext.currentRecord;
     	
+    	// get the ID of the current record
+    	var currentRecordID = currentRecord.id;
+    	
     	// get the internal ID of the customer
     	var customerID = currentRecord.getValue({
     		fieldId: 'custrecord_bbs_contract_customer'
@@ -313,6 +316,23 @@ function(search, format, message, dialog) {
     		}],
     	});
     	
+    	// check we have a current record ID
+    	if (currentRecordID)
+    		{
+	    		// get the current search filters
+				var searchFilters = contractRecordSearch.filters;
+				
+				// create new filter
+				var newSearchFilter = search.createFilter({
+					name: 'internalid',
+					operator: 'noneof',
+					values: [currentRecordID]
+	    		});
+	
+				// add the filter using .push() method
+				searchFilters.push(newSearchFilter);
+    		}
+    	
     	// run search and process results
     	contractRecordSearch.run().each(function(result) {
     		
@@ -379,6 +399,23 @@ function(search, format, message, dialog) {
     	    			values: [startDate]
     	    		}],
     	    	});
+    	    	
+    	    	// check we have a current record ID
+    	    	if (currentRecordID)
+    	    		{
+    		    		// get the current search filters
+    					var searchFilters = contractRecordSearch.filters;
+    					
+    					// create new filter
+    					var newSearchFilter = search.createFilter({
+    						name: 'internalid',
+    						operator: 'noneof',
+    						values: [currentRecordID]
+    		    		});
+    		
+    					// add the filter using .push() method
+    					searchFilters.push(newSearchFilter);
+    	    		}
     	    	
     	    	// run search and process results
     	    	contractRecordSearch.run().each(function(result) {

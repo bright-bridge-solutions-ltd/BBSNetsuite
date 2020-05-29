@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/url', 'N/ui/message'],
-function(url, message) {
+define(['N/url', 'N/ui/message', 'N/format'],
+function(url, message, format) {
     
     /**
      * Function to be executed after page is initialized.
@@ -96,16 +96,54 @@ function(url, message) {
     			var subsidiary = currentRecord.getValue({
     				fieldId: 'subsidiary'
     			});
-    		
-    			// get the URL of the Suitelet
-    			var suiteletURL = url.resolveScript({
-    				scriptId: 'customscript_bbs_email_invoice_sl',
-    				deploymentId: 'customdeploy_bbs_email_invoice_sl',
-    				params: {
-    					allowreemail: allowReEmail,
-    					subsidiary: subsidiary
-    				}
+    			
+    			// get the value of the 'Date From' field
+    			var dateFrom = currentRecord.getValue({
+    				fieldId: 'datefrom'
     			});
+    			
+    			// have we got a from date?
+    			if (dateFrom)
+    				{
+    					// format dateFrom as a string
+	    				dateFrom = format.format({
+	        				type: format.Type.DATE,
+	        				value: dateFrom
+	        			});
+    				}
+    			
+    			// get the value of the 'Date To' field
+    			var dateTo = currentRecord.getValue({
+    				fieldId: 'dateto'
+    			});
+    			
+    			// have we got a to date?
+    			if (dateTo)
+    				{
+    					// format dateTo as a string
+    					dateTo = format.format({
+	        				type: format.Type.DATE,
+	        				value: dateTo
+	        			});
+    				}
+    		
+    			// get the value of the 'Invoice Type' field
+				var invoiceType = currentRecord.getValue({
+					fieldId: 'invoicetype'
+				});
+				
+				// get the URL of the Suitelet
+				var suiteletURL = url.resolveScript({
+					scriptId: 'customscript_bbs_email_invoice_sl',
+					deploymentId: 'customdeploy_bbs_email_invoice_sl',
+					params: {
+						allowreemail: allowReEmail,
+    					subsidiary: subsidiary,
+    					datefrom: dateFrom,
+    					dateto: dateTo,
+    					invoicetype: invoiceType
+					}
+				});
     			
     			// reload the Suitelet
     			window.onbeforeunload = null;
@@ -132,6 +170,199 @@ function(url, message) {
 				window.onbeforeunload = null;
 				window.location.href = suiteletURL;
     			
+    		}
+    	else if (scriptContext.fieldId == 'datefrom') // if the 'Date From' field has been changed
+    		{
+    			// get the value of the 'Date From' field
+    			var dateFrom = currentRecord.getValue({
+    				fieldId: 'datefrom'
+    			});
+    			
+    			// have we got a from date?
+    			if (dateFrom)
+    				{
+    					// format dateFrom as a string
+	    				dateFrom = format.format({
+	        				type: format.Type.DATE,
+	        				value: dateFrom
+	        			});
+    				}
+    			
+    			// get the value of the 'Date To' field
+    			var dateTo = currentRecord.getValue({
+    				fieldId: 'dateto'
+    			});
+    			
+    			// have we got a to date?
+    			if (dateTo)
+    				{
+    					// format dateTo as a string
+    					dateTo = format.format({
+	        				type: format.Type.DATE,
+	        				value: dateTo
+	        			});
+    				}
+    			
+    			// get the value of the 'Allow Re-Email' checkbox
+    			var allowReEmail = currentRecord.getValue({
+    				fieldId: 'allowreemail'
+    			});
+    			
+    			// get the value of the 'Subsidiary' field
+    			var subsidiary = currentRecord.getValue({
+    				fieldId: 'subsidiary'
+    			});
+    			
+    			// get the value of the 'Invoice Type' field
+				var invoiceType = currentRecord.getValue({
+					fieldId: 'invoicetype'
+				});
+				
+				// get the URL of the Suitelet
+				var suiteletURL = url.resolveScript({
+					scriptId: 'customscript_bbs_email_invoice_sl',
+					deploymentId: 'customdeploy_bbs_email_invoice_sl',
+					params: {
+						allowreemail: allowReEmail,
+    					subsidiary: subsidiary,
+    					datefrom: dateFrom,
+    					dateto: dateTo,
+    					invoicetype: invoiceType
+					}
+				});
+				
+				// reload the Suitelet
+				window.onbeforeunload = null;
+				window.location.href = suiteletURL;
+    			
+    		}
+    	else if (scriptContext.fieldId == 'dateto') // if the 'Date To' field has been changed
+    		{
+	    		// get the value of the 'Date From' field
+				var dateFrom = currentRecord.getValue({
+					fieldId: 'datefrom'
+				});
+				
+				// have we got a from date?
+    			if (dateFrom)
+    				{
+    					// format dateFrom as a string
+	    				dateFrom = format.format({
+	        				type: format.Type.DATE,
+	        				value: dateFrom
+	        			});
+    				}
+    			
+    			// get the value of the 'Date To' field
+    			var dateTo = currentRecord.getValue({
+    				fieldId: 'dateto'
+    			});
+    			
+    			// have we got a to date?
+    			if (dateTo)
+    				{
+    					// format dateTo as a string
+    					dateTo = format.format({
+	        				type: format.Type.DATE,
+	        				value: dateTo
+	        			});
+    				}
+				
+				// get the value of the 'Allow Re-Email' checkbox
+				var allowReEmail = currentRecord.getValue({
+					fieldId: 'allowreemail'
+				});
+				
+				// get the value of the 'Subsidiary' field
+				var subsidiary = currentRecord.getValue({
+					fieldId: 'subsidiary'
+				});
+				
+				// get the value of the 'Invoice Type' field
+				var invoiceType = currentRecord.getValue({
+					fieldId: 'invoicetype'
+				});
+				
+				// get the URL of the Suitelet
+				var suiteletURL = url.resolveScript({
+					scriptId: 'customscript_bbs_email_invoice_sl',
+					deploymentId: 'customdeploy_bbs_email_invoice_sl',
+					params: {
+						allowreemail: allowReEmail,
+    					subsidiary: subsidiary,
+    					datefrom: dateFrom,
+    					dateto: dateTo,
+    					invoicetype: invoiceType
+					}
+				});
+				
+				// reload the Suitelet
+				window.onbeforeunload = null;
+				window.location.href = suiteletURL;
+    		}
+    	else if (scriptContext.fieldId == 'invoicetype') // if the 'Invoice Type' field has been changed
+    		{
+	    		// get the value of the 'Date From' field
+				var dateFrom = currentRecord.getValue({
+					fieldId: 'datefrom'
+				});
+				
+				// have we got a from date?
+				if (dateFrom)
+					{
+						// format dateFrom as a string
+	    				dateFrom = format.format({
+	        				type: format.Type.DATE,
+	        				value: dateFrom
+	        			});
+					}
+				
+				// get the value of the 'Date To' field
+				var dateTo = currentRecord.getValue({
+					fieldId: 'dateto'
+				});
+				
+				// have we got a to date?
+				if (dateTo)
+					{
+						// format dateTo as a string
+						dateTo = format.format({
+	        				type: format.Type.DATE,
+	        				value: dateTo
+	        			});
+					}
+				
+				// get the value of the 'Allow Re-Email' checkbox
+				var allowReEmail = currentRecord.getValue({
+					fieldId: 'allowreemail'
+				});
+				
+				// get the value of the 'Subsidiary' field
+				var subsidiary = currentRecord.getValue({
+					fieldId: 'subsidiary'
+				});
+				
+				// get the value of the 'Invoice Type' field
+				var invoiceType = currentRecord.getValue({
+					fieldId: 'invoicetype'
+				});
+				
+				// get the URL of the Suitelet
+				var suiteletURL = url.resolveScript({
+					scriptId: 'customscript_bbs_email_invoice_sl',
+					deploymentId: 'customdeploy_bbs_email_invoice_sl',
+					params: {
+						allowreemail: allowReEmail,
+    					subsidiary: subsidiary,
+    					datefrom: dateFrom,
+    					dateto: dateTo,
+    					invoicetype: invoiceType
+					}
+				});
+				
+				// reload the Suitelet
+				window.onbeforeunload = null;
+				window.location.href = suiteletURL;
     		}
 
     }

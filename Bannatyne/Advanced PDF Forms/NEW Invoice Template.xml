@@ -1,27 +1,18 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
 <pdf>
 <head>
-
-  <#assign cs = "£">
-
-<#function toCurrency value showSymbol=true>
-	<#local retval = 0>
-	<#local tmpcs = cs>
-	<#if showSymbol == false>
-		<#local tmpcs = "">
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
 	</#if>
-	<#if value &lt; 0 >
-		<#local retval = value?string["#,##0.00"]>
-		<#local retval = "(" + tmpcs + retval?replace("-","") + ")">
-	<#else>
-		<#local retval = tmpcs + value?string["#,##0.00"]>
-	</#if>
-	<#if value == 0 >
-		<#local retval = "">
-	</#if>
-	<#return retval>
-</#function>
-      
     <macrolist>
         <macro id="nlheader">
             <table class="header" style="width: 100%;"><tr>
@@ -30,68 +21,75 @@
 	<td align="right">&nbsp;</td>
 	<td align="right" rowspan="8"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: right; width:160px; height:40px;" /> </#if></td>
 	</tr>
-    <tr><td align="right">&nbsp;</td></tr>
-	<tr><td align="right">&nbsp;</td></tr>
-	<tr>
-      <td><span style="font-size:18px; color:red; font-weight: bold;">INVOICE</span></td>
-      <td align="right">&nbsp;</td>
-    </tr>
-    <tr><td align="right">&nbsp;</td></tr>
-	<tr><td align="right">&nbsp;</td></tr>
-	<tr><td rowspan="6"><span style="font-size:10px;">${record.custbody_subsidiary_address}</span></td><td align="right">&nbsp;</td><td align="right">&nbsp;</td></tr>
-	<tr><td align="left">&nbsp;</td></tr>
-	<tr><td align="left">&nbsp;</td></tr>
-	<tr><td align="left">&nbsp;</td></tr>
-	<tr><td align="left">&nbsp;</td></tr>
-	<tr><td align="left">&nbsp;</td></tr>
-	<tr><td align="left">&nbsp;</td></tr>
-	<tr><td align="left" colspan="2" style="font-size:10px; font-weight: bold; margin-top: 10px;">Tel: 0344 477 4777</td></tr>
-	<tr><td align="left" colspan="2" style="width: 100%; font-size:10px; font-weight: bold;">Email: bannatyne@bannatyne.co.uk</td></tr>
-	<tr><td align="left" colspan="2" style="width: 100%; font-size:10px; font-weight: bold;">Web: www.bannatyne.co.uk</td></tr>
-    <tr><td align="left">&nbsp;</td></tr>
-	</table>
 
-    <table style="width: 100%; margin-top: 10px;">
 	<tr>
+	<td><span style="font-size:18px; color:red; font-weight: bold;">INVOICE</span></td>
+	<td align="right">&nbsp;</td>
+	</tr>
+	
+	<tr>
+	<td rowspan="6"><span style="font-size:10px;">${record.custbody_subsidiary_address}</span></td>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	</tr>
+	<tr>
+	<td align="left">&nbsp;</td>
+	</tr>
+	<tr>
+	<td align="left">&nbsp;</td>
+	</tr>
+	<tr>
+	<td align="left">&nbsp;</td>
+	</tr>
+	<tr>
+	<td align="left">&nbsp;</td>
+	</tr>
+	<tr>
+	<td align="left">&nbsp;</td>
+	</tr>
+	
+	<tr>
+	<td align="left" colspan="2" style="font-size:10px; font-weight: bold; margin-top: 10px;">Tel: 01325 356677</td>
+	</tr>
+	<tr>
+	<td align="left" colspan="2" style="width: 100%; font-size:10px; font-weight: bold;">Web: www.bannatyne.co.uk</td>
+	</tr>
+	<tr>
+	<td align="left">&nbsp;</td>
+	</tr></table>
+
+<table style="width: 100%; margin-top: 10px;"><tr>
 	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Invoice To</td>
 	<td align="left">&nbsp;</td>
 	<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">INVOICE NO:</td>
 	<td align="left" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.tranid}</td>
 	</tr>
-
 	<tr>
 	<td align="left" colspan="2" rowspan="5" style="font-size:10px; background-color:#ffffff; color:#000000; padding: 5px;">${record.billaddress}</td>
-    <td align="left">&nbsp;</td>
+	<td align="left">&nbsp;</td>
 	<td align="left" rowspan="1" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Invoice/Tax Date:</td>
 	<td align="left" rowspan="1" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.trandate}</td>
 	</tr>
-
-    <tr>
+	<tr>
 	<td align="left">&nbsp;</td>
-	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Account No:</td>
-	<td align="left"  style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.entity.entityid}</td>
+	<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Account No:</td>
+	<td align="left" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.entity.entityid}</td>
 	</tr>
-
-    <tr>
+	<tr>
 	<td align="left">&nbsp;</td>
-	<td align="left"> &nbsp;</td>
-	<td align="left"> &nbsp;</td>
+	<td align="left">&nbsp;</td>
+	<td align="left">&nbsp;</td>
+	</tr></table>
+        </macro>
+        <macro id="nlfooter">
+            <table class="footer" style="width: 100%;"><tr>
+	<td align="center" style="font-size: 6pt">REGISTERED OFFICE: Power House, Haugton Road, Darlington, DL1 1ST. VAT REGISTRATION NUMBER 302318452 COMPANY REGISTRATION NUMBER 3287770</td>
 	</tr>
-      
-    </table>
-</macro>
-    <macro id="nlfooter">
-    <table class="footer" style="width: 100%;">
-  	<tr>
-    <td align="center" style="font-size: 6pt"> REGISTERED OFFICE: Power House, Haugton Road, Darlington, DL1 1ST. VAT REGISTRATION NUMBER 302318452 COMPANY REGISTRATION NUMBER 3287770</td>
-	</tr>
-  	<tr>
-    <td align="right"><pagenumber/> of <totalpages/></td>
-	</tr>
-</table>
+	<tr>
+	<td align="right"><pagenumber/> of <totalpages/></td>
+	</tr></table>
         </macro>
     </macrolist>
-  
     <style type="text/css">table {
             font-family: helvetica;
             font-size: 9pt;
@@ -190,67 +188,73 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="280px" footer="nlfooter" footer-height="10px" padding="1cm 1cm 1cm 1cm" size="A4">
-
-<#if record.item?has_content>
-  <table class="itemtable" style="width: 100%;"><!-- start items -->
-    <#list record.item as item>
-      <#if item_index==0>
-        <thead>
-            <tr>
-            <th align="center" colspan="3" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${item.quantity@label}</th>
-            <th align="left" colspan="15" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${item.item@label}</th>
-            <th align="right" colspan="4" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">Unit Price</th>
-            <th align="right" colspan="4" style="font-size:8px; background-color:#5b5c61; color:#ffffff;  padding: 5px;">${item.amount@label}</th>
-            </tr>
-        </thead>
-      </#if>
-
-           <tr>
-          <td align="center" colspan="3" line-height="150%" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;">${item.quantity}</td>
-          <td colspan="15" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;"><b>${item.item}</b><br/>${item.description}</td>
-          <td align="right" colspan="4" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;">${item.rate?string["0.#####"]}</td>
-          <td align="right" colspan="4" style="font-size:10px; background-color:#ffffff; color:#000000; padding: 5px;">${item.amount}</td>
-          </tr>
-
-    </#list><!-- end items -->
-  </table>
+<body header="nlheader" header-height="290px" footer="nlfooter" footer-height="10px" padding="1cm 1cm 1cm 1cm" size="A4">
+    <#if record.item?has_content>
+<table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
+<thead>
+	<tr>
+    <th align="center" colspan="3" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">Location</th>
+	<th align="center" colspan="3" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${item.quantity@label}</th>
+	<th align="left" colspan="15" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${item.item@label}</th>
+	<th align="right" colspan="4" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">Unit Price</th>
+	<th align="right" colspan="4" style="font-size:8px; background-color:#5b5c61; color:#ffffff;  padding: 5px;">${item.amount@label}</th>
+	</tr>
+</thead>
+</#if><tr>
+    <td align="center" colspan="3" line-height="150%" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;">${item.location}</td>
+	<td align="center" colspan="3" line-height="150%" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;">${item.quantity}</td>
+	<td colspan="15" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;"><b>${item.item}</b><br />${item.description}</td>
+	<td align="right" colspan="4" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;">${item.rate?string['0.#####']}</td>
+	<td align="right" colspan="4" style="font-size:10px; background-color:#ffffff; color:#000000; padding: 5px;">${item.amount}</td>
+	</tr>
+	</#list><!-- end items --></table>
 </#if>
 
-<hr />
+<hr /> <!-- Horizontal Line -->
 
-  <table style="width: 100%;">
+<table style="width: 100%;">
 	<tr>
-	<!--<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Deliver To/Notes:</td>-->
-    <td align="left" rowspan="2" colspan="2" style="padding: 5px; font-size: 9px;">VAT Reg. No. 302318452<br/>Terms: Nett 30 Days<br/>E&amp;OE</td>
-      <td align="left" rowspan="2">&nbsp;</td>
-	<td align="left" style="font-size: 10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">TOTAL GOODS:</td>
-	<td align="right" style="font-size: 10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.subtotal}</td>
+		<td align="left" colspan="4">&nbsp;</td>
+		<td align="left" style="font-size: 10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">TOTAL GOODS:</td>
+		<td align="right" style="font-size: 10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.subtotal}</td>
 	</tr>
-
 	<tr>
-	<!--<td align="left" colspan="2" rowspan="5" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${record.shipaddress}</td>-->
-    
-	<td align="left" rowspan="1" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">TOTAL VAT:</td>
-	<td align="right" rowspan="1" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.taxtotal}</td>
+		<td align="left" colspan="4">&nbsp;</td>
+		<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">TOTAL VAT:</td>
+		<td align="right" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.taxtotal}</td>
 	</tr>
-
-    <tr>
-	<td align="left" rowspan="3" colspan="2" style="padding: 5px; font-size: 9px; color: red;">We prefer payment via BACS<br/>Bank Name: ${record.custbody_bbs_bank_name}<br/>Account No: ${record.custbody_bbs_account_no}<br/>Sort Code: ${record.custbody_bbs_sort_code}<br/>BIC: ${record.custbody_bbs_bic}<br/>IBAN: ${record.custbody_bbs_iban}</td>
-	<td align="left" >&nbsp;</td>
-      <td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">AMOUNT DUE:</td>
-	<td align="right"  style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.total}</td>
+	<tr>
+		<td align="left" colspan="4">&nbsp;</td>
+		<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">AMOUNT DUE:</td>
+		<td align="right" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.total}</td>
 	</tr>
-      
-    <tr>
-	<td align="left">&nbsp;</td>
-    </tr>
-      
-   	<tr>
+</table>
 
-	<td align="left">&nbsp;</td>
-    </tr>
-      
-    </table>
+<table style="width: 100%;">
+	<tr>
+		<td colspan="25">We prefer payment via BACS to the following account:</td>
+	</tr>
+	<tr style="margin-top: 10px;">
+		<td colspan="6"><b>Bank Name:</b></td>
+		<td colspan="19">${subsidiary.custrecord_bbs_bank_account_name}</td>
+	</tr>
+	<tr>
+		<td colspan="6"><b>Account Number:</b></td>
+		<td colspan="19">${subsidiary.custrecord_bbs_bank_account_number}</td>
+	</tr>
+	<tr>
+		<td colspan="6"><b>Sort Code:</b></td>
+		<td colspan="19">${subsidiary.custrecord_bbs_bank_account_sort}</td>
+	</tr>
+	<tr>
+		<td colspan="6"><b>BIC:</b></td>
+		<td colspan="19">${subsidiary.custrecord_bbs_bank_account_bic}</td>
+	</tr>
+	<tr>
+		<td colspan="6"><b>IBAN:</b></td>
+		<td colspan="19">${subsidiary.custrecord_bbs_bank_account_iban}</td>
+	</tr>
+</table>
+
 </body>
 </pdf>
