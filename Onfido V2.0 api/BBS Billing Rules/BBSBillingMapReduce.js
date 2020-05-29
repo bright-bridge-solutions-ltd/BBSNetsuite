@@ -194,11 +194,6 @@ function(runtime, search, record, format, task) {
     			join: 'custbody_bbs_contract_record',
     			operator: 'anyof',
     			values: [billingType]
-    		},
-    				{
-    			name: 'internalid',
-    			operator: 'anyof',
-    			values: [107890]
     		}],
 
 		});
@@ -264,7 +259,7 @@ function(runtime, search, record, format, task) {
 		else if (billingType == 1)
 			{
 				// call the PAYG function. Pass recordID and contractRecord
-				//PAYG(recordID, contractRecord);
+				PAYG(recordID, contractRecord);
 			}
 		// QMP billing type
 		else if (billingType == 3)
