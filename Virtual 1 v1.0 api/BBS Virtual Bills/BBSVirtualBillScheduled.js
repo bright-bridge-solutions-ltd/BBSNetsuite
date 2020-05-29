@@ -29,20 +29,28 @@ function scheduled(type)
 			{
 				//Process the billing lines - populates the billing type summary, product group summary, billing types & product groups objects
 				//
+				checkResources();
+			
 				processLines(billLinesToProcess, billingTypeSummary, productGroupsSummary, billingTypes, productGroups);
 					
 				//Update the Virtual Bill header with the totals for each category
 				//
+				checkResources();
+				
 				updateVirtualBill(virtualBillId, billingTypeSummary);
 					
 				//Create a Supplier Bill from the product groups summary (returns -1 if the bill cannot be updated, so a journal must be processed instead)
 				//
+				checkResources();
+				
 				var supplierBillId = createSupplierBill(virtualBillId, productGroupsSummary, billingTypes, productGroups)
 					
 				//Update the virtual bill with the link to the supplier bill if appropriate
 				//
 				if(supplierBillId != null && supplierBillId != -1)
 					{
+						checkResources();
+						
 						updateVirtualBillLinks(virtualBillId, supplierBillId);
 					}
 					
@@ -50,12 +58,16 @@ function scheduled(type)
 				//
 				if(supplierBillId == -1)
 					{
+						checkResources();
+						
 						var journalId = createJournalRecord(virtualBillId, productGroupsSummary, billingTypes, productGroups);
 						
 						//Update the virtual bill with the link to the journal if appropriate
 						//
 						if(journalId != null && journalId != -1)
 							{
+								checkResources();
+								
 								updateVirtualBillJournalLink(virtualBillId, journalId);
 							}
 					}
@@ -192,6 +204,9 @@ function createJournalRecord(_virtualBillId, _productGroupsSummary, _billingType
 					//
 					var supplierBillProductGroupsSummary = generateSupplierBillProductGroupSummary(existingSupplierBillId);
 
+					//nlapiLogExecution('DEBUG', 'supplierBillProductGroupsSummary', JSON.stringify(supplierBillProductGroupsSummary));
+					//nlapiLogExecution('DEBUG', '_productGroupsSummary', JSON.stringify(_productGroupsSummary));
+					
 					//Loop through the product group summary from the virtual bill & then compare to the product group summary from the 
 					//existing supplier bill to get the difference
 					//
@@ -202,6 +217,8 @@ function createJournalRecord(_virtualBillId, _productGroupsSummary, _billingType
 							var virtualBillValue = _productGroupsSummary[productGroupsSummaryKey];
 							var supplierBillValue = supplierBillProductGroupsSummary[productGroupsSummaryKey];
 							var differenceValue = virtualBillValue - supplierBillValue;
+							
+							differenceValue = Math.round((differenceValue + 0.00001) * 100) / 100;
 							
 							var keyElements = productGroupsSummaryKey.split('|'); 	//[0] = Unreconciled/Reconciled, [1] = Billing Type (One Off, Rental, Usage), [2] = Product Group
 							var productGroupSummaryValue = _productGroupsSummary[productGroupsSummaryKey];
@@ -349,6 +366,10 @@ function generateSupplierBillProductGroupSummary(_existingSupplierBillId)
 					//
 					var lineReconStatus = (reconciledItems.indexOf(lineItem) != -1 ? 'Reconciled' : 'Unreconciled');
 					
+					if(lineProductGroup == null || lineProductGroup == '')
+						{
+							lineProductGroup = 'NONE';
+						}
 					//Construct the summary key
 					//
 					var lineKey = lineReconStatus + '|' + lineBillingType + '|' + lineProductGroup;
@@ -904,7 +925,7 @@ function getVirtualBillLines(_id)
 	
 	try
 		{
-			customrecord_bbs_vb_lineSearch = nlapiSearchRecord("customrecord_bbs_vb_line",null,
+			customrecord_bbs_vb_lineSearch = getResults(nlapiCreateSearch("customrecord_bbs_vb_line",
 					[
 					   ["custrecord_bbs_vb","anyof",_id]
 					], 
@@ -923,7 +944,7 @@ function getVirtualBillLines(_id)
 					   new nlobjSearchColumn("custrecord_bbs_supplier","CUSTRECORD_BBS_VB",null),
 					   new nlobjSearchColumn("internalid").setSort(false)
 					]
-					);
+					));
 		}
 	catch(err)
 		{

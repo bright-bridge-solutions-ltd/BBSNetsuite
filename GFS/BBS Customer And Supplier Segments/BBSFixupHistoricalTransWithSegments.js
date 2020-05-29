@@ -59,7 +59,7 @@ function processSuppliers()
 			   "AND", 
 			   ["type","anyof","VendCred","VendBill","Journal"], 
 			   "AND", 
-			   ["vendor.custentity_bbs_supplier_segment","noneof","@NONE@"], 
+			   ["vendor.cseg_bbs_supplier","noneof","@NONE@"], 
 			   "AND", 
 			   ["mainline","is","T"]
 			], 
@@ -67,7 +67,7 @@ function processSuppliers()
 			   new nlobjSearchColumn("type"), 
 			   new nlobjSearchColumn("tranid"), 
 			   new nlobjSearchColumn("entity"), 
-			   new nlobjSearchColumn("custentity_bbs_supplier_segment","vendor",null)
+			   new nlobjSearchColumn("cseg_bbs_supplier","vendor",null)
 			]
 			));
 	
@@ -79,7 +79,7 @@ function processSuppliers()
 				
 					var tranId = transactionSearch[int].getId();
 					var tranType = transactionSearch[int].getValue('type');
-					var tranSegment = transactionSearch[int].getValue("custentity_bbs_supplier_segment","vendor",null);
+					var tranSegment = transactionSearch[int].getValue("cseg_bbs_supplier","vendor",null);
 				
 					//load up the transaction record
 					//
@@ -147,7 +147,7 @@ function processCustomers()
 			   [["type","anyof","CustCred","CustInvc"],"OR",[["type","anyof","Journal"],"AND",["accounttype","noneof","Stat"]]],
 			//   ["type","anyof","CustCred","CustInvc","Journal"], 
 			   "AND", 
-			   ["customer.custentity_bbs_customer_segment","noneof","@NONE@"], 
+			   ["customer.cseg_bbs_customer","noneof","@NONE@"], 
 			   "AND", 
 			   ["mainline","is","T"]
 			], 
@@ -155,7 +155,7 @@ function processCustomers()
 			   new nlobjSearchColumn("type"), 
 			   new nlobjSearchColumn("tranid"), 
 			   new nlobjSearchColumn("entity"), 
-			   new nlobjSearchColumn("custentity_bbs_customer_segment","customer",null)
+			   new nlobjSearchColumn("cseg_bbs_customer","customer",null)
 			]
 			));
 	
@@ -167,7 +167,7 @@ function processCustomers()
 				
 					var tranId = transactionSearch[int].getId();
 					var tranType = transactionSearch[int].getValue('type');
-					var tranSegment = transactionSearch[int].getValue("custentity_bbs_customer_segment","customer",null);
+					var tranSegment = transactionSearch[int].getValue("cseg_bbs_customer","customer",null);
 				
 					//load up the transaction record
 					//

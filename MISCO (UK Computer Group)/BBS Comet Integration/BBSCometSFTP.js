@@ -3,6 +3,7 @@
  * @NScriptType ScheduledScript
  * @NModuleScope SameAccount
  */
+
 define(['N/sftp', 'N/file', 'N/search', 'N/xml', 'N/record', 'N/runtime', 'N/email', 'N/format', 'N/task'],
 /**
  * @param {sftp, file, search, xml, record, runtime, email} 
@@ -24,6 +25,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
     		//Get the deployment parameter which will determine what integration type to use
     		//
     		var integrationTypeParam = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_comet_integration_type'}).toString();
+    		var supplierSuffixParam = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_comet_supplier_suffix'});
         	
     		if(integrationTypeParam != null && integrationTypeParam != '')
 		    	{
@@ -375,7 +377,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																										
 																										//Find the supplier
 																										//
-																										var supplierId = findSupplier(lineSupplier);
+																										var supplierId = findSupplier(lineSupplier, supplierSuffixParam);
 																										
 																									
 																										itemRecord.setCurrentSublistValue({
@@ -424,7 +426,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																							{
 																								//Find the supplier
 																								//
-																								var supplierId = findSupplier(lineSupplier);
+																								var supplierId = findSupplier(lineSupplier, supplierSuffixParam);
 																							
 																								salesOrderRecord.selectNewLine({
 																											    				sublistId: 'item'
@@ -657,8 +659,128 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																		
 											    						if(fileId != null)
 											    							{
-												    							//Submit the scheduled job to process the file
+											    							
+											    								//Read through the file to split it into 10k lines each
+											    								//
+												    							var iterator 		= downloadedFile.lines.iterator();
+												    		    				var fileHeader 		= '';
+												    		    				var filePartCounter	= Number(1);
+												    		    				var filePart 		= null;
+												    		    				var lineCounter 	= Number(0);
+												    			    	        
+												    			    			//Get the first line (CSV header)
+												    			    			//
+												    			    	        iterator.each(function (line) 
+												    			    	        	{
+												    			    	        		fileHeader = line.value;
+												    			    	        		return false;
+												    			    	        	});
+												    			    	        
+												    			    	        //Create the first part of the file
+												    			    	        //
+												    			    	        filePart 			= file.create({
+												    			    	        									name:		'Product File Part ' + filePartCounter.toString(),
+												    			    	        									fileType:	file.Type.CSV
+												    			    	        									});
+												    			    	        
+												    			    	        //Add the header line to the current file part
+								    				    	            		//
+								    				    	            		filePart.appendLine({value: fileHeader});
+								    				    	            		
+												    			    	        //Process the rest of the lines
+												    			    	        //
+												    			    	        iterator.each(function (line)
+												    				    	        {	
+												    			    	        		//Increment the line counter
+												    			    	        		//
+												    			    	        		lineCounter++;
+												    			    	        		
+												    			    	        		//Get the line contents
+												    			    	        		//
+												    				    	            var lineValues = line.value;
+												    				    	            
+												    				    	            //Are we less than 10k rows?
+												    				    	            //
+												    				    	            if(lineCounter < 10000)
+												    				    	            	{	
+												    				    	            		//Add the current line to the current file part
+												    				    	            		//
+												    				    	            		filePart.appendLine({value: lineValues});
+												    				    	            	}
+												    				    	            else
+												    				    	            	{
+												    				    	            		//If we have reached the 10k mark, then submit this file & start a new one
+												    				    	            		//
+													    				    	            	var csvImportTask = task.create({
+															    																taskType:		task.TaskType.CSV_IMPORT,
+															    																importFile:		filePart,
+															    																mappingId:		'custimport_bbs_product_import'
+															    																});
+															    								
+															    								//Submit the job
+															    								//
+															    								var csvTaskId = csvImportTask.submit();
+															    								
+															    								//Reset the line counter
+															    								//
+															    								lineCounter 	= Number(1);
+															    								
+															    								//Increment the file part counter
+															    								//
+															    								filePartCounter++;
+															    								
+															    								//Create a new file part
+															    								//
+															    								filePart 			= file.create({
+																    			    	        									name:		'Product File Part ' + filePartCounter.toString(),
+																    			    	        									fileType:	file.Type.CSV
+																    			    	        									});
+															    								
+															    								//Add the header line to the current file part
+												    				    	            		//
+												    				    	            		filePart.appendLine({value: fileHeader});
+												    				    	            		
+															    								//Add the current line to the current file part
+												    				    	            		//
+												    				    	            		filePart.appendLine({value: lineValues});
+												    				    	            	}
+												    				    	            
+												    				    	            return true;
+												    				    	          });
+												    			    	        
+												    			    	        //Process the last file part
+												    			    	        //
+												    			    	        var csvImportTask = task.create({
+											    																taskType:		task.TaskType.CSV_IMPORT,
+											    																importFile:		filePart,
+											    																mappingId:		'custimport_bbs_product_import'
+											    																});
+				    								
+											    								//Submit the last job
+											    								//
+											    								var csvTaskId = csvImportTask.submit();
+				    								
+											    								/*
+											    								//Wait until the job has finished
+											    								//
+											    								var csvTaskStatus = task.checkStatus({
+			    								    																taskId: csvTaskId
+			    								    																});
+											    								
+											    								while (csvTaskStatus.status == task.TaskStatus.PENDING || csvTaskStatus.status == task.TaskStatus.PROCESSING) 
+												    								{
+											    										sleep(60000);	//sleep 60 seconds
+											    										
+												    									csvTaskStatus = task.checkStatus({
+													    								    								taskId: csvTaskId
+													    								    							});
+												    							
+																					}
+											    								
+											    								
+												    							//Submit the map/reduce job to process the custom record data that has been populated by the csv imports
 																				//
+											    								
 											    								try
 											    									{
 																						var mrTask = task.create({
@@ -683,6 +805,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 												    									emailMessage += 'Error Submitting MR Script To Process Product File id = ' + fileId + ' - ' + err.message + '\n\n';
 												    									fileProcessedOk = false;
 											    									}
+											    								*/
 											    								
 											    								if(fileProcessedOk)
 																					{
@@ -782,9 +905,22 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
     			}
 	    }
 
+    //Sleep 
+    //
+    function sleep(milliseconds) 
+	    {
+	    	  const date = Date.now();
+	    	  
+	    	  var currentDate = null;
+	
+	    	  do{ currentDate = Date.now();
+	    		  } while (currentDate - date < milliseconds);
+	    }
+    
+    
     //Find the supplier
     //
-    function findSupplier(_supplier)
+    function findSupplier(_supplier, _supplierSuffixParam)
     	{
     		var supplierId = null;
     		
@@ -792,7 +928,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 				   type: 	"vendor",
 				   filters:
 							   [
-							      ["entityid","is",_supplier]
+							      ["entityid","is",_supplier + ' ' + _supplierSuffixParam]
 							   ],
 				   columns:
 							   [

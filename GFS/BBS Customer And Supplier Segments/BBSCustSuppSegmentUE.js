@@ -39,12 +39,12 @@ function custSuppSegmentAS(type)
 			{
 				case 'customer':
 					customSegmentId = 'customrecord_cseg_bbs_customer';
-					entitySegmentField = 'custentity_bbs_customer_segment';
+					entitySegmentField = 'cseg_bbs_customer';
 					break;
 					
 				case 'vendor':
 					customSegmentId = 'customrecord_cseg_bbs_supplier';
-					entitySegmentField = 'custentity_bbs_supplier_segment';
+					entitySegmentField = 'cseg_bbs_supplier';
 					break;
 			}
 		

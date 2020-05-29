@@ -59,15 +59,18 @@ function libGenerateStatement(partnerId)
 											[
 											   ["custrecord_bbs_pr_partner","anyof",partnerId], 
 											   "AND", 
-											   ["custrecord_bbs_pr_status","anyof","1"]
+											   ["custrecord_bbs_pr_status","anyof","1"],	//Open
+											   "AND",
+											   ["custrecord_bbs_pr_type","anyof","1","2"]	//Credit, or Invoice
 											], 
 											[
+											   new nlobjSearchColumn("custrecord_bbs_pr_type").setSort(true), 	//sort by record type 
 											   new nlobjSearchColumn("created"),
 											   new nlobjSearchColumn("name"),
-											   new nlobjSearchColumn("custrecord_bbs_pr_type"), 
 											   new nlobjSearchColumn("custrecord_bbs_pr_billing_type"), 
 											   new nlobjSearchColumn("custrecord_bbs_pr_inv_pay_term"), 
 											   new nlobjSearchColumn("custrecord_bbs_pr_inv_due_date"), 
+											   new nlobjSearchColumn("formulanumeric").setFormula("CASE WHEN FLOOR({custrecord_bbs_pr_inv_age}) <= 0 THEN null ELSE FLOOR({custrecord_bbs_pr_inv_age}) END"), 
 											   new nlobjSearchColumn("custrecord_bbs_pr_inv_age"), 
 											   new nlobjSearchColumn("custrecord_bbs_pr_inv_sub_total"), 
 											   new nlobjSearchColumn("custrecord_bbs_pr_inv_tax_total"), 
@@ -81,10 +84,51 @@ function libGenerateStatement(partnerId)
 											   new nlobjSearchColumn("custrecord_bbs_pr_cn_applied"), 
 											   new nlobjSearchColumn("custrecord_bbs_pr_cn_unapplied"),
 											   new nlobjSearchColumn("custrecord_bbs_pr_inv_age"),
-											   new nlobjSearchColumn("formulacurrency").setFormula("NVL({custrecord_bbs_pr_inv_total},0) - NVL({custrecord_bbs_pr_inv_paid},0)")
+											   new nlobjSearchColumn("formulacurrency").setFormula("NVL({custrecord_bbs_pr_inv_total},0) - NVL({custrecord_bbs_pr_inv_paid},0)"),
+											   new nlobjSearchColumn("custrecord_bbs_sage_date"),
+											   new nlobjSearchColumn("custrecord_bbs_sage_ref"),
+											   new nlobjSearchColumn("custrecord_bbs_presentation_record_date")
 											   ]
 											));
 								
+									//Run a search to get the un-applied payments for the statement
+									//
+									var totalUnallocatedPayments = Number(0);
+									
+									var customerpaymentSearch = libGetResults(nlapiCreateSearch("customerpayment",
+											[
+											   ["type","anyof","CustPymt"], 
+											   "AND", 
+											   ["name","anyof",partnerId]
+											], 
+											[
+											   new nlobjSearchColumn("tranid",null,"GROUP"), 
+											   new nlobjSearchColumn("trandate",null,"GROUP"), 
+											   new nlobjSearchColumn("formulacurrency",null,"MAX").setFormula("ABS({amount})"), 
+											   new nlobjSearchColumn("appliedtolinkamount",null,"SUM")
+											]
+											));
+									
+									var paymentsArray = [];
+									
+									if(customerpaymentSearch != null && customerpaymentSearch.length > 0)
+										{
+											for (var payCounter = 0; payCounter < customerpaymentSearch.length; payCounter++) 
+												{
+													var docDate = customerpaymentSearch[payCounter].getValue("trandate",null,"GROUP");
+													var docNumber = customerpaymentSearch[payCounter].getValue("tranid",null,"GROUP");
+													var docAmount = Number(customerpaymentSearch[payCounter].getValue("formulacurrency",null,"MAX"));
+													var docApplied = Number(customerpaymentSearch[payCounter].getValue("appliedtolinkamount",null,"SUM"));
+													
+													if(docAmount - docApplied != 0)
+														{
+															paymentsArray.push(new paymentsObj(docNumber, docDate, docAmount, docApplied));
+															totalUnallocatedPayments -= (docAmount - docApplied);
+														}
+												}
+										}
+									
+									
 									//Load the pdf template
 									//
 									var templateFile = nlapiLoadFile(pdfTemplateId);
@@ -96,6 +140,7 @@ function libGenerateStatement(partnerId)
 									var totalOverdueAmount = Number(0);
 									var statementRecord = nlapiCreateRecord('customrecord_bbs_pr_statement');
 									var hasItemsToPrint = false;
+									statementRecord.setFieldValue('custrecord_bbs_pr_stat_payments', JSON.stringify(paymentsArray));
 									
 									//Do we have any results to process
 									//
@@ -115,11 +160,24 @@ function libGenerateStatement(partnerId)
 													
 													if(resultsTranType == 2) // Invoices
 														{
-															openBalance = Number(customrecord_bbs_presentation_recordSearch[int].getValue("formulacurrency"));
-															overdueAmount = Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_inv_outstanding"));
+															//openBalance = Number(customrecord_bbs_presentation_recordSearch[int].getValue("formulacurrency"));
+															openBalance = Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_inv_outstanding"));
+														
+															//Only calculate overdue if age > 0 days
+															//
+															if(Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_inv_age")) > 0)
+																{
+																	overdueAmount = Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_inv_outstanding"));
+																}
+															else 	
+																{
+																	overdueAmount = Number(0);
+																}
 														}
 													else //Credit Notes
 														{
+															openBalance = (Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_cn_unapplied")) * Number(-1.0));
+														
 															overdueAmount = (Number(customrecord_bbs_presentation_recordSearch[int].getValue("custrecord_bbs_pr_cn_unapplied")) * Number(-1.0));
 														}
 													
@@ -128,6 +186,10 @@ function libGenerateStatement(partnerId)
 													totalOverdueAmount += overdueAmount;
 												}
 										}
+									
+									//Subtract the value of unallocated payments
+									//
+									totalOpenBalance += totalUnallocatedPayments;
 									
 									//Only generate the pdf if we have something to show
 									//
@@ -249,5 +311,27 @@ function libGetResults(search)
 	return searchResultSet;
 }
 
+function paymentsObj(_name, _date, _amount, _applied)
+{
+	this.documentName = _name;
+	this.documentDate = _date;
+	this.documentAmount = '(£' + formatMoney(Number(_amount), 2, '.', ",") + ')';
+	this.documentApplied = '(£' + formatMoney(Number(_applied), 2, '.', ",") + ')';
+	this.documentBalance = '(£' + formatMoney((Number(_amount) - Number(_applied)), 2, '.', ",") + ')';
+}
 
+function formatMoney(number, decPlaces, decSep, thouSep) {
+	decPlaces = isNaN(decPlaces = Math.abs(decPlaces)) ? 2 : decPlaces,
+	decSep = typeof decSep === "undefined" ? "." : decSep;
+	thouSep = typeof thouSep === "undefined" ? "," : thouSep;
+	var sign = number < 0 ? "-" : "";
+	var i = String(parseInt(number = Math.abs(Number(number) || 0).toFixed(decPlaces)));
+	var j = (j = i.length) > 3 ? j % 3 : 0;
 
+	return sign +
+		(j ? i.substr(0, j) + thouSep : "") +
+		i.substr(j).replace(/(\decSep{3})(?=\decSep)/g, "$1" + thouSep) +
+		(decPlaces ? decSep + Math.abs(number - i).toFixed(decPlaces).slice(2) : "");
+	}
+
+	

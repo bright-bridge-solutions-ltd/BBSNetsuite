@@ -260,7 +260,8 @@ function resourceAllocAS(type)
 							emailText +=	'End Date - ' + endDate + '\n';
 							emailText +=	'Allocation - ' + allocAmount + ' ' + allocUnit + '\n\n';
 							emailText +=	'Additional Notes - ' + notes + '\n\n';
-							emailText +=	'To see the project record in Netsuite, please click on the following link; ' + projectLink + '\n\n\n';
+							emailText +=	'Project Managers\n\n';
+							emailText +=	'If you are a Project Manager, please ensure you are logged in to your Project Manager Role then use the following link to access the project record; ' + projectLink + '\n\n\n';
 							emailText +=	'Regards,\n\n';
 							emailText +=	'Netsuite';
 							
@@ -295,7 +296,8 @@ function resourceAllocAS(type)
 							emailText +=	'Allocation - ' + allocAmount + ' ' + allocUnit + '\n\n';
 							emailText +=	'Additional Notes - ' + notes + '\n\n';
 							emailText +=	'Objective - ' + objective + '\n\n';
-							emailText +=	'To see the project record in Netsuite, please click on the following link; ' + projectLink + '\n\n\n';
+							emailText +=	'Project Managers\n\n';
+							emailText +=	'If you are a Project Manager, please ensure you are logged in to your Project Manager Role then use the following link to access the project record; ' + projectLink + '\n\n\n';
 							emailText +=	'Regards,\n\n';
 							emailText +=	'Netsuite';
 							

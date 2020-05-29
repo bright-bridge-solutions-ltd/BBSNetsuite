@@ -204,8 +204,8 @@ function scheduled(type)
 	
 	//Get a specific processing date from the script parameter if required
 	//
-	var processingDateString = nlapiGetContext().getPreference('custscript_bbs_processing_date');
-	var processingDate = null;
+	var processingDateString 	= nlapiGetContext().getPreference('custscript_bbs_processing_date');
+	var processingDate 			= null;
 	
 	if(processingDateString != null && processingDateString != '')
 		{
@@ -224,6 +224,10 @@ function scheduled(type)
 	//Find any fully billed sales orders & create new sales orders from them
 	//
 	processFullyBilledOrders(processingDate);
+	
+	//Find any fully billed purchase orders & create new purchase orders from them
+	//
+	processFullyBilledPurchaseOrders(processingDate);
 }
 
 //=============================================================================================
@@ -232,6 +236,139 @@ function scheduled(type)
 //=============================================================================================
 //=============================================================================================
 //
+function processFullyBilledPurchaseOrders(_processingDate)
+{
+	var todayString = _processingDate.format('d/m/Y');
+
+	//Find any relevant rental purchase orders
+	//
+	var purchaseOrderSearch = getResults(nlapiCreateSearch("purchaseorder",
+			[
+				   ["type","anyof","PurchOrd"], 
+				   "AND", 
+				   ["custbody_bbs_pe_reference","isnotempty",""], 	//Has a PE reference
+				   "AND", 
+				   ["mainline","is","T"], 							//Main line
+				   "AND", 
+				   ["status","anyof","PurchOrd:G"],					//Fully billed
+				   "AND", 
+				   ["class","anyof","1"]							//Rental
+			],
+			[
+			   new nlobjSearchColumn("tranid"), 
+			   new nlobjSearchColumn("trandate"),
+			   new nlobjSearchColumn("custbody_bbs_pe_reference")
+			]
+			));
+	
+	if(purchaseOrderSearch != null && purchaseOrderSearch.length > 0)
+		{
+			//Loop through the purchase orders
+			//
+			for (var int = 0; int < purchaseOrderSearch.length; int++) 
+				{
+					checkResources();
+				
+					var purchaseOrderId 		= purchaseOrderSearch[int].getId();
+					var purchaseDate 			= nlapiStringToDate(purchaseOrderSearch[int].getValue('trandate'));
+					var purchasePeReference 	= purchaseOrderSearch[int].getValue('custbody_bbs_pe_reference');					
+					var newPurchaseDate 		= new Date(purchaseDate.getFullYear() + 1, purchaseDate.getMonth(), purchaseDate.getDate());
+					var newPurchaseDateString 	= nlapiDateToString(newPurchaseDate);
+					
+					//Make a copy of the purchase order
+					//
+					var newPurchaseOrder = null;
+					
+					try
+						{
+							newPurchaseOrder = nlapiCopyRecord('purchaseorder', purchaseOrderId);
+						}
+					catch(err)
+						{
+							newPurchaseOrder = null;
+							nlapiLogExecution('ERROR', 'Error copying purchase order, id = ' + purchaseOrderId, err.message);
+						}
+					
+					if(newPurchaseOrder != null)
+						{
+							//Update the external id on the old purchase order
+							//
+							nlapiSubmitField('purchaseorder', purchaseOrderId, 'externalid', 'po_' + purchasePeReference + '_' + purchaseOrderId, false);
+						
+							//Set the relevant field values on the header
+							//
+							newPurchaseOrder.setFieldValue('trandate', newPurchaseDateString);
+							
+							if(purchasePeReference != null && purchasePeReference != '')
+								{
+									newPurchaseOrder.setFieldValue('externalid', 'po_' + purchasePeReference);
+								}
+							
+							//Update the header with the link to the old sales order
+							//
+							newPurchaseOrder.setFieldValue('custbody_bbs_prev_purchase_order', purchaseOrderId);
+						
+							//Correct the first line of the new purchase order
+							//
+							var newLines 	= newPurchaseOrder.getLineItemCount('item');
+							var lineRate 	= Number(0);
+							var lineAmount 	= Number(0);
+							
+							//Get the rate & amount from the next line after the first one
+							//
+							for (var lineCounter = 1; lineCounter <= newLines; lineCounter++) 
+								{
+									if(lineCounter > 1)
+										{
+											lineRate 	= Number(newPurchaseOrder.getLineItemValue('item', 'rate', lineCounter));
+											lineAmount 	= Number(newPurchaseOrder.getLineItemValue('item', 'amount', lineCounter));
+											
+											break;
+										}
+								}
+							
+							//If we have a rate & amount, then set the first line to be those values
+							//
+							if(lineRate > 0 && lineAmount > 0)
+								{
+									newPurchaseOrder.setLineItemValue('item', 'rate', 1, lineRate);
+									newPurchaseOrder.setLineItemValue('item', 'amount', 1, lineAmount);
+								}
+
+							//Save the new purchase order
+							//
+							var newPurchaseOrderId = null;
+							
+							try 
+								{
+									newPurchaseOrderId = nlapiSubmitRecord(newPurchaseOrder, true, true);
+								} 
+							catch (err) 
+								{
+									newPurchaseOrderId = null;
+									nlapiLogExecution('ERROR', 'Error saving new purchase order', err.message);
+								}
+							
+							//Update the old purchase order with the link to the new purchase order
+							//
+							if(newPurchaseOrderId != null)
+								{
+									try
+										{
+											nlapiSubmitField('purchaseorder', purchaseOrderId, 'custbody_bbs_next_purchase_order', newPurchaseOrderId, false);
+										}
+									catch(err)
+										{
+											nlapiLogExecution('ERROR', 'Error updating old purchase order, id = ' + purchaseOrderId + ', deleting new purchase order, id = ' + newPurchaseOrderId, err.message);
+											nlapiDeleteRecord('purchaseorder', newPurchaseOrderId);
+										}
+								}
+						}
+				}
+		}
+}
+
+
 function processFullyBilledOrders(_processingDate)
 {
 	var todayString = _processingDate.format('d/m/Y');
@@ -399,6 +536,7 @@ function processFullyBilledOrders(_processingDate)
 		}
 }
 
+
 function processBillingEndDates(_processingDate)
 {
 	var todayString = _processingDate.format('d/m/Y');
@@ -431,8 +569,12 @@ function processBillingEndDates(_processingDate)
 				{
 					checkResources();
 					
+					//Get the sales order id
+					//
 					var salesOrderId = salesorderSearch[int].getId();
 					
+					//Check to see if we need to create a pro-rata invoice
+					//
 					checkForProRataInvoice(salesOrderId, _processingDate);
 					
 					//Load the old sales order
@@ -451,7 +593,6 @@ function processBillingEndDates(_processingDate)
 					
 					if(oldSalesOrder != null)
 						{
-							
 							//Loop through the lines on the order setting the quantity to be the same as that invoiced
 							//
 							var lines = oldSalesOrder.getLineItemCount('item');
@@ -476,17 +617,128 @@ function processBillingEndDates(_processingDate)
 							//
 							oldSalesOrder.setFieldValue('custbody_bbs_billing_end_date_proc', 'T');
 							
-							//Try to save the old sales order & also update the end date on the revenue arrangement
+							//Get the billing type & PE reference from the sales order
+							//
+							var soBillingType = oldSalesOrder.getFieldValue('class');
+							var soPEReference = oldSalesOrder.getFieldValue('custbody_bbs_pe_reference');
+							var soCloseDate = oldSalesOrder.getFieldValue('custbody_bbs_sales_order_close_date');
+							
+							//Try to save the old sales order, update the end date on the revenue arrangement & update the associated PO
 							//
 							try
 								{
 									nlapiSubmitRecord(oldSalesOrder, true, true);
 									endRevenueArrangement(salesOrderId, todayString);
+									
+									//Close purchase orders only for rental orders
+									//
+									if(soBillingType == 1)	//Rental
+										{
+											closePurchaseOrder(soPEReference, soCloseDate);
+										}
 								}
 							catch(err)
 								{
 									nlapiLogExecution('ERROR', 'Error updating old sales order, id = ' + salesOrderId, err.message);
 								}
+						}
+				}
+		}
+}
+
+
+function closePurchaseOrder(_soPEReference, _closeDate)
+{
+	//Find the most recent PO for the PE reference given
+	//
+	var purchaseorderSearch = getResults(nlapiCreateSearch("purchaseorder",
+			[
+			   ["type","anyof","PurchOrd"], 
+			   "AND", 
+			   ["mainline","is","T"], 
+			   "AND", 
+			   ["custbody_bbs_pe_reference","is",_soPEReference], 
+			   "AND", 
+			   ["status","noneof","PurchOrd:H","PurchOrd:G","PurchOrd:A","PurchOrd:P","PurchOrd:C"]	//Not Pending Supervisor Approval, Rejected by Supervisor, Fully Billed, Closed, Planned
+			], 
+			[
+			   new nlobjSearchColumn("trandate").setSort(true), 									//Ordered by po date descending
+			   new nlobjSearchColumn("tranid")
+			]
+			));
+	
+	//Did we find a PO
+	//
+	if(purchaseorderSearch != null && purchaseorderSearch.length > 0)
+		{
+			checkResources();
+			
+			//Get the PO id & find the month number & day number of the relevant close date
+			//
+			var poId 			= purchaseorderSearch[0].id();
+			var closeDate		= nlapiStringToDate(_closeDate);
+			var closeDateMonth 	= closeDate.getMonth() + 1;		//Months start at 0
+			var closeDateDay 	= Number(closeDate.getDate());
+			var daysInMonth 	= Number(new Date(closeDate.getFullYear(), closeDate.getMonth(), 0).getDate());
+			var poRecord		= null;
+			
+			//Load the PO record
+			//
+			try
+				{
+					poRecord = nlapiLoadRecord('purchaseorder', poId);
+				}
+			catch(err)
+				{
+					poRecord = null;
+					nlapiLogExecution('ERROR', 'Error loading associated po with id = ' + poId, err.message);
+				}
+			
+			//Did we get the PO record ok?
+			//
+			if(poRecord != null)
+				{
+					var poLines 		= poRecord.getLineItemCount('item');
+					var lineProrated	= false;
+					
+					//Loop through the lines to find the one for the month in which the close date occurs
+					//
+					for (var poLine = 1; poLine <= poLines; poLine++) 
+						{
+							var lineMonth = poRecord.getLineItemValue('item', 'custcol_po_month', poLine);
+							
+							if(lineMonth == closeDateMonth)
+								{
+									var lineAmount 		= Number(poRecord.getLineItemValue('item', 'amount', poLine));
+									var proRataAmount 	= (lineAmount / daysInMonth) * closeDateDay;
+									proRataAmount		= Math.round((proRataAmount + 0.00001) * 100) / 100;	//Round to 2 dec places
+									lineProrated		= true;
+									
+									//Set the line rate & amount to be the pro-rata amount
+									//
+									poRecord.setLineItemValue('item', 'rate', poLine, proRataAmount);
+									poRecord.setLineItemValue('item', 'amount', poLine, proRataAmount);
+								}
+							else
+								{
+									if(lineProrated)
+										{
+											//Set all subsequent lines to be closed
+											//
+											poRecord.setLineItemValue('item', 'isclosed', poLine, 'T');
+										}
+								}
+						}
+				
+					//Save the PO record
+					//
+					try
+						{
+							nlapiSubmitRecord(poRecord, true, true);
+						}
+					catch(err)
+						{
+							nlapiLogExecution('ERROR', 'Error updating the PO after pro-rating, id = ' + poId, err.message);
 						}
 				}
 		}
@@ -591,10 +843,10 @@ function getResults(search)
 	
 	//Get the initial set of results
 	//
-	var start = 0;
-	var end = 1000;
+	var start 			= 0;
+	var end 			= 1000;
 	var searchResultSet = searchResult.getResults(start, end);
-	var resultlen = searchResultSet.length;
+	var resultlen 		= searchResultSet.length;
 
 	//If there is more than 1000 results, page through them
 	//
@@ -611,7 +863,7 @@ function getResults(search)
 					}
 				else
 					{
-						resultlen = moreSearchResultSet.length;
+						resultlen 		= moreSearchResultSet.length;
 						searchResultSet = searchResultSet.concat(moreSearchResultSet);
 					}
 		}
@@ -648,15 +900,15 @@ function checkForProRataInvoice(_salesOrderId, _processingDate)
 	//
 	if(salesOrderRecord != null)
 		{
-			var billingEndDate = nlapiStringToDate(salesOrderRecord.getFieldValue('custbody_bbs_billing_end_date'));
+			var billingEndDate 	= nlapiStringToDate(salesOrderRecord.getFieldValue('custbody_bbs_billing_end_date'));
 			var billingOffCycle = salesOrderRecord.getFieldValue('custbody_bbs_off_billing_cycle');
 			
 			//Make sure we have a billing end date
 			//
 			if(billingEndDate != null && billingEndDate != '')
 				{
-					var lineCount = salesOrderRecord.getLineItemCount('item');
-					var billingFrequency = null;
+					var lineCount 			= salesOrderRecord.getLineItemCount('item');
+					var billingFrequency 	= null;
 					
 					//Get the billing frequency from the line(s)
 					//
@@ -673,8 +925,8 @@ function checkForProRataInvoice(_salesOrderId, _processingDate)
 				
 					if(billingFrequency == 1)	//Monthly
 						{
-							var thisMonthEnd = new Date(_processingDate.getFullYear(), _processingDate.getMonth() + 1, 0);
-							var nextMonthStart = new Date(_processingDate.getFullYear(), _processingDate.getMonth() + 1, 1);
+							var thisMonthEnd 	= new Date(_processingDate.getFullYear(), _processingDate.getMonth() + 1, 0);
+							var nextMonthStart 	= new Date(_processingDate.getFullYear(), _processingDate.getMonth() + 1, 1);
 							
 							//Billing end date is on or before this month
 							//
@@ -793,11 +1045,11 @@ function checkForProRataInvoice(_salesOrderId, _processingDate)
 function createProRataInvoice(_salesOrderRecord)
 {
 	var salesOrderCloseDate = nlapiStringToDate(_salesOrderRecord.getFieldValue('custbody_bbs_sales_order_close_date'));
-	var billingEndDate = nlapiStringToDate(_salesOrderRecord.getFieldValue('custbody_bbs_billing_end_date'));
-	var invoiceDate = new Date(salesOrderCloseDate.getFullYear(), salesOrderCloseDate.getMonth() + 1, 1); 	//1st day on month after the close date
-	var salesOrderValue = Number(_salesOrderRecord.getFieldValue('subtotal'));
-	var daysToInvoice = (Math.abs(billingEndDate.getTime() - invoiceDate.getTime()) / (1000 * 3600 * 24)) + 1;
-	var invoiceValue = ((salesOrderValue / 365) * daysToInvoice).toFixed(2);
+	var billingEndDate 		= nlapiStringToDate(_salesOrderRecord.getFieldValue('custbody_bbs_billing_end_date'));
+	var invoiceDate 		= new Date(salesOrderCloseDate.getFullYear(), salesOrderCloseDate.getMonth() + 1, 1); 	//1st day on month after the close date
+	var salesOrderValue 	= Number(_salesOrderRecord.getFieldValue('subtotal'));
+	var daysToInvoice 		= (Math.abs(billingEndDate.getTime() - invoiceDate.getTime()) / (1000 * 3600 * 24)) + 1;
+	var invoiceValue 		= ((salesOrderValue / 365) * daysToInvoice).toFixed(2);
 	
 	var invoiceRecord = null;
 	
@@ -819,7 +1071,7 @@ function createProRataInvoice(_salesOrderRecord)
 		
 			//Remove any lines on the invoice
 			//
-			var invoiceLines = invoiceRecord.getLineItemCount('item');
+			var invoiceLines 	= invoiceRecord.getLineItemCount('item');
 			var lineDescription = '';
 			
 			for (var int = invoiceLines; int >= 1; int--) 

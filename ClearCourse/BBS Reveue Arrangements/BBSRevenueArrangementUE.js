@@ -19,55 +19,62 @@
  */
 function revenueArrangementAS(type)
 {
-	//Only process if on edit of the invoice or credit note
-	//
-	if(type == 'edit')
+	try
 		{
-			//Get info about the record we are processing
+			//Only process if on edit of the invoice or credit note
 			//
-			var newRecord 		= nlapiGetNewRecord();
-			var currentId 		= newRecord.getId();
-			var currentType 	= newRecord.getRecordType();
-			var currentRecord 	= null;
-			
-			//Try to load the record we are working with
-			//
-			try
+			if(type == 'edit')
 				{
-					currentRecord = nlapiLoadRecord(currentType, currentId);
-				}
-			catch(err)
-				{
-					currentRecord = null;
-				}
-			
-			//Did we get the record ok?
-			//
-			if(currentRecord != null)
-				{
-					//Get the transaction id of the current record
+					//Get info about the record we are processing
 					//
-					var currentTransactionTranid = (currentType == 'invoice' ? 'CustInvc_' : 'CustCred_') + currentId
+					var newRecord 		= nlapiGetNewRecord();
+					var currentId 		= newRecord.getId();
+					var currentType 	= newRecord.getRecordType();
+					var currentRecord 	= null;
 					
-					//Find all the lines on the current record
+					//Try to load the record we are working with
 					//
-					var lineCount = currentRecord.getLineItemCount('item');
-					
-					//Loop through all of the lines
-					//
-					for (var lineCounter = 1; lineCounter <= lineCount; lineCounter++) 
+					try
 						{
-							//Get the info from the line
+							currentRecord = nlapiLoadRecord(currentType, currentId);
+						}
+					catch(err)
+						{
+							currentRecord = null;
+						}
+					
+					//Did we get the record ok?
+					//
+					if(currentRecord != null)
+						{
+							//Get the transaction id of the current record
 							//
-							var lineRevRecStart = currentRecord.getLineItemValue('item', 'custcol_cle_rev_rec_sta_dat', lineCounter);
-							var lineRevRecEnd 	= currentRecord.getLineItemValue('item', 'custcol_cle_rev_rec_end_dat', lineCounter);
-							var lineUniqueKey 	= currentRecord.getLineItemValue('item', 'lineuniquekey', lineCounter);
+							var currentTransactionTranid = (currentType == 'invoice' ? 'CustInvc_' : 'CustCred_') + currentId
 							
-							updateRevenueArrangement(currentTransactionTranid, lineUniqueKey, lineRevRecStart, lineRevRecEnd);
+							//Find all the lines on the current record
+							//
+							var lineCount = currentRecord.getLineItemCount('item');
 							
-							
+							//Loop through all of the lines
+							//
+							for (var lineCounter = 1; lineCounter <= lineCount; lineCounter++) 
+								{
+									//Get the info from the line
+									//
+									var lineRevRecStart = currentRecord.getLineItemValue('item', 'custcol_cle_rev_rec_sta_dat', lineCounter);
+									var lineRevRecEnd 	= currentRecord.getLineItemValue('item', 'custcol_cle_rev_rec_end_dat', lineCounter);
+									var lineUniqueKey 	= currentRecord.getLineItemValue('item', 'lineuniquekey', lineCounter);
+									
+									updateRevenueArrangement(currentTransactionTranid, lineUniqueKey, lineRevRecStart, lineRevRecEnd);
+									
+									
+								}
 						}
 				}
+		}
+	catch(err)
+		{
+			nlapiLogExecution('ERROR', 'An unexpected error has occured', err.message);
 		}
 }
 

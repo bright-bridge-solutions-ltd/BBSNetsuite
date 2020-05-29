@@ -11,6 +11,50 @@
  * @param {nlobjResponse} response Response object
  * @returns {Void} Any output is written via response object
  */
+
+
+function suitelet(type)
+{
+	try 
+		{
+			var context = nlapiGetContext();
+			var recordId = request.getParameter('partnerid');
+
+			sleep(2000);
+			
+			nlapiScheduleScript('customscript_bbs_statement_emailer', null, {custscript_bbs_partner_id: recordId});
+			
+			//var configRecord = nlapiLoadConfiguration('companyinformation');
+			//var accountId = configRecord.getFieldValue('companyid');
+			
+			//var urlPrefix = 'https://' + accountId.replace('_','-') + '.app.netsuite.com/';
+	    	
+			response.sendRedirect('RECORD','customer', recordId, false, null);
+		}
+	catch (e) 
+		{
+			if (e instanceof nlobjError) 
+				{
+		        	nlapiLogExecution('DEBUG', 'Suitelet', e.getCode() + '\n' + e.getDetails());
+				}
+		    else 
+		    	{
+		        	nlapiLogExecution('DEBUG', 'Suitelet - unexpected', e.toString());
+		    	}
+		}
+}
+
+function sleep(milliseconds) 
+{
+	  const date = Date.now();
+	  
+	  var currentDate = null;
+
+	  do{ currentDate = Date.now();
+		  } while (currentDate - date < milliseconds);
+}
+
+/*
 function suitelet(request, response)
 {
 	if (request.getMethod() == 'GET') 
@@ -50,3 +94,4 @@ function suitelet(request, response)
 		
 		}
 }
+*/

@@ -125,21 +125,6 @@ function prRecordRecalcUE(type)
 												var appliedTranId = record.getLineItemValue('apply', 'internalid', int);
 												
 												invoiceObject[appliedTranId] = appliedTranId;
-												
-												
-												//See if there is a PR record linked to this transaction
-												//
-												//var presentationId = nlapiLookupField('invoice', appliedTranId, 'custbody_bbs_pr_id', false);
-												
-												//Does this transaction have a pr linked to it?
-												//
-												//if(presentationId != null && presentationId != '')
-												//	{
-														//Build up a list of PR records to process
-														//
-												//		prToProcess[presentationId] = presentationId;
-												//	}
-												
 											}
 									}
 							}
@@ -191,6 +176,84 @@ function prRecordRecalcUE(type)
 							}
 						
 						break;
+						
+					case 'customerrefund':
+						
+						var prToProcess = {};
+						var applyCount = record.getLineItemCount('apply');
+						var creditObject = {};
+						var creditArray = [];
+						
+						//Loop through all of the apply to sublist
+						//
+						for (var int = 1; int <= applyCount; int++) 
+							{
+								var applied = record.getLineItemValue('apply', 'apply', int);
+								
+								//Has the line beed applied?
+								//
+								if(applied == 'T')
+									{
+										var appliedTranType = record.getLineItemValue('apply', 'trantype', int);
+										
+										//Is the applied to transaction an credit note?
+										//
+										if(appliedTranType == 'CustCred')
+											{
+												var appliedTranId = record.getLineItemValue('apply', 'internalid', int);
+												
+												creditObject[appliedTranId] = appliedTranId;
+											}
+									}
+							}
+						
+						for ( var invoiceObjectId in creditObject) 
+							{
+								creditArray.push(invoiceObjectId)
+							}
+						
+						//New code to get list of PR records to update
+						//
+						var creditSearch = null;
+						
+						if(creditArray.length > 0)
+							{
+								creditSearch = nlapiSearchRecord("creditmemo",null,
+										[
+										   ["type","anyof","CustCred"], 
+										   "AND", 
+										   ["mainline","is","T"], 
+										   "AND", 
+										   ["internalid","anyof",creditArray]
+										], 
+										[
+										   new nlobjSearchColumn("custbody_bbs_pr_id",null,"GROUP")
+										]
+										);
+							}
+						
+						if(creditSearch != null && creditSearch.length > 0)
+							{
+								for (var int2 = 0; int2 < creditSearch.length; int2++) 
+									{
+										var prId = creditSearch[int2].getValue("custbody_bbs_pr_id",null,"GROUP");
+										
+										if(prId != null && prId != '')
+											{
+												prToProcess[prId] = prId;
+											}
+									}
+							}
+						
+						
+						//Now process any PR records that have been affected
+						//
+						for ( var presentationId in prToProcess) 
+							{
+								libRecalcPresentationRecord(presentationId);
+							}
+						
+						break;		
 				}
 		}
 }

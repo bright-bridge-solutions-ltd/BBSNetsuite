@@ -79,7 +79,7 @@ function(currentRecord, record, runtime)
     	{
     		var validationResult = true;
     		
-    		var percentageChange = Math.abs(((Number(_newValue) - Number(_oldValue)) / Number(_oldValue)) * Number(100.0));
+    		var percentageChange = ((Number(_newValue) - Number(_oldValue)) / Number(_oldValue)) * Number(100.0);
     		
     		if(percentageChange > Number(_tolerance))
     			{
