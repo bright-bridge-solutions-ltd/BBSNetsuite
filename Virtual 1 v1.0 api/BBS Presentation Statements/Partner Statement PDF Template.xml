@@ -154,23 +154,25 @@
 
 <body header="nlheader" header-height="330px"  footer="nlfooter" footer-height="10px" padding="1.5cm 1.5cm 1.5cm 1.5cm" size="A4">
 
-<#if lines?has_content>
+<#if lines?has_content || statement.custrecord_bbs_pr_stat_payments?has_content>
 
 	<!-- Details table -->
 	<table style="width: 100%;">	
+	<thead>
+		<tr>
+			<th align="left"  style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Document<br/>Date</th>
+			<th align="left"  style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Document<br/>Reference</th>
+			<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;"><p style="text-align: right;">Document<br/>Amount</p></th>
+			<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;"><p style="text-align: right;">Open<br/>Balance</p></th>
+			<th align="left"  style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b; padding-left:30px;">Due<br/>Date</th>
+			<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;"><p style="text-align: right;">Days<br/>Past Due</p></th>
+			<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;"><p style="text-align: right;">Overdue<br/>Amount</p></th>
+		</tr>
+	</thead>
+	
 		<#list lines as line>
 			<#if line_index==0>
-				<thead>
-					<tr>
-						<th align="left"  style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Document<br/>Date</th>
-						<th align="left"  style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Document<br/>Reference</th>
-						<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;"><p style="text-align: right;">Document<br/>Amount</p></th>
-						<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;"><p style="text-align: right;">Open<br/>Balance</p></th>
-						<th align="left"  style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b; padding-left:30px;">Due<br/>Date</th>
-						<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;"><p style="text-align: right;">Days<br/>Past Due</p></th>
-						<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;"><p style="text-align: right;">Overdue<br/>Amount</p></th>
-					</tr>
-				</thead>
+
 				<#assign lastType = line.custrecord_bbs_pr_type>		
 			</#if>
 
@@ -184,9 +186,9 @@
 				<#if line.custrecord_bbs_pr_type == "Invoice">
 					<tr>
 						<#if line.custrecord_bbs_sage_date?has_content>
-							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_sage_date?string["dd/MM/yy"]}</td>
+							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_sage_date?string["dd/MM/yyyy"]}</td>
 						<#else>
-							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.created?string["dd/MM/yy"]}</td>
+							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_presentation_record_date?string["dd/MM/yyyy"]}</td>
 						</#if>
 						
 						<#if line.custrecord_bbs_sage_ref?has_content>
@@ -209,9 +211,9 @@
 				<#else>
 					<tr>
 						<#if line.custrecord_bbs_sage_date?has_content>
-							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_sage_date?string["dd/MM/yy"]}</td>
+							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_sage_date?string["dd/MM/yyyy"]}</td>
 						<#else>
-							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_presentation_record_date?string["dd/MM/yy"]}</td>
+							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_presentation_record_date?string["dd/MM/yyyy"]}</td>
 						</#if>
 						
 						<#if line.custrecord_bbs_sage_ref?has_content>
@@ -242,7 +244,7 @@
 					<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${pays.documentBalance}</td>
 					<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">&nbsp;</td>
 					<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">&nbsp;</td>
-					<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">&nbsp;</td>
+					<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${pays.documentBalance}</td>
 				</tr>
 			</#list>
 		</#if>

@@ -260,6 +260,7 @@
 </head>
 <body header="nlheader" header-height="250px" footer="nlfooter" footer-height="5px" padding="0.5in 0.5in 0.5in 0.5in" size="A4-LANDSCAPE">
 
+<#assign itemCount = 0>
 <#assign firstTime = 1>
 <table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items -->
 	<#list record.item?sort_by("custcol_bbs_matrix_parent")  as item>
@@ -276,8 +277,8 @@
           </thead>
       </#if>
       
-         
-      <#if (item.custcol_bbs_pick_quantity?number gt 0 || item.quantitycommitted?number gt 0)>
+      <#if ((item.custcol_bbs_pick_quantity?has_content && item.custcol_bbs_pick_quantity?number gt 0) || item.quantitycommitted?number gt 0)> 
+
 
         <#if firstTime == 0 && lastParent != item.custcol_bbs_matrix_parent>
           <tr><td colspan="11">&nbsp;</td></tr>
@@ -291,14 +292,23 @@
           <td>${item.quantity}</td>
           <td>${item.units}</td>
           
-          <#if item.custcol_bbs_pick_quantity?number gt 0>
+		<#if item.custcol_bbs_pick_quantity?has_content && item.custcol_bbs_pick_quantity?number gt 0>
               <td>${item.custcol_bbs_pick_quantity}</td>
-          <#else>
+              <#assign itemCount = itemCount + item.custcol_bbs_pick_quantity>
+          <#else>  
               <td>${item.quantitycommitted}</td>
-          </#if>
+              <#assign itemCount = itemCount + item.quantitycommitted>
+          </#if> 
+
         </tr>
-      </#if>
-	</#list><!-- end items -->
+      </#if> 
+	</#list>
+	
+	<tr style="margin-top: 5px;">
+		<td colspan="9">&nbsp;</td>
+		<td><strong>Pick Total</strong></td>
+		<td><strong>${itemCount}</strong></td>
+	</tr>
 </table>
   
 <table class="total" align="left" style="width: 100%; margin-top: 10px;">
