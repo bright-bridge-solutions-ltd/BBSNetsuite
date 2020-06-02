@@ -28,9 +28,14 @@ function(search, record) {
     			values: ['T']
     		},
     				{
-    			name: 'formulatext',
-    			operator: 'isnotempty',
-    			formula: '{custbody_bbs_service_data_records}'
+    			name: 'trandate',
+    			operator: 'on',
+    			values: ['31/03/2020']
+    		},
+    				{
+    			name: 'datecreated',
+    			operator: 'on',
+    			values: ['today']
     		}],
     		
     		columns:[{
@@ -54,8 +59,9 @@ function(search, record) {
     	var searchResult = JSON.parse(context.value);	
     	var recordID = searchResult.id;
     	
-    	var tranID = searchResult.getValue({
-    		name: 'tranid'
+    	log.audit({
+    		title: 'Processing Invoice',
+    		details: recordID
     	});
     	
     	try

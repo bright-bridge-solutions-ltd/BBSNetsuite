@@ -69,6 +69,11 @@ function(format, search, record) {
 		    	var salesForceID = currentRecord.getValue({
 		    		fieldId: 'custrecord_bbs_ims_usage_data_sf_id'
 				});
+		    	
+		    	// get the subsidiary
+		    	var subsidiary = currentRecord.getValue({
+		    		fieldId: 'custrecord_bbs_ims_usage_data_subsidiary'
+		    	});
 				    	
 				// get the date of the search
 				var searchDate = currentRecord.getValue({
@@ -85,7 +90,7 @@ function(format, search, record) {
 				var itemRecord = searchItems(itemID);
 				
 				// call function to return details for the matching contract record
-				var contractRecordSearch = searchContracts(salesForceID, searchDate);
+				var contractRecordSearch = searchContracts(salesForceID, subsidiary, searchDate);
 				
 				// retrieve values from the contractRecordSearch array
 				var contractRecord = contractRecordSearch[0];
@@ -168,7 +173,7 @@ function(format, search, record) {
 	    	return itemRecord;  	
     	}
     
-    function searchContracts(salesForceID, searchDate)
+    function searchContracts(salesForceID, subsidiary, searchDate)
     	{
     		// declare array to hold contract record data
     		var contractData = new Array();
@@ -183,6 +188,8 @@ function(format, search, record) {
 			    			["custrecord_bbs_contract_status","anyof","1"], // 1 = Approved
 			    			"AND",
 			    			["custrecord_bbs_contract_sales_force_id","is",salesForceID],
+			    			"AND",
+			    			["custrecord_bbs_contract_customer.subsidiary","anyof",subsidiary],
 			    			"AND",
 			    			["custrecord_bbs_contract_start_date","onorbefore",searchDate],
 			    			"AND",

@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/search', 'N/render', 'N/file'],
-function(runtime, search, render, file) {
+define(['N/runtime', 'N/search', 'N/record', 'N/render', 'N/file'],
+function(runtime, search, record, render, file) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -29,7 +29,55 @@ function(runtime, search, render, file) {
      * @Since 2015.2
      */
     function beforeSubmit(scriptContext) {
-
+    	
+    	// check the record is being created or edited
+    	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
+    		{
+    			// get the current record
+    			var currentRecord = scriptContext.newRecord;
+    			
+    			// get the value of the created from field from the current record
+    			var createdFrom = currentRecord.getValue({
+    				fieldId: 'createdfrom'
+    			});
+    			
+    			// check the invoice is related to a sales order
+    			if (createdFrom)
+    				{
+		    			// get the transaction date from the current record
+		    			var transactionDate = currentRecord.getValue({
+		    				fieldId: 'trandate'
+		    			});
+		    			
+		    			// calculate the start and end of the transaction date's month
+		    			var periodStart = new Date(transactionDate.getFullYear(), transactionDate.getMonth(), 1);
+		    			var periodEnd 	= new Date(transactionDate.getFullYear(), transactionDate.getMonth()+1, 0);
+		    			
+		    			// get count of lines on the current record
+		    			var lineCount = currentRecord.getLineCount({
+		    				sublistId: 'item'
+		    			});
+		    			
+		    			// loop through line count
+		    			for (var i = 0; i < lineCount; i++)
+		    				{
+		    					// set the period start/end fields on the line
+		    					currentRecord.setSublistValue({
+		    						sublistId: 'item',
+		    						fieldId: 'custcol_bbs_date_from',
+		    						value: periodStart,
+		    						line: i
+		    					});
+		    					
+		    					currentRecord.setSublistValue({
+		    						sublistId: 'item',
+		    						fieldId: 'custcol_bbs_date_to',
+		    						value: periodEnd,
+		    						line: i
+		    					});
+		    				}
+    				}
+    		}
     }
 
     /**
@@ -43,8 +91,8 @@ function(runtime, search, render, file) {
      */
     function afterSubmit(scriptContext) {
     	
-    	// check the record is being created
-    	if (scriptContext.type == scriptContext.UserEventType.EDIT)
+    	// check the record is being created or edited
+    	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
     		{
 	    		// retrieve script parameters
 		    	var currentScript = runtime.getCurrentScript();
@@ -60,60 +108,156 @@ function(runtime, search, render, file) {
 		    	// get the internal ID of the current record
 		    	var currentRecordID = currentRecord.id;
 		    	
-		    	// get the related sales order from the invoice record
-		    	var salesOrder = currentRecord.getValue({
-		    		fieldId: 'createdfrom'
+		    	// get the transaction date from the current record
+    			var transactionDate = currentRecord.getValue({
+    				fieldId: 'trandate'
+    			});
+    			
+    			// format transactionDate in the following format YYMMDD
+    			transactionDate = transactionDate.format('ymd');
+    			
+    			// get the value of the site field from the invoice record
+		    	var site = currentRecord.getValue({
+		    		fieldId: 'custbody_bbs_site_name'
 		    	});
-		    	
-		    	// check that we have a sales order
-		    	if (salesOrder)
+		    			
+		    	// check that we have a site
+		    	if (site)
 		    		{
-		    			// get the value of the site field from the invoice record
-		    			var site = currentRecord.getValue({
-		    				fieldId: 'custbody_bbs_site'
+			    		// lookup fields on the site record
+						var siteLookup = search.lookupFields({
+							type: 'customrecord_bbs_site',
+							id: site,
+							columns: ['custrecord_bbs_site_code', 'custrecord_site_name', 'custrecord_bbs_site_po_number', 'custrecord_bbs_site_address_1', 'custrecord_bbs_site_address_2', 'custrecord_bbs_site_address_3', 'custrecord_bbs_site_address_city', 'custrecord_bbs_site_address_state', 'custrecord_bbs_site_address_zip']
+						});
+						
+						// get the site alias and name
+		    			var siteAlias = siteLookup.custrecord_bbs_site_code;
+		    			var siteName = siteLookup.custrecord_site_name;
+		    			
+		    			// get the PO#
+		    			var poNumber = siteLookup.custrecord_bbs_site_po_number;
+						
+						// return the address from the site lookup
+		    			var address1 = siteLookup.custrecord_bbs_site_address_1;
+						var address2 = siteLookup.custrecord_bbs_site_address_2;
+						var address3 = siteLookup.custrecord_bbs_site_address_3;
+						var addressCity = siteLookup.custrecord_bbs_site_address_city;
+						var addressCounty = siteLookup.custrecord_bbs_site_address_state[0].text;
+						var addressPostcode = siteLookup.custrecord_bbs_site_address_zip;
+						
+						try
+							{
+								// re-load the invoice record
+								var invoiceRecord = record.load({
+									type: record.Type.INVOICE,
+									id: currentRecordID,
+									isDynamic: true
+								});
+								
+								// set the PO# field on the invoice
+								invoiceRecord.setValue({
+									fieldId: 'otherrefnum',
+									value: poNumber
+								});
+								
+								// get the shipping address subrecord
+								var shippingAddressSubrecord = invoiceRecord.getSubrecord({
+								    fieldId: 'shippingaddress'
+								});
+								
+								// set fields on the shipping address subrecord
+								shippingAddressSubrecord.setValue({
+									fieldId: 'addressee',
+									value: siteName
+								});
+								
+								shippingAddressSubrecord.setValue({
+									fieldId: 'addr1',
+									value: address1
+								});
+									
+								shippingAddressSubrecord.setValue({
+									fieldId: 'addr2',
+									value: address2
+								});
+								
+								shippingAddressSubrecord.setValue({
+									fieldId: 'addr3',
+									value: address3
+								});
+										
+								shippingAddressSubrecord.setValue({
+									fieldId: 'city',
+									value: addressCity
+								});
+										
+								shippingAddressSubrecord.setValue({
+									fieldId: 'state',
+									value: addressCounty
+								});
+										
+								shippingAddressSubrecord.setValue({
+									fieldId: 'zip',
+									value: addressPostcode
+								});
+								
+								// save the invoice record
+								invoiceRecord.save({
+						    		enableSourcing: false,
+								    ignoreMandatoryFields: true
+						    	});
+								
+								log.audit({
+									title: 'Invoice Record Updated',
+									details: currentRecordID
+								});							 	
+							}
+						catch(e)
+							{
+								log.error({
+									title: 'Error Updating Invoice',
+									details: 'Error: ' + e + '<br>Record ID: ' + currentRecordID
+ 								});
+							}
+		    		}
+		    	else // we don't have a site
+		    		{
+			    		// get the ID of the customer
+		    			var customerID = currentRecord.getValue({
+		    				fieldId: 'entity'
 		    			});
 		    			
-		    			// check that we have a site
-		    			if (site)
-		    				{
-		    					// lookup fields on the site record
-		    					var siteLookup = search.lookupFields({
-		    						type: 'customrecord_bbs_site',
-		    						id: site,
-		    						columns: ['custrecord_bbs_site_code']
-		    					});
-		    					
-		    					// get the site alias
-		    					var siteAlias = siteLookup.custrecord_bbs_site_code;
-		    				}
-		    			else // we don't have a site
-		    				{
-			    				// get the customer name from the invoice record
-								siteAlias = currentRecord.getText({
-									fieldId: 'entity'
-								});
-		    				}
-		    					
-		    			// get the subsidiary from the invoice record
-			    		var subsidiary = currentRecord.getValue({
-			    			fieldId: 'subsidiary'
-			    		});
-			    				    	
-			    		// if subsidiary is 2 (UK)
-			    		if (subsidiary == 2)
-			    			{
-			    				// set filePrefix variable to UK
-			    				var filePrefix = 'UK';
-			    			}
-			    		else if (subsidiary == 3) // if subsidiary is 3 (US)
-			    			{
-			    				// set filePrefix variable to US
-			    				var filePrefix = 'US';
-			    			}
-			    				    	
-			    		// call function to create a PDF invoice and save to the file cabinet. Pass currentRecordID and filePrefix
-			    		createPDFInvoice(currentRecordID, filePrefix, siteAlias);
+		    			// lookup fields on the customer record
+		    			var customerLookup = search.lookupFields({
+		    				type: search.Type.CUSTOMER,
+		    				id: customerID,
+		    				columns: ['companyname']
+		    			});
+		    			
+		    			// get the company name from the customerLookup
+		    			var siteAlias = customerLookup.companyname;
 		    		}
+		    					
+		    	// get the subsidiary from the invoice record
+			    var subsidiary = currentRecord.getValue({
+			    	fieldId: 'subsidiary'
+			    });
+			    				    	
+			    // if subsidiary is 2 (UK)
+			    if (subsidiary == 2)
+			    	{
+			    		// set filePrefix variable to UK
+			    		var filePrefix = 'UK';
+			    	}
+			    else if (subsidiary == 3) // if subsidiary is 3 (US)
+			    	{
+			    		// set filePrefix variable to US
+			    		var filePrefix = 'US';
+			    	}
+			    				    	
+			    // call function to create a PDF invoice and save to the file cabinet. Pass currentRecordID, filePrefix, transactionDate and siteAlias
+			    createPDFInvoice(currentRecordID, filePrefix, transactionDate, siteAlias);
     		}
 
     }
@@ -122,13 +266,9 @@ function(runtime, search, render, file) {
     // FUNCTION TO CREATE A PDF OF THE INVOICE AND SAVE TO THE FILE CABINET
     // ====================================================================
     
-    function createPDFInvoice(invoiceID, filePrefix, siteAlias)
+    function createPDFInvoice(invoiceID, filePrefix, fileDate, siteAlias)
     	{
-	    	// declare new date object
-			var invoiceDate = new Date();
-			invoiceDate.setDate(0); // set date to be the last day of the previous month
-    	
-    		// Generate the PDF
+	    	// Generate the PDF
 			var PDF_File = render.transaction({
 				entityId: invoiceID,
 				printMode: render.PrintMode.PDF,
@@ -138,9 +278,6 @@ function(runtime, search, render, file) {
 			// get the invoice tran ID from the PDF_File object
 			var invoiceTranID = PDF_File.name;
 			invoiceTranID = invoiceTranID.replace("Invoice_", ""); // remove 'Invoice_' from string
-			
-			// format the invoice date in the following format YYMMDD
-			var fileDate = invoiceDate.format('ymd');
 			
 			// set the file name
 			PDF_File.name = filePrefix + '-' + fileDate + '-' + siteAlias + '-' + invoiceTranID;

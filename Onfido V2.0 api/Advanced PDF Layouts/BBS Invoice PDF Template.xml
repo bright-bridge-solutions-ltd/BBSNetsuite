@@ -92,7 +92,7 @@
         		<#if record.otherrefnum?has_content>
 	        		<tr>
 	        			<td>&nbsp;</td>
-	        			<td colspan="2" style="font-size:12pt"><b>Customer PO</b></td>
+	        			<td colspan="2" style="font-size:12pt"><b>PO Number</b></td>
         			</tr>
 	        		<tr>
 	        			<td>&nbsp;</td>
@@ -101,7 +101,7 @@
 	        	<#elseif record.custbody_bbs_contract_record.custrecord_bbs_contract_po_number?has_content>
 	        		<tr>
 	        			<td>&nbsp;</td>
-	        			<td colspan="2" style="font-size:12pt"><b>Customer PO</b></td>
+	        			<td colspan="2" style="font-size:12pt"><b>PO Number</b></td>
         			</tr>
 	        		<tr>
 	        			<td>&nbsp;</td>

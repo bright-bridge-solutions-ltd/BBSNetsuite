@@ -36,6 +36,7 @@ function(dialog, search, record, url) {
 	    						// call helper functions to delete records
 	        					deleteProductDetailRecords(recordID);
 	        					deleteProductRecords(recordID);
+	        					deleteMinimumUsageRecords(recordID);
 	        					deleteContractRecord(recordID);
 	        					
 	        					// return the URL of the home page
@@ -156,6 +157,59 @@ function(dialog, search, record, url) {
         	    		// continue processing search results
         	    		return true;
     	    		});
+	    		}
+    		
+    		// ========================================
+    		// FUNCTION TO DELETE MINIMUM USAGE RECORDS
+    		// ========================================
+    		
+    		function deleteMinimumUsageRecords(recordID)
+	    		{
+	    			// declare and initialize variables
+    				var minimumUsageRecord;
+    				
+    				// create search to find minimum usage records for this contract
+    				var minimumUsageSearch = search.create({
+    					type: 'customrecord_bbs_contract_minimum_usage',
+    					
+    					filters: [{
+    						name: 'custrecord_bbs_contract_min_usage_parent',
+    						operator: 'anyof',
+    						values: [recordID]
+    					}],
+    					
+    					columns: [{
+    						name: 'internalid'
+    					}],
+    		
+    				});
+    				
+    				// run search and process results
+    				minimumUsageSearch.run().each(function(result){
+    					
+    					// get the internal ID of the record
+    					minimumUsageRecord = result.getValue({
+    						name: 'internalid'
+    					});
+    					
+    					try
+	    	    			{
+	    	    				// delete the record
+	    	    				record.delete({
+	    	    					type: 'customrecord_bbs_contract_minimum_usage',
+	    	    					id: minimumUsageRecord
+	    	    				});
+	    	    			}
+    					catch(error)
+	    	    			{
+	    	    			
+	    	    			}
+    	    		
+    					// continue processing search results
+    					return true;
+    					
+    				});
+    				
 	    		}
     		
     		//=======================================

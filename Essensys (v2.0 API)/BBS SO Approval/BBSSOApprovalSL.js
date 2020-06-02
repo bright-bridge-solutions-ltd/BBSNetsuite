@@ -28,13 +28,13 @@ function(runtime, record, search, render, email) {
     	
     	try
     		{
-		    	// set the 'Rejection Reason' and 'Workflow State' fields on the sales order
+		    	// set the 'Rejection Reason' and 'Approval Status' fields on the sales order
 		    	record.submitFields({
 		    		type: record.Type.SALES_ORDER,
 		    		id: recordID,
 		    		values:	{
 		    			custbody_bbs_rejected_reason: rejectionReason,
-		    			custbody_bbs_workflow_state: 'Rejected'
+		    			custbody_bbs_approval_status: 5 // 5 = Rejected
 		    		},
 		    		enableSourcing: false,
 					ignoreMandatoryFields: true

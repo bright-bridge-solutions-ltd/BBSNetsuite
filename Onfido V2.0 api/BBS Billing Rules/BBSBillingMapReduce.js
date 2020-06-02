@@ -58,12 +58,20 @@ function(runtime, search, record, format, task) {
 		name: 'custscript_bbs_def_inc_monthly'
 	});
 	
+	deferredIncomeMgmtFee = currentScript.getParameter({
+		name: 'custscript_bbs_def_inc_mgmt_fee'
+	});
+	
 	unusedIncomeAccount = currentScript.getParameter({
 		name: 'custscript_bbs_unused_income_account'
 	});
 	
 	checksCompleteAccount = currentScript.getParameter({
 		name: 'custscript_bbs_checks_complete_gl_acc'
+	});
+	
+	mgmtFeeAccount = currentScript.getParameter({
+		name: 'custscript_bbs_account_management_acc'
 	});
 	
 	invoiceForm = currentScript.getParameter({
@@ -126,12 +134,32 @@ function(runtime, search, record, format, task) {
 				join: 'custbody_bbs_contract_record'
 			},
 					{
-				name: 'custrecord_bbs_contract_mgmt_fee_amt',
+				name: 'custrecord_bbs_contract_mgmt_fee_type',
 				join: 'custbody_bbs_contract_record'
+			},
+					{
+				name: 'formulacurrency',
+				formula: "ROUND(CASE WHEN TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_start_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custbody_bbs_contract_record.custrecord_bbs_contract_mgmt_fee_amt} / TO_CHAR(LAST_DAY({custbody_bbs_contract_record.custrecord_bbs_contract_start_date}),'DD')) * (TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_end_date},'DD') - TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_start_date},'DD') +1) ELSE CASE WHEN TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_early_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_start_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_early_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custbody_bbs_contract_record.custrecord_bbs_contract_mgmt_fee_amt} / TO_CHAR(LAST_DAY({custbody_bbs_contract_record.custrecord_bbs_contract_start_date}),'DD')) * (TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_early_end_date},'DD') - TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_start_date},'DD') +1) ELSE CASE WHEN TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custbody_bbs_contract_record.custrecord_bbs_contract_mgmt_fee_amt} / TO_CHAR(LAST_DAY({custbody_bbs_contract_record.custrecord_bbs_contract_start_date}),'DD')) * (TO_CHAR(LAST_DAY({custbody_bbs_contract_record.custrecord_bbs_contract_start_date}),'DD') - TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_start_date},'DD') +1) ELSE CASE WHEN TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custbody_bbs_contract_record.custrecord_bbs_contract_mgmt_fee_amt} / TO_CHAR(LAST_DAY({custbody_bbs_contract_record.custrecord_bbs_contract_end_date}),'DD')) * TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_end_date},'DD') ELSE CASE WHEN TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_early_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_early_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custbody_bbs_contract_record.custrecord_bbs_contract_mgmt_fee_amt} / TO_CHAR(LAST_DAY({custbody_bbs_contract_record.custrecord_bbs_contract_early_end_date}),'DD')) * TO_CHAR({custbody_bbs_contract_record.custrecord_bbs_contract_early_end_date},'DD') ELSE {custbody_bbs_contract_record.custrecord_bbs_contract_mgmt_fee_amt} END END END END END,2)"
 			},
 					{
 				name: 'custrecord_bbs_contract_currency',
 				join: 'custbody_bbs_contract_record'
+			},
+					{
+				name: 'custrecord_bbs_contract_end_date',
+				join: 'custbody_bbs_contract_record'
+			},
+					{
+				name: 'custrecord_bbs_contract_early_end_date',
+				join: 'custbody_bbs_contract_record'
+			},
+					{
+				name: 'subsidiary',
+				join: 'customer'
+			},
+					{
+				name: 'custentity_bbs_location',
+				join: 'customer'
 			}],
 			
 			filters: [{
@@ -185,36 +213,25 @@ function(runtime, search, record, format, task) {
     	
     	invoiceDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth(), invoiceDate.getDate());
     	
-    	// initiate variables
-    	var recordID;
-    	var billingType;
-    	var contractRecord;
-    	var mgmtFee;
-    	var customer;
-    	var mgmtFeeAmt;
-    	var contractCurrency;
-    	var netAmt;
-    	var monthlyMinimum;
-    	
     	// retrieve search results
-    	var searchResult = JSON.parse(context.value);
-    	
-    	// get the internal ID of the record from the search results
-		recordID = searchResult.id;
+    	var searchResult 		= JSON.parse(context.value);
+    	var recordID			= searchResult.id;
+    	var contractRecord 		= searchResult.values["custbody_bbs_contract_record"].value;
+    	var billingType 		= searchResult.values["custrecord_bbs_contract_billing_type.custbody_bbs_contract_record"].value;
+    	var contractCurrency 	= searchResult.values["custrecord_bbs_contract_currency.custbody_bbs_contract_record"].value;
+    	var customer 			= searchResult.values["entity"].value;
+		var customerSubsidiary	= searchResult.values["subsidiary.customer"].value;
+		var customerLocation 	= searchResult.values["custentity_bbs_location.customer"].value;
+		var mgmtFee 			= searchResult.values["custrecord_bbs_contract_mgmt_fee.custbody_bbs_contract_record"].value;
+		var mgmtFeeType 		= searchResult.values["custrecord_bbs_contract_mgmt_fee_type.custbody_bbs_contract_record"].value;
+		var mgmtFeeAmt 			= searchResult.values["formulacurrency"];
+		var contractEnd 		= searchResult.values["custrecord_bbs_contract_end_date.custbody_bbs_contract_record"];
+		var earlyEndDate 		= searchResult.values["custrecord_bbs_contract_early_end_date.custbody_bbs_contract_record"];
 		
 		log.audit({
 			title: 'Processing Sales Order',
 			details: recordID
 		});
-		
-		// get the internal ID of the contract record from the search results
-		contractRecord = searchResult.values["custbody_bbs_contract_record"].value;
-		
-		// get the billing type from the search results
-		billingType = searchResult.values["custrecord_bbs_contract_billing_type.custbody_bbs_contract_record"].value;
-		
-		// get the contract currency from the search results
-		contractCurrency = searchResult.values["custrecord_bbs_contract_currency.custbody_bbs_contract_record"].value;
 		
 		//============================================================================================
 		// CHECK THE BILLING TYPE AND CALL THE RELEVANT FUNCTION FOR PRE-PROCESSING OF THE SALES ORDER
@@ -263,21 +280,57 @@ function(runtime, search, record, format, task) {
 				UIOLI(recordID, contractRecord);
 			}
 		
-		// get the value of the management fee checkbox from the search results
-		mgmtFee = searchResult.values["custrecord_bbs_contract_mgmt_fee.custbody_bbs_contract_record"].value;
-		
 		// if the mgmtFee variable returns 1 (Mgmt Fee is Yes)
 		if (mgmtFee == 1)
 			{
-				// get the customer from the search results
-				customer = searchResult.values["entity"].value;
+				// convert contractEnd to a date object
+				contractEnd = format.parse({
+			    	type: format.Type.DATE,
+			    	value: contractEnd
+			    });
 				
-				// get the management fee amount from the search results
-				mgmtFeeAmt = searchResult.values["custrecord_bbs_contract_mgmt_fee_amt.custbody_bbs_contract_record"];
-			
-				// call function to create invoice for monthly management fee. Pass in ID of contract record, customer, mgmtFeeAmt and contractCurrency
-				createMgmtFeeInvoice(contractRecord, customer, mgmtFeeAmt, contractCurrency);
+				// check we have an early termination date
+				if (earlyEndDate)
+					{
+						// convert earlyEndDate to a date object
+						earlyEndDate = format.parse({
+					    	type: format.Type.DATE,
+					    	value: earlyEndDate
+					    });
+					}
+				
+				// check if mgmtFeeType returns 1 (Monthly)
+				if (mgmtFeeType == 1)
+					{
+						// call function to create a management fee invoice. Pass in ID of contract record, customer, mgmtFeeAmt and contractCurrency
+						createMgmtFeeInvoice(contractRecord, customer, customerLocation, mgmtFeeAmt, contractCurrency);
+					}
+				else if (mgmtFeeType == 2) // else if mgmtFeeType returns 2 (Upfront)
+					{
+						// check if the invoiceDate is greater than (after) or equal to the contractEnd OR earlyEndDate
+						if (invoiceDate.getTime() >= contractEnd.getTime() || earlyEndDate!= '' && invoiceDate.getTime() >= earlyEndDate.getTime())
+							{
+								// call function to create a journal to recognise monthly management fee revenue. Pass in ID of contract record, customer, mgmtFeeAmt, contractCurrency, customerSubsidiary and customerLocation. True = Clearing Journal
+								createMgmtFeeJournal(contractRecord, customer, mgmtFeeAmt, contractCurrency, customerSubsidiary, customerLocation, true);
+							}
+						else
+							{
+								// call function to create a journal to recognise monthly management fee revenue. Pass in ID of contract record, customer, mgmtFeeAmt and contractCurrency, customerSubsidiary and customerLocation. True = Clearing Journal NO
+								createMgmtFeeJournal(contractRecord, customer, mgmtFeeAmt, contractCurrency, customerSubsidiary, customerLocation,  false);
+							}
+					}
 			}
+		
+		// call function to search and return number of monthly recurring billing products
+		var recurringProducts = searchNumberOfRecurringProducts(contractRecord);
+		
+		// do we have any recurring products
+		if (recurringProducts > 0)
+			{
+				// call function to create an invoice. Pass in ID of contract record, customer, customerLocation and contractCurrency
+				createRecurringProductInvoice(contractRecord, customer, customerLocation, contractCurrency);
+			}
+		
     }
     
     //=========================================
@@ -296,6 +349,7 @@ function(runtime, search, record, format, task) {
     		var cumulativeUsage;
     		var maximumMonthlyMinimum;
     		var invoiceAmount;
+    		var currentPeriod;
     		
     		// lookup fields on the contract record
 		    var contractRecordLookup = search.lookupFields({
@@ -342,7 +396,7 @@ function(runtime, search, record, format, task) {
 		    	type: 'customrecord_bbs_contract_period',
 		    	
 		    	columns: [{
-		    		name: 'custrecord_bbs_contract_period_min_mon'
+		    		name: 'custrecord_bbs_contract_period_period'
 		    	}],
 		    	
 		    	filters: [{
@@ -366,50 +420,77 @@ function(runtime, search, record, format, task) {
 		    // process search results
     		periodDetailSearch.run().each(function(result) {
     			
-    			// get the monthlyMinimum from the search results
-    			monthlyMinimum = result.getValue({
-	    			name: 'custrecord_bbs_contract_period_min_mon'
+    			// get the current period from the search results
+    			currentPeriod = result.getValue({
+	    			name: 'custrecord_bbs_contract_period_period'
 	    		});
 
     		});
     		
-    		monthlyMinimum = parseFloat(monthlyMinimum); // use parseFloat to convert to a floating point number
-			
-			// create search to find cumulative total of monthly minimums for this contract
-    		var monthlyMinimumsSearch = search.create({
-    			type: 'customrecord_bbs_contract_period',
-		    	
-		    	columns: [{
-		    		name: 'custrecord_bbs_contract_period_product',
-		    		summary: 'GROUP'
-		    	},
-		    		{
-		    		name: 'custrecord_bbs_contract_period_min_mon',
-		    		summary: 'SUM'
-		    	}],
-		    	
-		    	filters: [{
-    				name: 'custrecord_bbs_contract_period_contract',
+    		// create search to find the minimum usage for this month
+    		var minimumUsageSearch = search.create({
+    			type: 'customrecord_bbs_contract_minimum_usage',
+    			
+    			columns: [{
+    				name: 'custrecord_bbs_contract_min_usage'
+    			}],
+    			
+    			filters: [{
+    				name: 'custrecord_bbs_contract_min_usage_parent',
     				operator: 'anyof',
     				values: [contractRecord]
     			},
     					{
-    				name: 'custrecord_bbs_contract_period_end',
-    				operator: 'onorbefore',
-    				values: ['lastmonth']
-        		}],
-        		
-		    });
-		    	
-		    // run search and process results
-    		monthlyMinimumsSearch.run().each(function(result) {
+    				name: 'custrecord_bbs_contract_min_usage_month',
+    				operator: 'equalto',
+    				values: [currentPeriod]
+    			}],
     			
-    			// get the cumulative total of monthly minimum amounts from the search results
+    		});
+    		
+    		// run search and process results
+    		minimumUsageSearch.run().each(function(result){
+    			
+    			// get the minimum usage from the search results
+    			monthlyMinimum = result.getValue({
+    				name: 'custrecord_bbs_contract_min_usage'
+    			});
+    			
+    		});
+    		
+    		monthlyMinimum = parseFloat(monthlyMinimum); // use parseFloat to convert to a floating point number
+			
+			// create search to find cumulative monthly minimums for this contract
+    		var cumulativeMinimumsSearch = search.create({
+    			type: 'customrecord_bbs_contract_minimum_usage',
+    			
+    			columns: [{
+    				name: 'custrecord_bbs_contract_min_usage',
+    				summary: 'SUM'
+    			}],
+    			
+    			filters: [{
+    				name: 'custrecord_bbs_contract_min_usage_parent',
+    				operator: 'anyof',
+    				values: [contractRecord]
+    			},
+    					{
+    				name: 'custrecord_bbs_contract_min_usage_month',
+    				operator: 'lessthanorequalto',
+    				values: [currentPeriod]
+    			}],
+    			
+    		});
+    		
+    		// run search and process results
+    		cumulativeMinimumsSearch.run().each(function(result){
+    			
+    			// get the cumulative monthly minimums from the search results
     			cumulativeMinimums = result.getValue({
-	    			name: 'custrecord_bbs_contract_period_min_mon',
-	    			summary: 'SUM'
-	    		});
-
+    				name: 'custrecord_bbs_contract_min_usage',
+    				summary: 'SUM'
+    			});
+    			
     		});
     		
     		cumulativeMinimums = parseFloat(cumulativeMinimums); // use parseFloat to convert to a floating point number
@@ -556,7 +637,7 @@ function(runtime, search, record, format, task) {
 			
 			log.audit({
 				title: 'AMBMA Check',
-				details: 'Monthly Minimum: ' + monthlyMinimum + '<br>Cumulative Monthly Minimum: ' + cumulativeMinimums + '<br>Cumulative Invoice Total: ' + cumulativeInvoices + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Usage: ' + cumulativeUsage + '<br>Deferred Rev Amt: ' + deferredRevAmt
+				details: 'Current Period: ' + currentPeriod + '<br>Monthly Minimum: ' + monthlyMinimum + '<br>Cumulative Monthly Minimum: ' + cumulativeMinimums + '<br>Cumulative Invoice Total: ' + cumulativeInvoices + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Usage: ' + cumulativeUsage + '<br>Deferred Rev Amt: ' + deferredRevAmt
 			});
 			
 			/*
@@ -1039,7 +1120,7 @@ function(runtime, search, record, format, task) {
 			
 			log.audit({
 				title: 'BUR Check',
-				details: 'Period ' + currentPeriod + ' of ' + contractTerm + '<br>Minimum Usage: ' + minimumUsage + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Half Usage: ' + cumulativeHalfUsage + '<br>Cumulative Usage to Date: ' + cumulativeUsage + '<br>Last Prepayment Invoice: ' + lastPrepaymentAmount + '<br>Actual Deferred Revenue Balance: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
+				details: 'Current Period ' + currentPeriod + ' of ' + contractTerm + '<br>Minimum Usage: ' + minimumUsage + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Half Usage: ' + cumulativeHalfUsage + '<br>Cumulative Usage to Date: ' + cumulativeUsage + '<br>Last Prepayment Invoice: ' + lastPrepaymentAmount + '<br>Actual Deferred Revenue Balance: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
 			});
 		
 			// check if the invoiceDate is greater than (after) or equal to the contractEnd OR the invoiceDate is greater than (after) or equal to the earlyEndDate
@@ -1405,7 +1486,7 @@ function(runtime, search, record, format, task) {
     		
     		log.audit({
     			title: 'QMP Check',
-    			details: 'Period ' + currentPeriod + ' of ' + contractTerm + '<br>Minimum Usage: ' + minimumUsage + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Usage: ' + cumulativeUsage + '<br>Actual Deferred Revenue Balance: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
+    			details: 'Current Period ' + currentPeriod + ' of ' + contractTerm + '<br>Minimum Usage: ' + minimumUsage + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Usage: ' + cumulativeUsage + '<br>Actual Deferred Revenue Balance: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
     		});
     		
     		// check if the invoiceDate is equal to the quarterEnd OR the invoiceDate is greater than (after) or equal to the earlyEndDate
@@ -1776,7 +1857,7 @@ function(runtime, search, record, format, task) {
 			
 			log.audit({
     			title: 'QUR Check',
-    			details: 'Period ' + currentPeriod + ' of ' + contractTerm + '<br>Minimum Usage: ' + minimumUsage + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Qtr Usage: ' + cumulativeQtrUsage + '<br>Cumulative Usage to Date: ' + cumulativeUsage + '<br>Last Prepayment Invoice: ' + lastPrepaymentAmount + '<br>Actual Deferred Revenue Balance: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
+    			details: 'Current Period ' + currentPeriod + ' of ' + contractTerm + '<br>Minimum Usage: ' + minimumUsage + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Qtr Usage: ' + cumulativeQtrUsage + '<br>Cumulative Usage to Date: ' + cumulativeUsage + '<br>Last Prepayment Invoice: ' + lastPrepaymentAmount + '<br>Actual Deferred Revenue Balance: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
     		});
 		
 			// check if the invoiceDate is greater than (after) or equal to the contractEnd OR the invoiceDate is greater than (after) or equal to the earlyEndDate
@@ -2081,6 +2162,7 @@ function(runtime, search, record, format, task) {
 			billingType = 'UIOLI';
 			
 			// declare and initialize variables
+			var currentPeriod;
 			var monthlyMinimum;
 		
 			// run search to find period detail records for this billing month
@@ -2088,7 +2170,7 @@ function(runtime, search, record, format, task) {
 		    	type: 'customrecord_bbs_contract_period',
 		    	
 		    	columns: [{
-		    		name: 'custrecord_bbs_contract_period_min_mon'
+		    		name: 'custrecord_bbs_contract_period_period'
 		    	}],
 		    	
 		    	filters: [{
@@ -2112,12 +2194,45 @@ function(runtime, search, record, format, task) {
 		    // process search results
     		periodDetailSearch.run().each(function(result) {
     			
-    			// get the monthlyMinimum from the search results
-    			monthlyMinimum = result.getValue({
-	    			name: 'custrecord_bbs_contract_period_min_mon'
+    			// get the current period from the search results
+    			currentPeriod = result.getValue({
+	    			name: 'custrecord_bbs_contract_period_period'
 	    		});
 
     		});
+    		
+    		// create search to find the minimum usage for this month
+    		var minimumUsageSearch = search.create({
+    			type: 'customrecord_bbs_contract_minimum_usage',
+    			
+    			columns: [{
+    				name: 'custrecord_bbs_contract_min_usage'
+    			}],
+    			
+    			filters: [{
+    				name: 'custrecord_bbs_contract_min_usage_parent',
+    				operator: 'anyof',
+    				values: [contractRecord]
+    			},
+    					{
+    				name: 'custrecord_bbs_contract_min_usage_month',
+    				operator: 'equalto',
+    				values: [currentPeriod]
+    			}],
+    			
+    		});
+    		
+    		// run search and process results
+    		minimumUsageSearch.run().each(function(result){
+    			
+    			// get the minimum usage from the search results
+    			monthlyMinimum = result.getValue({
+    				name: 'custrecord_bbs_contract_min_usage'
+    			});
+    			
+    		});
+    		
+    		monthlyMinimum = parseFloat(monthlyMinimum); // use parseFloat to convert to a floating point number
 			
     		// load the sales order record
 			var soRecord = record.load({
@@ -2129,6 +2244,11 @@ function(runtime, search, record, format, task) {
 			// get the subtotal from the soRecord object
 			var totalUsage = soRecord.getValue({
 				fieldId: 'subtotal'
+			});
+			
+			log.audit({
+				title: 'UIOLI Check',
+				details: 'Current Period: ' + currentPeriod + '<br>Minimum Usage: ' + monthlyMinimum + '<br>Usage: ' + totalUsage
 			});
 			
 			// check if the totalUsage is less than the monthlyMinimum
@@ -2204,111 +2324,152 @@ function(runtime, search, record, format, task) {
 	    		}
     	}
     
+    // ==============================================================
+    // FUNCTION TO CREATE A STANDALONE INVOICE FOR RECURRING PRODUCTS
+    // ==============================================================
+    
+    function createRecurringProductInvoice(contractRecord, customer, location, currency)
+    	{
+	    	// call function to calculate the accounting period. Pass invoiceDate
+			var accountingPeriod = calculateAccountingPeriod(invoiceDate);
+			
+			try
+	    		{
+					// create a new invoice record
+					var invoice = record.transform({
+					    fromType: record.Type.CUSTOMER,
+					    fromId: customer,
+					    toType: record.Type.INVOICE,
+					    isDynamic: true,
+					    defaultValues: {
+					    	customform: invoiceForm
+					    }
+					});
+	    		
+					// set header fields on the invoice
+	    			invoice.setValue({
+	    				fieldId: 'trandate',
+	    				value: invoiceDate
+	    			});
+	    			
+	    			invoice.setText({
+	    				fieldId: 'postingperiod',
+	    				value: accountingPeriod
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'location',
+	    				value: location
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'custbody_bbs_contract_record',
+	    				value: contractRecord
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'currency',
+	    				value: currency
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'account',
+	    				value: trcsAcc
+	    			});
+	    			
+	    			invoice.setValue({
+	    				fieldId: 'custbody_bbs_invoice_type',
+	    				value: 6 // 6 = Recurring Product
+	    			});
+	    			
+	    			// call function to return number of products to be billed
+	    			var recurringProducts = searchRecurringProducts(contractRecord);
+	    			
+	    			// run search and process results
+	    			recurringProducts.run().each(function(result){
+	    				
+	    				// get the item and amount from the search
+	    				var item = result.getValue({
+	    					name: 'custrecord_bbs_contract_mnth_items_item'
+	    				});
+	    				
+	    				var amount = result.getValue({
+	    					name: 'formulacurrency'
+	    				});
+	    				
+	    				// add a new line to the invoice
+		    			invoice.selectNewLine({
+		    				sublistId: 'item'
+		    			});
+		    			
+		    			// set fields on the new line
+		    			invoice.setCurrentSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'item',
+		    				value: item
+		    			});
+		    			
+		    			invoice.setCurrentSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'quantity',
+		    				value: 1
+		    			});
+		    			
+		    			invoice.setCurrentSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'rate',
+		    				value: amount
+		    			});
+		    			
+		    			invoice.setCurrentSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'custcol_bbs_contract_record',
+		    				value: contractRecord
+		    			});
+		    			
+		    			invoice.setCurrentSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'location',
+		    				value: location
+		    			});
+		    			
+		    			// commit the line
+		    			invoice.commitLine({
+							sublistId: 'item'
+						});
+		    			
+		    			// process additional search results
+		    			return true;
+	    				
+	    			});
+	    			
+	    			// submit the invoice record
+	    			var invoiceID = invoice.save({
+	    				enableSourcing: false,
+			    		ignoreMandatoryFields: true
+	    			});
+	    			
+	    			log.audit({
+	    				title: 'Recurring Product Invoice Created',
+	    				details: 'Invoice ID: ' + invoiceID + '<br>Contract ID: ' + contractRecord
+	    			});   				
+				}
+			catch(error)
+				{
+					log.error({
+						title: 'Error Creating Recurring Product Invoice',
+						details: 'Contract ID: ' + contractRecord + '<br>Error: ' + error
+					});
+				}
+    	}
+    
     //===================================================================
 	// FUNCTION TO CREATE A STANDALONE INVOICE FOR MONTHLY MANAGEMENT FEE
 	//===================================================================
     
-    function createMgmtFeeInvoice(contractRecord, customer, mgmtFeeAmt, currency)
+    function createMgmtFeeInvoice(contractRecord, customer, location, mgmtFeeAmt, currency)
     	{
-    		// run search to find period detail records for this billing month
-		    var periodDetailSearch = search.create({
-		    	type: 'customrecord_bbs_contract_period',
-		    	
-		    	columns: [{
-		    		name: 'custrecord_bbs_contract_period_start'
-		    	},
-		    			{
-		    		name: 'custrecord_bbs_contract_period_end'
-		    	}],
-		    	
-		    	filters: [{
-					name: 'custrecord_bbs_contract_period_contract',
-					operator: 'anyof',
-					values: [contractRecord]
-				},
-						{
-					name: 'custrecord_bbs_contract_period_start',
-					operator: 'within',
-					values: ['lastmonth']
-				},
-						{
-					name: 'custrecord_bbs_contract_period_end',
-					operator: 'within',
-					values: ['lastmonth']
-	    		}],
-		    });
-		    
-		    // process search results
-		    periodDetailSearch.run().each(function(result) {
-			
-		    	// get the start date from the search results
-		    	periodStartDate = result.getValue({
-		    		name: 'custrecord_bbs_contract_period_start'
-		    	});
-		    	
-		    	// get the end date from the search results
-		    	periodEndDate = result.getValue({
-		    		name: 'custrecord_bbs_contract_period_end'
-		    	});
-    		
-		    });
-		    
-		    // format periodStartDate as a date object
-			periodStartDate = format.parse({
-				type: format.Type.DATE,
-				value: periodStartDate
-			});
-			
-			// format periodEndDate as a date object
-			periodEndDate = format.parse({
-				type: format.Type.DATE,
-				value: periodEndDate
-			});
-		
-			// get the day of the month from the periodStartDate object
-			var startDay = periodStartDate.getDate();
-			
-			// get the day of the month from the periodEndDate object
-			var endDay = periodEndDate.getDate();
-			
-			// call function to calculate number of days in the current month
-			var daysInMonth = getDaysInMonth(periodStartDate.getMonth(), periodStartDate.getFullYear());
-			
-			// check if the startDay is NOT equal to 1 (IE starts mid month)
-			if (startDay != 1)
-				{
-					// calculate the pro rata management fee amount
-					var dailyFee = mgmtFeeAmt / daysInMonth;
-					
-					// calculate the days remaining in the month
-					var daysRemaining = daysInMonth - startDay;
-					
-					// multiply the dailyFee by the daysRemaining to calculate the pro rate management fee
-					mgmtFeeAmt = parseFloat(dailyFee * daysRemaining);
-					mgmtFeeAmt = mgmtFeeAmt.toFixed(2);
-				}
-			// check that the endDay is NOT equal to the end of the month (IE ends mid month)
-			else if (endDay != daysInMonth)
-				{
-					// calculate the pro rata management fee amount
-					var dailyFee = mgmtFeeAmt / daysInMonth;
-					
-					// multiply the dailyFee by the endDay to calculate the pro rate management fee
-					mgmtFeeAmt = parseFloat(dailyFee * endDay);
-					mgmtFeeAmt = mgmtFeeAmt.toFixed(2);
-				}
-			
-			// lookup fields on the customer record
-			var customerLookup = search.lookupFields({
-				type: search.Type.CUSTOMER,
-				id: customer,
-				columns: ['custentity_bbs_location']
-			});
-			
-			// retrieve values from the customerLookup
-			var location = customerLookup.custentity_bbs_location[0].value;
-			
-			// call function to calculate the accounting period. Pass invoiceDate
+    		// call function to calculate the accounting period. Pass invoiceDate
 			var accountingPeriod = calculateAccountingPeriod(invoiceDate);
 			
 			try
@@ -2419,6 +2580,309 @@ function(runtime, search, record, format, task) {
     					details: 'Contract ID: ' + contractRecord + '<br>Error: ' + error
     				});
     			}
+    	}
+    
+    //=========================================================================
+	// FUNCTION TO CREATE A JOURNAL TO RECOGNISE MONTHLY MANAGEMENT FEE REVENUE
+	//=========================================================================
+    
+    function createMgmtFeeJournal(contractRecord, customer, mgmtFeeAmt, contractCurrency, customerSubsidiary, customerLocation, clearingJournal)
+    	{
+	    	// call function to return remaining management fee deferred balance. Pass contractRecord
+			var remainingBalance = getRemainingMgmtFeeBalance(contractRecord);
+			
+			// check that we have remaining balance
+			if (remainingBalance > 0)
+				{
+		    		// declare new date object. Global variable so can be accessed throughout the script
+					invoiceDate = new Date();
+					invoiceDate.setDate(0); // set date to be the last day of the previous month
+					    	
+					invoiceDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth(), invoiceDate.getDate());
+				    	
+					// format the invoiceDate object to a date (DD/MM/YYYY)
+					var journalDate = format.format({
+						type: format.Type.DATE,
+						value: invoiceDate
+					});
+					    	
+					try
+				    	{
+				    		// create a new journal record
+				    		var journalRecord = record.create({
+				    			type: record.Type.JOURNAL_ENTRY,
+				    			isDynamic: true
+				    		});
+				    				
+				    		// set header fields on the journal record
+				    		journalRecord.setValue({
+				    			fieldId: 'trandate',
+				    			value: invoiceDate
+				    		});
+								    
+							journalRecord.setValue({
+								fieldId: 'memo',
+								value: 'Management Fee Revenue Release + ' + journalDate
+							});
+								    		
+							journalRecord.setValue({
+								fieldId: 'custbody_bbs_contract_record',
+								value: contractRecord
+							});
+								    		
+							journalRecord.setValue({
+								fieldId: 'custbody_bbs_rev_rec_journal',
+								value: true
+							});
+								    		
+							journalRecord.setValue({
+								fieldId: 'subsidiary',
+								value: customerSubsidiary
+							});
+								    		
+							journalRecord.setValue({
+								fieldId: 'location',
+								value: customerLocation
+							});
+								    		
+							journalRecord.setValue({
+								fieldId: 'currency',
+								value: contractCurrency
+							});
+								    
+							// check if this is a clearing journal
+							if (clearingJournal == true)
+								{
+									// ========================================================================
+									// ADD A LINE TO THE JOURNAL TO CREDIT REMAINING BALANCE TO REVENUE ACCOUNT
+									// ========================================================================
+				    				
+				    				// select a new line on the journal record
+									journalRecord.selectNewLine({
+										sublistId: 'line'
+									});
+										    
+									// set fields on the new line
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+									    fieldId: 'account',
+									    value: mgmtFeeAccount
+									});
+										    
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'entity',
+										value: customer
+									});
+										    
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'location',
+										value: customerLocation
+									});
+										    		
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'custcol_bbs_contract_record',
+										value: contractRecord
+									});
+										    		
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'memo',
+										value: 'Management Fee Revenue Release + ' + journalDate
+									});
+										    
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'credit',
+										value: remainingBalance
+									});
+								    	
+									// commit the line
+									journalRecord.commitLine({
+										sublistId: 'line'
+									});
+									
+									// ==================================================================================
+									// ADD A LINE TO THE JOURNAL TO DEBIT REMAINING BALANCE FROM DEFERRED REVENUE ACCOUNT
+									// ==================================================================================
+									
+									// select a new line on the journal record
+									journalRecord.selectNewLine({
+										sublistId: 'line'
+									});
+										    
+									// set fields on the new line
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+									    fieldId: 'account',
+									    value: deferredIncomeMgmtFee
+									});
+										    
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'entity',
+										value: customer
+									});
+										    
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'location',
+										value: customerLocation
+									});
+										    		
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'custcol_bbs_contract_record',
+										value: contractRecord
+									});
+										    		
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'memo',
+										value: 'Management Fee Revenue Release + ' + journalDate
+									});
+										    
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'debit',
+										value: remainingBalance
+									});
+								    	
+									// commit the line
+									journalRecord.commitLine({
+										sublistId: 'line'
+									});
+								}
+							else // this is NOT a clearing journal
+								{
+									// ============================================================================
+									// ADD A LINE TO THE JOURNAL TO RECOGNISE REVENUE FOR THE CURRENT BILLING MONTH
+									// ============================================================================
+				    				
+				    				// select a new line on the journal record
+									journalRecord.selectNewLine({
+										sublistId: 'line'
+									});
+										    
+									// set fields on the new line
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+									    fieldId: 'account',
+									    value: mgmtFeeAccount
+									});
+										    
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'entity',
+										value: customer
+									});
+										    
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'location',
+										value: customerLocation
+									});
+										    		
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'custcol_bbs_contract_record',
+										value: contractRecord
+									});
+										    		
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'memo',
+										value: 'Management Fee Revenue Release + ' + journalDate
+									});
+										    
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'credit',
+										value: mgmtFeeAmt
+									});
+								    	
+									// commit the line
+									journalRecord.commitLine({
+										sublistId: 'line'
+									});
+									
+									// ==================================================================================
+									// ADD A LINE TO THE JOURNAL TO DEBIT REMAINING BALANCE FROM DEFERRED REVENUE ACCOUNT
+									// ==================================================================================
+									
+									// select a new line on the journal record
+									journalRecord.selectNewLine({
+										sublistId: 'line'
+									});
+										    
+									// set fields on the new line
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+									    fieldId: 'account',
+									    value: deferredIncomeMgmtFee
+									});
+										    
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'entity',
+										value: customer
+									});
+										    
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'location',
+										value: customerLocation
+									});
+										    		
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'custcol_bbs_contract_record',
+										value: contractRecord
+									});
+										    		
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'memo',
+										value: 'Management Fee Revenue Release + ' + journalDate
+									});
+										    
+									journalRecord.setCurrentSublistValue({
+										sublistId: 'line',
+										fieldId: 'debit',
+										value: mgmtFeeAmt
+									});
+								    	
+									// commit the line
+									journalRecord.commitLine({
+										sublistId: 'line'
+									});
+								}
+							
+							// save the journal record
+							var journalID = journalRecord.save();
+							
+							log.audit({
+								title: 'Management Fee Journal Created',
+								details: journalID
+							});
+				    	}
+					catch(e)
+						{
+							log.error({
+								title: 'Unable to Create Management Fee Journal',
+								details: e
+							});
+						}
+				}
+			else
+				{
+					log.audit({
+						title: 'Unable to Create Management Fee Journal',
+						details: 'Insufficient remaining balance'
+					});
+				}
     	}
     
     //=======================================================
@@ -3921,7 +4385,7 @@ function(runtime, search, record, format, task) {
 	    	var searchFilters = deferredRevSearch.filters;
 	    	
 	    	// create a new search filter
-	    	var newFilter = search.createFilter ({
+	    	var newFilter = search.createFilter({
 	    		name: 'custcol_bbs_contract_record',
 	    	    operator: 'anyof',
 	    	    values: [contractRecord]
@@ -3953,6 +4417,154 @@ function(runtime, search, record, format, task) {
 	    	
 	    	// return deferredRevAmt
 	    	return deferredRevAmt;	    	
+    	}
+    
+    // ====================================================================
+    // FUNCTION TO RETURN REMAINING MANAGEMENT FEE DEFERRED REVENUE BALANCE
+    // ====================================================================
+    
+    function getRemainingMgmtFeeBalance(contractRecord)
+	    {
+	    	// create search to find remaining management fee balance
+    		var mgmtFeeSearch = search.create({
+    			type: search.Type.TRANSACTION,
+    			
+    			filters: [{
+    				name: 'custbody_bbs_contract_record',
+    				operator: 'anyof',
+    				values: [contractRecord]
+    			},
+    					{
+    				name: 'account',
+    				operator: 'anyof',
+    				values: [deferredIncomeMgmtFee]
+    			}],
+    			
+    			columns: [{
+    				name: 'fxamount',
+    				summary: 'SUM'
+    			}],    			
+    			
+    		});
+    		
+    		// run the search and process results
+    		mgmtFeeSearch.run().each(function(result) {
+	    		
+	    		// get the remaining mgmt fee balance from the search results
+	    		mgmtFeeBalance = result.getValue({
+	    			name: 'fxamount',
+	    			summary: 'SUM'
+	    		});
+	    		
+	    		// only process the first search result
+	    		return false;
+	    	});
+    		
+    		
+    		// check if the mgmtFeeBalance variable is empty
+	    	if (mgmtFeeBalance == '')
+	    		{
+	    			mgmtFeeBalance = 0;
+	    		}
+	    	
+	    	mgmtFeeBalance = parseFloat(mgmtFeeBalance); // use parseFloat to convert to floating point number
+	    	
+	    	// return deferredRevAmt
+	    	return mgmtFeeBalance;
+
+	    }
+    
+    // ================================================================
+    // FUNCTION TO RETURN NUMBER OF RECURRING MONTHLY BILLING PROODUCTS
+    // ================================================================
+    
+    function searchNumberOfRecurringProducts(contractRecord)
+    	{
+    		// declare and initialize variables
+    		var numberOfProducts = 0;
+    		
+    		// create search to find number of recurring billing products for this contract
+    		search.create({
+    			type: 'customrecord_bbs_contract_monthly_items',
+    			
+    			filters: [{
+    				name: 'isinactive',
+    				operator: 'is',
+    				values: ['F']
+    			},
+    					{
+    				name: 'custrecord_bbs_contract_mnth_items_cont',
+    				operator: 'anyof',
+    				values: [contractRecord]
+    			},
+    					{
+    				name: 'custrecord_bbs_contract_mnth_items_start',
+    				operator: 'notafter',
+    				values: ['lastmonth']
+    			},
+    					{
+    				name: 'custrecord_bbs_contract_mnth_items_end',
+    				operator: 'notbefore',
+    				values: ['lastmonth']
+    			}],
+
+    			columns: [{
+    				name: 'internalid',
+    				summary: 'COUNT'
+    			}],
+    			
+    		}).run().each(function(result){
+    			
+    			numberOfProducts = result.getValue({
+    				name: 'internalid',
+    				summary: 'COUNT'
+    			});
+    			
+    		});
+    		
+    		return numberOfProducts;
+    		
+    	}
+    
+    // ==========================================================
+    // FUNCTION TO SEARCH FOR RECURRING MONTHLY BILLING PROODUCTS
+    // ==========================================================
+    
+    function searchRecurringProducts(contractRecord)
+    	{
+    		return search.create({
+    			type: 'customrecord_bbs_contract_monthly_items',
+    			
+    			filters: [{
+    				name: 'isinactive',
+    				operator: 'is',
+    				values: ['F']
+    			},
+    					{
+    				name: 'custrecord_bbs_contract_mnth_items_cont',
+    				operator: 'anyof',
+    				values: [contractRecord]
+    			},
+    					{
+    				name: 'custrecord_bbs_contract_mnth_items_start',
+    				operator: 'notafter',
+    				values: ['lastmonth']
+    			},
+    					{
+    				name: 'custrecord_bbs_contract_mnth_items_end',
+    				operator: 'notbefore',
+    				values: ['lastmonth']
+    			}],
+
+    			columns: [{
+    				name: 'custrecord_bbs_contract_mnth_items_item'
+    			},
+    					{
+    				name: 'formulacurrency',
+    				formula: "ROUND(CASE WHEN TO_CHAR({custrecord_bbs_contract_mnth_items_start},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_contract_mnth_items_end},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_contract_mnth_items_start},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_contract_mnth_items_end},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custrecord_bbs_contract_mnth_items_amt} / TO_CHAR(LAST_DAY({custrecord_bbs_contract_mnth_items_start}),'DD')) * (TO_CHAR({custrecord_bbs_contract_mnth_items_end},'DD') - TO_CHAR({custrecord_bbs_contract_mnth_items_start},'DD') +1) ELSE CASE WHEN TO_CHAR({custrecord_bbs_contract_mnth_items_start},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_contract_mnth_items_start},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custrecord_bbs_contract_mnth_items_amt} / TO_CHAR(LAST_DAY({custrecord_bbs_contract_mnth_items_start}),'DD')) * (TO_CHAR(LAST_DAY({custrecord_bbs_contract_mnth_items_start}),'DD') - TO_CHAR({custrecord_bbs_contract_mnth_items_start},'DD') +1) ELSE CASE WHEN TO_CHAR({custrecord_bbs_contract_mnth_items_end},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_contract_mnth_items_end},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custrecord_bbs_contract_mnth_items_amt} / TO_CHAR(LAST_DAY({custrecord_bbs_contract_mnth_items_end}),'DD')) * TO_CHAR({custrecord_bbs_contract_mnth_items_end},'DD') ELSE {custrecord_bbs_contract_mnth_items_amt} END END END,2)"
+    			}],
+    			
+    		});
     	}
 
     //================================================

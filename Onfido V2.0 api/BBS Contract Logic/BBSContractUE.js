@@ -3,11 +3,11 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/url', 'N/runtime', 'N/record', 'N/search', 'N/format', 'N/task'],
+define(['N/ui/serverWidget', 'N/url', 'N/runtime', 'N/record', 'N/search', 'N/format', 'N/task'],
 /**
  * @param {record} record
  */
-function(url, runtime, record, search, format, task) {
+function(ui, url, runtime, record, search, format, task) {
 	
 	// retrieve script parameters
 	var currentScript = runtime.getCurrentScript();
@@ -58,6 +58,11 @@ function(url, runtime, record, search, format, task) {
 		    		fieldId: 'custrecord_bbs_contract_status'
 		    	});
 		    	
+		    	// get the 'Minimum Usage' sublist
+		    	var sublist = scriptContext.form.getSublist({
+		    		id: 'recmachcustrecord_bbs_contract_min_usage_parent'
+		    	});
+		    	
 		    	// if statement to check that the status variable returns 1 (Approved)
 		    	if (status == 1)
 		    		{
@@ -76,20 +81,57 @@ function(url, runtime, record, search, format, task) {
 			    			label: 'End Contract Early',
 			    			functionName: "window.open('" + suiteletURL + "','_self');" // call Suitelet when button is clicked. This will open in the current window
 			    		});
-		    		}
-		    	// if the status variable returns 2 (Pending Approval)
-		    	else if (status == 2)
-		    		{
-			    		// set client script to run on the form
-						scriptContext.form.clientScriptFileId = 47097;
-		    		
-		    			// add button to the form
-			    		scriptContext.form.addButton({
-			    			id: 'custpage_delete_contract',
-			    			label: 'Delete Contract',
-			    			functionName: "showAlert(" + recordID + ")" // call client script when button is clicked. Pass recordID to client script
+			    		
+			    		// get the billing type
+			    		var billingType = currentRecord.getValue({
+			    			fieldId: 'custrecord_bbs_contract_billing_type'
 			    		});
+			    		
+			    		// if the billing type is 2 (UIOLI) or 6 (AMBMA)
+			    		if (billingType == 2 || billingType == 6)
+			    			{
+				    			// define suiteletURL2 variable
+					    		var suiteletURL2 = url.resolveScript({
+					    			scriptId: 'customscript_bbs_update_minimum_usage_sl',
+					    			deploymentId: 'customdeploy_bbs_update_minimum_usage_sl',
+					    		});
+					    		
+					    		// add parameters to suiteletURL2 variable
+					    		suiteletURL2 += '&record=' + recordID;
+						    		
+						    	// add a button to the 'Minimum Usage' sublist
+						    	sublist.addButton({
+						    		id: 'custpage_update_minimum_usage',
+						    		label: 'Update Minimum Usage',
+						    		functionName: "window.open('" + suiteletURL2 + "','_self');" // call Suitelet when button is clicked. This will open in the current window
+						    	});
+			    			}
+			    		else
+			    			{
+			    				// hide the 'Minimum Usage' sublist
+			    				sublist.displayType = ui.SublistDisplayType.HIDDEN;
+			    			}
 		    		}
+		    	else
+		    		{
+		    			// if the status variable returns 2 (Pending Approval)
+		    			if (status == 2)
+		    				{
+			    				// set client script to run on the form
+								scriptContext.form.clientScriptFileId = 47097;
+				    		
+				    			// add button to the form
+					    		scriptContext.form.addButton({
+					    			id: 'custpage_delete_contract',
+					    			label: 'Delete Contract',
+					    			functionName: "showAlert(" + recordID + ")" // call client script when button is clicked. Pass recordID to client script
+					    		});
+		    				}
+		    			
+		    			// hide the 'Minimum Usage' sublist
+	    				sublist.displayType = ui.SublistDisplayType.HIDDEN;
+		    		} 	
+		    	
     		}
 
     }
@@ -253,6 +295,36 @@ function(url, runtime, record, search, format, task) {
 	        				fieldId: 'custrecord_bbs_contract_min_ann_use'
 	        			});
 	        			
+	        			// get the value of the minimum bi-annual usage field from the oldRecord object
+	        			var oldBiAnnMin = oldRecord.getValue({
+	        				fieldId: 'custrecord_bbs_contract_bi_ann_use'
+	        			});
+	        			
+	        			// get the value of the minimum bi-annual usage field from the currentRecord object
+	        			var newBiAnnMin = currentRecord.getValue({
+	        				fieldId: 'custrecord_bbs_contract_bi_ann_use'
+	        			});
+	        			
+	        			// get the value of the start date from the oldRecord object
+	        			var oldStartDate = oldRecord.getValue({
+	        				fieldId: 'custrecord_bbs_contract_start_date'
+	        			});
+	        			
+	        			// get the value of the start date from the currentRecord object
+	        			var newStartDate = currentRecord.getValue({
+	        				fieldId: 'custrecord_bbs_contract_start_date'
+	        			});
+	        			
+	        			// get the value of the end date from the oldRecord object
+	        			var oldEndDate = oldRecord.getValue({
+	        				fieldId: 'custrecord_bbs_contract_end_date'
+	        			});
+	        			
+	        			// get the value of the end date from the currentRecord object
+	        			var newEndDate = currentRecord.getValue({
+	        				fieldId: 'custrecord_bbs_contract_end_date'
+	        			});
+	        			
 	        			// get the value of the 'billing type' field from the currentRecord object
 	    		    	var billingType = currentRecord.getValue({
 	    		    		fieldId: 'custrecord_bbs_contract_billing_type'
@@ -261,7 +333,14 @@ function(url, runtime, record, search, format, task) {
 	        			// check that oldStatus variable returns 2 and the newStatus variable returns 1 (IE contract has been edited and status changed from Pending Approval to Approved)
 	        			if (oldStatus == 2 && newStatus == 1) // 2 = Pending Approval, 1 = Approved
 	        				{
-	    	    				// check if the billingType is 3 (QMP)
+	        					// check the billingType is 2 (UIOLI) or 6 (AMBMA)
+	        					if (billingType == 2 || billingType == 6)
+	        						{
+	        							// call function to create minimum usage records. Pass currentRecord object
+	        							createMinimumUsageRecords(currentRecord);
+	        						}
+	        				
+	        					// check if the billingType is 3 (QMP)
 	    				    	if (billingType == 3)
 	    				    		{
 	    				    			// call the QMP function. Pass currentRecord object and billingType/currentRecordID variables
@@ -288,26 +367,59 @@ function(url, runtime, record, search, format, task) {
 	    				    	// if the billing type is 8 (Contract Extension)
 	    				    	else if (billingType == 8)
 	    				    		{
-	    				    			// call the contractExtension function. Pass currentRecord object and currentRecordID variables
-	    				    			contractExtension(currentRecord, currentRecordID);
+	    				    			// call the contractExtension function. Pass billingType, currentRecord object, currentRecordID and newStartDate variables
+	    				    			contractExtension(billingType, currentRecord, currentRecordID, newStartDate);
 	    				    		}
 	    				    	else
 	    				    		{
-		    				    		// get the value of the 'setup fee' field from the currentRecord object
+		    				    		// declare and initialize variables
+	    				    			var setupFeeInvoice = 'F';
+	    				    			var mgmtFeeInvoice = 'F';
+	    				    		
+	    				    			// get the value of the 'setup fee' field
 		    					    	var setupFee = currentRecord.getValue({
 		    					    		fieldId: 'custrecord_bbs_contract_setup_fee'
 		    					    	});
 		    					    	
-		    					    	// get the value of the 'setup fee billed' field from the currentRecord object
+		    					    	// get the value of the 'setup fee billed' field
 		    					    	var setupFeeBilled = currentRecord.getValue({
 		    					    		fieldId: 'custrecord_bbs_contract_setup_fee_billed'
+		    					    	});
+		    					    	
+		    					    	// get the value of the 'Management Fee' field
+		    					    	var mgmtFee = currentRecord.getValue({
+		    					    		fieldId: 'custrecord_bbs_contract_mgmt_fee',
+		    					    	});
+		    					    	
+		    					    	// get the value of the 'Management Fee Type' field
+		    					    	var mgmtFeeType = currentRecord.getValue({
+		    					    		fieldId: 'custrecord_bbs_contract_mgmt_fee_type',
+		    					    	});
+		    					    	
+		    					    	// get the value of the 'Management Fee Billed' field
+		    					    	var mgmtFeeBilled = currentRecord.getValue({
+		    					    		fieldId: 'custrecord_bbs_contract_mgmt_fee_billed'
 		    					    	});
 		    					    	
 		    					    	// check if the setupFee variable returns true (checkbox is ticked) and setupFeeBilled variable returns false (checkbox is NOT ticked)
 		    					    	if (setupFee == true && setupFeeBilled == false)
 		    					    		{
-		    					    			// call function to create initial invoices. Pass currentRecordID, qmpAmt, billingType, setupFeeInvoice and prepaymentInvoice
-			    								createInitialInvoices(currentRecordID, '0.00', billingType, 'T', 'F');
+		    						    		// set setupFeeInvoice variable to 'T'
+		    					    			setupFeeInvoice = 'T';
+		    					    		}
+		    					    	
+		    					    	// check if mgmtFee is 1 (Yes) AND mgmtFeeType is 2 (Upfront) AND mgmtFeeAmt is greater than 0 AND mgmtFeeBilled is false (checkbox is NOT ticked)
+		    					    	if (mgmtFee == 1 && mgmtFeeType == 2 && mgmtFeeBilled == false)
+		    					    		{
+		    					    			// set mgmtFeeInvoice to 'T'
+		    					    			mgmtFeeInvoice = 'T';
+		    					    		}
+		    					    	
+		    					    	// check setupFeeInvoice or mgmtFeeInvoice variables return 'T'
+		    					    	if (setupFeeInvoice == 'T' || mgmtFeeInvoice == 'T')
+		    					    		{
+			    					    		// call function to create initial invoices. Pass currentRecordID, billingType, setupFeeInvoice and mgmtFeeInvoice
+			    								createInitialInvoices(currentRecordID, '0.00', billingType, setupFeeInvoice, mgmtFeeInvoice, 'F');
 		    					    		}
 	    				    		}
 	        				}        			
@@ -321,7 +433,7 @@ function(url, runtime, record, search, format, task) {
 	        					if (difference > 0)
 	        						{
 	    	    						// call function to create a prepayment invoice
-	    	    						createInitialInvoices(currentRecordID, difference, billingType, 'F', 'T');
+	    	    						createInitialInvoices(currentRecordID, difference, billingType, 'F', 'F', 'T');
 	        						}
 	        				}
 	        			// check if the oldAnnMin and newAnnMin variables are NOT the same (IE contract has been edited and annual minimum amount has been changed)
@@ -334,9 +446,39 @@ function(url, runtime, record, search, format, task) {
 	    						if (difference > 0)
 	    							{
 	    								// call function to create a prepayment invoice
-	    								createInitialInvoices(currentRecordID, difference, billingType, 'F', 'T');
+	    								createInitialInvoices(currentRecordID, difference, billingType, 'F', 'F', 'T');
 	    							}
 	        				}
+	        			// check if the oldBiAnnMin and newBiAnnMin variables are NOT the same (IE contract has been edited and bi-annual minimum amount has been changed)
+	        			else if (oldBiAnnMin != newBiAnnMin)
+	        				{
+		        				// calculate the difference by subtracting oldBiAnnMin from newBiAnnMin
+	    						var difference = (newBiAnnMin - oldBiAnnMin);
+	    						
+	    						// check if the difference variable is greater than 0
+	    						if (difference > 0)
+	    							{
+	    								// call function to create a prepayment invoice
+	    								createInitialInvoices(currentRecordID, difference, billingType, 'F', 'F', 'T');
+	    							}
+	        				}
+	        			// check if the record is approved and the dates have changed and the billingType is 2 (UIOLI) or 6 (AMBMA)
+	        			else if (newStatus == 1 && (oldStartDate != newStartDate || oldEndDate != newEndDate) && (billingType == 2 || billingType == 6))
+	    		    		{
+	    		    			// call function to delete existing minimum usage records
+	    		    			deleteMinimumUsageRecords(currentRecordID);
+	    		    			
+	    		    			// call function to create new minimum usage records
+	    		    			createMinimumUsageRecords(currentRecord);
+	    		    		}
+	        			
+	        			// if the record is approved and the dates have changed
+	        			if (newStatus == 1 && (oldStartDate != newStartDate || oldEndDate != newEndDate))
+	        				{
+		        				// call function to update dates on recurring product records
+	    		    			updateRecurringProducts(currentRecordID, newStartDate, newEndDate);
+	        				}
+	        			
     	    		}
     		}
     }
@@ -349,6 +491,7 @@ function(url, runtime, record, search, format, task) {
     	{
 	    	// declare and initialize variables
     		var setupFeeInvoice = 'F';
+    		var mgmtFeeInvoice = 'F';
     		var prepaymentInvoice = 'F';
     	
     		// get the minimum usage from the current record			
@@ -359,22 +502,37 @@ function(url, runtime, record, search, format, task) {
 			// use parseFloat to convert to decimal number
 			qmpAmt = parseFloat(qmpAmt);
 			
-			// get the value of the 'Usage Invoice Billed' checkbox from the currentRecord object
+			// get the value of the 'Usage Invoice Billed' checkbox
 			var usageInvoiceBilled = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_initial_invoice'
 			});
 			
-			// get the value of the 'setup fee' field from the currentRecord object
+			// get the value of the 'setup fee' field
 	    	var setupFee = currentRecord.getValue({
 	    		fieldId: 'custrecord_bbs_contract_setup_fee'
 	    	});
 	    	
-	    	// get the value of the 'setup fee billed' field from the currentRecord object
+	    	// get the value of the 'setup fee billed' field
 	    	var setupFeeBilled = currentRecord.getValue({
 	    		fieldId: 'custrecord_bbs_contract_setup_fee_billed'
 	    	});
-			
-			// get the contract start date from the currentRecord object
+	    	
+	    	// get the value of the 'Management Fee' field
+	    	var mgmtFee = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_mgmt_fee',
+	    	});
+	    	
+	    	// get the value of the 'Management Fee Type' field
+	    	var mgmtFeeType = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_mgmt_fee_type',
+	    	});
+	    	
+	    	// get the value of the 'Management Fee Billed' field
+	    	var mgmtFeeBilled = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_mgmt_fee_billed'
+	    	});
+	    	
+	    	// get the contract start date
 			var contractStart = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_start_date'
 			});
@@ -406,8 +564,15 @@ function(url, runtime, record, search, format, task) {
 	    			setupFeeInvoice = 'T';
 	    		}
 	    	
-	    	// call function to create initial invoices. Pass currentRecordID, qmpAmt, billingType, setupFeeInvoice and prepaymentInvoice
-			createInitialInvoices(currentRecordID, qmpAmt, billingType, setupFeeInvoice, prepaymentInvoice);
+	    	// check if mgmtFee is 1 (Yes) AND mgmtFeeType is 2 (Upfront) AND mgmtFeeBilled returns false (checkbox is NOT ticked)
+	    	if (mgmtFee == 1 && mgmtFeeType == 2 && mgmtFeeBilled == false)
+	    		{
+	    			// set mgmtFeeInvoice to 'T'
+	    			mgmtFeeInvoice = 'T';
+	    		}
+	    	
+	    	// call function to create initial invoices. Pass currentRecordID, qmpAmt, billingType, setupFeeInvoice, mgmtFeeInvoice and prepaymentInvoice
+			createInitialInvoices(currentRecordID, qmpAmt, billingType, setupFeeInvoice, mgmtFeeInvoice, prepaymentInvoice);
     	}
     
     //==================================
@@ -418,9 +583,10 @@ function(url, runtime, record, search, format, task) {
     	{
 	    	// declare and initialize variables
 			var setupFeeInvoice = 'F';
+			var mgmtFeeInvoice = 'F';
 			var prepaymentInvoice = 'F';
 			
-			// get the minimum usage from the currentRecord object			
+			// get the minimum annual usage		
 			var ampAmt = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_min_ann_use'
 			});
@@ -428,22 +594,37 @@ function(url, runtime, record, search, format, task) {
 			// use parseFloat to convert to decimal number
 			ampAmt = parseFloat(ampAmt);
 			
-			// get the value of the 'Usage Invoice Billed' checkbox from the currentRecord object
+			// get the value of the 'Usage Invoice Billed' checkbox
 			var usageInvoiceBilled = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_initial_invoice'
 			});
 			
-			// get the value of the 'setup fee' field from the currentRecord object
+			// get the value of the 'setup fee' field
 	    	var setupFee = currentRecord.getValue({
 	    		fieldId: 'custrecord_bbs_contract_setup_fee'
 	    	});
 	    	
-	    	// get the value of the 'setup fee billed' field from the currentRecord object
+	    	// get the value of the 'setup fee billed' field
 	    	var setupFeeBilled = currentRecord.getValue({
 	    		fieldId: 'custrecord_bbs_contract_setup_fee_billed'
 	    	});
+	    	
+	    	// get the value of the 'Management Fee' field
+	    	var mgmtFee = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_mgmt_fee',
+	    	});
+	    	
+	    	// get the value of the 'Management Fee Type' field
+	    	var mgmtFeeType = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_mgmt_fee_type',
+	    	});
+	    	
+	    	// get the value of the 'Management Fee Billed' field
+	    	var mgmtFeeBilled = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_mgmt_fee_billed'
+	    	});
     	
-    		// get the contract start date from the currentRecord object
+    		// get the contract start date
 			var contractStart = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_start_date'
 			});
@@ -475,12 +656,15 @@ function(url, runtime, record, search, format, task) {
 	    			setupFeeInvoice = 'T';
 	    		}
 	    	
-	    	// check that EITHER the setupFeeInvoice OR prepaymentInvoice variables return 'T'
-	    	if (setupFeeInvoice == 'T' || prepaymentInvoice == 'T')
+	    	// check if mgmtFee is 1 (Yes) AND mgmtFeeType is 2 (Upfront) AND mgmtFeeBilled returns false (checkbox is NOT ticked)
+	    	if (mgmtFee == 1 && mgmtFeeType == 2 && mgmtFeeBilled == false)
 	    		{
-	    			// call function to create initial invoices. Pass currentRecordID, ampAmt, billingType, setupFeeInvoice and prepaymentInvoice
-	    			createInitialInvoices(currentRecordID, ampAmt, billingType, setupFeeInvoice, prepaymentInvoice);
+	    			// set mgmtFeeInvoice to 'T'
+	    			mgmtFeeInvoice = 'T';
 	    		}
+	    	
+	    	// call function to create initial invoices. Pass currentRecordID, ampAmt, billingType, setupFeeInvoice, mgmtFeeInvoice and prepaymentInvoice
+			createInitialInvoices(currentRecordID, ampAmt, billingType, setupFeeInvoice, mgmtFeeInvoice, prepaymentInvoice);
     	}
    
     //==================================
@@ -491,9 +675,10 @@ function(url, runtime, record, search, format, task) {
     	{
     		// declare and initialize variables
 			var setupFeeInvoice = 'F';
+			var mgmtFeeInvoice = 'F';
 			var prepaymentInvoice = 'F';
     	
-    		// get the minimum usage from the currentRecord object			
+    		// get the minimum quarterly usage		
 			var qmpAmt = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_qu_min_use'
 			});
@@ -501,22 +686,37 @@ function(url, runtime, record, search, format, task) {
 			// use parseFloat to convert to decimal number
 			qmpAmt = parseFloat(qmpAmt);
 			
-			// get the value of the 'Usage Invoice Billed' checkbox from the currentRecord object
+			// get the value of the 'Usage Invoice Billed' checkbox
 			var usageInvoiceBilled = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_initial_invoice'
 			});
 			
-			// get the value of the 'setup fee' field from the currentRecord object
+			// get the value of the 'setup fee' field
 	    	var setupFee = currentRecord.getValue({
 	    		fieldId: 'custrecord_bbs_contract_setup_fee'
 	    	});
 	    	
-	    	// get the value of the 'setup fee billed' field from the currentRecord object
+	    	// get the value of the 'setup fee billed' field
 	    	var setupFeeBilled = currentRecord.getValue({
 	    		fieldId: 'custrecord_bbs_contract_setup_fee_billed'
 	    	});
+	    	
+	    	// get the value of the 'Management Fee' field
+	    	var mgmtFee = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_mgmt_fee',
+	    	});
+	    	
+	    	// get the value of the 'Management Fee Type' field
+	    	var mgmtFeeType = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_mgmt_fee_type',
+	    	});
+	    	
+	    	// get the value of the 'Management Fee Billed' field
+	    	var mgmtFeeBilled = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_mgmt_fee_billed'
+	    	});
 			
-			// get the contract start date from the currentRecord object
+			// get the contract start date
 			var contractStart = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_start_date'
 			});
@@ -548,8 +748,15 @@ function(url, runtime, record, search, format, task) {
 	    			setupFeeInvoice = 'T';
 	    		}
 	    	
-	    	// call function to create initial invoices. Pass currentRecordID, ampAmt, billingType, setupFeeInvoice and prepaymentInvoice
-			createInitialInvoices(currentRecordID, qmpAmt, billingType, setupFeeInvoice, prepaymentInvoice);
+	    	// check if mgmtFee is 1 (Yes) AND mgmtFeeType is 2 (Upfront) AND mgmtFeeBilled returns false (checkbox is NOT ticked)
+	    	if (mgmtFee == 1 && mgmtFeeType == 2 && mgmtFeeBilled == false)
+	    		{
+	    			// set mgmtFeeInvoice to 'T'
+	    			mgmtFeeInvoice = 'T';
+	    		}
+	    	
+	    	// call function to create initial invoices. Pass currentRecordID, qmpAmt, billingType, setupFeeInvoice, mgmtFeeInvoice and prepaymentInvoice
+			createInitialInvoices(currentRecordID, qmpAmt, billingType, setupFeeInvoice, mgmtFeeInvoice, prepaymentInvoice);
     	}
     
     // =================================
@@ -560,9 +767,10 @@ function(url, runtime, record, search, format, task) {
 		{
 			// declare and initialize variables
 			var setupFeeInvoice = 'F';
+			var mgmtFeeInvoice = 'F';
 			var prepaymentInvoice = 'F';
 		
-			// get the minimum usage from the currentRecord object			
+			// get the bi-annual minimum usage			
 			var burAmt = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_bi_ann_use'
 			});
@@ -570,22 +778,37 @@ function(url, runtime, record, search, format, task) {
 			// use parseFloat to convert to decimal number
 			burAmt = parseFloat(burAmt);
 			
-			// get the value of the 'Usage Invoice Billed' checkbox from the currentRecord object
+			// get the value of the 'Usage Invoice Billed' checkbox
 			var usageInvoiceBilled = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_initial_invoice'
 			});
 			
-			// get the value of the 'setup fee' field from the currentRecord object
+			// get the value of the 'setup fee' field
 	    	var setupFee = currentRecord.getValue({
 	    		fieldId: 'custrecord_bbs_contract_setup_fee'
 	    	});
 	    	
-	    	// get the value of the 'setup fee billed' field from the currentRecord object
+	    	// get the value of the 'setup fee billed' field
 	    	var setupFeeBilled = currentRecord.getValue({
 	    		fieldId: 'custrecord_bbs_contract_setup_fee_billed'
 	    	});
+	    	
+	    	// get the value of the 'Management Fee' field
+	    	var mgmtFee = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_mgmt_fee',
+	    	});
+	    	
+	    	// get the value of the 'Management Fee Type' field
+	    	var mgmtFeeType = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_mgmt_fee_type',
+	    	});
+	    	
+	    	// get the value of the 'Management Fee Billed' field
+	    	var mgmtFeeBilled = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_mgmt_fee_billed'
+	    	});
 			
-			// get the contract start date from the currentRecord object
+			// get the contract start date
 			var contractStart = currentRecord.getValue({
 				fieldId: 'custrecord_bbs_contract_start_date'
 			});
@@ -617,22 +840,32 @@ function(url, runtime, record, search, format, task) {
 	    			setupFeeInvoice = 'T';
 	    		}
 	    	
-	    	// call function to create initial invoices. Pass currentRecordID, burAmt, billingType, setupFeeInvoice and prepaymentInvoice
-			createInitialInvoices(currentRecordID, burAmt, billingType, setupFeeInvoice, prepaymentInvoice);
+	    	// check if mgmtFee is 1 (Yes) AND mgmtFeeType is 2 (Upfront) AND mgmtFeeBilled returns false (checkbox is NOT ticked)
+	    	if (mgmtFee == 1 && mgmtFeeType == 2 && mgmtFeeBilled == false)
+	    		{
+	    			// set mgmtFeeInvoice to 'T'
+	    			mgmtFeeInvoice = 'T';
+	    		}
+	    	
+	    	// call function to create initial invoices. Pass currentRecordID, burAmt, billingType, setupFeeInvoice, mgmtFeeInvoice and prepaymentInvoice
+			createInitialInvoices(currentRecordID, burAmt, billingType, setupFeeInvoice, mgmtFeeInvoice, prepaymentInvoice);
 		}
     
     // ================================================
     // FUNCTION FOR THE CONTRACT EXTENSION BILLING TYPE
     // ================================================
     
-    function contractExtension(currentRecord, currentRecordID)
+    function contractExtension(billingType, currentRecord, currentRecordID, journalDate)
 		{
-    		// get today's date and format to a date (DD/MM/YYYY)
-    		var today = format.format({
-		    	type: format.Type.DATE,
-		    	value: new Date()
-		    });
+    		// format journalDate as a date string
+    		var contractStartDate = format.format({
+    			type: format.Type.DATE,
+    			value: journalDate
+    		});
     	
+    		// declare and initialize variables
+    		var mgmtFeeInvoice = 'F';
+    		
     		// get the deferred income balance (old contract)
     		var deferredIncomeBalance = currentRecord.getValue({
     			fieldId: 'custrecord_bbs_contract_old_def_inc_bal'
@@ -668,6 +901,11 @@ function(url, runtime, record, search, format, task) {
     				
     				// set header fields on the journal
     				journalRecord.setValue({
+    					fieldId: 'trandate',
+    					value: journalDate
+    				});
+    				
+    				journalRecord.setValue({
     					fieldId: 'subsidiary',
     					value: subsidiary
     				});
@@ -679,7 +917,7 @@ function(url, runtime, record, search, format, task) {
     				
     				journalRecord.setValue({
     					fieldId: 'memo',
-    					value: 'Contract Extension + ' + today
+    					value: 'Contract Extension + ' + contractStartDate
     				});
     				
     				journalRecord.setValue({
@@ -707,7 +945,7 @@ function(url, runtime, record, search, format, task) {
     				journalRecord.setCurrentSublistValue({
     					sublistId: 'line',
     					fieldId: 'memo',
-    					value: 'Contract Extension + ' + today
+    					value: 'Contract Extension + ' + contractStartDate
     				});
     				
     				journalRecord.setCurrentSublistValue({
@@ -752,7 +990,7 @@ function(url, runtime, record, search, format, task) {
     				journalRecord.setCurrentSublistValue({
     					sublistId: 'line',
     					fieldId: 'memo',
-    					value: 'Contract Extension + ' + today
+    					value: 'Contract Extension + ' + contractStartDate
     				});
     				
     				journalRecord.setCurrentSublistValue({
@@ -793,13 +1031,38 @@ function(url, runtime, record, search, format, task) {
     				});
     			}
     		
+    		// get the value of the 'Management Fee' field
+	    	var mgmtFee = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_mgmt_fee',
+	    	});
+	    	
+	    	// get the value of the 'Management Fee Type' field
+	    	var mgmtFeeType = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_mgmt_fee_type',
+	    	});
+	    	
+	    	// get the value of the 'Management Fee Billed' field
+	    	var mgmtFeeBilled = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_mgmt_fee_billed'
+	    	});
+    		
+    		// check if mgmtFee is 1 (Yes) AND mgmtFeeType is 2 (Upfront) AND mgmtFeeBilled is false (checkbox is NOT ticked)
+	    	if (mgmtFee == 1 && mgmtFeeType == 2 && mgmtFeeBilled == false)
+	    		{
+	    			// set mgmtFeeInvoice to 'T'
+	    			mgmtFeeInvoice = 'T';
+	    		}
+	    	
+	    	// call function to create initial invoices. Pass currentRecordID, billingType and mgmtFeeInvoice
+			createInitialInvoices(currentRecordID, '0.00', billingType, 'F', mgmtFeeInvoice, 'F');
+    		
 		}
     
     // ===================================
     // FUNCTION TO CREATE INITIAL INVOICES
     // ===================================
     
-    function createInitialInvoices(contractRecord, prepaymentInvoiceAmt, billingType, setupFeeInvoice, prepaymentInvoice)
+    function createInitialInvoices(contractRecord, prepaymentInvoiceAmt, billingType, setupFeeInvoice, mgmtFeeInvoice, prepaymentInvoice)
     	{
 	    	// declare and initiate variables
 			var prepaymentItem;
@@ -835,6 +1098,7 @@ function(url, runtime, record, search, format, task) {
 	    	    	custscript_bbs_prepay_item: prepaymentItem,
 	    	    	custscript_bbs_prepay_amt: prepaymentInvoiceAmt,
 	    	    	custscript_bbs_setup_fee_inv: setupFeeInvoice,
+	    	    	custscript_bbs_mgmt_fee_inv: mgmtFeeInvoice,
 	    	    	custscript_bbs_prepay_inv: prepaymentInvoice
 	    	    }
 	    	});
@@ -848,6 +1112,252 @@ function(url, runtime, record, search, format, task) {
 	    	});
 			
     	}
+    
+    // ========================================
+    // FUNCTION TO CREATE MINIMUM USAGE RECORDS
+    // ========================================
+    
+    function createMinimumUsageRecords(currentRecord)
+    	{
+	    	// declare and initialize variables
+			var monthlyMinimum;
+			var thisMonthlyMinimum;
+		
+			// get the internal ID of the contract
+			var contractID = currentRecord.id;
+			
+			// get the contract term
+			var contractTerm = currentRecord.getValue({
+				fieldId: 'custrecord_bbs_contract_term'
+			});
+			
+			// get the start/end dates of the contract
+			var startDate = currentRecord.getValue({
+				fieldId: 'custrecord_bbs_contract_start_date'
+			});
+			
+			var endDate = currentRecord.getValue({
+				fieldId: 'custrecord_bbs_contract_end_date'
+			});
+			
+			// get the day of the start/end dates
+			var startDay = startDate.getDate();
+			var endDay = endDate.getDate();
+		
+			// check if startDay is not 1 (IE contract starts mid month)
+			if (startDay != 1)
+				{
+					// increase contractTerm by 1
+					contractTerm++;
+				}
+			
+			// get the billing type of the contract
+	    	var billingType = currentRecord.getValue({
+	    		fieldId: 'custrecord_bbs_contract_billing_type'
+	    	});
+	    	
+	    	// check if the billing type is 6 (AMBMA)
+	    	if (billingType == '6')
+	    		{
+	    			// get the annual minimum from the contract record
+	    			var annualMinimum = currentRecord.getValue({
+	    				fieldId: 'custrecord_bbs_contract_min_ann_use'
+	    			});
+	    			
+	    			// divide annualMinimum by 12 to calculate monthlyMinimum
+	    			monthlyMinimum = parseFloat(annualMinimum / 12).toFixed(2);
+	    		}
+	    	// check if the billing type is 2 (UIOLI)
+	    	else if (billingType == '2')
+	    		{
+	    			// get the monthly minimum from the current record
+	    			monthlyMinimum = currentRecord.getValue({
+	    				fieldId: 'custrecord_bbs_contract_mon_min_use'
+	    			});
+	    		}
+	    	
+	    	// loop through contract term
+	    	for (var ct = 1; ct <= contractTerm; ct++)
+	    		{
+		    		// reset the thisMonthlyMinimum variable's value using the monthlyMinimum variable
+	    			thisMonthlyMinimum = monthlyMinimum;
+	    		
+	    			// check if this is the first month and the startDay is not equal to 1
+	    			if (ct == 1 && startDay != 1)
+	    				{
+		    				// call function to calculate number of days in the startDate month
+		        			var daysInMonth = getDaysInMonth(startDate.getMonth(), startDate.getFullYear());
+	    				
+	    					// calculate the days remaining in the month
+							var daysRemaining = daysInMonth - (startDay-1);
+							
+							// divide thisMonthlyMinimum by daysInMonth to calculate the dailyMinimum
+							var dailyMinimum = thisMonthlyMinimum / daysInMonth;
+							
+							// multiply the dailyMinimum by daysRemaining to calculate the pro rata minimum usage
+							thisMonthlyMinimum = parseFloat(dailyMinimum * daysRemaining);
+							thisMonthlyMinimum = thisMonthlyMinimum.toFixed(2);
+	    				}
+	    			else if (ct == contractTerm) // else if this is the last month
+	    				{
+		    				// call function to calculate number of days in the endDate month
+		        			var daysInMonth = getDaysInMonth(endDate.getMonth(), endDate.getFullYear());
+		        			
+		        			// check if this is not the last day in the month
+		        			if (endDay != daysInMonth)
+		        				{
+			    					// divide thisMonthlyMinimum by daysInMonth to calculate the dailyMinimum
+									var dailyMinimum = thisMonthlyMinimum / daysInMonth;
+									
+									// multiply the dailyMinimum by the endDay to calculate the pro rata minimum usage
+									thisMonthlyMinimum = parseFloat(dailyMinimum * endDay);
+									thisMonthlyMinimum = thisMonthlyMinimum.toFixed(2);
+		        				}
+	    				}
+	    			
+	    			// create a new Contract Minimum Usage record
+	    			var contractMinUsageRecord = record.create({
+	    				type: 'customrecord_bbs_contract_minimum_usage'
+	    			});
+	    			
+	    			// set fields on the record
+	    			contractMinUsageRecord.setValue({
+	    				fieldId: 'custrecord_bbs_contract_min_usage_parent',
+	    				value: contractID
+	    			});
+	    			
+	    			contractMinUsageRecord.setValue({
+	    				fieldId: 'custrecord_bbs_contract_min_usage_month',
+	    				value: ct
+	    			});
+	    			
+	    			contractMinUsageRecord.setValue({
+	    				fieldId: 'custrecord_bbs_contract_min_usage',
+	    				value: thisMonthlyMinimum
+	    			});
+	    			
+	    			// submit the new Contract Minimum Usage record
+	    			contractMinUsageRecord.save();
+	    		}
+    	}
+    
+    // ========================================
+    // FUNCTION TO DELETE MINIMUM USAGE RECORDS
+    // ========================================
+    
+    function deleteMinimumUsageRecords(contractRecordID)
+    	{
+    		/// create search to find minimum usage records for this contract
+			var minimumUsageSearch = search.create({
+				type: 'customrecord_bbs_contract_minimum_usage',
+			
+				filters: [{
+					name: 'custrecord_bbs_contract_min_usage_parent',
+					operator: 'anyof',
+					values: [contractRecordID]
+				}],
+				
+				columns: [{
+					name: 'internalid'
+				}],
+
+			});
+		
+			// run search and process results
+			minimumUsageSearch.run().each(function(result){
+				
+				// get the internal ID of the record
+				var minimumUsageRecord = result.getValue({
+					name: 'internalid'
+				});
+				
+				try
+	    			{
+	    				// delete the record
+	    				record.delete({
+	    					type: 'customrecord_bbs_contract_minimum_usage',
+	    					id: minimumUsageRecord
+	    				});
+	    			}
+				catch(error)
+	    			{
+	    			
+	    			}
+			
+				// continue processing search results
+				return true;
+				
+			});
+    	}
+    
+    // ============================================
+    // FUNCTION TO UPDATE RECURRING PRODUCT RECORDS
+    // ============================================
+    
+    function updateRecurringProducts(contractRecordID, startDate, endDate)
+    	{
+    		// run search to find existing recurring product records for this contract
+    		search.create({
+    			type: 'customrecord_bbs_contract_monthly_items',
+    			
+    			filters: [{
+    				name: 'custrecord_bbs_contract_mnth_items_cont',
+    				operator: 'anyof',
+    				values: [contractRecordID]
+    			}],
+    			
+    			columns: [{
+    				name: 'internalid'
+    			}],
+    			
+    		}).run().each(function(result){
+    			
+    			// get the internal ID of the record
+    			var recordID = result.getValue({
+    				name: 'internalid'
+    			});
+    			
+    			try
+    				{
+    					// update the start/end date fields on the product record
+    					record.submitFields({
+    						type: 'customrecord_bbs_contract_monthly_items',
+    						id: recordID,
+    						values: {
+    							custrecord_bbs_contract_mnth_items_start:	startDate,
+    							custrecord_bbs_contract_mnth_items_end:		endDate
+    						}
+    					});
+    					
+    					log.audit({
+    						title: 'Recurring Product Updated',
+    						details: recordID
+    					});
+    				}
+    			catch(e)
+    				{
+    					log.error({
+    						title: 'Error Updating Recurring Product Record',
+    						details: 'Record ID: ' + recordID + '<br>Error: ' + e
+    					});
+    				}
+    			
+    			// continue processing search results
+    			return true;
+    			
+    		});
+    		
+    	}
+    
+    //================================================
+	// FUNCTION TO GET THE NUMBER OF DAYS IN THE MONTH
+	//================================================   
+    
+    function getDaysInMonth(month, year)
+	    {
+    		// day 0 is the last day in the current month
+    	 	return new Date(year, month+1, 0).getDate(); // return the last day of the month
+	    }
 
     return {
         beforeLoad: contractBL,

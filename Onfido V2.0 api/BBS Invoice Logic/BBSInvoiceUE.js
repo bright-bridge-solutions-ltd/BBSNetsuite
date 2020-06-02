@@ -260,234 +260,316 @@ function(file, record, render, runtime, search, email)
 		    						var thisInvoiceTotal 	= thisRecord.getValue({fieldId: 'total'});
 		    						var thisInvoiceCurrency	= thisRecord.getText({fieldId: 'currency'});
 		    						var thisSalesOrder 		= thisRecord.getValue({fieldId: 'createdfrom'});
-		    						
-		    						//If we have the contract on the invoice, then go ahead
+		    						var doNotGenerateEmail 	= thisRecord.getValue({fieldId: 'custbody_bbs_do_not_auto_email'});
+		    							
+		    						//If doNotGenerateEmail is false
 		    						//
-		    						if(thisContract != null && thisContract != '')
+		    						if(doNotGenerateEmail == false)
 		    							{
-		    								//Calculate the earliest & latest transaction dates from the item sublist
-		    								//
-		    								var startDate = null;
-		    								var endDate = null;
-		    								
-		    								var lines = thisRecord.getLineCount({sublistId: 'item'});
-		    								
-		    								for (var int = 0; int < lines; int++) 
-			    								{
-													var searchDate = thisRecord.getSublistValue({
-																								sublistId:		'item',
-																								fieldId:		'custcol_bbs_so_search_date',
-																								line:			int
-																								});
-													if(int == 0 && searchDate != null && searchDate != '')
-														{
-															startDate 	= new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
-															endDate 	= new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
-														}
-													else
-														{
-															if(searchDate != null && searchDate != '' && searchDate.getTime() < startDate.getTime())
-																{
-																	startDate = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
-																}
-															
-															if(searchDate != null && searchDate != '' && searchDate.getTime() > endDate.getTime())
-																{
-																	endDate = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
-																}
-														}
-												}
-		    							
-		    							
-				    						var fileId = null;
-				    						
-				    						//Generate the pdf file
+				    						//If we have the contract on the invoice, then go ahead
 				    						//
-				    						var transactionFile = render.transaction({
-							    						    							entityId: newRecordId,
-							    						    							printMode: render.PrintMode.PDF,
-							    						    							inCustLocale: false
-				    						    									});
-				    						
-				    						//Set the attachments folder
-				    						//
-				    						transactionFile.folder = attachmentsFolder;
-				    						
-				    						//Build up the file name & description
-				    						//
-				    						var recordName = '';
-				    						
-				    						switch(newRecordType)
+				    						if(thisContract != null && thisContract != '')
 				    							{
-				    								case record.Type.INVOICE:
-				    									recordName = 'Invoice';
-				    									break;
-				    									
-				    								case record.Type.CREDIT_MEMO:
-				    									recordName = 'Credit';
-				    									break;	
-				    							}
-				    						
-				    						//Set the file name
-				    						//
-				    						transactionFile.name = recordName + '_' + thisContract + '_' + thisInvoiceNumber + '.pdf'
-				    						
-				    						//Make available without login
-				    						//
-				    						transactionFile.isOnline = true;
-				    						
-				    						//Set the file description
-				    						//
-				    						var fileProperties = new filePropertiesObj(
-				    								recordName + " # " + thisInvoiceNumber + " For Contract # " + thisContract, 
-				    								(startDate == null ? '' : startDate.format('d/m/Y')), 
-				    								(endDate == null ? '' : endDate.format('d/m/Y')), 
-				    								thisInvoiceTotal, 
-				    								thisInvoiceCurrency,
-				    								thisInvoiceDate
-				    								);
-				    						
-				    						transactionFile.description = JSON.stringify(fileProperties);
-				    						//transactionFile.description = recordName + " # " + thisInvoiceNumber + " For Contract # " + thisContract;
-				    						
-				    						//Try to save the file to the filing cabinet
-				    						//
-				    						try
-				    							{
-				    								fileId = transactionFile.save();
-				    							}
-				    						catch(err)
-				    							{
-				    								log.error({
-				    											title: 'Error Saving PDF To File Cabinet ' + attachmentsFolder,
-				    											details: error
-				    											});
+				    								//Calculate the earliest & latest transaction dates from the item sublist
+				    								//
+				    								var startDate = null;
+				    								var endDate = null;
 				    								
-				    								fileId = null;
-				    							}
-				    						
-				    						//If we have saved the file ok, then we need to attach the pdf
-				    						//
-				    						if(fileId != null)
-				    							{
-				    								record.attach({
-				    												record: {type: 'file', id: fileId},
-				    												to: {type: 'customrecord_bbs_contract', id: thisContractId}
-				    												});
-				    							}
-				    						
-				    						//Read the contract record to see if consolidated invoicing is required
-				    						//If no consolidation then we can email the invoice
-				    						//
-				    						var consolidationRequired = search.lookupFields({
-													    				            type: 		'customrecord_bbs_contract',
-													    				            id: 		thisContractId,
-													    				            columns: 	['custrecord_bbs_contract_consol_inv']
-													    				        	})['custrecord_bbs_contract_consol_inv'][0].value;
-				    						
-				    						if(consolidationRequired == '2')	//No, then email the invoice
-				    							{
-				    								//Read the contract record to see who we send the email version of the pdf to
-					    							//
-					    							var emailAddress = '';
+				    								var lines = thisRecord.getLineCount({sublistId: 'item'});
+				    								
+				    								for (var int = 0; int < lines; int++) 
+					    								{
+															var searchDate = thisRecord.getSublistValue({
+																										sublistId:		'item',
+																										fieldId:		'custcol_bbs_so_search_date',
+																										line:			int
+																										});
+															if(int == 0 && searchDate != null && searchDate != '')
+																{
+																	startDate 	= new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
+																	endDate 	= new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
+																}
+															else
+																{
+																	if(searchDate != null && searchDate != '' && searchDate.getTime() < startDate.getTime())
+																		{
+																			startDate = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
+																		}
+																	
+																	if(searchDate != null && searchDate != '' && searchDate.getTime() > endDate.getTime())
+																		{
+																			endDate = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
+																		}
+																}
+														}
+				    							
+				    							
+						    						var fileId = null;
 						    						
-						    						var billingLevel = search.lookupFields({
-															    				            type: 		'customrecord_bbs_contract',
-															    				            id: 		thisContractId,
-															    				            columns: 	['custrecord_bbs_contract_billing_level']
-															    				        	})['custrecord_bbs_contract_billing_level'][0].value;
+						    						//Generate the pdf file
+						    						//
+						    						var transactionFile = render.transaction({
+									    						    							entityId: newRecordId,
+									    						    							printMode: render.PrintMode.PDF,
+									    						    							inCustLocale: false
+						    						    									});
 						    						
-						    						if(billingLevel == 1)	//Parent level
+						    						//Set the attachments folder
+						    						//
+						    						transactionFile.folder = attachmentsFolder;
+						    						
+						    						//Build up the file name & description
+						    						//
+						    						var recordName = '';
+						    						
+						    						switch(newRecordType)
 						    							{
-							    							// get the parent from the customer
-						    								var customerLookup = search.lookupFields({
-							    								type: search.Type.CUSTOMER,
-								    				            id: thisCustomerId,
-								    				            columns: ['parent', 'custentity_bbs_invoice_email']
-								    				        });
-							    							
-							    							// get the internal ID of the parent customer from the customerLookup
-						    								var parentCustomerId = customerLookup.parent[0].value;
-						    								
-						    								// check that the parent customer is not this customer
-						    								if (thisCustomerId != parentCustomerId)
-						    									{
-						    										// lookup fields on the parent customer
-						    										var parentCustomerLookup = search.lookupFields({
-									    								type: search.Type.CUSTOMER,
-										    				            id: parentCustomerId,
-										    				            columns: ['custentity_bbs_invoice_email']
-										    				        });
-						    										
-						    										// get the customer email address from the parentCustomerLookup
-						    										emailAddress = parentCustomerLookup.custentity_bbs_invoice_email;
-						    									}
-						    								else
-						    									{
-						    										// get the customer email address from the customerLookup
-						    										emailAddress = customerLookup.custentity_bbs_invoice_email;
-						    									}
-	
-							    						}
-						    						else	//Child level
-						    							{
-							    							emailAddress = search.lookupFields({
-																    				            type: 		search.Type.CUSTOMER,
-																    				            id: 		thisCustomerId,
-																    				            columns: 	['custentity_bbs_invoice_email']
-																    				        	})['custentity_bbs_invoice_email'];
+						    								case record.Type.INVOICE:
+						    									recordName = 'Invoice';
+						    									break;
+						    									
+						    								case record.Type.CREDIT_MEMO:
+						    									recordName = 'Credit';
+						    									break;	
 						    							}
 						    						
-						    						//Have we actually got an email address?
+						    						//Set the file name
 						    						//
-						    						if(emailAddress != null && emailAddress != '')
+						    						transactionFile.name = recordName + '_' + thisContract + '_' + thisInvoiceNumber + '.pdf'
+						    						
+						    						//Make available without login
+						    						//
+						    						transactionFile.isOnline = true;
+						    						
+						    						//Set the file description
+						    						//
+						    						var fileProperties = new filePropertiesObj(
+						    								recordName + " # " + thisInvoiceNumber + " For Contract # " + thisContract, 
+						    								(startDate == null ? '' : startDate.format('d/m/Y')), 
+						    								(endDate == null ? '' : endDate.format('d/m/Y')), 
+						    								thisInvoiceTotal, 
+						    								thisInvoiceCurrency,
+						    								thisInvoiceDate
+						    								);
+						    						
+						    						transactionFile.description = JSON.stringify(fileProperties);
+						    						//transactionFile.description = recordName + " # " + thisInvoiceNumber + " For Contract # " + thisContract;
+						    						
+						    						//Try to save the file to the filing cabinet
+						    						//
+						    						try
 						    							{
-						    								//Build up the attachments array
-						    								//
-						    								var emailAttachments = [];
-						    								emailAttachments.push(file.load({id: fileId}));
-						    							
-						    								//Create an email merger
-						    								//
-						    								var mergeResult = render.mergeEmail({
-														    								    templateId: emailTemplate,
-														    								    transactionId: newRecordId
-														    								    });
+						    								fileId = transactionFile.save();
+						    							}
+						    						catch(err)
+						    							{
+						    								log.error({
+						    											title: 'Error Saving PDF To File Cabinet ' + attachmentsFolder,
+						    											details: error
+						    											});
 						    								
-						    								//Was the merge ok?
-						    								//
-						    								if(mergeResult != null)
-							    								{
-						    										//Get the body & subject from the merge to pass on to the email
-						    										//
-							    									var emailSubject = mergeResult.subject;
-							    									var emailBody = mergeResult.body;
-							    									
-							    									//Send the email
-							    									//
-							    									try
-																		{
-							    											email.send({
-							    														author: 		emailSender,
-							    														recipients:		emailAddress,
-							    														subject:		emailSubject,
-							    														body:			emailBody,
-							    														attachments:	emailAttachments,
-							    														relatedRecords: {
-							    																		entityId:	thisCustomerId,
-							    																		transactionId: newRecordId
-							    																		}
-							    														})		
-																			
-																		}
-																	catch(err)
-																		{
-																			log.error({
-																					    title: 'Error sending email', 
-																					    details: err.message
-																					    });
-																		}
-							    								}
+						    								fileId = null;
+						    							}
+						    						
+						    						//If we have saved the file ok, then we need to attach the pdf
+						    						//
+						    						if(fileId != null)
+						    							{
+						    								record.attach({
+						    												record: {type: 'file', id: fileId},
+						    												to: {type: 'customrecord_bbs_contract', id: thisContractId}
+						    												});
+						    							}
+						    						
+						    						//Read the contract record to see if consolidated invoicing is required
+						    						//If no consolidation then we can email the invoice
+						    						//
+						    						var consolidationRequired = search.lookupFields({
+															    				            type: 		'customrecord_bbs_contract',
+															    				            id: 		thisContractId,
+															    				            columns: 	['custrecord_bbs_contract_consol_inv']
+															    				        	})['custrecord_bbs_contract_consol_inv'][0].value;
+						    						
+						    						if(consolidationRequired == '2')	//No, then email the invoice
+						    							{
+						    								//Read the contract record to see who we send the email version of the PDF to
+							    							//
+							    							var emailAddress = '';
+							    							var emailAddressCC1 = '';
+							    							var emailAddressCC1 = '';
+								    						
+								    						var billingLevel = search.lookupFields({
+																	    				            type: 		'customrecord_bbs_contract',
+																	    				            id: 		thisContractId,
+																	    				            columns: 	['custrecord_bbs_contract_billing_level']
+																	    				        	})['custrecord_bbs_contract_billing_level'][0].value;
+								    						
+								    						// declare new array to hold CC email addresses
+								    						var ccEmailAddresses = new Array();
+								    						
+								    						if(billingLevel == 1)	//Parent level
+								    							{
+									    							// get the parent from the customer
+								    								var customerLookup = search.lookupFields({
+									    								type: search.Type.CUSTOMER,
+										    				            id: thisCustomerId,
+										    				            columns: ['parent', 'custentity_bbs_invoice_email', 'custentity_bbs_invoice_email_cc_1', 'custentity_bbs_invoice_email_cc_2']
+										    				        });
+									    							
+									    							// get the internal ID of the parent customer from the customerLookup
+								    								var parentCustomerId = customerLookup.parent[0].value;
+								    								
+								    								// check that the parent customer is not this customer
+								    								if (thisCustomerId != parentCustomerId)
+								    									{
+								    										// lookup fields on the parent customer
+								    										var parentCustomerLookup = search.lookupFields({
+											    								type: search.Type.CUSTOMER,
+												    				            id: parentCustomerId,
+												    				            columns: ['custentity_bbs_invoice_email', 'custentity_bbs_invoice_email_cc_1', 'custentity_bbs_invoice_email_cc_2']
+												    				        });
+								    										
+								    										// get the customer email addresses from the parentCustomerLookup
+								    										emailAddress = parentCustomerLookup.custentity_bbs_invoice_email;
+								    										emailAddressCC1 = parentCustomerLookup.custentity_bbs_invoice_email_cc_1;
+								    										emailAddressCC2 = parentCustomerLookup.custentity_bbs_invoice_email_cc_2;
+								    										
+								    										// check we have a CC1 email address
+								    										if (emailAddressCC1)
+								    											{
+								    												// push the CC1 email address to the ccEmailAddresses array
+								    												ccEmailAddresses.push(emailAddressCC1)
+								    											}
+								    										
+								    										// check we have a CC2 email address
+								    										if (emailAddressCC2)
+								    											{
+								    												// push the CC2 email address to the ccEmailAddresses array
+								    												ccEmailAddresses.push(emailAddressCC2)
+								    											}
+								    									}
+								    								else
+								    									{
+									    									// get the customer email addresses from the customerLookup
+								    										emailAddress = customerLookup.custentity_bbs_invoice_email;
+								    										emailAddressCC1 = customerLookup.custentity_bbs_invoice_email_cc_1;
+								    										emailAddressCC2 = customerLookup.custentity_bbs_invoice_email_cc_2;
+								    										
+								    										// check we have a CC1 email address
+								    										if (emailAddressCC1)
+								    											{
+								    												// push the CC1 email address to the ccEmailAddresses array
+								    												ccEmailAddresses.push(emailAddressCC1)
+								    											}
+								    										
+								    										// check we have a CC2 email address
+								    										if (emailAddressCC2)
+								    											{
+								    												// push the CC2 email address to the ccEmailAddresses array
+								    												ccEmailAddresses.push(emailAddressCC2)
+								    											}
+								    									}
+			
+									    						}
+								    						else	//Child level
+								    							{
+									    							// lookup fields on the parent record
+								    								var customerLookup = search.lookupFields({
+								    									type: 		search.Type.CUSTOMER,
+										    				            id: 		thisCustomerId,
+										    				            columns: 	['custentity_bbs_invoice_email', 'custentity_bbs_invoice_email_cc_1', 'custentity_bbs_invoice_email_cc_2']
+										    				        });
+								    								
+								    								// get the customer email addresses from the customerLookup
+						    										emailAddress = customerLookup.custentity_bbs_invoice_email;
+						    										emailAddressCC1 = customerLookup.custentity_bbs_invoice_email_cc_1;
+						    										emailAddressCC2 = customerLookup.custentity_bbs_invoice_email_cc_2;
+						    										
+						    										// check we have a CC1 email address
+						    										if (emailAddressCC1)
+						    											{
+						    												// push the CC1 email address to the ccEmailAddresses array
+						    												ccEmailAddresses.push(emailAddressCC1)
+						    											}
+						    										
+						    										// check we have a CC2 email address
+						    										if (emailAddressCC2)
+						    											{
+						    												// push the CC2 email address to the ccEmailAddresses array
+						    												ccEmailAddresses.push(emailAddressCC2)
+						    											}
+								    							}
+								    						
+								    						//Have we actually got an email address?
+								    						//
+								    						if(emailAddress != null && emailAddress != '')
+								    							{
+								    								//Build up the attachments array
+								    								//
+								    								var emailAttachments = [];
+								    								emailAttachments.push(file.load({id: fileId}));
+								    							
+								    								//Create an email merger
+								    								//
+								    								var mergeResult = render.mergeEmail({
+																    								    templateId: emailTemplate,
+																    								    transactionId: newRecordId
+																    								    });
+								    								
+								    								//Was the merge ok?
+								    								//
+								    								if(mergeResult != null)
+									    								{
+								    										//Get the body & subject from the merge to pass on to the email
+								    										//
+									    									var emailSubject = mergeResult.subject;
+									    									var emailBody = mergeResult.body;
+									    									
+									    									//Send the email
+									    									//
+									    									try
+																				{
+									    											// do we have CC email addresses
+									    											if (ccEmailAddresses.length > 0)
+									    												{
+										    												email.send({
+									    														author: 		emailSender,
+									    														recipients:		emailAddress,
+									    														cc:				ccEmailAddresses,
+									    														subject:		emailSubject,
+									    														body:			emailBody,
+									    														attachments:	emailAttachments,
+									    														relatedRecords: {
+									    																			entityId:	thisCustomerId,
+									    																			transactionId: newRecordId
+									    																		}
+									    														});	
+									    												}
+									    											else
+									    												{
+											    											email.send({
+											    														author: 		emailSender,
+											    														recipients:		emailAddress,
+											    														subject:		emailSubject,
+											    														body:			emailBody,
+											    														attachments:	emailAttachments,
+											    														relatedRecords: {
+											    																			entityId:	thisCustomerId,
+											    																			transactionId: newRecordId
+											    																		}
+											    														});
+									    												}
+																					
+																				}
+																			catch(err)
+																				{
+																					log.error({
+																							    title: 'Error sending email', 
+																							    details: err.message
+																							    });
+																				}
+									    								}
+								    							}
 						    							}
 				    							}
 		    							}

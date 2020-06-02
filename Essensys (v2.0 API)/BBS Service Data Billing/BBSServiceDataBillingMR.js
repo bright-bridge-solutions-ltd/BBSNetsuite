@@ -22,6 +22,14 @@ function(runtime, search, record, format, render, file, task) {
 		name: 'custscript_bbs_subsidiary_select'
 	});
 	
+	subsidiaryText = currentScript.getParameter({
+		name: 'custscript_bbs_subsidiary_text'
+	});
+	
+	initiatingUser = currentScript.getParameter({
+		name: 'custscript_bbs_service_data_billing_user'
+	});
+	
 	// if subsidiary is 2 (UK)
 	if (subsidiary == 2)
 		{
@@ -36,7 +44,10 @@ function(runtime, search, record, format, render, file, task) {
 	
 	// declare new date object. Global variable so can be accessed throughout the script
 	invoiceDate = new Date();
-	invoiceDate.setDate(0); // set date to be the last day of the previous month
+	invoiceDate = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth(), 0); // set date to be the last day of the previous month
+	
+	// call function to calculate the accounting period. Pass invoiceDate
+	accountingPeriod = calculateAccountingPeriod(invoiceDate);
    
     /**
      * Marks the beginning of the Map/Reduce process and generates input data.
@@ -59,7 +70,7 @@ function(runtime, search, record, format, render, file, task) {
     			operator: 'is',
     			values: ['F']
     		},
-    			{
+    				{
     			name: 'subsidiary',
     			join: 'custrecord_bbs_service_data_customer_rec',
     			operator: 'anyof',
@@ -101,31 +112,6 @@ function(runtime, search, record, format, render, file, task) {
     			summary: 'MAX'
     		},
     				{
-    			name: 'custrecord_bbs_site_address_1',
-    			join: 'custrecord_bbs_service_data_site_record',
-    			summary: 'MAX'
-    		},
-    				{
-    			name: 'custrecord_bbs_site_address_2',
-    			join: 'custrecord_bbs_service_data_site_record',
-    			summary: 'MAX'
-    		},
-    				{
-    			name: 'custrecord_bbs_site_address_city',
-    			join: 'custrecord_bbs_service_data_site_record',
-    			summary: 'MAX'
-    		},
-    				{
-    			name: 'custrecord_bbs_site_address_state',
-    			join: 'custrecord_bbs_service_data_site_record',
-    			summary: 'MAX'
-    		},
-    				{
-    			name: 'custrecord_bbs_site_address_zip',
-    			join: 'custrecord_bbs_service_data_site_record',
-    			summary: 'MAX'
-    		},
-    				{
     			name: 'custrecord_bbs_service_data_site_alias',
     			summary: 'MAX'
     		},
@@ -155,12 +141,7 @@ function(runtime, search, record, format, render, file, task) {
     	var siteName = searchResult.values['GROUP(custrecord_bbs_service_data_site_record)'].text;
     	var siteAlias = searchResult.values['MAX(custrecord_bbs_service_data_site_alias)'];
     	var customerID = searchResult.values['MAX(internalid.custrecord_bbs_service_data_customer_rec)'];
-    	var locationID = searchResult.values['MAX(internalid.custrecord_bbs_service_data_location)'];
-    	var address1 = searchResult.values['MAX(custrecord_bbs_site_address_1.custrecord_bbs_service_data_site_record)'];
-    	var address2 = searchResult.values['MAX(custrecord_bbs_site_address_2.custrecord_bbs_service_data_site_record)'];
-    	var addressCity = searchResult.values['MAX(custrecord_bbs_site_address_city.custrecord_bbs_service_data_site_record)'];
-    	var addressCounty = searchResult.values['MAX(custrecord_bbs_site_address_state.custrecord_bbs_service_data_site_record)'];
-    	var addressPostcode = searchResult.values['MAX(custrecord_bbs_site_address_zip.custrecord_bbs_service_data_site_record)'];   	
+    	var locationID = searchResult.values['MAX(internalid.custrecord_bbs_service_data_location)'];  	
     	var serviceDataRecords = searchResult.values['MAX(formulatext)'];
     	serviceDataRecords = serviceDataRecords.split('|'); // split on '|' as needs to be an array to set multi-select field
     	
@@ -185,6 +166,11 @@ function(runtime, search, record, format, render, file, task) {
 					value: invoiceDate
 				});
 				
+				invoiceRecord.setText({
+    				fieldId: 'postingperiod',
+    				value: accountingPeriod
+    			});
+				
 				invoiceRecord.setValue({
 					fieldId: 'location',
 					value: locationID
@@ -196,39 +182,13 @@ function(runtime, search, record, format, render, file, task) {
 				});
 				
 				invoiceRecord.setValue({
-					fieldId: 'otherrefnum',
-					value: siteAlias
+					fieldId: 'custbody_bbs_site_name',
+					value: siteID
 				});
 				
-				// get the shipping address subrecord
-				var shippingAddressSubrecord = invoiceRecord.getSubrecord({
-				    fieldId: 'shippingaddress'
-				});
-				
-				// set fields on the shipping address subrecord
-				shippingAddressSubrecord.setValue({
-					fieldId: 'addr1',
-					value: address1
-				});
-					
-				shippingAddressSubrecord.setValue({
-					fieldId: 'addr2',
-					value: address2
-				});
-						
-				shippingAddressSubrecord.setValue({
-					fieldId: 'city',
-					value: addressCity
-				});
-						
-				shippingAddressSubrecord.setValue({
-					fieldId: 'state',
-					value: addressCounty
-				});
-						
-				shippingAddressSubrecord.setValue({
-					fieldId: 'zip',
-					value: addressPostcode
+				invoiceRecord.setValue({
+					fieldId: 'class',
+					value: 1 // 1 = Connect
 				});
 				
 				// create search to find service data records to be billed
@@ -391,9 +351,6 @@ function(runtime, search, record, format, render, file, task) {
 					details: 'Invoice ID: ' + invoiceID
 				});
 				
-				// call function to create PDF invoice. Pass invoiceID and siteAlias variables
-				createPDFInvoice(invoiceID, siteAlias);
-				
 				// call function to create CSV report. Pass invoiceID, siteID and siteAlias variables
 				createCSVReport(invoiceID, siteID, siteAlias);
 			}
@@ -440,7 +397,9 @@ function(runtime, search, record, format, render, file, task) {
     	    scriptId: 'customscript_bbs_create_service_data_rep',
     	    deploymentId: 'customdeploy_bbs_create_service_data_rep',
     	    params: {
-    	    	custscript_bbs_subsidiary_select: subsidiary
+    	    	custscript_bbs_subsidiary_select: subsidiary,
+    	    	custscript_bbs_subsidiary_text: subsidiaryText,
+    	    	custscript_bbs_service_data_billing_user: initiatingUser
     	    }
     	});
     	
@@ -453,50 +412,6 @@ function(runtime, search, record, format, render, file, task) {
     	});
 
     }
-    
-    // ====================================================================
-    // FUNCTION TO CREATE A PDF OF THE INVOICE AND SAVE TO THE FILE CABINET
-    // ====================================================================
-    
-    function createPDFInvoice(invoiceID, siteAlias)
-    	{
-    		// Generate the PDF
-			var PDF_File = render.transaction({
-				entityId: invoiceID,
-				printMode: render.PrintMode.PDF,
-				inCustLocale: false
-		    });
-			
-			// get the invoice tran ID from the PDF_File object
-			var invoiceTranID = PDF_File.name;
-			invoiceTranID = invoiceTranID.replace("Invoice_", ""); // remove 'Invoice_' from string
-			
-			// format the invoice date in the following format YYMMDD
-			var fileDate = invoiceDate.format('ymd');
-			
-			// set the file name
-			PDF_File.name = filePrefix + '-' + fileDate + '-' + siteAlias + '-' + invoiceTranID;
-			
-			// set the attachments folder
-			PDF_File.folder = fileCabinetFolder;
-			
-			try
-				{
-					var fileID = PDF_File.save();
-					
-					log.audit({
-						title: 'PDF Created',
-						details: 'File ID: ' + fileID
-					});
-				}
-			catch(e)
-				{
-					log.error({
-						title: 'Error Creating PDF',
-						details: 'Error: ' + e
-					});
-				}
-    	}
     
     // ===============================
     // FUNCTION TO CREATE CSV REPORT
@@ -516,7 +431,7 @@ function(runtime, search, record, format, render, file, task) {
     	
     		// declare a new date object
 			var fileDate = new Date();
-			fileDate.setDate(1); // set date to be the first day of the current month
+			fileDate = new Date(fileDate.getFullYear(), fileDate.getMonth(), 0); // set date to be the last day of the previous month
 			fileDate = fileDate.format('ymd'); // format date in the following format YYMMDD
     	
     		// specify the file name
@@ -592,10 +507,6 @@ function(runtime, search, record, format, render, file, task) {
 	    				{
 	    			name: 'formulacurrency',
 	    			formula: "(ROUND(CASE WHEN {custrecord_bbs_service_data_sales_price} = 0 THEN 0 ELSE CASE WHEN {custrecord_bbs_service_data_frequency} = 'One off' THEN {custrecord_bbs_service_data_sales_price} ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'DD') = TO_CHAR({custrecord_bbs_service_data_start_date},'DD') AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * (TO_CHAR({custrecord_bbs_service_data_end_date},'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD')) - 1 ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * TO_CHAR({custrecord_bbs_service_data_end_date},'DD') ELSE CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') -1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD')) * (TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD') +1) ELSE {custrecord_bbs_service_data_sales_price} END END END END END END, 2)) * {custrecord_bbs_service_data_quantity}"
-	    		},
-	    				{
-	    			name: 'formulacurrency',
-	    			formula: "(ROUND(CASE WHEN {custrecord_bbs_service_data_op_cost} = 0 THEN 0 ELSE CASE WHEN {custrecord_bbs_service_data_frequency} = 'One off' THEN {custrecord_bbs_service_data_op_cost} ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'DD') = TO_CHAR({custrecord_bbs_service_data_start_date},'DD') AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * (TO_CHAR({custrecord_bbs_service_data_end_date},'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD')) - 1 ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * TO_CHAR({custrecord_bbs_service_data_end_date},'DD') ELSE CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') -1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD')) * (TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD') +1) ELSE {custrecord_bbs_service_data_op_cost} END END END END END END, 2)) - (ROUND(CASE WHEN {custrecord_bbs_service_data_sales_price} = 0 THEN 0 ELSE CASE WHEN {custrecord_bbs_service_data_frequency} = 'One off' THEN {custrecord_bbs_service_data_sales_price} ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'DD') = TO_CHAR({custrecord_bbs_service_data_start_date},'DD') AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * (TO_CHAR({custrecord_bbs_service_data_end_date},'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD')) - 1 ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * TO_CHAR({custrecord_bbs_service_data_end_date},'DD') ELSE CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') -1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD')) * (TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD') +1) ELSE {custrecord_bbs_service_data_sales_price} END END END END END END, 2)) * {custrecord_bbs_service_data_quantity}"
 	    		}],
 	    		
     		});
@@ -616,7 +527,7 @@ function(runtime, search, record, format, render, file, task) {
 				var tenantBillingRef = result.getValue(result.columns[9]);
 				var tenantCost = result.getValue(result.columns[10]);
 				var tenantTotal = result.getValue(result.columns[11]);
-				var margin = result.getValue(result.columns[12]);
+				var margin = parseFloat(tenantTotal - operatorTotal); // calculate total
 				
 				// add the service data details to the CSV
 				CSV += siteAlias + ',' + accountName + ',' + tranID + ',' + dateFrom + ',' + dateTo + ',' + product + ',' + quantity + ',' + operatorCost + ',' + operatorTotal + ',' + tenantAlias + ',' + tenantName + ',' + tenantBillingRef + ',' + tenantCost + ',' + tenantTotal + ',' + margin;
@@ -653,6 +564,22 @@ function(runtime, search, record, format, render, file, task) {
 	    			});
 	    		}
     		
+    	}
+    
+    // =======================================
+    // FUNCTION TO CALCULATE ACCOUNTING PERIOD
+    // =======================================
+    
+    function calculateAccountingPeriod(date)
+    	{
+    		// create array of months
+    		var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    		
+    		// calculate the posting period
+    		var postingPeriod = months[date.getMonth()] + ' ' + date.getFullYear();
+    		
+    		// return the posting period
+    		return postingPeriod;
     	}
     
     //=============================================================================================

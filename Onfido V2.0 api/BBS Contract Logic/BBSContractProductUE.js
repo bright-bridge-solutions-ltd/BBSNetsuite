@@ -49,8 +49,6 @@ function(record, search, format) {
     	// declare and initiate variables
     	var quarter = 0;
     	var half = 0;
-    	var monthlyMinimum;
-    	var thisMonthlyMinimum;
     	var quarterStart = false;
     	var halfStart = false;
     	
@@ -72,47 +70,10 @@ function(record, search, format) {
     	var contractRecordLookup = search.lookupFields({
     		type: 'customrecord_bbs_contract',
 			id: contractRecordID,
-			columns: ['custrecord_bbs_contract_term', 'custrecord_bbs_contract_start_date', 'custrecord_bbs_contract_billing_type', 'custrecord_bbs_contract_min_ann_use', 'custrecord_bbs_contract_mon_min_use', 'custrecord_bbs_contract_qu_min_use', 'custrecord_bbs_contract_bi_ann_use']
+			columns: ['custrecord_bbs_contract_term', 'custrecord_bbs_contract_start_date']
 		});
     	
-    	// get the billing type from the parent record
-    	var billingType = contractRecordLookup.custrecord_bbs_contract_billing_type[0].value;
-    	
-    	// check if the billing type is 4 (AMP) or 6 (AMBMA)
-    	if (billingType == '4' || billingType == '6')
-    		{
-    			// get the annual minimum from the parent record
-    			var annualMinimum = contractRecordLookup.custrecord_bbs_contract_min_ann_use;
-    			
-    			// divide annualMinimum by 12 to calculate monthlyMinimum
-    			monthlyMinimum = parseFloat(annualMinimum / 12).toFixed(2);
-    		}
-    	// check if the billing type is 3 (QMP) or 5 (QUR)
-    	else if (billingType == '3' || billingType == '5')
-    		{
-	    		// get the quarterly minimum from the parent record
-				var qtrMinimum = contractRecordLookup.custrecord_bbs_contract_qu_min_use;
-				
-				// divide qtrMinimum by 3 to calculate monthlyMinimum
-    			monthlyMinimum = parseFloat(qtrMinimum / 3).toFixed(2);
-    		}
-    	// check if the billing type is 2 (UIOLI)
-    	else if (billingType == '2')
-    		{
-    			// get the monthly minimum from the parent record and set the monthlyMinimum variable with this value
-    			monthlyMinimum = contractRecordLookup.custrecord_bbs_contract_mon_min_use;
-    		}
-    	// check if the billing type is 7 (BUR)
-    	else if (billingType == '7')
-    		{
-    			// get the minimum bi-annual usage from the contract
-    			var biAnnualMinimum = contractRecordLookup.custrecord_bbs_contract_bi_ann_use;
-    			
-    			// divide biAnnualMinimum by 6 to calculate monthlyMinimum
-    			monthlyMinimum = parseFloat(biAnnualMinimum / 6).toFixed(2);
-    		}
-		
-		// get the contract start date from the parent record
+    	// get the contract start date from the parent record
     	var periodStartDate = contractRecordLookup.custrecord_bbs_contract_start_date;
     	
     	// format periodStartDate as a date object
@@ -147,9 +108,6 @@ function(record, search, format) {
     	// loop through contract term
     	for (var ct = 1; ct <= contractTerm; ct++)
     		{
-    			// reset the thisMonthlyMinimum variable's value using the monthlyMinimum variable
-    			thisMonthlyMinimum = monthlyMinimum;
-    			
     			// reset the quarterStart variable to false
     			quarterStart = false;
     			
@@ -197,46 +155,7 @@ function(record, search, format) {
     				{
     		    		// set period end date
     					periodEndDate = new Date(periodStartDate.getFullYear(), periodStartDate.getMonth()+1, 0);
-    				}
-    	    	
-    	    	// call function to calculate number of days in the periodStartDate month
-    			var daysInMonth = getDaysInMonth(periodStartDate.getMonth(), periodStartDate.getFullYear());
-    			
-    			// get the day of the periodStartDate object
-    	    	var periodStartDay = periodStartDate.getDate();
-    	    	
-    	    	// get the day of the periodEndDate object
-    	    	var periodEndDay = periodEndDate.getDate();
-    			
-    			// check if the periodStartDay variable is not equal to 1
-    	    	if (periodStartDay != 1)
-    	    		{
-	    	    		// calculate the days remaining in the month
-						var daysRemaining = daysInMonth - (periodStartDay-1);
-						
-						// divide thisMonthlyMinimum by daysInMonth to calculate the dailyMinimum
-						var dailyMinimum = thisMonthlyMinimum / daysInMonth;
-						
-						// multiply the dailyMinimum by daysRemaining to calculate the pro rata minimum usage
-						thisMonthlyMinimum = parseFloat(dailyMinimum * daysRemaining);
-						thisMonthlyMinimum = thisMonthlyMinimum.toFixed(2);
-    	    		}
-    	    	// check if the periodEndDay variable is not equal to daysInMonth variable
-    	    	else if (periodEndDay != daysInMonth)
-    	    		{
-	    	    		// divide thisMonthlyMinimum by daysInMonth to calculate the dailyMinimum
-						var dailyMinimum = thisMonthlyMinimum / daysInMonth;
-						
-						// multiply thisMonthlyMinimum by periodEndDay to calculate the pro rata minimum usage
-						thisMonthlyMinimum = parseFloat(dailyMinimum * periodEndDay);
-						thisMonthlyMinimum = thisMonthlyMinimum.toFixed(2);
-    	    		}
-    	    	
-    	    	// set the minimum monthly usage field on the new record
-    	    	newRecord.setValue({
-    	    		fieldId: 'custrecord_bbs_contract_period_min_mon',
-    	    		value: thisMonthlyMinimum
-    	    	}); 	    	
+    				}	    	
 	    				
 	    		// set the start and end dates on the new record
     			newRecord.setValue({
@@ -345,16 +264,6 @@ function(record, search, format) {
     			var newRecordID = newRecord.save();
     		}
     }
-    
-    //================================================
-	// FUNCTION TO GET THE NUMBER OF DAYS IN THE MONTH
-	//================================================   
-    
-    function getDaysInMonth(month, year)
-	    {
-    		// day 0 is the last day in the current month
-    	 	return new Date(year, month+1, 0).getDate(); // return the last day of the month
-	    }
 
     return {
         beforeLoad: contractProductBL,

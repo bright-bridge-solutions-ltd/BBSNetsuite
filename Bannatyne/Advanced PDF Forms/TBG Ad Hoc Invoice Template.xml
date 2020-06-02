@@ -234,18 +234,18 @@
 	</tr></table>
 	
 	<table style="width: 100%;">
-    	<!-- If the invoice type is Deposit -->
-	    <#if record.custbody_bbs_ad_hoc_invoice_type == 'Deposit'>
+    	<!-- If the invoice type is Ongoing -->
+	    <#if record.custbody_bbs_ad_hoc_invoice_type == 'Ongoing'>
+	    	<tr>
+		    	<td style="padding: 5px; font-size: 12px; color: black;">Payment will be collected by Direct Debit on or around the 5th ${record.trandate?string("MMMM")}</td>
+		    </tr>
+		<#else>
 	    	<tr>
 	    		<td style="padding: 5px; font-size: 12px; color: black;">Please arrange for this invoice to be paid to the account below before you start on site.</td>
 	    	</tr>
 	    	<tr>
-	    		<td style="padding: 5px; font-size: 12px; color: red;">Bank Name: ${record.subsidiary.custrecord_bbs_bank_account_name}<br/>Account No: ${record.subsidiary.custrecord_bbs_bank_account_number}<br/>Sort Code: ${record.subsidiary.custrecord_bbs_bank_account_sort}</td>
+	    		<td style="padding: 5px; font-size: 12px; color: black;">Bank Name: ${record.subsidiary.custrecord_bbs_bank_account_name}<br/>Account No: ${record.subsidiary.custrecord_bbs_bank_account_number}<br/>Sort Code: ${record.subsidiary.custrecord_bbs_bank_account_sort}</td>
 	    	</tr>
-	    <#elseif record.custbody_bbs_ad_hoc_invoice_type == 'Ongoing'>
-		    <tr>
-		    	<td style="padding: 5px; font-size: 12px; color: black;">Payment will be collected by Direct Debit on or around the 5th ${record.trandate?string("MMMM")}</td>
-		    </tr>
 	    </#if>
 	</table>
 </body>
