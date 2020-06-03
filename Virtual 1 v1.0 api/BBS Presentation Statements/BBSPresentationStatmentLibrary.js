@@ -1279,6 +1279,7 @@ function libGenerateStatement(partnerId)
 											], 
 											[
 											   new nlobjSearchColumn("custrecord_bbs_pr_type").setSort(true), 	//sort by record type 
+											   new nlobjSearchColumn("custrecord_bbs_presentation_record_date").setSort(false),
 											   new nlobjSearchColumn("created"),
 											   new nlobjSearchColumn("name"),
 											   new nlobjSearchColumn("custrecord_bbs_pr_billing_type"), 
@@ -1300,8 +1301,7 @@ function libGenerateStatement(partnerId)
 											   new nlobjSearchColumn("custrecord_bbs_pr_inv_age"),
 											   new nlobjSearchColumn("formulacurrency").setFormula("NVL({custrecord_bbs_pr_inv_total},0) - NVL({custrecord_bbs_pr_inv_paid},0)"),
 											   new nlobjSearchColumn("custrecord_bbs_sage_date"),
-											   new nlobjSearchColumn("custrecord_bbs_sage_ref"),
-											   new nlobjSearchColumn("custrecord_bbs_presentation_record_date")
+											   new nlobjSearchColumn("custrecord_bbs_sage_ref")
 											   ]
 											));
 								
@@ -1316,12 +1316,13 @@ function libGenerateStatement(partnerId)
 											   ["name","anyof",partnerId]
 											], 
 											[
+											   new nlobjSearchColumn("trandate",null,"GROUP").setSort(false), 
 											   new nlobjSearchColumn("tranid",null,"GROUP"), 
-											   new nlobjSearchColumn("trandate",null,"GROUP"), 
 											   new nlobjSearchColumn("formulacurrency",null,"MAX").setFormula("ABS({amount})"), 
 											   new nlobjSearchColumn("appliedtolinkamount",null,"SUM")
 											]
 											));
+									
 									
 									var paymentsArray = [];
 									
@@ -1360,6 +1361,7 @@ function libGenerateStatement(partnerId)
 									var totalOverdueAmount = Number(0);
 									var statementRecord = nlapiCreateRecord('customrecord_bbs_pr_statement');
 									statementRecord.setFieldValue('custrecord_bbs_pr_stat_payments', JSON.stringify(paymentsArray));
+									
 									
 									//Do we have any results to process
 									//

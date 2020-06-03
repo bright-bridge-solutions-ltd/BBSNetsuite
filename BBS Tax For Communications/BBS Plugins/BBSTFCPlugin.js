@@ -20,6 +20,60 @@ function(email, encode, file, https, record, runtime, search)
 		//=====================================================================
 		//
 	
+		//Page through results set from search
+	    //
+	    function getResults(_searchObject)
+		    {
+		    	var results = [];
+		
+		    	var pageData = _searchObject.runPaged({pageSize: 1000});
+		
+		    	for (var int = 0; int < pageData.pageRanges.length; int++) 
+		    		{
+		    			var searchPage = pageData.fetch({index: int});
+		    			var data = searchPage.data;
+		    			
+		    			results = results.concat(data);
+		    		}
+		
+		    	return results;
+		    }
+		
+		
+		//=====================================================================
+		//Objects
+		//=====================================================================
+		//
+		function configObj()
+			{
+				this.credentialsEncoded 		= '';
+				this.clientId					= '';
+				this.profileId					= '';
+				this.endpointGetHealthCheck		= '';
+				this.endpointGetServiceInfo		= '';
+				this.endpointGetPcode			= '';
+				this.endpointGetGeocode			= '';
+				this.endpointGetTaxTypes		= '';
+				this.endpointGetTxServicePairs	= '';
+				this.endpointGetLocation		= '';
+				this.endpointGetPrimaryLocation	= '';
+				this.endpointGetTaxCalulation	= '';
+				this.endpointCommit				= '';	
+				this.pcodeLookupScript			= '';
+			}
+		
+		function genericResponseObj()
+			{
+				this.httpResponseCode	= '';
+				this.responseMessage 	= '';
+				this.apiResponse		= {};
+			}
+	
+		//=====================================================================
+		//Exposed functions
+		//=====================================================================
+		//
+	
 		//Get the current configuration
 		//
 		function getConfiguration()
@@ -105,60 +159,6 @@ function(email, encode, file, https, record, runtime, search)
 				return config;
 			}
 	
-	
-		//Page through results set from search
-	    //
-	    function getResults(_searchObject)
-		    {
-		    	var results = [];
-		
-		    	var pageData = _searchObject.runPaged({pageSize: 1000});
-		
-		    	for (var int = 0; int < pageData.pageRanges.length; int++) 
-		    		{
-		    			var searchPage = pageData.fetch({index: int});
-		    			var data = searchPage.data;
-		    			
-		    			results = results.concat(data);
-		    		}
-		
-		    	return results;
-		    }
-		
-		
-		//=====================================================================
-		//Objects
-		//=====================================================================
-		//
-		function configObj()
-			{
-				this.credentialsEncoded 		= '';
-				this.clientId					= '';
-				this.profileId					= '';
-				this.endpointGetHealthCheck		= '';
-				this.endpointGetServiceInfo		= '';
-				this.endpointGetPcode			= '';
-				this.endpointGetGeocode			= '';
-				this.endpointGetTaxTypes		= '';
-				this.endpointGetTxServicePairs	= '';
-				this.endpointGetLocation		= '';
-				this.endpointGetPrimaryLocation	= '';
-				this.endpointGetTaxCalulation	= '';
-				this.endpointCommit				= '';	
-				this.pcodeLookupScript			= '';
-			}
-		
-		function genericResponseObj()
-			{
-				this.httpResponseCode	= '';
-				this.responseMessage 	= '';
-				this.apiResponse		= {};
-			}
-	
-		//=====================================================================
-		//Exposed functions
-		//=====================================================================
-		//
 	
 		//Get a PCode from an address
 		//
@@ -380,9 +380,10 @@ function(email, encode, file, https, record, runtime, search)
 		//Return exposed functions
 		//
 		return {
-	        		getHealthCheck:		healthcheck,
-	        		getServiceInfo:		getServiceInfo,
-	        		getPCode:			getPCode
+	        		getHealthCheck:			healthcheck,
+	        		getServiceInfo:			getServiceInfo,
+	        		getPCode:				getPCode,
+	        		getTFCConfiguration:	getConfiguration
 	    		};
 	    
 	});
