@@ -220,16 +220,103 @@ function(record, runtime, search, plugin) {
 			    						
 			    					default:
 			    						//Processing for record types other than customer or vendor
+			    						//"currentRecord" will be used to retrieve the mapped fields
 			    						//
 			    						
-			    						
-			    						
+			    						//Retrieve all the mapped columns
+    									//
+    									var currentCountryCode 	= (sourceCountryCode != '' && sourceCountryCode != null ? currentRecord.getValue({fieldId: sourceCountryCode}) : '');
+    									var currentStateCode 	= (sourceStateCode != '' && sourceStateCode != null ? currentRecord.getValue({fieldId: sourceStateCode}) : '');
+    									var currentCountyCode 	= (sourceCountyCode != '' && sourceCountyCode != null ? currentRecord.getValue({fieldId: sourceCountyCode}) : '');
+    									var currentCityCode 	= (sourceCityCode != '' && sourceCityCode != null ? currentRecord.getValue({fieldId: sourceCityCode}) : '');
+    									var currentZipCode 		= (sourceZipCode != '' && sourceZipCode != null ? currentRecord.getValue({fieldId: sourceZipCode}) : '');
+    									var currentPCode 		= (destinationPCode != '' && destinationPCode != null ? currentRecord.getValue({fieldId: destinationPCode}) : '');
+    									
+    									//Does the PCode have a value & do we have a field to map the pcode to?
+    									//If not then we need to get one
+    									//
+    									if((currentPCode == '' || currentPCode == null) && (destinationPCode != null && destinationPCode != ''))
+    										{
+    											//Construct the request object
+    											//
+	    										var pcodeRequest 		= {};
+	    										pcodeRequest['BestMatch']		= true;
+	    										pcodeRequest['LimitResults']	= 10;
+    										
+    											if(currentCountryCode != '' && currentCountryCode != null)
+    												{
+    													pcodeRequest['CountryIso']	= currentCountryCode;
+    												}
+											
+    											if(currentStateCode != '' && currentStateCode != null)
+    												{
+    													pcodeRequest['State']	= currentStateCode;
+    												}
+											
+    											if(currentCountyCode != '' && currentCountyCode != null)
+    												{
+    													pcodeRequest['County']	= currentCountyCode;
+    												}
+											
+    											if(currentCityCode != '' && currentCityCode != null)
+    												{
+    													pcodeRequest['City']	= currentCityCode;
+    												}
+											
+    											if(currentZipCode != '' && currentZipCode != null)
+    												{
+    													pcodeRequest['ZipCode']	= currentZipCode;
+    												}
+    										}	
+    									
+    									//Call the plugin
+    									//
+    									if(tfcPlugin != null)
+	    									{
+    											try
+    												{
+			    										var pcodeResult = tfcPlugin.getPCode(pcodeRequest);
+			    										
+			    										//Check the result of the call to the plugin
+			    										//
+			    										if(pcodeResult != null && pcodeResult.httpResponseCode == '200')
+			    											{
+			    												//Did we find any matches?
+			    												//
+			    												if(pcodeResult.apiResponse.MatchCount > 0)
+			    													{
+			    														//Get the pcode
+			    														//
+			    														var pcode = pcodeResult.apiResponse.LocationData[0].PCode;
+			    														
+			    														//Update the record with the new pcode
+			    														//
+			    														var valuesObj = {};
+			    														valuesObj[destinationPCode] = pcode;
+			    														
+			    														record.submitFields({
+									    													type:		currentRecordType,
+									    													id:			currentRecordId,
+									    													values:		valuesObj,
+									    													options:	{
+									    																enablesourcing:			true,
+									    																ignoreMandatoryFields:	true
+									    																}
+									    													});
+			    													}
+			    											}
+    												}
+    											catch(err)
+    												{
+	    												log.error({
+					    											title:		'Error calling plugin',
+					    											details:	err
+					    											});
+    												}
+	    									}
 			    						
 			    						break;
 	    						}
-
-	    					
-							
     					}
     			}
 	    }
