@@ -46,6 +46,14 @@ function(runtime, search, serverWidget, task, http, format)
 		            							isSelected:		true
 		            							});
 		            
+		            //Add a field to see if we want to force an overwrite of all PCodes
+		            //
+		            var overwriteField = form.addField({
+								        				id:			'custpage_force_overwrite',
+								        				label:		'Force Overwrite Of All PCodes',
+								        				type:		serverWidget.FieldType.CHECKBOX
+								        				});
+		            
 		            //Populate the record type by reading the mapping record
 		            //
 		            var customrecord_bbstfc_pcode_mapSearchObj = getResults(search.create({
@@ -96,7 +104,8 @@ function(runtime, search, serverWidget, task, http, format)
 		    		
 		            //Post request - so process the returned form
 					//
-					var selectedRecordType = request.parameters['custpage_type_select'];
+		    		var selectedRecordType 	= request.parameters['custpage_type_select'];
+		    		var forceOverwrite 		= request.parameters['custpage_force_overwrite'];
 					
 					//Submit the map/reduce task
 					//
@@ -105,11 +114,11 @@ function(runtime, search, serverWidget, task, http, format)
 							var mrTask = task.create({
 													taskType:		task.TaskType.MAP_REDUCE,
 													scriptId:		'customscript_bbstfc_pcode_bulk_update_mr',	
-													deploymentid:	null
-										//			params:			{
-										//								custscript_bbs_sftp_product_file_id:	fileId,
-										//								custscript_bbs_sftp_config_id:			integrationId
-										//							}
+													deploymentid:	null,
+													params:			{
+																	custscript_bbstfc_bulk_rec_typ:		selectedRecordType,
+																	custscript_bbstfc_bulk_force:		forceOverwrite
+																	}
 													});
 							
 							mrTask.submit();
@@ -133,6 +142,7 @@ function(runtime, search, serverWidget, task, http, format)
 													identifier:		'LIST_MAPREDUCESCRIPTSTATUS',
 													parameters:		{
 																	scripttype:		getScriptId('customscript_bbstfc_pcode_bulk_update_mr'),
+																	primarykey:		'',
 																	daterange:		'CUSTOM',
 																	datefrom:		today,
 																	dateto:			today

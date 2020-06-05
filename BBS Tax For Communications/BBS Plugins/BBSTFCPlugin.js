@@ -74,6 +74,78 @@ function(email, encode, file, https, record, runtime, search)
 		//=====================================================================
 		//
 	
+		//Get a specific, or all tax types
+		//
+		function getTaxType(_taxType)
+			{
+			var headerObj 			= {};
+			var getTaxTypeObj 		= new genericResponseObj();
+			var responseBodyObj 	= null;
+			var configurationObj	= null;
+			
+			//Get the current configuration
+			//
+			configurationObj = getConfiguration();
+			
+			if(configurationObj != null)
+				{
+					//Build up the headers for the get request
+					//
+					headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
+					headerObj['Accept']				= '*/*';
+					headerObj['client_id']			= configurationObj.clientId;
+					headerObj['Content-Type']		= 'application/json';
+					
+					//Execute the request - adding * to the end of the url returns all tax types
+					//  
+					try
+						{
+							var response = https.get({	
+														url:		configurationObj.endpointGetTaxTypes +  '/' + (_taxType == '' || _taxType == null ? '*' : _taxType),
+														headers:	headerObj,
+														});
+					
+							//Extract the http response code	
+							//
+							getTaxTypeObj.httpResponseCode = response.code;
+							
+							//Extract the http response body
+							//
+							if(response.body != null && response.body != '')
+								{
+									//Try to parse the response body into a JSON object
+									//
+									try
+										{
+											responseBodyObj = JSON.parse(response.body);
+										}
+									catch(err)
+										{
+											responseBodyObj = null;
+										}
+									
+									//Process the converted JSON object
+									//
+									if(responseBodyObj != null)
+										{
+											getTaxTypeObj.apiResponse 		= responseBodyObj;
+										}
+								}
+						}
+					catch(err)
+						{
+							getTaxTypeObj.responseMessage = err.message;
+						}
+				}
+			else
+				{
+					getTaxTypeObj.responseMessage = 'No valid configuration found';
+				}
+			
+			return getTaxTypeObj;
+		}
+		
+
 		//Get the current configuration
 		//
 		function getConfiguration()
@@ -383,7 +455,8 @@ function(email, encode, file, https, record, runtime, search)
 	        		getHealthCheck:			healthcheck,
 	        		getServiceInfo:			getServiceInfo,
 	        		getPCode:				getPCode,
-	        		getTFCConfiguration:	getConfiguration
+	        		getTFCConfiguration:	getConfiguration,
+	        		getTaxType:				getTaxType
 	    		};
 	    
 	});
