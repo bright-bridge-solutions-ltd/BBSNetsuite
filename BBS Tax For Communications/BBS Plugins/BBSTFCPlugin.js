@@ -60,6 +60,14 @@ function(email, encode, file, https, record, runtime, search)
 				this.endpointGetTaxCalulation	= '';
 				this.endpointCommit				= '';	
 				this.pcodeLookupScript			= '';
+				this.nonBillableTaxes			= '';
+				this.extendedTaxInfo			= '';
+				this.reportingInfo				= '';
+				this.ownFacilities				= '';
+				this.franchise					= '';
+				this.regulated					= '';
+				this.businessClass				= '';
+				this.serviceClass				= '';
 			}
 		
 		function genericResponseObj()
@@ -179,7 +187,15 @@ function(email, encode, file, https, record, runtime, search)
 					      search.createColumn({name: "custrecord_bbstfc_conf_pcl_script", label: "PCode Lookup Script"}),
 					      search.createColumn({name: "custrecord_bbstfc_conf_password", label: "Password"}),
 					      search.createColumn({name: "custrecord_bbstfc_conf_profile_id", label: "Profile Id"}),
-					      search.createColumn({name: "custrecord_bbstfc_conf_username", label: "Username"})
+					      search.createColumn({name: "custrecord_bbstfc_conf_username", label: "Username"}),
+					      search.createColumn({name: "custrecord_bbstfc_conf_non_bill_tax", label: "Non Billable Taxes"}),
+					      search.createColumn({name: "custrecord_bbstfc_conf_extended_tax", label: "Extended Tax Info"}),
+					      search.createColumn({name: "custrecord_bbstfc_conf_reporting_info", label: "Reporting Info"}),
+					      search.createColumn({name: "custrecord_bbstfc_conf_own_facilities", label: "Own Facilities"}),
+					      search.createColumn({name: "custrecord_bbstfc_conf_franchise", label: "Franchise"}),
+					      search.createColumn({name: "custrecord_bbstfc_conf_regulated", label: "Regulated"}),
+					      search.createColumn({name: "custrecord_bbstfc_bus_class_code",join: "CUSTRECORD_BBSTFC_CONF_BUS_CLASS",label: "Class Code"}),
+					      search.createColumn({name: "custrecord_bbstfc_svc_class_code",join: "CUSTRECORD_BBSTFC_CONF_SVC_CLASS",label: "Class Code"})
 					   ]
 					}));
 				
@@ -207,6 +223,14 @@ function(email, encode, file, https, record, runtime, search)
 									break;
 							}
 						
+						config.businessClass				= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_bus_class_code', join: "CUSTRECORD_BBSTFC_CONF_BUS_CLASS"});
+						config.serviceClass					= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_svc_class_code', join: "CUSTRECORD_BBSTFC_CONF_SVC_CLASS"});
+						config.ownFacilities				= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_own_facilities'});
+						config.franchise					= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_franchise'});
+						config.regulated					= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_regulated'});
+						config.nonBillableTaxes				= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_non_bill_tax'});
+						config.extendedTaxInfo				= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_extended_tax'});
+						config.reportingInfo				= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_reporting_info'});
 						config.pcodeLookupScript 			= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_pcl_script'});
 						config.clientId 					= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_client_id'});
 						config.profileId 					= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_profile_id'});
