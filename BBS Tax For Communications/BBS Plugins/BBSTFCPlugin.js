@@ -2,7 +2,7 @@
  * @NApiVersion 2.x
  * @NScriptType plugintypeimpl
  */
-define(['N/email', 'N/encode', 'N/file', 'N/https', 'N/record', 'N/runtime', 'N/search'],
+define(['N/email', 'N/encode', 'N/file', 'N/https', 'N/record', 'N/runtime', 'N/search', '../BBSTFCModules/libraryModule'],
 /**
  * @param {email} email
  * @param {encode} encode
@@ -12,7 +12,7 @@ define(['N/email', 'N/encode', 'N/file', 'N/https', 'N/record', 'N/runtime', 'N/
  * @param {runtime} runtime
  * @param {search} search
  */
-function(email, encode, file, https, record, runtime, search) 
+function(email, encode, file, https, record, runtime, search, libraryModule) 
 	{
 	
 		//=====================================================================
@@ -39,7 +39,7 @@ function(email, encode, file, https, record, runtime, search)
 		    	return results;
 		    }
 		
-		
+		/*
 		//=====================================================================
 		//Objects
 		//=====================================================================
@@ -76,81 +76,155 @@ function(email, encode, file, https, record, runtime, search)
 				this.responseMessage 	= '';
 				this.apiResponse		= {};
 			}
-	
+		*/
+	    
 		//=====================================================================
 		//Exposed functions
 		//=====================================================================
 		//
 	
+	    
+	    //Get a list of all the transaction/service pairs
+		//
+		function getTSPairs()
+			{
+				var headerObj 			= {};
+				var getTSPairsObj 		= new libraryModule.libGenericResponseObj();
+				var responseBodyObj 	= null;
+				var configurationObj	= null;
+				
+				//Get the current configuration
+				//
+				configurationObj = getConfiguration();
+				
+				if(configurationObj != null)
+					{
+						//Build up the headers for the get request
+						//
+						headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
+						headerObj['Accept']				= '*/*';
+						headerObj['client_id']			= configurationObj.clientId;
+						headerObj['Content-Type']		= 'application/json';
+						
+						//Execute the request - adding * to the end of the url returns all tax types
+						//  
+						try
+							{
+								var response = https.get({	
+															url:		configurationObj.endpointGetTxServicePairs,
+															headers:	headerObj,
+															});
+						
+								//Extract the http response code	
+								//
+								getTSPairsObj.httpResponseCode = response.code;
+								
+								//Extract the http response body
+								//
+								if(response.body != null && response.body != '')
+									{
+										//Try to parse the response body into a JSON object
+										//
+										try
+											{
+												responseBodyObj = JSON.parse(response.body);
+											}
+										catch(err)
+											{
+												responseBodyObj = null;
+											}
+										
+										//Process the converted JSON object
+										//
+										if(responseBodyObj != null)
+											{
+												getTSPairsObj.apiResponse 		= responseBodyObj;
+											}
+									}
+							}
+						catch(err)
+							{
+								getTSPairsObj.responseMessage = err.message;
+							}
+					}
+				else
+					{
+						getTSPairsObj.responseMessage = 'No valid configuration found';
+					}
+				
+				return getTSPairsObj;
+		}
+		
+		
 		//Get a specific, or all tax types
 		//
 		function getTaxType(_taxType)
 			{
-			var headerObj 			= {};
-			var getTaxTypeObj 		= new genericResponseObj();
-			var responseBodyObj 	= null;
-			var configurationObj	= null;
-			
-			//Get the current configuration
-			//
-			configurationObj = getConfiguration();
-			
-			if(configurationObj != null)
-				{
-					//Build up the headers for the get request
-					//
-					headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
-					headerObj['Accept']				= '*/*';
-					headerObj['client_id']			= configurationObj.clientId;
-					headerObj['Content-Type']		= 'application/json';
-					
-					//Execute the request - adding * to the end of the url returns all tax types
-					//  
-					try
-						{
-							var response = https.get({	
-														url:		configurationObj.endpointGetTaxTypes +  '/' + (_taxType == '' || _taxType == null ? '*' : _taxType),
-														headers:	headerObj,
-														});
-					
-							//Extract the http response code	
-							//
-							getTaxTypeObj.httpResponseCode = response.code;
-							
-							//Extract the http response body
-							//
-							if(response.body != null && response.body != '')
-								{
-									//Try to parse the response body into a JSON object
-									//
-									try
-										{
-											responseBodyObj = JSON.parse(response.body);
-										}
-									catch(err)
-										{
-											responseBodyObj = null;
-										}
-									
-									//Process the converted JSON object
-									//
-									if(responseBodyObj != null)
-										{
-											getTaxTypeObj.apiResponse 		= responseBodyObj;
-										}
-								}
-						}
-					catch(err)
-						{
-							getTaxTypeObj.responseMessage = err.message;
-						}
-				}
-			else
-				{
-					getTaxTypeObj.responseMessage = 'No valid configuration found';
-				}
-			
-			return getTaxTypeObj;
+				var headerObj 			= {};
+				var getTaxTypeObj 		= new libraryModule.libGenericResponseObj();
+				var responseBodyObj 	= null;
+				var configurationObj	= null;
+				
+				//Get the current configuration
+				//
+				configurationObj = getConfiguration();
+				
+				if(configurationObj != null)
+					{
+						//Build up the headers for the get request
+						//
+						headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
+						headerObj['Accept']				= '*/*';
+						headerObj['client_id']			= configurationObj.clientId;
+						headerObj['Content-Type']		= 'application/json';
+						
+						//Execute the request - adding * to the end of the url returns all tax types
+						//  
+						try
+							{
+								var response = https.get({	
+															url:		configurationObj.endpointGetTaxTypes +  '/' + (_taxType == '' || _taxType == null ? '*' : _taxType),
+															headers:	headerObj,
+															});
+						
+								//Extract the http response code	
+								//
+								getTaxTypeObj.httpResponseCode = response.code;
+								
+								//Extract the http response body
+								//
+								if(response.body != null && response.body != '')
+									{
+										//Try to parse the response body into a JSON object
+										//
+										try
+											{
+												responseBodyObj = JSON.parse(response.body);
+											}
+										catch(err)
+											{
+												responseBodyObj = null;
+											}
+										
+										//Process the converted JSON object
+										//
+										if(responseBodyObj != null)
+											{
+												getTaxTypeObj.apiResponse 		= responseBodyObj;
+											}
+									}
+							}
+						catch(err)
+							{
+								getTaxTypeObj.responseMessage = err.message;
+							}
+					}
+				else
+					{
+						getTaxTypeObj.responseMessage = 'No valid configuration found';
+					}
+				
+				return getTaxTypeObj;
 		}
 		
 
@@ -203,7 +277,7 @@ function(email, encode, file, https, record, runtime, search)
 				//
 				if(customrecord_bbstfc_configSearchObj != null && customrecord_bbstfc_configSearchObj.length > 0)
 					{
-						config 						= new configObj();
+						config 						= new libraryModule.libConfigObj();
 						var processingMode 			= Number(customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_proc_mode'}));
 						var username 				= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_username'});
 						var password 				= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_password'});
@@ -261,7 +335,7 @@ function(email, encode, file, https, record, runtime, search)
 		function getPCode(_addressObj)
 			{
 				var headerObj 			= {};
-				var getPCodeObj 		= new genericResponseObj();
+				var getPCodeObj 		= new libraryModule.libGenericResponseObj();
 				var responseBodyObj 	= null;
 				var configurationObj	= null;
 				
@@ -334,7 +408,7 @@ function(email, encode, file, https, record, runtime, search)
 		function getServiceInfo()
 			{
 				var headerObj 			= {};
-				var serviveInfoObj 		= new genericResponseObj();
+				var serviveInfoObj 		= new libraryModule.libGenericResponseObj();
 				var responseBodyObj 	= null;
 				var configurationObj	= null;
 				
@@ -407,7 +481,7 @@ function(email, encode, file, https, record, runtime, search)
 		function healthcheck()
 			{
 				var headerObj 			= {};
-				var healthCheckObj 		= new genericResponseObj();
+				var healthCheckObj 		= new libraryModule.libGenericResponseObj();
 				var responseBodyObj 	= null;
 				var configurationObj	= null;
 				
@@ -480,7 +554,8 @@ function(email, encode, file, https, record, runtime, search)
 	        		getServiceInfo:			getServiceInfo,
 	        		getPCode:				getPCode,
 	        		getTFCConfiguration:	getConfiguration,
-	        		getTaxType:				getTaxType
+	        		getTaxType:				getTaxType,
+	        		getTSPairs:				getTSPairs
 	    		};
 	    
 	});

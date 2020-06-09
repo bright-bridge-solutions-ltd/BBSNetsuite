@@ -6,6 +6,47 @@ define(['N/record', 'N/runtime', 'N/search', 'N/plugin'],
 function(record, runtime, search, plugin) 
 {
 
+	//=====================================================================
+	//Objects
+	//=====================================================================
+	//
+	function libConfigObj()
+		{
+			this.credentialsEncoded 		= '';
+			this.clientId					= '';
+			this.profileId					= '';
+			this.endpointGetHealthCheck		= '';
+			this.endpointGetServiceInfo		= '';
+			this.endpointGetPcode			= '';
+			this.endpointGetGeocode			= '';
+			this.endpointGetTaxTypes		= '';
+			this.endpointGetTxServicePairs	= '';
+			this.endpointGetLocation		= '';
+			this.endpointGetPrimaryLocation	= '';
+			this.endpointGetTaxCalulation	= '';
+			this.endpointCommit				= '';	
+			this.pcodeLookupScript			= '';
+			this.nonBillableTaxes			= '';
+			this.extendedTaxInfo			= '';
+			this.reportingInfo				= '';
+			this.ownFacilities				= '';
+			this.franchise					= '';
+			this.regulated					= '';
+			this.businessClass				= '';
+			this.serviceClass				= '';
+		}
+	
+	function libGenericResponseObj()
+		{
+			this.httpResponseCode	= '';
+			this.responseMessage 	= '';
+			this.apiResponse		= {};
+		}
+
+	//=====================================================================
+	//Methods
+	//=====================================================================
+	//
 	function libLookupPCode(currentRecord, overrideFlag)
 		{
 			var currentRecordId 	= currentRecord.id;
@@ -196,6 +237,138 @@ function(record, runtime, search, plugin)
 	    							}
 	    						
 	    						break;
+	    					
+	    					case 'subsidiary':
+	    						
+	    						try
+	    							{
+			    						recordToProcess = record.load({
+											    						type:		currentRecordType,
+											    						id:			currentRecordId,
+											    						isDynamic:	false
+											    						});
+	    							}
+	    						catch(err)
+	    							{
+	    								recordToProcess	= null;
+	    								log.error({
+	    											title:		'Error loading record of type ' + currentRecordType + ' id = ' + currentRecordId,
+	    											details:	err
+	    											});
+	    							}
+    						
+	    						//Did the record load ok?
+	    						//
+	    						if(recordToProcess != null)
+	    							{
+	    								var addressTypes = ['mainaddress', 'shippingaddress', 'returnaddress'];
+	    								
+	    								for (var addressCounter = 0; addressCounter < addressTypes.length; addressCounter++) 
+		    								{
+	    										var addressSubRecord = recordToProcess.getSubrecord({fieldId: addressTypes[addressCounter]});
+	    										
+	    										//Retrieve all the mapped columns
+		    									//
+		    									var currentCountryCode 	= (sourceCountryCode != '' && sourceCountryCode != null ? addressSubRecord.getValue({fieldId: sourceCountryCode}) : '');
+		    									var currentStateCode 	= (sourceStateCode != '' && sourceStateCode != null ? addressSubRecord.getValue({fieldId: sourceStateCode}) : '');
+		    									var currentCountyCode 	= (sourceCountyCode != '' && sourceCountyCode != null ? addressSubRecord.getValue({fieldId: sourceCountyCode}) : '');
+		    									var currentCityCode 	= (sourceCityCode != '' && sourceCityCode != null ? addressSubRecord.getValue({fieldId: sourceCityCode}) : '');
+		    									var currentZipCode 		= (sourceZipCode != '' && sourceZipCode != null ? addressSubRecord.getValue({fieldId: sourceZipCode}) : '');
+		    									var currentPCode 		= (destinationPCode != '' && destinationPCode != null ? addressSubRecord.getValue({fieldId: destinationPCode}) : '');
+		    									
+		    									//Does the PCode have a value & do we have a field to map the pcode to?
+		    									//If not then we need to get one
+		    									//
+		    									if((currentPCode == '' || currentPCode == null || overrideFlag) && (destinationPCode != null && destinationPCode != ''))
+		    										{
+		    											//Construct the request object
+		    											//
+			    										var pcodeRequest 		= {};
+			    										pcodeRequest['BestMatch']		= true;
+			    										pcodeRequest['LimitResults']	= 10;
+		    										
+		    											if(currentCountryCode != '' && currentCountryCode != null)
+		    												{
+		    													pcodeRequest['CountryIso']	= currentCountryCode;
+		    												}
+	    											
+		    											if(currentStateCode != '' && currentStateCode != null)
+		    												{
+		    													pcodeRequest['State']	= currentStateCode;
+		    												}
+	    											
+		    											if(currentCountyCode != '' && currentCountyCode != null)
+		    												{
+		    													pcodeRequest['County']	= currentCountyCode;
+		    												}
+	    											
+		    											if(currentCityCode != '' && currentCityCode != null)
+		    												{
+		    													pcodeRequest['City']	= currentCityCode;
+		    												}
+	    											
+		    											if(currentZipCode != '' && currentZipCode != null)
+		    												{
+		    													pcodeRequest['ZipCode']	= currentZipCode;
+		    												}
+		    										}	
+		    									
+		    									//Call the plugin
+		    									//
+		    									if(tfcPlugin != null)
+			    									{
+		    											try
+		    												{
+					    										var pcodeResult = tfcPlugin.getPCode(pcodeRequest);
+					    										
+					    										//Check the result of the call to the plugin
+					    										//
+					    										if(pcodeResult != null && pcodeResult.httpResponseCode == '200')
+					    											{
+					    												//Did we find any matches?
+					    												//
+					    												if(pcodeResult.apiResponse.MatchCount > 0)
+					    													{
+					    														//Get the pcode
+					    														//
+					    														var pcode = pcodeResult.apiResponse.LocationData[0].PCode;
+					    														
+					    														addressSubRecord.setValue({
+					    																					fieldId: 	destinationPCode, 
+					    																					value: 		pcode
+					    																				});
+					    														
+					    														recordUpdated = true;
+					    													}
+					    											}
+		    												}
+		    											catch(err)
+		    												{
+			    												log.error({
+							    											title:		'Error calling plugin',
+							    											details:	err
+							    											});
+		    												}
+			    									}
+											}
+	    							}
+	    						
+	    						if(recordUpdated)
+									{
+										try
+											{
+												recordToProcess.save();
+											}
+										catch(err)
+											{
+												log.error({
+			    											title:		'Error saving record of type ' + currentRecordType + ' id = ' + currentRecordId,
+			    											details:	err
+			    											});
+											}
+									}
+	    						
+	    						break;
 	    						
 	    					default:
 	    						//Processing for record types other than customer or vendor
@@ -320,7 +493,9 @@ function(record, runtime, search, plugin)
     
     
     return {
-    		libLookupPCode:		libLookupPCode
+    		libLookupPCode:			libLookupPCode,
+    		libConfigObj:			libConfigObj,
+    		libGenericResponseObj:	libGenericResponseObj
     		};
     
 });

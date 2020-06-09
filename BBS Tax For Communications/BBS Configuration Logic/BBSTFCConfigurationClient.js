@@ -33,34 +33,34 @@ function(url) {
     				myMask.show();
     				
     				Ext.Ajax.request({
-    									url: url.resolveScript({scriptId: 'customscript_bbstfc_config_suitelet', deploymentId: 'customdeploy_bbstfc_config_suitelet'}),
+    									url: 		url.resolveScript({scriptId: 'customscript_bbstfc_config_suitelet', deploymentId: 'customdeploy_bbstfc_config_suitelet'}),
     									method: 	'GET',
     									headers: 	{'Content-Type': 'application/json'},
     									params: 	{requesttype: 'H'},
     									success: 	function (response, result) 	{
-    																				myMask.hide();
-    																				try
-    																					{
-    																						var respObj = JSON.parse(response.responseText);
-    																						
-    																						Ext.MessageBox.show ({
-					    																	                        title: 	'Details',
-					    																	                        msg: 	'HTTP Code : ' 			+ respObj.httpResponseCode + 
-					    																	                        		'<br/>Status : ' 		+ respObj.apiResponse.Status + 
-					    																	                        		'<br/>Server Time : ' 	+ respObj.apiResponse.ServerTime,
-					    																	                        width:	500,
-					    																	                        buttons: Ext.MessageBox.OK
-    																	                     					});
-    																					}
-    																				catch(err)
-    																					{
-    																					
-    																					}
-    																			},
-    									failure: function (response, result) 	{
-    																				myMask.hide();
-    																				alert(response.responseText);
-    																			}
+	    																				myMask.hide();
+	    																				try
+	    																					{
+	    																						var respObj = JSON.parse(response.responseText);
+	    																						
+	    																						Ext.MessageBox.show ({
+						    																	                        title: 	'Details',
+						    																	                        msg: 	'HTTP Code : ' 			+ respObj.httpResponseCode + 
+						    																	                        		'<br/>Status : ' 		+ respObj.apiResponse.Status + 
+						    																	                        		'<br/>Server Time : ' 	+ respObj.apiResponse.ServerTime,
+						    																	                        width:	500,
+						    																	                        buttons: Ext.MessageBox.OK
+	    																	                     					});
+	    																					}
+	    																				catch(err)
+	    																					{
+	    																					
+	    																					}
+    																				},
+    									failure: 	function (response, result) 	{
+	    																				myMask.hide();
+	    																				alert(response.responseText);
+    																				}
     								});
     			}
 		    catch(e) 
@@ -88,35 +88,35 @@ function(url) {
 					myMask.show();
 					
 					Ext.Ajax.request({
-										url: url.resolveScript({scriptId: 'customscript_bbstfc_config_suitelet', deploymentId: 'customdeploy_bbstfc_config_suitelet'}),
+										url: 		url.resolveScript({scriptId: 'customscript_bbstfc_config_suitelet', deploymentId: 'customdeploy_bbstfc_config_suitelet'}),
 										method: 	'GET',
 										headers: 	{'Content-Type': 'application/json'},
 										params: 	{requesttype: 'S'},
     									success: 	function (response, result) 	{
-																					myMask.hide();
-																					try
-																						{
-																							var respObj = JSON.parse(response.responseText);
+																						myMask.hide();
+																						try
+																							{
+																								var respObj = JSON.parse(response.responseText);
+																								
+																								Ext.MessageBox.show ({
+						    																	                        title: 	'Details',
+						    																	                        msg: 	'HTTP Code : ' 					+ respObj.httpResponseCode + 
+						    																	                        		'<br/>Server Time : ' 			+ respObj.apiResponse.ServerTime +
+						    																	                        		'<br/>Engine Version : ' 		+ respObj.apiResponse.Versions.AfcEngineVersion +
+						    																	                        		'<br/>Build Version : ' 		+ respObj.apiResponse.Versions.BuildVersion,
+						    																	                        width:	500,
+						    																	                        buttons: Ext.MessageBox.OK
+																			                     					});
+																							}
+																						catch(err)
+																							{
 																							
-																							Ext.MessageBox.show ({
-					    																	                        title: 	'Details',
-					    																	                        msg: 	'HTTP Code : ' 					+ respObj.httpResponseCode + 
-					    																	                        		'<br/>Server Time : ' 			+ respObj.apiResponse.ServerTime +
-					    																	                        		'<br/>Engine Version : ' 		+ respObj.apiResponse.Versions.AfcEngineVersion +
-					    																	                        		'<br/>Build Version : ' 		+ respObj.apiResponse.Versions.BuildVersion,
-					    																	                        width:	500,
-					    																	                        buttons: Ext.MessageBox.OK
-																		                     					});
-																						}
-																					catch(err)
-																						{
-																						
-																						}
-																				},
-										failure: function (response, result) 	{
-																					myMask.hide();
-																					alert(response.responseText);
-																				}
+																							}
+																					},
+										failure: function (response, result) 		{
+																						myMask.hide();
+																						alert(response.responseText);
+																					}
 									});
 				}
 		    catch(e) 
