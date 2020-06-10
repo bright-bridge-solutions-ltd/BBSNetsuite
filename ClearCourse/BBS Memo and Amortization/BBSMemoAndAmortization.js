@@ -72,6 +72,7 @@ function memoAndAmortizationAS(type)
 							//
 							var amortizationStartDate 	= recordToProcess.getLineItemValue('expense', 'custcol_bbs_amort_start', expenseCounter);
 							var amortizationEndDate 	= recordToProcess.getLineItemValue('expense', 'custcol_bbs_amort_end', expenseCounter);
+							var customer				= recordToProcess.getLineItemValue('expense', 'custcol_bbs_customer', expenseCounter);
 							
 							if((amortizationStartDate != null && amortizationStartDate != '') || (amortizationEndDate != null && amortizationEndDate != ''))
 								{
@@ -88,6 +89,12 @@ function memoAndAmortizationAS(type)
 							if(amortizationEndDate != null && amortizationEndDate != '')
 								{
 									recordToProcess.setLineItemValue('expense', 'amortizationenddate', expenseCounter, amortizationEndDate);
+									updated = true;
+								}
+							
+							if(customer != null && customer != '')
+								{
+									recordToProcess.setLineItemValue('expense', 'customer', expenseCounter, customer);
 									updated = true;
 								}
 						}
