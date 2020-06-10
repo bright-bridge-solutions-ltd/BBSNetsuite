@@ -196,10 +196,9 @@ function(file, record, render, runtime, search, email)
 		};
 
 	}).call(this);
-
 	
-    /**
-     * Function definition to be triggered before record is loaded.
+	/**
+     * Function definition to be triggered after record is saved.
      *
      * @param {Object} scriptContext
      * @param {Record} scriptContext.newRecord - New record
@@ -261,7 +260,29 @@ function(file, record, render, runtime, search, email)
 		    						var thisInvoiceCurrency	= thisRecord.getText({fieldId: 'currency'});
 		    						var thisSalesOrder 		= thisRecord.getValue({fieldId: 'createdfrom'});
 		    						var doNotGenerateEmail 	= thisRecord.getValue({fieldId: 'custbody_bbs_do_not_auto_email'});
-		    							
+		    						var subsidiary 			= thisRecord.getValue({fieldId: 'subsidiary'});
+		    				    	
+		    				    	// if the subsidiary is 10 (Onfido India) and doNotGenerateEmail is false
+		    				    	if (subsidiary == 10 && doNotGenerateEmail == false)
+		    				    		{
+		    					    		// get a count of lines in the 'Tax Details' sublist
+		    				    			var taxLineCount = thisRecord.getLineCount({
+		    				    				sublistId: 'taxdetails'
+		    				    			});
+		    				    			
+		    				    			// is the tax details sublist empty?
+		    				    			if (taxLineCount == 0)
+		    				    				{
+		    				    					// set doNotGenerateEmail checkbox to true
+		    				    					doNotGenerateEmail = true;
+		    				    				}
+		    				    			else // tax details sublist is NOT empty
+		    				    				{
+			    				    				// set doNotGenerateEmail checkbox to false
+		    				    					doNotGenerateEmail = false;
+		    				    				}
+		    				    		}
+		    						
 		    						//If doNotGenerateEmail is false
 		    						//
 		    						if(doNotGenerateEmail == false)

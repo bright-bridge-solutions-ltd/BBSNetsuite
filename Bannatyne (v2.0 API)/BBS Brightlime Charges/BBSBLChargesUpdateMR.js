@@ -30,6 +30,11 @@ function(record, search) {
     			name: 'isinactive',
     			operator: 'is',
     			values: ['F']
+    		},
+    				{
+    			name: 'custrecord_bbs_bl_charges_processed',
+    			operator: 'is',
+    			values: ['F']
     		}],
     		
     		columns: [{
@@ -137,6 +142,25 @@ function(record, search) {
     	log.audit({
     		title: '*** END OF SCRIPT ***',
     		details: 'Duration: ' + summary.seconds + ' seconds<br>Units Used: ' + summary.usage + '<br>Yields: ' + summary.yields
+    	});
+    	
+    	// ===================================================================================
+    	// NOW SCHEDULE ADDITIONAL MAP/REDUCE SCRIPT TO CREATE BRIGHTLIME TRANSACTION JOURNALS
+    	// ===================================================================================
+    	
+    	// create a map/reduce task
+    	var mapReduceTask = task.create({
+    	    taskType: task.TaskType.MAP_REDUCE,
+    	    scriptId: 'customscript_bbs_bl_trans_journal_mr',
+    	    deploymentId: 'customdeploy_bbs_bl_trans_journal_mr'
+    	});
+    	
+    	// submit the map/reduce task
+    	var mapReduceTaskID = mapReduceTask.submit();
+    	
+    	log.audit({
+    		title: 'Script Scheduled',
+    		details: 'BBS BL Transaction Journal Map/Reduce script has been Scheduled.<br>Job ID: ' + mapReduceTaskID
     	});
 
     }
