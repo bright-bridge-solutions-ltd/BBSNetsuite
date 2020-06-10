@@ -903,7 +903,7 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    		      search.createColumn({name: "tranid", 		label: "Document Number"}),
 	    		      search.createColumn({name: "amount", 		label: "Amount"}),
 	    		      search.createColumn({name: "trandate", 	label: "Date"}),
-	    		      search.createColumn({name: "formulacurrency", formula: "{totalamount} - {taxtotal}",label: "Net amount"})
+	    		      search.createColumn({name: "formulacurrency", formula: "CASE WHEN {exchangerate}=1  THEN ({totalamount}-{taxtotal})/NULLIF(({totalamount}/NULLIF({fxamount},0)),0) ELSE ({totalamount}-{taxtotal})*(1/NULLIF({exchangerate},0)) END", label: "Net amount"})
 	    		   ]
 	    		}));
 	    		
@@ -933,9 +933,9 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    		   columns:
 	    		   [
 	    		      search.createColumn({
-					    		         name: 		"amount",
+					    		         name: 		"formulacurrency",
 					    		         summary: 	"SUM",
-					    		         label: 	"Amount"
+					    		         formula: 	"CASE WHEN {exchangerate}=1  THEN ({totalamount}-{taxtotal})/NULLIF(({totalamount}/NULLIF({fxamount},0)),0) ELSE ({totalamount}-{taxtotal})*(1/NULLIF({exchangerate},0)) END"
 	    		      					})
 	    		   ]
 	    		}));
@@ -943,8 +943,9 @@ function(config, email, error, file, record, render, runtime, search, format) {
 	    	if(searchResult != null && searchResult.length > 0)
 	    		{
 		    		returnedOverageValue = Number(searchResult[0].getValue({
-		    														name: 		"amount",
-		    														summary: 	"SUM"
+		    														name: 		"formulacurrency",
+		    														summary: 	"SUM",
+		    														formula:	"CASE WHEN {exchangerate}=1  THEN ({totalamount}-{taxtotal})/NULLIF(({totalamount}/NULLIF({fxamount},0)),0) ELSE ({totalamount}-{taxtotal})*(1/NULLIF({exchangerate},0)) END"
 		    														}));
 	    		}
 	    	

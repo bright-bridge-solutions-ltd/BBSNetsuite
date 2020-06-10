@@ -57,13 +57,16 @@ function(search, record) {
 		    	// check the record type is 406 (Ad Hoc Site Record)
 		    	if (recordType == 406)
 		    		{
+		    			// set recordType variable
+		    			recordType = 'customrecord_bbs_ad_hoc_site';
+		    				
+		    			// get the internal ID of the ad hoc site record
+			    		var recordID = currentRecord.getValue({
+			    			fieldId: 'record'
+			    		});
+		    		
 		    			// get the internal ID of the message
 		    			var messageID = currentRecord.id;
-		
-		    			// get the internal ID of the ad hoc site record
-		    			var adHocSiteRecordID = currentRecord.getValue({
-		    				fieldId: 'record'
-		    			});
 		    			
 		    			// run search to find IDs of files attached to the message
 		    			var files = searchFiles(messageID);
@@ -72,8 +75,31 @@ function(search, record) {
 		    			if (files.length > 0)
 		    				{
 		    					// call function to attach the files to the ad hoc site record
-		    					attachFiles(adHocSiteRecordID, files);
-		    				}	
+		    					attachFiles(recordType, recordID, files);
+		    				}
+		    		}
+		    	else if (recordType == 455) // if the record type is 455 (SECI Site)
+		    		{
+			    		// set recordType variable
+		    			recordType = 'customrecord_bbs_seci_site_form';
+		    				
+		    			// get the internal ID of the ad hoc site record
+			    		var recordID = currentRecord.getValue({
+			    			fieldId: 'record'
+			    		});
+		    		
+		    			// get the internal ID of the message
+		    			var messageID = currentRecord.id;
+		    			
+		    			// run search to find IDs of files attached to the message
+		    			var files = searchFiles(messageID);
+		    			
+		    			// check that we have some files
+		    			if (files.length > 0)
+		    				{
+		    					// call function to attach the files to the ad hoc site record
+		    					attachFiles(recordType, recordID, files);
+		    				}
 		    		}
     		}
 
@@ -126,26 +152,26 @@ function(search, record) {
 			return files;
 	    }
     
-    // ==================================================
-    // FUNCTION TO ATTACH FILES TO THE AD HOC SITE RECORD
-    // ==================================================
+    // =========================================
+    // FUNCTION TO ATTACH FILES TO CUSTOM RECORD
+    // =========================================
     
-    function attachFiles(adHocSiteRecordID, files)
+    function attachFiles(recordType, recordID, files)
 		{
 			// loop through files array
 			for (var i = 0; i < files.length; i++)
 				{
 					try
 						{
-							// attach the file to the ad hoc site record
+							// attach the file to the record
 	    					record.attach({
 								record: {
 									type: 'file',
 									id: files[i]
 								},
 								to: {
-									type: 'customrecord_bbs_ad_hoc_site',
-									id: adHocSiteRecordID
+									type: recordType,
+									id: recordID
 								}
 							});
 						}
@@ -153,7 +179,7 @@ function(search, record) {
 						{
 							log.error({
 								title: 'Unable to Attach File',
-								details: 'Record ID: ' + adHocSiteRecordID + '<br>Error: ' + e
+								details: 'Record ID: ' + recordID + '<br>Error: ' + e
 							});
 						}
 				}

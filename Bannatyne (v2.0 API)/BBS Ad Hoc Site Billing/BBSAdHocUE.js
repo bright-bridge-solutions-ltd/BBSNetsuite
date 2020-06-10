@@ -59,7 +59,7 @@ function(config, runtime, record, format, search) {
     					// add button to the form
 			    		scriptContext.form.addButton({
 			    			id: 'custpage_reject',
-			    			label: 'Reject',
+			    			label: 'Rejected',
 			    			functionName: "reject(" + recordID + ")" // call client script when button is clicked. Pass recordID
 			    		});
     				}
@@ -568,6 +568,16 @@ function(config, runtime, record, format, search) {
     				addressSubrecord.setValue({
     					fieldId: 'defaultshipping',
     					value: true
+    				});
+    				
+    				addressSubrecord.setValue({
+    					fieldId: 'attention',
+    					value: firstName + ' ' + lastName
+    				});
+    				
+    				addressSubrecord.setValue({
+    					fieldId: 'addressee',
+    					value: companyName
     				});
     				
     				addressSubrecord.setValue({

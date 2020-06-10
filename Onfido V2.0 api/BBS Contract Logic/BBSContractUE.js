@@ -3,11 +3,11 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/ui/serverWidget', 'N/url', 'N/runtime', 'N/record', 'N/search', 'N/format', 'N/task'],
+define(['N/ui/serverWidget', 'N/url', 'N/runtime', 'N/record', 'N/search', 'N/format', 'N/task', 'N/redirect'],
 /**
  * @param {record} record
  */
-function(ui, url, runtime, record, search, format, task) {
+function(ui, url, runtime, record, search, format, task, redirect) {
 	
 	// retrieve script parameters
 	var currentScript = runtime.getCurrentScript();
@@ -130,7 +130,7 @@ function(ui, url, runtime, record, search, format, task) {
 		    			
 		    			// hide the 'Minimum Usage' sublist
 	    				sublist.displayType = ui.SublistDisplayType.HIDDEN;
-		    		} 	
+		    		}
 		    	
     		}
 
@@ -480,6 +480,13 @@ function(ui, url, runtime, record, search, format, task) {
 	        				}
 	        			
     	    		}
+    	    	
+    	    	// redirect the user back to the current record
+    	    	redirect.toRecord({
+    	    		type: 'customrecord_bbs_contract',
+    	    		id: currentRecord.id
+    	    	});
+    	    	
     		}
     }
 

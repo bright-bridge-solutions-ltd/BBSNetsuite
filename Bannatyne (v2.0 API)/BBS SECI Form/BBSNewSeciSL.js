@@ -3,8 +3,8 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['N/ui/serverWidget', 'N/record'],
-function(ui, record) {
+define(['N/ui/serverWidget', 'N/search', 'N/runtime', 'N/record'],
+function(ui, search, runtime, record) {
    
     /**
      * Definition of the Suitelet script trigger point.
@@ -91,30 +91,18 @@ function(ui, record) {
 				// check if the seciRecord parameter returns a value
 				if (seciRecordID)
 					{
-						// load the seci record
-						var seciRecord = record.load({
-							type: 'customrecord_bbs_seci_record',
-							id: seciRecordID
+						// lookup fields on the SECI site record
+						var seciRecordLookup = search.lookupFields({
+							type: 'customrecord_bbs_seci_site_form',
+							id: seciRecordID,
+							columns: ['custrecord_bbs_seci_site_first_name', 'custrecord_bbs_seci_site_surname', 'custrecord_bbs_seci_site_company_name']
 						});
 						
-						// retrieve values from the seciRecord object
-						var firstName = seciRecord.getValue({
-							fieldId: 'custrecord_bbs_seci_record_first_name'
-						});
-						
-						var surname = seciRecord.getValue({
-							fieldId: 'custrecord_bbs_seci_record_last_name'
-						});
-						
-						var companyName = seciRecord.getValue({
-							fieldId: 'custrecord_bbs_seci_record_comp_name'
-						});
-							
 						// set record id, first name, surname and company number fields on the form
-						seciRecordField.defaultValue = seciRecordID;
-						firstNameField.defaultValue = firstName;
-						surnameField.defaultValue = surname;
-						companyNameField.defaultValue = companyName;
+						seciRecordField.defaultValue 	= seciRecordID;
+						firstNameField.defaultValue		= seciRecordLookup.custrecord_bbs_seci_site_first_name;
+						surnameField.defaultValue		= seciRecordLookup.custrecord_bbs_seci_site_surname;
+						companyNameField.defaultValue 	= seciRecordLookup.custrecord_bbs_seci_site_company_name;
 						
 						// add submit button to the form
 		   		 		form.addSubmitButton({
@@ -217,44 +205,22 @@ function(ui, record) {
     			var accountNumber = context.request.parameters.custpage_accountnumber;
     			var sortCode = context.request.parameters.custpage_sortcode;
     			
-    			// load the seci record
-				var seciRecord = record.load({
-					type: 'customrecord_bbs_seci_record',
-					id: seciRecordID
+    			// lookup fields on the SECI site record
+				var seciRecordLookup = search.lookupFields({
+					type: 'customrecord_bbs_seci_site_form',
+					id: seciRecordID,
+					columns: ['custrecord_bbs_seci_site_subsidiary', 'custrecord_bbs_seci_site_email', 'custrecord_bbs_seci_site_phone', 'custrecord_bbs_seci_site_address_1', 'custrecord_bbs_seci_site_address_2', 'custrecord_bbs_seci_site_city', 'custrecord_bbs_seci_site_county', 'custrecord_bbs_seci_site_postcode']
 				});
-				
-				// get field values from the seciRecord object
-				var subsidiary = seciRecord.getValue({
-					fieldId: 'custrecord_bbs_seci_record_subsidiary'
-				});
-				
-				var email = seciRecord.getValue({
-					fieldId: 'custrecord_bbs_seci_record_email'
-				});
-					
-				var phone = seciRecord.getValue({
-					fieldId: 'custrecord_bbs_seci_record_phone'
-				});
-				
-				var address1 = seciRecord.getValue({
-					fieldId: 'custrecord_bbs_seci_record__addr_1'
-				});
-				
-				var address2 = seciRecord.getValue({
-					fieldId: 'custrecord_bbs_seci_record_addr_2'
-				});
-				
-				var town = seciRecord.getValue({
-					fieldId: 'custrecord_bbs_seci_record_town'
-				});
-				
-				var county = seciRecord.getValue({
-					fieldId: 'custrecord_bbs_seci_record_county'
-				});
-				
-				var postcode = seciRecord.getValue({
-					fieldId: 'custrecord_bbs_seci_record_post_code'
-				});
+    		
+    			// return values from the seciRecordLookup object
+				var subsidiary	= seciRecordLookup.custrecord_bbs_seci_site_subsidiary[0].value;
+				var email		= seciRecordLookup.custrecord_bbs_seci_site_email;
+				var phone		= seciRecordLookup.custrecord_bbs_seci_site_phone;
+				var address1	= seciRecordLookup.custrecord_bbs_seci_site_address_1;
+				var address2	= seciRecordLookup.custrecord_bbs_seci_site_address_2;
+				var city		= seciRecordLookup.custrecord_bbs_seci_site_city;
+				var county		= seciRecordLookup.custrecord_bbs_seci_site_county;
+				var postcode	= seciRecordLookup.custrecord_bbs_seci_site_postcode;
 				
 				try
 					{
@@ -344,7 +310,7 @@ function(ui, record) {
 	    				
 	    				addressSubrecord.setValue({
 	    					fieldId: 'city',
-	    					value: town
+	    					value: city
 	    				});
 	    				
 	    				addressSubrecord.setValue({
@@ -420,12 +386,12 @@ function(ui, record) {
 		    				details: 'SECI Record: ' + seciRecordID + ' | Supplier ID: ' + supplierID
 		    			});
 		    			
-		    			// submit the customer field on the ad hoc site record
+		    			// submit the customer field on the SECI site record
 		    			record.submitFields({
-		    				type: 'customrecord_bbs_seci_record',
+		    				type: 'customrecord_bbs_seci_site_form',
 		    				id: seciRecordID,
 		    				values: {
-		    					custrecord_bbs_seci_record_create_pt_sup: supplierID
+		    					custrecord_bbs_seci_site_supplier_record: supplierID
 		    				}
 		    			});
 		    			

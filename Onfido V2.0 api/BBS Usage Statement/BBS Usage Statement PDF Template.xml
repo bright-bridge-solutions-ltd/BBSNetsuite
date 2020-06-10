@@ -2,9 +2,9 @@
 <pdf>
 <head>
 	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
-  	<link name="WorkSans" type="font" subtype="opentype" src="https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=39748&amp;c=5554661_SB1&amp;h=e8661f57adf6156e2914&amp;_xt=.otf" src-bold="https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=39744&amp;c=5554661_SB1&amp;h=8bd7276a890242f13477&amp;_xt=.otf" src-italic="https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=39747&amp;c=5554661_SB1&amp;h=f7e0584ed02d864188e5&amp;_xt=.otf" src-bolditalic="https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=39746&amp;c=5554661_SB1&amp;h=a368b8759f822074e87b&amp;_xt=.otf" bytes="2" />
+  	<link name="WorkSans" type="font" subtype="opentype" src="https://5554661.app.netsuite.com/core/media/media.nl?id=39748&amp;c=5554661&amp;h=6895c58be3266d29d9a0&amp;_xt=.otf" src-bold="https://5554661.app.netsuite.com/core/media/media.nl?id=39744&amp;c=5554661&amp;h=ce11104192b2bd75a0af&amp;_xt=.otf" src-italic="https://5554661.app.netsuite.com/core/media/media.nl?id=39747&amp;c=5554661&amp;h=1faf6310a6b2d3adf0a6&amp;_xt=.otf" src-bolditalic="https://5554661.app.netsuite.com/core/media/media.nl?id=39746&amp;c=5554661&amp;h=fe6399f3b1f14ef5563b&amp;_xt=.otf" bytes="2" />
 
-	<#assign logoInfo>https://5554661-sb1.app.netsuite.com/core/media/media.nl?id=23854&amp;c=5554661_SB1&amp;h=ed6fd4315864dacf5a48</#assign>
+	<#assign logoInfo>https://5554661.app.netsuite.com/core/media/media.nl?id=23854&amp;c=5554661&amp;h=268a7aa2af99ce665d56</#assign>
   	<#assign todaysDate = .now>
 	<#assign summary_info = contract.custrecord_bbs_contract_usage_json?eval>
 	<#assign regInfo>Company Registration No: 07479524.  Registered Office: 3 Finsbury Avenue, 5th Floor, London, EC2M 2PA, United Kingdom.</#assign>
@@ -69,11 +69,15 @@
 								<td align="right" style="padding-right: 2px; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_end_date}</td>
 							</tr>
 							<tr>
+								<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; ">Contract Currency</td>
+								<td align="right" style="padding-right: 2px; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_currency}</td>
+							</tr>
+							<tr>
 								<td align="left" style="padding-left: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; ">Annual Commitment</td>
 								<#if contract.custrecord_bbs_contract_annual_commit?length == 0>
 									<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;">N/A</td>
 								<#else>				
-									<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_annual_commit}</td>
+									<td align="right" style="padding-right: 2px; border-bottom: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;">${contract.custrecord_bbs_contract_annual_commit?string["#,##0.00"]}</td>
 								</#if>
 							</tr>
 			   			</table>
@@ -270,11 +274,11 @@
 		<p>No Period Data To Show</p>
 	</#if>
 	
-	<#if contract.custrecord_bbs_contract_billing_type == "QMP" || contract.custrecord_bbs_contract_billing_type == "AMP" || contract.custrecord_bbs_contract_billing_type == "QUR">
+	<#if contract.custrecord_bbs_contract_billing_type == "QMP" || contract.custrecord_bbs_contract_billing_type == "AMP" || contract.custrecord_bbs_contract_billing_type == "QUR" || contract.custrecord_bbs_contract_billing_type == "AMBMA" || contract.custrecord_bbs_contract_billing_type == "BUR" || contract.custrecord_bbs_contract_billing_type == "Contract Extension">
 		<table class="header" style="width: 100%; margin-top: 20px;">
 			<tr>
 				<td align="left" style="padding-left: 2px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; background-color: #ffa31a;">Credit Amount</td>
-				<td align="right" style="padding-right: 2px;border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${contract.custrecord_bbs_contract_def_inc_bal}</td>
+				<td align="right" style="padding-right: 2px;border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${contract.custrecord_bbs_contract_def_inc_bal?string["#,##0.00"]}</td>
 				<td align="left">&nbsp;</td>
 				<td align="left">&nbsp;</td>
 				<td align="left">&nbsp;</td>

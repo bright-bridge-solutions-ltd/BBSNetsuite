@@ -40,8 +40,8 @@ function(runtime, ui, record, search, email) {
    		 		// add field groups to the form
    		 		form.addFieldGroup({
    		 			id: 'header',
-   		 			label: ' '
-   		 		});
+   		 			label: 'Header'
+   		 		}).isBorderHidden = true;
    		 		
 	   		 	form.addFieldGroup({
 	   		 		id: 'termsandconditions',
@@ -53,9 +53,14 @@ function(runtime, ui, record, search, email) {
 		 			label: 'Bank Details'
 		 		});
    		 		
+   		 		form.addFieldGroup({
+   		 			id: 'otherdetails',
+   		 			label: 'Other Details'
+   		 		});
+   		 		
 	   		 	form.addFieldGroup({
-		 			id: 'creditcontrollerdetails',
-		 			label: 'Credit Controller Details'
+		 			id: 'creditcontroldetails',
+		 			label: 'Credit Control or Finance Contact'
 		 		});
 				
 				// add logo inline HTML field to the form
@@ -143,90 +148,168 @@ function(runtime, ui, record, search, email) {
 						// TERMS AND CONDITIONS FIELDS
 						// ===========================
 						
-						form.addField({
+						var terms = form.addField({
 							id: 'custpage_terms_accepted',
 							type: ui.FieldType.CHECKBOX,
 							label: 'Bannatyne Terms and Conditions Accepted',
 							container: 'termsandconditions'
 						});
+						
+						terms.updateLayoutType({
+						    layoutType: ui.FieldLayoutType.OUTSIDE
+						});
+						
+						terms.padding = 1;
 				
 						// ===================
 						// BANK DETAILS FIELDS
 						// ===================
 						
-						form.addField({
+						var accountHolder = form.addField({
 							id: 'custpage_accountholdername',
 							type: ui.FieldType.TEXT,
 							label: 'Name of Account Holder',
 							container: 'bankdetails'
-						}).isMandatory = true;
+						});
 						
-						form.addField({
+						accountHolder.isMandatory = true;
+						
+						accountHolder.updateLayoutType({
+						    layoutType: ui.FieldLayoutType.OUTSIDE
+						});
+						
+						accountHolder.padding = 1;
+						
+						var accountNumber = form.addField({
 							id: 'custpage_accountnumber',
 							type: ui.FieldType.TEXT,
 							label: 'Account Number',
 							container: 'bankdetails'
-						}).isMandatory = true;
+						});
 						
-						form.addField({
+						accountNumber.isMandatory = true;
+						
+						accountNumber.updateLayoutType({
+						    layoutType: ui.FieldLayoutType.OUTSIDE
+						});
+						
+						accountNumber.padding = 1;
+						
+						var sortCode = form.addField({
 							id: 'custpage_sortcode',
 							type: ui.FieldType.TEXT,
 							label: 'Sort Code',
 							container: 'bankdetails'
-						}).isMandatory = true;
+						});
 						
-						form.addField({
+						sortCode.isMandatory = true;
+						
+						sortCode.updateLayoutType({
+						    layoutType: ui.FieldLayoutType.OUTSIDE
+						});
+						
+						sortCode.padding = 1;
+						
+						// ====================
+						// OTHER DETAILS FIELDS
+						// ====================
+						
+						var paymentEmailAddress = form.addField({
 							id: 'custpage_payment_notification_email',
 							type: ui.FieldType.EMAIL,
 							label: 'Email Address for Payment Notification',
-							container: 'bankdetails'
-						}).isMandatory = true;
+							container: 'otherdetails'
+						});
 						
-						form.addField({
+						paymentEmailAddress.isMandatory = true;
+						
+						paymentEmailAddress.updateLayoutType({
+						    layoutType: ui.FieldLayoutType.OUTSIDE
+						});
+						
+						paymentEmailAddress.padding = 1;
+						
+						var vatNumber = form.addField({
 							id: 'custpage_vat_number',
 							type: ui.FieldType.TEXT,
 							label: 'VAT Number',
-							container: 'bankdetails'
+							container: 'otherdetails'
 						});
+						
+						vatNumber.updateLayoutType({
+						    layoutType: ui.FieldLayoutType.OUTSIDE
+						});
+						
+						vatNumber.padding = 1;
 						
 						// ========================
 						// CREDIT CONTROLLER FIELDS
 						// ========================
 						
-						form.addField({
+						var firstName = form.addField({
 							id: 'custpage_credit_controller_first_name',
 							type: ui.FieldType.TEXT,
 							label: 'First Name',
-							container: 'creditcontrollerdetails'
+							container: 'creditcontroldetails'
 						});
 						
-						form.addField({
+						firstName.updateLayoutType({
+						    layoutType: ui.FieldLayoutType.OUTSIDE
+						});
+						
+						firstName.padding = 1;
+						
+						var surname = form.addField({
 							id: 'custpage_credit_controller_surname',
 							type: ui.FieldType.TEXT,
 							label: 'Surname',
-							container: 'creditcontrollerdetails'
+							container: 'creditcontroldetails'
 						});
 						
-						form.addField({
+						surname.updateLayoutType({
+						    layoutType: ui.FieldLayoutType.OUTSIDE
+						});
+						
+						surname.padding = 1;
+						
+						var jobTitle = form.addField({
 							id: 'custpage_credit_controller_job_title',
 							type: ui.FieldType.TEXT,
 							label: 'Job Title',
-							container: 'creditcontrollerdetails'
+							container: 'creditcontroldetails'
 						});
 						
-						form.addField({
+						jobTitle.updateLayoutType({
+						    layoutType: ui.FieldLayoutType.OUTSIDE
+						});
+						
+						jobTitle.padding = 1;
+						
+						var emailAddress = form.addField({
 							id: 'custpage_credit_controller_email',
 							type: ui.FieldType.EMAIL,
 							label: 'Email Address',
-							container: 'creditcontrollerdetails'
+							container: 'creditcontroldetails'
 						});
 						
-						form.addField({
+						emailAddress.updateLayoutType({
+						    layoutType: ui.FieldLayoutType.OUTSIDE
+						});
+						
+						emailAddress.padding = 1;
+						
+						var phoneNumber = form.addField({
 							id: 'custpage_credit_controller_phone',
 							type: ui.FieldType.PHONE,
 							label: 'Phone Number',
-							container: 'creditcontrollerdetails'
+							container: 'creditcontroldetails'
 						});
+						
+						phoneNumber.updateLayoutType({
+						    layoutType: ui.FieldLayoutType.OUTSIDE
+						});
+						
+						phoneNumber.padding = 1;
 						
 						// add submit button to the form
 		   		 		form.addSubmitButton({

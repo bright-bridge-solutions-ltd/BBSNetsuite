@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/currentRecord', 'N/record', 'N/ui/message'],
-function(currentRecord, record, message) {
+define(['N/search', 'N/ui/message'],
+function(search, message) {
 	
 	function cancelButton()
 		{
@@ -23,27 +23,26 @@ function(currentRecord, record, message) {
      */
     function saveRecord(scriptContext) {
     	
-    	// load current record in order to manipulate it
-		var rec = currentRecord.get();
+    	// get the current record
+		var currentRecord = scriptContext.currentRecord;
 		
-		// get the ID of the seci record
-		var seciRecordID = rec.getValue({
+		// get the ID of the SECI record
+		var seciRecordID = currentRecord.getValue({
 			fieldId: 'custpage_secirecord'
 		});
 		
-		// load the seci record
-		var seciRecord = record.load({
-			type: 'customrecord_bbs_seci_record',
-			id: seciRecordID
+		// lookup fields on the SECI site record
+		var seciSiteLookup = search.lookupFields({
+			type: 'customrecord_bbs_seci_site_form',
+			id: seciRecordID,
+			columns: ['custrecord_bbs_seci_site_supplier_record']
 		});
 		
-		// retrieve values from the seciRecord object
-		var createdSupplier = seciRecord.getValue({
-			fieldId: 'custrecord_bbs_seci_record_create_pt_sup'
-		});
+		// return values from the seciSiteLookup object
+		var createdSupplier = seciSiteLookup.custrecord_bbs_seci_site_supplier_record;
 		
 		// check if createdSupplier returns a value
-		if (createdSupplier)
+		if (createdSupplier.length)
 			{
 				// display a message on the page
 				message.create({
