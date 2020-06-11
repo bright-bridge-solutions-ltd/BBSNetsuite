@@ -1,81 +1,48 @@
-<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd"><pdfset><#if statements??><#list statements as statement>
 <pdf>
 <head>
-              <#assign regInfo>Company Registration No: 09424938. Registered Office: Unit 2, Stephendale Yard, Stephendale Road, Fulham, SW6 2LR, United Kingdom.</#assign>
+  			  <#assign regInfo>Company Registration No: 09424938. Registered Office: Unit 2, Stephendale Yard, Stephendale Road, Fulham, SW6 2LR, United Kingdom.</#assign>
               <#assign emailInfo>accounts@rixo.co.uk</#assign>
               <#assign telInfo>020 3355 9097</#assign>
               <#assign vatInfo>GB 216 0216 57</#assign>
               <#assign logoInfo>https://5514691.app.netsuite.com/core/media/media.nl?id=5136&amp;c=5514691&amp;h=cc95dd17a4c8510ba547</#assign>
   
+<#if .locale == "ru_RU">
+    <link name="verdana" type="font" subtype="opentype" src="${nsfont.verdana}" src-bold="${nsfont.verdana_bold}" bytes="2" />
+</#if>
     <macrolist>
         <macro id="nlheader">
-            <table class="header" style="width: 100%;">
-    <tr>
+            <table class="header" style="width: 100%;"><tr>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
 	<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:41px;" /></td>
-    </tr>
-    <!--<tr><td>&nbsp;</td></tr>-->
-    <tr>
-	<td><span style="font-size:24px;">Proforma<br/>Invoice</span></td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
 	</tr>
-          </table>
-    <table class="header" style="width: 100%;">
+	<tr><td>&nbsp;</td></tr>
+	<tr>
+	<td><span style="font-size:24px;">${record@title}</span></td>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	</tr></table>
 
-	<tr>
+<table class="header" style="width: 100%;"><tr>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
 	</tr>
 	<tr>
-        <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.vatregnum}</span></td>
+	<td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Statement Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${statement.billaddress}<br/>VAT Number: ${statement.vatregnum}</span></td>
 	<td align="right" style="font-size:10pt"></td>
-      
-    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${companyInformation.companyName}<br />${subsidiary.mainaddress_text}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+	<!--<td align="right" style="font-size:10pt"></td>-->
+	<td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${companyInformation.companyName}<br />${subsidiary.mainaddress_text}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+	
 	</tr>
+
           </table>
-          
-    <table style="width: 100%;">
-    <tr>
-	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
-	</tr>
-	<tr>
-	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
-	</tr>
-	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Number</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
-    </tr>
-	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
-    </tr>
-  <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Customer Reference</b></td><td align="right" style="font-size:10pt">${record.otherrefnum}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Notes</b></td><td align="right" style="font-size:10pt">&nbsp;</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td rowspan="4" colspan="2" class="address">${record.memo}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td>
-    </tr>
-  </table>
         </macro>
-
         <macro id="nlfooter">
-
         <table style="width: 100%;">
-          <tr><td>Bank Details for payments in ${record.currency}:</td></tr>
+          <tr><td>Bank Details for payments in ${statement.currency}:</td></tr>
           <tr><td>Bank Name: Santander</td></tr>
           <tr><td>Account Number: 80567829</td></tr>
           <tr><td>Sort Code: 09-01-28</td></tr>
@@ -106,9 +73,9 @@
 			<td align="right"><pagenumber/> of <totalpages/></td>
 		</tr>
         </table>
+
         </macro>
     </macrolist>
-
     <style type="text/css">table {
             <!--font-family: sans-serif;-->
       		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
@@ -167,7 +134,7 @@
             background-color: #e3e3e3;
         }
         td.addressheader {
-            font-size: 10pt;
+            font-size: 12pt;
             padding-top: 0px;
             padding-bottom: 0px;
         }
@@ -209,60 +176,70 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="370px" footer="nlfooter" footer-height="110px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
-
-    
-<#if record.item?has_content>
-
-<table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
-<thead >
-	<tr >
-	<th align="left" colspan="8">SKU<br/>Description</th>
-    <th align="center" colspan="2"><br/>Quantity</th>
-	<th align="center" colspan="2">Backorder<br/>Quantity</th>
-	<th align="right" colspan="2">Unit<br/>Price</th>
-    <th align="right" colspan="3">Net<br/>Amount</th>
-    <th align="right" colspan="3">VAT<br/>Amount</th>
-	<th align="right" colspan="3">Gross<br/>Amount</th>
-	</tr>
-</thead>
-</#if>
-
-  <tr>
-	<td align="left" colspan="8"><b>${item.item}</b><br/>${item.description}</td>
-    <td align="center" colspan="2">${item.quantity}</td>
-	<td align="center" colspan="2">${item.quantitybackordered}</td>
-	<td align="right" colspan="2">${item.rate}</td>
-    <td align="right" colspan="3">${item.amount}</td>
-	<td align="right" colspan="3">${item.tax1amt}</td>
-	<td align="right" colspan="3">${item.grossamt}</td>
-	</tr>
-	</#list><!-- end items --></table>
-</#if>
-
-<hr />
-<table class="total" style="width: 100%;"><tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
-	<td class="totalcell" align="right"><b>Subtotal</b></td>
-	<td class="totalcell" align="right">${record.subtotal}</td>
-	</tr>
-	<tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
-    <td class="totalcell" align="right"><b>Discount</b></td>
-	<td class="totalcell" align="right">${record.discounttotal}</td>
-	</tr>
-    <tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
-    <td class="totalcell" align="right"><b>VAT Total</b></td>
-	<td class="totalcell" align="right">${record.taxtotal}</td>
-	</tr>
-	<tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
-	<td class="totalcell" align="right"><b>Total</b></td>
-	<td class="totalcell" align="right">${record.total}</td>
+<body header="nlheader" header-height="250px" footer="nlfooter" footer-height="110px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+  
+    <table style="width: 100%;">
+    <tr>
+	<td colspan="2" class="addressheader"></td><td></td><td></td><td></td>
 	</tr>
 	<tr>
-	<td>&nbsp;</td>
+	<td colspan="2" rowspan="8" class="address"></td><td></td><td></td><td></td>
+	</tr>
+	<tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"></td><td align="right" style="font-size:10pt"></td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Statement Date</b></td><td align="right" style="font-size:10pt">${statement.trandate?string["dd MMM yyyy"]}</td>
+    </tr>
+  <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"></td><td align="right" style="font-size:10pt"></td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td></td><td></td>
+    </tr>
+
+
+  </table>
+  
+  
+    <#if statement.lines?has_content>
+<table class="itemtable" style="width: 100%;"><!-- start items --><#list statement.lines as line><#if line_index==0>
+<thead>
+	<tr>
+	<th colspan="3">${line.datecol@label}</th>
+	<th colspan="12">${line.description@label}</th>
+	<th align="right" colspan="3">Invoice Amount</th>
+	<th align="right" colspan="4">  Credit Note /<br/>Payment Amount</th>
+	<th align="right" colspan="4">Balance</th>
+	</tr>
+</thead>
+</#if><tr>
+	<td colspan="3">${line.datecol?string["dd MMM yyyy"]}</td>
+	<td colspan="12">${line.description}</td>
+	<td align="right" colspan="3">${line.charge}</td>
+	<td align="right" colspan="4">${line.payment}</td>
+	<td align="right" colspan="4">${line.balance}</td>
+	</tr>
+	</#list><!-- end items --></table>
+
+<table class="aging" style="width: 100%; margin-top: 40px;"><tr>
+	<th>${statement.aging1@label}</th>
+	<th>${statement.aging2@label}</th>
+	<th>${statement.aging3@label}</th>
+	<th>${statement.aging4@label}</th>
+	<th>${statement.aging5@label}</th>
+	<th>${statement.agingbal@label}</th>
+	</tr>
+	<tr>
+	<td>${statement.aging1}</td>
+	<td>${statement.aging2}</td>
+	<td>${statement.aging3}</td>
+	<td>${statement.aging4}</td>
+	<td>${statement.aging5}</td>
+	<td>${statement.agingbal}</td>
 	</tr></table>
+</#if></body></pdf></#list><#else><pdf><head></head><body>
+
+<p>Please use Single Currency Advanced Printing Template</p>
 </body>
-</pdf>
+</pdf></#if></pdfset>

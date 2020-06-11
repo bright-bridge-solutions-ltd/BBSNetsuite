@@ -5,7 +5,7 @@
               <#assign emailInfo>accounts@rixo.co.uk</#assign>
               <#assign telInfo>020 3355 9097</#assign>
               <#assign vatInfo>GB 216 0216 57</#assign>
-              <#assign logoInfo>https://5514691-sb1.app.netsuite.com/core/media/media.nl?id=5143&amp;c=5514691_SB1&amp;h=43e999d057364b5dccb5</#assign>
+              <#assign logoInfo>https://5514691.app.netsuite.com/core/media/media.nl?id=5136&amp;c=5514691&amp;h=cc95dd17a4c8510ba547</#assign>
   
     <macrolist>
         <macro id="nlheader">
@@ -85,12 +85,20 @@
           <tr><td>&nbsp;</td></tr>
         </table>
 
-       <table style="width: 100%;">
+      <table style="width: 100%;">
          <tr class="messagerow">
               <td align="left" class="message">&nbsp;</td>
 		  </tr>
+		  <tr class="messagerow">
+              <td align="center" class="message">RIXO Ltd (trading as RIXO London Ltd) is a company registered in England &amp; Wales No. 09424938. A list of directors is available from the</td>
+		  </tr>
+		  
           <tr class="messagerow">
-              <td align="center" class="message">${regInfo}</td>
+              <td align="center" class="message">Registered Office: Unit 2, Stephendale Yard, Stephendale Road, Fulham, SW6 2LR, United Kingdom.</td>
+		  </tr>
+		  
+		  <tr class="messagerow">
+              <td align="center" class="message">VAT Number: 216 021 657</td>
 		  </tr>
         </table>
 
@@ -203,7 +211,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="370px" footer="nlfooter" footer-height="100px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="370px" footer="nlfooter" footer-height="110px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
     
 <#if record.item?has_content>

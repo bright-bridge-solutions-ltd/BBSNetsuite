@@ -17,7 +17,7 @@
     </tr>
     <!--<tr><td>&nbsp;</td></tr>-->
     <tr>
-	<td><span style="font-size:24px;">Proforma<br/>Invoice</span></td>
+	<td><span style="font-size:24px;">Return<br/>Authorisation</span></td>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
 	</tr>
@@ -31,58 +31,64 @@
 	<td align="right">&nbsp;</td>
 	</tr>
 	<tr>
-        <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.vatregnum}</span></td>
+        <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Customer Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.vatregnum}</span></td>
 	<td align="right" style="font-size:10pt"></td>
       
     <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${companyInformation.companyName}<br />${subsidiary.mainaddress_text}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
 	</tr>
           </table>
           
-    <table style="width: 100%;">
+    <table style="width: 100%; margin-top: 10px;">
+    
+	<tr>
+	<td align="left" style="font-size:10pt"><b>Return Location</b></td>
+	<td align="left" style="font-size:10pt">${record.location}</td>
+	<td class="address">&nbsp;</td>
+	<td align="left" style="font-size:10pt"><b>Returns No.</b></td>
+	<td align="right" style="font-size:10pt">${record.tranid}</td>
+    </tr>
+	<tr>
+	<td align="left" style="font-size:10pt"><b>Expected Delivery</b></td>
+	<td align="left" style="font-size:10pt">${record.custbody_bbs_expected_del_date_into_dc}</td>
+	<td class="address">&nbsp;</td>
+	<td align="left" style="font-size:10pt"><b>Date</b></td>
+	<td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+    </tr>
     <tr>
-	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
-	</tr>
-	<tr>
-	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
-	</tr>
-	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Number</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
-    </tr>
-	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
-    </tr>
-  <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Customer Reference</b></td><td align="right" style="font-size:10pt">${record.otherrefnum}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Notes</b></td><td align="right" style="font-size:10pt">&nbsp;</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td rowspan="4" colspan="2" class="address">${record.memo}</td>
-    </tr>
-      <tr>
+	<td align="left" style="font-size:10pt"><b>Sales Rep</b></td>
+	<td align="left" style="font-size:10pt">${record.salesrep}</td>
 	<td class="address">&nbsp;</td>
+	<td align="left" style="font-size:10pt"><b>Sales Order</b></td>
+	<td align="right" style="font-size:10pt">${record.createdfrom.tranid}</td>
     </tr>
-      <tr>
+    <tr>
+	<td align="left" style="font-size:10pt"><b>Price List</b></td>
+	<td align="left" style="font-size:10pt">${record.entity.pricelevel}</td>
 	<td class="address">&nbsp;</td>
+	<td align="left" style="font-size:10pt"><b>Exchange Rate</b></td>
+	<td align="right" style="font-size:10pt">${record.exchangerate}</td>
     </tr>
-      <tr>
+	<tr>
+	<td align="left" style="font-size:10pt"><b>Terms</b></td>
+	<td align="left" style="font-size:10pt">${record.entity.terms}</td>
 	<td class="address">&nbsp;</td>
+	<td align="left" style="font-size:10pt"><b>Shipping Method</b></td>
+	<td align="right" style="font-size:10pt">${record.custbody_bbs_shipping_method}</td>
+    </tr>
+	<tr>
+	<td align="left" style="font-size:10pt"><b>Reason For Return:</b></td>
+	<td align="left" style="font-size:10pt">&nbsp;</td>
+	<td class="address">&nbsp;</td>
+	<td align="left" style="font-size:10pt"><b>Tracking Number</b></td>
+	<td align="right" style="font-size:10pt">${record.custbody_bbs_tracking_ref}</td>
+    </tr>
+	<tr>
+	<td colspan="5" align="left" style="font-size:10pt">${record.memo}</td>
     </tr>
   </table>
         </macro>
 
         <macro id="nlfooter">
-
-        <table style="width: 100%;">
-          <tr><td>Bank Details for payments in ${record.currency}:</td></tr>
-          <tr><td>Bank Name: Santander</td></tr>
-          <tr><td>Account Number: 80567829</td></tr>
-          <tr><td>Sort Code: 09-01-28</td></tr>
-          <tr><td>IBAN: GB13ABBY09012880567829</td></tr>
-          <tr><td>Swift Code: ABBYG82LXXX</td></tr>
-          <tr><td>&nbsp;</td></tr>
-        </table>
 
        <table style="width: 100%;">
          <tr class="messagerow">
@@ -106,6 +112,7 @@
 			<td align="right"><pagenumber/> of <totalpages/></td>
 		</tr>
         </table>
+
         </macro>
     </macrolist>
 
@@ -209,7 +216,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="370px" footer="nlfooter" footer-height="110px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="400px" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
     
 <#if record.item?has_content>
@@ -218,8 +225,9 @@
 <thead >
 	<tr >
 	<th align="left" colspan="8">SKU<br/>Description</th>
-    <th align="center" colspan="2"><br/>Quantity</th>
-	<th align="center" colspan="2">Backorder<br/>Quantity</th>
+    <th align="center" colspan="1"><br/>Size</th>
+	<th align="center" colspan="2">HST<br/>Code</th>
+	<th align="center" colspan="2"><br/>Quantity</th>
 	<th align="right" colspan="2">Unit<br/>Price</th>
     <th align="right" colspan="3">Net<br/>Amount</th>
     <th align="right" colspan="3">VAT<br/>Amount</th>
@@ -228,15 +236,16 @@
 </thead>
 </#if>
 
-  <tr>
+ <tr>
 	<td align="left" colspan="8"><b>${item.item}</b><br/>${item.description}</td>
+	<td align="right" colspan="1">${item.item?keep_after_last(".")?number}</td>
+    <td align="left" colspan="2">${item.custcol_bbs_commodity_code}</td>
     <td align="center" colspan="2">${item.quantity}</td>
-	<td align="center" colspan="2">${item.quantitybackordered}</td>
 	<td align="right" colspan="2">${item.rate}</td>
     <td align="right" colspan="3">${item.amount}</td>
 	<td align="right" colspan="3">${item.tax1amt}</td>
 	<td align="right" colspan="3">${item.grossamt}</td>
-	</tr>
+</tr>
 	</#list><!-- end items --></table>
 </#if>
 

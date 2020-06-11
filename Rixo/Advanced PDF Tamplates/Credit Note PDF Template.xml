@@ -17,7 +17,7 @@
     </tr>
     <!--<tr><td>&nbsp;</td></tr>-->
     <tr>
-	<td><span style="font-size:24px;">Proforma<br/>Invoice</span></td>
+	<td><span style="font-size:24px;">Credit Note</span></td>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
 	</tr>
@@ -46,13 +46,13 @@
 	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
 	</tr>
 	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Number</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Number</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
     </tr>
 	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
     </tr>
   <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Customer Reference</b></td><td align="right" style="font-size:10pt">${record.otherrefnum}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Sales Order</b></td><td align="right" style="font-size:10pt">${record.createdfrom.tranid}</td>
     </tr>
       <tr>
 	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Notes</b></td><td align="right" style="font-size:10pt">&nbsp;</td>
@@ -73,16 +73,6 @@
         </macro>
 
         <macro id="nlfooter">
-
-        <table style="width: 100%;">
-          <tr><td>Bank Details for payments in ${record.currency}:</td></tr>
-          <tr><td>Bank Name: Santander</td></tr>
-          <tr><td>Account Number: 80567829</td></tr>
-          <tr><td>Sort Code: 09-01-28</td></tr>
-          <tr><td>IBAN: GB13ABBY09012880567829</td></tr>
-          <tr><td>Swift Code: ABBYG82LXXX</td></tr>
-          <tr><td>&nbsp;</td></tr>
-        </table>
 
        <table style="width: 100%;">
          <tr class="messagerow">
@@ -106,6 +96,7 @@
 			<td align="right"><pagenumber/> of <totalpages/></td>
 		</tr>
         </table>
+
         </macro>
     </macrolist>
 
@@ -209,7 +200,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="370px" footer="nlfooter" footer-height="110px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="370px" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
     
 <#if record.item?has_content>
@@ -217,25 +208,21 @@
 <table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
 <thead >
 	<tr >
-	<th align="left" colspan="8">SKU<br/>Description</th>
+	<th align="left" colspan="14">SKU<br/>Description</th>
     <th align="center" colspan="2"><br/>Quantity</th>
-	<th align="center" colspan="2">Backorder<br/>Quantity</th>
 	<th align="right" colspan="2">Unit<br/>Price</th>
-    <th align="right" colspan="3">Net<br/>Amount</th>
-    <th align="right" colspan="3">VAT<br/>Amount</th>
-	<th align="right" colspan="3">Gross<br/>Amount</th>
+    <th align="center" colspan="3">VAT<br/>Code</th>
+    <th align="right" colspan="3"><br/>Amount</th>
 	</tr>
 </thead>
 </#if>
 
   <tr>
-	<td align="left" colspan="8"><b>${item.item}</b><br/>${item.description}</td>
+	<td align="left" colspan="14"><b>${item.item}</b><br/>${item.description}</td>
     <td align="center" colspan="2">${item.quantity}</td>
-	<td align="center" colspan="2">${item.quantitybackordered}</td>
 	<td align="right" colspan="2">${item.rate}</td>
-    <td align="right" colspan="3">${item.amount}</td>
-	<td align="right" colspan="3">${item.tax1amt}</td>
-	<td align="right" colspan="3">${item.grossamt}</td>
+    <td align="right" colspan="3">${item.taxcode}</td>
+	<td align="right" colspan="3">${item.amount}</td>
 	</tr>
 	</#list><!-- end items --></table>
 </#if>
