@@ -22,6 +22,10 @@ function(record, search, task) {
      */
     function getInputData() {
     	
+    	log.audit({
+    		title: '*** BEGINNING OF SCRIPT ***'
+    	});
+    	
     	// create search of records to be processed
     	return search.create({
     		type: 'customrecord_bbs_brightlime_transactions',
@@ -58,10 +62,10 @@ function(record, search, task) {
     	var recordID = searchResult.id;
     	var clubID = searchResult.values['custrecord_bbs_brightlime_tran_club_id'];
     	
-    	log.audit({
+    	/*log.audit({
     		title: 'Processing Record',
     		details: 'Record ID: ' + recordID
-    	});
+    	});*/
     	
     	// call function to return the Brightlime club, location and subsidiary IDs
     	var blClubSearch = searchBLClubID(clubID);
@@ -80,10 +84,10 @@ function(record, search, task) {
 					}
 				});
 				
-				log.audit({
+				/*log.audit({
 					title: 'Record Updated',
 					details: recordID
-				});
+				});*/
     		}
     	catch(e)
     		{

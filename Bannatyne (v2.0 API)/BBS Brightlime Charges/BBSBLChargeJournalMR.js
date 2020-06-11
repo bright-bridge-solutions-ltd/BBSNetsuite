@@ -37,6 +37,10 @@ function(runtime, search, record, task) {
      */
     function getInputData() {
     	
+    	log.audit({
+    		title: '*** BEGINNING OF SCRIPT ***'
+    	});
+    	
     	// create search to find records to be processed
     	return search.create({
     		type: 'customrecord_bbs_brightlime_charges',
@@ -136,10 +140,10 @@ function(runtime, search, record, task) {
 				    	});
 		    		}
 	    	
-		    	log.audit({
+		    	/*log.audit({
 	    			title: 'Brightlime Charge Record Updated',
 	    			details: key
-	    		});
+	    		});*/
 	    	}
 		catch(e)
 			{

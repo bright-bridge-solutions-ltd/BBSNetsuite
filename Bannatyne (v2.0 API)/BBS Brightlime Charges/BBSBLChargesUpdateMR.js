@@ -3,12 +3,12 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/record', 'N/search'],
+define(['N/record', 'N/search', 'N/task'],
 /**
  * @param {record} record
  * @param {search} search
  */
-function(record, search) {
+function(record, search, task) {
    
     /**
      * Marks the beginning of the Map/Reduce process and generates input data.
@@ -21,6 +21,10 @@ function(record, search) {
      * @since 2015.1
      */
     function getInputData() {
+    	
+    	log.audit({
+    		title: '*** BEGINNING OF SCRIPT ***'
+    	});
     	
     	// create search of records to be processed
     	return search.create({
@@ -66,10 +70,10 @@ function(record, search) {
     	var chargeCode = searchResult.values['custrecord_bbs_bl_charge_code'];
     	var membershipType = searchResult.values['custrecord_bbs_bl_membership_type'];
     	
-    	log.audit({
+    	/*log.audit({
     		title: 'Processing Record',
     		details: 'Record ID: ' + recordID
-    	});
+    	});*/
     	
     	// call function to return the Brightlime club, location and subsidiary IDs
     	var blClubSearch = searchBLClubID(club);
@@ -105,16 +109,16 @@ function(record, search) {
 					}
 				});
 				
-				log.audit({
+				/*log.audit({
 					title: 'Record Updated',
 					details: recordID
-				});
+				});*/
     		}
     	catch(e)
     		{
     			log.error({
-    				title: 'Error Updating Record',
-    				details: 'Record ID: ' + recordID + '<br>Error: ' + e
+    				title: 'Error Updating Record ' + recordID,
+    				details: e
     			})
     		}
 

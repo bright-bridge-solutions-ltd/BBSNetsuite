@@ -3,8 +3,8 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/search', 'N/record'],
-function(runtime, search, record) {
+define(['N/runtime', 'N/search', 'N/record', 'N/task'],
+function(runtime, search, record, task) {
    
 	// retrieve script parameters
 	var currentScript = runtime.getCurrentScript();
@@ -15,10 +15,6 @@ function(runtime, search, record) {
 	
 	defaultGLAccount = currentScript.getParameter({
 		name: 'custscript_bl_tran_jnl_default_gl'
-	});
-	
-	bankGLAccount = currentScript.getParameter({
-		name: 'custscript_bl_tran_jnl_bank_gl'
 	});
 	
 	// set the date of the journal
@@ -36,6 +32,10 @@ function(runtime, search, record) {
      * @since 2015.1
      */
     function getInputData() {
+    	
+    	log.audit({
+    		title: '*** BEGINNING OF SCRIPT ***'
+    	});
     	
     	// create search to find records to be processed
     	return search.create({
@@ -81,13 +81,24 @@ function(runtime, search, record) {
     	var locationName	= searchResult.values['GROUP(custrecord_bbs_brightlime_tran_location)'].text;
     	var subsidiaryID 	= searchResult.values['MAX(internalid.custrecord_bbs_brightlime_tran_sub_id)'];
     	
-    	log.audit({
-    		title: 'Processing Club',
-    		details: 'Location ID: ' + locationID + '<br>Location Name: ' + locationName + '<br>Subsidiary ID: ' + subsidiaryID
+    	// lookup fields on the subsidiary record
+    	var subsidiaryLookup = search.lookupFields({
+    		type: search.Type.SUBSIDIARY,
+    		id: subsidiaryID,
+    		columns: ['custrecord_bbs_bank_gl_account']
     	});
     	
-    	// call function to create a new journal record. Pass context, subsidiaryID and locationID
-    	createJournal(context, subsidiaryID, locationID);
+    	// retrieve values from the subsidiaryLookup object
+    	var bankGLAccountName 	= subsidiaryLookup.custrecord_bbs_bank_gl_account[0].text;
+    	var bankGLAccountID		= subsidiaryLookup.custrecord_bbs_bank_gl_account[0].value;
+    	
+    	log.audit({
+    		title: 'Processing Club',
+    		details: 'Location ID: ' + locationID + '<br>Location Name: ' + locationName + '<br>Subsidiary ID: ' + subsidiaryID + '<br>Bank GL Name: ' + bankGLAccountName + '<br>Bank GL ID: ' + bankGLAccountID
+    	});
+    	
+    	// call function to create a new journal record. Pass context, subsidiaryID, locationID and bankGLAccountID
+    	createJournal(context, subsidiaryID, locationID, bankGLAccountID);
 
     }
 
@@ -131,10 +142,10 @@ function(runtime, search, record) {
 				    	});
 		    		}
 	    	
-		    	log.audit({
+		    	/*log.audit({
 	    			title: 'Brightlime Transaction Record Updated',
 	    			details: key
-	    		});
+	    		});*/
 	    	}
 		catch(e)
 			{
@@ -185,7 +196,7 @@ function(runtime, search, record) {
     // FUNCTION TO CREATE A JOURNAL RECORD
     // ===================================
     
-    function createJournal(context, subsidiaryID, locationID) {
+    function createJournal(context, subsidiaryID, locationID, bankGLAccountID) {
     	
     	// declare new array to hold IDs of processed BL Charge records
     	var processedRecords 	= new Array();
@@ -556,7 +567,7 @@ function(runtime, search, record) {
 						journalRec.setCurrentSublistValue({
 							sublistId: 'line',
 							fieldId: 'account',
-							value: bankGLAccount
+							value: bankGLAccountID
 						});
 						
 						journalRec.setCurrentSublistValue({
