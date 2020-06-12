@@ -1,3 +1,7 @@
+/**
+ * @NApiVersion 2.x
+ * @NModuleScope Public
+ */
 define(['N/record', 'N/runtime', 'N/search', 'N/plugin'],
 /**
  * @param {record} record

@@ -36,25 +36,27 @@ function(record, search, libraryModule, plugin)
 								//Contruct a tax request
 								//
 								var taxReqObj = new libraryModule.libCalcTaxesRequestObj();
-							    
+								
+								
 								//Fill in the request config & company data properties
 								//
 								//TODO
+								taxReqObj.cfg.retnb = true;
 								
 								
-								//Loop through each line to process
+								//Create a new invoice line object
+								//
+						        var taxReqInvObj = new libraryModule.libInvoicesObj();
+						        
+						        //Fill in the invoice line object properties (details about the invoice/sales order we are processing)
 								//
 								//TODO
-								
-								
-									//Create a new invoice line object
-									//
-							        var taxReqInvObj = new libraryModule.libInvoicesObj();
-							        
-							        //Fill in the invoice line object properties
-									//
-									//TODO
-							        
+						        
+						        
+								//Loop through each item line to process
+								//
+								//TODO
+
 							        //Create a new invoice item object
 							        //
 							        var taxReqItemObj = new libraryModule.libLineItemObj();
@@ -64,18 +66,18 @@ function(record, search, libraryModule, plugin)
 									//TODO
 							        
 							        
-							        //Add the item object to the invoice line object
+							        //Add the item object to the invoice line object array
 							        //
 							        taxReqInvObj.itms.push(taxReqItemObj);
-							        
-							        //Add the invoice line object to the request object
-							        //
-							      	taxReqObj.inv.push(taxReqInvObj);
-						      
+
 							    //End of loop
 							    //
 							      	
-							      	
+							    //Add the invoice line object to the request object
+							    //
+							    taxReqObj.inv.push(taxReqInvObj);	
+							    
+							    
 								//Finally, call the plugin method
 								//
 								var taxResult = tfcPlugin.getTaxCalculation(taxReqObj);
