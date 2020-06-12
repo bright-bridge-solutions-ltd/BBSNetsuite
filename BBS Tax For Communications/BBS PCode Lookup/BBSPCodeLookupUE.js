@@ -3,7 +3,7 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/record', 'N/runtime', 'N/search', 'N/plugin', '../BBSTFCModules/libraryModule'],
+define(['N/record', 'N/runtime', 'N/search', 'N/plugin', './libraryModule'],
 /**
  * @param {record} record
  * @param {runtime} runtime

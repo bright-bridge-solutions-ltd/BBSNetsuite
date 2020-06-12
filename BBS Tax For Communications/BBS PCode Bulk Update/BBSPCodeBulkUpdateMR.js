@@ -3,7 +3,7 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/record', 'N/runtime', 'N/search', '../BBSTFCModules/libraryModule'],
+define(['N/record', 'N/runtime', 'N/search', './libraryModule'],
 /**
  * @param {record} record
  * @param {runtime} runtime

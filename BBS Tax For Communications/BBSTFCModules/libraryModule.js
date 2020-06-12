@@ -10,6 +10,130 @@ function(record, runtime, search, plugin)
 	//Objects
 	//=====================================================================
 	//
+	
+	//Request body for tax calculation API
+	//
+	function libCalcTaxesRequestObj()
+		{
+			this.cfg 	= new libRequestConfigObj();	
+			this.cmpn	= new libCompanyDataObj();
+			this.inv	= [];						//array		List of invoices to process
+			this.ovr	= [];						//array 	Tax rate overrides.
+			this.sover	= [];						//array 	Safe harbour overrides for USF taxes.
+		}
+	
+	//Container class for json properties associated with v2.CalcTaxes request configuration options
+	//
+	function libRequestConfigObj()
+		{
+			this.retnb		= null;						//boolean 	Flag indicating non-billable taxes should be returned. If set, will override account setting Default if not provided is account setting value
+			this.retext		= null;						//boolean 	Flag indicating extended tax information should be returned. Reference online documentation for more details
+			this.incrf		= null;						//boolean 	Flag indicating reporting information should be returned. Reference online documentation for more details
+		}
+	
+	//Container class for json properties associated with v2.CalcTaxes company data
+	//
+	function libCompanyDataObj()
+		{
+			this.bscl		= null;						//integer 	Business class. 0 = ILEC, 1 = CLEC
+			this.svcl		= null;						//integer 	Service class. 0 = Primary Local, 1 = Primary Long Distance.
+			this.fclt		= null;						//boolean 	Specifies if the carrier delivering the service has company owned facilities to provide the service.
+			this.frch		= null;						//boolean 	Indicates if the company provides services sold pursuant to a franchise agreement between the carrier and jurisdiction.
+			this.reg		= null;						//boolean 	Indicates if company is regulated.
+			this.excl		= [];						//array 	Exclusion list
+			this.idnt		= null;						//string 	An optional company identifier for reporting
+		}
+	
+	//Contains information about an invoice or quote.
+	//
+	function libInvoicesObj()
+		{
+			this.doc		= null;						//string	Document code.
+			this.cmmt		= null;						//boolean	Indicates if invoice should be committed as soon as it is processed
+			this.bill		= new libLocationObj();		//object	Location data used to determine taxing jurisdiction.
+			this.cust		= null;						//integer	Customer type.
+			this.lfln		= null;						//boolean	Indicates if customer is a Lifeline participant
+			this.date		= null;						//string	Invoice date.
+			this.exms		= [];						//array		Tax exemptions - array of libTaxExemptionsObj
+			this.itms		= [];						//array 	Line items. - array of libLineItemObj
+			this.invm		= null;						//boolean	Indicates if all line items within invoice should be processed in invoice mode
+			this.dtl		= null;						//boolean	Indicates if individual line item taxes should be included in response.
+			this.summ		= null;						//boolean	Indicates if the summarized taxes for the invoice should be included in the resonse
+			this.opt		= [];						//array		Optional values for invoice. Maximum of 5. Keys must be numeric from 1 to 5.
+			this.acct		= null;						//string	Account reference for reporting
+			this.custref	= null;						//string	Customer Reference for reporting
+			this.invn		= null;						//string	Invoice Number reference for reporting
+			this.bcyc		= null;						//string	Bill Cycle reference for reporting
+			this.bpd		= null;						//object	Optional object for passing in billing period
+			this.ccycd		= null;						//string	Currency code for invoice. Example: CAD = Canadian Dollar
+		}
+	
+	//Data for an invoice or quote line item.
+	//
+	function libLineItemObj()
+		{
+			this.ref		= null;						//string	Reference ID for line item
+			this.from		= new libLocationObj();		//object	Location data used to determine taxing jurisdiction.
+			this.to			= new libLocationObj();		//object	Location data used to determine taxing jurisdiction.
+			this.chg		= null;						//number	Charge amount. 
+			this.line		= null;						//integer	Number of lines
+			this.loc		= null;						//integer	Number of locations
+			this.min		= null;						//number	Number of minutes
+			this.sale		= null;						//integer	0 - Wholesale : Indicates that the item was sold to a wholeseller. 1 - Retail : Indicates that the item was sold to an end user - a retail sale. 2 - Consumed : Indicates that the item was consumed directly (SAU products only). 3 - VendorUse : Indicates that the item is subject to vendor use tax (SAU products only).
+			this.plsp		= null;						//number	Split for private-line transactions.
+			this.incl		= null;						//boolean	Indicates if the charge for this line item is tax-inclusive.
+			this.pror		= null;						//number	For pro-rated tax calculations. Percentage to pro-rate.
+			this.proadj		= null;						//integer	For pro-rated credit or adjustment calculations. 0 = default 1 = do not return non-proratable fixed taxes in response 2 = return non-proratable fixed taxes in response
+			this.tran		= null;						//integer	Transaction type ID.
+			this.serv		= null;						//boolean	Service type ID.
+			this.dbt		= null;						//boolean	Indicates if this line item is a debit card transaction.
+			this.adj		= null;						//boolean	Indicates if this line item is an adjustment.
+			this.adjm		= null;						//integer	Adjustment method.
+			this.disc		= null;						//integer	Discount type for adjustments.
+			this.opt		= [];						//array		Optional values for line item. Maximum of 5. Keys must be numeric from 5 to 10
+			this.prop		= null;						//integer	Attribute/property value for sales and use transaction/service pairs.
+			this.bill		= new libLocationObj();		//object	Location data used to determine taxing jurisdiction.
+			this.cust		= null;						//integer	Customer type
+			this.lfln		= null;						//boolean	Indicates if customer is a Lifeline participant.
+			this.date		= null;						//string	Invoice date.
+			this.qty		= null;						//integer	Quantity to be applied to the item - taxation is equivalent to repeating the item the number of times of the quantity
+			this.glref		= null;						//string	General Ledger reference to be used in reporting
+		}
+	
+	//Tax exemption data.
+	//
+	function libTaxExemptionsObj()
+		{
+			this.frc		= null;						//boolean	Override level exempt flag on wildcard tax type exemptions	
+			this.loc		= new libLocationObj()		//object	Location data used to determine taxing jurisdiction.		
+			this.tpe		= null;						//integer	Tax type to exempt. Tax type exemptions and Category exemptions are mutually exclusive.	
+			this.lvl		= null;						//integer	Tax level ID.
+			this.cat		= null;						//integer	Tax category to exempt. Tax type exemptions and Category exemptions are mutually exclusive.	
+			this.dom		= null;						//integer	Exemption Domain. This is the jurisdiction level in which the exemption jurisdiction must match the taxing jurisdiction.
+			this.scp		= null;						//integer	Exemption Scope. This defines the tax levels in which the taxes will be considered as candidates for exemption.	
+			this.exnb		= null;						//boolean	Exempt non-billable flag. Determines if non-billable taxes are to be considered as candidates for exemption.	
+		}
+	
+	//Location data used to determine taxing jurisdiction.
+	//
+	function libLocationObj()
+		{
+			this.cnty		= null;						//string	County name.
+			this.ctry		= null;						//string	Country ISO code.
+			this.int		= null;						//boolean	Indicates if the location is within city limits.
+			this.geo		= null;						//boolean	Indicates if this address should be geocoded in order to obtain taxing jurisdiction
+			this.pcd		= null;						//integer	PCode for taxing jurisdiction.
+			this.npa		= null;						//integer	NPANXX number.
+			this.fips		= null;						//string	FIPS code for taxing jurisdiction.
+			this.addr		= null;						//string	Street address.
+			this.city		= null;						//string	City name.
+			this.st			= null;						//string	State name or abbreviation.
+			this.zip		= null;						//string	Postal code.
+		}
+	
+	
+	//Internal api configuration object
+	//
 	function libConfigObj()
 		{
 			this.credentialsEncoded 		= '';
@@ -36,6 +160,8 @@ function(record, runtime, search, plugin)
 			this.serviceClass				= '';
 		}
 	
+	//Generic response from api object
+	//
 	function libGenericResponseObj()
 		{
 			this.httpResponseCode	= '';
@@ -495,7 +621,12 @@ function(record, runtime, search, plugin)
     return {
     		libLookupPCode:			libLookupPCode,
     		libConfigObj:			libConfigObj,
-    		libGenericResponseObj:	libGenericResponseObj
+    		libGenericResponseObj:	libGenericResponseObj,
+    		libCalcTaxesRequestObj:	libCalcTaxesRequestObj,
+    		libLocationObj:			libLocationObj,
+    		libTaxExemptionsObj:	libTaxExemptionsObj,
+    		libLineItemObj:			libLineItemObj,
+    		libInvoicesObj:			libInvoicesObj
     		};
     
 });

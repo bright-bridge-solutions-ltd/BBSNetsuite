@@ -2,7 +2,7 @@
  * @NApiVersion 2.x
  * @NScriptType plugintypeimpl
  */
-define(['N/email', 'N/encode', 'N/file', 'N/https', 'N/record', 'N/runtime', 'N/search', '../BBSTFCModules/libraryModule'],
+define(['N/email', 'N/encode', 'N/file', 'N/https', 'N/record', 'N/runtime', 'N/search', './libraryModule'],
 /**
  * @param {email} email
  * @param {encode} encode
@@ -38,51 +38,84 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 		
 		    	return results;
 		    }
-		
-		/*
-		//=====================================================================
-		//Objects
-		//=====================================================================
-		//
-		function configObj()
-			{
-				this.credentialsEncoded 		= '';
-				this.clientId					= '';
-				this.profileId					= '';
-				this.endpointGetHealthCheck		= '';
-				this.endpointGetServiceInfo		= '';
-				this.endpointGetPcode			= '';
-				this.endpointGetGeocode			= '';
-				this.endpointGetTaxTypes		= '';
-				this.endpointGetTxServicePairs	= '';
-				this.endpointGetLocation		= '';
-				this.endpointGetPrimaryLocation	= '';
-				this.endpointGetTaxCalulation	= '';
-				this.endpointCommit				= '';	
-				this.pcodeLookupScript			= '';
-				this.nonBillableTaxes			= '';
-				this.extendedTaxInfo			= '';
-				this.reportingInfo				= '';
-				this.ownFacilities				= '';
-				this.franchise					= '';
-				this.regulated					= '';
-				this.businessClass				= '';
-				this.serviceClass				= '';
-			}
-		
-		function genericResponseObj()
-			{
-				this.httpResponseCode	= '';
-				this.responseMessage 	= '';
-				this.apiResponse		= {};
-			}
-		*/
+
 	    
 		//=====================================================================
 		//Exposed functions
 		//=====================================================================
 		//
 	
+	    //Get tax calculation results
+	    //
+	    function getTaxCalculation(_calcTaxesRequest)
+	    	{
+		    	var headerObj 			= {};
+				var getTaxesObj 		= new libraryModule.libGenericResponseObj();
+				var responseBodyObj 	= null;
+				var configurationObj	= null;
+				
+				//Get the current configuration
+				//
+				configurationObj = getConfiguration();
+				
+				if(configurationObj != null)
+					{
+						//Build up the headers for the get request
+						//
+						headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
+						headerObj['Accept']				= '*/*';
+						headerObj['client_id']			= configurationObj.clientId;
+						headerObj['Content-Type']		= 'application/json-patch+json';
+						
+						//Execute the request 
+						//  
+						try
+							{
+								var response = https.post({	
+															url:		configurationObj.endpointGetTaxCalulation,
+															headers:	headerObj,
+															body:		JSON.stringify(_calcTaxesRequest)
+															});
+						
+								//Extract the http response code	
+								//
+								getTaxesObj.httpResponseCode = response.code;
+								
+								//Extract the http response body
+								//
+								if(response.body != null && response.body != '')
+									{
+										//Try to parse the response body into a JSON object
+										//
+										try
+											{
+												responseBodyObj = JSON.parse(response.body);
+											}
+										catch(err)
+											{
+												responseBodyObj = null;
+											}
+										
+										//Process the converted JSON object
+										//
+										if(responseBodyObj != null)
+											{
+												getTaxesObj.apiResponse 		= responseBodyObj;
+											}
+									}
+							}
+						catch(err)
+							{
+								getTaxesObj.responseMessage = err.message;
+							}
+					}
+				else
+					{
+						getTaxesObj.responseMessage = 'No valid configuration found';
+					}
+				
+				return getTaxesObj;
+	    	}
 	    
 	    //Get a list of all the transaction/service pairs
 		//
@@ -106,7 +139,7 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 						headerObj['client_id']			= configurationObj.clientId;
 						headerObj['Content-Type']		= 'application/json';
 						
-						//Execute the request - adding * to the end of the url returns all tax types
+						//Execute the request 
 						//  
 						try
 							{
@@ -555,7 +588,8 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 	        		getPCode:				getPCode,
 	        		getTFCConfiguration:	getConfiguration,
 	        		getTaxType:				getTaxType,
-	        		getTSPairs:				getTSPairs
+	        		getTSPairs:				getTSPairs,
+	        		getTaxCalculation:		getTaxCalculation
 	    		};
 	    
 	});
