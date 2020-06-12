@@ -250,7 +250,7 @@ function processFullyBilledPurchaseOrders(_processingDate)
 				   "AND", 
 				   ["mainline","is","T"], 							//Main line
 				   "AND", 
-				   ["status","anyof","PurchOrd:G"],					//Fully billed
+				   ["status","anyof","PurchOrd:H"],					//Closed
 				   "AND", 
 				   ["class","anyof","1"]							//Rental
 			],
