@@ -122,11 +122,6 @@ function(runtime, search, record, task) {
     	var customer			=	searchResult.values['custrecord_bbs_contract_customer'].value;
     	var currency			=	searchResult.values['custrecord_bbs_contract_currency'].value;
     	
-    	log.audit({
-    		title: 'Processing Contract',
-    		details: contractRecordID
-    	});
-    	
     	// call function to check for open sales orders for this contract
     	var openSalesOrder = searchSalesOrders(contractRecordID);
     	
@@ -234,14 +229,13 @@ function(runtime, search, record, task) {
 	    			sublistId: 'item'
 	    		});
 	    			
-	    		// set the item on the new line using the adjustmentItem
+    			// set fields on the new line
     			soRecord.setCurrentSublistValue({
 	    			sublistId: 'item',
 	    			fieldId: 'item',
 	    			value: adjustmentItem
 	    		});
     				
-    			// set fields on the new line
     			soRecord.setCurrentSublistValue({
 	    			sublistId: 'item',
 	    			fieldId: 'quantity',
@@ -259,6 +253,12 @@ function(runtime, search, record, task) {
 	    			fieldId: 'custcol_bbs_contract_record',
 	    			value: contractRecordID
 	    		});
+    			
+    			soRecord.setCurrentSublistValue({
+    				sublistId: 'item',
+    				fieldId: 'custcol_bbs_usage_updated',
+    				value: true
+    			});
     				
     			// commit the line
     			soRecord.commitLine({
@@ -273,14 +273,14 @@ function(runtime, search, record, task) {
 	    			
 	    		log.audit({
 	    			title: 'Sales Order Created',
-	    			details: 'Sales Order ID: ' + soID + ' | Contract ID: ' + contractRecordID
+	    			details: 'Sales Order ID: ' + soID + '<br>Contract ID: ' + contractRecordID
 	    		});   				
 			}
 		catch(error)
 			{
 				log.error({
-					title: 'Error Creating Sales Order for Contract ID: ' + contractRecordID,
-					details: error
+					title: 'Error Creating Sales Order',
+					details: 'Contract ID: ' + contractRecordID + '<br>Error: ' + error
 				});
 			}
 	}
