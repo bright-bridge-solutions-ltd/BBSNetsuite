@@ -116,36 +116,20 @@ function(runtime, search, record, task) {
     	
     	try
 			{
-	    		// check if we have got a journal ID
-		    	if (parseInt(value))
-		    		{
-			    		// update the Brightlime Transaction record with the Journal ID
-			    		record.submitFields({
-			    			type: 'customrecord_bbs_brightlime_transactions',
-			    			id: key,
-			    			values: {
-			    				custrecord_bbs_brightlime_tran_processed: true,
-			    				custrecord_bbs_brightlime_tran_journal: value,
-			    				custrecord_bbs_brightlime_tran_errors: null
-			    			}
-			    		});
-		    		}
-		    	else // we have got an error message
-		    		{
-		    			// update the Brightlime Transaction record with the error message
-			    		record.submitFields({
-				    		type: 'customrecord_bbs_brightlime_transactions',
-				    		id: key,
-				    		values: {
-				    			custrecord_bbs_brightlime_tran_errors: value
-				    		}
-				    	});
-		    		}
+	    		// update the Brightlime Transaction record with the error message
+			    record.submitFields({
+				    type: 'customrecord_bbs_brightlime_transactions',
+				    id: key,
+				    values: {
+				    	custrecord_bbs_brightlime_tran_processed: true,
+				    	custrecord_bbs_brightlime_tran_errors: value
+				    }
+			    });
 	    	
-		    	/*log.audit({
+		    	log.audit({
 	    			title: 'Brightlime Transaction Record Updated',
 	    			details: key
-	    		});*/
+	    		});
 	    	}
 		catch(e)
 			{
@@ -473,7 +457,6 @@ function(runtime, search, record, task) {
 				    			{
 				    				processedRecords.push(blTranRecords[i]); // Push to processedRecords array
 				    			}
-		    	    		
     	    			}
     	    		catch(e)
     	    			{
@@ -594,16 +577,6 @@ function(runtime, search, record, task) {
 					title: 'Journal Created',
 					details: journalID
 				});
-				
-				// loop through processedRecords array
-	    		for (var i = 0; i < processedRecords.length; i++)
-	    			{
-		    			// create a new key/value pair
-	    				context.write({
-	    					key: processedRecords[i],
-	    					value: journalID
-	    				});
-	    			}
     		}
     	catch(e)
     		{

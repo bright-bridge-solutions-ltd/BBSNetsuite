@@ -114,36 +114,20 @@ function(runtime, search, record, task) {
     	
     	try
 			{
-	    		// check if we have got a cash sale ID
-		    	if (parseInt(value))
-		    		{
-			    		// update the Brightlime Charge record with the Journal ID
-			    		record.submitFields({
-			    			type: 'customrecord_bbs_brightlime_charges',
-			    			id: key,
-			    			values: {
-			    				custrecord_bbs_bl_charges_processed: true,
-			    				custrecord_bbs_bl_charges_journal_id: value,
-			    				custrecord_bbs_bl_charges_error_messages: null
-			    			}
-			    		});
-		    		}
-		    	else // we have got an error message
-		    		{
-		    			// update the Brightlime Charge record with the error message
-			    		record.submitFields({
-				    		type: 'customrecord_bbs_brightlime_charges',
-				    		id: key,
-				    		values: {
-				    			custrecord_bbs_bl_charges_error_messages: value
-				    		}
-				    	});
-		    		}
+	    		// update the Brightlime Charge record with the error message
+			    record.submitFields({
+				    type: 'customrecord_bbs_brightlime_charges',
+				    id: key,
+				    values: {
+				    	custrecord_bbs_bl_charges_processed: true,
+				    	custrecord_bbs_bl_charges_error_messages: value
+				    }
+			    });
 	    	
-		    	/*log.audit({
+		    	log.audit({
 	    			title: 'Brightlime Charge Record Updated',
 	    			details: key
-	    		});*/
+	    		});
 	    	}
 		catch(e)
 			{
@@ -167,6 +151,25 @@ function(runtime, search, record, task) {
     	log.audit({
     		title: '*** END OF SCRIPT ***',
     		details: 'Duration: ' + summary.seconds + ' seconds<br>Units Used: ' + summary.usage + '<br>Yields: ' + summary.yields
+    	});
+    	
+    	// ==================================================================================
+    	// NOW SCHEDULE ADDITIONAL MAP/REDUCE SCRIPT TO UPDATE BRIGHTLIME TRANSACTION RECORDS
+    	// ==================================================================================
+    	
+    	// create a map/reduce task
+    	var mapReduceTask = task.create({
+    	    taskType: task.TaskType.MAP_REDUCE,
+    	    scriptId: 'customscript_bbs_bl_tran_processed_mr',
+    	    deploymentId: 'customdeploy_bbs_bl_tran_processed_mr'
+    	});
+    	
+    	// submit the map/reduce task
+    	var mapReduceTaskID = mapReduceTask.submit();
+    	
+    	log.audit({
+    		title: 'Script Scheduled',
+    		details: 'BBS BL Transaction Processed Map/Reduce script has been Scheduled.<br>Job ID: ' + mapReduceTaskID
     	});
 
     }
@@ -355,16 +358,6 @@ function(runtime, search, record, task) {
     	    		title: 'Journal Created',
     	    		details: journalID
     	    	});
-    	    	
-    	    	// loop through processedRecords array
-	    		for (var i = 0; i < processedRecords.length; i++)
-	    			{
-		    			// create a new key/value pair
-	    				context.write({
-	    					key: processedRecords[i],
-	    					value: journalID
-	    				});
-	    			}
     		}
     	catch(e)
     		{
