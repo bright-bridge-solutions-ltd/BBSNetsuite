@@ -28,7 +28,7 @@ function suitelet(type)
 			var urlPrefix = 'https://' + accountId.replace('_','-') + '.app.netsuite.com/';
 	    	
 			
-			response.write(urlPrefix + "app/common/custom/custrecordentry.nl?rectype=118&id=" + recId + "&whence="); //', 'Virtual Bill', 'height=1056, width=816, resizable=yes, scrollbars=yes, toolbar=no, menubar=no'");
+			response.write(urlPrefix + "app/common/custom/custrecordentry.nl?rectype=129&id=" + recId + "&whence="); //', 'Virtual Bill', 'height=1056, width=816, resizable=yes, scrollbars=yes, toolbar=no, menubar=no'");
 		}
 	catch (e) 
 		{
