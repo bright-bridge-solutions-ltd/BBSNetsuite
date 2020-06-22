@@ -1,7 +1,7 @@
 /**
  * @NApiVersion 2.x
  * @NScriptType ClientScript
- * @NModuleScope SameAccount
+ * @NModuleScope Public
  */
 define(['N/url'],
 

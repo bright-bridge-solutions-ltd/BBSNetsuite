@@ -1,6 +1,7 @@
 /**
  * @NApiVersion 2.x
  * @NScriptType plugintypeimpl
+ * @NModuleScope Public
  */
 define(['N/email', 'N/encode', 'N/file', 'N/https', 'N/record', 'N/runtime', 'N/search', './libraryModule'],
 /**

@@ -1,7 +1,7 @@
 /**
  * @NApiVersion 2.x
  * @NScriptType UserEventScript
- * @NModuleScope SameAccount
+ * @NModuleScope Public
  */
 define(['N/url', 'N/search'],
 

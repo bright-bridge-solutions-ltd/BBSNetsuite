@@ -1,7 +1,7 @@
 /**
  * @NApiVersion 2.x
  * @NScriptType UserEventScript
- * @NModuleScope SameAccount
+ * @NModuleScope Public
  */
 define(['N/record', 'N/search', './libraryModule', 'N/plugin'],
 /**

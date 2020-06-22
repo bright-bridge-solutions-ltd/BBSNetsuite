@@ -1,7 +1,7 @@
 /**
  * @NApiVersion 2.x
  * @NScriptType Suitelet
- * @NModuleScope SameAccount
+ * @NModuleScope Public
  */
 define(['N/plugin'],
 /**

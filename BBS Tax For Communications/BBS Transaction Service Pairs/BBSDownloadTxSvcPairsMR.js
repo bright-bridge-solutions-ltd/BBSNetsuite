@@ -1,7 +1,7 @@
 /**
  * @NApiVersion 2.x
  * @NScriptType MapReduceScript
- * @NModuleScope SameAccount
+ * @NModuleScope Public
  */
 define(['N/record', 'N/search', 'N/plugin'],
 /**
