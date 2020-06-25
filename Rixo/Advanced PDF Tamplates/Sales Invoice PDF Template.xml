@@ -1,4 +1,5 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdfset>
 <pdf>
 <head>
               <#assign regInfo>Company Registration No: 09424938. Registered Office: Unit 2, Stephendale Yard, Stephendale Road, Fulham, SW6 2LR, United Kingdom.</#assign>
@@ -17,7 +18,7 @@
     </tr>
     <!--<tr><td>&nbsp;</td></tr>-->
     <tr>
-	<td><span style="font-size:24px;">${record@title}</span></td>
+	<td><span style="font-size:24px;">Order Confirmation</span></td>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
 	</tr>
@@ -34,7 +35,7 @@
         <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.vatregnum}</span></td>
 	<td align="right" style="font-size:10pt"></td>
       
-    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${companyInformation.companyName}<br />${subsidiary.mainaddress_text}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${subsidiary.mainaddress_text}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
 	</tr>
           </table>
           
@@ -46,28 +47,25 @@
 	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
 	</tr>
 	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Number</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Number</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
     </tr>
 	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
     </tr>
-  <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Sales Order</b></td><td align="right" style="font-size:10pt">${record.createdfrom.tranid}</td>
+    <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Customer Reference</b></td><td align="right" style="font-size:10pt">${record.otherrefnum}</td>
     </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Notes</b></td><td align="right" style="font-size:10pt">&nbsp;</td>
+    <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Joor Order Number</b></td><td align="right" style="font-size:10pt">${record.custbody_bbs_joor_so_number}</td>
     </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td rowspan="4" colspan="2" class="address">${record.memo}</td>
+    <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Status</b></td><td align="right" style="font-size:10pt">${record.status}</td>
     </tr>
-      <tr>
-	<td class="address">&nbsp;</td>
+    <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Ship With</b></td><td align="right" style="font-size:10pt">${record.custbody_bbs_shipping_method}</td>
     </tr>
-      <tr>
-	<td class="address">&nbsp;</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td>
+    <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Delivery Window</b></td><td align="right" style="font-size:10pt">${record.custbody_bbs_whole_window_opening_date}<br/>${record.custbody_bbs_whole_window_closing_date}</td>
     </tr>
   </table>
         </macro>
@@ -75,7 +73,6 @@
         <macro id="nlfooter">
 
         <table style="width: 100%;">
-          <tr><td><b>Due Date: ${record.duedate?string["dd MMM yyyy"]}</b></td></tr>
           <tr><td>Bank Details for payments in ${record.currency}:</td></tr>
           <tr><td>Bank Name: Santander</td></tr>
           <tr><td>Account Number: 80567829</td></tr>
@@ -85,7 +82,7 @@
           <tr><td>&nbsp;</td></tr>
         </table>
 
-      <table style="width: 100%;">
+       <table style="width: 100%;">
          <tr class="messagerow">
               <td align="left" class="message">&nbsp;</td>
 		  </tr>
@@ -107,7 +104,6 @@
 			<td align="right"><pagenumber/> of <totalpages/></td>
 		</tr>
         </table>
-
         </macro>
     </macrolist>
 
@@ -219,20 +215,26 @@
 <table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
 <thead >
 	<tr >
-	<th align="left" colspan="14">SKU<br/>Description</th>
+	<th align="left" colspan="1"><br/>Image</th>
+    <th align="left" colspan="8">SKU<br/>Description</th>
     <th align="center" colspan="2"><br/>Quantity</th>
 	<th align="right" colspan="2">Unit<br/>Price</th>
-    <th align="center" colspan="3">VAT<br/>Code</th>
-    <th align="right" colspan="3"><br/>Amount</th>
-	</tr>
+    <th align="right" colspan="3">VAT<br/>Amount</th>
+	<th align="right" colspan="3"><br/>Amount</th>
+    </tr>
 </thead>
 </#if>
 
   <tr>
-	<td align="left" colspan="14"><b>${item.item}</b><br/>${item.description}</td>
+    <#if item.custcol_bbs_item_url?length gt 0>
+		<td align="left" colspan="1"><img src="${item.custcol_bbs_item_url}" style="float: left; width:22px; height:30px;" /></td>
+    <#else>  
+      <td align="left" colspan="1">&nbsp;</td>
+    </#if>
+    <td align="left" colspan="8"><b>${item.item}</b><br/>${item.description}</td>
     <td align="center" colspan="2">${item.quantity}</td>
 	<td align="right" colspan="2">${item.rate}</td>
-    <td align="right" colspan="3">${item.taxcode}</td>
+    <td align="right" colspan="3">${item.tax1amt}</td>
 	<td align="right" colspan="3">${item.amount}</td>
 	</tr>
 	</#list><!-- end items --></table>
@@ -264,3 +266,5 @@
 	</tr></table>
 </body>
 </pdf>
+<pdf src="https://5514691.app.netsuite.com/core/media/media.nl?id=5137&amp;c=5514691&amp;h=7d2a9dfda8143a9f5577&amp;_xt=.pdf" />
+</pdfset>

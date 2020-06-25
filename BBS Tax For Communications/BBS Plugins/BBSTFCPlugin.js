@@ -303,7 +303,8 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 					      search.createColumn({name: "custrecord_bbstfc_conf_franchise", label: "Franchise"}),
 					      search.createColumn({name: "custrecord_bbstfc_conf_regulated", label: "Regulated"}),
 					      search.createColumn({name: "custrecord_bbstfc_bus_class_code",join: "CUSTRECORD_BBSTFC_CONF_BUS_CLASS",label: "Class Code"}),
-					      search.createColumn({name: "custrecord_bbstfc_svc_class_code",join: "CUSTRECORD_BBSTFC_CONF_SVC_CLASS",label: "Class Code"})
+					      search.createColumn({name: "custrecord_bbstfc_svc_class_code",join: "CUSTRECORD_BBSTFC_CONF_SVC_CLASS",label: "Class Code"}),
+					      search.createColumn({name: "custrecord_bbstfc_conf_tax_code", label: "Tax Code"})
 					   ]
 					}));
 				
@@ -342,6 +343,7 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 						config.pcodeLookupScript 			= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_pcl_script'});
 						config.clientId 					= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_client_id'});
 						config.profileId 					= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_profile_id'});
+						config.taxCode 						= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_tax_code'});
 						config.endpointGetTaxCalulation 	= urlPrefix + customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_calc_tax'});
 						config.endpointCommit 				= urlPrefix + customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_commit'});
 						config.endpointGetGeocode 			= urlPrefix + customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_ep_gcode'});
