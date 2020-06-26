@@ -34,7 +34,7 @@
         <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Customer Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.vatregnum}</span></td>
 	<td align="right" style="font-size:10pt"></td>
       
-    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${companyInformation.companyName}<br />${subsidiary.mainaddress_text}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${subsidiary.mainaddress_text}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
 	</tr>
           </table>
           
@@ -226,7 +226,7 @@
 	<tr >
 	<th align="left" colspan="8">SKU<br/>Description</th>
     <th align="center" colspan="1"><br/>Size</th>
-	<th align="center" colspan="2">HST<br/>Code</th>
+	<th align="center" colspan="2">HTS<br/>Code</th>
 	<th align="center" colspan="2"><br/>Quantity</th>
 	<th align="right" colspan="2">Unit<br/>Price</th>
     <th align="right" colspan="3">Net<br/>Amount</th>

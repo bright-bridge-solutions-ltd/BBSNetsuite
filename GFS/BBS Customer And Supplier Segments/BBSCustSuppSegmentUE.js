@@ -126,7 +126,7 @@ function createSegment(_recordType, _recordId, _entitySegmentField, _name, _cust
 	catch(err)
 		{
 			segmentId = null;
-			nlapiLogExecution('ERROR', 'Error creating segment for ' + name , err.message);
+			nlapiLogExecution('ERROR', 'Error creating segment for ' + _name , err.message);
 		}
 	
 	if(segmentId)
