@@ -322,7 +322,10 @@ function(runtime, config, search, record) {
 					});
 					
 					// submit the invoice record
-					invoiceID = invoice.save();
+					invoiceID = invoice.save({
+						enableSourcing: false,
+			    		ignoreMandatoryFields: true
+		    		});
 					
 					log.audit({
 						title: 'QMP Invoice Created',

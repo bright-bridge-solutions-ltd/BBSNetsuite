@@ -1023,7 +1023,10 @@ function(ui, url, runtime, record, search, format, task, redirect) {
     				});
     				
     				// save the journal record
-    				var journalID = journalRecord.save();
+    				var journalID = journalRecord.save({
+    					enableSourcing: false,
+			    		ignoreMandatoryFields: true
+		    		});
     				
     				log.audit({
     					title: 'Journal Record Created',
@@ -1244,7 +1247,10 @@ function(ui, url, runtime, record, search, format, task, redirect) {
 	    			});
 	    			
 	    			// submit the new Contract Minimum Usage record
-	    			contractMinUsageRecord.save();
+	    			contractMinUsageRecord.save({
+	    				enableSourcing: false,
+			    		ignoreMandatoryFields: true
+		    		});
 	    		}
     	}
     

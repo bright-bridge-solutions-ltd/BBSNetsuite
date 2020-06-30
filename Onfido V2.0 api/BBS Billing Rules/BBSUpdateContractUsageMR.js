@@ -61,7 +61,7 @@ function(runtime, search, record, format, email) {
 				formula: 'LAST_DAY({custcol_bbs_so_search_date})',
 			},
 					{
-				name: 'rate',
+				name: 'fxrate',
 				summary: 'MAX'
 			},
 					{
@@ -146,17 +146,17 @@ function(runtime, search, record, format, email) {
     	var searchResult = JSON.parse(context.value);
     	
     	// get values from the searchResult object
-    	var tranID = searchResult.values['GROUP(tranid)'];
-    	var recordID = searchResult.values['MAX(internalid)'];  	
-    	var itemID = searchResult.values['GROUP(item)'].value;
-    	var itemText = searchResult.values['GROUP(item)'].text;
-    	var monthStart = searchResult.values['GROUP(formulatext)'];
-    	var monthEnd = searchResult.values['GROUP(formuladate)'];
-    	var itemRate = searchResult.values['MAX(rate)'];
-    	var quantity = parseFloat(searchResult.values['SUM(quantity)']); // use parseFloat to convert to floating point number
-    	var usage = parseFloat(searchResult.values['SUM(fxamount)']); // use parseFloat to convert to floating point number
-    	var contractRecordID = searchResult.values['GROUP(custcol_bbs_contract_record)'].value;
-    	var contractRecordText = searchResult.values['GROUP(custcol_bbs_contract_record)'].text;
+    	var tranID 				= searchResult.values['GROUP(tranid)'];
+    	var recordID 			= searchResult.values['MAX(internalid)'];  	
+    	var itemID 				= searchResult.values['GROUP(item)'].value;
+    	var itemText 			= searchResult.values['GROUP(item)'].text;
+    	var monthStart 			= searchResult.values['GROUP(formulatext)'];
+    	var monthEnd 			= searchResult.values['GROUP(formuladate)'];
+    	var itemRate 			= searchResult.values['MAX(fxrate)'];
+    	var quantity 			= parseFloat(searchResult.values['SUM(quantity)']); // use parseFloat to convert to floating point number
+    	var usage				= parseFloat(searchResult.values['SUM(fxamount)']); // use parseFloat to convert to floating point number
+    	var contractRecordID 	= searchResult.values['GROUP(custcol_bbs_contract_record)'].value;
+    	var contractRecordText 	= searchResult.values['GROUP(custcol_bbs_contract_record)'].text;
     	
     	log.audit({
     		title: 'Processing Search Result',

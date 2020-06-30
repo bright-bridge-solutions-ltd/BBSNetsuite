@@ -14,8 +14,8 @@ function scheduled(type)
 {
 	var customrecord_bbs_presentation_recordSearch = getResults(nlapiCreateSearch("customrecord_bbs_presentation_record",
 			[
-			   ["custrecord_bbs_pr_type","anyof","1"], 
-			   "AND", 
+			   /*["custrecord_bbs_pr_type","anyof","1"], 
+			   "AND", */
 			   ["custrecord_bbs_pr_status","anyof","1"]
 			], 
 			[

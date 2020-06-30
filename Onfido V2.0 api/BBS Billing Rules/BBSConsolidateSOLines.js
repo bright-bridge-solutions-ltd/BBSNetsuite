@@ -3,10 +3,10 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/search', 'N/record', 'N/format'],
-function(search, record, format) {
-   
-    /**
+define(['N/runtime', 'N/search', 'N/record', 'N/format'],
+function(runtime, search, record, format) {
+	
+	/**
      * Marks the beginning of the Map/Reduce process and generates input data.
      *
      * @typedef {Object} ObjectRef
@@ -18,35 +18,15 @@ function(search, record, format) {
      */
     function getInputData() {
     	
+        // retrieve script parameters
+    	var savedSearchID = runtime.getCurrentScript().getParameter({
+    		name: 'custscript_bbs_so_lines_for_consolidate'
+    	});
+    	
     	// return search of records to be processed
-    	return search.create({
+    	return search.load({
     		type: search.Type.SALES_ORDER,
-    		
-    		filters: [{
-    			name: 'mainline',
-    			operator: 'is',
-    			values: ['T']
-    		},
-    				{
-				name: 'status',
-				operator: 'anyof',
-				values: ['SalesOrd:F'] // SalesOrd:F = Pending Billing
-			},
-					{
-				name: 'custbody_bbs_contract_record',
-				operator: 'noneof',
-				values: ['@NONE@']
-			},
-					{
-				name: 'internalid',
-				operator: 'anyof',
-				values: [16356]
-			}],
-    		
-			columns: [{
-				name: 'tranid'
-			}],
-    		
+    		id: savedSearchID    
     	});
 
     }
@@ -61,7 +41,7 @@ function(search, record, format) {
     	
     	// retrieve search results
     	var searchResult = JSON.parse(context.value);
-    	var recordID = searchResult.id;
+    	var recordID = searchResult.values['MAX(internalid)'];
     	
     	log.audit({
     		title: 'Processing Sales Order',

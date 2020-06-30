@@ -242,7 +242,10 @@ function(runtime, search, record) {
 					});
 	    			
 	    			// submit the invoice record
-	    			invoiceID = invoice.save();
+	    			invoiceID = invoice.save({
+	    				enableSourcing: false,
+			    		ignoreMandatoryFields: true
+		    		});
 	    			
 	    			// update fields on the contract record
 	    			record.submitFields({
