@@ -28,7 +28,6 @@ function(record, search, file, xml)
     				var currentRecord 		= scriptContext.newRecord;
     				var currentRecordType 	= currentRecord.type;
     				var currentRecordId 	= currentRecord.id;
-    				var lineUpdated			= false;
     				
     				currentRecord = record.load({
     											type:		currentRecordType,
@@ -46,16 +45,33 @@ function(record, search, file, xml)
 																			line:			int
 																			});
 							
+							var lineItem = currentRecord.getSublistValue({
+																			sublistId:		'item',
+																			fieldId:		'item',
+																			line:			int
+																			});
+
+							var itemDescription = search.lookupFields({
+																		type:		search.Type.ITEM,
+																		id:			lineItem,
+																		columns:	'custitem_bbs_description'
+																		});
+
+
+							currentRecord.setSublistValue({
+															sublistId: 	'item',
+															fieldId: 	'description',
+															line:		int,
+															value: 		itemDescription.custitem_bbs_description
+															});
+
+
 							if(lineUrl == '' || lineUrl == null)
 								{
-									var lineItem = currentRecord.getSublistValue({
-																					sublistId:		'item',
-																					fieldId:		'item',
-																					line:			int
-																					});
-		
+									
 									try
 										{
+											
 											
 											var fieldLookUp = search.lookupFields({
 																				    type: 		search.Type.ITEM,
@@ -83,7 +99,6 @@ function(record, search, file, xml)
 																{
 																	var fileUrl = 'https://5514691.app.netsuite.com' + xml.escape({xmlText:  fileObj.url}); //.replace(/&/g, "&amp;")
 																	
-																	lineUpdated = true;
 																	currentRecord.setSublistValue({
 																									sublistId:		'item',
 																									fieldId:		'custcol_bbs_item_url',
@@ -104,13 +119,12 @@ function(record, search, file, xml)
 								}
 						}
     				
-    				if(lineUpdated)
-    					{
-	    					currentRecord.save({
-	    										doSourcing:				true,
-	    										ignoreMandatoryFields:	true
-	    										});
-    					}
+
+	    			currentRecord.save({
+	    								doSourcing:				true,
+	    								ignoreMandatoryFields:	true
+	    								});
+
     			}
 	    }
 

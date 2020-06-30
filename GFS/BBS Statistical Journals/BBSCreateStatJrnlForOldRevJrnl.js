@@ -23,10 +23,105 @@ function scheduled(type)
 	var summaryValues 			= {};
 	var originatingTransaction 	= null;
 	var transactionDate 		= null;
-	var postingPeriod 			= null;
+	//var postingPeriod 			= null;
 	var supplierSegment 		= null;
 	var customerSegment 		= null;
 	var reversingJournal		= null;
+	
+	var journalArray = [
+						'46082',
+						'60700',
+						'64060',
+						'70175',
+						'70276',
+						'70877',
+						'71277',
+						'71378',
+						'86621',
+						'88436',
+						'88539',
+						'90246',
+						'93450',
+						'107499',
+						'108794',
+						'112085',
+						'114212',
+						'116517',
+						'117909',
+						'118477',
+						'119929',
+						'120384',
+						'143724',
+						'148441',
+						'151641',
+						'151841',
+						'151952',
+						'168806',
+						'171033',
+						'176972',
+						'180728',
+						'180828',
+						'183739',
+						'185062',
+						'187394',
+						'204406',
+						'205916',
+						'208008',
+						'209607',
+						'211300',
+						'212202',
+						'215283',
+						'236449',
+						'236890',
+						'237529',
+						'240821',
+						'244455',
+						'264186',
+						'270886',
+						'275469',
+						'277072',
+						'277286',
+						'297417',
+						'301510',
+						'305141',
+						'306565',
+						'308092',
+						'310875',
+						'329118',
+						'333952',
+						'335491',
+						'336067',
+						'336267',
+						'336367',
+						'340146',
+						'343693',
+						'356756',
+						'360461',
+						'360762',
+						'361186',
+						'363297',
+						'367430',
+						'368708',
+						'387647',
+						'390209',
+						'390718',
+						'391129',
+						'391229',
+						'393793',
+						'394761',
+						'398615',
+						'414384',
+						'418075',
+						'418076',
+						'418077',
+						'418216',
+						'419724',
+						'420033',
+						'424251',
+						'440235',
+						'444544',
+						'450226'
+						];
 	
 	//Find the journals to process
 	//
@@ -44,7 +139,9 @@ function scheduled(type)
 			   "AND", 
 			   ["shipping","is","F"], 
 			   "AND", 
-			   ["taxline","is","F"]
+			   ["taxline","is","F"],
+			   "AND",
+			   ["internalid","anyof",journalArray]
 			], 
 			[
 			   new nlobjSearchColumn("internalid",null,"GROUP").setSort(false)
@@ -81,8 +178,8 @@ function scheduled(type)
 							//
 							subsidiaryId 			= originalJournalRecord.getFieldValue('subsidiary');
 							originatingTransaction 	= originalJournalRecord.getFieldValue('tranid');
-							transactionDate 		= originalJournalRecord.getFieldValue('trandate');
-							postingPeriod 			= originalJournalRecord.getFieldValue('postingperiod');
+							transactionDate 		= originalJournalRecord.getFieldValue('reversaldate');
+							//postingPeriod 			= originalJournalRecord.getFieldValue('postingperiod');
 							entityId 				= originalJournalRecord.getFieldValue('entity');
 							
 							//Empty the summary values first" +
@@ -118,7 +215,7 @@ function scheduled(type)
 									statisticalJournal.setFieldValue('unitstype', '1');
 									statisticalJournal.setFieldValue('memo', originatingTransaction);
 									statisticalJournal.setFieldValue('trandate', transactionDate);
-									statisticalJournal.setFieldValue('postingperiod', postingPeriod);
+									//statisticalJournal.setFieldValue('postingperiod', postingPeriod);
 									statisticalJournal.setFieldValue('custbody_bbs_originating_transaction',originalJournalId);	
 									
 									//Loop through the summary values
