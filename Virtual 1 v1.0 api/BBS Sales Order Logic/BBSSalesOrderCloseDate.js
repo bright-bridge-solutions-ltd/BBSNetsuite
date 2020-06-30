@@ -1,8 +1,9 @@
 /**
  * Module Description
  * 
- * Version    Date            Author           Remarks
- * 1.00       06 Sep 2019     cedricgriffiths
+ * Version    	Date            	Author           	Remarks
+ * 1.00       	06 Sep 2019     	cedricgriffiths		
+ * 1.10			17 June 2020		sambatten
  *
  */
 
@@ -46,7 +47,7 @@ function salesOrderFieldChanged(type, name, linenum)
 							if(billingFrequency == 1)	//Monthly
 								{
 									var closeDate = billingEndDate;
-									closeDate.setDate(15);
+									closeDate.setDate(27);
 									closeDate.setMonth(closeDate.getMonth() - 1);
 									
 									nlapiSetFieldValue('custbody_bbs_sales_order_close_date', nlapiDateToString(closeDate), false, true);
@@ -95,7 +96,7 @@ function salesOrderFieldChanged(type, name, linenum)
 													var endMonth = 1;
 													var closeDate = new Date();
 													closeDate.setMonth(endMonth);
-													closeDate.setDate(15);
+													closeDate.setDate(27);
 													
 													if(todayMonth == 11)
 														{
@@ -110,7 +111,7 @@ function salesOrderFieldChanged(type, name, linenum)
 													var endMonth = 4;
 													var closeDate = new Date();
 													closeDate.setMonth(endMonth);
-													closeDate.setDate(15);
+													closeDate.setDate(27);
 													
 													nlapiSetFieldValue('custbody_bbs_sales_order_close_date', nlapiDateToString(closeDate), false, true);
 												}
@@ -120,7 +121,7 @@ function salesOrderFieldChanged(type, name, linenum)
 													var endMonth = 7;
 													var closeDate = new Date();
 													closeDate.setMonth(endMonth);
-													closeDate.setDate(15);
+													closeDate.setDate(27);
 													
 													nlapiSetFieldValue('custbody_bbs_sales_order_close_date', nlapiDateToString(closeDate), false, true);
 												}
@@ -130,7 +131,7 @@ function salesOrderFieldChanged(type, name, linenum)
 													var endMonth = 10;
 													var closeDate = new Date();
 													closeDate.setMonth(endMonth);
-													closeDate.setDate(15);
+													closeDate.setDate(27);
 													
 													nlapiSetFieldValue('custbody_bbs_sales_order_close_date', nlapiDateToString(closeDate), false, true);
 												}
@@ -213,7 +214,7 @@ function getCloseDate(periodDate)
 							if(endDateString != null && endDateString != '')
 								{
 									var endDate = nlapiStringToDate(endDateString);
-									endDate.setDate(15);
+									endDate.setDate(27);
 									
 									returnValue = endDate;
 								}

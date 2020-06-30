@@ -63,9 +63,7 @@ function(runtime, search, file, email) {
     	reportDate = reportDate.format('ymd');
     	
     	// call functions to create CSV reports
-    	createSummaryTenantChargesReport(reportDate);
-    	createTenantChargesReport(reportDate);
-    	createConsolidatedTenantsReport(reportDate);
+    	createConsolidatedTenantChargesReport(reportDate);
     	createConsolidatedSummaryTenantChargesReport(reportDate);
     	
     	// call function to send an email to notify completion of the billing run
@@ -82,17 +80,17 @@ function(runtime, search, file, email) {
     // FUNCTIONS TO CREATE CSV REPORTS
     // ===============================
     
-    function createSummaryTenantChargesReport(reportDate)
-    	{
+    function createConsolidatedTenantChargesReport(reportDate)
+		{
 	    	log.audit({
-	    		title: 'CREATING SUMMARY TENANT CHARGES REPORT'
+	    		title: 'CREATING CONSOLIDATED TENANT CHARGES REPORT'
 	    	});
-    	
-    		// specify the file name
-			var fileName = filePrefix + '-' + reportDate + '-summarytenantcharges.csv';
-    	
-    		// start off the CSV
-			var CSV = '"ClientID","ClientAmount","OperatorAmount","Margin","ClientName","StartDateTime","EndDateTime","Site","BillingRef","LinkInvoiceYear","LinkInvoiceMonth"\r\n';
+		
+			// specify the file name
+			var fileName = filePrefix + '-' + reportDate + '-consolidatedtenantcharges.csv';
+			
+			// start off the CSV
+			var CSV = '"Quantity","Telephone","AccountCode","Product","Type","Due","UnitCost","Discount","Cost"\r\n';
 			
 			// create search to find service data records to be included in the report
 			var serviceDataSearch = search.create({
@@ -104,121 +102,6 @@ function(runtime, search, file, email) {
 	    			values: ['F']
 	    		},
 						{
-	    			name: 'subsidiary',
-	    			join: 'custrecord_bbs_service_data_customer_rec',
-	    			operator: 'anyof',
-	    			values: [subsidiary]
-	    		},
-	    				{
-	    			name: 'custrecord_bbs_service_data_start_date',
-	    			operator: 'notafter',
-	    			values: ['lastmonth'] // lastmonth means end of last month
-	    		},
-	    				{
-	    			name: 'custrecord_bbs_service_data_end_date',
-	    			operator: 'notbefore',
-	    			values: ['startoflastmonth']
-	    		}],
-	    		
-	    		columns: [{
-	    			name: 'custrecord_bbs_service_data_tenant_alias',
-	    			label: 'ClientID'
-	    		},
-	    				{
-	    			name: 'formulacurrency',
-	    			formula: "ROUND(CASE WHEN {custrecord_bbs_service_data_frequency} = 'One off' THEN {custrecord_bbs_service_data_sales_price} ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'DD') = TO_CHAR({custrecord_bbs_service_data_start_date},'DD') AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * (TO_CHAR({custrecord_bbs_service_data_end_date},'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD')) ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * TO_CHAR({custrecord_bbs_service_data_end_date},'DD') ELSE CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') -1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD')) * (TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD') +1) ELSE {custrecord_bbs_service_data_sales_price} END END END END END, 2) * {custrecord_bbs_service_data_quantity}",
-	    			label: 'ClientAmount'
-	    		},
-	    				{
-	    			name: 'formulacurrency',
-	    			formula: "ROUND(CASE WHEN {custrecord_bbs_service_data_frequency} = 'One off' THEN {custrecord_bbs_service_data_op_cost} ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'DD') = TO_CHAR({custrecord_bbs_service_data_start_date},'DD') AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * (TO_CHAR({custrecord_bbs_service_data_end_date},'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD')) ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * TO_CHAR({custrecord_bbs_service_data_end_date},'DD') ELSE CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') -1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD')) * (TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD') +1) ELSE {custrecord_bbs_service_data_op_cost} END END END END END, 2) * {custrecord_bbs_service_data_quantity}",
-	    			label: 'OperatorAmount'
-	    		},
-	    				{
-	    			name: 'custrecord_bbs_service_data_tenant_name',
-	    			label: 'ClientName'
-	    		},
-	    				{
-	    			name: 'formuladate',
-	    			formula: "CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_start_date} ELSE LAST_DAY(ADD_MONTHS({today},-2))+1 END",
-	    			label: 'StartDateTime'
-	    		},
-	    				{
-	    			name: 'formuladate',
-	    			formula: "CASE WHEN TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_end_date} ELSE LAST_DAY(ADD_MONTHS({today}, -1)) END",
-	    			label: 'EndDateTime'
-	    		},
-	    				{
-	    			name: 'custrecord_bbs_service_data_site_name',
-	    			label: 'Site'
-	    		},
-	    				{
-	    			name: 'custrecord_bbs_service_data_site_alias',
-	    			label: 'BillingRef'
-	    		},
-	    				{
-	    			name: 'formulatext',
-	    			formula: "TO_CHAR({today},'YYYY')",
-	    			label: 'LinkInvoiceYear'
-	    		},
-	    				{
-	    			name: 'formulatext',
-	    			formula: "TO_CHAR({today},'MM') - 1",
-	    			label: 'LinkInvoiceMonth'
-	    		}],
-				
-			});
-			
-			// get all the search results
-			var searchResults = getAllResults(serviceDataSearch);
-			
-			// process search results
-			for (var i = 0; i < searchResults.length; i++)
-				{
-					// retrieve search results. Using column numbers to return formula values
-					var clientID = searchResults[i].getValue(searchResults[i].columns[0]);
-					var clientAmount = searchResults[i].getValue(searchResults[i].columns[1]);
-					var operatorAmount = searchResults[i].getValue(searchResults[i].columns[2]);
-					var margin = parseFloat(operatorAmount - clientAmount); // calculate the margin
-					var clientName = searchResults[i].getValue(searchResults[i].columns[3]);			
-					var startDateTime = searchResults[i].getValue(searchResults[i].columns[4]);
-					var endDateTime = searchResults[i].getValue(searchResults[i].columns[5]);
-					var site = searchResults[i].getValue(searchResults[i].columns[6]);
-					var billingRef = searchResults[i].getValue(searchResults[i].columns[7]);
-					var linkInvoiceYear = searchResults[i].getValue(searchResults[i].columns[8]);
-					var linkInvoiceMonth = searchResults[i].getValue(searchResults[i].columns[9]);
-					
-					// add the service data record details to the CSV
-	    			CSV += clientID + ',' + clientAmount + ',' + operatorAmount + ',' + margin + ',' + clientName + ',' + startDateTime + ',' + endDateTime + ',' + site + ',' + billingRef + ',' + linkInvoiceYear + ',' + linkInvoiceMonth;
-	    			CSV += '\r\n';
-				}
-			
-			// call function to create the CSV file
-			createCSV(fileName, CSV);
-    	}
-    
-    function createTenantChargesReport(reportDate)
-    	{
-	    	log.audit({
-	    		title: 'CREATING TENANT CHARGES REPORT'
-	    	});
-    	
-    		// specify the file name
-    		var fileName = filePrefix + '-' + reportDate + '-tenantcharges.csv';
-    		
-    		// start off the CSV
-    		var CSV = '"Quantity","Telephone","AccountCode","Product","Type","Due","UnitCost","Discount","Cost"\r\n';
-    		
-    		// create search to find service data records to be included in the report
-    		var serviceDataSearch = search.create({
-    			type: 'customrecord_bbs_service_data',
-    			
-    			filters: [{
-	    			name: 'isinactive',
-	    			operator: 'is',
-	    			values: ['F']
-	    		},
-    					{
 	    			name: 'subsidiary',
 	    			join: 'custrecord_bbs_service_data_customer_rec',
 	    			operator: 'anyof',
@@ -257,10 +140,10 @@ function(runtime, search, file, email) {
 	    			formula: "SUM({custrecord_bbs_service_data_quantity}) * MAX({custrecord_bbs_service_data_sales_price})",
 	    			summary: 'MAX'
 	    		}],
-    			
-    		});
-    		
-    		// get all the search results
+				
+			});
+			
+			// get all the search results
 			var searchResults = getAllResults(serviceDataSearch);
 			
 			// process search results
@@ -291,188 +174,16 @@ function(runtime, search, file, email) {
 	    				name: 'formulacurrency',
 	    				summary: 'MAX'
 	    			});
-    			
+				
 	    			// add the service data record details to the CSV
 	    			CSV += quantity + ',' + ',' + accountCode + ',' + product + ',' + ',' + ',' + unitCost + ',' + 0 + ',' + cost;
 	    			CSV += '\r\n';
 				}
-    		
-    		// call function to create the CSV file
+			
+			// call function to create the CSV file
 			createCSV(fileName, CSV);
-    		
-    	}
-    
-    function createConsolidatedTenantsReport(reportDate)
-    	{
-	    	log.audit({
-	    		title: 'CREATING CONSOLIDATED TENANTS REPORTS'
-	    	});
-    		
-    		// create search to find service data customers to create a report for
-    		var serviceDataCustomerSearch = search.create({
-    			type: 'customrecord_bbs_service_data',
-    			
-	    		filters: [{
-	    			name: 'isinactive',
-	    			operator: 'is',
-	    			values: ['F']
-	    		},
-	    				{
-	    			name: 'subsidiary',
-	    			join: 'custrecord_bbs_service_data_customer_rec',
-	    			operator: 'anyof',
-	    			values: [subsidiary]
-	    		},
-		    			{
-		    		name: 'custrecord_bbs_service_data_start_date',
-		    		operator: 'notafter',
-		    		values: ['lastmonth'] // lastmonth means end of last month
-		    	},
-		    			{
-		    		name: 'custrecord_bbs_service_data_end_date',
-		    		operator: 'notbefore',
-		    		values: ['startoflastmonth']
-		    	}],
-		    	
-		    	columns: [{
-		    		name: 'parent',
-		    		join: 'custrecord_bbs_service_data_customer_rec',
-		    		summary: 'GROUP',
-		    		sort: search.Sort.ASC
-		    	}],
-    		});
-    		
-    		// process search results
-			serviceDataCustomerSearch.run().each(function(result){
-    			
-    			// start off the CSV
-        		var CSV = '"ClientID","ClientAmount","TenantAmount","Margin","ClientName","StartDateTime","EndDateTime","Site","BillingRef"\r\n';
-    			
-    			// get the customer name and ID from the search results
-    			var customerID = result.getValue({
-    				name: 'parent',
-    				join: 'custrecord_bbs_service_data_customer_rec',
-    				summary: 'GROUP'
-    			});
-    			
-    			var customerName = result.getText({
-    				name: 'parent',
-    				join: 'custrecord_bbs_service_data_customer_rec',
-    				summary: 'GROUP'
-    			});
-    			
-    			// lookup fields on the customer record. Required as search cannot return fields on parent customer record
-    			var customerLookup = search.lookupFields({
-    				type: search.Type.CUSTOMER,
-    				id: customerID,
-    				columns: ['custentity_code_accountalias']
-    			});
-    			
-    			// get the account alias from the customer lookup
-    			var accountAlias = customerLookup.custentity_code_accountalias;
-    			
-    			// check if we have an account alias
-    			if (accountAlias)
-    				{
-    					// set customerName variable to be the accountAlias
-    					customerName = accountAlias;
-    				}
-    			
-    			// create search to find service data records to be included in the report
-    			var serviceDataSearch = search.create({
-    				type: 'customrecord_bbs_service_data',
-    				
-    				filters: [{
-    		    		name: 'parent',
-    					join: 'custrecord_bbs_service_data_customer_rec',
-    		    		operator: 'anyof',
-    		    		values: [customerID]
-    		    	},
-    		    			{
-    		    		name: 'custrecord_bbs_service_data_start_date',
-    		    		operator: 'notafter',
-    		    		values: ['lastmonth'] // lastmonth means end of last month
-    		    	},
-    		    			{
-    		    		name: 'custrecord_bbs_service_data_end_date',
-    		    		operator: 'notbefore',
-    		    		values: ['startoflastmonth']
-    		    	}],
-    		    	
-    		    	columns: [{
-    		    		name: 'custrecord_bbs_service_data_tenant_alias',
-    		    		summary: 'GROUP'
-    		    	},
-    		    			{
-    	    			name: 'formulacurrency',
-    	    			formula: "ROUND(CASE WHEN {custrecord_bbs_service_data_frequency} = 'One off' THEN {custrecord_bbs_service_data_sales_price} ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'DD') = TO_CHAR({custrecord_bbs_service_data_start_date},'DD') AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * (TO_CHAR({custrecord_bbs_service_data_end_date},'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD')) ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * TO_CHAR({custrecord_bbs_service_data_end_date},'DD') ELSE CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') -1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD')) * (TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD') +1) ELSE {custrecord_bbs_service_data_sales_price} END END END END END, 2) * {custrecord_bbs_service_data_quantity}",
-    	    			summary: 'MAX'
-    	    		},
-    	    				{
-    	    			name: 'formulacurrency',
-    	    			formula: "ROUND(CASE WHEN {custrecord_bbs_service_data_frequency} = 'One off' THEN {custrecord_bbs_service_data_op_cost} ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'DD') = TO_CHAR({custrecord_bbs_service_data_start_date},'DD') AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * (TO_CHAR({custrecord_bbs_service_data_end_date},'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD')) ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * TO_CHAR({custrecord_bbs_service_data_end_date},'DD') ELSE CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') -1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD')) * (TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD') +1) ELSE {custrecord_bbs_service_data_op_cost} END END END END END, 2) * {custrecord_bbs_service_data_quantity}",
-    	    			summary: 'MAX'
-    	    		},
-    	    				{
-    	    			name: 'custrecord_bbs_service_data_tenant_name',
-    	    			summary: 'MAX'
-    	    		},
-    	    				{
-    	    			name: 'formuladate',
-    	    			formula: "LAST_DAY(ADD_MONTHS({today},-2))+1",
-    	    			summary: 'MAX'
-    	    		},
-    	    				{
-    	    			name: 'formuladate',
-    	    			formula: "LAST_DAY(ADD_MONTHS({today},-1))",
-    	    			summary: 'MAX'
-    	    		},
-    	    				{
-    	    			name: 'custrecord_bbs_service_data_site_name',
-    	    			summary: 'MAX',
-        		    	sort: search.Sort.ASC
-    	    		},
-    	    				{
-    	    			name: 'custrecord_bbs_service_data_billing_ref',
-    	    			summary: 'MAX'
-    	    		}],
-    				
-    			});
-    			
-    			// get all the search results
-    			var searchResults = getAllResults(serviceDataSearch);
-    			
-    			// process search results
-    			for (var i = 0; i < searchResults.length; i++)
-    				{
-    					// retrieve search results. Using column numbers to return formula values
-	    				var clientID = searchResults[i].getValue(searchResults[i].columns[0]);
-	    				var clientAmount = searchResults[i].getValue(searchResults[i].columns[1]);
-	    				var operatorAmount = searchResults[i].getValue(searchResults[i].columns[2]);
-	    				var margin = parseFloat(operatorAmount - clientAmount); // calculate the margin
-	    				var clientName = searchResults[i].getValue(searchResults[i].columns[3]);			
-	    				var startDateTime = searchResults[i].getValue(searchResults[i].columns[4]);
-	    				var endDateTime = searchResults[i].getValue(searchResults[i].columns[5]);
-	    				var site = searchResults[i].getValue(searchResults[i].columns[6]);
-	    				var billingRef = searchResults[i].getValue(searchResults[i].columns[7]);
-	    				
-	    				// add the service data record details to the CSV
-	        			CSV += clientID + ',' + clientAmount + ',' + operatorAmount + ',' + margin + ',' + clientName + ',' + startDateTime + ',' + endDateTime + ',' + site + ',' + billingRef;
-	        			CSV += '\r\n';
-    				}
-    			
-    			// specify the file name
-    			var fileName = filePrefix + '-' + reportDate + '-' + customerName + '-consolidated_tenants.csv';
-    			
-    			// call function to create the CSV file
-    			createCSV(fileName, CSV);
-    			
-    			// continue processing additional results
-    			return true;
-    			
-    		});
-    		
-    	}
+			
+		}
     
     function createConsolidatedSummaryTenantChargesReport(reportDate)
 		{

@@ -221,6 +221,17 @@
 					<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>20% Standard Vat Rate</b></td>
 					<td colspan="4" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black;">${record.taxtotal}</td>
 				</tr>
+			<#elseif subsidiary.id == "5"><!-- Canada -->
+				<tr>
+					<td colspan="10">&nbsp;</td>
+					<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>GST/HST</b></td>
+					<td colspan="4" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black;">${record.taxtotal}</td>
+				</tr>
+				<tr>
+					<td colspan="10">&nbsp;</td>
+					<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>PST</b></td>
+					<td colspan="4" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black;">${record.tax2total}</td>
+				</tr>
 			</#if>
 			<tr>
 				<td colspan="10">&nbsp;</td>

@@ -639,7 +639,7 @@ function processBillingEndDates(_processingDate)
 								}
 							catch(err)
 								{
-									nlapiLogExecution('ERROR', 'Error updating old sales order, id = ' + salesOrderId, err.message);
+									nlapiLogExecution('ERROR', 'Error updating old sales order, id = ' + salesOrderId, err);
 								}
 						}
 				}
@@ -675,7 +675,7 @@ function closePurchaseOrder(_soPEReference, _closeDate)
 			
 			//Get the PO id & find the month number & day number of the relevant close date
 			//
-			var poId 			= purchaseorderSearch[0].id();
+			var poId 			= purchaseorderSearch[0].getId();
 			var closeDate		= nlapiStringToDate(_closeDate);
 			var closeDateMonth 	= closeDate.getMonth() + 1;		//Months start at 0
 			var closeDateDay 	= Number(closeDate.getDate());

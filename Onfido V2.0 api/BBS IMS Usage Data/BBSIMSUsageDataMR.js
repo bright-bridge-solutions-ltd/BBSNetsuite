@@ -33,15 +33,6 @@ function(search, record, format) {
 				values: ['F']
     		},
     				{
-    			name: 'custrecord_bbs_ims_usage_data_errors',
-    			operator: 'isempty',
-    		},
-    				{
-    			name: 'custrecord_bbs_ims_usage_data_contract',
-    			operator: 'anyof',
-    			values: ['800']
-    		},
-    				{
     			name: 'custrecord_bbs_ims_usage_data_item_rec',
     			operator: 'noneof',
     			values: ['@NONE@']

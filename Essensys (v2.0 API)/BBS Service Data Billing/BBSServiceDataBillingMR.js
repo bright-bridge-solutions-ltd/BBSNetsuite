@@ -393,9 +393,9 @@ function(runtime, search, record, format, render, file, task) {
     	
     	// create a scheduled task
     	var scheduledTask = task.create({
-    	    taskType: task.TaskType.SCHEDULED_SCRIPT,
-    	    scriptId: 'customscript_bbs_create_service_data_rep',
-    	    deploymentId: 'customdeploy_bbs_create_service_data_rep',
+    	    taskType: task.TaskType.MAP_REDUCE,
+    	    scriptId: 'customscript_bbs_create_site_reports',
+    	    deploymentId: 'customdeploy_bbs_create_site_reports',
     	    params: {
     	    	custscript_bbs_subsidiary_select: subsidiary,
     	    	custscript_bbs_subsidiary_text: subsidiaryText,
@@ -408,7 +408,7 @@ function(runtime, search, record, format, render, file, task) {
     	
     	log.audit({
     		title: 'Script Scheduled',
-    		details: 'BBS Create Service Data Reports script has been Scheduled. Job ID ' + scheduledTaskID
+    		details: 'BBS Create Site Reports script has been Scheduled. Job ID ' + scheduledTaskID
     	});
 
     }
@@ -435,7 +435,7 @@ function(runtime, search, record, format, render, file, task) {
 			fileDate = fileDate.format('ymd'); // format date in the following format YYMMDD
     	
     		// specify the file name
-    		var fileName = filePrefix + '-' + fileDate + '-' + siteAlias + '-reports.csv';
+    		var fileName = filePrefix + '-' + fileDate + '-' + siteAlias + '-' + tranID + '-' + 'marketplaceservices-report.csv';
     		
     		// start off the CSV
     		var CSV = '"Accounts id","Account Name","Invoice Number","Date From","Date To","Product","Quantity","Operator Cost","Operator Total Cost","Tenant Alias","Tenant Name","Tenant Billing Reference","Tenant Cost","Tenant Total","Margin"\r\n';

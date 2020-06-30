@@ -205,7 +205,10 @@ function(runtime, search, record) {
 					});
 					
 					// submit the invoice record
-					var invoiceID = invoice.save();
+					var invoiceID = invoice.save({
+						enableSourcing: false,
+			    		ignoreMandatoryFields: true
+		    		});
 					
 					log.audit({
 						title: 'Setup Fee Invoice Created',
@@ -317,7 +320,10 @@ function(runtime, search, record) {
 					});
 					
 					// submit the invoice record
-					var invoiceID = invoice.save();
+					var invoiceID = invoice.save({
+						enableSourcing: false,
+			    		ignoreMandatoryFields: true
+		    		});
 					
 					log.audit({
 						title: 'Management Fee Invoice Created',
@@ -429,7 +435,10 @@ function(runtime, search, record) {
 					});
 					
 					// submit the invoice record
-					var invoiceID = invoice.save();
+					var invoiceID = invoice.save({
+						enableSourcing: false,
+			    		ignoreMandatoryFields: true
+		    		});
 					
 					log.audit({
 						title: 'Initial Prepayment Invoice Created',

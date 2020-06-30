@@ -1,8 +1,9 @@
 /**
  * Module Description
  * 
- * Version    Date            Author           Remarks
- * 1.00       14 Apr 2020     cedricgriffiths
+ * Version    	Date            Author           	Remarks
+ * 1.00       	14 Apr 2020     cedricgriffiths
+ * 1.10			17 June 2020	sambatten			added resetting of billing end date
  *
  */
 
@@ -32,11 +33,23 @@ function soPreventTrandateBS(type)
 			var oldTranDate = oldRecord.getFieldValue('trandate');
 			var newTranDate = newRecord.getFieldValue('trandate');
 			
+			//Get old and new billing end dates
+			//
+			var oldBillingEndDate = oldRecord.getFieldValue('custbody_bbs_billing_end_date');
+			var newBillingEndDate = newRecord.getFieldValue('custbody_bbs_billing_end_date');
+			
 			//If the transaction date has changed, then restore the old version
 			//
 			if(oldTranDate != newTranDate)
 				{
 					nlapiSetFieldValue('trandate', oldTranDate, true, true);
+				}
+			
+			//If the billing end date has changed, then restore the old version (if the oldBillingEndDate is not empty
+			//
+			if(oldBillingEndDate != null && oldBillingEndDate != newBillingEndDate)
+				{
+					nlapiSetFieldValue('custbody_bbs_billing_end_date', oldBillingEndDate, true, true);
 				}
 			
 			//Compare rev rec start and end dates on the lines to make sure these have not changed
