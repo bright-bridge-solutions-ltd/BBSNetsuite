@@ -23,7 +23,7 @@ function scheduled(type)
 	var summaryValues 			= {};
 	var originatingTransaction 	= null;
 	var transactionDate 		= null;
-	var postingPeriod 			= null;
+	//var postingPeriod 			= null;
 	var supplierSegment 		= null;
 	var customerSegment 		= null;
 	var reversingJournal		= null;
@@ -81,8 +81,8 @@ function scheduled(type)
 							//
 							subsidiaryId 			= originalJournalRecord.getFieldValue('subsidiary');
 							originatingTransaction 	= originalJournalRecord.getFieldValue('tranid');
-							transactionDate 		= originalJournalRecord.getFieldValue('trandate');
-							postingPeriod 			= originalJournalRecord.getFieldValue('postingperiod');
+							transactionDate 		= originalJournalRecord.getFieldValue('reversaldate');
+							//postingPeriod 			= originalJournalRecord.getFieldValue('postingperiod');
 							entityId 				= originalJournalRecord.getFieldValue('entity');
 							
 							//Empty the summary values first" +
@@ -118,7 +118,7 @@ function scheduled(type)
 									statisticalJournal.setFieldValue('unitstype', '1');
 									statisticalJournal.setFieldValue('memo', originatingTransaction);
 									statisticalJournal.setFieldValue('trandate', transactionDate);
-									statisticalJournal.setFieldValue('postingperiod', postingPeriod);
+									//statisticalJournal.setFieldValue('postingperiod', postingPeriod);
 									statisticalJournal.setFieldValue('custbody_bbs_originating_transaction',originalJournalId);	
 									
 									//Loop through the summary values
