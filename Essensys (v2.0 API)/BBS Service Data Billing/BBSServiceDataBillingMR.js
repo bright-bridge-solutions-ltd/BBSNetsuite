@@ -769,7 +769,7 @@ function(runtime, search, record, format, render, file, task) {
     return {
         getInputData: getInputData,
         map: map,
-        summarize: summarize
+        //summarize: summarize
     };
     
 });

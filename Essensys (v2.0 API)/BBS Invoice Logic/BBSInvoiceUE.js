@@ -278,9 +278,10 @@ function(runtime, search, record, render, file) {
 			// get the invoice tran ID from the PDF_File object
 			var invoiceTranID = PDF_File.name;
 			invoiceTranID = invoiceTranID.replace("Invoice_", ""); // remove 'Invoice_' from string
+			invoiceTranID = invoiceTranID.replace(".pdf", ""); // remove '.pdf' from string
 			
 			// set the file name
-			PDF_File.name = filePrefix + '-' + fileDate + '-' + siteAlias + '-' + invoiceTranID;
+			PDF_File.name = filePrefix + '-' + fileDate + '-' + siteAlias + '-' + invoiceTranID + '_arrears.pdf';
 			
 			// set the attachments folder
 			PDF_File.folder = fileCabinetFolder;

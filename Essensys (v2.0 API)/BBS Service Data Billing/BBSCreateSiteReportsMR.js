@@ -181,7 +181,7 @@ function(runtime, search, file, task) {
     	});
     	
     	// specify the file name
-		var fileName = filePrefix + '-' + reportDate + '-summarytenantcharges-' + siteAlias + '.csv';
+		var fileName = filePrefix + '-' + reportDate + '-' + siteAlias + '-summarytenantcharges.csv';
 		
 		// start off the CSV
 		var CSV = '"ClientID","ClientAmount","OperatorAmount","Margin","ClientName","StartDateTime","EndDateTime","Site","BillingRef","LinkInvoiceYear","LinkInvoiceMonth"\r\n';
@@ -297,10 +297,10 @@ function(runtime, search, file, task) {
     	});
     	
     	// specify the file name
-		var fileName = filePrefix + '-' + reportDate + '-tenantcharges_by_line_item-' + siteAlias + '.csv';
+		var fileName = filePrefix + '-' + reportDate + '-' + siteAlias + '-tenantchargesbylineitem.csv';
 		
 		// start off the CSV
-		var CSV = '"ClientID","ClientAmount","OperatorAmount","Margin","ClientName","StartDateTime","EndDateTime","Site","BillingRef","LinkInvoiceYear","LinkInvoiceMonth"\r\n';
+		var CSV = '"Quantity","Telephone","AccountCode","Product","Type","Due","Unit Cost","Discount","Cost"\r\n';
 		
 		// create search to find service data records to be included in the report
 		var serviceDataSearch = search.create({
@@ -327,7 +327,7 @@ function(runtime, search, file, task) {
     			summary: 'SUM'
     		},
     				{
-    			name: 'custrecord_bbs_service_data_site_alias',
+    			name: 'custrecord_bbs_service_data_tenant_name',
     			summary: 'GROUP'
     		},
     				{
@@ -359,7 +359,7 @@ function(runtime, search, file, task) {
     			});
     			
     			var accountCode = searchResults[i].getValue({
-    				name: 'custrecord_bbs_service_data_site_alias',
+    				name: 'custrecord_bbs_service_data_tenant_name',
     				summary: 'GROUP'
     			});
     			

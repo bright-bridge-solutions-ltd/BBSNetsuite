@@ -194,7 +194,7 @@ function(runtime, search, file, task) {
     	});
     	
     	// specify the file name
-		var fileName = filePrefix + '-' + reportDate + '-' + customerName + '-consolidated_tenants.csv';
+		var fileName = filePrefix + '-' + reportDate + '-' + customerName + '-consolidated_tenant_charges_by_line_item.csv';
 		
 		// start off the CSV
 		var CSV = '"ClientID","ClientAmount","OperatorAmount","Margin","ClientName","StartDateTime","EndDateTime","Site","BillingRef"\r\n';
