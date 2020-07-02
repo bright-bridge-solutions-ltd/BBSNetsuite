@@ -753,7 +753,9 @@ function findMatchingPo(_billLineSupplier, _billLineRef, _billLineAmount, _billL
 					    "AND", 
 					   ["custbody_bbs_rec_unique_id","is",_billLineRef], 
 					   "AND", 
-					   ["custcol_po_month","anyof",_billLineMonth]
+					   ["custcol_po_month","anyof",_billLineMonth]//, 
+				//	   "AND", 
+				//	   ["custcol_bbs_reconciled","is","F"]
 					], 
 					[
 					   new nlobjSearchColumn("custcol_po_month"), 
@@ -785,9 +787,20 @@ function findMatchingPo(_billLineSupplier, _billLineRef, _billLineAmount, _billL
 			resultPoId			= purchaseorderSearch[0].getId();
 			resultPoLineId		= purchaseorderSearch[0].getValue('lineuniquekey');
 			
+			//Update the found po line to flag it as having been part of the reconciliation process
+			//
+			markPoLineAsProcessed(resultPoId, resultPoLineId);
+			
+			//Work out the reconciliation status based on matching the amount
+			//
 			if(poLineAmount == _billLineAmount)
 				{
 					resultStatus = 1;	//Reconciled - Bill Updated
+					
+					//Update the found po line to flag it as having been part of the reconciliation process
+					//
+					markPoLineAsProcessed(resultPoId, resultPoLineId);
+					
 				}
 			else
 				{
@@ -802,6 +815,58 @@ function findMatchingPo(_billLineSupplier, _billLineRef, _billLineAmount, _billL
 	return new poFindResultObj(resultPoId, resultPoLineId, resultStatus, poLineAmount, resultProdGrp);
 }
 
+function markPoLineAsProcessed(_poId, _poLineId)
+{
+	checkResources();
+	
+	var poRecord = null;
+	
+	//Load the po record
+	//
+	try
+		{
+			poRecord = nlapiLoadRecord('purchaseorder', _poId);
+		}
+	catch(err)
+		{
+			nlapiLogExecution('ERROR', 'Error loading purchase order id = ' + _poId, err.message);
+			poRecord = null;
+		}
+	
+	//Did the po record load ok
+	//
+	if(poRecord != null)
+		{
+			var poLines = poRecord.getLineItemCount('item');
+			
+			//Loop through the lines
+			//
+			for (var poLine = 1; poLine <= poLines; poLine++) 
+				{
+					var lineUniqueKey = poRecord.getLineItemValue('item', 'lineuniquekey', poLine);
+					
+					//Find the matching unique key on the lines
+					//
+					if(lineUniqueKey == _poLineId)
+						{
+							//Update the flag to say that it has been processed by the reconciliation
+							//
+							poRecord.setLineItemValue('item', 'custcol_bbs_reconciled', poLine, 'T');
+							
+							try
+								{
+									nlapiSubmitRecord(poRecord, false, true);
+								}
+							catch(err)
+								{
+									nlapiLogExecution('ERROR', 'Error saving purchase order id = ' + _poId, err.message);
+								}
+							
+							break;
+						}
+				}
+		}
+}
 
 function poFindResultObj(_poId, _poLineId, _status, _poLineAmount, _poProductGroup)
 {
