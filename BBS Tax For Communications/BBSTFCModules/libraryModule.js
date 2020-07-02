@@ -371,14 +371,14 @@ function(record, runtime, search, plugin, format)
 			// does local return true
 			if (local == true)
 				{
-					// increase taxScope variable by 512
+					// increase taxScope variable by 1024
 					taxScope += 1024;
 				}
-			
+				
 			// call functions to return the Avalara code for the tax type/category/domain
-			taxType		= getTaxTypeCode(taxType);
+			taxType = getTaxTypeCode(taxType);
 			taxCategory	= getTaxCategoryCode(taxCategory);
-			taxDomain	= getTaxDomainCode(taxDomain);
+			taxDomain = getTaxDomainCode(taxDomain);
 			
 			// construct a tax exemptions object
 			var taxExemptionsObj = new libTaxExemptionsObj();
@@ -470,12 +470,19 @@ function(record, runtime, search, plugin, format)
 	
 	function getSitePCode(siteID) {
 		
-		// get the P Code from the site record
-		return search.lookupFields({
-			type: 'customrecord_bbs_site',
-			id: siteID,
-			columns: ['custrecord_bbs_site_pcode']
-		}).custrecord_bbs_site_pcode;
+		// do we have a site ID
+		if (siteID)
+			{
+				return search.lookupFields({
+					type: 'customrecord_bbs_site',
+					id: siteID,
+					columns: ['custrecord_bbs_site_pcode']
+				}).custrecord_bbs_site_pcode;
+			}
+		else
+			{
+				return null;
+			}
 		
 	}
 	
@@ -490,25 +497,39 @@ function(record, runtime, search, plugin, format)
 		
 	}
 	
-	function getCustomerTypeCode(customerType) {
+	function getCustomerTypeCode(customerTypeID) {
 		
-		// get the customer type code from the customer type record
-		return search.lookupFields({
-			type: 'customrecord_bbstfc_customer_type',
-			id: customerType,
-			columns: ['custrecord_bbstfc_customer_type_code']
-		}).custrecord_bbstfc_customer_type_code;
+		// do we have a customer type ID
+		if (customerTypeID)
+			{
+				return search.lookupFields({
+					type: 'customrecord_bbstfc_customer_type',
+					id: customerTypeID,
+					columns: ['custrecord_bbstfc_customer_type_code']
+				}).custrecord_bbstfc_customer_type_code;
+			}
+		else
+			{
+				return null;
+			}
 		
 	}
 	
-	function getSalesTypeCode(salesType) {
+	function getSalesTypeCode(salesTypeID) {
 		
-		// get the sales type code from the sales type record
-		return search.lookupFields({
-			type: 'customrecord_bbstfc_sale_type',
-			id: salesType,
-			columns: ['custrecord_bbstfc_sale_type_code']
-		}).custrecord_bbstfc_sale_type_code;
+		// do we have a sales type ID
+		if (salesTypeID)
+			{
+				return search.lookupFields({
+					type: 'customrecord_bbstfc_sale_type',
+					id: salesTypeID,
+					columns: ['custrecord_bbstfc_sale_type_code']
+				}).custrecord_bbstfc_sale_type_code;
+			}
+		else
+			{
+				return null;
+			}
 		
 	}
 	
@@ -691,9 +712,6 @@ function(record, runtime, search, plugin, format)
 	}
 	
 	function createAFCCallLogRecords(transactionID, requestObject, responseObject) {
-		
-		// call function to delete existing call log records related to this transaction
-		deleteAFCCallLogRecords(transactionID);
 		
 		try
 			{
@@ -891,31 +909,55 @@ function(record, runtime, search, plugin, format)
 	
 	function getTaxTypeCode(taxTypeID) {
 		
-		return search.lookupFields({
-			type: 'customrecord_bbstfc_item_tax_types',
-			id: taxTypeID,
-			columns: ['custrecord_bbstfc_ttype_code']
-		}).custrecord_bbstfc_ttype_code;
+		// do we have a tax type ID
+		if (taxTypeID)
+			{
+				return search.lookupFields({
+					type: 'customrecord_bbstfc_item_tax_types',
+					id: taxTypeID,
+					columns: ['custrecord_bbstfc_ttype_code']
+				}).custrecord_bbstfc_ttype_code;
+			}
+		else
+			{
+				return null;
+			}
 		
 	}
 	
 	function getTaxCategoryCode(taxCategoryID) {
 		
-		return search.lookupFields({
-			type: 'customrecord_bbstfc_tax_type_cat',
-			id: taxCategoryID,
-			columns: ['custrecord_bbstfc_tax_type_cat_id']
-		}).custrecord_bbstfc_tax_type_cat_id;
+		// do we have a tax category ID
+		if (taxCategoryID)
+			{
+				return search.lookupFields({
+					type: 'customrecord_bbstfc_tax_type_cat',
+					id: taxCategoryID,
+					columns: ['custrecord_bbstfc_tax_type_cat_id']
+				}).custrecord_bbstfc_tax_type_cat_id;
+			}
+		else
+			{
+				return null;
+			}
 		
 	}
 	
 	function getTaxDomainCode(taxDomainID) {
 		
-		return search.lookupFields({
-			type: 'customrecord_bbstfc_tax_level',
-			id: taxDomainID,
-			columns: ['custrecord_bbstfc_tax_level_id']
-		}).custrecord_bbstfc_tax_level_id;
+		// do we have a tax domain ID
+		if (taxDomainID)
+			{
+				return search.lookupFields({
+					type: 'customrecord_bbstfc_tax_level',
+					id: taxDomainID,
+					columns: ['custrecord_bbstfc_tax_level_id']
+				}).custrecord_bbstfc_tax_level_id;	
+			}
+		else
+			{
+				return null;
+			}
 		
 	}
 	

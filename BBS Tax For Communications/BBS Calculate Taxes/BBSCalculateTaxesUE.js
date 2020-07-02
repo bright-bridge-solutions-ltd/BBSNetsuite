@@ -195,7 +195,7 @@ function(record, search, libraryModule, plugin)
 										//
 										var taxResult = tfcPlugin.getTaxCalculation(taxReqObj);
 										
-										// call function to create AFC Call Log records. Existing call logs relating to this transaction will be deleted
+										// call function to create AFC Call Log records
 										libraryModule.createAFCCallLogRecords(currentRecordID, taxReqObj, taxResult);
 										
 										//Check the result of the call to the plugin
