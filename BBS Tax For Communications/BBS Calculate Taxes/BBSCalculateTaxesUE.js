@@ -145,8 +145,8 @@ function(record, search, libraryModule, plugin)
 												var transactionType		=	itemLookup[0];
 												var serviceType			=	itemLookup[1];
 												
-												// do we have a transaction/service pair
-												if (transactionType)
+												// check we have a transaction/service pair
+												if (transactionType != '' && serviceType != '')
 													{
 														//Create a new invoice item object
 												        //
