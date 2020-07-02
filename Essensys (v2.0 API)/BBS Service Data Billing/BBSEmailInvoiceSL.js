@@ -433,7 +433,12 @@ function(ui, search, task, format, url, redirect, message) {
     				name: 'subsidiary',
     				operator: 'anyof',
     				values: [subsidiary]
-    			}],
+    			},
+						{
+					name: 'amount',
+					operator: 'greaterthan',
+					values: [0]
+				}],
     			
     			columns: [{
     				name: 'tranid'

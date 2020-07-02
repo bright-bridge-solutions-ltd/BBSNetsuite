@@ -32,8 +32,8 @@ function itemReceiptAfterSubmit(type)
 						// get the value of the rate column
 						var rate = nlapiGetLineItemValue('item', 'rate', i);
 					
-						// get the line number
-						var receiptLineNo = nlapiGetLineItemValue('item', 'line', i);
+						// get the order line number
+						var receiptLineNo = nlapiGetLineItemValue('item', 'orderline', i);
 						
 						// get count of lines on the purchase order
 						var poLineCount = poRec.getLineItemCount('item');
@@ -49,7 +49,16 @@ function itemReceiptAfterSubmit(type)
 									{
 										// get the received rate from the PO record
 										var rcvdTotal = poRec.getLineItemValue('item', 'custcol_rcvd_rate', x);
-										rcvdTotal = parseFloat(rcvdTotal);
+										
+										// do we have a received total
+										if (rcvdTotal)
+											{
+												rcvdTotal = parseFloat(rcvdTotal); // convert to floating point number
+											}
+										else
+											{
+												rcvdTotal = 0; // set rcvdTotal to 0
+											}
 										
 										// multiply the quantity by the rate to calculate received rate total
 										var rcvdRate = parseFloat(quantity * rate);
@@ -60,7 +69,7 @@ function itemReceiptAfterSubmit(type)
 												if (receive == 'T')
 													{
 														// subtract the rcvdRate variable from the rcvdTotal variable
-														var rcvdTotal = (rcvdTotal - rcvdRate);
+														rcvdTotal = parseFloat(rcvdTotal - rcvdRate);
 														
 														// populate the rcvd rate field on the PO record using the rcvdTotal variable
 														poRec.setLineItemValue('item', 'custcol_rcvd_rate', x, rcvdTotal);
@@ -71,20 +80,11 @@ function itemReceiptAfterSubmit(type)
 												// check that the receive checkbox is ticked
 												if (receive == 'T')
 													{
-														// check that the rcvdTotal variable returns a value
-														if (rcvdTotal)
-															{
-																// add the rcvdRate variable to the rcvdTotal variable
-																var rcvdTotal = (rcvdTotal + rcvdRate);
+														// add the rcvdRate variable to the rcvdTotal variable
+														rcvdTotal = parseFloat(rcvdTotal + rcvdRate);
 															
-																// populate the rcvd rate field on the PO record using the rcvdTotal variable
-																poRec.setLineItemValue('item', 'custcol_rcvd_rate', x, rcvdTotal);
-															}
-														else // rcvdTotal variable does not return a value
-															{
-																// populate the rcvd rate field on the PO record using the rcvdRate variable
-																poRec.setLineItemValue('item', 'custcol_rcvd_rate', x, rcvdRate);
-															}
+														// populate the rcvd rate field on the PO record using the rcvdTotal variable
+														poRec.setLineItemValue('item', 'custcol_rcvd_rate', x, rcvdTotal);
 													}
 											}
 										else if (type == 'edit') // if record is being edited
@@ -112,7 +112,7 @@ function itemReceiptAfterSubmit(type)
 														var rcvdRate = parseFloat(newRecQuantity * newRecRate);
 															
 														// subtract the rcvdRate variable from the rcvdTotal variable
-														var rcvdTotal = (rcvdTotal - rcvdRate);
+														rcvdTotal = parseFloat(rcvdTotal - rcvdRate);
 															
 														// populate the rcvd rate field on the PO record using the rcvdTotal variable
 														poRec.setLineItemValue('item', 'custcol_rcvd_rate', x, rcvdTotal);
@@ -123,7 +123,7 @@ function itemReceiptAfterSubmit(type)
 														var rcvdRate = parseFloat(newRecQuantity * newRecRate);
 															
 														// add the rcvdRate variable to the rcvdTotal variable
-														var rcvdTotal = (rcvdTotal + rcvdRate);
+														rcvdTotal = parseFloat(rcvdTotal + rcvdRate);
 															
 														// populate the rcvd rate field on the PO record using the rcvdTotal variable
 														poRec.setLineItemValue('item', 'custcol_rcvd_rate', x, rcvdTotal);
@@ -137,10 +137,10 @@ function itemReceiptAfterSubmit(type)
 														var newRcvdRate = parseFloat(newRecQuantity * newRecRate);
 															
 														// subtract the newRcvdRate variable from the oldRcvdRate variable
-														var rateDiff = (newRcvdRate - oldRcvdRate);
+														var rateDiff = parseFloat(newRcvdRate - oldRcvdRate);
 															
-														// add the rcvdRate variable to the rcvdTotal variable
-														var rcvdTotal = (rcvdTotal + rateDiff);
+														// add the rateDiff variable to the rcvdTotal variable
+														rcvdTotal = parseFloat(rcvdTotal + rateDiff);
 															
 														// populate the rcvd rate field on the PO record using the rcvdTotal variable
 														poRec.setLineItemValue('item', 'custcol_rcvd_rate', x, rcvdTotal);

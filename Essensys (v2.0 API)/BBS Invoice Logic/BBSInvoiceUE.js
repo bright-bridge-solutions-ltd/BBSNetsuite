@@ -120,7 +120,12 @@ function(runtime, search, record, render, file) {
 		    	var site = currentRecord.getValue({
 		    		fieldId: 'custbody_bbs_site_name'
 		    	});
-		    			
+
+				// get the value of the created from field from the invoice record
+				var createdFrom = currentRecord.getValue({
+					fieldId: 'createdfrom'
+				});
+
 		    	// check that we have a site
 		    	if (site)
 		    		{
@@ -255,9 +260,21 @@ function(runtime, search, record, render, file) {
 			    		// set filePrefix variable to US
 			    		var filePrefix = 'US';
 			    	}
-			    				    	
-			    // call function to create a PDF invoice and save to the file cabinet. Pass currentRecordID, filePrefix, transactionDate and siteAlias
-			    createPDFInvoice(currentRecordID, filePrefix, transactionDate, siteAlias);
+
+				// if createdFrom returns a value
+				if (createdFrom)
+					{
+						// set invoiceType variable to 'advance'
+						var invoiceType = 'advance';
+					}
+				else // standalone invoice
+					{
+						// set invoiceType variable to 'advance'
+						var invoiceType = 'arrears';
+					}
+
+			    // call function to create a PDF invoice and save to the file cabinet. Pass currentRecordID, filePrefix, invoiceType, transactionDate and siteAlias
+			    createPDFInvoice(currentRecordID, filePrefix, invoiceType, transactionDate, siteAlias);
     		}
 
     }
@@ -266,7 +283,7 @@ function(runtime, search, record, render, file) {
     // FUNCTION TO CREATE A PDF OF THE INVOICE AND SAVE TO THE FILE CABINET
     // ====================================================================
     
-    function createPDFInvoice(invoiceID, filePrefix, fileDate, siteAlias)
+    function createPDFInvoice(invoiceID, filePrefix, invoiceType, fileDate, siteAlias)
     	{
 	    	// Generate the PDF
 			var PDF_File = render.transaction({
@@ -281,7 +298,7 @@ function(runtime, search, record, render, file) {
 			invoiceTranID = invoiceTranID.replace(".pdf", ""); // remove '.pdf' from string
 			
 			// set the file name
-			PDF_File.name = filePrefix + '-' + fileDate + '-' + siteAlias + '-' + invoiceTranID + '_arrears.pdf';
+			PDF_File.name = filePrefix + '-' + fileDate + '-' + siteAlias + '-' + invoiceTranID + '_' + invoiceType + '.pdf';
 			
 			// set the attachments folder
 			PDF_File.folder = fileCabinetFolder;

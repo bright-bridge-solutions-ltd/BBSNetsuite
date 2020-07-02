@@ -197,7 +197,7 @@ function(runtime, search, file, task) {
 		var fileName = filePrefix + '-' + reportDate + '-' + customerName + '-consolidated_tenant_charges_by_line_item.csv';
 		
 		// start off the CSV
-		var CSV = '"ClientID","ClientAmount","OperatorAmount","Margin","ClientName","StartDateTime","EndDateTime","Site","BillingRef"\r\n';
+		var CSV = '"Quantity","Telephone","AccountCode","Product","Type","Due","UnitCost","Discount","Cost"\r\n';
     	
     	// create search to find service data records to be included in the report
 		var serviceDataSearch = search.create({
@@ -221,40 +221,24 @@ function(runtime, search, file, task) {
 	    	}],
 	    	
 	    	columns: [{
-	    		name: 'custrecord_bbs_service_data_tenant_alias',
-	    		summary: 'GROUP'
-	    	},
-	    			{
-    			name: 'formulacurrency',
-    			formula: "ROUND(CASE WHEN {custrecord_bbs_service_data_frequency} = 'One off' THEN {custrecord_bbs_service_data_sales_price} ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'DD') = TO_CHAR({custrecord_bbs_service_data_start_date},'DD') AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * (TO_CHAR({custrecord_bbs_service_data_end_date},'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD')) ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * TO_CHAR({custrecord_bbs_service_data_end_date},'DD') ELSE CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') -1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custrecord_bbs_service_data_sales_price} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD')) * (TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD') +1) ELSE {custrecord_bbs_service_data_sales_price} END END END END END, 2) * {custrecord_bbs_service_data_quantity}",
-    			summary: 'MAX'
-    		},
-    				{
-    			name: 'formulacurrency',
-    			formula: "ROUND(CASE WHEN {custrecord_bbs_service_data_frequency} = 'One off' THEN {custrecord_bbs_service_data_op_cost} ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'DD') = TO_CHAR({custrecord_bbs_service_data_start_date},'DD') AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * (TO_CHAR({custrecord_bbs_service_data_end_date},'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD')) ELSE CASE WHEN {custrecord_bbs_service_data_end_date} IS NOT NULL AND TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_end_date}),'DD') * TO_CHAR({custrecord_bbs_service_data_end_date},'DD') ELSE CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') -1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN ({custrecord_bbs_service_data_op_cost} / TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD')) * (TO_CHAR(LAST_DAY({custrecord_bbs_service_data_start_date}),'DD') - TO_CHAR({custrecord_bbs_service_data_start_date},'DD') +1) ELSE {custrecord_bbs_service_data_op_cost} END END END END END, 2) * {custrecord_bbs_service_data_quantity}",
-    			summary: 'MAX'
-    		},
-    				{
-    			name: 'custrecord_bbs_service_data_tenant_name',
-    			summary: 'MAX'
-    		},
-    				{
-    			name: 'formuladate',
-    			formula: "LAST_DAY(ADD_MONTHS({today},-2))+1",
-    			summary: 'MAX'
-    		},
-    				{
-    			name: 'formuladate',
-    			formula: "LAST_DAY(ADD_MONTHS({today},-1))",
-    			summary: 'MAX'
+    			name: 'custrecord_bbs_service_data_quantity',
+    			summary: 'SUM'
     		},
     				{
     			name: 'custrecord_bbs_service_data_site_name',
-    			summary: 'MAX',
-		    	sort: search.Sort.ASC
+    			summary: 'GROUP'
     		},
     				{
-    			name: 'custrecord_bbs_service_data_billing_ref',
+    			name: 'custrecord_bbs_service_data_parent_prod',
+    			summary: 'GROUP'
+    		},
+    				{
+    			name: 'custrecord_bbs_service_data_sales_price',
+    			summary: 'MAX'
+    		},
+    				{
+    			name: 'formulacurrency',
+    			formula: "SUM({custrecord_bbs_service_data_quantity}) * MAX({custrecord_bbs_service_data_sales_price})",
     			summary: 'MAX'
     		}],
 			
@@ -266,19 +250,34 @@ function(runtime, search, file, task) {
 		// process search results
 		for (var i = 0; i < searchResults.length; i++)
 			{
-				// retrieve search results. Using column numbers to return formula values
-				var clientID = searchResults[i].getValue(searchResults[i].columns[0]);
-				var clientAmount = searchResults[i].getValue(searchResults[i].columns[1]);
-				var operatorAmount = searchResults[i].getValue(searchResults[i].columns[2]);
-				var margin = parseFloat(operatorAmount - clientAmount); // calculate the margin
-				var clientName = searchResults[i].getValue(searchResults[i].columns[3]);			
-				var startDateTime = searchResults[i].getValue(searchResults[i].columns[4]);
-				var endDateTime = searchResults[i].getValue(searchResults[i].columns[5]);
-				var site = searchResults[i].getValue(searchResults[i].columns[6]);
-				var billingRef = searchResults[i].getValue(searchResults[i].columns[7]);
-				
-				// add the service data record details to the CSV
-    			CSV += clientID + ',' + clientAmount + ',' + operatorAmount + ',' + margin + ',' + clientName + ',' + startDateTime + ',' + endDateTime + ',' + site + ',' + billingRef;
+				// retrieve search results
+    			var quantity = searchResults[i].getValue({
+    				name: 'custrecord_bbs_service_data_quantity',
+    				summary: 'SUM'
+    			});
+    			
+    			var accountCode = searchResults[i].getValue({
+    				name: 'custrecord_bbs_service_data_site_name',
+    				summary: 'GROUP'
+    			});
+    			
+    			var product = searchResults[i].getValue({
+    				name: 'custrecord_bbs_service_data_parent_prod',
+    				summary: 'GROUP'
+    			});
+    			
+    			var unitCost = searchResults[i].getValue({
+    				name: 'custrecord_bbs_service_data_sales_price',
+    				summary: 'MAX'
+    			});
+    			
+    			var cost = searchResults[i].getValue({
+    				name: 'formulacurrency',
+    				summary: 'MAX'
+    			});
+			
+    			// add the service data record details to the CSV
+    			CSV += quantity + ',' + ',' + accountCode + ',' + product + ',' + ',' + ',' + unitCost + ',' + 0 + ',' + cost;
     			CSV += '\r\n';
 			}
 		
