@@ -335,6 +335,48 @@ function processFullyBilledPurchaseOrders(_processingDate)
 									newPurchaseOrder.setLineItemValue('item', 'amount', 1, lineAmount);
 								}
 
+							
+							//See if there any un-reconciled lines on the po that need to be copied to a new line
+							//
+							var nextNewLine = newLines;
+							
+							for (var lineCounter = 1; lineCounter <= newLines; lineCounter++) 
+								{
+									var reconFlag = newPurchaseOrder.getLineItemValue('item', 'custcol_bbs_reconciled', lineCounter);
+									
+									if(reconFlag != 'T')
+										{
+											//Copy this line to a new line 
+											//
+											var lineItemFields = newPurchaseOrder.getAllLineItemFields('item');
+											
+											nextNewLine++;
+											
+											for (var lineItemField = 1; lineItemField < lineItemFields.length; lineItemField++) 
+												{
+													try
+														{
+															newPurchaseOrder.setLineItemValue('item', lineItemFields[lineItemField], nextNewLine, newPurchaseOrder.getLineItemValue('item', lineItemFields[lineItemField], lineCounter));
+														}
+													catch(err)
+														{
+														
+														}
+												}
+											
+											newPurchaseOrder.setLineItemValue('item', 'custcol_bbs_reconciled', nextNewLine, 'F');
+										}
+								}
+							
+							
+							//Reset the reconciled flag on all lines
+							//
+							for (var lineCounter = 1; lineCounter <= newLines; lineCounter++) 
+								{
+									newPurchaseOrder.setLineItemValue('item', 'custcol_bbs_reconciled', lineCounter, 'F');
+								}
+							
+							
 							//Save the new purchase order
 							//
 							var newPurchaseOrderId = null;
