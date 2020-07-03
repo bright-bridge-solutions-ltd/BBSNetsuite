@@ -336,7 +336,7 @@ function(runtime, search, file, task) {
     		},
     				{
     			name: 'custrecord_bbs_service_data_sales_price',
-    			summary: 'MAX'
+    			summary: 'GROUP'
     		},
     				{
     			name: 'formulacurrency',
@@ -370,7 +370,7 @@ function(runtime, search, file, task) {
     			
     			var unitCost = searchResults[i].getValue({
     				name: 'custrecord_bbs_service_data_sales_price',
-    				summary: 'MAX'
+    				summary: 'GROUP'
     			});
     			
     			var cost = searchResults[i].getValue({

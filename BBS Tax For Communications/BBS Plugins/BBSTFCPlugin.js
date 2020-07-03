@@ -48,9 +48,11 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 	
 	    //Get tax calculation results
 	    //
-	    function getTaxCalculation(_calcTaxesRequest)
+	    function getTaxCalculation(_calcTaxesRequest, _subsidiaryClientProfileID)
 	    	{
-		    	var headerObj 			= {};
+		    	
+
+				var headerObj 			= {};
 				var getTaxesObj 		= new libraryModule.libGenericResponseObj();
 				var responseBodyObj 	= null;
 				var configurationObj	= null;
@@ -61,12 +63,25 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 				
 				if(configurationObj != null)
 					{
-						//Build up the headers for the get request
-						//
-						headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
-						headerObj['Accept']				= '*/*';
-						headerObj['client_id']			= configurationObj.clientId;
-						headerObj['Content-Type']		= 'application/json-patch+json';
+						// is the subsidiary client profile ID variable populated
+						if (_subsidiaryClientProfileID)
+							{
+								//Build up the headers for the get request
+								//
+								headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
+								headerObj['Accept']				= '*/*';
+								headerObj['client_id']			= _subsidiaryClientProfileID; // use the subsidiary client profile id
+								headerObj['Content-Type']		= 'application/json-patch+json';
+							}
+						else
+							{
+								//Build up the headers for the get request
+								//
+								headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
+								headerObj['Accept']				= '*/*';
+								headerObj['client_id']			= configurationObj.clientId; // use the client profile id from the config object
+								headerObj['Content-Type']		= 'application/json-patch+json';
+							}
 						
 						//Execute the request 
 						//  

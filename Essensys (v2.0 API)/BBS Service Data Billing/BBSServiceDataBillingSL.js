@@ -39,7 +39,7 @@ function(ui, message, task, url, redirect, runtime) {
 						form.addPageInitMessage({
 				            type: message.Type.CONFIRMATION,
 				            title: 'Billing Process Scheduled',
-				            message: 'The billing process for ' + subsidiary + ' has been scheduled.<br><br>You may now close this page, or select another subsidiary to create additional invoices.<br><br>Click <a href="https://5554661.app.netsuite.com/app/common/scripting/mapreducescriptstatus.nl?daterange=TODAY" target="_blank">here</a> to view the map/reduce script status page (this will open in a new tab/window)'
+				            message: 'The billing process for ' + subsidiary + ' has been scheduled.<br><br>You may now close this page, or select another subsidiary to create additional invoices.<br><br>Click <a href="https://5423837.app.netsuite.com/app/common/scripting/mapreducescriptstatus.nl?daterange=TODAY" target="_blank">here</a> to view the map/reduce script status page (this will open in a new tab/window)'
 				        });
 					}
 				

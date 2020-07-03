@@ -197,7 +197,7 @@ function(runtime, search, file, task) {
 		var fileName = filePrefix + '-' + reportDate + '-' + customerName + '-consolidated_tenant_charges_by_line_item.csv';
 		
 		// start off the CSV
-		var CSV = '"Quantity","Telephone","AccountCode","Product","Type","Due","UnitCost","Discount","Cost"\r\n';
+		var CSV = '"Quantity","Telephone","AccountCode","Product","Type","Due","UnitCost","Discount","Cost","Site"\r\n';
     	
     	// create search to find service data records to be included in the report
 		var serviceDataSearch = search.create({
@@ -228,13 +228,17 @@ function(runtime, search, file, task) {
     			name: 'custrecord_bbs_service_data_site_name',
     			summary: 'GROUP'
     		},
+					{
+				name: 'custrecord_bbs_service_data_tenant_name',
+				summary: 'GROUP'
+			},
     				{
     			name: 'custrecord_bbs_service_data_parent_prod',
     			summary: 'GROUP'
     		},
     				{
     			name: 'custrecord_bbs_service_data_sales_price',
-    			summary: 'MAX'
+    			summary: 'GROUP'
     		},
     				{
     			name: 'formulacurrency',
@@ -256,10 +260,15 @@ function(runtime, search, file, task) {
     				summary: 'SUM'
     			});
     			
-    			var accountCode = searchResults[i].getValue({
+    			var siteName = searchResults[i].getValue({
     				name: 'custrecord_bbs_service_data_site_name',
     				summary: 'GROUP'
     			});
+
+				var tenantName = searchResults[i].getValue({
+					name: 'custrecord_bbs_service_data_tenant_name',
+					summary: 'GROUP'
+				});
     			
     			var product = searchResults[i].getValue({
     				name: 'custrecord_bbs_service_data_parent_prod',
@@ -268,7 +277,7 @@ function(runtime, search, file, task) {
     			
     			var unitCost = searchResults[i].getValue({
     				name: 'custrecord_bbs_service_data_sales_price',
-    				summary: 'MAX'
+    				summary: 'GROUP'
     			});
     			
     			var cost = searchResults[i].getValue({
@@ -277,7 +286,7 @@ function(runtime, search, file, task) {
     			});
 			
     			// add the service data record details to the CSV
-    			CSV += quantity + ',' + ',' + accountCode + ',' + product + ',' + ',' + ',' + unitCost + ',' + 0 + ',' + cost;
+    			CSV += quantity + ',' + ',' + tenantName + ',' + product + ',' + ',' + ',' + unitCost + ',' + 0 + ',' + cost + ',' + siteName;
     			CSV += '\r\n';
 			}
 		

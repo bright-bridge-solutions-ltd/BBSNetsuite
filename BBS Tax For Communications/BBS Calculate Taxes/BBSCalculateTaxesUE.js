@@ -73,10 +73,12 @@ function(record, search, libraryModule, plugin)
 								var lifeline		=	customerLookup[3];
 								
 								// call function to return/lookup fields on the subsidiary record
-								var subsidiaryPCode	= libraryModule.getSubsidiaryPCode(subsidiaryID);
+								var subsidiaryLookup			= libraryModule.getSubsidiaryInfo(subsidiaryID);
+								var subsidiaryClientProfileID	= subsidiaryLookup[0];
+								var subsidiaryPCode				= subsidiaryLookup[1];
 								
 								// call function to return/lookup fields on the site record
-								var shipToPCode	= libraryModule.getSitePCode(siteID);
+								var shipToPCode	= libraryModule.getSiteInfo(siteID);
 								
 								// call function to return any exemptions for the customer
 								var customerExemptions = libraryModule.getCustomerExemptions(customerID, tranDate, shipToPCode);
@@ -137,7 +139,7 @@ function(record, search, libraryModule, plugin)
 										        // retrieve line item values
 												var itemID		=	currentRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: i});
 												var itemType	=	currentRecord.getSublistValue({sublistId: 'item', fieldId: 'itemtype', line: i});
-												var itemRate	=	currentRecord.getSublistValue({sublistId: 'item', fieldId: 'rate', line: i});
+												var itemRate	=	currentRecord.getSublistValue({sublistId: 'item', fieldId: 'amount', line: i});
 												var quantity	=	currentRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: i});
 												
 												// call function to return/lookup fields on the item record
@@ -158,7 +160,7 @@ function(record, search, libraryModule, plugin)
 														taxReqItemObj.from.pcd	=	subsidiaryPCode;
 														taxReqItemObj.to.pcd	=	shipToPCode;
 														taxReqItemObj.chg		=	itemRate;
-														taxReqItemObj.line		=	1;
+														taxReqItemObj.line		=	quantity;
 														taxReqItemObj.loc		=	1;
 														taxReqItemObj.min		=	0;
 														taxReqItemObj.sale		=	salesType;
@@ -175,7 +177,7 @@ function(record, search, libraryModule, plugin)
 														taxReqItemObj.cust		=	customerType;
 														taxReqItemObj.lfln		=	lifeline;
 														taxReqItemObj.date		=	tranDate;
-														taxReqItemObj.qty		=	quantity;
+														taxReqItemObj.qty		=	1;
 														taxReqItemObj.glref		=	i;
 												        
 												        //Add the item object to the invoice line object array
@@ -193,18 +195,23 @@ function(record, search, libraryModule, plugin)
 					
 										//Finally, call the plugin method
 										//
-										var taxResult = tfcPlugin.getTaxCalculation(taxReqObj);
+										var taxResult = tfcPlugin.getTaxCalculation(taxReqObj, subsidiaryClientProfileID);
 										
 										// call function to create AFC Call Log records
 										libraryModule.createAFCCallLogRecords(currentRecordID, taxReqObj, taxResult);
+										
+										// call function to delete existing Calculated Taxes records
+										libraryModule.deleteCalculatedTaxes(currentRecordID);
+										
+										// declare and initialize variables
+										var totalTaxes = 0;
+										var linesToUpdate = new Array();
+										var errorMessages = '';
 										
 										//Check the result of the call to the plugin
 										//
 										if(taxResult != null && taxResult.httpResponseCode == '200')
 											{
-												// call function to delete existing Calculated Taxes records
-												libraryModule.deleteCalculatedTaxes(currentRecordID);
-											
 												// get the API response body
 												var taxResultDetails = taxResult.apiResponse;
 												
@@ -214,11 +221,6 @@ function(record, search, libraryModule, plugin)
 												// loop through invoices
 												for (var i = 0; i < invoices.length; i++)
 													{
-														// declare and initialize variables
-														var totalTaxes = 0;
-														var linesToUpdate = new Array();
-														var errorMessages = '';
-													
 														// get the internal ID of the invoice
 														var invoiceID = invoices[i].doc;
 																
@@ -293,13 +295,20 @@ function(record, search, libraryModule, plugin)
 																				}
 																		}
 																}
-														
-														// call function to update the tax total on the record
-														libraryModule.updateTaxTotal(currentRecordType, currentRecordID, linesToUpdate, errorMessages, totalTaxes);
-
 													}
 												
 											}
+										else
+											{	
+												// add the response code and api response to the error messages
+												errorMessages += 'httpResponseCode: ' + taxResult.httpResponseCode;
+												errorMessages += '<br>';
+												errorMessages += 'apiResponse: ' + taxResult.apiResponse;
+											}
+											
+										// call function to update the tax total on the record
+										libraryModule.updateTaxTotal(currentRecordType, currentRecordID, linesToUpdate, errorMessages, totalTaxes);	
+											
 									}
 							}
 						catch(err)

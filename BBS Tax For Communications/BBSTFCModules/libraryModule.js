@@ -448,7 +448,10 @@ function(record, runtime, search, plugin, format)
 		
 	}
 	
-	function getSubsidiaryPCode(subsidiaryID) {
+	function getSubsidiaryInfo(subsidiaryID) {
+		
+		// declare array to hold return values
+		var returnArray = new Array();
 		
 		// load the subsidiary record
 		var subsidiaryRecord = record.load({
@@ -456,19 +459,30 @@ function(record, runtime, search, plugin, format)
 			id: subsidiaryID
 		});
 		
+		// get the client profile ID
+		var clientProfileID = subsidiaryRecord.getValue({
+			fieldId: 'custrecord_bbstfc_subsid_profile_id'
+		});
+		
 		// get the address subrecord
 		var addressSubrecord = subsidiaryRecord.getSubrecord({
 			fieldId: 'mainaddress'
 		});
 		
-		// return the P Code
-		return addressSubrecord.getValue({
+		// get the P Code
+		var pCode = addressSubrecord.getValue({
 			fieldId: 'custrecord_bbstfc_address_pcode'
 		});
 		
+		// push values to the returnArray
+		returnArray.push(clientProfileID);
+		returnArray.push(pCode);
+		
+		return returnArray;
+		
 	}
 	
-	function getSitePCode(siteID) {
+	function getSiteInfo(siteID) {
 		
 		// do we have a site ID
 		if (siteID)
@@ -774,48 +788,6 @@ function(record, runtime, search, plugin, format)
 			}
 		
 	}
-	
-	function deleteAFCCallLogRecords(transactionID) {
-		
-		// run search to find records to be created
-		search.create({
-			type: 'customrecord_bbstfc_call_log',
-			
-			filters: [{
-				name: 'custrecord_bbstfc_call_log_transaction',
-				operator: 'anyof',
-				values: [transactionID]
-			}],
-			
-			columns: [{
-				name: 'internalid'
-			}],
-			
-		}).run().each(function(result){
-			
-			try
-				{
-					// delete the AFC Call Log record
-					record.delete({
-						type: 'customrecord_bbstfc_call_log',
-						id: result.id
-					});
-				}
-			catch(e)
-				{
-					log.error({
-						title: 'Error Deleting AFC Call Log Record ' + result.id,
-						details: e
-					});
-				}
-			
-			// continue processing search results
-			return true;
-			
-		});
-		
-	}
-	
 	
 	function getTaxCategoryID(taxTypeCatID) {
 		
@@ -1484,8 +1456,8 @@ function(record, runtime, search, plugin, format)
 			getCustomerInfo:				getCustomerInfo,
     		getCustomerExemptions:			getCustomerExemptions,
 			getTransactionServicePair:		getTransactionServicePair,
-    		getSubsidiaryPCode:				getSubsidiaryPCode,
-    		getSitePCode:					getSitePCode,
+    		getSubsidiaryInfo:				getSubsidiaryInfo,
+    		getSiteInfo:					getSiteInfo,
     		getISOCode:						getISOCode,
     		createCalculatedTaxes:			createCalculatedTaxes,
 			deleteCalculatedTaxes:			deleteCalculatedTaxes,

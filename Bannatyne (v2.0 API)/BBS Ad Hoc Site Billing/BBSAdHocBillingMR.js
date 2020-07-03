@@ -177,6 +177,9 @@ function(runtime, search, format, record) {
 				var step4Date = searchResult.values["custrecord_bbs_ad_hoc_site_step_4_date"];
 				var step5Date = searchResult.values["custrecord_bbs_ad_hoc_site_step_5_date"];
 				
+				// get the step1Amount from the search results and set the invoiceAmont variable using this value
+				invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_1_amt"];
+				
 				// check if the step1Date variable returns a value
 				if (step1Date)
 					{
@@ -186,12 +189,12 @@ function(runtime, search, format, record) {
 							value: step1Date
 						});
 						
-						// get the step1Amount from the search results and set the invoiceAmont variable using this value
-						invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_1_amt"];
-					
 						// check if today is after the step 1 date
 						if (today.getTime() > step1Date.getTime())
 							{
+								// get the step2Amount from the search results and set the invoiceAmont variable using this value
+								invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_2_amt"];
+								
 								// check if the step2Date variable returns a value
 								if (step2Date)
 									{
@@ -201,12 +204,12 @@ function(runtime, search, format, record) {
 											value: step2Date
 										});
 										
-										// get the step2Amount from the search results and set the invoiceAmont variable using this value
-										invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_2_amt"];
-										
 										// check if today is after the step 2 date
 										if (today.getTime() > step2Date.getTime())
 											{
+												// get the step3Amount from the search results and set the invoiceAmont variable using this value
+												invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_3_amt"];
+												
 												// check if the step3Date variable returns a value
 												if (step3Date)
 													{
@@ -216,33 +219,26 @@ function(runtime, search, format, record) {
 															value: step3Date
 														});
 														
-														// get the step3Amount from the search results and set the invoiceAmont variable using this value
-														invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_3_amt"];
-														
 														// check if today is after the step 3 date
 														if (today.getTime() > step3Date.getTime())
 															{
 																// check if the step4Date variable returns a value
 																if (step4Date)
 																	{
+																		// get the step4Amount from the search results and set the invoiceAmont variable using this value
+																		invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_4_amt"];
+																		
 																		// format step4Date as a date object
 																		step4Date = format.parse({
 																			type: format.Type.DATE,
 																			value: step4Date
 																		});
-																		
-																		// get the step4Amount from the search results and set the invoiceAmont variable using this value
-																		invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_4_amt"];
 											
 																		// check if today is after the step 4 date
 																		if (today.getTime() > step4Date.getTime())
 																			{
-																				// check if the step5Date variable returns a value
-																				if (step5Date)
-																					{
-																						// get the step5Amount from the search results and set the invoiceAmont variable using this value
-																						invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_5_amt"];
-																					}
+																				// get the step5Amount from the search results and set the invoiceAmont variable using this value
+																				invoiceAmount = searchResult.values["custrecord_bbs_ad_hoc_site_step_5_amt"];
 																			}
 																	}
 															}

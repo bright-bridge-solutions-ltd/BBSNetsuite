@@ -125,112 +125,126 @@ function(config, runtime, record, format, search) {
     			if (oldApprovalStatus == 2 && newApprovalStatus == 1)
     				{
     					// get the value of the customer field from the newRecord object
-    					var customer = newRecord.getValue({
+    					var customerID = newRecord.getValue({
     						fieldId: 'custrecord_bbs_ad_hoc_site_customer'
     					});
     				
-    					// check if the customer variable is null
-    					if (customer == '')
+    					// check if the customerID variable is null
+    					if (customerID == '')
     						{
-    							// call function to create a customer record. Pass newRecord object and currentRecordID. ID of created customer will be returned
-        						customer = createCustomer(newRecord, currentRecordID);
+    							// call function to check if we have an existing customer. Pass newRecord object
+								customerID = findCustomer(newRecord);
+								
+								// if we have not found an existing customer
+								if (customerID == '')
+									{
+										// call function to create a customer record. Pass newRecord object and currentRecordID. ID of created customer will be returned
+        								customerID = createCustomer(newRecord, currentRecordID);	
+									}
     						}
-    					
-    					// get the value of the agreement date field from the newRecord object
-		    			var agreementDate = newRecord.getValue({
-		    				fieldId: 'custrecord_bbs_ad_hoc_site_agree_date'
-		    			});
-		    			
-		    			// format agreementDate as a date object
-		    			agreementDate = format.parse({
-		    				type: format.Type.DATE,
-		    				value: agreementDate
-		    			});
-		    			
-		    			// get today's date
-		    			var today = new Date();
-    				
-    					// check that the agreement date is this month and the agreement date is this year
-    					if (agreementDate.getMonth()+1 == today.getMonth()+1 && agreementDate.getFullYear() == today.getFullYear())
-    						{
-	    						// get the value of the 'Do Not Issue Deposit Invoice' checkbox from the newRecord object
-	        					var noDepositInvoice = newRecord.getValue({
-	        						fieldId: 'custrecord_bbs_ad_hoc_site_no_dep_inv'
-	        					});
-	        					
-	        					// get the value of the 'Do Not Issue Pro Forma Invoice' checkbox from the newRecord object
-	        					var noProFormaInvoice = newRecord.getValue({
-	        						fieldId: 'custrecord_bbs_ad_hoc_site_no_pro_forma'
-	        					});
-	        					
-	        					// check that the noDepositInvoice variable returns false
-	        					if (noDepositInvoice == false)
-	        						{
-		        						// set invoiceType
-	        							var invoiceType = 1; // 1 = Deposit
-	        						
-	        							// call function to create a deposit invoice. Pass newRecord, currentRecordID, customer and invoiceType
-			    	        			createDepositInvoice(newRecord, currentRecordID, customer, invoiceType);
-	        						}
-	        					
-	        					// check if the noProFormaInvoice variable returns false
-	        					if (noProFormaInvoice == false)
-	        						{
-		        						// get the value of the stepped rent field from the newRecord object
-			    						var steppedRent = newRecord.getValue({
-			    							fieldId: 'custrecord_bbs_ad_hoc_site_stepped_rent'
-			    						});
-			    						
-			    						// check if the steppedRent variable returns 1 (Rent is Stepped)
-			    						if (steppedRent == '1')
-			    							{
-			    								// get the value of the '1st Step Amount' field
-			    								var monthlyAmount = newRecord.getValue({
-			    									fieldId: 'custrecord_bbs_ad_hoc_site_step_1_amt'
-			    								});
-			    							}
-			    						else // rent is NOT stepped
-			    							{
-			    								// get the value of the monthly amount field
-			    					    		var monthlyAmount = newRecord.getValue({
-			    					    			fieldId: 'custrecord_bbs_ad_hoc_site_monthly_amt'
-			    					    		});
-			    							}
-			    						
-			    						// get the start date of the contract
-			    			    		var startDate = newRecord.getValue({
-			    			    			fieldId: 'custrecord_bbs_ad_hoc_site_start_date'
-			    			    		});
-			    			    		
-			    			    		// format startDate as a date object
-			    			    		startDate = format.parse({
-			    							type: format.Type.DATE,
-			    							value: startDate
-			    						});
-			    			    		
-			    			    		// get the day of the month from the startDate object
-			    						var startDay = startDate.getDate();
-			    						
-			    						// call function to calculate number of days in the current month
-					    				var daysInMonth = getDaysInMonth(startDate.getMonth(), startDate.getFullYear());
+						
+						// check that we have a customerID
+						if (customerID)
+							{
+		    					// get the value of the agreement date field from the newRecord object
+				    			var agreementDate = newRecord.getValue({
+				    				fieldId: 'custrecord_bbs_ad_hoc_site_agree_date'
+				    			});
+				    			
+				    			// format agreementDate as a date object
+				    			agreementDate = format.parse({
+				    				type: format.Type.DATE,
+				    				value: agreementDate
+				    			});
+				    			
+				    			// get today's date
+				    			var today = new Date();
+		    				
+		    					// check that the agreement date is this month and the agreement date is this year
+		    					if (agreementDate.getMonth()+1 == today.getMonth()+1 && agreementDate.getFullYear() == today.getFullYear())
+		    						{
+			    						// get the value of the 'Do Not Issue Deposit Invoice' checkbox from the newRecord object
+			        					var noDepositInvoice = newRecord.getValue({
+			        						fieldId: 'custrecord_bbs_ad_hoc_site_no_dep_inv'
+			        					});
+			        					
+			        					// get the value of the 'Do Not Issue Pro Forma Invoice' checkbox from the newRecord object
+			        					var noProFormaInvoice = newRecord.getValue({
+			        						fieldId: 'custrecord_bbs_ad_hoc_site_no_pro_forma'
+			        					});
+			        					
+			        					// check that the noDepositInvoice variable returns false
+			        					if (noDepositInvoice == false)
+			        						{
+				        						// set invoiceType
+			        							var invoiceType = 1; // 1 = Deposit
+			        						
+			        							// call function to create a deposit invoice. Pass newRecord, currentRecordID, customerID and invoiceType
+					    	        			createDepositInvoice(newRecord, currentRecordID, customerID, invoiceType);
+			        						}
+			        					
+			        					// check if the noProFormaInvoice variable returns false
+			        					if (noProFormaInvoice == false)
+			        						{
+				        						// get the value of the stepped rent field from the newRecord object
+					    						var steppedRent = newRecord.getValue({
+					    							fieldId: 'custrecord_bbs_ad_hoc_site_stepped_rent'
+					    						});
 					    						
-					    				// divide monthlyAmount by daysInMonth to calculate dailyAmount
-					    				var dailyAmount = (monthlyAmount / daysInMonth);
+					    						// check if the steppedRent variable returns 1 (Rent is Stepped)
+					    						if (steppedRent == '1')
+					    							{
+					    								// get the value of the '1st Step Amount' field
+					    								var monthlyAmount = newRecord.getValue({
+					    									fieldId: 'custrecord_bbs_ad_hoc_site_step_1_amt'
+					    								});
+					    							}
+					    						else // rent is NOT stepped
+					    							{
+					    								// get the value of the monthly amount field
+					    					    		var monthlyAmount = newRecord.getValue({
+					    					    			fieldId: 'custrecord_bbs_ad_hoc_site_monthly_amt'
+					    					    		});
+					    							}
 					    						
-					    				// calculate the days remaining in the month by subtracting startDay from daysInMonth
-					    				var daysRemaining = ((daysInMonth - startDay) + 1);
+					    						// get the start date of the contract
+					    			    		var startDate = newRecord.getValue({
+					    			    			fieldId: 'custrecord_bbs_ad_hoc_site_start_date'
+					    			    		});
+					    			    		
+					    			    		// format startDate as a date object
+					    			    		startDate = format.parse({
+					    							type: format.Type.DATE,
+					    							value: startDate
+					    						});
+					    			    		
+					    			    		// get the day of the month from the startDate object
+					    						var startDay = startDate.getDate();
 					    						
-					    				// multiply dailyAmount by daysRemaining to calculate the pro rata invoice amount
-					    				var invoiceAmount = parseFloat(dailyAmount * daysRemaining);
-					    				invoiceAmount = invoiceAmount.toFixed(2);
-	        						
-			    						// set invoice type
-			    						var invoiceType = 3; // 3 = Pro-Rata
-			    						
-			    						// call function to create a pro rata invoice. Pass newRecord, currentRecordID, customer, invoiceAmount, invoiceType
-			        					createProRataInvoice(newRecord, currentRecordID, customer, invoiceAmount, invoiceType);
-	        						}
-    						}
+					    						// call function to calculate number of days in the current month
+							    				var daysInMonth = getDaysInMonth(startDate.getMonth(), startDate.getFullYear());
+							    						
+							    				// divide monthlyAmount by daysInMonth to calculate dailyAmount
+							    				var dailyAmount = (monthlyAmount / daysInMonth);
+							    						
+							    				// calculate the days remaining in the month by subtracting startDay from daysInMonth
+							    				var daysRemaining = ((daysInMonth - startDay) + 1);
+							    						
+							    				// multiply dailyAmount by daysRemaining to calculate the pro rata invoice amount
+							    				var invoiceAmount = parseFloat(dailyAmount * daysRemaining);
+							    				invoiceAmount = invoiceAmount.toFixed(2);
+			        						
+					    						// set invoice type
+					    						var invoiceType = 3; // 3 = Pro-Rata
+					    						
+					    						// call function to create a pro rata invoice. Pass newRecord, currentRecordID, customerID, invoiceAmount, invoiceType
+					        					createProRataInvoice(newRecord, currentRecordID, customerID, invoiceAmount, invoiceType);
+		
+												// call function to update the ad hoc site record with the customer. Pass currentRecordID and customerID variables
+												updateAdHocSiteRecord(currentRecordID, customerID);
+			        						}
+		    						}
+							}
     				}
     			// check if the oldContractTerminated variable returns false and the newContractTerminated variable returns true
     			else if (oldContractTerminated == false && newContractTerminated == true)
@@ -243,7 +257,7 @@ function(config, runtime, record, format, search) {
     					today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     					
     					// get the value of the customer field from the newRecord object
-    					var customer = newRecord.getValue({
+    					var customerID = newRecord.getValue({
     						fieldId: 'custrecord_bbs_ad_hoc_site_customer'
     					});
     				
@@ -284,7 +298,12 @@ function(config, runtime, record, format, search) {
 	    									fieldId: 'custrecord_bbs_ad_hoc_site_step_5_date'
 	    								});
 	    								
-	    								// check if the step1Date variable returns a value
+	    								// get the step1Amount from the newRecord object and set the monthlyAmount variable using this value
+	    								monthlyAmount = newRecord.getValue({
+	    									fieldId: 'custrecord_bbs_ad_hoc_site_step_1_amt'
+	    								});
+					
+										// check if the step1Date variable returns a value
 	    								if (step1Date)
 	    									{
 	    										// format step1Date as a date object
@@ -293,15 +312,15 @@ function(config, runtime, record, format, search) {
 	    											value: step1Date
 	    										});
 	    									
-	    										// get the step1Amount from the newRecord object and set the monthlyAmount variable using this value
-	    										monthlyAmount = newRecord.getValue({
-	    											fieldId: 'custrecord_bbs_ad_hoc_site_step_1_amt'
-	    										});
-	    								
 	    										// check if today is after the step 1 date
 	    										if (today.getTime() > step1Date.getTime())
 	    											{
-	    												// check if the step2Date variable returns a value
+	    												// get the step2Amount from the newRecord object and set the monthlyAmount variable using this value
+	    												monthlyAmount = newRecord.getValue({
+	    			    									fieldId: 'custrecord_bbs_ad_hoc_site_step_2_amt'
+	    			    								});
+									
+														// check if the step2Date variable returns a value
 	    												if (step2Date)
 	    													{
 	    														// format step2Date as a date object
@@ -310,15 +329,15 @@ function(config, runtime, record, format, search) {
 	    															value: step2Date
 	    														});
 	    													
-	    														// get the step2Amount from the newRecord object and set the monthlyAmount variable using this value
-	    														monthlyAmount = newRecord.getValue({
-	    			    											fieldId: 'custrecord_bbs_ad_hoc_site_step_2_amt'
-	    			    										});
-	    													
 	    														// check if today is after the step 2 date
 	    														if (today.getTime() > step2Date.getTime())
 	    															{
-	    																// check if the step3Date variable returns a value
+	    																// get the step3Amount from the newRecord object and set the monthlyAmount variable using this value
+	    																monthlyAmount = newRecord.getValue({
+	    							    									fieldId: 'custrecord_bbs_ad_hoc_site_step_3_amt'
+	    							    								});
+													
+																		// check if the step3Date variable returns a value
 	    																if (step3Date)
 	    																	{
 	    																		// format step3Date as a date object
@@ -327,15 +346,15 @@ function(config, runtime, record, format, search) {
 	    																			value: step3Date
 	    																		});
 	    																	
-	    																		// get the step3Amount from the newRecord object and set the monthlyAmount variable using this value
-	    																		monthlyAmount = newRecord.getValue({
-	    							    											fieldId: 'custrecord_bbs_ad_hoc_site_step_3_amt'
-	    							    										});
-	    																	
 	    																		// check if today is after the step 3 date
 	    																		if (today.getTime() > step3Date.getTime())
 	    																			{
-	    																				// check if the step4Date variable returns a value
+	    																				// get the step4Amount from the newRecord object and set the monthlyAmount variable using this value
+	    																				monthlyAmount = newRecord.getValue({
+	    											    									fieldId: 'custrecord_bbs_ad_hoc_site_step_4_amt'
+	    											    								});
+																	
+																						// check if the step4Date variable returns a value
 	    																				if (step4Date)
 	    																					{
 	    																						// format step4Date as a date object
@@ -344,22 +363,13 @@ function(config, runtime, record, format, search) {
 	    																							value: step4Date
 	    																						});
 	    																					
-	    																						// get the step4Amount from the newRecord object and set the monthlyAmount variable using this value
-	    																						monthlyAmount = newRecord.getValue({
-	    											    											fieldId: 'custrecord_bbs_ad_hoc_site_step_4_amt'
-	    											    										});
-	    														
 	    																						// check if today is after the step 4 date
 	    																						if (today.getTime() > step4Date.getTime())
 	    																							{
-	    																								// check if the step5Date variable returns a value
-	    																								if (step5Date)
-	    																									{
-	    																										// get the step5Amount from the newRecord object and set the monthlyAmount variable using this value
-	    																										monthlyAmount = newRecord.getValue({
-	    															    											fieldId: 'custrecord_bbs_ad_hoc_site_step_5_amt'
-	    															    										});
-	    																									}
+	    																								// get the step5Amount from the newRecord object and set the monthlyAmount variable using this value
+	    																								monthlyAmount = newRecord.getValue({
+	    															    									fieldId: 'custrecord_bbs_ad_hoc_site_step_5_amt'
+	    															    								});
 	    																							}
 	    																					}
 	    																			}
@@ -402,8 +412,8 @@ function(config, runtime, record, format, search) {
 	    						// declare invoiceType
 	    						var invoiceType = 4; // 4 = Termination
 	    						
-	    						// call function to create a pro rata invoice. Pass newRecord, currentRecordID, customer, invoiceAmount and invoiceType
-	        					createProRataInvoice(newRecord, currentRecordID, customer, invoiceAmount, invoiceType);
+	    						// call function to create a pro rata invoice. Pass newRecord, currentRecordID, customerID, invoiceAmount and invoiceType
+	        					createProRataInvoice(newRecord, currentRecordID, customerID, invoiceAmount, invoiceType);
     						}
     				}
     		}
@@ -411,6 +421,60 @@ function(config, runtime, record, format, search) {
     }
     
     /*
+	* ==================================================
+	* FUNCTION TO SEARCH FOR AN EXISTING CUSTOMER RECORD
+	* ==================================================
+	*/
+	
+	function findCustomer(adHocSiteRecord)
+		{
+			// declare and initialize variables
+			var customerRecord = null;
+			
+			// get field values from the adHocSiteRecord object
+			var email = adHocSiteRecord.getValue({
+    			fieldId: 'custrecord_bbs_ad_hoc_site_email'
+    		});
+    		
+    		var phone = adHocSiteRecord.getValue({
+    			fieldId: 'custrecord_bbs_ad_hoc_site_phone'
+    		});
+
+			// run search to find customers for this email address or phone number
+			search.create({
+				type: search.Type.CUSTOMER,
+				
+				filters: [
+    		            ['isinactive', 'is', 'F'],
+    		            	'AND',
+    		            [
+    		              	['email', 'is', email],
+    		              	'OR',
+    		              	['phone', 'contains', phone]
+    		          	]
+    		             
+    		          ],
+			
+				columns: [{
+					name: 'internalid'
+				}],
+				
+			}).run().each(function(result){
+				
+				// get the internal ID of the customer from the search
+				customerRecord = result.getValue({
+					name: 'internalid'
+				});
+				
+			});
+			
+			// return customerRecord variable
+			return customerRecord;
+		
+		}
+
+
+	/*
      * ========================================
      * FUNCTION TO CREATE A NEW CUSTOMER RECORD
      * ========================================
@@ -668,15 +732,6 @@ function(config, runtime, record, format, search) {
 	    				details: 'Ad Hoc Site: ' + adHocSiteID + ' | Customer ID: ' + customerID
 	    			});
 	    			
-	    			// submit the customer field on the ad hoc site record
-	    			record.submitFields({
-	    				type: 'customrecord_bbs_ad_hoc_site',
-	    				id: adHocSiteID,
-	    				values: {
-	    					custrecord_bbs_ad_hoc_site_customer: customerID
-	    				}
-	    			});
-	    			
 	    			// return the customerID to the main script function
 	    			return customerID;				
 	    		}
@@ -688,6 +743,34 @@ function(config, runtime, record, format, search) {
     				});
     			}
 	    }
+
+	/*
+	* ==============================================================
+	* FUNCTION TO UPDATE THE AD HOC SITE RECORD WITH THE CUSTOMER ID
+	* ==============================================================
+	*/
+	
+	function updateAdHocSiteRecord(adHocSiteID, customerID)
+		{
+			try
+				{
+					// update the customer field on the ad hoc site record
+	    			record.submitFields({
+	    				type: 'customrecord_bbs_ad_hoc_site',
+	    				id: adHocSiteID,
+	    				values: {
+	    					custrecord_bbs_ad_hoc_site_customer: customerID
+	    				}
+	    			});
+				}
+			catch(e)
+				{
+					log.error({
+						title: 'Error Adding Customer To Ad Hoc Site Record',
+						details: 'Ad Hoc Site ID: ' + adHocSiteID + '<br>Customer ID: ' + customerID + '<br>Error: ' + e
+					});
+				}
+		}
     
     /*
      * ====================================
@@ -1031,5 +1114,5 @@ function(config, runtime, record, format, search) {
         beforeSubmit: beforeSubmit,
         afterSubmit: afterSubmit
     };
-    
+
 });
