@@ -1,0 +1,172 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="Arial" type="font" subtype="truetype" src="${nsfont.Arial_Regular}" src-bold="${nsfont.Arial_Bold}" src-italic="${nsfont.Arial_Italic}" src-bolditalic="${nsfont.Arial_BoldItalic}" bytes="2" />
+	<macrolist>
+    	<macro id="nlheader">
+      		<table style="width: 100%;">
+      			<tr>
+      				<td colspan="4" style="padding: 0;">
+      					<table style="width: 100%; font-size: 10pt; font-weight: bold;">
+      						<tr>
+      							<td colspan="4"><span style="font-size: 16pt; font-weight: bold;">SHIPMENT PICKING NOTE</span></td>
+      						</tr>
+      						<tr>
+      							<td colspan="2" style="border-left: 1px solid black; border-top: 1px solid black;">Due Date</td>
+      							<td colspan="2" style="border-right: 1px solid black; border-top: 1px solid black;">: </td>
+      						</tr>
+      						<tr>
+      							<td colspan="2" style="border-left: 1px solid black;">Shipment Id</td>
+      							<td colspan="2" style="border-right: 1px solid black;">: </td>
+      						</tr>
+      						<tr>
+      							<td colspan="2" style="border-left: 1px solid black;">Customer Ref</td>
+      							<td colspan="2" style="border-right: 1px solid black;">: ${record.otherrefnum}</td>
+      						</tr>
+      						<tr>
+      							<td colspan="2" style="border-left: 1px solid black;">Sales Order No.</td>
+      							<td colspan="2" style="border-right: 1px solid black;">: ${record.tranid?replace('Sales Order #', '')}</td>
+      						</tr>
+      						<tr>
+      							<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">Weight</td>
+      							<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;">: </td>
+      						</tr>
+      					</table>
+      				</td>
+      				<td colspan="4" style="padding: 0;">
+      					<table style="width: 100%; font-size: 16pt; font-weight: bold;">
+      						<tr>
+      							<td colspan="2" align="center" style="margin-left: 10px; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black;">Processed by</td>
+      							<td colspan="2" align="center" style="border-right: 1px solid black; border-top: 1px solid black;">Checked by</td>
+      						</tr>
+      						<tr>
+      							<td colspan="2" style="margin-left: 10px; padding-bottom: 10px; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black;">&nbsp;</td>
+      							<td colspan="2" style="padding-bottom: 10px; border-right: 1px solid black; border-top: 1px solid black;">&nbsp;</td>
+      						</tr>
+      						<tr>
+      							<td colspan="2" align="center" style="margin-left: 10px; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black;">Date</td>
+      							<td colspan="2" align="center" style="border-right: 1px solid black; border-top: 1px solid black;">Date</td>
+      						</tr>
+      						<tr>
+      							<td colspan="2" style="margin-left: 10px; padding-bottom: 10px; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+      							<td colspan="2" style="padding-bottom: 12px; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+      						</tr>
+      					</table>
+      				</td>
+      			</tr>
+      		</table>
+        </macro>
+        <macro id="nlfooter">
+			<hr/> <!-- Horizontal Line -->
+			<table style="width: 100%; margin-top: 30px;">
+        		<tr>
+			        <td align="left" colspan="4" class="footer">Printed : ${.now?datetime?string["EEE dd MMM yyyy HH:mm"]}</td>
+			        <td align="center" colspan="4" class="footer">Company Reg.No.: ${record.cseg_bbs_brand.custrecord_bbs_brand_vat_number}</td>
+			        <td align="center" colspan="3" class="footer">VAT Reg. No.: ${record.cseg_bbs_brand.custrecord_bbs_brand_vat_number}</td>
+			        <td align="right" colspan="2" class="footer"><p align="right">Page <pagenumber/> of <totalpages/></p></td>
+        		</tr>
+        	</table>
+        </macro>
+   </macrolist>
+    
+    <style type="text/css">
+    	* {
+			font-family: Arial, sans-serif;
+		}
+		table {
+			font-size: 10pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 10pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            color: #333333;
+        }
+        td {
+            padding: 4px 6px;
+        }
+        td.bankdetails {
+        	padding-left: 0px;
+        	padding-right: 0px;
+        	padding-top: 5px;
+        	padding-bottom: 0px;
+        	font-size: 8pt;
+        }
+        td.footer {
+        	padding-left: 0px;
+        	padding-right: 0px;
+        	padding-top: 5px;
+        	padding-bottom: 0px;
+        	font-size: 10pt;
+        }
+		td p {
+			align:left;
+		}
+		hr {
+			width: 100%;
+			margin-top: 20px;
+			margin-bottom: 5px;
+		}
+</style>
+</head>
+<body header="nlheader" header-height="125pt" footer="nlfooter" footer-height="50pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+	
+	<table style="width: 100%; margin-bottom: 5px;">
+    	<tr>
+    		<td colspan="4" style="border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"><b>CUSTOMER</b></td>
+      		<td colspan="4" style="margin-left: 10px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"><b>DELIVER TO</b></td>
+      	</tr>
+      	<tr>
+      		<td colspan="4" style="padding-left: 50px; padding-bottom: 50px; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><span style="font-size: 14pt; font-weight: bold">${record.entity}</span></td>
+      		<td colspan="4" style="margin-left: 10px; padding-left:50px; padding-bottom: 50px; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.shipaddress}</td>
+      	</tr>
+  	</table>
+  	
+  	<table style="width: 100%; font-size: 10pt; margin-bottom: 5px;">
+  		<tr>
+  			<td align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black;"><b>SPECIAL INSTRUCTIONS</b></td>
+  		</tr>
+  		<tr>
+  			<td style="padding-bottom: 250px; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+  		</tr>
+  	</table>
+  	
+  	<!-- ITEMS TABLE -->
+  	<#if record.item?has_content>
+	  	<table style="width: 100%; margin-bottom: 5px; font-size: 10pt;">
+	  		<#list record.item as item>
+		  		<#if item_index==0>
+		  			<thead>
+				  		<tr>
+				  			<th colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black;">Location</th>
+				  			<th colspan="6" style="border-top: 1px solid black; border-bottom: 1px solid black;">Product</th>
+				  			<th colspan="10" style="border-top: 1px solid black; border-bottom: 1px solid black;">Description</th>
+				  			<th colspan="3" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black;">Quantity</th>
+				  			<th colspan="3" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black;">Picked</th>
+				  			<th colspan="3" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black;">Checked</th>
+				  		</tr>
+				  	</thead>
+				</#if>
+				<tr>
+					<td colspan="4" style="border-bottom: 1px solid black; border-left: 1px solid black;">&nbsp;</td>
+					<td colspan="6" style="border-bottom: 1px solid black;">${item.item}</td>
+					<td colspan="10" style="border-bottom: 1px solid black;">${item.description}</td>
+					<td colspan="3" style="border-bottom: 1px solid black;">${item.quantitycommitted?string["0.00"]}</td>
+					<td colspan="3" style="border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">&nbsp;</td>
+					<td colspan="3" style="border-bottom: 1px solid black; border-right: 1px solid black;">&nbsp;</td>
+				</tr>
+			</#list>
+	  	</table>
+	</#if>
+	
+	<table style="width: 100%; font-size: 10pt;">
+		<tr>
+			<td colspan="8" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black"><b>DELIVERY NOTES :</b></td>
+			<td colspan="21" style="border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">11&nbsp;</td>
+		</tr>
+	</table>
+
+</body>
+</pdf>

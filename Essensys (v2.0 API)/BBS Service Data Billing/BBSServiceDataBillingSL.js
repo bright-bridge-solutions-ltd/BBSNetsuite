@@ -27,7 +27,7 @@ function(ui, message, task, url, redirect, runtime) {
 	            });
 				
 				// set client script to run on the form
-				form.clientScriptFileId = 29771;
+				form.clientScriptFileId = 24331;
 				
 				// retrieve parameters that have been passed to the Suitelet
 				var subsidiary = context.request.parameters.subsidiary;
