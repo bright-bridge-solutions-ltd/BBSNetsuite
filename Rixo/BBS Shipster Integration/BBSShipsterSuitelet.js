@@ -179,21 +179,38 @@ function(file, record, search, http, xml, format)
 					        				
 					        				for (var items = 0; items < itemCount; items++) 
 					        					{
-						        					var itemName			= fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'itemname', line: items});
-						        					var itemDescription		= fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'description', line: items});
+					        						var itemId				= fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: items});
+					        						var itemName			= fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'itemname', line: items});
+					        						var itemDescription		= fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'description', line: items});
 						        					var itemQuantity		= Number(fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: items}));
 						        					var itemPackages		= getPackages(fulfilmentRecord, items);
-						        					var itemSoLine			= Number(fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'orderline', line: items})) - 1;
+						        					var itemSoLine			= Number(fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'orderline', line: items}));
+						        					var itemUnitWeight		= getItemWeightInKilos(itemId);
 						        					
 						        					//Get the item rate & cost from the related sales order line
 						        					//
-						        					var itemSoRate			= Number(salesOrderRecord.getSublistValue({sublistId: 'item', fieldId: 'rate', line: itemSoLine}));
-						        					var itemSoCost			= Number(salesOrderRecord.getSublistValue({sublistId: 'item', fieldId: 'costestimaterate', line: itemSoLine}));
-						        					
+						        					var soLineCount = salesOrderRecord.getLineCount({sublistId: 'item'});
+							        				
+						        					for (var soLine = 0; soLine < soLineCount; soLine++) 
+							        					{
+						        							//Get the current sales order line number
+						        							//
+						        							var	soLineNumber 		= Number(salesOrderRecord.getSublistValue({sublistId: 'item', fieldId: 'line', line: soLine}));
+						        							
+						        							//Do the line numbers match?
+						        							//
+						        							if(soLineNumber == itemSoLine)
+						        								{
+										        					var itemSoRate			= Number(salesOrderRecord.getSublistValue({sublistId: 'item', fieldId: 'rate', line: soLine}));
+										        					var itemSoCost			= Number(salesOrderRecord.getSublistValue({sublistId: 'item', fieldId: 'costestimaterate', line: soLine}));
+										        					
+										        					break;
+						        								}
+							        					}
 						        					
 						        					//Save info about the item & what packages it belongs to
 						        					//
-						        					itemsArray.push(new itemInfo(itemName, itemDescription, itemQuantity, itemSoRate, itemSoCost, itemPackages));
+						        					itemsArray.push(new itemInfo(itemName, itemDescription, itemQuantity, itemSoRate, itemSoCost, itemPackages, itemUnitWeight));
 						        					
 						        					//Output item detail
 						        					//
@@ -204,6 +221,8 @@ function(file, record, search, http, xml, format)
 						        					xmlString += '<QuantityOrdered>' + xml.escape({xmlText: itemQuantity.toFixed(2)}) + '</QuantityOrdered>\n';
 						        					xmlString += '<BuyPrice>' + xml.escape({xmlText: (itemQuantity * itemSoCost).toFixed(2)}) + '</BuyPrice>\n';
 						        					xmlString += '<RetailPrice>' + xml.escape({xmlText: (itemQuantity * itemSoRate).toFixed(2)}) + '</RetailPrice>\n';
+						        					xmlString += '<Weight>' + xml.escape({xmlText: itemUnitWeight.toFixed(2)}) + '</Weight>\n';
+						        					xmlString += '<TotalGrossWeight>' + xml.escape({xmlText: (itemQuantity * itemUnitWeight).toFixed(2)}) + '</TotalGrossWeight>\n';
 						        					
 						        					xmlString += '</Item>\n';
 						        					
@@ -251,6 +270,8 @@ function(file, record, search, http, xml, format)
 												        					xmlString += '<QuantityOrdered>' + xml.escape({xmlText: packagesArray[packageIndex].quantity.toFixed(2)}) + '</QuantityOrdered>\n';
 												        					xmlString += '<BuyPrice>' + xml.escape({xmlText: (packagesArray[packageIndex].quantity * itemsArray[itemIndex].cost).toFixed(2)}) + '</BuyPrice>\n';
 												        					xmlString += '<RetailPrice>' + xml.escape({xmlText: (packagesArray[packageIndex].quantity * itemsArray[itemIndex].rate).toFixed(2)}) + '</RetailPrice>\n';
+												        					xmlString += '<Weight>' + xml.escape({xmlText: itemsArray[itemIndex].itemUnitWeight.toFixed(2)}) + '</Weight>\n';
+												        					xmlString += '<TotalGrossWeight>' + xml.escape({xmlText: (packagesArray[packageIndex].quantity * itemsArray[itemIndex].itemUnitWeight).toFixed(2)}) + '</TotalGrossWeight>\n';
 												        					xmlString += '</Item>\n';
 								        								}
 									        					}
@@ -300,6 +321,45 @@ function(file, record, search, http, xml, format)
 		    	}
 	    }
 
+    function getItemWeightInKilos(_itemId)
+    	{
+    		var weightInKg = 0;
+    	
+    		var searchResult = search.lookupFields({
+	    											type:		search.Type.ITEM,
+	    											id:			_itemId,
+	    											columns:	['weight', 'weightunit']
+	    											});
+    		
+    		var itemWeight 		= Number(searchResult.weight);
+    		var itemWeightUnit 	= Number(searchResult.weightunit[0].value);
+    		
+    		switch(itemWeightUnit)
+    			{
+		    		case 1:	//Lb's
+		    			weightInKg = itemWeight / 2.205;
+		    			
+		    			break;
+		    			
+		    		case 2: //Oz's
+		    			weightInKg = itemWeight / 35.274;
+		    			
+		    			break;
+		    			
+		    		case 3: //Kg's
+		    			weightInKg = itemWeight;
+		    			
+		    			break;
+		    			
+		    		case 4: //g's
+		    			weightInKg = itemWeight / 1000.0;
+		    			
+		    			break;
+    			}
+
+    		return weightInKg;
+    	}
+    
     function getPackages(_fulfilmentRecord, _lineNo)
 	    {
 	    	var packageData = [];
@@ -325,7 +385,7 @@ function(file, record, search, http, xml, format)
 	    	return packageData;
 	    }
     
-    function itemInfo(_name, _description, _quantity, _rate, _cost, _packages)
+    function itemInfo(_name, _description, _quantity, _rate, _cost, _packages, _itemUnitWeight)
     	{
     		this.name			= _name;
     		this.description	= _description;
@@ -333,6 +393,7 @@ function(file, record, search, http, xml, format)
     		this.rate			= _rate;
     		this.cost			= _cost;
     		this.packages		= _packages;
+    		this.itemUnitWeight	= _itemUnitWeight;
     	}
     
 	    function packageInfo(_package, _quantity)

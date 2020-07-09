@@ -98,26 +98,35 @@ function processTransactions()
 							var itemCount = tranRecord.getLineItemCount('item');
 							
 							for (var int2 = 1; int2 <= itemCount; int2++) 
-								{
+								{	
+									checkResources();
+								
 									var supplier = tranRecord.getLineItemValue('item', 'custcol_bbs_gfs_supplier', int2);
 									var customer = tranRecord.getLineItemValue('item', 'custcol_bbs_gfs_customer', int2);
 									
 									var customerSegment = null;
 									var supplierSegment = null;
 									
-									if(customer != null && customer != '')
+									try
 										{
-											customerSegment = nlapiLookupField('customer', customer, 'cseg_bbs_customer', false);
-										}
+											if(customer != null && customer != '')
+												{
+													customerSegment = nlapiLookupField('customer', customer, 'cseg_bbs_customer', false);
+												}
+											
+											if(supplier != null && supplier != '')
+												{
+													supplierSegment = nlapiLookupField('vendor', supplier, 'cseg_bbs_supplier', false);
+												}
+										
 									
-									if(supplier != null && supplier != '')
+											tranRecord.setLineItemValue('item', 'cseg_bbs_supplier', int2, supplierSegment);
+											tranRecord.setLineItemValue('item', 'cseg_bbs_customer', int2, customerSegment);	
+										}
+									catch(err)
 										{
-											supplierSegment = nlapiLookupField('vendor', supplier, 'cseg_bbs_supplier', false);
+											nlapiLogExecution('ERROR', 'Error updating items sublist', err.message);
 										}
-									
-									
-									tranRecord.setLineItemValue('item', 'cseg_bbs_supplier', int2, supplierSegment);
-									tranRecord.setLineItemValue('item', 'cseg_bbs_customer', int2, customerSegment);							
 								}
 							
 							//Expenses
@@ -126,24 +135,34 @@ function processTransactions()
 							
 							for (var int2 = 1; int2 <= expenseCount; int2++) 
 								{
+									checkResources();
+								
 									var supplier = tranRecord.getLineItemValue('expense', 'custcol_bbs_gfs_supplier', int2);
 									var customer = tranRecord.getLineItemValue('expense', 'custcol_bbs_gfs_customer', int2);
 									
 									var customerSegment = null;
 									var supplierSegment = null;
 									
-									if(customer != null && customer != '')
+									try
 										{
-											customerSegment = nlapiLookupField('customer', customer, 'cseg_bbs_customer', false);
+											if(customer != null && customer != '')
+												{
+													customerSegment = nlapiLookupField('customer', customer, 'cseg_bbs_customer', false);
+												}
+											
+											if(supplier != null && supplier != '')
+												{
+													supplierSegment = nlapiLookupField('vendor', supplier, 'cseg_bbs_supplier', false);
+												}
+											
+											tranRecord.setLineItemValue('expense', 'cseg_bbs_supplier', int2, supplierSegment);
+											tranRecord.setLineItemValue('expense', 'cseg_bbs_customer', int2, customerSegment);
+										}
+									catch(err)
+										{
+											nlapiLogExecution('ERROR', 'Error updating expenses sublist', err.message);
 										}
 									
-									if(supplier != null && supplier != '')
-										{
-											supplierSegment = nlapiLookupField('vendor', supplier, 'cseg_bbs_supplier', false);
-										}
-									
-									tranRecord.setLineItemValue('expense', 'cseg_bbs_supplier', int2, supplierSegment);
-									tranRecord.setLineItemValue('expense', 'cseg_bbs_customer', int2, customerSegment);
 								}
 							
 
@@ -153,24 +172,33 @@ function processTransactions()
 							
 							for (var int2 = 1; int2 <= lineCount; int2++) 
 								{
+									checkResources();
+								
 									var supplier = tranRecord.getLineItemValue('line', 'custcol_bbs_gfs_supplier', int2);
 									var customer = tranRecord.getLineItemValue('line', 'custcol_bbs_gfs_customer', int2);
 									
 									var customerSegment = null;
 									var supplierSegment = null;
 									
-									if(customer != null && customer != '')
+									try
 										{
-											customerSegment = nlapiLookupField('customer', customer, 'cseg_bbs_customer', false);
+											if(customer != null && customer != '')
+												{
+													customerSegment = nlapiLookupField('customer', customer, 'cseg_bbs_customer', false);
+												}
+											
+											if(supplier != null && supplier != '')
+												{
+													supplierSegment = nlapiLookupField('vendor', supplier, 'cseg_bbs_supplier', false);
+												}
+											
+											tranRecord.setLineItemValue('line', 'cseg_bbs_supplier', int2, supplierSegment);
+											tranRecord.setLineItemValue('line', 'cseg_bbs_customer', int2, customerSegment);
 										}
-									
-									if(supplier != null && supplier != '')
+									catch(err)
 										{
-											supplierSegment = nlapiLookupField('vendor', supplier, 'cseg_bbs_supplier', false);
+											nlapiLogExecution('ERROR', 'Error updating expenses sublist', err.message);
 										}
-									
-									tranRecord.setLineItemValue('line', 'cseg_bbs_supplier', int2, supplierSegment);
-									tranRecord.setLineItemValue('line', 'cseg_bbs_customer', int2, customerSegment);
 								}
 							
 							//Save the record
