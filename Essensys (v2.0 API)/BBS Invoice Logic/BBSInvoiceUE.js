@@ -160,11 +160,15 @@ function(runtime, search, record, render, file) {
 									isDynamic: true
 								});
 								
-								// set the PO# field on the invoice
-								invoiceRecord.setValue({
-									fieldId: 'otherrefnum',
-									value: poNumber
-								});
+								// check the invoice is NOT linked to an invoice
+								if (createdFrom == '')
+									{
+										// set the PO# field on the invoice
+										invoiceRecord.setValue({
+											fieldId: 'otherrefnum',
+											value: poNumber
+										});
+									}
 								
 								// get the shipping address subrecord
 								var shippingAddressSubrecord = invoiceRecord.getSubrecord({

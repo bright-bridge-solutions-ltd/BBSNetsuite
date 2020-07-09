@@ -3,12 +3,12 @@
  * @NScriptType UserEventScript
  * @NModuleScope Public
  */
-define(['N/record', 'N/search', './libraryModule', 'N/plugin'],
+define(['N/runtime', 'N/record', 'N/search', './libraryModule', 'N/plugin'],
 /**
  * @param {record} record
  * @param {search} search
  */
-function(record, search, libraryModule, plugin)
+function(runtime, record, search, libraryModule, plugin)
 	{
 	    /**
 	     * Function definition to be triggered before record is loaded.
@@ -26,6 +26,7 @@ function(record, search, libraryModule, plugin)
 				var  tfcPlugin = plugin.loadImplementation({
 															type: 'customscript_bbstfc_plugin',
 															});
+				
 				//Call the plugin
 				//
 				if(tfcPlugin != null)
@@ -207,11 +208,17 @@ function(record, search, libraryModule, plugin)
 										var totalTaxes = 0;
 										var linesToUpdate = new Array();
 										var errorMessages = '';
+										var taxSummary = {};
 										
 										//Check the result of the call to the plugin
 										//
 										if(taxResult != null && taxResult.httpResponseCode == '200')
 											{
+												// call functions to return the tax categories, levels and types
+												var taxCategories 	= libraryModule.getTaxCategories();
+												var taxLevels		= libraryModule.getTaxLevels();
+												var taxTypes		= libraryModule.getTaxTypes();
+												
 												// get the API response body
 												var taxResultDetails = taxResult.apiResponse;
 												
@@ -286,12 +293,61 @@ function(record, search, libraryModule, plugin)
 																					// loop through taxes
 																					for (var z = 0; z < taxes.length; z++)
 																						{
+																							// get the tax name, tax category, tax level, tax type and tax amount
+																							var taxName		= 	taxes[z].name;
+																							var taxCategory	=	libraryModule.getTaxCategory(taxCategories, taxes[z].cid);
+																							var taxLevel	=	libraryModule.getTaxLevel(taxLevels, taxes[z].lvl);
+																							var taxType		=	libraryModule.getTaxType(taxTypes, taxes[z].tid);
+																							var taxAmount	= 	parseFloat(taxes[z].tax);
+																							
+																							// build up the key for the summary
+																							// taxName + taxLevel
+																							var key = libraryModule.padding_left(taxName, '0', 6) + 
+																				        	libraryModule.padding_left(taxLevel.name, '0', 6);
+																							
+																							// does the taxName exist in the tax summary, if not create a new entry
+																							if (!taxSummary[key])
+																								{
+																									taxSummary[key] = new libraryModule.libTaxSummaryObj(taxName, taxLevel.name);
+																								}
+																								
+																							// update the tax amount in the summary
+																							taxSummary[key].taxAmount += taxAmount;
+																							
+																							// now we have done all summarising, we need to generate the output format
+																							var outputArray = null;
+																							outputArray = [];
+
+																						   	// sort outputSummary
+																						   	const sortedSummary = {};
+																			                  
+																						   	for (key in sortedSummary)
+																						     	{
+																						    		delete sortedSummary[key]
+																						      	}
+																						      
+																						 	Object.keys(taxSummary).sort().forEach(function(key) {
+																							    sortedSummary[key] = taxSummary[key];
+																						   	});
+																						      
+																						  	// loop through the summaries
+																						    for (var key in sortedSummary)
+																						    	{
+																									// push a new instance of the output summary object onto the output array
+																									outputArray.push(new libraryModule.libOutputSummary(
+																																							taxSummary[key].taxName,
+																																							taxSummary[key].taxLevel,
+																																							taxSummary[key].taxAmount
+																																						)
+																													);
+																								}
+																							
 																							// add the tax amount to the totalTaxes variable
-																							totalTaxes += parseFloat(taxes[z].tax);
+																							totalTaxes += taxAmount;
 																							
 																							// call function to create a new Calculated Taxes record
-																							libraryModule.createCalculatedTaxes(invoiceID, lineNumber, taxes[z]);
-																						}
+																							libraryModule.createCalculatedTaxes(invoiceID, lineNumber, taxes[z], taxCategory.internalID, taxLevel.internalID, taxType.internalID);
+																						}	
 																				}
 																		}
 																}
@@ -307,7 +363,7 @@ function(record, search, libraryModule, plugin)
 											}
 											
 										// call function to update the tax total on the record
-										libraryModule.updateTaxTotal(currentRecordType, currentRecordID, linesToUpdate, errorMessages, totalTaxes);	
+										libraryModule.updateTaxTotal(currentRecordType, currentRecordID, linesToUpdate, errorMessages, outputArray, totalTaxes);	
 											
 									}
 							}

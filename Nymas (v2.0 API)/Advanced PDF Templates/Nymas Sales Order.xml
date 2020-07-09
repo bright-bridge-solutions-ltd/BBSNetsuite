@@ -6,8 +6,8 @@
     	<macro id="nlheader">
       		<table style="width: 100%; font-size: 10pt;">
       			<tr>
-      				<td colspan="4"><span style="font-size: 16pt; font-weight: bold;">ORDER ACKNOWLEDGEMENT</span></td>
-      				<td colspan="4" rowspan="4"><p align="center"><img src="${record.cseg_bbs_brand.custrecord_bbs_brand_logo@url}" style="float: center; width:100px; height:50px;"/><br/><br/>${record.cseg_bbs_brand.custrecord_bbs_brand_legal_name}<br/>${record.cseg_bbs_brand.custrecord_bbs_brand_address_1}<br/>${record.cseg_bbs_brand.custrecord_bbs_brand_address_2}, ${record.cseg_bbs_brand.custrecord_bbs_brand_address_3}<br/>${record.cseg_bbs_brand.custrecord_bbs_brand_city}, ${record.cseg_bbs_brand.custrecord_bbs_brand_county}, ${record.cseg_bbs_brand.custrecord_bbs_brand_postcode}<br/>Tel: ${record.cseg_bbs_brand.custrecord_bbs_brand_phone}<#if record.cseg_bbs_brand.custrecord_bbs_brand_fax_number?has_content> Fax: ${record.cseg_bbs_brand.custrecord_bbs_brand_fax_number}</#if><br/>Email: ${record.cseg_bbs_brand.custrecord_bbs_brand_email}<br/>${record.cseg_bbs_brand.custrecord_bbs_brand_website}</p></td>
+      				<td colspan="4"><span style="font-size: 16pt; font-weight: bold;"><#if record.custbody_bbs_pro_forma_invoice == true>PROFORMA INVOICE<#else>ORDER ACKNOWLEDGEMENT</#if></span></td>
+      				<td colspan="4" rowspan="5"><p align="center"><img src="${record.cseg_bbs_brand.custrecord_bbs_brand_logo@url}" style="float: center; width:100px; height:50px;"/><br/><br/>${record.cseg_bbs_brand.custrecord_bbs_brand_legal_name}<br/>${record.cseg_bbs_brand.custrecord_bbs_brand_address_1}<br/>${record.cseg_bbs_brand.custrecord_bbs_brand_address_2}, ${record.cseg_bbs_brand.custrecord_bbs_brand_address_3}<br/>${record.cseg_bbs_brand.custrecord_bbs_brand_city}, ${record.cseg_bbs_brand.custrecord_bbs_brand_county}, ${record.cseg_bbs_brand.custrecord_bbs_brand_postcode}<br/>Tel: ${record.cseg_bbs_brand.custrecord_bbs_brand_phone}<#if record.cseg_bbs_brand.custrecord_bbs_brand_fax_number?has_content> Fax: ${record.cseg_bbs_brand.custrecord_bbs_brand_fax_number}</#if><br/>Email: ${record.cseg_bbs_brand.custrecord_bbs_brand_sales_email}<br/>${record.cseg_bbs_brand.custrecord_bbs_brand_website}</p></td>
       			</tr>
       			<tr>
       				<td colspan="2" style="border-left: 1px solid black; border-top: 1px solid black;"><b>Order Date</b></td>
@@ -17,10 +17,21 @@
       				<td colspan="2" style="border-left: 1px solid black;"><b>Our Reference</b></td>
       				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.tranid}</b></td>
       			</tr>
-      			<tr>
-      				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Your Reference</b></td>
-      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${record.otherrefnum}</b></td>
-      			</tr>
+      			<#if record.custbody_bbs_pro_forma_invoice == true>
+	      			<tr>
+	      				<td colspan="2" style="border-left: 1px solid black;"><b>Your Reference</b></td>
+	      				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.otherrefnum}</b></td>
+      				</tr>
+	      			<tr>
+	      				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>VAT Reg. No.</b></td>
+	      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${record.entitytaxregnum}</b></td>
+	      			</tr>
+	      		<#else>
+	      			<tr>
+	      				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Your Reference</b></td>
+	      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${record.otherrefnum}</b></td>
+      				</tr>
+	      		</#if>
       		</table>
         </macro>
         <macro id="nlfooter">

@@ -1,0 +1,143 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<#setting number_format="0.00">
+<#setting date_format="dd MMM yyyy">
+<#if statements?has_content>
+<#list statements as statement>
+<pdf>
+<head>
+	<link name="Arial" type="font" subtype="truetype" src="${nsfont.Arial_Regular}" src-bold="${nsfont.Arial_Bold}" src-italic="${nsfont.Arial_Italic}" src-bolditalic="${nsfont.Arial_BoldItalic}" bytes="2" />
+	<macrolist>
+    	<macro id="nlheader">
+      		<table style="width: 100%; font-size: 10pt;">
+      			<tr>
+      				<td colspan="4"><span style="font-size: 16pt; font-weight: bold;">STATEMENT OF ACCOUNT</span></td>
+      				<td colspan="4" rowspan="5">&nbsp;</td>
+      			</tr>
+      			<tr>
+      				<td colspan="2" style="border-left: 1px solid black; border-top: 1px solid black;"><b>Statement Date</b></td>
+      				<td colspan="2" style="border-right: 1px solid black; border-top: 1px solid black;"><b>: ${statement.trandate}</b></td>
+      			</tr>
+      			<tr>
+      				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Account No.</b></td>
+      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: </b></td>
+      			</tr>
+      		</table>
+        </macro>
+        <macro id="nlfooter">
+        	<hr/> <!-- Horizontal Line -->
+        	<table style="width: 100%; margin-top: 10px;">
+        		<tr>
+			        <td align="left" colspan="4" class="footer">Printed : ${.now?datetime?string["EEE dd MMM yyyy HH:mm"]}</td>
+			        <td align="center" colspan="4" class="footer">Company Reg.No.:</td>
+			        <td align="center" colspan="3" class="footer">VAT Reg. No.:</td>
+			        <td align="right" colspan="2" class="footer"><p align="right">Page <pagenumber/> of <totalpages/></p></td>
+        		</tr>
+        	</table>
+        </macro>
+   </macrolist>
+    
+    <style type="text/css">
+    	* {
+			font-family: Arial, sans-serif;
+		}
+		table {
+			font-size: 10pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 10pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            color: #333333;
+        }
+        td {
+            padding-left: 6px;
+            padding-right: 6px;
+            padding-top: 4px;
+            padding-bottom: 0px;
+        }
+        td.footer {
+        	padding-left: 0px;
+        	padding-right: 0px;
+        	padding-top: 5px;
+        	padding-bottom: 0px;
+        	font-size: 10pt;
+        }
+		td p {
+			align:left;
+		}
+		hr {
+			width: 100%;
+			margin-top: 20px;
+			margin-bottom: 5px;
+		}
+</style>
+</head>
+<body header="nlheader" header-height="150pt" footer="nlfooter" footer-height="40pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+    
+    <table style="width: 100%; margin-bottom: 5px;">
+    	<tr>
+    		<td colspan="8" style="border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"><b>CUSTOMER</b></td>
+    		<td colspan="4" rowspan="2" style="margin-left: 10px; border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Total Outstanding<br/><br/>Unallocated Funds<br/><br/>Current Balance</td>
+    		<td colspan="2" rowspan="2" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black;">£<br/><br/>£<br/><br/>£</td>
+    		<td colspan="2" rowspan="2" align="right" style="border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">${statement.amountDue}<br/><br/>${customer.depositbalance}<br/><br/>${customer.balance}</td>
+    	</tr>
+    	<tr>
+    		<td colspan="8" style="padding-left: 20px; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${statement.billaddress}</td>
+    	</tr>
+    </table>
+    
+    <#if statement.lines?has_content>
+    	<#list statement.lines as line>
+    		<table style="width: 100%; margin-bottom: 20px;">
+    			<#if line_index==0>
+    				<thead>
+    					<tr>
+    						<th colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black;">Transaction<br/>Date</th>
+    						<th colspan="5" style="border-top: 1px solid black; border-bottom: 1px solid black;">Transaction<br/>Reference</th>
+    						<th colspan="5" style="border-top: 1px solid black; border-bottom: 1px solid black;">Transaction<br/>Type</th>
+    						<th colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black;">Customer<br/>Reference</th>
+    						<th colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black;">Due Date</th>
+    						<th colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black;"><p align="right">Transaction<br/>Value</p></th>
+    						<th colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black;"><p align="right">Outstanding<br/>Value</p></th>
+    					</tr>
+    				</thead>
+    			</#if>
+    			<tr>
+    				<td colspan="4">${line.datecol}</td>
+    				<td colspan="5">${line.description?replace("Invoice #","")?replace("Credit Memo #","")}</td>
+    				<td colspan="5">${line.description?keep_before("#")}</td>
+    				<td colspan="4">${line.otherrefnum}</td>
+    				<td colspan="4">${line.duedate}</td>
+    				<td colspan="4" align="right">${line.charge}</td>
+    				<td colspan="4" align="right">${line.balance}</td>
+    			</tr>
+    		</table>
+    	</#list>
+    </#if>
+    
+    <table style="width: 100%; border: 1px solid black;">
+    	<tr>
+    		<td colspan="20"><b>Aged Analysis</b></td>
+    	</tr>
+    	<tr>
+    		<td colspan="4" align="right" style="padding-left: 20px;">Not Yet Due</td>
+    		<td colspan="4" align="right">1 to 30 days</td>
+    		<td colspan="4" align="right">31 to 60 days</td>
+    		<td colspan="4" align="right">61 to 90 days</td>
+    		<td colspan="4" align="right">Over 90 days</td>
+    	</tr>
+    	<tr>
+    		<td colspan="4" align="right" style="padding-left: 20px;">${statement.agingbal}</td>
+    		<td colspan="4" align="right">${statement.aging1}</td>
+    		<td colspan="4" align="right">${statement.aging2}</td>
+    		<td colspan="4" align="right">${statement.aging3}</td>
+    		<td colspan="4" align="right">${statement.aging4}</td>
+    	</tr>
+    </table>
+    
+</body>
+</pdf>
+</#list>
+</#if>

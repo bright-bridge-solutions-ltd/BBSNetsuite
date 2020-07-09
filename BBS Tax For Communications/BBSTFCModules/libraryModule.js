@@ -180,6 +180,41 @@ function(record, runtime, search, plugin, format)
 			this.responseMessage 	= '';
 			this.apiResponse		= {};
 		}
+		
+	function libTaxSummaryObj(taxName, taxLevel)
+		{
+			this.taxName 	= 	taxName;
+			this.taxLevel	=	taxLevel;
+			this.taxAmount	= 	0;
+		}
+		
+	function libOutputSummary(taxName, taxLevel, taxAmount)
+		{
+			this.taxName	=	taxName;
+			this.taxLevel	=	taxLevel;
+			this.taxAmount	=	taxAmount;
+		}
+	
+	function libTaxCategoryObj(name, avalaraID, internalID)
+		{
+			this.name =	name;
+			this.avalaraID = avalaraID;
+			this.internalID = internalID;
+		}
+	
+	function libTaxLevelObj(name, avalaraID, internalID)
+		{
+			this.name =	name;
+			this.avalaraID = avalaraID;
+			this.internalID = internalID;
+		}
+	
+	function libTaxTypeObj(name, avalaraID, internalID)
+		{
+			this.name =	name;
+			this.avalaraID = avalaraID;
+			this.internalID = internalID;
+		}
 
 	//=====================================================================
 	//Methods
@@ -547,7 +582,7 @@ function(record, runtime, search, plugin, format)
 		
 	}
 	
-	function createCalculatedTaxes(transactionID, lineNumber, taxObject) {
+	function createCalculatedTaxes(transactionID, lineNumber, taxObject, taxCategory, taxLevel, taxType) {
 		
 		try
 			{
@@ -644,32 +679,20 @@ function(record, runtime, search, plugin, format)
 						});
 					}
 
-				// do we have a tax category id
-				if (taxObject.cid)
-					{
-						calculatedTaxesRecord.setValue({
-							fieldId: 'custrecord_bbstfc_taxes_tax_cat',
-							value: getTaxCategoryID(taxObject.cid) // call function to return the NetSuite internal ID
-						});
-					}
+				calculatedTaxesRecord.setValue({
+					fieldId: 'custrecord_bbstfc_taxes_tax_cat',
+					value: taxCategory
+				});
 				
-				// do we have a tax level
-				if (taxObject.lvl)
-					{
-						calculatedTaxesRecord.setValue({
-							fieldId: 'custrecord_bbstfc_taxes_tax_level',
-							value: getTaxLevelID(taxObject.lvl) // call function to return the NetSuite internal ID
-						});
-					}
+				calculatedTaxesRecord.setValue({
+					fieldId: 'custrecord_bbstfc_taxes_tax_level',
+					value: taxLevel
+				});
 				
-				// do we have a tax id
-				if (taxObject.tid)
-					{
-						calculatedTaxesRecord.setValue({
-							fieldId: 'custrecord_bbstfc_taxes_tax_type',
-							value: getTaxTypeID(taxObject.tid) // call function to return the NetSuite internal ID
-						});
-					}
+				calculatedTaxesRecord.setValue({
+					fieldId: 'custrecord_bbstfc_taxes_tax_type',
+					value: taxType
+				});
 				
 				// save the record
 				var recordID = calculatedTaxesRecord.save();
@@ -789,95 +812,243 @@ function(record, runtime, search, plugin, format)
 		
 	}
 	
-	function getTaxCategoryID(taxTypeCatID) {
+	function getTaxCategories() {
 		
 		// declare and initialize variables
-		var categoryID = null;
+		var taxCategories = new Array();
 		
-		// run search to find the internal ID of the tax category
+		// run search to find the the tax category
 		search.create({
 			type: 'customrecord_bbstfc_tax_type_cat',
 			
 			filters: [{
-				name: 'custrecord_bbstfc_tax_type_cat_id',
-				operator: 'equalto',
-				values: [taxTypeCatID]	
+				name: 'isinactive',
+				operator: 'is',
+				values: ['F']	
 			}],
 			
 			columns: [{
-				name: 'internalid'
+				name: 'name'
+			},
+					{
+				name: 'custrecord_bbstfc_tax_type_cat_id'
 			}],
 			
 		}).run().each(function(result){
 			
-			// get the internal ID of the tax category from the search
-			categoryID = result.id;
+			// push a new libTaxCategoryObj to the taxCategories array
+			taxCategories.push(new libTaxCategoryObj(
+														result.getValue({name: 'name'}),
+														result.getValue({name: 'custrecord_bbstfc_tax_type_cat_id'}),
+														result.id
+													)
+							);
+			
+			// continue processing search results
+			return true;
 			
 		});
 
-		return categoryID;
+		// return taxCategories array
+		return taxCategories;
 		
 	}
 	
-	function getTaxLevelID(taxLvlID) {
+	function getTaxLevels() {
 		
 		// declare and initialize variables
-		var taxLevelID = null;
+		var taxLevels = new Array();
 		
 		// run search to find the internal ID of the tax level
 		search.create({
 			type: 'customrecord_bbstfc_tax_level',
 			
 			filters: [{
-				name: 'custrecord_bbstfc_tax_level_id',
+				name: 'isinactive',
 				operator: 'is',
-				values: [taxLvlID]
+				values: ['F']
 			}],
 			
 			columns: [{
-				name: 'internalid'
+				name: 'name'
+			},
+					{
+				name: 'custrecord_bbstfc_tax_level_id'
 			}],
 
 		}).run().each(function(result){
 			
-			// get the internal ID of the tax level from the search
-			taxLevelID = result.id;
+			// push a new libTaxLevelObj to the taxLevels array
+			taxLevels.push(new libTaxLevelObj(
+												result.getValue({name: 'name'}),
+												result.getValue({name: 'custrecord_bbstfc_tax_level_id'}),
+												result.id
+											)
+						);
+			
+			// continue processing search results
+			return true;
 			
 		});
 		
-		return taxLevelID;
+		// return taxLevels array
+		return taxLevels;
 		
 	}
 	
-	function getTaxTypeID(taxTypeCode) {
+	function getTaxTypes() {
 		
 		// declare and intialize variables
-		var taxTypeID = null;
+		var taxTypes = new Array();
 		
 		// run search to find the internal ID of the tax type
 		search.create({
 			type: 'customrecord_bbstfc_item_tax_types',
 			
 			filters: [{
-				name: 'custrecord_bbstfc_ttype_code',
+				name: 'isinactive',
 				operator: 'is',
-				values: [taxTypeCode]
+				values: ['F']
 			}],
 			
 			columns: [{
-				name: 'internalid'
+				name: 'name'
+			},
+					{
+				name: 'custrecord_bbstfc_ttype_code'
 			}],
 			
 		}).run().each(function(result){
 			
-			// get the internal ID of the tax type from the search
-			taxTypeID = result.id;
+			// push a new libTaxTypeObj to the taxLevels array
+			taxTypes.push(new libTaxTypeObj(
+												result.getValue({name: 'name'}),
+												result.getValue({name: 'custrecord_bbstfc_ttype_code'}),
+												result.id
+											)
+						);
+			
+			// continue processing search results
+			return true;
 			
 		});
 		
-		return taxTypeID;
+		// return taxTypes array
+		return taxTypes;
 		
 	}
+	
+	function getTaxCategory(taxCategoryArray, taxCategoryID) {
+		
+		// declare and initialize variables
+		var taxCategoryObj = null;
+		
+		// loop through taxCategoryArray
+		for (var i = 0; i < taxCategoryArray.length; i++)
+			{
+				// get the Avalara ID from the taxCategoryArray array
+				var avalaraID = taxCategoryArray[i].avalaraID;
+				
+				// check if avalaraID is equal to taxCategoryID
+				if (avalaraID == taxCategoryID)
+					{
+						// create a new tax category obj
+						taxCategoryObj = new libTaxCategoryObj(
+																taxCategoryArray[i].name,
+																taxCategoryArray[i].avalaraID,
+																taxCategoryArray[i].internalID
+															);
+						// break the loop
+						break;
+					}
+			}
+		
+		// if we have been unable to find a matching tax category
+		if (taxCategoryObj == null)
+			{
+				// create an empty tax category obj
+				taxCategoryObj = new libTaxCategoryObj('', '', '');
+			}
+			
+		// return taxCategoryObj
+		return taxCategoryObj;
+		
+	}
+	
+	function getTaxLevel(taxLevelArray, taxLevelID) {
+		
+		// declare and initialize variables
+		var taxLevelObj = null;
+		
+		// loop through taxLevelArray
+		for (var i = 0; i < taxLevelArray.length; i++)
+			{
+				// get the Avalara ID from the taxLevelArray array
+				var avalaraID = taxLevelArray[i].avalaraID;
+				
+				// check if avalaraID is equal to taxLevelID
+				if (avalaraID == taxLevelID)
+					{
+						// create a new tax level obj
+						taxLevelObj = new libTaxLevelObj(
+																taxLevelArray[i].name,
+																taxLevelArray[i].avalaraID,
+																taxLevelArray[i].internalID
+															);
+						// break the loop
+						break;
+					}
+			}
+		
+		// if we have been unable to find a matching tax level
+		if (taxLevelObj == null)
+			{
+				// create an empty tax level obj
+				taxLevelObj = new libTaxLevelObj('', '', '');
+			}
+			
+		// return taxLevelObj
+		return taxLevelObj;
+		
+	}
+	
+	function getTaxType(taxTypeArray, taxTypeID) {
+		
+		// declare and initialize variables
+		var taxTypeObj = null;
+		
+		// loop through taxTypeArray
+		for (var i = 0; i < taxTypeArray.length; i++)
+			{
+				// get the Avalara ID from the taxTypeArray array
+				var avalaraID = taxTypeArray[i].avalaraID;
+				
+				// check if avalaraID is equal to taxTypeID
+				if (avalaraID == taxTypeID)
+					{
+						// create a new tax type obj
+						taxTypeObj = new libTaxTypeObj(
+																taxTypeArray[i].name,
+																taxTypeArray[i].avalaraID,
+																taxTypeArray[i].internalID
+															);
+						// break the loop
+						break;
+					}
+			}
+		
+		// if we have been unable to find a matching tax type
+		if (taxTypeObj == null)
+			{
+				// create an empty tax type obj
+				taxTypeObj = new libTaxTypeObj('', '', '');
+			}
+			
+		// return taxTypeObj
+		return taxTypeObj;
+		
+	}
+	
 	
 	function getTaxTypeCode(taxTypeID) {
 		
@@ -933,7 +1104,7 @@ function(record, runtime, search, plugin, format)
 		
 	}
 	
-	function updateTaxTotal(recordType, recordID, linesToUpdate, errorMessages, taxTotal) {
+	function updateTaxTotal(recordType, recordID, linesToUpdate, errorMessages, taxSummary, taxTotal) {
 		
 		// is taxTotal a negative number
 		if (taxTotal < 0)
@@ -983,6 +1154,12 @@ function(record, runtime, search, plugin, format)
 				tranRec.setValue({
 					fieldId: 'taxamountoverride',
 					value: taxTotal
+				});
+				
+				// set the Tax Summary JSON field
+				tranRec.setValue({
+					fieldId: 'custbody_bbs_tfc_errors_tax_summ_json',
+					value: JSON.stringify(taxSummary)
 				});
 				
 				// save the changes to the transaction
@@ -1446,7 +1623,25 @@ function(record, runtime, search, plugin, format)
 	
 	    	return results;
 	    }
-    
+
+	//Left padding s with c to a total of n chars
+	//
+	function padding_left(s, c, n) 
+		{
+			if (! s || ! c || s.length >= n) 
+				{
+					return s;
+				}
+			
+			var max = (n - s.length)/c.length;
+			
+			for (var i = 0; i < max; i++) 
+				{
+					s = c + s;
+				}
+			
+			return s;
+		}
     
     return {
     		libLookupPCode:					libLookupPCode,
@@ -1459,7 +1654,13 @@ function(record, runtime, search, plugin, format)
     		getSubsidiaryInfo:				getSubsidiaryInfo,
     		getSiteInfo:					getSiteInfo,
     		getISOCode:						getISOCode,
-    		createCalculatedTaxes:			createCalculatedTaxes,
+    		getTaxCategories:				getTaxCategories,
+			getTaxLevels:					getTaxLevels,
+			getTaxTypes:					getTaxTypes,
+			getTaxCategory:					getTaxCategory,
+			getTaxLevel:					getTaxLevel,
+			getTaxType:						getTaxType,
+			createCalculatedTaxes:			createCalculatedTaxes,
 			deleteCalculatedTaxes:			deleteCalculatedTaxes,
 			createAFCCallLogRecords:		createAFCCallLogRecords,
     		updateTaxTotal:					updateTaxTotal,
@@ -1468,7 +1669,10 @@ function(record, runtime, search, plugin, format)
     		libBillingPeriod:				libBillingPeriod,
     		libTaxExemptionsObj:			libTaxExemptionsObj,
     		libLineItemObj:					libLineItemObj,
-    		libInvoicesObj:					libInvoicesObj
+    		libInvoicesObj:					libInvoicesObj,
+			libTaxSummaryObj:				libTaxSummaryObj,
+			libOutputSummary:				libOutputSummary,
+			padding_left:					padding_left
     		};
     
 });

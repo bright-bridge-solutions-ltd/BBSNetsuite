@@ -690,7 +690,7 @@ function(file, record, render, runtime, search, email)
 							try
 								{
 									itemDisplayName = search.lookupFields({
-																			type:		search.Type.NON_INVENTORY_ITEM,
+																			type:		'item',
 																			id:			itemId,
 																			columns:	'displayname'
 																		}).displayname;

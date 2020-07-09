@@ -116,6 +116,7 @@ function(runtime, search, format, record) {
     			operator: 'noneof',
     			values: ['@NONE@']
     		}],
+
     	});
 
     }
