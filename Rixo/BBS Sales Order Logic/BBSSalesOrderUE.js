@@ -3,25 +3,43 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/record', 'N/search', 'N/file', 'N/xml'],
+define(['N/runtime', 'N/record', 'N/search', 'N/file', 'N/xml'],
 /**
  * @param {record} record
  * @param {search} search
  */
-function(record, search, file, xml) 
+function(runtime, record, search, file, xml) 
 {
-   
+	function salesOrderBeforeSubmit(scriptContext) {
+			
+			// check the record is being created and the excecution context is web services
+			if (scriptContext.type == scriptContext.UserEventType.CREATE && runtime.executionContext == runtime.ContextType.WEBSERVICES)
+				{
+					// get the current record
+					var currentRecord = scriptContext.newRecord;
+					
+					// get line item count
+					var lineCount = currentRecord.getLineCount({
+						sublistId: 'item'
+					});
+					
+					// loop through items
+					for (var i = 0; i < lineCount; i++)
+						{
+							// set the 'Create PO' field to null
+							currentRecord.setSublistValue({
+								sublistId: 'item',
+								fieldId: 'createpo',
+								line: i,
+								value: null
+							});
+						}
+				}
+		}
     
-    /**
-     * Function definition to be triggered before record is loaded.
-     *
-     * @param {Object} scriptContext
-     * @param {Record} scriptContext.newRecord - New record
-     * @param {Record} scriptContext.oldRecord - Old record
-     * @param {string} scriptContext.type - Trigger type
-     * @Since 2015.2
-     */
-    function salesOrderAfterSubmit(scriptContext) 
+	
+	
+	function salesOrderAfterSubmit(scriptContext) 
 	    {
     		if(scriptContext.type == 'create' || scriptContext.type == 'edit')
     			{
@@ -117,6 +135,8 @@ function(record, search, file, xml)
 														});
 										}
 								}
+							
+							
 						}
     				
 
@@ -129,7 +149,8 @@ function(record, search, file, xml)
 	    }
 
     return 	{
-        	afterSubmit: salesOrderAfterSubmit
+        		beforeSubmit: salesOrderBeforeSubmit,
+    			afterSubmit: salesOrderAfterSubmit
     		};
     
 });
