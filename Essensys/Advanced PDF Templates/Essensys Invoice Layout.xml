@@ -243,30 +243,32 @@
 			<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">${currencySymbol}${record.taxtotal}</td>
 		</tr>
 	<#elseif subsidiary.id == "3"> <!-- US -->
-		<#assign tax_summary = record.custbody_bbs_tfc_errors_tax_summ_json?eval>
-			<#if tax_summary?has_content>
+		<#if record.custbody_bbs_tfc_tax_summ_json?has_content>
+			<#assign tax_summary = record.custbody_bbs_tfc_tax_summ_json?eval>
 				<#list tax_summary as taxes>
-					<tr>
-						<td colspan="10">&nbsp;</td>
-						<#if record.createdfrom?has_content>
-							<!-- Do we have a tax level -->
-							<#if taxes.taxLevel?has_content>
-								<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>${taxes.taxName}</b></td>
-								<td colspan="4" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>${taxes.taxLevel}</b></td>
+					<#if taxes.taxName != "NO TAX"> <!-- DO NOT PRINT "NO TAX" LINES -->
+						<tr>
+							<td colspan="10">&nbsp;</td>
+							<#if record.createdfrom?has_content>
+								<!-- Do we have a tax level -->
+								<#if taxes.taxLevel?has_content>
+									<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>${taxes.taxName}</b></td>
+									<td colspan="4" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>${taxes.taxLevel}</b></td>
+								<#else>
+									<td colspan="20" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>${taxes.taxName}</b></td>
+								</#if>
 							<#else>
-								<td colspan="20" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>${taxes.taxName}</b></td>
+								<!-- Do we have a tax level -->
+								<#if taxes.taxLevel?has_content>
+									<td colspan="12" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>${taxes.taxName}</b></td>
+									<td colspan="4" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>${taxes.taxLevel}</b></td>
+								<#else>
+									<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>${taxes.taxName}</b></td>
+								</#if>
 							</#if>
-						<#else>
-							<!-- Do we have a tax level -->
-							<#if taxes.taxLevel?has_content>
-								<td colspan="12" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>${taxes.taxName}</b></td>
-								<td colspan="4" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>${taxes.taxLevel}</b></td>
-							<#else>
-								<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>${taxes.taxName}</b></td>
-							</#if>
-						</#if>
-						<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">${currencySymbol}${taxes.taxAmount}</td>
-					</tr>
+							<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">${currencySymbol}${taxes.taxAmount}</td>
+						</tr>
+					</#if>
 				</#list>
 			</#if>
 	<#elseif subsidiary.id == "5">

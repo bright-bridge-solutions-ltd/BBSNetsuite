@@ -23,7 +23,7 @@
 
            	<table style="width: 100%; margin-top: 10px;">
             	<tr>
-                  	<td rowspan="5" style="border: 1px solid black;"><b>Picking Notes</b></td>
+                  	<td rowspan="3" style="border: 1px solid black;"><b>CUSTOMER DOCUMENT NOTES</b><br/><br/>${record.custbody_bbs_cust_sales_notes}</td>
 					<td class="addressheader"><b>Customer</b></td>
 				</tr>
 				<tr>
@@ -31,6 +31,9 @@
 				</tr>
               	<tr>
 					<td class="address">${record.shipaddress}</td>
+				</tr>
+				<tr>
+                  	<td rowspan="5" style="margin-top: 10px; border: 1px solid black;"><b>DELIVERY INSTRUCTIONS</b><br/><br/>${record.custbody_bbs_so_delivery_instructions}</td>
 				</tr>
           	</table>
 
@@ -121,7 +124,7 @@
 </style>
 </head>
 
-<body header="nlheader" header-height="190pt" footer="nlfooter" footer-height="20pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="200pt" footer="nlfooter" footer-height="20pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
 
 
@@ -131,20 +134,33 @@
 <table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list record.item as item><#if item_index==0>
 <thead>
 	<tr>
-	<th colspan="4">${item.item@label}</th>
+	<th>${item.custcol_bbs_item_bin@label}</th>
+    <th colspan="4">${item.item@label}</th>
 	<th>${item.options@label}</th>
 	<th>${item.quantity@label}</th>
 	<th>${item.units@label}</th>
-	<th>${item.quantitycommitted@label}</th>
+	<th colspan="2">${item.quantitycommitted@label}</th>
+    <th>${item.custcol_bbs_item_bin@label}</th>
 	</tr>
 </thead>
-</#if><tr>
-	<td colspan="4"><span class="itemname">${item.item}</span><br />${item.description}</td>
+</#if>
+  <tr>
+	<td>${item.custcol_bbs_item_bin}</td>
+  	<td colspan="4"><span class="itemname">${item.custcol_bbs_sku}</span>&nbsp;${item.description}</td>
 	<td>${item.options}</td>
 	<td>${item.quantity}</td>
 	<td>${item.units}</td>
-	<td>${item.quantitycommitted}</td>
-	</tr>
+	<td colspan="2">${item.quantitycommitted}</td>
+    <td>${item.custcol_bbs_item_bin}</td>
+  </tr>
+      <#if item.custcol_bbs_item_serialornot>
+      <tr>
+      <td>&nbsp;</td>
+      <td colspan="10" height="150%"><b>Serial No(s).</b></td>
+      </tr>
+        </#if>
+
+    
 	</#list><!-- end items --></table>
 </#if>
 </body>

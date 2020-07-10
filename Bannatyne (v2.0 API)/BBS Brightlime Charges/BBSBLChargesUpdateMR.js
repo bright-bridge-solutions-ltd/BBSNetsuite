@@ -81,10 +81,11 @@ function(record, search, task) {
     	var locationID = blClubSearch[1]
     	var subsidiaryID = blClubSearch[2];
     	
-    	// call function to return the Brightlime charge code and gl code
+    	// call function to return the Brightlime charge code, GL code and lineOfBusiness
     	var blChargeCodeSearch = searchBLChargeCode(chargeCode);
     	var blChargeCodeID = blChargeCodeSearch[0];
     	var glCodeID = blChargeCodeSearch[1];
+    	var lineOfBusiness = blChargeCodeSearch[2];
     	
     	// call function to check if this is DD or Non DD
     	var DD = searchBBSChargesDDList(membershipType);
@@ -105,6 +106,7 @@ function(record, search, task) {
 						custrecord_bbs_brightlime_charge_code: blChargeCodeID,
 						custrecord_bbs_bl_charge_member_code: blMemberCode,
 						custrecord_bbs_bl_gl_account_id: glCodeID,
+						custrecord_bl_charges_line_of_business: lineOfBusiness,
 						custrecord_bbs_bl_dd_nondd: DD
 					}
 				});
@@ -241,6 +243,7 @@ function(record, search, task) {
 			// declare and initialize variables
 			var blChargeCodeID = null;
 			var glCodeID = null;
+			var lineOfBusiness = null;
 			
 			// create search to find the matching Brightlime Charge Code record
 	    	var blChargeCodeSearch = search.create({
@@ -259,6 +262,9 @@ function(record, search, task) {
 	    		
 	    		columns:[{
 	    			name: 'custrecordbbs_gl_code_id'
+	    		},
+	    				{
+	    			name: 'custrecord_bl_charge_code_line_of_bus'
 	    		}],
 	    		
 	    	});
@@ -273,11 +279,16 @@ function(record, search, task) {
 	    			name: 'custrecordbbs_gl_code_id'
 	    		});
 	    		
+	    		lineOfBusiness = result.getValue({
+	    			name: 'custrecord_bl_charge_code_line_of_bus'
+	    		});
+	    		
 	    	});
 	    	
 	    	// push values to the returnValues array
 	    	returnValues.push(blChargeCodeID);
 	    	returnValues.push(glCodeID);
+	    	returnValues.push(lineOfBusiness);
 	    	
 	    	// return the returnValues array
 	    	return returnValues;

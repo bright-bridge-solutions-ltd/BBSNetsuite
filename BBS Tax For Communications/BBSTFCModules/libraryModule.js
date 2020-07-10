@@ -1158,12 +1158,15 @@ function(record, runtime, search, plugin, format)
 				
 				// set the Tax Summary JSON field
 				tranRec.setValue({
-					fieldId: 'custbody_bbs_tfc_errors_tax_summ_json',
+					fieldId: 'custbody_bbs_tfc_tax_summ_json',
 					value: JSON.stringify(taxSummary)
 				});
 				
 				// save the changes to the transaction
-				tranRec.save();
+				tranRec.save({
+					enableSourcing: false,
+					ignoreMandatoryFields: true
+				});
 				
 				log.audit({
 					title: recordType + 'Updated',

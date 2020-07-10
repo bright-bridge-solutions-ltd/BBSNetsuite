@@ -1,22 +1,23 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
 <pdf>
 <head>
+
               <#assign regInfo>Company Registration No: 35885. VAT Registration: 272 3323 78</#assign>
               <#assign regInfo1>Registered Office: Renown Avenue, Coventry Business Park, Coventry, CV5 6UF, United Kingdom. www.astleys.co.uk</#assign>
-              <#assign emailInfo>accounts@astleys.co.uk</#assign>
+              <#assign emailInfo>sales@astleys.co.uk</#assign>
               <#assign telInfo>024 7685 4545</#assign>
               <#assign vatInfo>GB 123 4567 89</#assign>
               <#assign footerMsg>All goods remain the property of John Astley &amp; Sons Limited until paid in full.</#assign>
               <#assign logoInfo>${companyInformation.logoUrl}</#assign>
-  
+
     <macrolist>
-   <macro id="nlheader">
+            <macro id="nlheader">
     <table class="header" style="width: 100%;">
     <tr>
     <td align="right"><img src="${logoInfo}" style="float: right; width:200px; height:70px;" /></td>
     </tr>
     <tr>
-	<td><span style="font-size:24px;">${record@title} : ${record.tranid}</span></td>
+	<td><span style="font-size:24px;">${record@title}</span></td>
 	</tr>
     </table>
       
@@ -47,10 +48,10 @@
 	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
 	</tr>
 	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Credit Note No.</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Return Auth. No.</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
     </tr>
 	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Credit Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
     </tr>
     <#if record.otherrefnum?length gt 18>
       	<tr>
@@ -63,10 +64,10 @@
         <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No.</b></td><td align="right" style="font-size:10pt">${record.entity.entityid}</td>
         </tr>
         <tr>
-        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Original Doc No.</b></td><td align="right" style="font-size:10pt">${record.createdfrom.tranid}</td>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Return Requested By</b></td><td align="right" style="font-size:10pt">${record.entity.contact}</td>
         </tr>
         <tr>
-        <td class="address">&nbsp;</td><td class="address">&nbsp;</td>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Authorised By</b></td><td align="right" style="font-size:10pt">${record.custbody_bbs_authorisedby}</td>
         </tr>
     <#else>
       	<tr>
@@ -76,10 +77,10 @@
         <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No.</b></td><td align="right" style="font-size:10pt">${record.entity.entityid}</td>
         </tr>
         <tr>
-        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Original Doc No.</b></td><td align="right" style="font-size:10pt">${record.createdfrom.tranid}</td>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Return Requested By</b></td><td align="right" style="font-size:10pt">${record.entity.contact}</td>
         </tr>
         <tr>
-        <td class="address">&nbsp;</td><td class="address">&nbsp;</td>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Authorised By</b></td><td align="right" style="font-size:10pt">${record.custbody_bbs_authorisedby}</td>
         </tr>
         <tr>
         <td class="address">&nbsp;</td><td class="address">&nbsp;</td>
@@ -87,11 +88,25 @@
     </#if>
     
   </table>
-
+  <table style="width: 100%; margin-top: 10px;">
+  <tr>
+    <td align="left" colspan="2" style="border: 1px solid #000000; font-size:10pt; padding-left: 2px; padding-right: 2px; height: 80px;"><b>Delivery Instructions</b><br/><span style="font-size:8pt">${record.custbody_bbs_so_delivery_instructions}</span></td>
+    <td></td>
+    <td align="left" colspan="2" style="border: 1px solid #000000; font-size:10pt; padding-left: 2px; padding-right: 2px; height: 80px;"><b>Reason For Return</b><br/><span style="font-size:8pt">${record.custbody_bbs_returns_reason}</span></td>
+  </tr>  
+  </table>
         </macro>
 
-        <macro id="nlfooter">
+              <macro id="nlfooter">
+
+       
        <table style="width: 100%;">
+         <tr class="messagerow">
+              <td align="left" class="message"><b>${footerMsg}</b></td>
+		  </tr>
+         <tr class="messagerow">
+              <td align="left" class="message">&nbsp;</td>
+		  </tr>
           <tr class="messagerow">
             <td align="left" class="message">${regInfo}<br/>${regInfo1}</td>
 		  </tr>
@@ -206,35 +221,35 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="360px" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="440px" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
-<#if record.item?has_content>
-
-<table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
-<thead >
-	<tr >
-     <th align="left" colspan="2"><br/>Code</th>
-  	<th align="left" colspan="6"><br/>Description</th>
-  		<th align="right">VAT<br/>Code</th>
-  		<th align="right">Pack<br/>Size</th>
-  		<th align="right"><br/>Quantity</th>
-  		<th align="right">Unit<br/>Price</th>
-  		<th align="right">Net<br/>Amount</th>
-	</tr>
-</thead>
-</#if>
-
-  <tr>
-    <td align="left" colspan="2">${item.custcol_bbs_sku}</td>
-  	<td align="left" colspan="6">${item.description}<br />${item.custcol_scm_customerpartnumber}</td>
-  	<td align="right">${item.taxrate1}</td>
-  	<td align="right">${item.units}</td>
-  	<td align="right">${item.quantity}</td>
-  	<td align="right">${item.rate?string("0.00")}</td>
-  	<td align="right">${item.amount?string("0.00")}</td>
-	</tr>
-	</#list><!-- end items --></table>
-</#if>
+  
+	<#if record.item?has_content>
+		<table class="itemtable" style="width: 100%; margin-top: 30px;"><!-- start items --><#list record.item as item><#if item_index==0>
+			<thead>
+  				<tr>
+  					<th align="left" colspan="2"><br/>Code</th>
+  					<th align="left" colspan="5"><br/>Description</th>
+  					<th align="right">VAT<br/>Code</th>
+  					<th align="right">Pack<br/>Size</th>
+  					<th align="right"><br/>Quantity</th>
+  					<th align="right">Unit<br/>Price</th>
+  					<th align="right">Net<br/>Amount</th>
+  				</tr>
+  			</thead>
+  			</#if>
+  				<tr>
+  					<td align="left" colspan="2">${item.custcol_bbs_sku}</td>
+  					<td align="left" colspan="5">${item.description}</td>
+  					<td align="right">${item.taxrate1}</td>
+  					<td align="right">${item.units}</td>
+  					<td align="right">${item.quantity}</td>
+  					<td align="right">${item.rate?string("0.00")}</td>
+  					<td align="right">${item.amount?string("0.00")}</td>
+  				</tr>
+  		</#list><!-- end items -->
+  		</table>
+	</#if>
 
 <hr />
 <table class="total" style="width: 100%;"><tr class="totalrow">
@@ -249,7 +264,7 @@
 	</tr>
 	<tr class="totalrow">
 	<td colspan="4">&nbsp;</td>
-	<td class="totalcell" align="right"><b>Credit Total</b></td>
+	<td class="totalcell" align="right"><b>Gross Total</b></td>
 	<td class="totalcell" align="right">${record.total}</td>
 	</tr>
 	<tr>
