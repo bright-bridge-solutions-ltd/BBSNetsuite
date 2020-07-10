@@ -2,43 +2,106 @@
 <pdfset>
 <pdf>
 <head>
-              <#assign regInfo>Company Registration No: 12345678. Registered Office: Renown Avenue,Coventry Business Park, Coventry,CV5 6UF, United Kingdom.</#assign>
+              <#assign regInfo>Company Registration No: 35885. VAT Registration: 272 3323 78</#assign>
+              <#assign regInfo1>Registered Office: Renown Avenue, Coventry Business Park, Coventry, CV5 6UF, United Kingdom. www.astleys.co.uk</#assign>
               <#assign emailInfo>sales@astleys.co.uk</#assign>
-              <#assign telInfo>0800 093 5494</#assign>
+              <#assign telInfo>024 7685 4545</#assign>
               <#assign vatInfo>GB 123 4567 89</#assign>
               <#assign footerMsg>All goods remain the property of John Astley &amp; Sons Limited until paid in full.</#assign>
               <#assign logoInfo>${companyInformation.logoUrl}</#assign>
     <macrolist>
         <macro id="nlheader">
-            <table class="header" style="width: 100%;">
+   <table class="header" style="width: 100%;">
     <tr>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td colspan="2" align="left"><img src="${logoInfo}" style="float: right; width:175px; height:75px;" /></td>
+    <td align="right"><img src="${logoInfo}" style="float: right; width:200px; height:70px;" /></td>
     </tr>
-    <!--<tr><td>&nbsp;</td></tr>-->
     <tr>
-	<td colspan="2"><span style="font-size:24px;">Delivery Note</span></td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
+	<td><span style="font-size:24px;">${record@title} : ${record.tranid}</span></td>
 	</tr>
-          </table>
-    <table class="header" style="width: 100%;">
-
-	<tr>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	</tr>
-	<tr>
-        <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"></span><br /><span class="nameandaddress" style="font-size:10pt"></span></td>
-	<td align="right" style="font-size:10pt"></td>
+    </table>
       
-    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${companyInformation.addressText}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+    <table class="header" style="width: 100%; margin-top: 10px;">
+	<tr>
+    <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>&nbsp;</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}</span></td>
+	<td align="right" style="font-size:10pt"></td>
+   	<td colspan="2" align="left" rowspan="8">
+      <table style="width: 100%;">
+        <tr>
+          <td align="left" style="width: 50px;"><b>Email:</b></td>
+		  <td align="left">${emailInfo}</td>
+      	</tr>
+        <tr>
+          <td align="left" style="width: 50px;"><b>Tel:</b></td>
+          <td align="left">${telInfo}</td>
+      	</tr>
+      </table>
+      </td>
 	</tr>
-          </table>
+    </table>
+          
+    <table style="width: 100%; margin-top: 20px;">
+    <tr>
+	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
+	</tr>
+	<tr>
+	<td colspan="2" rowspan="9" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
+	</tr>
+	<tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Ref No.</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
+    </tr>
+	<tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Ship Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+    </tr>
+    <#if record.createdfrom.otherrefnum?length gt 18>
+      	<tr>
+			<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Purchase Order No.</b></td><td align="right" style="font-size:10pt">&nbsp;</td>
+    	</tr>
+      	<tr>
+          	<td class="address">&nbsp;</td><td colspan="2" align="right" style="font-size:10pt">${record.createdfrom.otherrefnum}</td>
+      	</tr>
+        <tr>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No.</b></td><td align="right" style="font-size:10pt">${record.entity.entityid}</td>
+        </tr>
+        <tr>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Placed By</b></td><td align="right" style="font-size:10pt">${record.entity.contact}</td>
+        </tr>
+        <tr>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Sales Order No.</b></td><td align="right" style="font-size:10pt">${record.createdfrom.tranid}</td>
+        </tr>
+       <tr>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Web Order Ref.</b></td><td align="right" style="font-size:10pt">${record.createdfrom.custbody_bbs_weborderref}</td>
+        </tr>
+    <#else>
+      	<tr>
+		<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Purchase Order No.</b></td><td align="right" style="font-size:10pt">${record.createdfrom.otherrefnum}</td>
+    	</tr>
+        <tr>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No.</b></td><td align="right" style="font-size:10pt">${record.entity.entityid}</td>
+        </tr>
+        <tr>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Placed By</b></td><td align="right" style="font-size:10pt">${record.entity.contact}</td>
+        </tr>
+        <tr>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Sales Order No.</b></td><td align="right" style="font-size:10pt">${record.createdfrom.tranid}</td>
+        </tr>
+        <tr>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Web Order Ref.</b></td><td align="right" style="font-size:10pt">${record.createdfrom.custbody_bbs_weborderref}</td>
+        </tr>
+        <tr>
+        <td class="address">&nbsp;</td><td class="address">&nbsp;</td>
+        </tr>
+    </#if>
+    
+  </table>
+      
+  <table style="width: 100%; margin-top: 10px;">
+  <tr>
+    <td align="left" colspan="2" style="border: 1px solid #000000; font-size:10pt; padding-left: 2px; padding-right: 2px; height: 80px;"><b>Customer Document Notes</b><br/><span style="font-size:8pt">${record.custbody_bbs_cust_sales_notes}</span></td>
+    <td></td>
+    <td align="left" colspan="2" style="border: 1px solid #000000; font-size:10pt; padding-left: 2px; padding-right: 2px; height: 80px;"><b>Delivery Instructions</b><br/><span style="font-size:8pt">${record.custbody_bbs_so_delivery_instructions}</span></td>
+  </tr>  
+  </table>
+
         </macro>
 
         <macro id="nlfooter">
@@ -52,7 +115,7 @@
               <td align="left" class="message">&nbsp;</td>
 		  </tr>
           <tr class="messagerow">
-              <td align="left" class="message">${regInfo}</td>
+            <td align="left" class="message">${regInfo}<br/>${regInfo1}</td>
 		  </tr>
         </table>
 
@@ -165,55 +228,15 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="26%" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="420px" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
-    <table style="width: 100%;">
-    <tr>
-	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
-	</tr>
-	<tr>
-	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
-	</tr>
-	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>${record.tranid@label}</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
-    </tr>
-	
-  <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Ship Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No</b></td><td align="right" style="font-size:9pt">${salesorder.entity.accountnumber}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Placed By</b></td><td align="right" style="font-size:9pt">${salesorder.custbody_bbs_opportunity_contact.entityid}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Sales Order No</b></td><td align="right" style="font-size:9pt">${salesorder.tranid}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>PO</b></td><td align="right" style="font-size:9pt">${salesorder.otherrefnum}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Web Order Ref</b></td><td align="right" style="font-size:9pt">${salesorder.custbody_bbs_weborderref_so}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
-    </tr>
-      <tr>
-	<td>FAO: ${salesorder.custbody_bbs_fao_salesorder}</td>
-    </tr>
-  </table>
-  
-<p/>
-    
 <#if record.item?has_content>
 	<table class="itemtable" style="width: 100%; margin-top: 10px;">
       <thead>
           <tr>
-          <th colspan="13"><br/>Item Description</th>
+  		  <th align="left" colspan="2"><br/>Code</th>
+  		  <th align="left" colspan="6"><br/>Description</th>
+          <th align="right" colspan="2">Pack<br/>Size</th>
           <th align="right" colspan="2"><br/>Ordered</th>
           <th align="right" colspan="2">Back<br/>Ordered</th>
           <th align="right" colspan="2"><br/>Shipped</th>
@@ -225,10 +248,13 @@
             	<#list salesorder.item?sort_by("custcol_bbs_contact_sales_lines") as tranline>
                 	<#if tranline.line==item.orderline>
   						<tr>
-						    <td colspan="13" style="margin-top: 5px;">${item.description}</td>
-      						<td align="right" colspan="2" style="margin-top: 5px;">${tranline.quantity}</td>
-    						<td align="right" colspan="2" style="margin-top: 5px;">${tranline.quantityremaining}</td>
-							<td align="right" colspan="2" style="margin-top: 5px;">${item.quantity}</td>
+                            <td align="left" colspan="2">${item.custcol_bbs_sku}</td>
+  							<td align="left" colspan="6">${item.description}</td>
+  							<td align="right" colspan="2">${tranline.units}</td>
+      						<td align="right" colspan="2">${tranline.quantity}</td>
+<!--                                						<td align="right" colspan="2" style="margin-top: 5px;">${tranline.quantity}</td>-->
+    						<td align="right" colspan="2">${tranline.quantityremaining}</td>
+							<td align="right" colspan="2">${item.quantity}</td>
 						</tr>
 					</#if>
 				</#list>
@@ -298,43 +324,106 @@
 <#if record.entity.custentity_bbs_2deliverynotes>
 <pdf>
 <head>
-              <#assign regInfo>Company Registration No: 12345678. Registered Office: Renown Avenue,Coventry Business Park, Coventry,CV5 6UF, United Kingdom.</#assign>
+              <#assign regInfo>Company Registration No: 35885. VAT Registration: 272 3323 78</#assign>
+              <#assign regInfo1>Registered Office: Renown Avenue, Coventry Business Park, Coventry, CV5 6UF, United Kingdom. www.astleys.co.uk</#assign>
               <#assign emailInfo>sales@astleys.co.uk</#assign>
-              <#assign telInfo>0800 093 5494</#assign>
+              <#assign telInfo>024 7685 4545</#assign>
               <#assign vatInfo>GB 123 4567 89</#assign>
               <#assign footerMsg>All goods remain the property of John Astley &amp; Sons Limited until paid in full.</#assign>
               <#assign logoInfo>${companyInformation.logoUrl}</#assign>
     <macrolist>
         <macro id="nlheader">
-            <table class="header" style="width: 100%;">
+ <table class="header" style="width: 100%;">
     <tr>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td colspan="2" align="left"><img src="${logoInfo}" style="float: right; width:175px; height:75px;" /></td>
+    <td align="right"><img src="${logoInfo}" style="float: right; width:200px; height:70px;" /></td>
     </tr>
-    <!--<tr><td>&nbsp;</td></tr>-->
     <tr>
-	<td colspan="2"><span style="font-size:24px;">Customer Copy</span></td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
+	<td><span style="font-size:24px;">Delivery Note - Internal Copy</span></td>
 	</tr>
-          </table>
-    <table class="header" style="width: 100%;">
-
-	<tr>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	</tr>
-	<tr>
-        <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"></span><br /><span class="nameandaddress" style="font-size:10pt"></span></td>
-	<td align="right" style="font-size:10pt"></td>
+    </table>
       
-    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${companyInformation.addressText}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+    <table class="header" style="width: 100%; margin-top: 10px;">
+	<tr>
+    <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>&nbsp;</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}</span></td>
+	<td align="right" style="font-size:10pt"></td>
+   	<td colspan="2" align="left" rowspan="8">
+      <table style="width: 100%;">
+        <tr>
+          <td align="left" style="width: 50px;"><b>Email:</b></td>
+		  <td align="left">${emailInfo}</td>
+      	</tr>
+        <tr>
+          <td align="left" style="width: 50px;"><b>Tel:</b></td>
+          <td align="left">${telInfo}</td>
+      	</tr>
+      </table>
+      </td>
 	</tr>
-          </table>
+    </table>
+
+    <table style="width: 100%; margin-top: 20px;">
+    <tr>
+	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
+	</tr>
+	<tr>
+	<td colspan="2" rowspan="9" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
+	</tr>
+	<tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Ref No.</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
+    </tr>
+	<tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Ship Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+    </tr>
+    <#if record.createdfrom.otherrefnum?length gt 18>
+      	<tr>
+			<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Purchase Order No.</b></td><td align="right" style="font-size:10pt">&nbsp;</td>
+    	</tr>
+      	<tr>
+          	<td class="address">&nbsp;</td><td colspan="2" align="right" style="font-size:10pt">${record.createdfrom.otherrefnum}</td>
+      	</tr>
+        <tr>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No.</b></td><td align="right" style="font-size:10pt">${record.entity.entityid}</td>
+        </tr>
+        <tr>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Placed By</b></td><td align="right" style="font-size:10pt">${record.entity.contact}</td>
+        </tr>
+        <tr>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Sales Order No.</b></td><td align="right" style="font-size:10pt">${record.createdfrom.tranid}</td>
+        </tr>
+       <tr>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Web Order Ref.</b></td><td align="right" style="font-size:10pt">${record.createdfrom.custbody_bbs_weborderref}</td>
+        </tr>
+    <#else>
+      	<tr>
+		<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Purchase Order No.</b></td><td align="right" style="font-size:10pt">${record.createdfrom.otherrefnum}</td>
+    	</tr>
+        <tr>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No.</b></td><td align="right" style="font-size:10pt">${record.entity.entityid}</td>
+        </tr>
+        <tr>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Placed By</b></td><td align="right" style="font-size:10pt">${record.entity.contact}</td>
+        </tr>
+        <tr>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Sales Order No.</b></td><td align="right" style="font-size:10pt">${record.createdfrom.tranid}</td>
+        </tr>
+        <tr>
+        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Web Order Ref.</b></td><td align="right" style="font-size:10pt">${record.createdfrom.custbody_bbs_weborderref}</td>
+        </tr>
+        <tr>
+        <td class="address">&nbsp;</td><td class="address">&nbsp;</td>
+        </tr>
+    </#if>
+    
+  </table>
+      
+  <table style="width: 100%; margin-top: 10px;">
+  <tr>
+    <td align="left" colspan="2" style="border: 1px solid #000000; font-size:10pt; padding-left: 2px; padding-right: 2px; height: 80px;"><b>Customer Document Notes</b><br/><span style="font-size:8pt">${record.custbody_bbs_cust_sales_notes}</span></td>
+    <td></td>
+    <td align="left" colspan="2" style="border: 1px solid #000000; font-size:10pt; padding-left: 2px; padding-right: 2px; height: 80px;"><b>Delivery Instructions</b><br/><span style="font-size:8pt">${record.custbody_bbs_so_delivery_instructions}</span></td>
+  </tr>  
+  </table>
+
         </macro>
 
         <macro id="nlfooter">
@@ -348,7 +437,7 @@
               <td align="left" class="message">&nbsp;</td>
 		  </tr>
           <tr class="messagerow">
-              <td align="left" class="message">${regInfo}</td>
+            <td align="left" class="message">${regInfo}<br/>${regInfo1}</td>
 		  </tr>
         </table>
 
@@ -461,55 +550,17 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="26%" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="420px" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
-    <table style="width: 100%;">
-    <tr>
-	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
-	</tr>
-	<tr>
-	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
-	</tr>
-	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>${record.tranid@label}</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
-    </tr>
-	
-  <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Ship Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No</b></td><td align="right" style="font-size:9pt">${salesorder.entity.custentity_bbs_legacy_accnumber}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Placed By</b></td><td align="right" style="font-size:9pt">${salesorder.custbody_bbs_opportunity_contact.entityid}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Sales Order No</b></td><td align="right" style="font-size:9pt">${salesorder.tranid}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>PO</b></td><td align="right" style="font-size:9pt">${salesorder.otherrefnum}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Web Order Ref</b></td><td align="right" style="font-size:9pt">${salesorder.custbody_bbs_weborderref_so}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
-    </tr>
-      <tr>
-	<td>FAO: ${salesorder.custbody_bbs_fao_salesorder}</td>
-    </tr>
-  </table>
-  
-<p/>
+
     
 <#if record.item?has_content>
 	<table class="itemtable" style="width: 100%; margin-top: 10px;">
       <thead>
           <tr>
-          <th colspan="13"><br/>Item Description</th>
+  		  <th align="left" colspan="2"><br/>Code</th>
+  		  <th align="left" colspan="6"><br/>Description</th>
+          <th align="right" colspan="2">Pack<br/>Size</th>
           <th align="right" colspan="2"><br/>Ordered</th>
           <th align="right" colspan="2">Back<br/>Ordered</th>
           <th align="right" colspan="2"><br/>Shipped</th>
@@ -521,10 +572,12 @@
             	<#list salesorder.item?sort_by("custcol_bbs_contact_sales_lines") as tranline>
                 	<#if tranline.line==item.orderline>
   						<tr>
-						    <td colspan="13" style="margin-top: 5px;">${item.description}</td>
-      						<td align="right" colspan="2" style="margin-top: 5px;">${tranline.quantity}</td>
-    						<td align="right" colspan="2" style="margin-top: 5px;">${tranline.quantityremaining}</td>
-							<td align="right" colspan="2" style="margin-top: 5px;">${item.quantity}</td>
+                            <td align="left" colspan="2">${item.custcol_bbs_sku}</td>
+  							<td align="left" colspan="6">${item.description}</td>
+  							<td align="right" colspan="2">${tranline.units}</td>
+      						<td align="right" colspan="2">${tranline.quantity}</td>
+    						<td align="right" colspan="2">${tranline.quantityremaining}</td>
+							<td align="right" colspan="2">${item.quantity}</td>
 						</tr>
 					</#if>
 				</#list>
