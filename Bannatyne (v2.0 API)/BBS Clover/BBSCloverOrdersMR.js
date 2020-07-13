@@ -70,7 +70,7 @@ function(record, runtime, search, task) {
     				{
     			name: 'custrecord_bbs_order_date',
     			operator: 'on',
-    			values: ['1/3/2020']
+    			values: ['4/3/2020']
     		}],
     		
     		columns: [{
@@ -111,7 +111,7 @@ function(record, runtime, search, task) {
     	});
     	
     	// call function to create a new cash sale. Pass subsidiaryID, locationID and merchantID
-    	var cashSaleID = createCashSale(subsidiaryID, locationID, merchantID);
+    	createCashSale(subsidiaryID, locationID, merchantID);
     }
 
     /**
@@ -136,6 +136,22 @@ function(record, runtime, search, task) {
     	log.audit({
     		title: '*** END OF SCRIPT ***',
     		details: 'Duration: ' + summary.seconds + ' seconds<br>Units Used: ' + summary.usage + '<br>Yields: ' + summary.yields
+    	});
+    	
+    	// ===========================================================================
+    	// NOW SCHEDULE ADDITIONAL MAP/REDUCE SCRIPT TO CREATE CLOVER PAYMENT JOURNALS
+    	// ===========================================================================
+    	
+    	// submit a map/reduce task
+    	var mapReduceTaskID = task.create({
+    	    taskType: task.TaskType.MAP_REDUCE,
+    	    scriptId: 'customscript_bbs_clover_payment_journals',
+    	    deploymentId: 'customdeploy_bbs_clover_payment_journals'
+    	}).submit();
+    	
+    	log.audit({
+    		title: 'Map/Reduce Script Scheduled',
+    		details: 'BBS Clover Payment Journals Map/Reduce script has been Scheduled.<br>Job ID: ' + mapReduceTaskID
     	});
 
     }
@@ -308,7 +324,7 @@ function(record, runtime, search, task) {
     				{
     			name: 'custrecord_bbs_order_date',
     			operator: 'on',
-    			values: ['1/3/2020']
+    			values: ['4/3/2020']
     		}],
     		
     		columns: [{

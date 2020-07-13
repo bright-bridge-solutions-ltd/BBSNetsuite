@@ -3,13 +3,13 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/record', 'N/runtime', 'N/search'],
+define(['N/record', 'N/runtime', 'N/search', 'N/task'],
 /**
  * @param {record} record
  * @param {runtime} runtime
  * @param {search} search
  */
-function(record, runtime, search) {
+function(record, runtime, search, task) {
 	
 	// set transaction date
 	transactionDate = new Date();
@@ -70,7 +70,7 @@ function(record, runtime, search) {
     				{
     			name: 'custrecord_bbs_refund_date',
     			operator: 'on',
-    			values: ['3/3/2020']
+    			values: ['4/3/2020']
     		}],
     		
     		columns: [{
@@ -133,6 +133,22 @@ function(record, runtime, search) {
     	log.audit({
     		title: '*** END OF SCRIPT ***',
     		details: 'Duration: ' + summary.seconds + ' seconds<br>Units Used: ' + summary.usage + '<br>Yields: ' + summary.yields
+    	});
+    	
+    	// ==========================================================================
+    	// NOW SCHEDULE ADDITIONAL MAP/REDUCE SCRIPT TO CREATE CLOVER REFUND JOURNALS
+    	// ==========================================================================
+    	
+    	// submit a map/reduce task
+    	var mapReduceTaskID = task.create({
+    	    taskType: task.TaskType.MAP_REDUCE,
+    	    scriptId: 'customscript_bbs_clover_refund_jnl_mr',
+    	    deploymentId: 'customdeploy_bbs_clover_refund_jnl_mr'
+    	}).submit();
+    	
+    	log.audit({
+    		title: 'Map/Reduce Script Scheduled',
+    		details: 'BBS Clover Refund Journals Map/Reduce script has been Scheduled.<br>Job ID: ' + mapReduceTaskID
     	});
 
     }
@@ -303,7 +319,7 @@ function(record, runtime, search) {
     				{
     			name: 'custrecord_bbs_refund_date',
     			operator: 'on',
-    			values: ['3/3/2020']
+    			values: ['4/3/2020']
     		}],
     		
     		columns: [{

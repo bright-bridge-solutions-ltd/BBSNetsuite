@@ -55,7 +55,7 @@ function(record, runtime, search, task) {
     				{
     			name: 'custrecord_bbs_clover_payment_date',
     			operator: 'on',
-    			values: ['2/3/2020']
+    			values: ['4/3/2020']
     		}],
     		
     		columns: [{
@@ -117,6 +117,22 @@ function(record, runtime, search, task) {
     	log.audit({
     		title: '*** END OF SCRIPT ***',
     		details: 'Duration: ' + summary.seconds + ' seconds<br>Units Used: ' + summary.usage + '<br>Yields: ' + summary.yields
+    	});
+    	
+    	// =======================================================================
+    	// NOW SCHEDULE ADDITIONAL MAP/REDUCE SCRIPT TO CREATE CLOVER CASH REFUNDS
+    	// =======================================================================
+    	
+    	// submit a map/reduce task
+    	var mapReduceTaskID = task.create({
+    	    taskType: task.TaskType.MAP_REDUCE,
+    	    scriptId: 'customscript_bbs_clover_refunds_mr',
+    	    deploymentId: 'customdeploy_bbs_clover_refunds_mr'
+    	}).submit();
+    	
+    	log.audit({
+    		title: 'Map/Reduce Script Scheduled',
+    		details: 'BBS Clover Refunds Map/Reduce script has been Scheduled.<br>Job ID: ' + mapReduceTaskID
     	});
 
     }
@@ -298,7 +314,7 @@ function(record, runtime, search, task) {
     				{
     			name: 'custrecord_bbs_clover_payment_date',
     			operator: 'on',
-    			values: ['2/3/2020']
+    			values: ['4/3/2020']
     		}],
     		
     		columns: [{
