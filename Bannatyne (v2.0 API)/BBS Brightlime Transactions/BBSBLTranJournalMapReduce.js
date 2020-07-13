@@ -55,9 +55,9 @@ function(runtime, search, record, task, format) {
     			values: ['F']
     		},
     				{
-    			name: 'custrecord_bbs_brightlime_tran_processed',
-    			operator: 'is',
-    			values: ['F']
+    			name: 'custrecord_bbs_brightlime_tran_date',
+    			operator: 'on',
+    			values: ['yesterday']
     		}],
     		
     		columns: [{
@@ -117,35 +117,6 @@ function(runtime, search, record, task, format) {
      * @since 2015.1
      */
     function reduce(context) {
-    	
-    	// process key/value pairs
-    	var key = context.key;
-    	var value = context.values[0];
-    	
-    	try
-			{
-	    		// update the Brightlime Transaction record with the error message
-			    record.submitFields({
-				    type: 'customrecord_bbs_brightlime_transactions',
-				    id: key,
-				    values: {
-				    	custrecord_bbs_brightlime_tran_processed: true,
-				    	custrecord_bbs_brightlime_tran_errors: value
-				    }
-			    });
-	    	
-		    	log.audit({
-	    			title: 'Brightlime Transaction Record Updated',
-	    			details: key
-	    		});
-	    	}
-		catch(e)
-			{
-				log.error({
-					title: 'Error Updating Brightlime Transaction Record',
-					details: 'Record ID: ' + key + '<br>Error: ' + e
-				});
-			}
 
     }
 
@@ -229,10 +200,7 @@ function(runtime, search, record, task, format) {
 				});
 				
 				// call function to create/run search to find BrightLime Transaction lines for this club
-    	    	var brightlimeTransactionLines = searchBLTransactionLines(locationID);
-    	    	
-    	    	// process results
-    	    	brightlimeTransactionLines.each(function(result) {
+    	    	searchBLTransactionLines(locationID).each(function(result) {
     	    		
     	    		// retrieve search results
     	    		var glAccountID = result.getValue({
@@ -255,20 +223,20 @@ function(runtime, search, record, task, format) {
     	    			summary: 'GROUP'
     	    		});
     	    		
-    	    		var debit = result.getValue({
+    	    		var debit = parseFloat(result.getValue({
     	    			name: 'custrecord_bbs_brightlime_tran_debit',
     	    			summary: 'SUM'
-    	    		});
+    	    		}));
     	    		
-    	    		var credit = result.getValue({
+    	    		var credit = parseFloat(result.getValue({
     	    			name: 'custrecord_bbs_brightlime_tran_credit',
     	    			summary: 'SUM'
-    	    		});
+    	    		}));
     	    		
-    	    		var grossAmt = result.getValue({
+    	    		var grossAmt = parseFloat(result.getValue({
     	    			name: 'custrecord_bbs_brightlime_tran_gross_amt',
     	    			summary: 'SUM'
-    	    		});
+    	    		}));
     	    		
     	    		var taxCode = result.getValue({
     	    			name: 'internalid',
@@ -281,13 +249,6 @@ function(runtime, search, record, task, format) {
     	    			join: 'custrecord_bbs_brightlime_tran_tax_acc',
     	    			summary: 'MAX'
     	    		});
-    	    		
-    	    		var blTranRecords = result.getValue({
-    	    			name: 'formulatext',
-    	    			summary: 'MAX'
-    	    		});
-    	    		
-    	    		blTranRecords = blTranRecords.split('|'); // split on '|' as needs to be an array
     	    		
     	    		try
     	    			{
@@ -359,7 +320,7 @@ function(runtime, search, record, task, format) {
 		    						});
 		    						
 		    						// add the gross amount to the directDebitTotal
-		    						directDebitTotal += parseFloat(grossAmt);
+		    						directDebitTotal += grossAmt;
     	    					}
     	    				// check if we have got a credit line
     	    				else if (creditOrDebit == 'C')
@@ -429,7 +390,7 @@ function(runtime, search, record, task, format) {
 		    						});
 		    						
 		    						// add the gross amount to the totalDebitAmount variable
-		    						totalDebitAmount += parseFloat(grossAmt);
+		    						totalDebitAmount += grossAmt;
 		    	    			}
 		    	    		else if (creditOrDebit == 'D') // if we have got a debit line
 		    	    			{
@@ -498,26 +459,15 @@ function(runtime, search, record, task, format) {
 									});
 									
 									// add the gross amount to the totalCreditAmount variable
-									totalCreditAmount += parseFloat(grossAmt);
+									totalCreditAmount += grossAmt;
 		    	    			}
-		    	    		
-		    	    		// loop through blTranRecords array
-				    		for (var i = 0; i < blTranRecords.length; i++)
-				    			{
-				    				processedRecords.push(blTranRecords[i]); // Push to processedRecords array
-				    			}
     	    			}
     	    		catch(e)
     	    			{
-	    	    			// loop through blTranRecords array
-				    		for (var i = 0; i < blTranRecords.length; i++)
-				    			{
-					    			// create a new key/value pair
-		    	    				context.write({
-		    	    					key: blTranRecords[i],
-		    	    					value: e
-		    	    				});
-				    			}
+	    	    			log.error({
+	    	    				title: 'Error Adding Credit or Debit Line',
+	    	    				details: e
+	    	    			});
     	    			}
     	    		
     	    		// continue processing search results
@@ -651,16 +601,6 @@ function(runtime, search, record, task, format) {
     				title: 'Error Creating Journal',
     				details: e
     			});
-    			
-    			// loop through processedRecords array
-	    		for (var i = 0; i < processedRecords.length; i++)
-	    			{
-		    			// create a new key/value pair
-	    				context.write({
-	    					key: processedRecords[i],
-	    					value: e
-	    				});
-	    			}
     		}
     }
     
@@ -679,9 +619,9 @@ function(runtime, search, record, task, format) {
     			values: ['F']
     		},
     				{
-    			name: 'custrecord_bbs_brightlime_tran_processed',
-    			operator: 'is',
-    			values: ['F']
+    			name: 'custrecord_bbs_brightlime_tran_date',
+    			operator: 'on',
+    			values: ['yesterday']
     		},
     				{
     			name: 'custrecord_bbs_brightlime_tran_location',
@@ -725,11 +665,6 @@ function(runtime, search, record, task, format) {
     				{
     			name: 'internalid',
     			join: 'custrecord_bbs_brightlime_tran_tax_acc',
-    			summary: 'MAX'
-    		},
-    				{
-    			name: 'formulatext',
-    			formula: "REPLACE(NS_CONCAT({internalid}), ',','|')",
     			summary: 'MAX'
     		}],
 			

@@ -36,9 +36,9 @@ function(record, search, task) {
     			values: ['F']
     		},
     				{
-    			name: 'custrecord_bbs_brightlime_tran_processed',
-    			operator: 'is',
-    			values: ['F']
+    			name: 'custrecord_bbs_brightlime_tran_date',
+    			operator: 'on',
+    			values: ['yesterday']
     		}],
     		
     		columns: [{

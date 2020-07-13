@@ -26,8 +26,8 @@ function(record, runtime, search) {
 		name: 'custscript_bbs_clover_customer'
 	});
 	
-	cloverCashSaleForm = currentScript.getParameter({
-		name: 'custscript_bbs_clover_cash_sale_form'
+	cloverCashRefundForm = currentScript.getParameter({
+		name: 'custscript_bbs_clover_cash_refund_form'
 	});
 	
 	unallocatedCloverItem = currentScript.getParameter({
@@ -60,7 +60,7 @@ function(record, runtime, search) {
     	
     	// search for locations to be processed
     	return search.create({
-    		type: 'customrecord_bbs_clover_orders',
+    		type: 'customrecord_bbs_clover_refunds',
     		
     		filters: [{
     			name: 'isinactive',
@@ -68,28 +68,18 @@ function(record, runtime, search) {
     			values: ['F']
     		},
     				{
-    			name: 'custrecord_bbs_clover_processed',
-    			operator: 'is',
-    			values: ['F']
-    		},
-    				{
-    			name: 'custrecord_bbs_order_date',
+    			name: 'custrecord_bbs_refund_date',
     			operator: 'on',
-    			values: ['1/3/2020']
+    			values: ['3/3/2020']
     		}],
     		
     		columns: [{
-    			name: 'custrecord_bbs_clover_location',
+    			name: 'custrecord_bbs_refund_location',
     			summary: 'GROUP'
     		},
     				{
-    			name: 'internalid',
-    			join: 'custrecord_bbs_clover_subsidiary',
-    			summary: 'MAX'
-    		},
-    				{
-    			name: 'custrecord_bbs_merchant_id',
-    			summary: 'MAX'
+    			name: 'custrecord_bbs_refund_subsidiary',
+    			summary: 'GROUP'
     		}],
 
     	});
@@ -106,17 +96,19 @@ function(record, runtime, search) {
     	
     	// process search result
     	var searchResult 	= JSON.parse(context.value);
-    	var locationID 		= searchResult.values["GROUP(custrecord_bbs_clover_location)"].value;
-    	var subsidiaryID	= searchResult.values["MAX(internalid.custrecord_bbs_clover_subsidiary)"];
-    	var merchantID		= searchResult.values["MAX(custrecord_bbs_merchant_id)"];
+    	var locationName	= searchResult.values["GROUP(custrecord_bbs_refund_location)"].text;
+    	var locationID 		= searchResult.values["GROUP(custrecord_bbs_refund_location)"].value;
+    	var subsidiaryName	= searchResult.values["GROUP(custrecord_bbs_refund_subsidiary)"].text;
+    	var subsidiaryID	= searchResult.values["GROUP(custrecord_bbs_refund_subsidiary)"].value;
     	
     	log.audit({
     		title: 'Processing Location',
-    		details: locationID
+    		details: locationName + '(' + locationID + ')'
     	});
     	
-    	// call function to create a new cash sale. Pass context, subsidiaryID, locationID and merchantID
-    	var cashSaleID = createCashSale(context, subsidiaryID, locationID, merchantID);
+    	// call function to create a new cash refund. Pass subsidiaryID, locationName and locationID
+    	createCashRefund(subsidiaryID, locationName, locationID);
+ 
     }
 
     /**
@@ -126,51 +118,6 @@ function(record, runtime, search) {
      * @since 2015.1
      */
     function reduce(context) {
-    	
-    	// process key/value pairs
-    	var key = context.key;
-    	var value = context.values[0];
-    	
-    	try
-			{
-	    		// check if we have got a cash sale ID
-		    	if (parseInt(value))
-		    		{
-			    		// update the Clover Orders record with the cash sale ID
-			    		record.submitFields({
-			    			type: 'customrecord_bbs_clover_orders',
-			    			id: key,
-			    			values: {
-			    				custrecord_bbs_clover_processed: true,
-			    				custrecord_bbs_clover_cash_sale: value,
-			    				custrecord_bbs_clover_error_messages: null
-			    			}
-			    		});
-		    		}
-		    	else // we have got an error message
-		    		{
-		    			// update the Clover Orders record with the error message
-			    		record.submitFields({
-				    		type: 'customrecord_bbs_clover_orders',
-				    		id: key,
-				    		values: {
-				    			custrecord_bbs_clover_error_messages: value
-				    		}
-				    	});
-		    		}
-	    	
-		    	log.audit({
-	    			title: 'Clover Orders Record Updated',
-	    			details: context.key
-	    		});
-	    	}
-		catch(e)
-			{
-				log.error({
-					title: 'Error Updating Clover Orders Record',
-					details: 'Record ID: ' + context.key + '<br>Error: ' + e
-				});
-			}
 
     }
 
@@ -190,85 +137,68 @@ function(record, runtime, search) {
 
     }
     
-    // ==============================
-    // FUNCTION TO CREATE A CASH SALE
-    // ==============================
+    // ================================
+    // FUNCTION TO CREATE A CASH REFUND
+    // ================================
     
-    function createCashSale(context, subsidiaryID, locationID, merchantID) {
-    	
-    	// declare and initialize variables
-		var processedCloverRecords = new Array();
+    function createCashRefund(subsidiaryID, locationName, locationID) {
     	
     	try
     		{
-    			// create a cash sale record
-    			var cashSale = record.transform({
-    				fromType: record.Type.CUSTOMER,
-    				fromId: cloverCustomer,
-    				toType: record.Type.CASH_SALE,
-    				isDynamic: true,
-    				defaultValues: {
-    					customform: cloverCashSaleForm
-    				}
+    			// create a cash refund record
+	    		var cashRefund = record.create({
+	    			type: record.Type.CASH_REFUND,
+	    			isDynamic: true,
+	    			defaultValues: {
+	    				customform: cloverCashRefundForm
+	    			}
+	    		});
+    		
+	    		// set header fields on the cash refund
+	    		cashRefund.setValue({
+	    			fieldId: 'entity',
+	    			value: cloverCustomer
+	    		});
+	    		
+	    		cashRefund.setValue({
+    				fieldId: 'subsidiary',
+    				value: subsidiaryID
     			});
-    			
-    			// set header fields on the cash sale
-    			cashSale.setValue({
+	    		
+	    		cashRefund.setValue({
+    				fieldId: 'location',
+    				value: locationID
+    			});
+	    		
+	    		cashRefund.setValue({
     				fieldId: 'trandate',
     				value: transactionDate
     			});
     			
-    			cashSale.setText({
+	    		cashRefund.setText({
     				fieldId: 'postingperiod',
     				value: postingPeriod
     			});
-    			
-    			cashSale.setValue({
-    				fieldId: 'subsidiary',
-    				value: subsidiaryID
-    			});
-    			
-    			cashSale.setValue({
-    				fieldId: 'location',
-    				value: locationID
-    			});
-    			
-    			cashSale.setValue({
-    				fieldId: 'custbodybbs_merchant_id',
-    				value: merchantID
-    			});
-    			
+	    		
     			// call function to set the posting account. Pass subsdiaryID and locationID
     			var postingAccount = getPostingAccount(subsidiaryID, locationID);
     			
-    			cashSale.setValue({
+    			cashRefund.setValue({
     				fieldId: 'account',
     				value: postingAccount
     			});
     			
-    			// call function to return Clover order lines for this location
-    			var cloverOrderLines = searchCloverOrderLines(locationID);
-    			
-    			cloverOrderLines.each(function(result){
-    				
-    				// declare and initialize variables
-    				var itemAdded = false;
+    			// call function to return Clover Refund lines for this location
+    			searchCloverRefundLines(locationID).each(function(result){
     				
     				// retrieve search results
-    				var cloverRecords = result.getValue({
-    					name: 'formulatext',
-    					summary: 'MAX'
-    				});
-    				
-    				cloverRecords = cloverRecords.split('|'); // split on '|' as needs to be an array
-    				
     				var itemID = result.getValue({
-    					name: 'custrecord_bbs_clover_item_record',
+    					name: 'custrecord_bbs_refund_item_name',
     					summary: 'GROUP'
     				});
     				
-    				var rate = result.getValue({
-    					name: 'custrecord_bbs_clover_line_price_disc',
+    				var itemRate = result.getValue({
+    					name: 'custrecord_bbs_refund_amount',
     					summary: 'GROUP'
     				});
     				
@@ -278,14 +208,14 @@ function(record, runtime, search) {
     				});
     				
     				// add a new line to the cash sale
-    				cashSale.selectNewLine({
+    				cashRefund.selectNewLine({
     					sublistId: 'item'
     				});
     				
     				try
     					{
 	    					// set the item using the itemID variable
-    						cashSale.setCurrentSublistValue({
+    						cashRefund.setCurrentSublistValue({
 	        					sublistId: 'item',
 	        					fieldId: 'item',
 	        					value: itemID
@@ -294,7 +224,7 @@ function(record, runtime, search) {
     				catch(e)
     					{
 	    					// set the item using the unallocatedCloverItem variable
-							cashSale.setCurrentSublistValue({
+    						cashRefund.setCurrentSublistValue({
 	        					sublistId: 'item',
 	        					fieldId: 'item',
 	        					value: unallocatedCloverItem
@@ -302,89 +232,63 @@ function(record, runtime, search) {
     					}
     				
     				// set fields on the new line
-		    		cashSale.setCurrentSublistValue({
+		    		cashRefund.setCurrentSublistValue({
 		    			sublistId: 'item',
 		    			fieldId: 'price',
 		    			value: -1 // -1 = Custom
 		    		});
 		    				
-		    		cashSale.setCurrentSublistValue({
+		    		cashRefund.setCurrentSublistValue({
 		    			sublistId: 'item',
 		    			fieldId: 'rate',
-		    			value: rate
+		    			value: itemRate
 		    		});
 		    				
-		    		cashSale.setCurrentSublistValue({
+		    		cashRefund.setCurrentSublistValue({
 		    			sublistId: 'item',
 		    			fieldId: 'quantity',
 		    			value: quantity
 		    		});
 		    				
-		    		cashSale.commitLine({
+		    		cashRefund.commitLine({
 		    			sublistId: 'item'
 		    		});
-		    				
-		    		// loop through cloverRecords array
-		    		for (var i = 0; i < cloverRecords.length; i++)
-		    			{
-		    				processedCloverRecords.push(cloverRecords[i]); // Push to processedCloverRecords array
-		    			}
 
     				// continue processing search results
     				return true;
     				
     			});
     			
-    			// save the cash sale record
-    			var cashSaleID = cashSale.save({
+    			// save the cash refund record
+    			var cashRefundID = cashRefund.save({
     				enableSourcing: false,
 			    	ignoreMandatoryFields: true
     			});
     			
     			log.audit({
-    				title: 'Cash Sale Created',
-    				details: 'Location ID: ' + locationID + '<br>Record ID: ' + cashSaleID
+    				title: 'Cash Refund Created',
+    				details: cashRefundID
     			});
-    			
-    			// process Clover Records
-				for (var i = 0; i < processedCloverRecords.length; i++)
-					{
-						// create a key/value pair
-						context.write({
-							key: processedCloverRecords[i],
-							value: cashSaleID
-						});
-					}
-    			
+	    		
     		}
     	catch(e)
     		{
     			log.error({
-    				title: 'Error Creating Cash Sale',
-    				details: 'Location ID: ' + locationID + '<br>Error: ' + e
-    			});
-    			
-    			// process Clover Records
-				for (var i = 0; i < processedCloverRecords.length; i++)
-					{
-						// create a key/value pair
-						context.write({
-							key: processedCloverRecords[i],
-							value: e
-						});
-					}
+    				title: 'Error Creating Cash Refund for ' + locationName,
+    				details: e
+    			})
     		}
     	
     }
     
-    // =====================================
-    // FUNCTION TO RETURN CLOVER ORDER LINES
-    // =====================================
+    // ======================================
+    // FUNCTION TO RETURN CLOVER REFUND LINES
+    // ======================================
     
-    function searchCloverOrderLines(locationID) {
+    function searchCloverRefundLines(locationID) {
     	
     	return search.create({
-    		type: 'customrecord_bbs_clover_orders',
+    		type: 'customrecord_bbs_clover_refunds',
     		
     		filters: [{
     			name: 'isinactive',
@@ -392,37 +296,27 @@ function(record, runtime, search) {
     			values: ['F']
     		},
     				{
-    			name: 'custrecord_bbs_clover_processed',
-    			operator: 'is',
-    			values: ['F']
-    		},
-    				{
-    			name: 'custrecord_bbs_clover_location',
+    			name: 'custrecord_bbs_refund_location',
     			operator: 'anyof',
     			values: [locationID]
     		},
     				{
-    			name: 'custrecord_bbs_order_date',
+    			name: 'custrecord_bbs_refund_date',
     			operator: 'on',
-    			values: ['1/3/2020']
+    			values: ['3/3/2020']
     		}],
     		
     		columns: [{
-    			name: 'custrecord_bbs_clover_item_record',
+    			name: 'custrecord_bbs_refund_item_name',
     			summary: 'GROUP'
     		},
     				{
-    			name: 'custrecord_bbs_clover_line_price_disc',
+    			name: 'custrecord_bbs_refund_amount',
     			summary: 'GROUP'
     		},
     				{
     			name: 'internalid',
     			summary: 'COUNT'
-    		},
-    				{
-    			name: 'formulatext',
-    			summary: 'MAX',
-    			formula: "REPLACE(NS_CONCAT({internalid}), ',','|')"
     		}],
     		
     	}).run();

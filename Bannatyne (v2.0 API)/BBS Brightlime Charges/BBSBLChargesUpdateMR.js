@@ -36,9 +36,9 @@ function(record, search, task) {
     			values: ['F']
     		},
     				{
-    			name: 'custrecord_bbs_bl_charges_processed',
-    			operator: 'is',
-    			values: ['F']
+    			name: 'custrecord_bbs_bl_charge_date',
+    			operator: 'on',
+    			values: ['yesterday']
     		}],
     		
     		columns: [{

@@ -3,8 +3,8 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/search', 'N/record', 'N/task', 'N/format'],
-function(runtime, search, record, task, format) {
+define(['N/runtime', 'N/search', 'N/record', 'N/format'],
+function(runtime, search, record, format) {
 	
 	// retrieve script parameters
 	var currentScript = runtime.getCurrentScript();
@@ -59,9 +59,9 @@ function(runtime, search, record, task, format) {
     			values: ['F']
     		},
     				{
-    			name: 'custrecord_bbs_bl_charges_processed',
-    			operator: 'is',
-    			values: ['F']
+    			name: 'custrecord_bbs_bl_charge_date',
+    			operator: 'on',
+    			values: ['yesterday']
     		}],
     		
     		columns: [{
@@ -104,8 +104,8 @@ function(runtime, search, record, task, format) {
     		details: 'Club ID: ' + clubID + '<br>Club Name: ' + clubName + '<br>Location: ' + location + '<br>Subsidiary: ' + subsidiary
     	});
     	
-    	// call function to create a new journal record. Pass context, subsidiary, location and clubID
-    	createJournal(context, subsidiary, location, clubID);
+    	// call function to create a new journal record. Pass subsidiary, location and clubID
+    	createJournal(subsidiary, location, clubID);
     }
 
     /**
@@ -115,35 +115,6 @@ function(runtime, search, record, task, format) {
      * @since 2015.1
      */
     function reduce(context) {
-    	
-    	// process key/value pairs
-    	var key = context.key;
-    	var value = context.values[0];
-    	
-    	try
-			{
-	    		// update the Brightlime Charge record with the error message
-			    record.submitFields({
-				    type: 'customrecord_bbs_brightlime_charges',
-				    id: key,
-				    values: {
-				    	custrecord_bbs_bl_charges_processed: true,
-				    	custrecord_bbs_bl_charges_error_messages: value
-				    }
-			    });
-	    	
-		    	log.audit({
-	    			title: 'Brightlime Charge Record Updated',
-	    			details: key
-	    		});
-	    	}
-		catch(e)
-			{
-				log.error({
-					title: 'Error Updating Brightlime Charge Record',
-					details: 'Record ID: ' + key + '<br>Error: ' + e
-				});
-			}
 
     }
 
@@ -160,25 +131,6 @@ function(runtime, search, record, task, format) {
     		title: '*** END OF SCRIPT ***',
     		details: 'Duration: ' + summary.seconds + ' seconds<br>Units Used: ' + summary.usage + '<br>Yields: ' + summary.yields
     	});
-    	
-    	// ==================================================================================
-    	// NOW SCHEDULE ADDITIONAL MAP/REDUCE SCRIPT TO UPDATE BRIGHTLIME TRANSACTION RECORDS
-    	// ==================================================================================
-    	
-    	// create a map/reduce task
-    	var mapReduceTask = task.create({
-    	    taskType: task.TaskType.MAP_REDUCE,
-    	    scriptId: 'customscript_bbs_bl_tran_processed_mr',
-    	    deploymentId: 'customdeploy_bbs_bl_tran_processed_mr'
-    	});
-    	
-    	// submit the map/reduce task
-    	var mapReduceTaskID = mapReduceTask.submit();
-    	
-    	log.audit({
-    		title: 'Script Scheduled',
-    		details: 'BBS BL Transaction Processed Map/Reduce script has been Scheduled.<br>Job ID: ' + mapReduceTaskID
-    	});
 
     }
     
@@ -186,10 +138,9 @@ function(runtime, search, record, task, format) {
     // FUNCTION TO CREATE A JOURNAL RECORD
     // ===================================
     
-    function createJournal(context, subsidiary, location, clubID) {
+    function createJournal(subsidiary, location, clubID) {
     	
-    	// declare new array to hold IDs of processed BL Charge records
-    	var processedRecords = new Array();
+    	// declare/initialize variables
     	var totalDebitAmount = 0;
     	
     	try
@@ -225,10 +176,7 @@ function(runtime, search, record, task, format) {
     			});
     			
     			// call function to create/run search to find BrightLime Charge lines for this club
-    	    	var brightlimeChargeLines = searchBLChargeLines(clubID);
-    	    	
-    	    	// process results
-    	    	brightlimeChargeLines.each(function(result) {
+    	    	searchBLChargeLines(clubID).each(function(result) {
     	    		
     	    		// retrieve search results
     	    		var glAccountID = result.getValue({
@@ -241,19 +189,10 @@ function(runtime, search, record, task, format) {
     	    			summary: 'GROUP'
     	    		});
     	    		
-    	    		var amount = result.getValue({
+    	    		var amount = parseFloat(result.getValue({
     	    			name: 'formulacurrency',
     	    			summary: 'SUM'
-    	    		});
-    	    		
-    	    		amount = parseFloat(amount); // convert to floating point number
-    	    		
-    	    		var blChargeRecords = result.getValue({
-    	    			name: 'formulatext',
-    	    			summary: 'MAX'
-    	    		});
-    	    		
-    	    		blChargeRecords = blChargeRecords.split('|'); // split on '|' as needs to be an array
+    	    		}));
     	    		
     	    		try
     	    			{
@@ -312,12 +251,6 @@ function(runtime, search, record, task, format) {
 		    	    		journalRec.commitLine({
 		    	    			sublistId: 'line'
 		    	    		});
-		    	    		
-		    	    		// loop through blChargeRecords array
-				    		for (var i = 0; i < blChargeRecords.length; i++)
-				    			{
-				    				processedRecords.push(blChargeRecords[i]); // Push to processedRecords array
-				    			}
 				    		
 				    		// add the amount to the totalDebitAmount variable
 				    		totalDebitAmount += amount;
@@ -329,16 +262,6 @@ function(runtime, search, record, task, format) {
 	    	    				title: 'Error Adding Credit Line',
 	    	    				details: e
 	    	    			});
-    	    			
-    	    				// loop through blChargeRecords array
-				    		for (var i = 0; i < blChargeRecords.length; i++)
-				    			{
-					    			// create a new key/value pair
-		    	    				context.write({
-		    	    					key: blChargeRecords[i],
-		    	    					value: e
-		    	    				});
-				    			}
     	    			}
 	    	    		
 	    	    		// continue processing search results
@@ -396,16 +319,6 @@ function(runtime, search, record, task, format) {
     				title: 'Error Creating Journal',
     				details: e
     			});
-    			
-    			// loop through processedRecords array
-	    		for (var i = 0; i < processedRecords.length; i++)
-	    			{
-		    			// create a new key/value pair
-	    				context.write({
-	    					key: processedRecords[i],
-	    					value: e
-	    				});
-	    			}
     		}   	
     }
     
@@ -414,6 +327,7 @@ function(runtime, search, record, task, format) {
     // ==============================================
     
     function searchBLChargeLines(clubID) {
+    		
     		return search.create({
     			type: 'customrecord_bbs_brightlime_charges',
     			
@@ -423,9 +337,9 @@ function(runtime, search, record, task, format) {
         			values: ['F']
         		},
         				{
-        			name: 'custrecord_bbs_bl_charges_processed',
-        			operator: 'is',
-        			values: ['F']
+        			name: 'custrecord_bbs_bl_charge_date',
+        			operator: 'on',
+        			values: ['yesterday']
         		},
         				{
         			name: 'custrecord_bbs_brightlime_club_id',
@@ -446,15 +360,11 @@ function(runtime, search, record, task, format) {
         			name: 'formulacurrency',
         			formula: "{custrecord_bbs_bl_amount} - {custrecord_bbs_bl_vat_amount}",
         			summary: 'SUM'
-        		},
-        				{
-        			name: 'formulatext',
-        			formula: "REPLACE(NS_CONCAT({internalid}), ',','|')",
-        			summary: 'MAX'
         		}],
     			
     		}).run();
-    	}
+
+    }
 
     return {
         getInputData: getInputData,
