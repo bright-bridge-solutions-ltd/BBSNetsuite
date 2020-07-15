@@ -289,28 +289,28 @@ function(runtime, search, record, render, file) {
     
     function createPDFInvoice(invoiceID, filePrefix, invoiceType, fileDate, siteAlias)
     	{
-	    	// Generate the PDF
-			var PDF_File = render.transaction({
-				entityId: invoiceID,
-				printMode: render.PrintMode.PDF,
-				inCustLocale: false
-		    });
-			
-			// get the invoice tran ID from the PDF_File object
-			var invoiceTranID = PDF_File.name;
-			invoiceTranID = invoiceTranID.replace("Invoice_", ""); // remove 'Invoice_' from string
-			invoiceTranID = invoiceTranID.replace(".pdf", ""); // remove '.pdf' from string
-			
-			// set the file name
-			PDF_File.name = filePrefix + '-' + fileDate + '-' + siteAlias + '-' + invoiceTranID + '_' + invoiceType + '.pdf';
-			
-			// set the attachments folder
-			PDF_File.folder = fileCabinetFolder;
-			
-			try
-				{
-					var fileID = PDF_File.save();
+	    	try
+	    		{
+		    		// Generate the PDF
+					var PDF_File = render.transaction({
+						entityId: invoiceID,
+						printMode: render.PrintMode.PDF,
+						inCustLocale: false
+				    });
 					
+					// get the invoice tran ID from the PDF_File object
+					var invoiceTranID = PDF_File.name;
+					invoiceTranID = invoiceTranID.replace("Invoice_", ""); // remove 'Invoice_' from string
+					invoiceTranID = invoiceTranID.replace(".pdf", ""); // remove '.pdf' from string
+					
+					// set the file name
+					PDF_File.name = filePrefix + '-' + fileDate + '-' + siteAlias + '-' + invoiceTranID + '_' + invoiceType + '.pdf';
+					
+					// set the attachments folder
+					PDF_File.folder = fileCabinetFolder;
+					
+					var fileID = PDF_File.save();
+							
 					log.audit({
 						title: 'PDF Created',
 						details: 'Invoice ID: ' + invoiceID + '<br>File ID: ' + fileID
