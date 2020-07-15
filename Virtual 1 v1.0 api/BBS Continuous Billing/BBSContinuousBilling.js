@@ -252,7 +252,10 @@ function processFullyBilledPurchaseOrders(_processingDate)
 				   "AND", 
 				   ["status","anyof","PurchOrd:H"],					//Closed
 				   "AND", 
-				   ["class","anyof","1"]							//Rental
+				   ["class","anyof","1"],							//Rental
+				   "AND", 
+				   ["custbody_bbs_next_purchase_order","anyof","@NONE@"],	//Does not have a next purchase order
+				   
 			],
 			[
 			   new nlobjSearchColumn("tranid"), 
