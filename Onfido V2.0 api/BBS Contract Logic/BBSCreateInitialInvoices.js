@@ -255,7 +255,7 @@ function(runtime, search, record) {
 					// set header fields on the invoice
 					invoice.setValue({
 						fieldId: 'account',
-						value: trcsAcc
+						value: trpAcc
 					});
 					
 					invoice.setValue({

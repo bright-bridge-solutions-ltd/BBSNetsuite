@@ -82,7 +82,7 @@ function(runtime, record, search, libraryModule, plugin)
 								var shipToPCode	= libraryModule.getSiteInfo(siteID);
 								
 								// call function to return any exemptions for the customer
-								var customerExemptions = libraryModule.getCustomerExemptions(customerID, tranDate, shipToPCode);
+								var customerExemptions = libraryModule.getCustomerExemptions(customerID, tranDate);
 								
 								// call function to return/lookup fields on the currency record
 								var ISOCode = libraryModule.getISOCode(currency);

@@ -9,7 +9,12 @@ define(['N/search', 'N/runtime'],
  */
 function(search, runtime) {
    
-    /**
+    // retrieve script parameters. Parameters are global variables so can be accessed throughout the script
+	unallocatedCloverItem = runtime.getCurrentScript().getParameter({
+		name: 'custscript_bbs_unallocated_clover_item'
+	});
+	
+	/**
      * Function definition to be triggered before record is loaded.
      *
      * @param {Object} scriptContext
@@ -40,20 +45,20 @@ function(search, runtime) {
 		    	var currentRecord = scriptContext.newRecord;
 		    	
 		    	// get the value of the item name field
-		    	var itemExternalID = currentRecord.getValue({
+		    	var itemID = currentRecord.getValue({
 		    		fieldId: 'custrecord_bbs_refund_item_name'
 		    	});
 		    	
-		    	// call function to search for item using the external ID
-		    	var itemID = searchItems(itemExternalID);
-		    	
-		    	// is the itemID empty
-		    	if (itemID == null)
+		    	// do we have an item ID
+		    	if (itemID)
 		    		{
-		    			// set the itemID variable using the unallocated item script parameter
-		    			itemID = runtime.getCurrentScript().getParameter({
-		    				name: 'custscript_bbs_unallocated_clover_item'
-		    			});
+			    		// call function to search for item using the external ID
+				    	itemID = searchItems(itemID);
+		    		}
+		    	else
+		    		{
+		    			// set the itemID using the unallocatedCloverItem variable
+		    			itemID = unallocatedCloverItem;
 		    		}
 		    	
 		    	// set the 'Item Record' field
@@ -114,6 +119,13 @@ function(search, runtime) {
     		});
     		
     	});
+    	
+    	// if we have been unable to find a matching item
+    	if (itemID == null)
+    		{
+    			// set the itemID using the unallocatedCloverItem variable
+    			itemID = unallocatedCloverItem;
+    		}
     	
     	return itemID;
    

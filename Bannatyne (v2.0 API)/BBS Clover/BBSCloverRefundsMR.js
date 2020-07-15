@@ -209,7 +209,7 @@ function(record, runtime, search, task) {
     				
     				// retrieve search results
     				var itemID = result.getValue({
-    					name: 'custrecord_bbs_refund_item_name',
+    					name: 'custrecord_bbs_clover_refund_item_record',
     					summary: 'GROUP'
     				});
     				
@@ -323,7 +323,7 @@ function(record, runtime, search, task) {
     		}],
     		
     		columns: [{
-    			name: 'custrecord_bbs_refund_item_name',
+    			name: 'custrecord_bbs_clover_refund_item_record',
     			summary: 'GROUP'
     		},
     				{

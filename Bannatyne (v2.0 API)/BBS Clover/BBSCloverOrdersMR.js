@@ -101,13 +101,14 @@ function(record, runtime, search, task) {
     	
     	// process search result
     	var searchResult 	= JSON.parse(context.value);
+    	var locationName	= searchResult.values["GROUP(custrecord_bbs_clover_location)"].text;
     	var locationID 		= searchResult.values["GROUP(custrecord_bbs_clover_location)"].value;
     	var subsidiaryID	= searchResult.values["MAX(internalid.custrecord_bbs_clover_subsidiary)"];
     	var merchantID		= searchResult.values["MAX(custrecord_bbs_merchant_id)"];
     	
     	log.audit({
     		title: 'Processing Location',
-    		details: locationID
+    		details: locationName + '(' + locationID + ')'
     	});
     	
     	// call function to create a new cash sale. Pass subsidiaryID, locationID and merchantID

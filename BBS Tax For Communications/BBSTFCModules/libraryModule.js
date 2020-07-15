@@ -290,7 +290,7 @@ function(record, runtime, search, plugin, format)
 		
 	}
 	
-	function getCustomerExemptions(customerID, tranDate, shipToPCode) {
+	function getCustomerExemptions(customerID, tranDate) {
 		
 		// declare new array to hold customer exemptions
 		var customerExemptions = new Array();
@@ -324,6 +324,10 @@ function(record, runtime, search, plugin, format)
 				name: 'custrecord_bbstfc_ex_end',
 				operator: 'notbefore',
 				values: [tranDate]
+			},
+					{
+				name: 'custrecord_bbstfc_ex_p_code',
+				operator: 'isnotempty'
 			}],
 			
 			columns: [{
@@ -346,6 +350,9 @@ function(record, runtime, search, plugin, format)
 			},
 					{
 				name: 'custrecord_bbstfc_ex_sc_local'
+			},
+					{
+				name: 'custrecord_bbstfc_ex_p_code'
 			}],
 			
 		}).run().each(function(result){
@@ -380,6 +387,10 @@ function(record, runtime, search, plugin, format)
 			
 			var local = result.getValue({
 				name: 'custrecord_bbstfc_ex_sc_local'
+			});
+			
+			var pCode = result.getValue({
+				name: 'custrecord_bbstfc_ex_p_code'
 			});
 			
 			// does federal return true
@@ -420,7 +431,7 @@ function(record, runtime, search, plugin, format)
 			
 			// fill in the tax exemptions object
 			taxExemptionsObj.frc 		= false;
-			taxExemptionsObj.loc.pcd 	= shipToPCode;
+			taxExemptionsObj.loc.pcd 	= pCode;
 			taxExemptionsObj.tpe 		= taxType;
 			taxExemptionsObj.cat 		= taxCategory;
 			taxExemptionsObj.dom 		= taxDomain;
