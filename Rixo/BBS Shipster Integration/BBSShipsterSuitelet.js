@@ -37,6 +37,8 @@ function(file, record, search, http, xml, format)
 	        		var tranId	 			= '';
 	        		var xmlString 			= '';
 	        		var itemsArray			= [];
+	        		var shippingCarriers	= getShippingCarriers();
+	        		var manufacturersObject	= {};
 	        		
 	        		//Load the item fulfilment
 	        		//
@@ -114,6 +116,7 @@ function(file, record, search, http, xml, format)
 						        			var customerEmail 				= customerRecord.getValue({fieldId: 'email'});
 						        			var customerPhone 				= customerRecord.getValue({fieldId: 'phone'});
 						        			var customerMobile 				= customerRecord.getValue({fieldId: 'mobilephone'});
+						        			var customerNumber				= customerRecord.getValue({fieldId: 'entityid'});
 						        			
 						        			customerFullName 				= (customerFullName != '' ? customerFullName : customerCompanyName);
 						        			
@@ -123,11 +126,15 @@ function(file, record, search, http, xml, format)
 						        			var salesOrderJoor 				= salesOrderRecord.getValue({fieldId: 'custbody_bbs_joor_so_number'});
 						        			var salesOrderCustRef			= (salesOrderShopify != '' ? salesOrderShopify : (salesOrderJoor != '' ? salesOrderJoor : ''))
 						        			var salesOrderTotal				= Number(salesOrderRecord.getValue({fieldId: 'total'})).toFixed(2);
+						        			var salesOrderSubTotal			= Number(salesOrderRecord.getValue({fieldId: 'subtotal'})).toFixed(2);
 						        			var salesOrderTax				= Number(salesOrderRecord.getValue({fieldId: 'taxtotal'})).toFixed(2);
 						        			var salesOrderDiscount			= Math.abs(Number(salesOrderRecord.getValue({fieldId: 'discounttotal'}))).toFixed(2);
+						        			var salesOrderDiscountCode		= salesOrderRecord.getText({fieldId: 'discountitem'});
 						        			
 						        			var fulfilmentShippingCost		= Number(fulfilmentRecord.getValue({fieldId: 'shippingcost'})).toFixed(2);
 						        			var fulfilmentShippingMethod	= fulfilmentRecord.getText({fieldId: 'shipmethod'});
+						        			var fulfilmentShippingMethodId	= fulfilmentRecord.getValue({fieldId: 'shipmethod'});
+						        			var fulfilmentShippingCarrier	= shippingCarriers[fulfilmentShippingMethodId];
 						        			var fulfilmentDate				= fulfilmentRecord.getText({fieldId: 'trandate'});
 						        			var fulfilmentShippedDate		= fulfilmentRecord.getText({fieldId: 'shippeddate'});
 						        			var fulfilmentReference			= fulfilmentRecord.getValue({fieldId: 'tranid'});
@@ -145,31 +152,34 @@ function(file, record, search, http, xml, format)
 						        			//
 					        				xmlString += '<Despatch xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n';
 					        				xmlString += '<ImportFormat>SHP</ImportFormat>\n';
-					        				xmlString += '<CustomerName>' + xml.escape({xmlText: customerFullName}) + '</CustomerName>\n';
-					        				xmlString += '<CustomerEmail>' + xml.escape({xmlText: customerEmail}) + '</CustomerEmail>\n';
-					        				//xmlString += '<CarrierName>Royal Mail</CarrierName>';
-					        				xmlString += '<ServiceTypeName>' + xml.escape({xmlText: fulfilmentShippingMethod}) + '</ServiceTypeName>\n';
-					        				xmlString += '<SalesOrderNumber>' + xml.escape({xmlText: salesOrderNumber}) + '</SalesOrderNumber>\n';
-					        				//xmlString += '<OrderStatus>Despatched</OrderStatus>';
-					        				//xmlString += '<CustomerPurchaseOrderReferenceNumber/>';
-					        				//xmlString += '<RequestedDeliveryDate>13-05-2019</RequestedDeliveryDate>';
-					        				xmlString += '<ShippingCost>' + xml.escape({xmlText: fulfilmentShippingCost}) + '</ShippingCost>\n';
-					        				xmlString += '<CustomerReference>' + xml.escape({xmlText: salesOrderCustRef}) + '</CustomerReference>\n';
-					        				xmlString += '<CustomerPhone>' + xml.escape({xmlText: customerPhone}) + '</CustomerPhone>\n';
-					        				xmlString += '<CustomerMobile>' + xml.escape({xmlText: customerMobile}) + '</CustomerMobile>\n';
-					        				xmlString += '<TotalSale>' + xml.escape({xmlText: salesOrderTotal}) + '</TotalSale>\n';
-					        				xmlString += '<Discount>' + xml.escape({xmlText: salesOrderDiscount}) + '</Discount>\n';
-					        				xmlString += '<TaxPaid>' + xml.escape({xmlText: salesOrderTax}) + '</TaxPaid>\n';
-					        				xmlString += '<CreatedDate>' + xml.escape({xmlText: fulfilmentDate}) + '</CreatedDate>\n';
-					        				xmlString += '<ChannelName>' + xml.escape({xmlText: salesOrderChannel}) + '</ChannelName>\n';
-					        				xmlString += '<ShippingAddressLine1>' + xml.escape({xmlText: fulfilmentAddr1}) + '</ShippingAddressLine1>\n';
-					        				xmlString += '<ShippingAddressLine2>' + xml.escape({xmlText: fulfilmentAddr2}) + '</ShippingAddressLine2>\n';
-					        				xmlString += '<ShippingAddressTownCity>' + xml.escape({xmlText: fulfilmentCity}) + '</ShippingAddressTownCity>\n';
-					        				xmlString += '<ShippingAddressRegion>' + xml.escape({xmlText: fulfilmentState}) + '</ShippingAddressRegion>\n';
-					        				xmlString += '<ShippingAddressPostCode>' + xml.escape({xmlText: fulfilmentZip}) + '</ShippingAddressPostCode>\n';
-					        				xmlString += '<ShippingAddressCountry>' + xml.escape({xmlText: fulfilmentCountry}) + '</ShippingAddressCountry>\n';
-					        				xmlString += '<DespatchNumber>' + xml.escape({xmlText: fulfilmentReference}) + '</DespatchNumber>\n';
-					        				xmlString += '<DespatchDate>' + xml.escape({xmlText: fulfilmentShippedDate}) + '</DespatchDate>\n';
+					        				xmlString += '<CustomerName>' 				+ xml.escape({xmlText: customerFullName}) 			+ '</CustomerName>\n';
+					        				xmlString += '<CustomerEmail>' 				+ xml.escape({xmlText: customerEmail}) 				+ '</CustomerEmail>\n';
+					        				xmlString += '<CarrierName>' 				+ xml.escape({xmlText: fulfilmentShippingCarrier}) 	+ '</CarrierName>\n';
+					        				xmlString += '<ServiceTypeName>' 			+ xml.escape({xmlText: fulfilmentShippingMethod}) 	+ '</ServiceTypeName>\n';
+					        				xmlString += '<SalesOrderNumber>' 			+ xml.escape({xmlText: salesOrderNumber}) 			+ '</SalesOrderNumber>\n';
+					        				xmlString += '<ShippingCost>' 				+ xml.escape({xmlText: fulfilmentShippingCost}) 	+ '</ShippingCost>\n';
+					        				xmlString += '<CustomerReference>' 			+ xml.escape({xmlText: salesOrderCustRef}) 			+ '</CustomerReference>\n';
+					        				xmlString += '<CustomerPhone>' 				+ xml.escape({xmlText: customerPhone}) 				+ '</CustomerPhone>\n';
+					        				xmlString += '<CustomerMobile>' 			+ xml.escape({xmlText: customerMobile}) 			+ '</CustomerMobile>\n';
+					        				xmlString += '<TotalSale>' 					+ xml.escape({xmlText: salesOrderTotal}) 			+ '</TotalSale>\n';
+					        				xmlString += '<Discount>' 					+ xml.escape({xmlText: salesOrderDiscount}) 		+ '</Discount>\n';
+					        				xmlString += '<TaxPaid>' 					+ xml.escape({xmlText: salesOrderTax}) 				+ '</TaxPaid>\n';
+					        				xmlString += '<CreatedDate>' 				+ xml.escape({xmlText: fulfilmentDate}) 			+ '</CreatedDate>\n';
+					        				xmlString += '<ChannelName>' 				+ xml.escape({xmlText: salesOrderChannel}) 			+ '</ChannelName>\n';
+					        				xmlString += '<ShippingAddressLine1>' 		+ xml.escape({xmlText: fulfilmentAddr1}) 			+ '</ShippingAddressLine1>\n';
+					        				xmlString += '<ShippingAddressLine2>' 		+ xml.escape({xmlText: fulfilmentAddr2}) 			+ '</ShippingAddressLine2>\n';
+					        				xmlString += '<ShippingAddressTownCity>' 	+ xml.escape({xmlText: fulfilmentCity}) 			+ '</ShippingAddressTownCity>\n';
+					        				xmlString += '<ShippingAddressRegion>' 		+ xml.escape({xmlText: fulfilmentState}) 			+ '</ShippingAddressRegion>\n';
+					        				xmlString += '<ShippingAddressPostCode>' 	+ xml.escape({xmlText: fulfilmentZip}) 				+ '</ShippingAddressPostCode>\n';
+					        				xmlString += '<ShippingAddressCountry>' 	+ xml.escape({xmlText: fulfilmentCountry}) 			+ '</ShippingAddressCountry>\n';
+					        				xmlString += '<DespatchNumber>' 			+ xml.escape({xmlText: fulfilmentReference}) 		+ '</DespatchNumber>\n';
+					        				xmlString += '<DespatchDate>' 				+ xml.escape({xmlText: fulfilmentShippedDate}) 		+ '</DespatchDate>\n';
+					        				xmlString += '<Attribute1>' 				+ xml.escape({xmlText: customerNumber}) 			+ '</Attribute1>\n';
+					        				xmlString += '<Attribute2>' 				+ xml.escape({xmlText: ''}) 						+ '</Attribute2>\n';
+					        				xmlString += '<Attribute3>' 				+ xml.escape({xmlText: salesOrderDiscountCode}) 	+ '</Attribute3>\n';
+					        				xmlString += '<Attribute4>' 				+ xml.escape({xmlText: salesOrderSubTotal}) 		+ '</Attribute4>\n';
+					        				
+					        				
 					        				
 					        				//Items
 					        				//
@@ -180,12 +190,25 @@ function(file, record, search, http, xml, format)
 					        				for (var items = 0; items < itemCount; items++) 
 					        					{
 					        						var itemId				= fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: items});
-					        						var itemName			= fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'itemname', line: items});
+					        						var itemType			= fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'itemtype', line: items});
+				        							var itemName			= fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'itemname', line: items});
 					        						var itemDescription		= fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'description', line: items});
 						        					var itemQuantity		= Number(fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: items}));
 						        					var itemPackages		= getPackages(fulfilmentRecord, items);
 						        					var itemSoLine			= Number(fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'orderline', line: items}));
 						        					var itemUnitWeight		= getItemWeightInKilos(itemId);
+						        					var itemSoRate			= Number(0);
+						        					var itemSoCost			= Number(0);
+						        					var itemSoVat			= Number(0);
+						        					
+						        					//Get additional info from the item record (commodity code, country of manufacture, item group name & prefered supplier address)
+						        					//
+						        					var itemAdditionalDetails = getItemAdditionalDetails(itemId, itemType, countries_list);
+						        					
+						        					//Save any manufacturers address
+						        					//
+						        					manufacturersObject[itemAdditionalDetails.countryOfManufacture] = itemAdditionalDetails.address;
+						        					
 						        					
 						        					//Get the item rate & cost from the related sales order line
 						        					//
@@ -201,8 +224,9 @@ function(file, record, search, http, xml, format)
 						        							//
 						        							if(soLineNumber == itemSoLine)
 						        								{
-										        					var itemSoRate			= Number(salesOrderRecord.getSublistValue({sublistId: 'item', fieldId: 'rate', line: soLine}));
-										        					var itemSoCost			= Number(salesOrderRecord.getSublistValue({sublistId: 'item', fieldId: 'costestimaterate', line: soLine}));
+										        					itemSoRate			= Number(salesOrderRecord.getSublistValue({sublistId: 'item', fieldId: 'rate', line: soLine}));
+										        					itemSoCost			= Number(salesOrderRecord.getSublistValue({sublistId: 'item', fieldId: 'costestimaterate', line: soLine}));
+										        					itemSoVat			= Number(salesOrderRecord.getSublistValue({sublistId: 'item', fieldId: 'tax1amt', line: soLine}));
 										        					
 										        					break;
 						        								}
@@ -210,19 +234,34 @@ function(file, record, search, http, xml, format)
 						        					
 						        					//Save info about the item & what packages it belongs to
 						        					//
-						        					itemsArray.push(new itemInfo(itemName, itemDescription, itemQuantity, itemSoRate, itemSoCost, itemPackages, itemUnitWeight));
+						        					itemsArray.push(new itemInfo(itemName, 
+						        												itemDescription, 
+						        												itemQuantity, 
+						        												itemSoRate, 
+						        												itemSoCost, 
+						        												itemPackages, 
+						        												itemUnitWeight, 
+						        												itemSoVat, 
+						        												itemAdditionalDetails.commodityCode, 
+						        												itemAdditionalDetails.countryOfManufacture, 
+						        												itemAdditionalDetails.groupName));
 						        					
 						        					//Output item detail
 						        					//
 						        					xmlString += '<Item>\n';
 						        					
-						        					xmlString += '<Name>' + xml.escape({xmlText: itemDescription}) + '</Name>\n';
-						        					xmlString += '<ItemCode>' + xml.escape({xmlText: itemName}) + '</ItemCode>\n';
-						        					xmlString += '<QuantityOrdered>' + xml.escape({xmlText: itemQuantity.toFixed(2)}) + '</QuantityOrdered>\n';
-						        					xmlString += '<BuyPrice>' + xml.escape({xmlText: (itemQuantity * itemSoCost).toFixed(2)}) + '</BuyPrice>\n';
-						        					xmlString += '<RetailPrice>' + xml.escape({xmlText: (itemQuantity * itemSoRate).toFixed(2)}) + '</RetailPrice>\n';
-						        					xmlString += '<Weight>' + xml.escape({xmlText: itemUnitWeight.toFixed(2)}) + '</Weight>\n';
-						        					xmlString += '<TotalGrossWeight>' + xml.escape({xmlText: (itemQuantity * itemUnitWeight).toFixed(2)}) + '</TotalGrossWeight>\n';
+						        					xmlString += '<Name>' 					+ xml.escape({xmlText: itemDescription}) 								+ '</Name>\n';
+						        					xmlString += '<ItemCode>' 				+ xml.escape({xmlText: itemName}) 										+ '</ItemCode>\n';
+						        					xmlString += '<QuantityOrdered>' 		+ xml.escape({xmlText: itemQuantity.toFixed(2)}) 						+ '</QuantityOrdered>\n';
+						        					xmlString += '<BuyPrice>' 				+ xml.escape({xmlText: (itemQuantity * itemSoCost).toFixed(2)}) 		+ '</BuyPrice>\n';
+						        					xmlString += '<RetailPrice>' 			+ xml.escape({xmlText: (itemQuantity * itemSoRate).toFixed(2)}) 		+ '</RetailPrice>\n';
+						        					xmlString += '<Weight>' 				+ xml.escape({xmlText: itemUnitWeight.toFixed(2)}) 						+ '</Weight>\n';
+						        					xmlString += '<TotalGrossWeight>' 		+ xml.escape({xmlText: (itemQuantity * itemUnitWeight).toFixed(2)}) 	+ '</TotalGrossWeight>\n';
+						        					xmlString += '<Attribute1>' 			+ xml.escape({xmlText: itemSoRate.toFixed(2)}) 							+ '</Attribute1>\n';
+						        					xmlString += '<Attribute2>' 			+ xml.escape({xmlText: itemSoVat.toFixed(2)}) 							+ '</Attribute2>\n';
+						        					xmlString += '<CommodityCode>' 			+ xml.escape({xmlText: itemAdditionalDetails.commodityCode}) 			+ '</CommodityCode>\n';
+						        					xmlString += '<CountryOfManufacture>' 	+ xml.escape({xmlText: itemAdditionalDetails.countryOfManufacture}) 	+ '</CountryOfManufacture>\n';
+						        					xmlString += '<ItemGroupName>' 			+ xml.escape({xmlText: itemAdditionalDetails.groupName}) 				+ '</ItemGroupName>\n';
 						        					
 						        					xmlString += '</Item>\n';
 						        					
@@ -248,9 +287,9 @@ function(file, record, search, http, xml, format)
 					        						//Start of new package
 					        						//
 					        						xmlString += '<DespatchPackage>\n';
-					        						xmlString += '<PackageName>' + xml.escape({xmlText: packageName}) + '</PackageName>\n';
-					        						xmlString += '<Weight>' + xml.escape({xmlText: packageWeight.toFixed(2)}) + '</Weight>\n';
-					        						xmlString += '<TotalGrossWeight>' + xml.escape({xmlText: packageWeight.toFixed(2)}) + '</TotalGrossWeight>\n';
+					        						xmlString += '<PackageName>' 			+ xml.escape({xmlText: packageName}) 					+ '</PackageName>\n';
+					        						xmlString += '<Weight>' 				+ xml.escape({xmlText: packageWeight.toFixed(2)}) 		+ '</Weight>\n';
+					        						xmlString += '<TotalGrossWeight>' 		+ xml.escape({xmlText: packageWeight.toFixed(2)}) 		+ '</TotalGrossWeight>\n';
 						        					
 						        					//Items in package
 						        					//
@@ -265,13 +304,20 @@ function(file, record, search, http, xml, format)
 							        								if(packagesArray[packageIndex].package == packageName)
 								        								{
 									        								xmlString += '<Item>\n';
-												        					xmlString += '<Name>' + xml.escape({xmlText: itemsArray[itemIndex].description}) + '</Name>\n';
-												        					xmlString += '<ItemCode>' + xml.escape({xmlText: itemsArray[itemIndex].name}) + '</ItemCode>\n';
-												        					xmlString += '<QuantityOrdered>' + xml.escape({xmlText: packagesArray[packageIndex].quantity.toFixed(2)}) + '</QuantityOrdered>\n';
-												        					xmlString += '<BuyPrice>' + xml.escape({xmlText: (packagesArray[packageIndex].quantity * itemsArray[itemIndex].cost).toFixed(2)}) + '</BuyPrice>\n';
-												        					xmlString += '<RetailPrice>' + xml.escape({xmlText: (packagesArray[packageIndex].quantity * itemsArray[itemIndex].rate).toFixed(2)}) + '</RetailPrice>\n';
-												        					xmlString += '<Weight>' + xml.escape({xmlText: itemsArray[itemIndex].itemUnitWeight.toFixed(2)}) + '</Weight>\n';
-												        					xmlString += '<TotalGrossWeight>' + xml.escape({xmlText: (packagesArray[packageIndex].quantity * itemsArray[itemIndex].itemUnitWeight).toFixed(2)}) + '</TotalGrossWeight>\n';
+									        								
+												        					xmlString += '<Name>' 					+ xml.escape({xmlText: itemsArray[itemIndex].description}) 																+ '</Name>\n';
+												        					xmlString += '<ItemCode>' 				+ xml.escape({xmlText: itemsArray[itemIndex].name}) 																	+ '</ItemCode>\n';
+												        					xmlString += '<QuantityOrdered>' 		+ xml.escape({xmlText: packagesArray[packageIndex].quantity.toFixed(2)}) 												+ '</QuantityOrdered>\n';
+												        					xmlString += '<BuyPrice>' 				+ xml.escape({xmlText: (packagesArray[packageIndex].quantity * itemsArray[itemIndex].cost).toFixed(2)}) 				+ '</BuyPrice>\n';
+												        					xmlString += '<RetailPrice>' 			+ xml.escape({xmlText: (packagesArray[packageIndex].quantity * itemsArray[itemIndex].rate).toFixed(2)}) 				+ '</RetailPrice>\n';
+												        					xmlString += '<Weight>' 				+ xml.escape({xmlText: itemsArray[itemIndex].itemUnitWeight.toFixed(2)}) 												+ '</Weight>\n';
+												        					xmlString += '<TotalGrossWeight>' 		+ xml.escape({xmlText: (packagesArray[packageIndex].quantity * itemsArray[itemIndex].itemUnitWeight).toFixed(2)}) 		+ '</TotalGrossWeight>\n';
+												        					xmlString += '<Attribute1>' 			+ xml.escape({xmlText: itemsArray[itemIndex].rate.toFixed(2)}) 															+ '</Attribute1>\n';
+												        					xmlString += '<Attribute2>' 			+ xml.escape({xmlText: itemsArray[itemIndex].vat.toFixed(2)}) 															+ '</Attribute2>\n';
+												        					xmlString += '<CommodityCode>' 			+ xml.escape({xmlText: itemsArray[itemIndex].commodityCode}) 															+ '</CommodityCode>\n';
+												        					xmlString += '<CountryOfManufacture>' 	+ xml.escape({xmlText: itemsArray[itemIndex].countryOfManufacture}) 													+ '</CountryOfManufacture>\n';
+												        					xmlString += '<ItemGroupName>' 			+ xml.escape({xmlText: itemsArray[itemIndex].groupName}) 																+ '</ItemGroupName>\n';
+												        					
 												        					xmlString += '</Item>\n';
 								        								}
 									        					}
@@ -291,9 +337,9 @@ function(file, record, search, http, xml, format)
 					        			
 					        				xmlString += '<PaymentMethod/>\n';
 					        				xmlString += '<PropertyName/>\n';
-					        				xmlString += '<TotalGrossWeight>' + xml.escape({xmlText: totalPackageWeight.toFixed(2)}) + '</TotalGrossWeight>\n';
-					        				xmlString += '<TotalPrice>' + xml.escape({xmlText: salesOrderTotal}) + '</TotalPrice>\n';
-					        				xmlString += '<CurrencyCode>' + xml.escape({xmlText: fulfilmentCurrency}) + '</CurrencyCode>\n';
+					        				xmlString += '<TotalGrossWeight>' 		+ xml.escape({xmlText: totalPackageWeight.toFixed(2)}) 		+ '</TotalGrossWeight>\n';
+					        				xmlString += '<TotalPrice>' 			+ xml.escape({xmlText: salesOrderTotal}) 					+ '</TotalPrice>\n';
+					        				xmlString += '<CurrencyCode>' 			+ xml.escape({xmlText: fulfilmentCurrency}) 				+ '</CurrencyCode>\n';
 					        				xmlString += '<WeightType>KG</WeightType>\n';
 					        				xmlString += '<MeasureType>CM</MeasureType>\n';
 					        				xmlString += '<ImportFormat>SHP</ImportFormat>\n';
@@ -321,6 +367,137 @@ function(file, record, search, http, xml, format)
 		    	}
 	    }
 
+    function getItemRecordType(_itemType)
+	    {
+	    	var itemRecordType = '';
+	    	
+	    	switch(_itemType)
+	    	{
+	    		case 'InvtPart':
+	    			itemRecordType = 'inventoryitem';
+	    			break;
+	    		
+	    		case 'NonInvtPart':
+	    			itemRecordType = 'noninventoryitem';
+	    			break;
+	    		
+	    		case 'Assembly':
+	    			itemRecordType = 'assemblyitem';
+	    			break;
+	    			
+	    		case 'NonInvtPart':
+	    			itemRecordType = 'noninventoryitem';
+	    			break;
+	    	}
+	
+	    	return itemRecordType;
+	    }
+    
+    function getItemAdditionalDetails(_itemId, _itemType, _countries_list)
+    	{
+    		var additionalInfoObj 		= null;
+    		var itemRecord 				= null;
+    		var commodityCode			= '';
+    		var countryOfManufacture 	= '';
+    		var groupName				= '';
+    		var addr1 					= '';
+			var addr2 					= '';
+			var city 					= '';
+			var state 					= '';
+			var zip 					= '';
+			var country 				= '';
+				
+    		try
+    			{
+	    			itemRecord = record.load({
+												type:		getItemRecordType(_itemType),
+												id:			_itemId
+												});
+    			}
+    		catch(err)
+    			{
+    				itemRecord = null;
+    				
+    				log.error({
+								title:		'Error loading item record with id = ' + _itemId + ' type = ' + _itemType,
+								details:	err
+								});
+    			}
+    		
+    		if(itemRecord != null)
+    			{
+	    			commodityCode 			= itemRecord.getValue({fieldId: 'custitem_commodity_code'});
+	        		countryOfManufacture 	= itemRecord.getValue({fieldId: 'countryofmanufacture'});
+	        		
+	        		try
+	        			{
+	        				groupName		= itemRecord.getText({fieldId: 'custitem_bbs_matrix_cat'})[0];
+	        			}
+	        		catch(err)
+	        			{
+	        				groupName		= '';
+	        			}
+	        		
+	        		if(countryOfManufacture != null && countryOfManufacture != '')
+		    			{
+		    				countryOfManufacture = _countries_list[countryOfManufacture];
+		    			}
+	    			
+	        		var suppliers = itemRecord.getLineCount({sublistId: 'itemvendor'});
+	        		
+	        		for (var supplier = 0; int < suppliers; supplier++) 
+	        			{
+	        				var supplierId = itemRecord.getSublistValue({sublistId: 'itemvendor', fieldId: 'vendor', line: supplier});
+	        				
+	        				//Read in the supplier
+	        				//
+	        				var supplierRecord = null;
+	        				
+	        				try
+	        					{
+		        					supplierRecord = record.load({
+																	type:		record.Type.VENDOR,
+																	id:			supplierId
+																	});
+	        					}
+	        				catch(err)
+	        					{
+	        						supplierRecord = null;
+	        					}
+	        				
+	        				if(supplierRecord != null)
+	        					{
+	        						//Read the address subrecord
+	        						//
+		        					var addressLines = supplierRecord.getLineItemCount('addressbook');
+									
+									for (var int = 1; int <= addressLines; int++) 
+										{
+											var addressSubRecord = supplierRecord.viewLineItemSubrecord('addressbook', 'addressbookaddress', int);
+											
+											addr1 	= addressSubRecord.getFieldValue('addr1');
+											addr2 	= addressSubRecord.getFieldValue('addr2');
+											city 	= addressSubRecord.getFieldValue('city');
+											state 	= addressSubRecord.getFieldValue('state');
+											zip 	= addressSubRecord.getFieldValue('zip');
+											country = addressSubRecord.getFieldValue('country');
+													
+											break;
+										}
+	        					}
+	        			}
+    			}
+    		
+    		additionalInfoObj = new itemAdditionalInfo(
+    													commodityCode, 
+    													countryOfManufacture, 
+    													groupName, 
+    													new addressObject(addr1, addr2, city, state, zip, country)
+    													); 
+    	
+    		return additionalInfoObj;
+    	}
+    
     function getItemWeightInKilos(_itemId)
     	{
     		var weightInKg = 0;
@@ -332,7 +509,16 @@ function(file, record, search, http, xml, format)
 	    											});
     		
     		var itemWeight 		= Number(searchResult.weight);
-    		var itemWeightUnit 	= Number(searchResult.weightunit[0].value);
+    		var itemWeightUnit 	= null;
+    		
+    		try
+    			{
+    				itemWeightUnit 	= Number(searchResult.weightunit[0].value);
+    			}
+    		catch(err)
+    			{
+    				itemWeightUnit 	= null;
+    			}
     		
     		switch(itemWeightUnit)
     			{
@@ -355,6 +541,11 @@ function(file, record, search, http, xml, format)
 		    			weightInKg = itemWeight / 1000.0;
 		    			
 		    			break;
+		    			
+		    		default:
+		    			weightInKg = itemWeight;
+	    			
+	    				break;
     			}
 
     		return weightInKg;
@@ -385,15 +576,70 @@ function(file, record, search, http, xml, format)
 	    	return packageData;
 	    }
     
-    function itemInfo(_name, _description, _quantity, _rate, _cost, _packages, _itemUnitWeight)
+    function getShippingCarriers()
     	{
-    		this.name			= _name;
-    		this.description	= _description;
-    		this.quantity		= _quantity;
-    		this.rate			= _rate;
-    		this.cost			= _cost;
-    		this.packages		= _packages;
-    		this.itemUnitWeight	= _itemUnitWeight;
+    		var shipppingItemObj = {};
+    		
+	    	var shipitemSearchObj = getResults(search.create({
+									    		   type: "shipitem",
+									    		   filters:
+									    		   [
+									    		      ["isinactive","is","F"]
+									    		   ],
+									    		   columns:
+									    		   [
+									    		      search.createColumn({name: "itemid",label: "Name"}),
+									    		      search.createColumn({name: "carrier", label: "Carrier"}),
+									    		      search.createColumn({name: "description", label: "Description"}),
+									    		      search.createColumn({name: "displayname", label: "Display Name"}),
+									    		      search.createColumn({name: "internalid", label: "Internal ID"})
+									    		   ]
+									    		}));
+	    	if(shipitemSearchObj != null && shipitemSearchObj.length > 0)
+	    		{
+		    		for (var shipItem = 0; shipItem < shipitemSearchObj.length; shipItem++) 
+						{
+		    				var shipItemId 		= shipitemSearchObj[shipItem].getValue({name: "internalid"});
+		    				var shipItemCarrier = shipitemSearchObj[shipItem].getValue({name: "description"});
+						
+		    				shipppingItemObj[shipItemId] = shipItemCarrier;
+						}
+	    		}
+    	
+	    	return shipppingItemObj;
+    	}
+    
+    function addressObject(_address1, _address2, _town, _county, _postCode, _country)
+    	{
+	    	this.address1				= _address1;
+			this.address2				= _address2;
+			this.town					= _town;
+			this.county					= _county;
+			this.postCode				= _postCode;
+			this.country				= _country;
+    	}
+    
+    function itemAdditionalInfo(_commodityCode, _countryOfManufacture, _groupName, _address)
+    	{
+    		this.commodityCode			= _commodityCode;
+    		this.countryOfManufacture	= _countryOfManufacture;
+    		this.groupName				= _groupName;
+    		this.address				= _address;
+    	}
+    
+    function itemInfo(_name, _description, _quantity, _rate, _cost, _packages, _itemUnitWeight, _vat, _commodityCode, _countryOfManufacture, _groupName)
+    	{
+    		this.name					= _name;
+    		this.description			= _description;
+    		this.quantity				= _quantity;
+    		this.rate					= _rate;
+    		this.cost					= _cost;
+    		this.packages				= _packages;
+    		this.itemUnitWeight			= _itemUnitWeight;
+    		this.vat					= _vat;
+    		this.commodityCode			= _commodityCode;
+    		this.countryOfManufacture	= _countryOfManufacture;
+    		this.groupName				= _groupName;
     	}
     
 	    function packageInfo(_package, _quantity)

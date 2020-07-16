@@ -12,9 +12,18 @@ function(runtime, record, search, file, xml)
 {
 	function salesOrderBeforeSubmit(scriptContext) {
 			
-			// check the record is being created and the excecution context is web services
-			if (scriptContext.type == scriptContext.UserEventType.CREATE && runtime.executionContext == runtime.ContextType.WEBSERVICES)
+			// check the record is being created or edited
+			if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
 				{
+					// retrieve script parameters
+					var splitLevelAmount = runtime.getCurrentScript().getParameter({
+						name: 'custscript_bbs_split_ship_indicator_amt'
+					});
+					
+					// declare and initialize variables
+					var lineTotal = 0;
+					var splitShipIndicator = 1;
+					
 					// get the current record
 					var currentRecord = scriptContext.newRecord;
 					
@@ -26,13 +35,61 @@ function(runtime, record, search, file, xml)
 					// loop through items
 					for (var i = 0; i < lineCount; i++)
 						{
-							// set the 'Create PO' field to null
+							// get the line total
+							var lineAmount = currentRecord.getSublistValue({
+								sublistId: 'item',
+								fieldId: 'amount',
+								line: i
+							});
+							
+							// add lineAmount to the lineTotal
+							lineTotal += lineAmount;
+							
+							// check if lineTotal is greater than splitLevelAmount script parameter
+							if (lineTotal > splitLevelAmount)
+								{
+									// increase splitShipIndicator variable by 1
+									splitShipIndicator++;
+									
+									// set lineTotal variable to be the lineAmount
+									lineTotal = lineAmount;
+								}
+							
+							// set the Split Ship field using the splitShip variable
 							currentRecord.setSublistValue({
 								sublistId: 'item',
-								fieldId: 'createpo',
-								line: i,
-								value: null
+								fieldId: 'custcol_bbs_split_ship',
+								value: splitShipIndicator,
+								line: i
 							});
+							
+						}
+				}
+		
+			// check the record is being created and the excecution context is web services
+			if (scriptContext.type == scriptContext.UserEventType.CREATE && runtime.executionContext == runtime.ContextType.WEBSERVICES)
+				{
+					// get the current record
+					var currentRecord = scriptContext.newRecord;
+					
+					if(currentRecord != null)
+						{
+							// get line item count
+							var lineCount = currentRecord.getLineCount({
+								sublistId: 'item'
+							});
+							
+							// loop through items
+							for (var i = 0; i < lineCount; i++)
+								{
+									// set the 'Create PO' field to null
+									currentRecord.setSublistValue({
+										sublistId: 'item',
+										fieldId: 'createpo',
+										line: i,
+										value: null
+									});
+								}
 						}
 				}
 		}
