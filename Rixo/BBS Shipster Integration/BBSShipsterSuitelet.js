@@ -174,10 +174,6 @@ function(file, record, search, http, xml, format)
 					        				xmlString += '<ShippingAddressCountry>' 	+ xml.escape({xmlText: fulfilmentCountry}) 			+ '</ShippingAddressCountry>\n';
 					        				xmlString += '<DespatchNumber>' 			+ xml.escape({xmlText: fulfilmentReference}) 		+ '</DespatchNumber>\n';
 					        				xmlString += '<DespatchDate>' 				+ xml.escape({xmlText: fulfilmentShippedDate}) 		+ '</DespatchDate>\n';
-					        				xmlString += '<Attribute1>' 				+ xml.escape({xmlText: customerNumber}) 			+ '</Attribute1>\n';
-					        				xmlString += '<Attribute2>' 				+ xml.escape({xmlText: ''}) 						+ '</Attribute2>\n';
-					        				xmlString += '<Attribute3>' 				+ xml.escape({xmlText: salesOrderDiscountCode}) 	+ '</Attribute3>\n';
-					        				xmlString += '<Attribute4>' 				+ xml.escape({xmlText: salesOrderSubTotal}) 		+ '</Attribute4>\n';
 					        				
 					        				
 					        				
@@ -334,7 +330,44 @@ function(file, record, search, http, xml, format)
 					        				//
 					        				xmlString += '</Packages>\n';
 					        				
+					        				
+					        				//Custom attributes
+					        				//
+					        				xmlString += '<Attribute1>' 				+ xml.escape({xmlText: customerNumber}) 			+ '</Attribute1>\n';
+					        				
+					        				//Fill in the manufacturers details if any
+					        				//
+					        				xmlString += '<Attribute2>';
+					        				xmlString += '<![CDATA[';
+					        				xmlString += '<Manufacturers>';
+					        				
+					        				for ( var manufacturer in manufacturersObject) 
+						        				{
+					        						xmlString += '<Manufacturer>';
+					        						
+					        						xmlString += '<CountryOfManufacture>' 	+ xml.escape({xmlText: manufacturer}) 									+ '</CountryOfManufacture>';
+					        						xmlString += '<ManuAddressLine1>' 		+ xml.escape({xmlText: manufacturersObject[manufacturer].address1})		+ '</ManuAddressLine1>';
+							        				xmlString += '<ManuAddressLine2>' 		+ xml.escape({xmlText: manufacturersObject[manufacturer].address2})		+ '</ManuAddressLine2>';
+							        				xmlString += '<ManuAddressTownCity>' 	+ xml.escape({xmlText: manufacturersObject[manufacturer].town}) 		+ '</ManuAddressTownCity>';
+							        				xmlString += '<ManuAddressRegion>' 		+ xml.escape({xmlText: manufacturersObject[manufacturer].county}) 		+ '</ManuAddressRegion>';
+							        				xmlString += '<ManuAddressPostCode>' 	+ xml.escape({xmlText: manufacturersObject[manufacturer].postCode})		+ '</ManuAddressPostCode>';
+							        				xmlString += '<ManuAddressCountry>' 	+ xml.escape({xmlText: manufacturersObject[manufacturer].country})		+ '</ManuAddressCountry>';
+							        				
+					        						xmlString += '</Manufacturer>';
+												}		        				
+					        				
+					        				xmlString += '</Manufacturers>';
+					        				xmlString += ']]>';
+					        				xmlString += '</Attribute2>\n';
 					        			
+					        				
+					        				//Custom attributes
+					        				//
+					        				xmlString += '<Attribute3>' 				+ xml.escape({xmlText: salesOrderDiscountCode}) 	+ '</Attribute3>\n';
+					        				xmlString += '<Attribute4>' 				+ xml.escape({xmlText: salesOrderSubTotal}) 		+ '</Attribute4>\n';
+					        				
+					        				//Other sundry tags
+					        				//
 					        				xmlString += '<PaymentMethod/>\n';
 					        				xmlString += '<PropertyName/>\n';
 					        				xmlString += '<TotalGrossWeight>' 		+ xml.escape({xmlText: totalPackageWeight.toFixed(2)}) 		+ '</TotalGrossWeight>\n';
@@ -445,7 +478,7 @@ function(file, record, search, http, xml, format)
 	    			
 	        		var suppliers = itemRecord.getLineCount({sublistId: 'itemvendor'});
 	        		
-	        		for (var supplier = 0; int < suppliers; supplier++) 
+	        		for (var supplier = 0; supplier < suppliers; supplier++) 
 	        			{
 	        				var supplierId = itemRecord.getSublistValue({sublistId: 'itemvendor', fieldId: 'vendor', line: supplier});
 	        				
@@ -469,19 +502,28 @@ function(file, record, search, http, xml, format)
 	        					{
 	        						//Read the address subrecord
 	        						//
-		        					var addressLines = supplierRecord.getLineItemCount('addressbook');
+		        					var addressLines = supplierRecord.getLineCount({sublistId: 'addressbook'}); 
 									
-									for (var int = 1; int <= addressLines; int++) 
+									for (var addressLine = 0; addressLine < addressLines; addressLine++) 
 										{
-											var addressSubRecord = supplierRecord.viewLineItemSubrecord('addressbook', 'addressbookaddress', int);
+											var addressSubRecord = supplierRecord.getSublistSubrecord({
+															    									    sublistId: 	'addressbook',
+															    									    fieldId: 	'addressbookaddress',
+															    									    line: 		addressLine
+															    										});
 											
-											addr1 	= addressSubRecord.getFieldValue('addr1');
-											addr2 	= addressSubRecord.getFieldValue('addr2');
-											city 	= addressSubRecord.getFieldValue('city');
-											state 	= addressSubRecord.getFieldValue('state');
-											zip 	= addressSubRecord.getFieldValue('zip');
-											country = addressSubRecord.getFieldValue('country');
-													
+											addr1 	= addressSubRecord.getValue({fieldId: 'addr1'});
+											addr2 	= addressSubRecord.getValue({fieldId: 'addr2'});
+											city 	= addressSubRecord.getValue({fieldId: 'city'});
+											state 	= addressSubRecord.getValue({fieldId: 'state'});
+											zip 	= addressSubRecord.getValue({fieldId: 'zip'});
+											country = addressSubRecord.getValue({fieldId: 'country'});
+												
+											if(country != null && country != '')
+								    			{
+													country = _countries_list[country];
+								    			}
+											
 											break;
 										}
 	        					}
