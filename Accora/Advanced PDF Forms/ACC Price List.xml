@@ -1,0 +1,213 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+  <#setting date_format="dd MMM yyyy"/>
+  
+  <#assign subName>????</#assign>
+  <#assign addLine1>????</#assign>
+  <#assign addLine2>????</#assign>
+  <#assign addLine3>????</#assign>
+  <#assign addLine4>????</#assign>
+  <#assign addLine5>????</#assign>
+  
+  <#if record.subsidiary=="5"><!-- 5 is Ltd -->
+  <#assign subName>Accora Limited</#assign>  
+  <#assign addLine1>Charter House</#assign>
+  <#assign addLine2>Barrington Road</#assign>
+  <#assign addLine3>Orwell</#assign>
+  <#assign addLine4>Cambridge, UK</#assign>
+  <#assign addLine5>SG8 5QP</#assign>
+</#if>
+      
+<#if record.subsidiary=="1"><!-- 1 is Inc -->
+  <#assign subName>Accora Inc.</#assign>
+  <#assign addLine1>9210 Corporate Blvd.</#assign>
+  <#assign addLine2>Suite 120</#assign>
+  <#assign addLine3>Rockville</#assign>
+  <#assign addLine4>MD 20850</#assign>
+  <#assign addLine5>United States</#assign>
+</#if>      
+      
+<#if record.subsidiary=="7"><!-- 7 is IE -->
+  <#assign subName>Accora Limited (IE)</#assign>
+  <#assign addLine1>38 Main Street</#assign>
+  <#assign addLine2>Swords</#assign>
+  <#assign addLine3>Co. Dublin</#assign>
+  <#assign addLine4>K67 E0A2</#assign>
+  <#assign addLine5>Ireland</#assign>
+</#if>         
+  
+  
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+      
+
+      
+    <macrolist>
+        <macro id="nlheader">
+
+  <#if record.subsidiary=='1'>
+            <table class="header" style="width: 100%;">
+              <tr>
+                <td rowspan="2">
+                  <img src="https://4810497.app.netsuite.com/core/media/media.nl?id=409&amp;c=4810497&amp;h=79d3cb51aa2d7b79ff0a" style="float:top-right; width:174px; height:110px; margin: 1px;" />
+                 </td>
+              </tr>
+              <tr>
+             	<td>
+      <span class="nameandaddress">${subName}</span><br /><span class="nameandaddress">${addLine1}<br/>${addLine2}<br/>${addLine3}<br/>${addLine4}<br/>${addLine5}</span></td>
+                <td align="right"><span class="title">${record@title}</span><br/>${record.trandate}</td></tr>
+                
+</table>
+          
+<#else>
+            <table class="header" style="width: 100%;">
+              <tr>
+                <td rowspan="2">
+                  <img src="https://4810497.app.netsuite.com/core/media/media.nl?id=5549264&amp;c=4810497&amp;h=bcf92a47f9d32288cdf5" style="float:top-right; width:174px; height:45px; margin: 1px;" />
+                 </td>
+              </tr>
+              <tr>
+              	<td>
+      <span class="nameandaddress">${subName}</span><br /><span class="nameandaddress">${addLine1}<br/>${addLine2}<br/>${addLine3}<br/>${addLine4}<br/>${addLine5}</span></td>
+                <td align="right"><span class="title">${record@title}</span><br/>${record.trandate}</td></tr>
+</table>
+</#if>
+                                 
+                                 
+        </macro>
+        <macro id="nlfooter">
+            <table class="footer" style="width: 100%;"><tr>
+	<td align="right"><pagenumber/> of <totalpages/></td>
+	</tr></table>
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 8pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 4px 5px 2px;
+            background-color: #e3e3e3;
+            color: #333333;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { align:left }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 5px;
+            padding-top: 5px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        td.addressheader {
+            font-weight: bold;
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        span.title {
+            font-size: 26pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 120%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+      
+  <#if record.subsidiary=='1'>      
+<body header="nlheader" header-height="12%" footer="nlfooter" footer-height="15pt" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+  <#else>      
+<body header="nlheader" header-height="9%" footer="nlfooter" footer-height="15pt" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+ </#if>
+    
+    <table style="width: 100%; margin-top: 10px;">
+      <tr>
+     <td><strong>Account Number/Name</strong></td>
+      </tr>
+     <tr><td>${record.accountnumber}&nbsp;${customer.companyname}</td></tr> 
+     <tr><td class="addressheader">${record.billaddress@label}</td></tr>
+     <tr><td class="address">${record.billaddress}</td></tr>
+</table>
+
+<#list record.pricelevels as lines>
+	<#list lines as line>
+		<table class="itemtable" style="width: 100%; margin-top: 10px;">
+			<#if line_index == 0>
+				<thead>
+					<tr>
+						<th colspan="13">${lines.item@label}</th>
+						<th align="right" colspan="2">${lines.rate5@label}</th>
+						<th align="right" colspan="2">${lines.rate4@label}</th>
+						<th align="right" colspan="2">${lines.rate3@label}</th>
+						<th align="right" colspan="2">${lines.rate2@label}</th>
+						<th align="right" colspan="2">Qty 1</th>
+					</tr>
+				</thead>
+			</#if>
+			<tr>
+				<td colspan="13"><span class="itemname">${line.custitem_bbs_item_id}</span><br/>${line.description}</td>
+				<td align="right" colspan="2">${line.rate5}</td>
+				<td align="right" colspan="2">${line.rate4}</td>
+				<td align="right" colspan="2">${line.rate3}</td>
+				<td align="right" colspan="2">${line.rate2}</td>
+				<td align="right" colspan="2"><#if line.rate gt 0>${line.rate}<#else>No</#if></td>
+			</tr>
+		</table>
+	</#list>
+</#list>
+
+</body>
+</pdf>  

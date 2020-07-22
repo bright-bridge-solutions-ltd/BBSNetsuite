@@ -196,24 +196,20 @@ function(search, message) {
     // =====================================================================
     // FUNCTION TO SEARCH FOR CUSTOMERS WITH THE SAME SALES FORCE ACCOUNT ID
     // =====================================================================
+    
     function searchSFAccountID(currentRecordID, sfAccID) {
     	
     	// declare and initialize variables
     	var customerName = null;
     	
     	// create search to find customers where this Sales Force Account ID has been used (excluding the current customer)
-    	search.create({
+    	var customerSearch = search.create({
     		type: search.Type.CUSTOMER,
     		
     		filters: [{
     			name: 'isinactive',
     			operator: 'is',
     			values: ['F']
-    		},
-    				{
-    			name: 'internalid',
-    			operator: 'noneof',
-    			values: [currentRecordID] // exclude the current customer
     		},
     				{
     			name: 'accountnumber',
@@ -225,7 +221,24 @@ function(search, message) {
     			name: 'entityid'
     		}],
     		
-    	}).run().each(function(result){
+    	});
+    	
+    	// is this an existing customer record that is being edited
+    	if (currentRecordID)
+    		{
+	    		// create new search filter
+				var newSearchFilter = search.createFilter({
+	    			name: 'internalid',
+	    			operator: 'noneof',
+	    			values: [currentRecordID] // exclude the current customer
+	    		});
+	
+				// add the filter to the search using .push() method
+				customerSearch.filters.push(newSearchFilter);
+    		}
+    	
+    	// run search and process results
+    	customerSearch.run().each(function(result){
     		
     		// get the customer name from the search
     		customerName = result.getValue({
