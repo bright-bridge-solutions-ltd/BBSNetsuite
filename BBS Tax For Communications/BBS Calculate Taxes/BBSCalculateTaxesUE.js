@@ -79,7 +79,8 @@ function(runtime, record, search, libraryModule, plugin)
 								var subsidiaryPCode				= subsidiaryLookup[1];
 								
 								// call function to return/lookup fields on the site record
-								var shipToPCode	= libraryModule.getSiteInfo(siteID);
+								//var shipToPCode	= libraryModule.getSiteInfo(siteID);
+								var shipToPCode	= libraryModule.libGetDestinationPcode(currentRecord);
 								
 								// call function to return any exemptions for the customer
 								var customerExemptions = libraryModule.getCustomerExemptions(customerID, tranDate);

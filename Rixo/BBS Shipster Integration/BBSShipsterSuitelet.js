@@ -348,12 +348,13 @@ function(file, record, search, http, xml, format)
 						        				{
 					        //						xmlString += '<Manufacturer>';
 					        
-						    						xmlString += xml.escape({xmlText: manufacturersObject[manufacturer].address1})		+ '&#10;';
-							        				xmlString += xml.escape({xmlText: manufacturersObject[manufacturer].address2})		+ '&#10;';
-							        				xmlString += xml.escape({xmlText: manufacturersObject[manufacturer].town}) 			+ '&#10;';
-							        				xmlString += xml.escape({xmlText: manufacturersObject[manufacturer].county}) 		+ '&#10;';
-							        				xmlString += xml.escape({xmlText: manufacturersObject[manufacturer].postCode})		+ '&#10;';
-							        				xmlString += xml.escape({xmlText: manufacturersObject[manufacturer].country})		+ '&#10;&#10;';
+					        						
+						    						xmlString += (manufacturersObject[manufacturer].address1 != '' 	? xml.escape({xmlText: manufacturersObject[manufacturer].address1}) + '&#10;' : '');
+							        				xmlString += (manufacturersObject[manufacturer].address2 != '' 	? xml.escape({xmlText: manufacturersObject[manufacturer].address2}) + '&#10;' : '');
+							        				xmlString += (manufacturersObject[manufacturer].town != ''     	? xml.escape({xmlText: manufacturersObject[manufacturer].town}) + '&#10;' : '');
+							        				xmlString += (manufacturersObject[manufacturer].county != '' 	? xml.escape({xmlText: manufacturersObject[manufacturer].county}) + '&#10;' : '');
+							        				xmlString += (manufacturersObject[manufacturer].postCode != '' 	? xml.escape({xmlText: manufacturersObject[manufacturer].postCode}) + '&#10;' : '');
+							        				xmlString += (manufacturersObject[manufacturer].country != '' 	? xml.escape({xmlText: manufacturersObject[manufacturer].country}) + '&#10;&#10;' : '');
 							
 					        //						xmlString += '<CountryOfManufacture>' 	+ xml.escape({xmlText: manufacturer}) 									+ '</CountryOfManufacture>';
 					        //						xmlString += '<ManuAddressLine1>' 		+ xml.escape({xmlText: manufacturersObject[manufacturer].address1})		+ '</ManuAddressLine1>';

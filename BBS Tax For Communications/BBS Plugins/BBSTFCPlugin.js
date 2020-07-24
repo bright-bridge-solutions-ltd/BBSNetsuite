@@ -319,7 +319,10 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 					      search.createColumn({name: "custrecord_bbstfc_conf_regulated", label: "Regulated"}),
 					      search.createColumn({name: "custrecord_bbstfc_bus_class_code",join: "CUSTRECORD_BBSTFC_CONF_BUS_CLASS",label: "Class Code"}),
 					      search.createColumn({name: "custrecord_bbstfc_svc_class_code",join: "CUSTRECORD_BBSTFC_CONF_SVC_CLASS",label: "Class Code"}),
-					      search.createColumn({name: "custrecord_bbstfc_conf_tax_code", label: "Tax Code"})
+					      search.createColumn({name: "custrecord_bbstfc_conf_tax_code", label: "Tax Code"}),
+					      search.createColumn({name: "custrecord_bbstfc_conf_address_type", label: "Address Type"}),
+					      search.createColumn({name: "custrecord_bbstfc_config_custom_type", label: "Custom Address Record Type"}),
+					      search.createColumn({name: "custrecord_bbstfc_custom_source_from", label: "Source From"})
 					   ]
 					}));
 				
@@ -347,6 +350,9 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 									break;
 							}
 						
+						config.taxCalculationAddress		= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_address_type'});
+						config.taxCustomAddressRecType		= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_config_custom_type'});
+						config.taxCustomAddressIdFrom		= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_custom_source_from'});
 						config.businessClass				= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_bus_class_code', join: "CUSTRECORD_BBSTFC_CONF_BUS_CLASS"});
 						config.serviceClass					= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_svc_class_code', join: "CUSTRECORD_BBSTFC_CONF_SVC_CLASS"});
 						config.ownFacilities				= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_own_facilities'});

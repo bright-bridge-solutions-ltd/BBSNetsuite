@@ -170,6 +170,9 @@ function(record, runtime, search, plugin, format)
 			this.businessClass				= '';
 			this.serviceClass				= '';
 			this.taxCode					= '';
+			this.taxCalculationAddress		= '';
+			this.taxCustomAddressRecType	= '';
+			this.taxCustomAddressIdFrom		= '';
 		}
 	
 	//Generic response from api object
@@ -220,6 +223,164 @@ function(record, runtime, search, plugin, format)
 	//Methods
 	//=====================================================================
 	//
+	
+	//Gets the destination pcode based on the configuration record.
+	//The pcode can be got from the billing address, shipping address or a custom record so long as there is a link to it from the tranbsaction record
+	//
+	function getDestinationPcode(_transactionRecord)
+		{
+			var returnedPcode = null;
+			
+			try
+				{
+					//Get the plugin implementation
+					//
+					var  tfcPlugin = plugin.loadImplementation({
+																type: 'customscript_bbstfc_plugin'
+																});
+					
+					if(tfcPlugin != null)
+						{
+							//Get the current config 
+							//
+							var configObject = tfcPlugin.getTFCConfiguration();
+							
+							if(configObject != null)
+								{
+									switch(Number(configObject.taxCalculationAddress))
+										{
+											case 1:		//Billing
+												
+												returnedPcode = getStandardAddress(_transactionRecord, 'billingaddress');
+												
+												break;
+												
+											case 2:		//Shipping
+												
+												returnedPcode = getStandardAddress(_transactionRecord, 'shippingaddress');
+												
+												break;
+												
+											case 3:		//Custom
+												
+												var customRecordType = configObject.taxCustomAddressRecType;
+												var customSourcField = configObject.taxCustomAddressIdFrom;
+												
+												//Get the value of the custom record source field from the current transaction record
+												//
+												var customRecordId = _transactionRecord.getValue({
+																								fieldId: customSourcField
+																								});
+												
+												if(customRecordId != null && customRecordId != '')
+													{
+														//Get the mapping record for this record type
+														//
+														var customrecord_bbstfc_pcode_mapSearchObj = getResults(search.create({
+																															   type: "customrecord_bbstfc_pcode_map",
+																															   filters:
+																															   [
+																															      ["custrecord_bbstfc_pmap_rec_type","is",customRecordType]
+																															   ],
+																															   columns:
+																															   [
+																															      search.createColumn({name: "custrecord_bbstfc_pmap_rec_type", label: "Record Type"}),
+																															      search.createColumn({name: "custrecord_bbstfc_pmap_pcode", label: "Field Id - PCode"})
+																															   ]
+																															}));
+														
+														if(customrecord_bbstfc_pcode_mapSearchObj != null && customrecord_bbstfc_pcode_mapSearchObj.length > 0)
+															{
+																var mappedPcodeField = customrecord_bbstfc_pcode_mapSearchObj[0].getValue({
+																																			name: 'custrecord_bbstfc_pmap_pcode'
+																																			});
+																if(mappedPcodeField != null && mappedPcodeField != '')
+																	{
+																		//Get the contents of the pcode field based on the mapping
+																		//
+																		var customRecordSearch = search.lookupFields({
+																													type: 		customRecordType,
+																													id: 		customRecordId,
+																													columns: 	mappedPcodeField
+																													});
+																		
+																		returnedPcode = customRecordSearch[mappedPcodeField];
+																	}
+															}
+													}
+												
+												break;	
+										}
+								}
+						}
+				}
+			catch(err)
+				{
+					log.error({
+								title:		'Unexpected error when trying to get destination pcode',
+								details:	err
+								});
+				}
+			finally
+				{
+					return returnedPcode;
+				}
+		}
+	
+	function getStandardAddress(_transactionRecord, _addressType)
+		{
+			var returnedPcode = null;
+			
+			try
+				{
+					//Get the standard address subrecord (billing or shipping)
+					//
+					var addressSubrecord = _transactionRecord.getSubrecord({fieldId: _addressType});
+					
+					if(addressSubrecord != null)
+						{
+							//Get the mapping for "customer" as this will be ok for the standard built-in addresses
+							//
+							var customrecord_bbstfc_pcode_mapSearchObj = getResults(search.create({
+								   type: "customrecord_bbstfc_pcode_map",
+								   filters:
+								   [
+								      ["custrecord_bbstfc_pmap_rec_type","is",'customer']
+								   ],
+								   columns:
+								   [
+								      search.createColumn({name: "custrecord_bbstfc_pmap_rec_type", label: "Record Type"}),
+								      search.createColumn({name: "custrecord_bbstfc_pmap_pcode", label: "Field Id - PCode"})
+								   ]
+								}));
+	
+							if(customrecord_bbstfc_pcode_mapSearchObj != null && customrecord_bbstfc_pcode_mapSearchObj.length > 0)
+								{
+									var mappedPcodeField = customrecord_bbstfc_pcode_mapSearchObj[0].getValue({
+																				name: 'custrecord_bbstfc_pmap_pcode'
+																				});
+									
+									if(mappedPcodeField != null && mappedPcodeField != '')
+										{
+											//Get the contents of the pcode field based on the mapping
+											//
+											returnedPcode = addressSubrecord.getValue({fieldId: mappedPcodeField});
+										}
+								}
+						}		
+				}
+			catch(err)
+				{
+					log.error({
+								title:		'Unexpected error when trying to get destination pcode',
+								details:	err
+								});
+				}
+			finally
+				{
+					return returnedPcode;
+				}
+		}
 	
 	function getCreatedFromTransactionInfo(transactionID) {
 		
@@ -1372,9 +1533,9 @@ function(record, runtime, search, plugin, format)
 	    										try
 	    											{
 	    												recordToProcess.save({
-	    													enableSourcing: false,
-	    													ignoreMandatoryFields: true
-	    												});
+	    																	enableSourcing: 		false,
+	    																	ignoreMandatoryFields: 	true
+	    																	});
 	    											}
 	    										catch(err)
 	    											{
@@ -1507,7 +1668,10 @@ function(record, runtime, search, plugin, format)
 									{
 										try
 											{
-												recordToProcess.save();
+												recordToProcess.save({
+																	enableSourcing: 		false,
+																	ignoreMandatoryFields: 	true
+																	});
 											}
 										catch(err)
 											{
@@ -1664,6 +1828,7 @@ function(record, runtime, search, plugin, format)
     		libLookupPCode:					libLookupPCode,
     		libConfigObj:					libConfigObj,
     		libGenericResponseObj:			libGenericResponseObj,
+    		libGetDestinationPcode:			getDestinationPcode,
     		getCreatedFromTransactionInfo:	getCreatedFromTransactionInfo,
 			getCustomerInfo:				getCustomerInfo,
     		getCustomerExemptions:			getCustomerExemptions,
