@@ -3,8 +3,8 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/ui/serverWidget', 'N/ui/message', 'N/search', 'N/render', 'N/url', 'N/redirect'],
-function(runtime, ui, message, search, render, url, redirect) {
+define(['N/ui/serverWidget', 'N/ui/message', 'N/search', 'N/task', 'N/url', 'N/redirect'],
+function(ui, message, search, task, url, redirect) {
    
     /**
      * Definition of the Suitelet script trigger point.
@@ -16,11 +16,6 @@ function(runtime, ui, message, search, render, url, redirect) {
      */
     function onRequest(context) {
     	
-    	// retrieve script parameters. Parameters are global so can be accessed throughout the script
-    	tranFormID = runtime.getCurrentScript().getParameter({
-    		name: 'custscript_acc_send_statement_tran_form'
-    	});
-    	
     	// on GET
     	if (context.request.method === 'GET')
 			{
@@ -28,7 +23,8 @@ function(runtime, ui, message, search, render, url, redirect) {
     			var today = new Date();
     			
     			// retrieve script parameters
-    			var statementsSent = context.request.parameters.statementssent;
+    			var statementsSent		= context.request.parameters.statementssent;
+    			var statementsNotSent 	= context.request.parameters.statementsnotsent;
     		
     			// create form
 				var form = ui.createForm({
@@ -36,19 +32,16 @@ function(runtime, ui, message, search, render, url, redirect) {
 	                hideNavBar: false
 	            });
 				
-				// check if statementsSent returns a value
+				// check if statementsSent or statementsNotSent return a value
 				if (statementsSent)
 					{
 						// display a message at the top of the page
 						form.addPageInitMessage({
 				            type: message.Type.INFORMATION,
-							title: 'Test',
-							message: 'Test'
+							title: 'Information',
+							message: 'A job has been scheduled to send <b>' + statementsSent + '</b> statements to customers.'
 						});
 					}
-				
-				// set client script to run on the page
-				//form.clientScriptFileId = ;
 				
 				// add fields to the form
 				var pageLogo = form.addField({
@@ -107,7 +100,7 @@ function(runtime, ui, message, search, render, url, redirect) {
 				var customerSublist = form.addSublist({
 					type: ui.SublistType.LIST,
 					id: 'customersublist',
-					label: 'Customers',
+					label: 'Customers'
 				});
 				
 				// add fields to the sublist
@@ -135,14 +128,6 @@ function(runtime, ui, message, search, render, url, redirect) {
 					type: ui.FieldType.TEXT,
 					id: 'customername',
 					label: 'Customer'
-				});
-						
-				customerSublist.addField({
-					type: ui.FieldType.EMAIL,
-					id: 'statementemailaddresses',
-					label: 'Statement Email Addresses'
-				}).updateDisplayType({
-					displayType: ui.FieldDisplayType.NORMAL
 				});
 				
 				customerSublist.addField({
@@ -180,10 +165,6 @@ function(runtime, ui, message, search, render, url, redirect) {
 						name: 'altname'
 					});
 					
-					var statementEmailAddress = result.getValue({
-						name: 'custentity_acc_customer_statement_email'
-					});
-					
 					var currency = result.getValue({
 						name: 'currency'
 					});
@@ -210,16 +191,6 @@ function(runtime, ui, message, search, render, url, redirect) {
 						line: line,
 						value: customerName
 					});
-					
-					// do we have a statement email address
-					if (statementEmailAddress)
-						{
-							customerSublist.setSublistValue({
-								id: 'statementemailaddresses',
-								line: line,
-								value: statementEmailAddress
-							});
-						}
 					
 					customerSublist.setSublistValue({
 						id: 'currency',
@@ -254,11 +225,15 @@ function(runtime, ui, message, search, render, url, redirect) {
 			}
     	else if (context.request.method === 'POST') // on POST
     		{
+    			// declare and initialize variables
+    			var customersArray = new Array();
+    			var statementsSent = 0;
+    		
     			// retrieve values from the form
     			var startDate 				= 	context.request.parameters.startdate;
     			var statementDate			= 	context.request.parameters.statementdate;
     			var openTransactionsOnly	=	context.request.parameters.opentransactionsonly;
-    			var inCustomerLocale		=	context.request.parameters.inCustomerLocale;
+    			var inCustomerLocale		=	context.request.parameters.opentransactionsonly; 	
     			var consolidateStatements	=	context.request.parameters.consolidatestatements;
     		
     			// get count of lines on the sublist
@@ -277,39 +252,30 @@ function(runtime, ui, message, search, render, url, redirect) {
     					// only process lines where the email checkbox is ticked
     					if (email == 'T')
     						{
-    						 	// get the internal ID of the customer, the customer name and the statement email address
+	    						// get the internal ID of the customer, the customer name and the statement email address
     							var customerID = context.request.getSublistValue({
     	    						group: 'customersublist',
     	    						name: 'internalid',
     	    						line: i
     	    					});
     							
-    							var customerName = context.request.getSublistValue({
-    								group: 'customersublist',
-    								name: 'customername',
-    								line: i
-    							});
+    							// push customerID to the customersArray
+    							customersArray.push(customerID);
     							
-    							var statementEmailAddress = context.request.getSublistValue({
-    	    						group: 'customersublist',
-    	    						name: 'statementemailaddresses',
-    	    						line: i
-    	    					});
-    							
-    							// call function to email the statement to the customer
-    							sendStatement(customerID, customerName, statementEmailAddress, startDate, statementDate, openTransactionsOnly, inCustomerLocale, consolidateStatements);
+    							// increase statementsSent by 1
+								statementsSent++;
     						}
     				}
     			
-    			// call function to schedule BBSEmailInvoicesMR script to send emails
-    			sendEmails(invoicesArray, subsidiary);
+    			// call function to schedule a map/reduce script to send the statements
+    			sendStatements(customersArray, startDate, statementDate, openTransactionsOnly, inCustomerLocale, consolidateStatements);
     			
     			// get the URL of the Suitelet
     			var suiteletURL = url.resolveScript({
-    				scriptId: 'customscript_bbs_email_invoice_sl',
-    				deploymentId: 'customdeploy_bbs_email_invoice_sl',
+    				scriptId: 'customscript_bbs_customer_statements_sl',
+    				deploymentId: 'customdeploy_bbs_customer_statements_sl',
     				params: {
-    					scriptscheduled: true
+    					statementssent: statementsSent
     				}
     			});
     			
@@ -338,6 +304,11 @@ function(runtime, ui, message, search, render, url, redirect) {
     			values: ['F']
     		},
     				{
+    			name: 'custentity_acc_customer_statement_email',
+    			operator: search.Operator.ISNOTEMPTY,
+    			values: []
+    		},
+    				{
     			name: 'balance',
     			operator: search.Operator.GREATERTHAN,
     			values: [0.00]
@@ -364,38 +335,33 @@ function(runtime, ui, message, search, render, url, redirect) {
     		
     }
     
-    // ==============================================
-    // FUNCTION TO SEND THE STATEMENT TO THE CUSTOMER
-    // ==============================================
+    // ==================================================================
+    // FUNCTION TO SCHEDULE MAP/REDUCE SCRIPT TO SEND CUSTOMER STATEMENTS
+    // ==================================================================
     
-    function sendStatement(customerID, customerName, statementEmailAddress, startDate, statementDate, openTransactionsOnly, inCustomerLocale, consolidateStatements)
-    	{
-	    	try
-	    		{
-	    			// generate the statement PDF
-	    			var statementFile = render.statement({
-	    				entityId: 				customerID,
-	    				printMode: 				render.PrintMode.PDF,
-	    				formId: 				tranFormID,
-	    				startDate: 				startDate,
-	    				statementDate: 			statementDate,
-	    				openTransactionsOnly: 	openTransactionsOnly,
-	    				inCustLocale: 			inCustomerLocale,
-	    				consolidateStatements: 	consolidateStatements
-	    			});
-	    			
-	    			// set the statement PDF name
-	    			statementFile.name = 'Accora Statement for ' + customerName + ' as of ' + statementDate;
-	    			
-	    			
-	    			
-	    		}
-	    	catch(e)
-	    		{
-	    		
-	    		}
-
-    	}
+    function sendStatements(customerArray, startDate, statementDate, openTransactionsOnly, inCustomerLocale, consolidateStatements) {
+    	
+    	// submit a new map/reduce task
+    	var mapReduceTaskID = task.create({
+    	    taskType: task.TaskType.MAP_REDUCE,
+    	    scriptId: 'customscript_bbs_customer_statements_mr',
+    	    deploymentId: 'customdeploy_bbs_customer_statements_mr',
+    	    params: {
+    	    	custscript_acc_send_statement_cust_array: 	customerArray,
+    	    	custscript_acc_send_statement_start_date:	startDate,
+    	    	custscript_acc_send_statement_date:			statementDate,
+    	    	custscript_acc_send_statement_open_only:	openTransactionsOnly,
+    	    	custscript_acc_send_statement_cust_local:	inCustomerLocale,
+    	    	custscript_acc_send_statement_consolidat:	consolidateStatements
+    	    }
+    	}).submit();
+    	
+    	log.audit({
+    		title: 'Script Scheduled',
+    		details: mapReduceTaskID
+    	});
+    	
+    }
 
     return {
         onRequest: onRequest
