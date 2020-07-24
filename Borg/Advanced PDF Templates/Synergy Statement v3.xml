@@ -1,0 +1,283 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdfset>
+  <#if statements?has_content><#list statements as statement>
+<pdf>
+<head>
+<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+           <macrolist>
+        	<macro id="nlheader">
+              <!--START HEADER-->
+              <table class="header" style="width: 100%;">
+                  <tr>
+                    <td width="25%" rowspan="4">
+                        <#if customer.subsidiary = "FreshGround">
+                          <img class="logo" src="https://3976137.app.netsuite.com/core/media/media.nl?id=3490548&amp;c=3976137&amp;h=9b510ea317dc10f3fac1" width="156" height="94"/>
+                        <#elseif customer.subsidiary = "Sterizen">
+                          <img class="logo" src="https://3976137.app.netsuite.com/core/media/media.nl?id=3490549&amp;c=3976137&amp;h=8c0324c6f3da22df9338" width="156" height="94"/>
+                        <#else>
+                          <img class="logo" src="https://3976137.app.netsuite.com/core/media/media.nl?id=3490547&amp;c=3976137&amp;h=828a156b105840d26b87" width="156" height="94"/>
+                        </#if>
+                    </td>
+                    <td width="25%" rowspan="4">
+                    	&nbsp;
+                    </td>
+                    <td width="50%" align="right">
+                      <table>
+                        <tr>
+                          <td width="100%" align="left">
+                              <span class="title">Statement</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td width="30%">
+                            Date:
+                          </td>
+                          <td width="70%">
+                            ${statement.trandate}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td width="30%">
+                            Currency:
+                          </td>
+                          <td width="70%">
+                            ${statement.currency}
+                          </td>
+                        </tr>
+                        <#if customer.subsidiary != "FreshGround">
+                        <tr>
+                          <td width="30%">
+                            Page:
+                          </td>
+                          <td width="70%">
+                            <pagenumber/> of <totalpages/>
+                          </td>
+                        </tr>
+                        </#if>
+                      </table>
+                    </td>
+                  </tr>
+            	</table>
+              <table class="header" style="width: 100%;">
+                <tr>
+                  <td class="addressheader" colspan="2" height="10">&nbsp;</td>
+                </tr>
+                <tr>
+                  <td width="50%" class="addressheader" >To:</td>
+                  <td width="50%" class="addressheader" >From:</td>
+                </tr>
+                <tr>
+                  <td width="50%"> 
+                    <p>
+                      ${customer.entityid?keep_after(" ")}<br/>
+                      ${customer.billaddr1?capitalize}<br/>
+                      <#if customer.billaddr2 !="">${customer.billaddr2?capitalize}<br/><#else> </#if>
+                      <#if customer.billaddr3 !="">${customer.billaddr3?capitalize}<br/><#else> </#if>
+                          ${customer.billcity?capitalize}<br/>
+                          ${customer.billzip?upper_case}
+                          </p>
+                        </td>
+                        <td width="50%">
+                          
+                          
+                            <#if customer.subsidiary = "FreshGround">
+                            <p>Freshground<br/>
+                            <#elseif customer.subsidiary = "Sterizen">
+                            <p>Sterizen<br/>
+                            <#else>
+                            <p>Borg &amp; Overtrom<br/>
+                            <#/if>
+                            Synergy House, Fakenham Road<br/>
+                            Morton On The Hill<br/>
+                            NR9 5SP<br/>
+                          </p>
+                        </td>
+                        </tr>
+                      <tr>
+                        <td height="40">&nbsp;</td>
+                      </tr>
+                </table>
+              <!--END HEADER--> 
+              </macro>
+              <macro id="nlfooter">
+              <!--START FOOTER-->
+              <#if customer.subsidiary = "FreshGround">
+               <table class="footer" style="width: 100%;">
+                  <#if customer.terms != "DD - 10th of next month">
+                    <tr>
+                      <td style="border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding: 10px 0px;">
+                        <p>We are now offering Direct Debit as a method of payment. Please contact the office for a DD instruction form.</p>
+                      </td>
+                    </tr>
+                  <#else>
+                    <tr>
+                      <td style="border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding: 10px 0px;">
+                        <p>Thank you for choosing to pay by Direct Debit, your next payment will be collected or or around the 10th of the month.</p>
+                      </td>
+                    </tr>
+                  </#if>
+                </table>
+              </#if>
+                  <table style="width: 100%; font-size: 8pt; padding: 0; margin-left:-8px;">
+  <#if customer.subsidiary = "FreshGround">
+    <tr>
+      <td width="33%">
+        <p>Bank Details</p>
+          <ul>
+            <li>Sort Code: 12-20-29</li>
+            <li>Account Number: 00547903</li>
+            <li>Swift: BOFSGB21281</li>
+            <li>IBAN: GB44 BOFS 1220 2900 5479 03</li>
+          </ul>
+      </td>
+      <td width="33%" align="center" valign="bottom">
+        <p style="text-align: center;"><span class="pagination">Page <pagenumber/> of <totalpages/></span></p>
+      </td>
+      <td style="padding: 0;" width="33%" align="right" valign="bottom" >
+        <p style="text-align: right; margin-bottom: 10px; margin-right: 10px;"><a href="mailto:accounts@freshground.co.uk">accounts@freshground.co.uk</a><br/>
+        <span class="small-heading">PHONE:</span> 0845 845 1500<br/>
+        <span class="small-heading">VAT NUMBER:</span> GB 224 2581 84</p>
+      </td>
+    </tr>
+  <#else>
+    <tr>
+      <td width="100%" height="80px" align="center" valign="bottom">
+        <p style="text-align: center; margin-bottom: 0px; margin-right: 10px;"><a style="text-decoration: none;" href="mailto:accounts@borgandoverstrom.com">accounts@borgandoverstrom.com</a><br/>
+        <span class="small-heading">PHONE:</span> +44 1362 695 006</p>
+      </td>
+    </tr>
+    </#if>
+  </table>
+              <!--END FOOTER--> 
+              </macro>
+            </macrolist>            
+            <style type="text/css">* {
+        		font-family: NotoSans, sans-serif;
+        		}
+        		table {
+        			font-size: 9pt;
+        			table-layout: fixed;
+        		}
+                 th {
+                     font-weight: bold;
+                     font-size: 8pt;
+                     vertical-align: middle;
+                     padding: 5px 6px 3px;
+                     background-color: #e3e3e3;
+                     color: #333333;
+                 }
+                 td {
+                     padding: 4px 6px;
+                 }
+        		 td p {
+                   text-align:left;
+              	   line-height: 130%;
+              	}
+                 b {
+                     font-weight: bold;
+                     color: #333333;
+                 }
+                 table.header td {
+                     padding: 0;
+                     font-size: 10pt;
+                 }
+                 table.footer td {
+                     padding: 0;
+                     font-size: 8pt;
+                 }
+                 table.itemtable th {
+                     padding-bottom: 10px;
+                     padding-top: 10px;
+                 }
+                 table.body td {
+                     padding-top: 2px;
+                 }
+                 td.addressheader {
+                     font-weight: bold;
+                     font-size: 8pt;
+                     padding-top: 6px;
+                     padding-bottom: 2px;
+                 }
+                 td.address {
+                     padding-top: 0;
+                 }
+                 span.title {
+                     font-size: 28pt;
+                   text-align: left;
+                 }
+                 span.number {
+                     font-size: 16pt;
+                 }
+                 div.remittanceSlip {
+                     width: 100%;
+                     /* To ensure minimal height of remittance slip */
+                     height: 200pt;
+                     page-break-inside: avoid;
+                     page-break-after: avoid;
+                 }
+                 hr {
+                     border-top: 1px dashed #d3d3d3;
+                     width: 100%;
+                     color: #ffffff;
+                     background-color: #ffffff;
+                     height: 1px;
+                 }
+              
+            </style>
+        </head>
+<body header="nlheader" header-height="240" footer="nlfooter" footer-height="80pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+
+<table class="body" style="width: 100%;">
+  	<tr>
+		<th align="left">Account Number: ${customer.entityid?keep_before(" ")}</th>
+	</tr>
+</table>
+<#if statement.lines?has_content>
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items -->
+<#list statement.lines as line>
+  <#if line_index==0>
+<thead>
+	<tr>
+	<th colspan="3">${line.datecol@label}</th>
+	<th colspan="12">${line.description@label}</th>
+	<th align="right" colspan="3">${line.charge@label}</th>
+	<th align="right" colspan="4">${line.payment@label}</th>
+	<th align="right" colspan="4">${line.balance@label}</th>
+	</tr>
+</thead>
+</#if>
+  
+  <tr>
+	<td colspan="3">${line.datecol}</td>
+	<td colspan="12">${line.description}</td>
+	<td align="right" colspan="3">${line.charge}</td>
+	<td align="right" colspan="4">${line.payment} </td>
+	<td align="right" colspan="4">${line.balance}</td>
+  </tr>
+</#list><!-- end items --></table>
+
+<table class="aging" style="width: 100%; margin-top: 10px;"><tr>
+	<th>${statement.aging1@label}</th>
+	<th>${statement.aging2@label}</th>
+	<th>${statement.aging3@label}</th>
+	<th>${statement.aging4@label}</th>
+	<th>${statement.aging5@label}</th>
+	<th>${statement.agingbal@label}</th>
+	</tr>
+	<tr>
+	<td>${statement.aging1}</td>
+	<td>${statement.aging2}</td>
+	<td>${statement.aging3}</td>
+	<td>${statement.aging4}</td>
+	<td>${statement.aging5}</td>
+	<td>${statement.agingbal}</td>
+	</tr></table>
+</#if>
+  
+  
+</body></pdf></#list><#else><pdf><head></head><body>
+
+<p>Please use Single Currency Advanced Printing Template</p>
+</body>
+</pdf></#if></pdfset>

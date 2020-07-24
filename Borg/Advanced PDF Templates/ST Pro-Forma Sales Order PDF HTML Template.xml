@@ -1,0 +1,375 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+  <macrolist>
+    <macro id="nlheader">
+      <!--START REPEATING HEADER-->
+        <table class="header" style="width: 100%;">
+            <tr>
+                <td height="120pt" valign="middle"><img src="https://store.borgandoverstrom.com/site/img/st-logo.jpg" style="float: left; margin: 0; width: 117pt; height: 26pt;"/></td>
+            </tr>
+        </table>
+    </macro>
+    <!--END HEADER-->
+      <!--START REPEATING FOOTER-->
+      <macro id="nlfooter">
+     
+<table class="footer" width="100%" style="width: 100%;">
+    <tr>
+        <td style="padding: 0;" width="100%">
+            <!--<p class="tagline"><b>Your protection</b> is our business</p>
+            <p class="tagline">&nbsp;</p>-->
+          <p>
+            Please note this in not a VAT Invoice
+          </p>
+        </td>
+    </tr>
+</table>
+<hr style="width: 100%; color: #d3d3d3; background-color: #d3d3d3; height: 1px; margin-top: 10px;" />
+<table class="footer" width="100%" >
+    <tr>
+        <td style="padding: 0;" width="25%">
+            <p>Call <span>+44 (0)1362 695 006</span><br/>Email sales@sterizen.com<br/>www.sterizen.com</p>
+        </td>
+        <td style="padding: 0;" width="25%" align="left" >
+            <p style="text-align: left;">Synergy House Fakenham Road<br/>Morton on the Hill NR9 5SP<br/>
+          VAT No: 187770165</p>
+        </td>
+       <td style="padding: 0;" width="25%" align="right">
+         <p>Bank Sort Code: 60-15-54<br/>Account Number: 73336130</p>
+        </td>
+        <td class="barcode" style="padding: 0;" width="25%" align="right">
+            <barcode codetype="code128" showtext="true" value="${record.tranid}"/>
+        </td>
+    </tr>
+</table>
+<table class="sub-footer" width="100%" >
+    <tr>
+        <td style="padding: 10px 0 0 ;" width="100%">
+            <p class="legals">Sterizen is trading name of Azure Corporate. Sterizen and the Totality ‘T’ icon are registered trademarks.</p>
+        </td>
+    </tr>
+</table>
+  </macro>
+  <!--END FOOTER-->
+</macrolist>
+<!--END HEADER/FOOTER MACRO-->
+<#if .locale == "ru_RU">
+    <link name="verdana" type="font" subtype="opentype" src="${nsfont.verdana}" src-bold="${nsfont.verdana_bold}" bytes="2" />
+</#if>
+    <style type="text/css">
+      body, table {
+   
+        font-family: "Helvetica Neue", Helvetica, Arial;
+        font-size: 9pt;
+        table-layout: fixed;
+    }
+
+   
+    th {
+        font-weight: bold;
+        font-size: 8pt;
+        vertical-align: middle;
+        padding: 5px 6px 3px;
+        background-color: #efefef;
+        color: #333333;
+    }
+    td {
+        padding: 4px 6px;
+    }
+    .title td,
+    .header td {
+        padding: 0px;
+      } 
+    b {
+        font-weight: bold;
+        color: #333333;
+    }
+    table.header td {
+        padding: 0;
+        font-size: 10pt;
+    }
+    table.footer td {
+        padding: 0;
+        font-size: 8pt;
+    }
+    table.itemtable th {
+        padding-bottom: 10px;
+        padding-top: 10px;
+    }
+    table.body td {
+        padding-top: 2px;
+    }
+    table.total {
+        page-break-inside: avoid;
+    }
+    tr.totalrow {
+        background-color: #eef4f8;
+        line-height: 200%;
+    }
+    td.totalboxtop {
+        font-size: 12pt;
+        background-color: #eef4f8;
+    }
+    td.addressheader {
+        font-size: 8pt;
+        padding-top: 6px;
+        padding-bottom: 2px;
+    }
+    td.address {
+        padding-top: 0;
+    }
+    td.totalboxmid {
+        font-size: 28pt;
+        padding-top: 20px;
+        background-color: #eef4f8;
+    }
+    td.totalboxbot {
+        background-color: #eef4f8;
+        font-weight: bold;
+    }
+    span.title {
+        font-size: 28pt;
+    }
+    span.number {
+        font-size: 16pt;
+    }
+    span.itemname {
+        font-weight: bold;
+        line-height: 110%;
+        margin-bottom: 0px;
+      
+    }
+    hr {
+        width: 100%;
+        color: #d3d3d3;
+        background-color: #d3d3d3;
+        height: 1px;
+    }
+    .red,
+    a {
+      color: #000;
+      text-decoration: none;
+    }
+    h3 {
+    font-style: normal;
+    text-transform: none;
+    font-family: "Arial", sans-serif;
+    margin-top: 0px;
+    }
+    span.itemname,
+    span.small-heading {
+        color: #A8A8A8!important;
+    }
+    span.itemname,
+    span.small-heading-value {
+      text-transform: capitalize!important;
+      text-align: left;
+    }
+      span.itemname {
+        font-size: 12px;
+        font-weight: normal;
+    }
+   
+    .intro td {
+      padding-left: 0px;
+      border-left: 1px solid #eef4f8;
+    }
+      .intro {
+        /*border-bottom: 1px solid #eef4f8;*/
+    }
+    .small-heading-value.email{
+      text-transform:lowercase;
+    }
+      .itemtable {
+        font-size: 8pt;
+      }
+      .itemtable tr {
+      }
+      .itemtable tr:last-of-type {
+      }
+      .qty .item-amount,
+      .qty .qtys {
+        display: block;
+        float: right;
+        text-align: right;
+      }
+      .footer,
+      .footer th td,
+      .footer th td span {
+        font-size: 6pt;
+      }
+      .sub-footer {
+        font-size: 5pt;
+      }
+      .footer td.barcode {
+        text-align: right;
+      }
+      .tagline,
+      .tagline b {
+        color: #65cada;
+        font-size: 18pt;
+      }
+      
+</style>
+</head>
+<body footer="nlfooter" footer-height="50pt" header="nlheader" header-height="120pt" padding="15mm 15mm 15mm 72pt" size="A4"> <!-- REMOVED HEADER MACRO header="nlheader" header-height="240" -->
+  	<table style="width: 100%; margin-top: 10px;">
+      <tr>
+        <td style="padding-top: 2px;" width="100%" align="center"><h3>&nbsp;</h3>
+        </td>
+      </tr>
+ 	</table>
+	<table class="intro" style="width: 100%;">
+      <tr>
+		<td border-left="1" padding-left="0" valign="top" width="30%">
+			<p><span class="small-heading">FROM</span><br />${record.salesrep}<br />Sterizen<br />Synergy House<br />Fakenham Road<br />Morton-on-the-hill<br />NR9 5SP</p>
+    		<p><a href="http://www.sterizen.com" target="_blank">www.sterizen.com</a></p>
+			<!--p><span class="small-heading">PHONE</span><br />0845 845 1500</p-->
+			<!--p><span class="small-heading">VAT NUMBER</span><br />GB 224 2581 84</p-->
+		</td>
+		<td border-left="1" padding-left="10" valign="top" width="30%">
+          <p><span class="small-heading">FOR</span><br />${record.custbody_bbs_customer_name}<br/>
+          <span class="small-heading">TO</span><br />${record.custbody_fg_order_placed_by_name}<br/>
+          <span class="small-heading">EMAIL</span><br />${record.custbody_bbs_order_contact_email}<br/>
+            <#if record.custbody_fg_order_placed_by_phone?has_content>
+              <span class="small-heading">PHONE</span><br />${record.custbody_fg_order_placed_by_phone}
+            </#if>
+          </p>
+		</td>
+		<td border-left="1" padding-left="10" valign="top" width="30%">
+          <p><span class="small-heading">SALES ORDER NUMBER</span><br />${record.tranid}</p>
+          <p><span class="small-heading">DATE</span><br />${record.trandate}</p>
+          <p><span class="small-heading">PO#</span><br />${record.otherrefnum}</p>
+		</td>
+      </tr>
+	</table>
+  	<table style="width: 100%; margin-top: 10px;">
+      <tr>
+        <td style="padding-top: 2px;" width="100%" align="center"><h3>&nbsp;</h3>
+        </td>
+      </tr>
+ 	</table>
+	<table style="width: 100%; margin-top: 10px;">
+      <tr>
+        <td style="padding-top: 2px;" width="100%" align="left"><h3>PRO FORMA</h3>
+        </td>
+      </tr>
+ 	</table>
+  	<table style="width: 100%; margin-top: 10px;">
+      <tr>
+        <td style="padding-top: 2px;" width="100%" align="center"><h3>&nbsp;</h3>
+        </td>
+      </tr>
+ 	</table>
+  	<table style="width: 100%; margin: 10px 0 20px;">
+      <tr>
+          <td width="50%">
+            <h3>Invoice Address</h3>
+            <p>
+              ${record.entity?capitalize?keep_after(" ")}<br/>
+              ${record.billaddr1?capitalize}<br/>
+                  <#if record.billaddr2 !="">
+                    ${record.billaddr2?capitalize}<br/>
+                    <#else>
+                  </#if>
+                  <#if record.billaddr3 !="">
+                    ${record.billaddr3?capitalize}<br/>
+                    <#else>
+                  </#if>
+                  ${record.billcity?capitalize}<br/>
+                  ${record.billzip?upper_case}
+             </p>
+          </td>
+          <td width="50%">
+             <h3>Delivery Address</h3>
+             <p><!--${record.entityname?capitalize?keep_after(" ")}<br/>-->
+                    <#if record.shipaddressee?has_content>${record.shipaddressee?capitalize}<br/></#if>
+                  	${record.shipaddr1?capitalize}<br/>
+                  	<#if record.shipaddr2?has_content>${record.shipaddr2?capitalize}<br/><#else> </#if>
+                    <#if record.shipaddr3?has_content>${record.shipaddr3?capitalize}<br/><#else> </#if>
+                    ${record.shipcity?capitalize}<br/>
+                    ${record.shipzip?upper_case}
+                </p>
+           </td>
+		</tr>
+	</table>
+	<#if record.item?has_content>
+    <hr style="width: 100%; color: #d3d3d3; background-color: #d3d3d3; height: 1px;" />
+    <table class="itemtable" style="width: 100%; margin-top: 10px;">
+       <tr>
+         	<td width="10%" valign="top" class="price">
+              <p style="text-align: left; text-justify: none!important;"><b>Item</b></p>
+            </td>
+            <td width="35%" valign="top" class="price" style="text-align: left; text-justify: none!important;">
+              <p><b>Description</b></p>
+            </td>
+            <td align="right" width="10%" valign="top" class="price" style="text-align: right; text-justify: none!important;">
+              <p><b>Price</b></p>
+            </td >
+            <td align="right" width="15%" valign="top" class="price" style="text-align: right; text-justify: none!important;">
+              <p><b>Qty</b></p>
+            </td>
+             <td align="right" width="15%" valign="top" class="price" style="text-align: right; text-justify: none!important;">
+              <p><b>Amount</b></p>
+            </td>
+         	<td align="right" width="15%" valign="top" class="price" style="text-align: right; text-justify: none!important;">
+              <p><b>VAT</b></p>
+            </td>
+          </tr>
+  	</table>
+    <hr style="width: 100%; color: #efefef; background-color: #efefef; height: 1px;" />
+	<table class="itemtable" style="width: 100%; margin-top: 10px;">
+    <!-- start items -->
+      <#list record.item as item>
+           <tr>
+             <td width="10%">
+              ${item.item}
+            </td>
+            <td width="35%" valign="top" style="text-align: left; text-justify: none!important;">
+              ${item.description}
+            </td>
+            <td align="right" width="10%" style="text-align: right; text-justify: none!important;">
+              ${item.rate}
+            </td >
+            <td align="right" width="15%" style="text-align: right; text-justify: none!important;">
+              ${item.quantity}
+            </td>
+             <td align="right" width="15%" style="text-align: right; text-justify: none!important;">
+              ${item.amount}
+            </td>
+             <td align="right" width="15%" style="text-align: right; text-justify: none!important;">
+              ${item.tax1amt}
+            </td>
+          </tr>
+        </#list>
+	</table>
+	<hr style="width: 100%; color: #d3d3d3; background-color: #d3d3d3; height: 1px;" /></#if>
+    <table style="page-break-inside: avoid; width: 100%; margin-top: 10px;"><tr>
+        <td colspan="4">&nbsp;</td>
+        <td align="right" style="font-weight: bold; color: #333333;">${record.subtotal@label}</td>
+        <td align="right">${record.subtotal}</td>
+        </tr>
+        <tr>
+        <td colspan="4">&nbsp;</td>
+        <td align="right"  style="font-weight: bold; color: #333333;"><b>Carriage</b></td>
+        <td align="right" >${record.shippingcost}</td>
+        </tr>
+       <!-- <tr>
+        <td colspan="4">&nbsp;</td>
+        <td align="right"  style="font-weight: normal; color: #333333;"><b>VAT on Carriage</b></td>
+        <td align="right" >£${record.shippingtax1amt?keep_after("-")}</td>
+        </tr>-->
+        <tr> 
+        <td colspan="4">&nbsp;</td>
+        <td align="right" style="font-weight: bold; color: #333333;">${record.taxtotal@label}</td>
+        <td align="right">${record.taxtotal}</td>
+        </tr>
+        <tr style="background-color: #e3e3e3; line-height: 200%;">
+        <td background-color="#ffffff" colspan="4">&nbsp;</td>
+        <td align="right" style="font-weight: bold; color: #333333;">${record.total@label}</td>
+        <td align="right">${record.total}</td>
+        </tr>
+	</table>
+</body>
+</pdf>

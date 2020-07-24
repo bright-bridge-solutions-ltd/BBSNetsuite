@@ -1,0 +1,58 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+            font-size: 9pt;
+            margin-top: 10px;
+            table-layout: fixed;
+            page-break-inside: avoid;
+        }
+		td p { align:left }
+</style>
+</head>
+<body padding="0.5in 0.5in 0.5in 0.5in" size="A4-LANDSCAPE">
+    <#list records as label>
+      <table style="width: 2.5in; height: 1.2in"><tr><#if (label.skuUpcBarcode?length > 0)><#if label.skuUpcBarcode?is_number && (label.skuUpcBarcode?length == 12 || label.skuUpcBarcode?length == 13)>
+          <td>Something Here <barcode bar-width="0.75" codetype="<#if label.upc>upca<#else>ean13</#if>" showtext="true" value="<#if label.upc>0</#if>${label.skuUpcBarcode?j_string}"></barcode></td>
+          <#else>
+          <td><barcode bar-width="0.5" codetype="code128" showtext="true" value="${label.skuUpcBarcode?html}"></barcode></td>
+          </#if><#else>
+          <td><barcode bar-width="0.5" codetype="code128" showtext="false" value="${label.id?html}"></barcode></td>
+          </#if>
+          <td>&nbsp;</td>
+          </tr>
+          <tr>
+          <td><#if (label.serialnumber?length > 0)><barcode codetype="code128" showtext="false" value="${label.serialnumber}"></barcode></#if></td>
+          <td>${label.price}</td>
+          </tr>
+       </table>
+<#if label_index % 27 == 26 && label_index != records?size - 1><pbr /><!-- Make put page break after each 27 labels (three in row, nine in columns) but not when we printed all of them --><#elseif label_index % 3 == 2 && label_index != records?size - 1><br /><!-- Make put page break after each 6 labels but not when we printed all of them --></#if></#list>
+</body>
+</pdf>

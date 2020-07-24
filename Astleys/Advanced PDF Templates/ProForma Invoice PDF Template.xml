@@ -69,11 +69,7 @@
         <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Taken By</b></td><td align="right" style="font-size:10pt">${record.custbody_bbs_createdby.entityid}</td>
         </tr>
       	<tr>
-        <#if record.duedate?has_content>
-  		<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Due Date</b></td><td align="right" style="font-size:10pt">${record.duedate?string["dd MMM yyyy"]}</td>
-        <#else>
           <td class="address">&nbsp;</td><td class="address">&nbsp;</td><td class="address">&nbsp;</td>
-       	</#if>
         </tr>
     <#else>
       	<tr>
@@ -89,11 +85,7 @@
         <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Taken By</b></td><td align="right" style="font-size:10pt">${record.custbody_bbs_createdby.entityid}</td>
         </tr>
         <tr>
-        <#if record.duedate?has_content>
-  		<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Due Date</b></td><td align="right" style="font-size:10pt">${record.duedate?string["dd MMM yyyy"]}</td>
-        <#else>
-          <td class="address">&nbsp;</td><td class="address">&nbsp;</td><td class="address">&nbsp;</td>
-       	</#if>
+         <td class="address">&nbsp;</td><td class="address">&nbsp;</td><td class="address">&nbsp;</td>
       </tr>
       <tr>
         <td class="address">&nbsp;</td><td class="address">&nbsp;</td><td class="address">&nbsp;</td>
@@ -101,17 +93,19 @@
     </#if>
     
   </table>
+  
+   <table style="width: 100%; margin-top: 10px;">
+  	<tr>
+    <td align="left"  style="border: 1px solid #000000; font-size:10pt; padding-left: 2px; padding-right: 2px; height: 40px;"><b>Customer Document Notes</b><br/><span style="font-size:8pt">${record.custbody_bbs_cust_note}</span></td>
+  	</tr>  
+  </table>
         </macro>
 
         <macro id="nlfooter">
 
         <table style="width: 100%;">
           <tr>
-            <#if record.duedate?has_content>
-            <td><b><span style="font-size:10pt">Due Date: ${record.duedate?string["dd MMM yyyy"]}</span>, Bank Details for payment: Account Number: 00178123 Sort Code: 30-92-33</b></td>
-            <#else>
-              <td><b>Bank Details for payment: Account Number: 00178123 Sort Code: 30-92-33</b></td>
-            </#if>
+          <td><b>Bank Details for payment: Account Number: 00178123 Sort Code: 30-92-33</b></td>
           </tr>
 
           <tr>
@@ -240,7 +234,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="380px" footer="nlfooter" footer-height="40px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="440px" footer="nlfooter" footer-height="40px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
   
 	<#if record.item?has_content>
 		<table class="itemtable" style="width: 100%; margin-top: 30px;"><!-- start items --><#list record.item as item><#if item_index==0>

@@ -210,31 +210,27 @@
 <table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
 <thead >
   <tr >
-<!--  <th align="left" colspan="8">Description</th>-->
-      <th align="left" colspan="2"><br/>Code</th>
+    <th align="left" colspan="2"><br/>Code</th>
   	<th align="left" colspan="6"><br/>Description</th>
+  	<th align="left" colspan="2"><br/>Supplier SKU</th>
   	<th align="right" colspan="2">Pack<br/>Size</th>
-  <th align="center" colspan="1">Quantity</th>
-  <th align="right" colspan="2">Unit Price</th>
-
-  <th align="center" colspan="2">VAT Code</th>
-
-  <th align="right" colspan="2">Amount</th>
+    <th align="right" colspan="1">Quantity</th>
+    <th align="right" colspan="2">Unit Price</th>
+    <th align="center" colspan="2">VAT Code</th>
+    <th align="right" colspan="2">Amount</th>
   </tr>
 </thead>
 </#if>
 
   <tr>
-<!--  <td align="left" colspan="8" margin-right="5px">${item.item} ${item.description}</td>-->
   	<td align="left" colspan="2">${item.custcol_bbs_sku}</td>
   	<td align="left" colspan="6">${item.description}</td>
-      <td align="right" colspan="2">${item.units}</td>
-  <td align="center" colspan="1">${item.quantity}</td>
-  <td align="right" colspan="2">${item.rate}</td>
-
-  <td align="center" colspan="2">${item.taxrate1}</td>
-
-  <td align="right" colspan="2">${item.amount}</td>
+    <td align="left" colspan="2">${item.custcol_bbs_supplier_sku}</td>
+    <td align="right" colspan="2">${item.units}</td>
+    <td align="right" colspan="1">${item.quantity}</td>
+    <td align="right" colspan="2">${item.rate}</td>
+    <td align="center" colspan="2">${item.taxrate1}</td>
+    <td align="right" colspan="2">${item.amount}</td>
   </tr>
   </#list><!-- end items --></table>
 </#if>

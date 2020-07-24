@@ -6,7 +6,8 @@
 		<macro id="nlheader">
 		    <table class="header" style="width: 100%;">
 			    <tr>
-					<td align="left"><img src="${companyInformation.logoUrl}"  /></td>
+					<!--<td align="left"><img src="${companyInformation.logoUrl}"  /></td>-->
+                  	<td align="left"><img src="https://3976137.app.netsuite.com/core/media/media.nl?id=3459352&amp;c=3976137&amp;h=66bea3d579139b75974f" style="float: left; width:144px; height:60px;" /></td>
                   	<td>
                       	<table class="header" style="width: 100%;">
                         	<tr>
@@ -158,8 +159,8 @@
                       <th align="left" colspan="3" style="padding-left: 20px;"><br/>Barcode</th>
                       <th align="left" colspan="1"><br/>Qty/1</th>
                       <th align="left" colspan="1"><br/>UOM</th>
-                      <th align="left" colspan="1">Tot<br/>Qty</th>
-                      <th align="left" colspan="12" style="padding-left: 5px;"><br/>Part Description</th>
+                      <th align="left" colspan="2">Tot<br/>Qty</th>
+                      <th align="left" colspan="11" style="padding-left: 5px;"><br/>Part Description</th>
                   	</tr>
               	</thead>
     		</#if>
@@ -172,8 +173,8 @@
             <td align="left" colspan="3" line-height="200%" style="background-color: ${backgroudColour}; border-bottom: 1px solid black;"><barcode codetype="code128" showtext="false" bar-width="0.7" value="${item.item}"> </barcode></td>
             <td align="left" colspan="1" line-height="200%" style="background-color: ${backgroudColour}; border-bottom: 1px solid black;">${qty1?string["0.##"]}</td>
             <td align="left" colspan="1" line-height="200%" style="background-color: ${backgroudColour}; border-bottom: 1px solid black;">${item.units}</td>
-            <td align="left" colspan="1" line-height="200%" style="background-color: ${backgroudColour}; border-bottom: 1px solid black;">${item.quantity}</td>
-            <td align="left" colspan="12" line-height="200%" style="background-color: ${backgroudColour}; border-right: 1px solid black; border-bottom: 1px solid black;">${item.description}</td>
+            <td align="left" colspan="2" line-height="200%" style="background-color: ${backgroudColour}; border-bottom: 1px solid black;">${item.quantity}</td>
+            <td align="left" colspan="11" line-height="200%" style="background-color: ${backgroudColour}; border-right: 1px solid black; border-bottom: 1px solid black;">${item.description}</td>
           </tr>
 		</#list>
 	</table>

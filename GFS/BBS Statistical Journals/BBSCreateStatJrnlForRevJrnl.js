@@ -211,23 +211,27 @@ function getSummaryValues(_record, _summaryValues, _sublistName)
 			var department 	= isNull(_record.getLineItemValue(_sublistName, 'department', int), '');
 			var supplier 	= isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_supplier', int), '');
 			var customer 	= isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_customer', int), '');
+			var contractType 	= isNull(_record.getLineItemText(_sublistName,  'location', int), '');
 			
-			var summaryKey = carrier + '|' + contract + '|' + group + '|' + service + '|' + charge + '|' + operations + '|' + department + '|' + supplier + '|' + customer;
-			
-			var parcels 		= Number(_record.getLineItemValue(_sublistName, 'custcol_bbs_parcels', int));
-			var consignments 	= Number(_record.getLineItemValue(_sublistName, 'custcol_bbs_consignments', int));
-			
-			parcels 		= parcels * multiplier;
-			consignments 	= consignments * multiplier;
-			
-			if(!_summaryValues[summaryKey])
+			if(contractType != 'T')
 				{
-					_summaryValues[summaryKey] = [parcels, consignments];
-				}
-			else
-				{
-					_summaryValues[summaryKey][0] += parcels;
-					_summaryValues[summaryKey][1] += consignments;
+					var summaryKey = carrier + '|' + contract + '|' + group + '|' + service + '|' + charge + '|' + operations + '|' + department + '|' + supplier + '|' + customer;
+					
+					var parcels 		= Number(_record.getLineItemValue(_sublistName, 'custcol_bbs_parcels', int));
+					var consignments 	= Number(_record.getLineItemValue(_sublistName, 'custcol_bbs_consignments', int));
+					
+					parcels 		= parcels * multiplier;
+					consignments 	= consignments * multiplier;
+					
+					if(!_summaryValues[summaryKey])
+						{
+							_summaryValues[summaryKey] = [parcels, consignments];
+						}
+					else
+						{
+							_summaryValues[summaryKey][0] += parcels;
+							_summaryValues[summaryKey][1] += consignments;
+						}
 				}
 		}
 }

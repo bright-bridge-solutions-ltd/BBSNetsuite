@@ -1,0 +1,460 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    <macrolist>
+        <macro id="nlheader">
+            &nbsp;
+        </macro>
+        <macro id="nlfooter">
+            <table style="width: 100%; font-size: 8pt;"><tr>
+	<td style="padding:0" width="30%">
+	<p><span class="red">FreshGround</span><br />Synergy House, Fakenham Road<br />Morton-on-the-Hill, NR9 5SP<br /><span class="red">0845 845 1500</span></p>
+	</td>
+	<td align="center" style="padding: 0;" width="33%">
+	<p style="text-align: center;"><a href="http://www.freshground.co.uk" target="_blank">www.freshground.co.uk</a><br /><span class="small-heading">VAT NO:</span>GB 224 2581 84</p>
+    <p style="text-align: center;">Page <pagenumber/> of <totalpages/></p>
+	</td>
+	<td align="right" style="padding: 0;" width="30%"><barcode codetype="code128" showtext="true" value="${record.tranid}"/></td>
+	</tr></table>
+        </macro>
+    </macrolist>
+    <style type="text/css">table {
+    <#if .locale == "zh_CN">
+        font-family: stsong, sans-serif;
+    <#elseif .locale == "zh_TW">
+        font-family: msung, sans-serif;
+    <#elseif .locale == "ja_JP">
+        font-family: heiseimin, sans-serif;
+    <#elseif .locale == "ko_KR">
+        font-family: hygothic, sans-serif;
+    <#elseif .locale == "ru_RU">
+        font-family: verdana;
+    <#else>
+        font-family: "Helvetica Neue", Helvetica, Arial;
+    </#if>
+        font-size: 9pt;
+        table-layout: fixed;
+    }
+    table {
+      /*border: 1px solid #666;*/
+    }
+    th {
+        font-weight: bold;
+        font-size: 8pt;
+        vertical-align: middle;
+        padding: 5px 6px 3px;
+        background-color: #e3e3e3;
+        color: #333333;
+    }
+    td {
+        padding: 4px 6px;
+    }
+    b {
+        font-weight: bold;
+        color: #333333;
+    }
+    table.header td {
+        padding: 0;
+        font-size: 10pt;
+    }
+    table.footer td {
+        padding: 0;
+        font-size: 8pt;
+    }
+    table.itemtable th {
+        padding-bottom: 10px;
+        padding-top: 10px;
+    }
+    table.body td {
+        padding-top: 2px;
+    }
+    table.total {
+        page-break-inside: avoid;
+    }
+    tr.totalrow,
+    td.subtotals{
+        background-color: #eef4f8;
+        line-height: 200%;
+    }
+    td.totalboxtop {
+        font-size: 12pt;
+        background-color: #eef4f8;
+    }
+    td.addressheader {
+        font-size: 8pt;
+        padding-top: 6px;
+        padding-bottom: 2px;
+    }
+    td.address {
+        padding-top: 0;
+    }
+    td.totalboxmid {
+        font-size: 28pt;
+        padding-top: 20px;
+        background-color: #eef4f8;
+    }
+    td.totalboxbot {
+        background-color: #eef4f8;
+        font-weight: bold;
+    }
+    span.title {
+        font-size: 28pt;
+    }
+    span.number {
+        font-size: 16pt;
+    }
+    span.itemname {
+        font-weight: bold;
+        line-height: 150%;
+    }
+    hr {
+        width: 100%;
+        color: #d3d3d3;
+        background-color: #d3d3d3;
+        height: 1px;
+    }
+    .red,
+    a {
+      color: #d41400;
+      text-decoration: none;
+    }
+    h3 {
+    font-style: normal;
+    text-transform: none;
+    font-family: "Arial", sans-serif;
+    font-size: 18px;
+    }
+      h4 {
+        text-transform: none;
+        font-style: normal;
+      }
+    span.itemname,
+    span.small-heading {
+        color: #A8A8A8!important;
+    }
+    span.itemname,
+    span.small-heading-value {
+      /*text-transform: capitalize!important;*/
+      text-align: left;
+    }
+      span.itemname {
+        font-size: 12px;
+        font-weight: normal;
+    }
+      .title {
+        text-align: center;
+    }
+      .colored-box {
+        background-color: #eef4f8;
+      }
+     .item-line {
+       border-top: 1px solid #ddd;
+     }
+      .intro {
+        width: 100%;
+        /*border-bottom: 1px solid #A8A8A8;*/
+      }
+      .intro td {
+        width: 30%;
+        padding-left: 1%;
+        border-left: 1px solid #ddd;
+      }
+      .intro td p {
+        margin-left: 10px;
+      }
+      .signage {
+        min-height: 300px;
+      }
+</style>
+</head>
+<body header="nlheader" header-height="0pt" footer="nlfooter" footer-height="28pt" padding="10mm 10mm 10mm 10mm" size="A4">
+    <!-- REMOVED HEADER MACRO header="nlheader" header-height="240" -->
+<table class="header" style="width: 100%;"><tr>
+	<td><img src="https://system.eu2.netsuite.com/core/media/media.nl?id=1236904&amp;c=3976137&amp;h=8bb115c9f6534ed6f7bf" style="float: left; margin: 10px 0px 10px 5px; width: 300px; height: 55px;" /></td>
+	</tr></table>
+
+<table class="intro" style="width: 100%;"><tr>
+	<td valign="top" width="30%">
+	<p><span class="small-heading">FROM</span><br /><b>${record.salesrep}</b><br />FreshGround<br />Synergy House<br />Fakenham Road<br />Morton-on-the-hill<br />NR9 5SP<br /><a href="http://www.freshground.co.uk" target="_blank">www.freshground.co.uk</a><br /></p>
+	</td>
+	<td valign="top" width="30%">
+	<p><span class="small-heading">FOR</span><br /><span class="small-heading-value" style="text-transform:titlecase; text-align: left">${record.entity?keep_after(':')}</span></p>
+
+	<p><span class="small-heading">TO</span><br /><span class="small-heading-value" style="text-transform:capitalize; text-align: left">${record.custbody_bbs_order_contact?keep_after(':')}</span></p>
+
+	<p><span class="small-heading">EMAIL</span><br /><span class="small-heading-value" style="text-transform:lowercase; text-align: left">${record.custbody_bbs_order_contact_email}</span></p>
+	</td>
+	<td valign="top" width="30%">
+	<p><span class="small-heading">QUOTE NUMBER</span><br />${record.tranid}&nbsp;</p>
+
+	<p><span class="small-heading">DATE</span><br />${record.trandate}&nbsp;</p>
+
+	<p><span class="small-heading">VALID UNTIL</span><br />${record.duedate}</p>
+	</td>
+	</tr></table>
+
+<table class="title" style="width: 100%;"><tr>
+	<td>&nbsp;</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	</tr>
+	<tr>
+	<td>
+	<h2 style="text-align:left; padding: 0 10% 0 0; font-size: 24px;">Freshground Rental Proposal | ${record.custbody_fg_ctc_len?string['0']} Month Contract <br/> ${record.entityname?keep_after(" ")} | ${record.shipzip}</h2>
+	</td>
+	</tr>
+	<tr>
+	<td>
+	<p>&nbsp;</p>
+	</td>
+	</tr>
+	<tr>
+	<td>
+	<h3>Delivery Address</h3>
+
+	<p>${record.shipaddress}</p>
+	</td>
+	</tr>
+	<tr>
+	<td>
+	<p>&nbsp;</p>
+	</td>
+	</tr></table>
+
+<table class="header" style="width: 100%;"><tr>
+	<td padding="5" style="border-top: 1px solid #efefef;border-bottom: 1px solid #efefef;">
+	<h3>Rental Plan</h3>
+
+	<p>At FreshGround, we pride ourselves on our fresh approach to providing workplace coffee machines and hot and cold water dispenser solutions, along with the highest levels of customer service.</p>
+<p>Starting out as a small family business in 1982, we’ve grown into one of the UK’s leading drinks suppliers with offices in London, Manchester and Norwich.</p>
+<p>FreshGround machines are provided with a support package tailored to your needs. In a busy workplace we know it is essential that we are able to offer quality machines with a backup service that delivers a truly amazing experience for the life of your journey with us. Our machines will simply keep doing their job, so you can do yours.</p>
+<p>Key benefits are as follows:</p>
+<ul>
+	<li>Flexible contract term, starting at just 3 months</li>
+	<li>Simple to budget with fixed quarterly machine cost</li>
+	<li>No minimum usage requirements</li>
+</ul>
+
+
+	<p>&nbsp;</p>
+	</td>
+	</tr>
+  </table>
+	<p style="page-break-after : always">&nbsp;</p>
+<#if record.item?has_content>
+<h4 style="margin-left: 6px; ">
+  Items
+  </h4>
+<table style="margin-top: 12px;" width="100%">
+  <#list record.item as item><!-- start items -->
+    <#if (item.custcol_line_showhide?is_boolean && item.custcol_line_showhide) || (item.custcol_line_showhide?is_string && item.custcol_line_showhide == 'T')><#if item.custcol_dkdrb_startdate?has_content>
+      <!--TEST FOR IS RECURRING/HAS START DATE-->
+      <#assign linePeriodRate=(item.rate*item.custcol_dkdrb_unitqty)/>
+        <tr width="100%">
+          <!--LINE #1 (LENGTH/NAME)-->
+          <td style="width: 56%;">${record.custbody_fg_ctc_len?string['0']}M/${item.item?keep_before('-')}</td>
+          <td style="width: 18%;">&nbsp;</td>
+          <td style="width: 18%;">&nbsp;</td>
+		</tr>
+      	<!--LINE #2 COL #1 (ITEM DESC/IMAGE)-->
+		<tr width="100%">
+			<td style="width: 56%;">
+				<h3 style="width: 90%; font-size:16px; color: #d41400;">${item.description}</h3>
+				<p style="width: 90%;">${item.custcol_fg_add_desc}</p>
+				<p style="width: 90%;">${item.custcol_col_sales_desc}</p>
+			</td>
+			<td align="right" style="width: 18%; padding: 10px;">
+              <#if item.custcol_line_item_thumb?length != 0>
+                <img data-code="item.item" height="114" src="${item.custcol_line_item_thumb}" title="item.item" width="117" />
+              </#if>
+          	</td>
+			<td align="right" style="width: 18%; background-color: #eef4f8;">
+              <p style="text-align: right; text-justify: none">${item.rate}<br />x ${item.custcol_dkdrb_unitqty?string["0"]}<br /><br /><strong>&pound;${linePeriodRate?string(",##0.00")}</strong><br />per week</p>
+          	</td>
+		</tr>
+	<#else>
+		<tr width="100%">
+			<td style="width: 56%;"><!--${item.price?keep_after_last(" ")}&nbsp;/&nbsp;-->${item.item?keep_before('-')}</td>
+            <td style="width: 18%;">&nbsp;</td>
+            <td style="width: 18%;">&nbsp;</td>
+      	</tr>
+		<tr width="100%">
+			<td style="width: 56%;">
+				<h3 style="width: 90%; font-size:16px; color: #d41400;">${item.description}</h3>
+              	<p style="width: 90%;">${item.salesdescription}</p>
+				<p style="width: 90%;">${item.custcol_fg_add_desc}</p>
+				<p style="width: 90%;">${item.custcol_col_sales_desc}</p>
+				<p style="width: 90%;">${item.custitem_fg_add_desc}</p>
+			</td>
+			<td align="right" style="width: 18%; padding: 10px;">
+              <#if item.custcol_line_item_thumb?length != 0>
+                	<img data-code="item.item" height="114" src="${item.custcol_line_item_thumb}" title="item.item" width="117" /> </#if>
+          	</td>
+			<td align="right" style="width: 18%; background-color: #eef4f8;">
+              <p style="text-align: right; text-justify: none">&pound;${item.rate?string(",##0.00")}<br />x ${item.quantity?string['0']}<br /><br /><strong>&pound;${item.amount?string(",##0.00")}</strong></p>
+          	</td>
+		</tr>
+	</#if>
+	<tr>
+	<td colspan="3" style="border-bottom: 1px solid #efefef; margin-bottom: 12px;" width="100%">&nbsp;</td>
+	</tr>
+	</#if></#list><!-- end items --></table>
+</#if><!--#if record.item?custcol_line_showhide = T-->
+
+<#assign subTotalPeriodRate=(record.subTotal/13)><#assign subTotalTaxRate=(record.taxtotal/13)><#assign recTotal=(record.total/13)>
+<!--
+<table class="total" style="width: 100%; margin-top: 10px;"><tr bgcolor="#eef4f8" class="totalrow">
+	<td colspan="4">&nbsp;</td>
+	<td align="right"><b>Subtotal:</b></td>
+	<td align="right">${record.subtotal}</td>
+	</tr>
+	<tr bgcolor="#eef4f8" class="totalrow">
+	<td colspan="4">&nbsp;</td>
+	<td align="right"><b>Shipping:</b></td>
+	<td align="right">${record.shippingcost}</td>
+	</tr>
+	<tr bgcolor="#eef4f8" class="totalrow">
+	<td colspan="4">&nbsp;</td>
+	<td align="right"><b>VAT:</b></td>
+	<td align="right">${record.taxtotal}</td>
+	</tr>
+	<tr bgcolor="#eef4f8" class="totalrow">
+	<td colspan="4">&nbsp;</td>
+	<td align="right"><b>Total:</b></td>
+	<td align="right">${record.total}</td>
+	</tr></table>
+-->
+<pbr></pbr>
+<table class="supp" style="width: 100%;"><tr>
+	<td colspan="27">
+	<h3>&nbsp;</h3>
+	</td>
+	</tr>
+</table>
+  <table class="supp" style="width: 100%;"><tr>
+	<td>
+	<h3>Filtration and Scale Management</h3>
+
+	<p>Hard water can severely damage machines by causing limescale to build up on heating elements and grinding plates. By using a machine without adequate filtration, the scale will also affect the taste of your beverage. For this reason we fit inline scale reducing filters to all machines that heat water.</p>
+	</td>
+	</tr></table>
+
+<table class="supp" style="width: 100%;"><tr>
+	<td colspan="27">
+	<h3>Payment Terms</h3>
+
+	<ul></ul>
+
+	<p>Rental is invoiced quarterly in advance and will commence on the date of installation, becoming payable 30 days after the invoice date.<br />Maintenance only contracts are invoiced 12 months in advance, becoming payable 30 days after the invoice date.<br />All prices quoted are subject to VAT<br />Payments to be made by Direct Debit - please complete and return the following form</p>
+
+	<p>&nbsp;</p>
+	</td>
+	</tr>
+	<tr>
+	<td colspan="1"><img height="15" src="https://cdn3.iconfinder.com/data/icons/document-icons-2/30/647710-pdf-256.png" width="15" /></td>
+	<td colspan="26" valign="middle"><a href="https://d117gxv7xbfnhc.cloudfront.net/quote/i/16252/link/ec5daa3827b9393490667bc51a103e3b?filename=FreshGround+Direct+Debit+instruction.pdf" style="text-align: left">FreshGround Direct Debit instruction</a></td>
+	</tr></table>
+
+<table class="supp" style="width: 100%;"><tr>
+	<td colspan="27">
+	<h3>Terms and Conditions - Rental</h3>
+
+	<ol>
+		<li>Trial period: You can end the agreement at any time during the first 10 working days following installation.</li>
+		<li>Coffee machines under rental or free loan agreements are supplied on the basis that coffee is purchased from FreshGround.</li>
+		<li>You can substitute your machine for an alternative model from our current range at any time and the rental charges will be adjusted to reflect the new equipment from the date of changeover.</li>
+	</ol>
+
+	<p>Click below to view further terms and conditions of contract</p>
+
+	<p>&nbsp;</p>
+	</td>
+	</tr>
+	<tr>
+	<td colspan="1"><img height="15" src="https://cdn3.iconfinder.com/data/icons/document-icons-2/30/647710-pdf-256.png" width="15" /></td>
+	<td colspan="26"><a href="https://d117gxv7xbfnhc.cloudfront.net/quote/i/16252/link/b2dd8edeb292eb1b26169b52a3835970?filename=FreshGround+Terms+and+Conditions.pdf" style="text-align: left">FreshGround Terms &amp; Conditions</a></td>
+	</tr></table>
+
+  <!--DOCUSIGN ELEMENTS, IF QUOTE IS MARKED "AWAITING DOCUSIGN" DC-->
+  <#if (record.custbody_fg_out_for_ds?is_boolean && record.custbody_fg_out_for_ds) || (record.custbody_fg_out_for_ds?is_string && record.custbody_fg_out_for_ds == 'T')>
+<table valign="top" class="supp" style="width: 100%;">
+	<tr>
+		<td colspan="2">
+			<h3>Acceptance of quotation</h3>
+			<p>Acceptance of this quotation constitutes acceptance of FreshGround Terms and Conditions of Contract. The initial contract term for this contract is as stated in the terms and conditions of this quotation.</p>
+			<p>&nbsp;</p>
+		</td>
+	</tr>
+	<tr>
+		<td width="50%">
+			<table width="100%">
+				<tr>
+					<td valign="middle">
+						<p>Customer Signature</p>
+					</td>
+				</tr>
+				<tr>
+					<td valign="middle" height="100">
+						<p style="color: #fff">cust_signature_box</p>
+					</td>
+				</tr>
+				<tr>
+					<td valign="top" height="40">
+						<p style="color: #fff">cust_name_box</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p style="color: #fff">cust_date_box</p>
+					</td>
+				</tr>
+			</table>
+		</td>
+		<td width="50%">
+  			<table width="100%">
+				<tr valign="top">
+					<td valign="top">
+						<p>Contracts Manager Signature</p>
+					</td>
+				</tr>
+				<tr>
+					<td valign="middle" height="100">
+						<p style="color: #fff">sd_signature_box</p>
+					</td>
+				</tr>
+				<tr>
+					<td valign="top" height="40">
+						<p style="color: #fff">sd_name_box</p>
+					</td>
+				</tr>
+				<tr>
+					<td valign="top" >
+						<p style="color: #fff">sd_date_box</p>
+					</td>
+				</tr>
+			</table>
+  		</td>
+	</tr>
+</table>
+
+</#if>
+
+
+</body>
+</pdf>

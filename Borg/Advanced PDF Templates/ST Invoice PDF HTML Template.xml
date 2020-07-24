@@ -1,0 +1,398 @@
+<?xml version="1.0"?>
+<!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<#setting locale="en_GB">
+<pdf>
+<head>
+  <macrolist>
+    <macro id="nlheader">
+      <!--START REPEATING HEADER-->
+        <table class="header" style="width: 100%;">
+            <tr>
+                <td width="100%" height="80pt" valign="middle"><img src="https://store.borgandoverstrom.com/site/img/st-logo.jpg" style="float: left; margin: 0; width: 117pt; height: 26pt;"/></td>
+                
+            </tr>
+          	<tr>
+                <td height="20pt" valign="middle" align="left"><h3>
+                  Invoice
+                  </h3></td>
+                
+            </tr>
+        </table>
+    </macro>
+    <!--END HEADER-->
+      <!--START REPEATING FOOTER-->
+      <macro id="nlfooter">
+     
+<table class="footer" width="100%" style="width: 100%;">
+    <tr>
+        <td style="padding: 0;" width="100%">
+            <!--<p class="tagline"><b>Your protection</b> is our business</p>
+            <p class="tagline">&nbsp;</p>-->
+        </td>
+    </tr>
+</table>
+<table class="footer" width="100%" >
+    <tr>
+        <td style="padding: 0;" width="33%">
+            <p>Call <span>+44 (0)1362 695 006</span><br/>Email sales@sterizen.com</p>
+        </td>
+        <td style="padding: 0;" width="40%" align="left" >
+            <p style="text-align: left;">Synergy House Fakenham Road<br/>Morton on the Hill Norfolk NR9 5SP<br/>
+          VAT No: 187770165</p>
+        </td>
+        <td class="barcode" style="padding: 0;" width="33%" align="right">
+            <barcode codetype="code128" showtext="true" value="${record.tranid}"/>
+        </td>
+    </tr>
+</table>
+<table class="sub-footer" width="100%" >
+    <tr>
+        <td style="padding: 10px 0 0;" width="100%">
+            <p class="legals">Sterizen is trading name of Azure Corporate. Sterizen and the Totality ‘T’ icon are registered trademarks.</p>
+        </td>
+    </tr>
+</table>
+  </macro>
+  <!--END FOOTER-->
+</macrolist>
+<!--END HEADER/FOOTER MACRO-->
+<#if .locale == "ru_RU">
+    <link name="verdana" type="font" subtype="opentype" src="${nsfont.verdana}" src-bold="${nsfont.verdana_bold}" bytes="2" />
+</#if>
+    <style type="text/css">
+      body, table {
+   
+        font-family: "Helvetica Neue", Helvetica, Arial;
+        font-size: 9pt;
+        table-layout: fixed;
+    }
+
+   
+    th {
+        font-weight: bold;
+        font-size: 8pt;
+        vertical-align: middle;
+        padding: 5px 6px 3px;
+        background-color: #efefef;
+        color: #333333;
+    }
+    td {
+        padding: 4px 6px;
+    }
+    .title td,
+    .header td {
+        padding: 0px;
+      } 
+    b {
+        font-weight: bold;
+        color: #333333;
+    }
+    table.header td {
+        padding: 0;
+        font-size: 10pt;
+    }
+    table.footer td {
+        padding: 0;
+        font-size: 8pt;
+    }
+    table.itemtable th {
+        padding-bottom: 10px;
+        padding-top: 10px;
+    }
+    table.body td {
+        padding-top: 2px;
+    }
+    table.total {
+        page-break-inside: avoid;
+    }
+    tr.totalrow {
+        background-color: #eef4f8;
+        line-height: 200%;
+    }
+    td.totalboxtop {
+        font-size: 12pt;
+        background-color: #eef4f8;
+    }
+    td.addressheader {
+        font-size: 8pt;
+        padding-top: 6px;
+        padding-bottom: 2px;
+    }
+    td.address {
+        padding-top: 0;
+    }
+    td.totalboxmid {
+        font-size: 28pt;
+        padding-top: 20px;
+        background-color: #eef4f8;
+    }
+    td.totalboxbot {
+        background-color: #eef4f8;
+        font-weight: bold;
+    }
+    span.title {
+        font-size: 28pt;
+    }
+    span.number {
+        font-size: 16pt;
+    }
+    span.itemname {
+        font-weight: bold;
+        line-height: 110%;
+        margin-bottom: 0px;
+      
+    }
+    hr {
+        width: 100%;
+        color: #d3d3d3;
+        background-color: #d3d3d3;
+        height: 1px;
+    }
+    .red,
+    a {
+      color: #000;
+      text-decoration: none;
+    }
+    h3 {
+    font-style: normal;
+    text-transform: none;
+    font-family: "Arial", sans-serif;
+    margin-top: 0px;
+    }
+    span.itemname,
+    span.small-heading {
+        color: #A8A8A8!important;
+    }
+    span.itemname,
+    span.small-heading-value {
+      text-transform: capitalize!important;
+      text-align: left;
+    }
+      span.itemname {
+        font-size: 12px;
+        font-weight: normal;
+    }
+   
+    .intro td {
+      padding-left: 0px;
+      border-left: 1px solid #eef4f8;
+    }
+      .intro {
+        /*border-bottom: 1px solid #eef4f8;*/
+    }
+    .small-heading-value.email{
+      text-transform:lowercase;
+    }
+      .itemtable {
+        font-size: 8pt;
+      }
+      .itemtable tr {
+        border: 1px solid #eef4f8;
+        border-bottom: 0px;
+      }
+      .itemtable tr:last-of-type {
+        border-bottom: 1px solid #eef4f8;
+      }
+      .qty .item-amount,
+      .qty .qtys {
+        display: block;
+        float: right;
+        text-align: right;
+      }
+      .footer,
+      .footer th td,
+      .footer th td span {
+        font-size: 6pt;
+      }
+      .sub-footer {
+        font-size: 5pt;
+      }
+      .footer td.barcode {
+        text-align: right;
+      }
+      .tagline,
+      .tagline b {
+        color: #65cada;
+        font-size: 18pt;
+      }
+      
+</style>
+</head>
+<body footer="nlfooter" footer-height="40pt" header="nlheader" header-height="120pt" padding="15mm 15mm 15mm 72pt" size="A4"> <!-- REMOVED HEADER MACRO header="nlheader" header-height="240" -->
+  
+ <!-- <table class="header" style="width: 100%;">
+			<tr>
+				<td>
+					<img src="https://system.eu2.netsuite.com/core/media/media.nl?id=1236904&amp;c=3976137&amp;h=8bb115c9f6534ed6f7bf" style="float: left; margin: 10px 0px 10px 5px; width: 300px; height: 55px;"/>
+				</td>
+			</tr>
+		</table>-->
+		<table class="intro supp" style="width: 100%;">
+			<tr>
+				<td valign="top" width="30%">
+					<p><span class="small-heading">FROM</span></p>
+					<!--${record.salesrep}<br/>-->
+					<p><span class="red">Sterizen</span><br/>
+					Synergy House<br/>
+					Fakenham Road<br/>
+					Morton-on-the-Hill<br/>
+					NR9 5SP<br/>
+					<a href="http://www.sterizen.com" target="_blank">www.sterizen.com</a></p>
+				</td>
+				<td valign="top" width="40%">
+					<p><span class="small-heading">FOR</span><br/><span class="small-heading-value" style="text-transform:titlecase;">${record.entityname?keep_after(" ")}</span></p>
+               	 	<p><span class="small-heading">ACCOUNT NUMBER</span><br/>${record.entity?keep_before(" ")}</p>
+                	<p><span class="small-heading">CUST REF</span><br/>${record.otherrefnum}</p>
+                </td>
+				<td valign="top" width="30%">
+					<p><span class="small-heading">INVOICE NUMBER</span><br/>${record.tranid}</p>
+					<p><span class="small-heading">DATE</span><br/>${record.trandate}</p>
+                 	<p><span class="small-heading">TERMS</span><br/>${record.terms}</p>
+					
+				</td>
+			</tr>
+          
+		</table>
+      	<table class="title" style="width: 100%;">
+            <tr>
+                <td height="20">&nbsp;</td>
+            </tr>
+           
+            <tr>
+              <td width="50%">
+                <h3>Invoice Address</h3>
+                <p>
+                  ${record.entityname?capitalize?keep_after(" ")}<br/>
+                  ${record.billaddr1?capitalize}<br/>
+                  <#if record.billaddr2?has_content>${record.billaddr2?capitalize}<br/><#else> </#if>
+                  <#if record.billaddr3?has_content>${record.billaddr3?capitalize}<br/><#else> </#if>
+                  ${record.billcity?capitalize}<br/>
+                  ${record.billzip?upper_case}
+              	</p>
+              </td>
+              <td width="50%">
+              	<h3>Delivery Address</h3>
+                	<p><!--${record.entityname?capitalize?keep_after(" ")}<br/>-->
+                    <#if record.shipaddressee?has_content>${record.shipaddressee?capitalize}<br/></#if>
+                  	${record.shipaddr1?capitalize}<br/>
+                  	<#if record.shipaddr2?has_content>${record.shipaddr2?capitalize}<br/><#else> </#if>
+                    <#if record.shipaddr3?has_content>${record.shipaddr3?capitalize}<br/><#else> </#if>
+                    ${record.shipcity?capitalize}<br/>
+                    ${record.shipzip?upper_case}
+                </p>
+              </td>
+          </tr>
+          <tr>
+                <td height="20">&nbsp;</td>
+           </tr>
+           <!--tr width="100%">
+                <td width="100%"><h2>Invoice ${record.tranid} </h2></td>
+                  </tr>
+                  <tr width="100%">
+             	<td width="100%"></td>
+           </tr-->
+		</table>
+<hr/>
+
+<#if record.item?has_content>
+  <table class="itemtable" style="width: 100%; margin-top: 10px;">
+       <tr>
+         	<td width="15%" valign="top" class="price">
+              <p style="text-align: left; text-justify: none!important;"><b>Item Code</b></p>
+            </td>
+            <td width="40%" valign="top" class="price">
+              <p><b>Description</b></p>
+            </td>
+            <td align="right" width="10%" valign="top" class="price">
+              <p><b>Price</b></p>
+            </td >
+            <td align="right" width="10%" valign="top" class="price">
+              <p><b>Qty</b></p>
+            </td>
+             <td align="right" width="15%" valign="top" class="price">
+              <p><b>Amount</b></p>
+            </td>
+         	<td align="right" width="10%" valign="top" class="price">
+              <p><b>VAT</b></p>
+            </td>
+          </tr>
+  </table>
+	<table class="itemtable" style="width: 100%; margin-top: 10px;">
+    <!-- start items -->
+      <#list record.item as item>
+           <tr>
+             <td width="15%">
+              ${item.item}
+            </td>
+            <td width="40%">
+              ${item.description}
+            </td>
+            <td align="right" width="10%">
+              ${item.rate}
+            </td >
+            <td align="right" width="10%">
+              ${item.quantity}
+            </td>
+             <td align="right" width="15%">
+              ${item.amount}
+            </td>
+             <td align="right" width="10%">
+              ${item.tax1amt}
+            </td>
+          </tr>
+        </#list>
+       </table>
+	</#if>
+    <#if record.shippingcost != 0>
+      	<#setting number_format="currency">
+    	<table class="itemtable" style="width: 100%; margin-top: 10px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; padding: 5px 0px;">
+        	<tr>
+              <td width="15%">
+                Carriage
+              </td>
+              <td width="50%">
+                ${record.shipmethoddisplay}
+              </td>
+              <td align="right" width="10%">
+                &nbsp;
+              </td>
+              <td align="right" width="5%">
+                &nbsp;  
+              </td>
+              <td align="right" width="10%">
+                ${record.shippingcost}
+              </td>
+              <td align="right" width="10%">
+                ${record.shippingtax1amt?keep_after("-")}
+              </td>
+          	</tr>
+      	</table>
+     </#if>
+   	<#assign subtottot = record.subtotal + record.shippingcost>
+	<table bgcolor="#EEF4F8" class="total totalboxbot" style="width: 100%; margin-top: 20px;background-color: #EEF4F8; padding: 10px 0px;" width="100%">
+      <tr>
+              <td height="20" width="65%">&nbsp;</td> 
+              <td align="right" class="totalboxbot" valign="middle" width="20%"><b>${record.subtotal@label}</b></td>
+              <td align="right" class="totalboxbot" valign="middle" width="15%">${subtottot?string.currency}</td>
+       
+        </tr>
+      
+        <tr>
+              <td height="20" width="65%">&nbsp;</td>
+              <td align="right" class="totalboxbot" valign="middle" width="20%"><b>VAT</b></td>
+              <td align="right" class="totalboxbot" valign="middle" width="15%">${record.taxtotal?string.currency}</td>
+        </tr>
+
+        <tr>
+              <td height="20" width="65%">&nbsp;</td>
+              <td align="right" bgcolor="#EEF4F8" class="totalboxbot" valign="middle" width="20%"><b>${record.total@label}</b></td>
+              <td align="right" bgcolor="#EEF4F8" class="totalboxbot" valign="middle" width="15%">${record.total?string.currency}</td>
+        </tr>
+	</table>
+<hr/>
+
+            
+
+
+</body>
+</pdf>

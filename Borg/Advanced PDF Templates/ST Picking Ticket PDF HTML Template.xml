@@ -1,0 +1,294 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+  <macrolist>
+    <macro id="nlheader">
+      <!--START REPEATING HEADER-->
+        <table class="header" style="width: 100%;">
+            <tr>
+                <td height="120pt" valign="middle"><img src="https://store.borgandoverstrom.com/site/img/st-logo.jpg" style="float: left; margin: 0; width: 117pt; height: 26pt;"/></td>
+            </tr>
+        </table>
+    </macro>
+    <!--END HEADER-->
+      <!--START REPEATING FOOTER-->
+      <macro id="nlfooter">
+     
+<table class="footer" width="100%" style="width: 100%;">
+    <tr>
+        <td style="padding: 0;" width="100%">
+            <!--<p class="tagline"><b>Your protection</b> is our business</p>
+            <p class="tagline">&nbsp;</p>-->
+        </td>
+    </tr>
+</table>
+<table class="footer" width="100%" >
+    <tr>
+        <td style="padding: 0;" width="33%">
+            <p>Call <span>+44 (0)1362 695 006</span><br/>Email sales@sterizen.com</p>
+        </td>
+        <td style="padding: 0;" width="40%" align="left" >
+            <p style="text-align: left;">Synergy House Fakenham Road<br/>Morton on the Hill Norfolk NR9 5SP</p>
+        </td>
+        <td class="barcode" style="padding: 0;" width="33%" align="right">
+            <barcode codetype="code128" showtext="true" value="${record.tranid}"/>
+        </td>
+    </tr>
+</table>
+<table class="sub-footer" width="100%" >
+    <tr>
+        <td style="padding: 0;" width="100%">
+            <p class="legals">Sterizen is trading name of Azure Corporate. Sterizen and the Totality ‘T’ icon are registered trademarks.</p>
+        </td>
+    </tr>
+</table>
+  </macro>
+  <!--END FOOTER-->
+</macrolist>
+<!--END HEADER/FOOTER MACRO-->
+<#if .locale == "ru_RU">
+    <link name="verdana" type="font" subtype="opentype" src="${nsfont.verdana}" src-bold="${nsfont.verdana_bold}" bytes="2" />
+</#if>
+    <style type="text/css">
+      body, table {
+   
+        font-family: "Helvetica Neue", Helvetica, Arial;
+        font-size: 9pt;
+        table-layout: fixed;
+    }
+
+   
+    th {
+        font-weight: bold;
+        font-size: 8pt;
+        vertical-align: middle;
+        padding: 5px 6px 3px;
+        background-color: #efefef;
+        color: #333333;
+    }
+    td {
+        padding: 4px 6px;
+    }
+    .title td,
+    .header td {
+        padding: 0px;
+      } 
+    b {
+        font-weight: bold;
+        color: #333333;
+    }
+    table.header td {
+        padding: 0;
+        font-size: 10pt;
+    }
+    table.footer td {
+        padding: 0;
+        font-size: 8pt;
+    }
+    table.itemtable th {
+        padding-bottom: 10px;
+        padding-top: 10px;
+    }
+    table.body td {
+        padding-top: 2px;
+    }
+    table.total {
+        page-break-inside: avoid;
+    }
+    tr.totalrow {
+        background-color: #eef4f8;
+        line-height: 200%;
+    }
+    td.totalboxtop {
+        font-size: 12pt;
+        background-color: #eef4f8;
+    }
+    td.addressheader {
+        font-size: 8pt;
+        padding-top: 6px;
+        padding-bottom: 2px;
+    }
+    td.address {
+        padding-top: 0;
+    }
+    td.totalboxmid {
+        font-size: 28pt;
+        padding-top: 20px;
+        background-color: #eef4f8;
+    }
+    td.totalboxbot {
+        background-color: #eef4f8;
+        font-weight: bold;
+    }
+    span.title {
+        font-size: 28pt;
+    }
+    span.number {
+        font-size: 16pt;
+    }
+    span.itemname {
+        font-weight: bold;
+        line-height: 110%;
+        margin-bottom: 0px;
+      
+    }
+    hr {
+        width: 100%;
+        color: #d3d3d3;
+        background-color: #d3d3d3;
+        height: 1px;
+    }
+    .red,
+    a {
+      color: #000;
+      text-decoration: none;
+    }
+    h3 {
+    font-style: normal;
+    text-transform: none;
+    font-family: "Arial", sans-serif;
+    margin-top: 0px;
+    }
+    span.itemname,
+    span.small-heading {
+        color: #A8A8A8!important;
+    }
+    span.itemname,
+    span.small-heading-value {
+      text-transform: capitalize!important;
+      text-align: left;
+    }
+      span.itemname {
+        font-size: 12px;
+        font-weight: normal;
+    }
+   
+    .intro td {
+      padding-left: 0px;
+      border-left: 1px solid #eef4f8;
+    }
+      .intro {
+        /*border-bottom: 1px solid #eef4f8;*/
+    }
+    .small-heading-value.email{
+      text-transform:lowercase;
+    }
+      .itemtable {
+        font-size: 8pt;
+      }
+      .itemtable tr {
+        border: 1px solid #eef4f8;
+        border-bottom: 0px;
+      }
+      .itemtable tr:last-of-type {
+        border-bottom: 1px solid #eef4f8;
+      }
+      .qty .item-amount,
+      .qty .qtys {
+        display: block;
+        float: right;
+        text-align: right;
+      }
+      .footer,
+      .footer th td,
+      .footer th td span {
+        font-size: 6pt;
+      }
+      .sub-footer {
+        font-size: 5pt;
+      }
+      .footer td.barcode {
+        text-align: right;
+      }
+      .tagline,
+      .tagline b {
+        color: #65cada;
+        font-size: 18pt;
+      }
+      
+</style>
+</head>
+<body footer="nlfooter" footer-height="40pt" header="nlheader" header-height="120pt" padding="15mm 15mm 15mm 72pt" size="A4"> <!-- REMOVED HEADER MACRO header="nlheader" header-height="240" -->
+<!--
+<table class="header" style="width: 100%;"><tr>
+	<td><img src="https://system.eu2.netsuite.com/core/media/media.nl?id=1236904&amp;c=3976137&amp;h=8bb115c9f6534ed6f7bf" style="float: left; margin: 10px 0px 10px 5px; width: 300px; height: 55px;" /></td>
+	</tr></table>
+-->
+<table class="title" style="width: 100%;"><tr>
+	<td width="50%">
+		<h2>Picking Ticket</h2>
+	</td>
+	<td align="right" width="50%">
+	<h3 class="small-heading" style="text-align:right;">Date: ${record.trandate}</h3>
+
+	<h3 class="small-heading" style="text-align:right;">From SO: ${record.tranid}</h3>
+
+    <h3 class="small-heading" style="text-align:right;">Web Ref: ${record.custbody_bo_web_po}</h3>
+	</td>
+	</tr></table>
+
+<table class="pickinfo" style="width: 100%;"><tr>
+	<td width="50%">
+	<h3>Delivery Address</h3>
+    <p>${record.custbody_fg_trs_dims}</p>
+	<p><b>${record.entityname}</b></p>
+		
+      <p>${record.shipaddr1}<br />
+         ${record.shipaddr2}<br/>
+      	 ${record.shipaddr3}<br />
+         ${record.shipcity}<br />
+         ${record.shipzip_insubrecord}</p>
+	</td>
+	<td align="right" style="text-align:right!important;" width="50%">
+	<p><b>Order Placed by:</b></p>
+      <table>
+        <tr>
+          <td align="right">${record.custbody_fg_order_placed_by_name}</td>
+        </tr>
+        <tr>
+          <td align="right">${record.custbody_bbs_order_contact_email}</td>
+        </tr>
+        <tr>
+          <td align="right">${record.custbody_fg_order_placed_by_phone}</td>
+        </tr>
+      </table>
+
+	<p><b>Shipping Method/Carrier:</b></p>
+
+	<p>${record.shipmethod}</p>
+      
+	</td>
+	</tr></table>
+<#if record.item?has_content>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list record.item as item><#if item_index==0>
+<thead>
+	<tr>
+	<th width="40%">${item.item@label}</th>
+	<th width="20%" valign="middle" align="right">Bin</th>
+	<th width="15%" valign="middle" align="right">${item.quantity@label}</th>
+	<th width="10%" valign="middle" align="right">${item.units@label}</th>
+	<th width="15%" valign="middle" align="right">${item.quantitycommitted@label}</th>
+	</tr>
+</thead>
+</#if><tr>
+	<td width="40%"><b>${item.item}</b><br />${item.description}</td>
+	<td width="20%" valign="middle" align="right">${item.inventorydetail?keep_before("(")}</td>
+	<td width="15%" valign="middle" align="right">${item.quantity}</td>
+	<td width="10%" valign="middle" align="right">${item.units}</td>
+	<td width="15%" valign="middle" align="right">${item.quantitycommitted}</td>
+	</tr>
+	</#list><!-- end items --></table>
+</#if>
+<hr />
+
+<#if record.custbody_ciboppickingcomments?has_content>
+  <table style="width: 100%;"><tr>
+			<td width="100%"><b>Picking Comments</b></td>
+		</tr>
+      	<tr>
+			<td width="100%">${record.custbody_ciboppickingcomments}</td>
+		</tr></table>
+</#if>
+</body>
+</pdf>

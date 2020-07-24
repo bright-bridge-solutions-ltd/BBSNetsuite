@@ -1,0 +1,309 @@
+<?xml version="1.0"?>
+<!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+  <macrolist>
+      <!--START REPEATING FOOTER-->
+      <macro id="nlfooter">
+      <table style="width: 100%; font-size: 8pt;">
+        <tr>
+              <td style="padding: 0;" width="30%">
+            <p><span class="red">FreshGround</span><br/>
+            Synergy House, Fakenham Road<br/>
+            Morton-on-the-Hill, NR9 5SP</p>
+              </td>
+              <td style="padding: 0;" width="33%" align="center" >
+                <p style="text-align: center;"><a href="http://www.freshground.co.uk" target="_blank">www.freshground.co.uk</a><br/>
+                <span class="small-heading">PHONE:</span> 0845 845 1500<br/>
+                <span class="small-heading">VAT NUMBER:</span> GB 224 2581 84</p>
+              </td>
+              <td style="padding: 0;" width="30%" align="right">
+                <barcode codetype="code128" showtext="true" value="${record.tranid}"/>
+              </td>
+      </tr>
+    </table>
+  </macro>
+  <!--END FOOTER-->
+</macrolist>
+<!--END HEADER/FOOTER MACRO-->
+<#if .locale == "ru_RU">
+    <link name="verdana" type="font" subtype="opentype" src="${nsfont.verdana}" src-bold="${nsfont.verdana_bold}" bytes="2" />
+</#if>
+    <style type="text/css">
+      table {
+    <#if .locale == "zh_CN">
+        font-family: stsong, sans-serif;
+    <#elseif .locale == "zh_TW">
+        font-family: msung, sans-serif;
+    <#elseif .locale == "ja_JP">
+        font-family: heiseimin, sans-serif;
+    <#elseif .locale == "ko_KR">
+        font-family: hygothic, sans-serif;
+    <#elseif .locale == "ru_RU">
+        font-family: verdana;
+    <#else>
+        font-family: "Helvetica Neue", Helvetica, Arial;
+    </#if>
+        font-size: 9pt;
+        table-layout: fixed;
+    }
+   
+    th {
+        font-weight: bold;
+        font-size: 8pt;
+        vertical-align: middle;
+        padding: 5px 6px 3px;
+        background-color: #eef4f8;
+        color: #333333;
+    }
+    td {
+        padding: 4px 6px;
+    }
+    b {
+        font-weight: bold;
+        color: #333333;
+    }
+    table.header td {
+        padding: 0;
+        font-size: 10pt;
+    }
+    table.footer td {
+        padding: 0;
+        font-size: 8pt;
+    }
+    table.itemtable th {
+        padding-bottom: 10px;
+        padding-top: 10px;
+    }
+    table.body td {
+        padding-top: 2px;
+    }
+    table.total {
+        page-break-inside: avoid;
+    }
+    tr.totalrow {
+        background-color: #eef4f8;
+        line-height: 200%;
+    }
+    td.totalboxtop {
+        font-size: 12pt;
+        background-color: #eef4f8;
+    }
+    td.addressheader {
+        font-size: 8pt;
+        padding-top: 6px;
+        padding-bottom: 2px;
+    }
+    td.address {
+        padding-top: 0;
+    }
+    td.totalboxmid {
+        font-size: 28pt;
+        padding-top: 20px;
+        background-color: #eef4f8;
+    }
+    td.totalboxbot {
+        background-color: #eef4f8;
+        font-weight: bold;
+    }
+    span.title {
+        font-size: 28pt;
+    }
+    span.number {
+        font-size: 16pt;
+    }
+    span.itemname {
+        font-weight: bold;
+        line-height: 110%;
+        margin-bottom: 0px;
+      
+    }
+    hr {
+        width: 100%;
+        color: #d3d3d3;
+        background-color: #d3d3d3;
+        height: 1px;
+    }
+    .red,
+    a {
+      color: #d41400;
+      text-decoration: none;
+    }
+    h3 {
+    font-style: normal;
+    text-transform: none;
+    font-family: "Arial", sans-serif;
+    margin-top: 0px;
+    }
+    span.itemname,
+    span.small-heading {
+        color: #A8A8A8!important;
+    }
+    span.itemname,
+    span.small-heading-value {
+      /*text-transform: capitalize!important;*/
+      text-align: left;
+    }
+      span.itemname {
+        font-size: 12px;
+        font-weight: normal;
+    }
+    #docusign {
+      padding: 20px;
+      width: 100%;
+    }
+      #docusign,
+      .qty,
+      .amount {
+    	background-color: #eef4f8;
+    }
+    .intro td {
+      padding-left: 10px;
+      border-left: 1px solid #eef4f8;
+    }
+      .intro {
+        /*border-bottom: 1px solid #eef4f8;*/
+    }
+    .small-heading-value.email{
+      text-transform:lowercase;
+    }
+      .itemtable tr {
+        border: 1px solid #eef4f8;
+        border-bottom: 0px;
+      }
+      .itemtable tr:last-of-type {
+        border-bottom: 1px solid #eef4f8;
+      }
+      .qty .item-amount,
+      .qty .qtys {
+        display: block;
+        float: right;
+        text-align: right;
+      }
+</style>
+</head>
+<body footer="nlfooter" footer-height="20pt" padding="15mm 15mm 15mm 15mm" size="A4"> <!-- REMOVED HEADER MACRO header="nlheader" header-height="240" -->
+  <table class="header" style="width: 100%;">
+      <tr>
+        <td>
+          <img src="https://system.eu2.netsuite.com/core/media/media.nl?id=1236904&amp;c=3976137&amp;h=8bb115c9f6534ed6f7bf" style="float: left; margin: 10px 0px 10px 5px; width: 300px; height: 55px;"/>
+        </td>
+      </tr>
+    </table>
+    <!--table class="intro" style="width: 100%;">
+      <tr>
+        <td valign="top" width="30%">
+          <p><span class="small-heading">FROM</span><br/>
+          ${record.salesrep}<br/>
+          FreshGround<br/>
+          Synergy House<br/>
+          Fakenham Road<br/>
+          Morton-on-the-hill<br/>
+          NR9 5SP<br/>
+          <a href="http://www.freshground.co.uk" target="_blank">www.freshground.co.uk</a></p>
+        </td>
+        <td valign="top" width="40%">
+          <p><span class="small-heading">FOR</span><br/><span class="small-heading-value" style="text-transform:titlecase; text-align: left">${record.custbody_bbs_customer_name}</span></p>
+          <p><span class="small-heading">TO</span><br/><span id="custbody_bbs_order_contact_display" class="small-heading-value" style="text-transform:capitalize; text-align: left">${record.custbody_bbs_order_contact?keep_after_last(":")}</span></p>
+          <p><span class="small-heading">EMAIL</span><br/><span class="small-heading-value email" style="text-transform:lowercase; text-align: left">${record.custbody_bbs_order_contact_email}</span></p>
+        </td>
+        <td valign="top" width="30%">
+          <p><span class="small-heading">QUOTE NUMBER</span><br/>
+          ${record.tranid}</p>
+          <p><span class="small-heading">DATE</span><br/>
+          ${record.trandate}</p>
+          <p><span class="small-heading">VALID UNTIL</span><br/>
+          ${record.duedate}</p>
+        </td>
+      </tr>
+          
+    </table-->
+        <table class="title" style="width: 100%;">
+            <tr>
+                <td height="20">&nbsp;</td>
+            </tr>
+            <tr class="title" align="center">
+                <td colspan="2">
+                    <h2 style="text-align:center;" class="title">${record.title}</h2>
+                </td>
+            </tr>
+            <tr>
+                <td height="20">&nbsp;</td>
+            </tr>
+            <tr>
+            <td width="50%">
+              <table>
+                  <tr>
+                    <td>
+                     <h3>SHIP TO:</h3>
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                      <td>${salesorder.shipaddress}</td>
+                  </tr>
+               </table> 
+            </td>
+            <td width="50%">
+                
+                <table>
+                  <tr>
+                    <td>
+                     <!--h3>PACKING SLIP</h3-->
+                    </td>
+                  </tr>
+                  <tr>
+                      <td><span class="small-heading">SALES ORDER#:</span></td>
+                      <td>${salesorder.tranid}</td>
+                  </tr>
+                  <tr>
+                      <td><span class="small-heading">REF:</span></td>
+                      <td>${record.tranid}</td>
+                  </tr>
+                  <tr>
+                      <td><span class="small-heading">DATE:</span></td>
+                      <td>${record.trandate}</td>
+                  </tr>
+                  <tr>
+                      <td><span class="small-heading">SHIPPING METHOD:</span></td>
+                      <td>${record.shipmethod}</td>
+                  </tr>
+                  <tr>
+                      <td><span class="small-heading">TRACKING NUMBER:</span></td>
+                      <td>${salesorder.linkedtrackingnumbers}</td>
+                  </tr>
+				</table>
+              </td>
+          </tr>
+    </table>
+<table>
+    <tr>
+      <td>
+      &nbsp;<hr/>
+      </td>
+    </tr>
+</table>
+<#if salesorder.item?has_content>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;">
+<thead>
+	<tr>
+	<th colspan="15">${salesorder.item[0].item@label}</th>
+	<!--th colspan="3">${salesorder.item[0].options@label}</th-->
+	<th align="right" colspan="4">Ordered</th>
+	<th align="right" colspan="4">Outstanding</th>
+	<th align="right" colspan="4">Dispatched</th>
+	</tr>
+</thead>
+<#list salesorder.item as tranline><tr>
+	<td colspan="15"><span class="itemname">${tranline.item}</span><br />${tranline.description}</td>
+	<!--td colspan="3">${tranline.options}</td-->
+	<td align="right" colspan="4">${tranline.quantityordered}</td>
+	<td align="right" colspan="4">${tranline.quantitybackordered}</td>
+	<td align="right" colspan="4">${tranline.quantityfulfilled}</td>
+	</tr>
+	</#list></table>
+</#if>
+
+</body>
+</pdf>

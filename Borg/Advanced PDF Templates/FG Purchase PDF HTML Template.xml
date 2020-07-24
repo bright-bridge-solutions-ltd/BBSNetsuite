@@ -1,0 +1,308 @@
+<?xml version="1.0"?>
+<!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+  <macrolist>
+      <!--START REPEATING FOOTER-->
+      <macro id="nlfooter">
+      <table style="width: 100%; font-size: 8pt;">
+        <tr>
+              <td style="padding: 0;" width="30%">
+                <p><span class="red">FreshGround</span><br/>
+                Synergy House, Fakenham Road<br/>
+                Morton-on-the-Hill, NR9 5SP</p>
+              </td>
+              <td style="padding: 0;" width="33%" align="center" >
+                <p style="text-align: center;"><a href="http://www.freshground.co.uk" target="_blank">www.freshground.co.uk</a><br/>
+                <span class="small-heading">PHONE:</span> 0845 845 1500<br/>
+                <span class="small-heading">VAT NUMBER:</span> GB 224 2581 84</p>
+              </td>
+              <td style="padding: 0;" width="30%" align="right">
+                <barcode codetype="code128" showtext="true" value="${record.tranid}"/>
+              </td>
+      </tr>
+    </table>
+  </macro>
+  <!--END FOOTER-->
+</macrolist>
+<!--END HEADER/FOOTER MACRO-->
+<#if .locale == "ru_RU">
+    <link name="verdana" type="font" subtype="opentype" src="${nsfont.verdana}" src-bold="${nsfont.verdana_bold}" bytes="2" />
+</#if>
+    <style type="text/css">
+      table {
+    <#if .locale == "zh_CN">
+        font-family: stsong, sans-serif;
+    <#elseif .locale == "zh_TW">
+        font-family: msung, sans-serif;
+    <#elseif .locale == "ja_JP">
+        font-family: heiseimin, sans-serif;
+    <#elseif .locale == "ko_KR">
+        font-family: hygothic, sans-serif;
+    <#elseif .locale == "ru_RU">
+        font-family: verdana;
+    <#else>
+        font-family: "Helvetica Neue", Helvetica, Arial;
+    </#if>
+        font-size: 9pt;
+        table-layout: fixed;
+    }
+   
+    th {
+        font-weight: bold;
+        font-size: 8pt;
+        vertical-align: middle;
+        padding: 5px 6px 3px;
+        background-color: #eef4f8;
+        color: #333333;
+    }
+    td {
+        padding: 4px 6px;
+    }
+    b {
+        font-weight: bold;
+        color: #333333;
+    }
+    table.header td {
+        padding: 0;
+        font-size: 10pt;
+    }
+    table.footer td {
+        padding: 0;
+        font-size: 8pt;
+    }
+    table.itemtable th {
+        padding-bottom: 10px;
+        padding-top: 10px;
+    }
+    table.body td {
+        padding-top: 2px;
+    }
+    table.total {
+        page-break-inside: avoid;
+    }
+    tr.totalrow {
+        background-color: #eef4f8;
+        line-height: 200%;
+    }
+    td.totalboxtop {
+        font-size: 12pt;
+        background-color: #eef4f8;
+    }
+    td.addressheader {
+        font-size: 8pt;
+        padding-top: 6px;
+        padding-bottom: 2px;
+    }
+    td.address {
+        padding-top: 0;
+    }
+    td.totalboxmid {
+        font-size: 28pt;
+        padding-top: 20px;
+        background-color: #eef4f8;
+    }
+    td.totalboxbot {
+        background-color: #eef4f8;
+        font-weight: bold;
+    }
+    span.title {
+        font-size: 28pt;
+    }
+    span.number {
+        font-size: 16pt;
+    }
+    span.itemname {
+        font-weight: bold;
+        line-height: 110%;
+        margin-bottom: 0px;
+      
+    }
+    hr {
+        width: 100%;
+        color: #d3d3d3;
+        background-color: #d3d3d3;
+        height: 1px;
+    }
+    .red,
+    a {
+      color: #d41400;
+      text-decoration: none;
+    }
+    h3 {
+    font-style: normal;
+    text-transform: none;
+    font-family: "Arial", sans-serif;
+    margin-top: 0px;
+    }
+    span.itemname,
+    span.small-heading {
+        color: #A8A8A8!important;
+    }
+    span.itemname,
+    span.small-heading-value {
+      text-transform: capitalize!important;
+      text-align: left;
+    }
+      span.itemname {
+        font-size: 12px;
+        font-weight: normal;
+    }
+    #docusign {
+      padding: 20px;
+      width: 100%;
+    }
+      #docusign,
+      .qty,
+      .amount {
+    background-color: #eef4f8;
+    }
+    .intro td {
+      padding-left: 10px;
+      border-left: 1px solid #eef4f8;
+    }
+      .intro {
+        /*border-bottom: 1px solid #eef4f8;*/
+    }
+    .small-heading-value.email{
+      text-transform:lowercase;
+    }
+      .itemtable tr {
+        border: 1px solid #eef4f8;
+        border-bottom: 0px;
+      }
+      .itemtable tr:last-of-type {
+        border-bottom: 1px solid #eef4f8;
+      }
+      .qty .item-amount,
+      .qty .qtys {
+        display: block;
+        float: right;
+        text-align: right;
+      }
+</style>
+</head>
+<body footer="nlfooter" footer-height="20pt" padding="15mm 15mm 15mm 15mm" size="A4"> <!-- REMOVED HEADER MACRO header="nlheader" header-height="240" -->
+  <table class="header" style="width: 100%;">
+      <tr>
+        <td>
+         <img src="https://system.eu2.netsuite.com/core/media/media.nl?id=1236904&amp;c=3976137&amp;h=8bb115c9f6534ed6f7bf" style="float: left; margin: 10px 0px 10px 5px; width: 300px; height: 55px;"/>
+        </td>
+      </tr>
+    </table>
+    <table class="intro" style="width: 100%;">
+      <tr>
+        <td valign="top" width="40%">
+           <p><span class="small-heading">TO</span></p>
+           <p><span class="small-heading-value" style="text-transform:titlecase; text-align: left">${record.entityname?keep_after(" ")}</span>${record.entity.billaddress}</p>
+        </td>
+        <td valign="top" width="30%">
+          <p><span class="small-heading">FROM</span></p>
+          <p>FreshGround<br/>
+          Synergy House<br/>
+          Fakenham Road<br/>
+          Morton-on-the-hill<br/>
+          NR9 5SP</p>
+        </td>
+        <td valign="top" width="30%">
+          <p><span class="small-heading">PO NUMBER</span><br/>
+          ${record.tranid}</p>
+          <p><span class="small-heading">DATE</span><br/>
+          ${record.trandate}</p>
+          <p><span class="small-heading">RECEIVE BY </span><br/>
+          ${record.duedate}</p>
+        </td>
+      </tr>
+          
+    </table>
+        <table class="title" style="width: 100%;">
+            <tr>
+                <td height="20">&nbsp;</td>
+            </tr>
+            
+            <tr>
+            <td width="50%">
+                <h3>Delivery Address</h3>
+                <p>	FreshGround<br/>
+                    Synergy House<br/>
+                    Fakenham Road<br/>
+                    Morton-on-the-hill<br/>
+                    NR9 5SP</p>
+            </td>
+            <td width="50%">
+                <h3>Invoice Address</h3>
+                <p>	FreshGround<br/>
+                    Synergy House<br/>
+                    Fakenham Road<br/>
+                    Morton-on-the-hill<br/>
+                    NR9 5SP</p>
+            </td>
+          </tr>
+    </table>
+<table>
+    <tr>
+      <td>
+      &nbsp;<hr/>
+      </td>
+    </tr>
+</table>
+
+<!--table class="body" style="width: 100%;"><tr>
+	<th>${record.duedate@label}</th>
+	<th>${record.otherrefnum@label}</th>
+	<th>${record.billphone@label}</th>
+	</tr>
+	<tr>
+	<td>${record.duedate}</td>
+	<td>${record.otherrefnum}</td>
+	<td>${record.billphone}</td>
+	</tr>
+</table-->
+<#if record.item?has_content>
+
+<table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
+<thead>
+	<tr>
+	<th width="10%" align="center">${item.quantity@label}</th>
+	<th width="50%">${item.item@label}</th>	
+    <th width="20%">Supplier Ref</th>
+	<!--th width="30%">${item.options@label}</th-->
+	<th width="10%" align="right">${item.rate@label}</th>
+	<th width="10%" align="right">${item.amount@label}</th>
+	</tr>
+</thead>
+</#if><tr>
+	<td width="10%" align="center" line-height="150%">${item.quantity}</td>
+	<td width="50%"><span class="itemname">${item.item}</span><br />${item.description}</td>
+  	<td width="20%">${item.custcol_bbs_supplier_ref}</td>
+	<!--td width="30%">${item.options}</td-->
+	<td align="right" width="10%">${item.rate}</td>
+	<td align="right" width="10%">${item.amount}</td>
+	</tr>
+	</#list><!-- end items --></table>
+</#if><#if record.expense?has_content>
+
+<table class="itemtable" style="width: 100%;"><!-- start expenses --><#list record.expense as expense ><#if expense_index==0>
+<thead>
+	<tr>
+	<th colspan="12">${expense.category@label}</th>
+	<th colspan="10">${expense.account@label}</th>
+	<th align="right" colspan="4">${expense.amount@label}</th>
+	</tr>
+</thead>
+</#if><tr>
+	<td colspan="12">${expense.category}</td>
+	<td colspan="10"><span class="itemname">${expense.account}</span></td>
+	<td align="right" colspan="4">${expense.amount}</td>
+	</tr>
+	</#list><!-- end expenses --></table>
+</#if>
+
+<hr />
+<table class="total" style="width: 100%;"><tr class="totalrow">
+	<td background-color="#ffffff" colspan="4">&nbsp;</td>
+	<td align="right"><b>${record.total@label}</b></td>
+	<td align="right">${record.subtotal}</td>
+	</tr></table>
+</body>
+</pdf>

@@ -146,7 +146,10 @@ function(file, record, search, http, xml, format)
 						        			var fulfilmentCity				= fulfilmentShipAdress.getValue({fieldId: 'city'});
 						        			var fulfilmentState				= fulfilmentShipAdress.getValue({fieldId: 'state'});
 						        			var fulfilmentZip				= fulfilmentShipAdress.getValue({fieldId: 'zip'});
+						        			var fulfilmentAddrPhone			= fulfilmentShipAdress.getValue({fieldId: 'addrphone'});
 						        			var fulfilmentCountry			= countries_list[fulfilmentShipAdress.getValue({fieldId: 'country'})];
+						        			
+						        			customerPhone = (customerPhone == null || customerPhone == '' ? fulfilmentAddrPhone : customerPhone);
 						        			
 						        			//Start of xml
 						        			//
@@ -338,26 +341,33 @@ function(file, record, search, http, xml, format)
 					        				//Fill in the manufacturers details if any
 					        				//
 					        				xmlString += '<Attribute2>';
-					        				xmlString += '<![CDATA[';
-					        				xmlString += '<Manufacturers>';
+					        //				xmlString += '<![CDATA[';
+					        //				xmlString += '<Manufacturers>';
 					        				
 					        				for ( var manufacturer in manufacturersObject) 
 						        				{
-					        						xmlString += '<Manufacturer>';
-					        						
-					        						xmlString += '<CountryOfManufacture>' 	+ xml.escape({xmlText: manufacturer}) 									+ '</CountryOfManufacture>';
-					        						xmlString += '<ManuAddressLine1>' 		+ xml.escape({xmlText: manufacturersObject[manufacturer].address1})		+ '</ManuAddressLine1>';
-							        				xmlString += '<ManuAddressLine2>' 		+ xml.escape({xmlText: manufacturersObject[manufacturer].address2})		+ '</ManuAddressLine2>';
-							        				xmlString += '<ManuAddressTownCity>' 	+ xml.escape({xmlText: manufacturersObject[manufacturer].town}) 		+ '</ManuAddressTownCity>';
-							        				xmlString += '<ManuAddressRegion>' 		+ xml.escape({xmlText: manufacturersObject[manufacturer].county}) 		+ '</ManuAddressRegion>';
-							        				xmlString += '<ManuAddressPostCode>' 	+ xml.escape({xmlText: manufacturersObject[manufacturer].postCode})		+ '</ManuAddressPostCode>';
-							        				xmlString += '<ManuAddressCountry>' 	+ xml.escape({xmlText: manufacturersObject[manufacturer].country})		+ '</ManuAddressCountry>';
+					        //						xmlString += '<Manufacturer>';
+					        
+						    						xmlString += xml.escape({xmlText: manufacturersObject[manufacturer].address1})		+ '&#10;';
+							        				xmlString += xml.escape({xmlText: manufacturersObject[manufacturer].address2})		+ '&#10;';
+							        				xmlString += xml.escape({xmlText: manufacturersObject[manufacturer].town}) 			+ '&#10;';
+							        				xmlString += xml.escape({xmlText: manufacturersObject[manufacturer].county}) 		+ '&#10;';
+							        				xmlString += xml.escape({xmlText: manufacturersObject[manufacturer].postCode})		+ '&#10;';
+							        				xmlString += xml.escape({xmlText: manufacturersObject[manufacturer].country})		+ '&#10;&#10;';
+							
+					        //						xmlString += '<CountryOfManufacture>' 	+ xml.escape({xmlText: manufacturer}) 									+ '</CountryOfManufacture>';
+					        //						xmlString += '<ManuAddressLine1>' 		+ xml.escape({xmlText: manufacturersObject[manufacturer].address1})		+ '</ManuAddressLine1>';
+							//       				xmlString += '<ManuAddressLine2>' 		+ xml.escape({xmlText: manufacturersObject[manufacturer].address2})		+ '</ManuAddressLine2>';
+							//        				xmlString += '<ManuAddressTownCity>' 	+ xml.escape({xmlText: manufacturersObject[manufacturer].town}) 		+ '</ManuAddressTownCity>';
+							//        				xmlString += '<ManuAddressRegion>' 		+ xml.escape({xmlText: manufacturersObject[manufacturer].county}) 		+ '</ManuAddressRegion>';
+							//        				xmlString += '<ManuAddressPostCode>' 	+ xml.escape({xmlText: manufacturersObject[manufacturer].postCode})		+ '</ManuAddressPostCode>';
+							//        				xmlString += '<ManuAddressCountry>' 	+ xml.escape({xmlText: manufacturersObject[manufacturer].country})		+ '</ManuAddressCountry>';
 							        				
-					        						xmlString += '</Manufacturer>';
+					        //						xmlString += '</Manufacturer>';
 												}		        				
 					        				
-					        				xmlString += '</Manufacturers>';
-					        				xmlString += ']]>';
+					        //				xmlString += '</Manufacturers>';
+					        //				xmlString += ']]>';
 					        				xmlString += '</Attribute2>\n';
 					        			
 					        				

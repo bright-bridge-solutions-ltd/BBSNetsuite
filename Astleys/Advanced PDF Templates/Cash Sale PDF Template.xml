@@ -227,7 +227,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="440px" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="460px" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
   
 	<#if record.item?has_content>
@@ -235,7 +235,8 @@
 			<thead>
   				<tr>
   					<th align="left" colspan="2"><br/>Code</th>
-  					<th align="left" colspan="6"><br/>Description</th>
+  					<th align="left" colspan="5"><br/>Description</th>
+  					<th align="right"><br/>Bin</th>
   					<th align="right">VAT<br/>Code</th>
   					<th align="right">Pack<br/>Size</th>
   					<th align="right"><br/>Quantity</th>
@@ -246,7 +247,8 @@
   			</#if>
   				<tr>
   					<td align="left" colspan="2">${item.custcol_bbs_sku}</td>
-  					<td align="left" colspan="6">${item.description}<br />${item.custcol_scm_customerpartnumber}</td>
+  					<td align="left" colspan="5">${item.description}<br />${item.custcol_scm_customerpartnumber}</td>
+  					<td align="right">${item.custcol_bbs_item_bin}</td>
   					<td align="right">${item.taxrate1}</td>
   					<td align="right">${item.units}</td>
   					<td align="right">${item.quantity}</td>

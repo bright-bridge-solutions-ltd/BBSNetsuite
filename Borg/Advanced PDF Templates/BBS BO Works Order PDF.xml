@@ -1,0 +1,184 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+    <macrolist>
+
+		<macro id="nlheader">
+		    <table class="header" style="width: 100%;">
+			    <tr>
+					<!--<td align="left"><img src="${companyInformation.logoUrl}"  /></td>-->
+                  	<td align="left"><img src="https://3976137.app.netsuite.com/core/media/media.nl?id=3216011&amp;c=3976137&amp;h=a62872ae3572bbadb77c" style="float: left;" /></td>
+                  	<td>
+                      	<table class="header" style="width: 100%;">
+                        	<tr>
+                              <td>&nbsp;</td>
+                              <td align="left" style="font-size:16px;">WO End Date:</td>
+                              <#if record.custbody_bbs_wo_orig_date?length gt 0>
+                              	<td align="right"><span style="font-size:16px;">${record.custbody_bbs_wo_orig_date?string["dd MMM yyyy"]}</span></td>
+                              <#else>
+                                <td align="right"><span style="font-size:16px;">&nbsp;</span></td>
+                              </#if>
+                          	</tr>
+                      	</table>
+                  	</td>
+				</tr>
+          	</table>
+          	
+		    <table class="header" style="width: 100%; margin-top: 20px;">
+				<tr>
+					<td align="left">
+                    	<table class="header" style="width: 100%;">
+                        	<tr>
+                            	<td align="left"><b>Special Instructions:</b></td>
+                          	</tr>
+                          	<tr>
+                              	<td style="padding-right: 10px; height: 50px;">${record.memo}</td>
+
+                          	</tr>
+
+							<tr>
+                            	<td align="left"><b>BOM Notes:</b></td>
+                          	</tr>
+                          	<tr>
+                              	<td style="padding-right: 10px; height: 50px;">${record.custbodycustitem2}</td>
+                          	</tr>
+                      	</table>
+                  	</td>
+					<td align="left">
+                    	<table class="header" style="width: 100%;">
+                          	<tr>
+                            	<td align="left" style="font-size: 12pt;"><b>Works Order No:</b></td>
+                              	<td align="left" style="font-size: 12pt;"><b>${record.tranid}</b></td>
+                          	</tr>
+                          	<tr>
+                            	<td align="left"  style="font-size: 10pt;"><b>Assembly:</b></td>
+                              	<td align="left" style="font-size: 10pt;">${record.assemblyitem}</td>
+                          	</tr>
+                          	<tr>
+                            	<td align="left" style="font-size: 10pt;"><b>Assembly Description:</b></td>
+                              	<td align="left" rowspan="3" style="font-size: 10pt;">${record.custbody_cibassdesc}</td>
+                          	</tr>
+                          	<tr>
+                            	<td align="left"  style="font-size: 10pt;">&nbsp;</td>
+                          	</tr>
+                          	<tr>
+                            	<td align="left"  style="font-size: 10pt;">&nbsp;</td>
+                          	</tr>
+                          	<tr>
+                            	<td align="left"  style="font-size: 10pt;"><b>Sales Order:</b></td>
+                              	<td align="left" style="font-size: 10pt;">${record.createdfrom}</td>
+                          	</tr>
+                          	<tr>
+                            	<td align="left"  style="font-size: 10pt;"><b>Quantity:</b></td>
+                              	<td align="left" style="font-size: 10pt;">${record.quantity}</td>
+                          	</tr>
+                          	<tr>
+                            	<td align="left"  style="font-size: 10pt;"><b>Customer:</b></td>
+                              	<td align="left" style="font-size: 10pt;">${record.entity}</td>
+                          	</tr>
+                          	<tr>
+                            	<td align="left"  style="font-size: 10pt;"><b>Revision:</b></td>
+                              	<td align="left" style="font-size: 10pt;">${record.revision}</td>
+                          	</tr>
+                      	</table>
+                  	</td>
+				</tr>
+          	</table>
+        </macro>
+
+    	<macro id="nlfooter">
+            <table class="footer" style="width: 100%;">
+            	<tr>
+					<td align="right"><pagenumber/> of <totalpages/></td>
+				</tr>
+			</table>
+        </macro>
+
+    </macrolist>
+  
+  
+    <style type="text/css">table {
+            font-family: sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            background-color: #000000;
+            color: #ffffff;
+        }
+        td {
+            padding: 4px 6px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 8pt;
+        }
+        
+        table.body td {
+            padding-top: 2px;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="250px" footer="nlfooter" footer-height="10px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+
+<#if record.item?has_content>
+  	<table class="itemtable" style="width: 100%;">
+      	<#list record.item as item>
+          	<#assign qty1=item.quantity/record.quantity>
+        	<#if item_index==0>
+              	<thead>
+                  	<tr>
+                      <th align="left" colspan="2" style="padding-left: 5px;">Part<br/>No.</th>
+                      <th align="left" colspan="3" style="padding-left: 20px;"><br/>Barcode</th>
+                      <th align="left" colspan="1"><br/>Qty/1</th>
+                      <th align="left" colspan="1"><br/>UOM</th>
+                      <th align="left" colspan="1">Tot<br/>Qty</th>
+                      <th align="left" colspan="12" style="padding-left: 5px;"><br/>Part Description</th>
+                  	</tr>
+              	</thead>
+    		</#if>
+          <tr>
+            <#assign backgroudColour = "#ffffff">
+            <#if item.custcol9>
+              <#assign backgroudColour = "#d9d9d9">
+            </#if>
+            <td align="left" colspan="2" line-height="200%" style="background-color: ${backgroudColour}; padding-left: 5px; border-left: 1px solid black; border-bottom: 1px solid black;">${item.item}</td>
+            <td align="left" colspan="3" line-height="200%" style="background-color: ${backgroudColour}; border-bottom: 1px solid black;"><barcode codetype="code128" showtext="false" bar-width="0.7" value="${item.item}"> </barcode></td>
+            <td align="left" colspan="1" line-height="200%" style="background-color: ${backgroudColour}; border-bottom: 1px solid black;">${qty1?string["0.##"]}</td>
+            <td align="left" colspan="1" line-height="200%" style="background-color: ${backgroudColour}; border-bottom: 1px solid black;">${item.units}</td>
+            <td align="left" colspan="1" line-height="200%" style="background-color: ${backgroudColour}; border-bottom: 1px solid black;">${item.quantity}</td>
+            <td align="left" colspan="12" line-height="200%" style="background-color: ${backgroudColour}; border-right: 1px solid black; border-bottom: 1px solid black;">${item.description}</td>
+          </tr>
+		</#list>
+	</table>
+</#if>
+
+</body>
+</pdf>

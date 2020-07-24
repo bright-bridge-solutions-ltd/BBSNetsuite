@@ -1,0 +1,300 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    <macrolist>
+        <macro id="nlfooter">
+        <table style="width: 100%; font-size: 8pt; padding: 0;">
+          <tr>
+            <td width="33%" valign="bottom">
+               <p><span class="red">FreshGround</span><br/>
+                    Synergy House<br/>
+                    Fakenham Road<br/>
+                    Morton-on-the-Hill<br/>
+                    NR9 5SP<br/>
+                    <a href="http://www.freshground.co.uk" target="_blank">www.freshground.co.uk</a></p>
+
+            </td>
+            <td width="33%" align="center" valign="bottom">
+             <p style="text-align: center;"><span class="pagination">Page <pagenumber/> of <totalpages/></span></p>
+
+            </td>
+            <td style="padding: 0;" width="33%" align="right"  valign="bottom">
+              <p style="text-align: right; margin-bottom: 10px; margin-right: 10px;"><a href="mailto:accounts@freshground.co.uk">accounts@freshground.co.uk</a><br/>
+              <span class="small-heading">PHONE:</span> 0845 845 1500<br/>
+              <span class="small-heading">VAT NUMBER:</span> GB 224 2581 84</p>
+              <barcode codetype="code128" showtext="true" value="${record.tranid}"/>
+            </td>
+          </tr>
+        </table>
+    </macro>
+    </macrolist>
+       <style type="text/css">
+      table {
+    <#if .locale == "zh_CN">
+        font-family: stsong, sans-serif;
+    <#elseif .locale == "zh_TW">
+        font-family: msung, sans-serif;
+    <#elseif .locale == "ja_JP">
+        font-family: heiseimin, sans-serif;
+    <#elseif .locale == "ko_KR">
+        font-family: hygothic, sans-serif;
+    <#elseif .locale == "ru_RU">
+        font-family: verdana;
+    <#else>
+        font-family: "Helvetica Neue", Helvetica, Arial;
+    </#if>
+        font-size: 9pt;
+        table-layout: fixed;
+    }
+      #page1 {footer:nlpage1footer; footer-height:20pt; }
+      #page1 {footer:nlnotpage1footer; footer-height:0pt; }
+   
+    th {
+        font-weight: bold;
+        font-size: 8pt;
+        vertical-align: middle;
+        padding: 5px 6px 3px;
+        background-color: #eef4f8;
+        color: #333333;
+    }
+    td {
+        padding: 4px 6px;
+    }
+    b {
+        font-weight: bold;
+        color: #333333;
+    }
+    table.header td {
+        padding: 0;
+        font-size: 10pt;
+    }
+    table.footer td {
+        padding: 0;
+        font-size: 8pt;
+    }
+    table.itemtable th {
+        padding-bottom: 10px;
+        padding-top: 10px;
+    }
+    table.body td {
+        padding-top: 2px;
+    }
+    table.total {
+        page-break-inside: avoid;
+    }
+    tr.totalrow {
+        background-color: #eef4f8;
+        line-height: 200%;
+    }
+    td.totalboxtop {
+        font-size: 12pt;
+        background-color: #eef4f8;
+    }
+   
+    td.address {
+        padding-top: 0;
+    }
+    td.totalboxmid {
+        font-size: 28pt;
+        padding-top: 20px;
+        background-color: #eef4f8;
+    }
+    td.totalboxbot {
+        background-color: #eef4f8;
+        font-weight: bold;
+    }
+    td.addressheader {
+        font-size: 8pt;
+        padding-top: 6px;
+        padding-bottom: 2px;
+    }
+    table.supp-inner {
+       /*background-color: #eef4f8;*/
+      padding-right: 10%;
+    }
+    span.title {
+        font-size: 28pt;
+    }
+    span.number {
+        font-size: 16pt;
+    }
+    span.itemname {
+        font-weight: bold;
+        line-height: 110%;
+      	margin-bottom: 0px;
+    }
+    hr {
+        width: 100%;
+        color: #d3d3d3;
+        background-color: #d3d3d3;
+        height: 1px;
+    }
+    .red,
+    a {
+      color: #d41400;
+      text-decoration: none;
+    }
+    h3 {
+    font-style: normal;
+    text-transform: none;
+    font-family: "Arial", sans-serif;
+    margin-top: 0px;
+    }
+    span.itemname,
+    span.small-heading {
+        color: #A8A8A8!important;
+    }
+    span.itemname,
+    span.small-heading-value {
+      text-transform: capitalize!important;
+      text-align: left;
+    }
+      span.itemname {
+        font-size: 12px;
+        font-weight: normal;
+    }
+    #docusign {
+      padding: 20px;
+      width: 100%;
+    }
+    #docusign,
+      .qty,
+      .amount {
+		background-color: #eef4f8;
+    }
+    .intro td {
+      padding-left: 10px;
+      border-left: 0px solid #eef4f8;
+    }
+      .intro {
+    }
+    .small-heading-value.email{
+      text-transform:lowercase;
+    }
+    .itemtable tr {
+        border: 1px solid #eef4f8;
+        border-bottom: 0px;
+    }
+    .itemtable tr:last-of-type {
+        border-bottom: 1px solid #eef4f8;
+    }
+    .qty .item-amount,
+    .qty .qtys {
+       display: block;
+        float: right;
+        text-align: right;
+    }
+</style>
+</head>
+<body footer="nlfooter" footer-height="80pt" padding="15mm 15mm 15mm 15mm" size="A4">
+  <table class="header" style="width: 100%;">
+	<tbody><tr>
+		<td width="60%" height="40" valign="top">
+			<img src="https://system.eu2.netsuite.com/core/media/media.nl?id=1236904&amp;c=3976137&amp;h=8bb115c9f6534ed6f7bf" style="float: left; margin: 10px 0px 0px 5px; width: 300px; height: 55px;"></img>
+		</td>
+       	<td align="right" width="40%" height="60" valign="bottom">
+			<h3 style="margin:0 0 10px 0;">Direct Debit Payment Instruction</h3>
+		</td>
+	</tr>
+	</tbody>
+  </table>
+  <table class="intro supp" style="width: 100%;">
+		<tr>
+			<td width="100%" height="20pt">&nbsp;</td>
+      </tr>
+  </table>
+  <table class="intro supp" style="width: 100%;">
+			<tr> <td width="50%">
+                <p><span class="small-heading">TO</span></p>
+              
+                <p>	${record.entityname?capitalize?keep_after(" ")}<br/>
+                    ${record.custbody_fg_pmt_form_add1?capitalize}<br/>
+              		<#if record.custbody_fg_pmt_form_add2?has_content>${record.custbody_fg_pmt_form_add2?capitalize}<br/> </#if>
+              		${record.custbody_fg_pmt_form_add_city?capitalize}<br/>
+              		${record.custbody_fg_pmt_form_add_zip}<br/>
+              </p>
+              	
+              </td>
+                  <td valign="top" width="50%">
+                    <p><span class="small-heading">FROM</span></p>
+                    <!--${record.salesrep}<br/>-->
+                    <p><span class="red">FreshGround</span><br/>
+                      Synergy House<br/>
+                      Fakenham Road<br/>
+                      Morton-on-the-Hill<br/>
+                      NR9 5SP</p>
+                  </td>
+          </tr>
+  </table>	
+  <table class="intro supp" style="width: 100%;">
+    <tr>
+      <td width="100%" height="20pt">&nbsp;</td>
+    </tr>
+  </table>
+  <table class="intro supp" style="width: 100%; border-top: 1px solid #ccc;border-bottom: 1px solid #ccc;">
+    <tr class="header">
+      <td align="left">
+        <p>Direct Debit Payment Instruction<br/>Payment Ref: ${record.tranid}<br/>Date:${record.trandate}</p>
+      </td>
+    </tr>
+  </table>
+  <table class="intro supp" style="width: 100%;">
+    <tr>
+      <td width="100%" height="20pt">&nbsp;</td>
+    </tr>
+  </table>
+
+	
+  
+  <!--table style="width: 100%; margin-top: 10px;"><tr>
+	<td class="addressheader" colspan="6"><b>${record.address@label}</b></td>
+	<td class="totalboxtop" colspan="5"><b>${record.total@label?upper_case}</b></td>
+	</tr>
+	<tr>
+	<td class="address" colspan="6">${record.address}</td>
+	<td align="right" class="totalboxmid" colspan="5">${record.total}</td>
+	</tr></table-->
+<#if record.apply?has_content>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start apply sublist -->
+  <#list record.apply as apply><#if apply_index==0>
+    <thead>
+        <tr>
+        <th align="center" colspan="3">${apply.applydate@label}</th>
+        <th colspan="5">${apply.type@label}</th>
+        <th align="right" colspan="3">Original Amt.</th>
+        <th align="right" colspan="3">${apply.due@label}</th>
+        <!--th align="right" colspan="3">${apply.disc@label}</th-->
+        <th align="right" colspan="4">${apply.amount@label}</th>
+        </tr>
+    </thead>
+</#if><tr>
+	<td align="center" colspan="3" line-height="150%">${apply.applydate}</td>
+	<td colspan="5">${apply.type}&nbsp;${apply.refnum}</td>
+	<td align="right" colspan="3">${apply.total}</td>
+	<td align="right" colspan="3">${apply.due}</td>
+	<!--td align="right" colspan="3">${apply.disc}</td-->
+	<td align="right" colspan="4">${apply.amount}</td>
+	</tr>
+	</#list><!-- end apply --></table>
+
+<hr /></#if>
+<table class="total" style="width: 100%; margin-top: 10px;"><tr class="totalrow">
+	<td background-color="#ffffff" colspan="4">&nbsp;</td>
+	<td align="right"><b>${record.total@label}</b></td>
+	<td align="right">${record.total}</td>
+	</tr></table>
+</body>
+</pdf>

@@ -221,7 +221,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="440px" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="460px" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
    
 	<#if record.item?has_content>

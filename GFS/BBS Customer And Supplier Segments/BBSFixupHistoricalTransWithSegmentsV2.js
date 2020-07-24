@@ -51,7 +51,9 @@ function processTransactions()
 {
 	var transactionSearch = getResults(nlapiCreateSearch("transaction",
 			[
-			   [["type","anyof","CustCred","CustInvc","VendCred","VendBill"],"OR",[["type","anyof","Journal"],"AND",["accounttype","noneof","Stat"]]], 
+			   ["subsidiary","anyof",APPLICABLE_SUBSIDIARY], 
+			   "AND", 
+			   ["type","anyof","CustCred","CustInvc","VendCred","VendBill"], 
 			   "AND", 
 			   ["cogs","is","F"], 
 			   "AND", 
