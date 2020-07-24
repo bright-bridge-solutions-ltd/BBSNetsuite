@@ -54,7 +54,7 @@ function(config, runtime, record, format, search) {
     					var recordID = currentRecord.id;
     				
     					// set client script to run on the form
-    					scriptContext.form.clientScriptFileId = 406811;
+    					scriptContext.form.clientScriptFileId = 777339;
     					
     					// add button to the form
 			    		scriptContext.form.addButton({
