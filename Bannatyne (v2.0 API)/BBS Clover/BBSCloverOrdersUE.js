@@ -73,7 +73,7 @@ function(search, runtime) {
 		    	});
 		    	
 		    	// check if we have an order discount
-		    	if (orderDiscount)
+		    	/*if (orderDiscount)
 		    		{
 				    	orderDiscount = orderDiscount * -1; // convert to positive number
 				    	
@@ -105,7 +105,7 @@ function(search, runtime) {
 		    				fieldId: 'custrecord_bbs_clover_line_price_disc',
 		    				value: linePrice
 		    			});
-		    		}
+		    		}*/
     		}
 
     }

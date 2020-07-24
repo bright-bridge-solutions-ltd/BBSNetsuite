@@ -30,9 +30,12 @@ function(record, search) {
 				name: 'internalid'
 			}],
 			
-			filters: [
-			
-			],
+			filters: [{
+				name: 'custrecord_bbs_order_date',
+				operator: search.Operator.ON,
+				values: ['4/3/2020']
+			}],
+
 		});
 
     }

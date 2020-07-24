@@ -1371,7 +1371,10 @@ function(record, runtime, search, plugin, format)
 	    									{
 	    										try
 	    											{
-	    												recordToProcess.save();
+	    												recordToProcess.save({
+	    													enableSourcing: false,
+	    													ignoreMandatoryFields: true
+	    												});
 	    											}
 	    										catch(err)
 	    											{

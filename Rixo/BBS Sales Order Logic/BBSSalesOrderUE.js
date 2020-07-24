@@ -20,56 +20,78 @@ function(runtime, record, search, file, xml)
 						name: 'custscript_bbs_split_ship_indicator_amt'
 					});
 					
-					// declare and initialize variables
-					var lineTotal = 0;
-					var splitShipIndicator = 1;
+					var splitShipChannel = runtime.getCurrentScript().getParameter({
+						name: 'custscript_bbs_split_ship_channel'
+					});
 					
+					var splitShipCountry = runtime.getCurrentScript().getParameter({
+						name: 'custscript_bbs_split_ship_country'
+					});
+				
 					// get the current record
 					var currentRecord = scriptContext.newRecord;
 					
-					// get line item count
-					var lineCount = currentRecord.getLineCount({
-						sublistId: 'item'
+					// get the value of the Channel (class) field
+					var channel = currentRecord.getValue({
+						fieldId: 'class'
 					});
 					
-					// loop through items
-					for (var i = 0; i < lineCount; i++)
+					// get the shipping country from the record
+					var shippingCountry = currentRecord.getSubrecord({
+						fieldId: 'shippingaddress'
+					}).getValue({
+						fieldId: 'country'
+					});
+					
+					// check if shplitShipChannel = channel AND splitShipCountry = shippingCountry
+					if (splitShipChannel == channel && splitShipCountry == shippingCountry)
 						{
-							// get the line total
-							var lineAmount = currentRecord.getSublistValue({
-								sublistId: 'item',
-								fieldId: 'amount',
-								line: i
+							// declare and initialize variables
+							var lineTotal = 0;
+							var splitShipIndicator = 1;
+					
+							// get line item count
+							var lineCount = currentRecord.getLineCount({
+								sublistId: 'item'
 							});
 							
-							// add lineAmount to the lineTotal
-							lineTotal += lineAmount;
-							
-							// check if lineTotal is greater than splitLevelAmount script parameter AND this is not the first line
-							if (lineTotal > splitLevelAmount && i > 0)
+							// loop through items
+							for (var i = 0; i < lineCount; i++)
 								{
-									// increase splitShipIndicator variable by 1
-									splitShipIndicator++;
+									// get the line total
+									var lineAmount = currentRecord.getSublistValue({
+										sublistId: 'item',
+										fieldId: 'amount',
+										line: i
+									});
 									
-									// set lineTotal variable to be the lineAmount
-									lineTotal = lineAmount;
+									// add lineAmount to the lineTotal
+									lineTotal += lineAmount;
+									
+									// check if lineTotal is greater than splitLevelAmount script parameter AND this is not the first line
+									if (lineTotal > splitLevelAmount && i > 0)
+										{
+											// increase splitShipIndicator variable by 1
+											splitShipIndicator++;
+											
+											// set lineTotal variable to be the lineAmount
+											lineTotal = lineAmount;
+										}
+									
+									// set the Split Ship field using the splitShip variable
+									currentRecord.setSublistValue({
+										sublistId: 'item',
+										fieldId: 'custcol_bbs_split_ship',
+										value: splitShipIndicator,
+										line: i
+									});
+									
 								}
-							
-							// set the Split Ship field using the splitShip variable
-							currentRecord.setSublistValue({
-								sublistId: 'item',
-								fieldId: 'custcol_bbs_split_ship',
-								value: splitShipIndicator,
-								line: i
-							});
-							
 						}
 				}
 		
 			// check the record is being created and the excecution context is web services
 			if (scriptContext.type == scriptContext.UserEventType.CREATE && runtime.executionContext == runtime.ContextType.WEBSERVICES)
-=======
->>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite
 				{
 					// retrieve script parameters
 					var splitLevelAmount = runtime.getCurrentScript().getParameter({
