@@ -357,15 +357,15 @@ function(search, format, message, dialog) {
     		}
     	else // contracts variable is 0
     		{
-    			// get the value of the 'Sales Force Opportunity ID' field
-    			var salesForceOppID = currentRecord.getValue({
+    			// get the value of the 'Sales Force Account ID' field
+    			var salesForceAccID = currentRecord.getValue({
     				fieldId: 'custrecord_bbs_contract_sales_force_id'
     			});
     			
     			// reset contracts variable to 0
     			contracts = 0;
     		
-    			// create search to find active contracts where the sales force opportunity has been used
+    			// create search to find active contracts where the sales force account ID has been used
     	    	var contractRecordSearch = search.create({
     	    		type: 'customrecord_bbs_contract',
     	    		
@@ -376,7 +376,7 @@ function(search, format, message, dialog) {
     	    		filters: [{
     	    			name: 'custrecord_bbs_contract_sales_force_id',
     	    			operator: 'is',
-    	    			values: [salesForceOppID]
+    	    			values: [salesForceAccID]
     	    		},
     	    				{
     	    			name: 'isinactive',
@@ -431,7 +431,7 @@ function(search, format, message, dialog) {
     	    			// display an alert to the user
     	        		message.create({
     	                    title: 'Error', 
-    	                    message: 'The Sales Force Opportunity ID <b>' + salesForceOppID + '</b> has been used previously.<br><br>Please enter a unique Sales Force Opportunity ID and try again.',
+    	                    message: 'The Sales Force Account ID <b>' + salesForceAccID + '</b> has been used previously.<br><br>Please enter a unique Sales Force Account ID and try again.',
     	                    type: message.Type.ERROR,
     	                    duration: 5000 // show message for 5000 milliseconds/5 seconds
     	                }).show(); // show message

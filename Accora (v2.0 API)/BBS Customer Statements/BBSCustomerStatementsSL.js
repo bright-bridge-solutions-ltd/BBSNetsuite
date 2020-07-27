@@ -24,7 +24,6 @@ function(ui, message, search, task, url, redirect) {
     			
     			// retrieve script parameters
     			var statementsSent		= context.request.parameters.statementssent;
-    			var statementsNotSent 	= context.request.parameters.statementsnotsent;
     		
     			// create form
 				var form = ui.createForm({
@@ -32,13 +31,16 @@ function(ui, message, search, task, url, redirect) {
 	                hideNavBar: false
 	            });
 				
+				// set client script to run on the page
+				form.clientScriptFileId = 5677026;
+				
 				// check if statementsSent or statementsNotSent return a value
 				if (statementsSent)
 					{
 						// display a message at the top of the page
 						form.addPageInitMessage({
-				            type: message.Type.INFORMATION,
-							title: 'Information',
+				            type: message.Type.CONFIRMATION,
+							title: 'Statements Sent',
 							message: 'A job has been scheduled to send <b>' + statementsSent + '</b> statements to customers.'
 						});
 					}
