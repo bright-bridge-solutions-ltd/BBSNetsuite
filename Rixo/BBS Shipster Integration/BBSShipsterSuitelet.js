@@ -109,45 +109,45 @@ function(file, record, search, http, xml, format)
 					        			{
 					        				//Build the output now we have all the records to work with
 					        				//
-						        			var customerFirstName 			= customerRecord.getValue({fieldId: 'firstname'});
-						        			var customerLastName 			= customerRecord.getValue({fieldId: 'lastname'});
+						        			var customerFirstName 			= isNull(customerRecord.getValue({fieldId: 'firstname'}),'');
+						        			var customerLastName 			= isNull(customerRecord.getValue({fieldId: 'lastname'}),'');
 						        			var customerFullName 			= (customerFirstName + ' ' + customerLastName).trim();
-						        			var customerCompanyName			= customerRecord.getValue({fieldId: 'companyname'});
-						        			var customerEmail 				= customerRecord.getValue({fieldId: 'email'});
-						        			var customerPhone 				= customerRecord.getValue({fieldId: 'phone'});
-						        			var customerMobile 				= customerRecord.getValue({fieldId: 'mobilephone'});
-						        			var customerNumber				= customerRecord.getValue({fieldId: 'entityid'});
+						        			var customerCompanyName			= isNull(customerRecord.getValue({fieldId: 'companyname'}),'');
+						        			var customerEmail 				= isNull(customerRecord.getValue({fieldId: 'email'}),'');
+						        			var customerPhone 				= isNull(customerRecord.getValue({fieldId: 'phone'}),'');
+						        			var customerMobile 				= isNull(customerRecord.getValue({fieldId: 'mobilephone'}),'');
+						        			var customerNumber				= isNull(customerRecord.getValue({fieldId: 'entityid'}),'');
 						        			
 						        			customerFullName 				= (customerFullName != '' ? customerFullName : customerCompanyName);
 						        			
-						        			var salesOrderNumber 			= salesOrderRecord.getValue({fieldId: 'tranid'});
-						        			var salesOrderChannel 			= salesOrderRecord.getText({fieldId: 'class'});
-						        			var salesOrderShopify 			= salesOrderRecord.getValue({fieldId: 'custbody_bbs_shopify_order_number'});
-						        			var salesOrderJoor 				= salesOrderRecord.getValue({fieldId: 'custbody_bbs_joor_so_number'});
+						        			var salesOrderNumber 			= isNull(salesOrderRecord.getValue({fieldId: 'tranid'}),'');
+						        			var salesOrderChannel 			= isNull(salesOrderRecord.getText({fieldId: 'class'}),'');
+						        			var salesOrderShopify 			= isNull(salesOrderRecord.getValue({fieldId: 'custbody_bbs_shopify_order_number'}),'');
+						        			var salesOrderJoor 				= isNull(salesOrderRecord.getValue({fieldId: 'custbody_bbs_joor_so_number'}),'');
 						        			var salesOrderCustRef			= (salesOrderShopify != '' ? salesOrderShopify : (salesOrderJoor != '' ? salesOrderJoor : ''))
 						        			var salesOrderTotal				= Number(salesOrderRecord.getValue({fieldId: 'total'})).toFixed(2);
 						        			var salesOrderSubTotal			= Number(salesOrderRecord.getValue({fieldId: 'subtotal'})).toFixed(2);
 						        			var salesOrderTax				= Number(salesOrderRecord.getValue({fieldId: 'taxtotal'})).toFixed(2);
 						        			var salesOrderDiscount			= Math.abs(Number(salesOrderRecord.getValue({fieldId: 'discounttotal'}))).toFixed(2);
-						        			var salesOrderDiscountCode		= salesOrderRecord.getText({fieldId: 'discountitem'});
+						        			var salesOrderDiscountCode		= isNull(salesOrderRecord.getText({fieldId: 'discountitem'}),'');
 						        			
 						        			var fulfilmentShippingCost		= Number(fulfilmentRecord.getValue({fieldId: 'shippingcost'})).toFixed(2);
-						        			var fulfilmentShippingMethod	= fulfilmentRecord.getText({fieldId: 'shipmethod'});
-						        			var fulfilmentShippingMethodId	= fulfilmentRecord.getValue({fieldId: 'shipmethod'});
-						        			var fulfilmentShippingCarrier	= shippingCarriers[fulfilmentShippingMethodId];
-						        			var fulfilmentDate				= fulfilmentRecord.getText({fieldId: 'trandate'});
-						        			var fulfilmentShippedDate		= fulfilmentRecord.getText({fieldId: 'shippeddate'});
-						        			var fulfilmentReference			= fulfilmentRecord.getValue({fieldId: 'tranid'});
-						        			var fulfilmentCurrency			= fulfilmentRecord.getValue({fieldId: 'currencycode'});
-						        			var fulfilmentShipAdress		= fulfilmentRecord.getSubrecord({fieldId: 'shippingaddress'});
-						        			var fulfilmentAddr1				= fulfilmentShipAdress.getValue({fieldId: 'addr1'});
-						        			var fulfilmentAddr2				= fulfilmentShipAdress.getValue({fieldId: 'addr2'});
-						        			var fulfilmentAddr3				= fulfilmentShipAdress.getValue({fieldId: 'addr3'});
-						        			var fulfilmentCity				= fulfilmentShipAdress.getValue({fieldId: 'city'});
-						        			var fulfilmentState				= fulfilmentShipAdress.getValue({fieldId: 'state'});
-						        			var fulfilmentZip				= fulfilmentShipAdress.getValue({fieldId: 'zip'});
-						        			var fulfilmentAddrPhone			= fulfilmentShipAdress.getValue({fieldId: 'addrphone'});
-						        			var fulfilmentCountry			= countries_list[fulfilmentShipAdress.getValue({fieldId: 'country'})];
+						        			var fulfilmentShippingMethod	= isNull(fulfilmentRecord.getText({fieldId: 'shipmethod'}),'');
+						        			var fulfilmentShippingMethodId	= isNull(fulfilmentRecord.getValue({fieldId: 'shipmethod'}),'');
+						        			var fulfilmentShippingCarrier	= isNull(shippingCarriers[fulfilmentShippingMethodId],'');
+						        			var fulfilmentDate				= isNull(fulfilmentRecord.getText({fieldId: 'trandate'}),'');
+						        			var fulfilmentShippedDate		= isNull(fulfilmentRecord.getText({fieldId: 'shippeddate'}),'');
+						        			var fulfilmentReference			= isNull(fulfilmentRecord.getValue({fieldId: 'tranid'}),'');
+						        			var fulfilmentCurrency			= isNull(fulfilmentRecord.getValue({fieldId: 'currencycode'}),'');
+						        			var fulfilmentShipAdress		= isNull(fulfilmentRecord.getSubrecord({fieldId: 'shippingaddress'}),'');
+						        			var fulfilmentAddr1				= isNull(fulfilmentShipAdress.getValue({fieldId: 'addr1'}),'');
+						        			var fulfilmentAddr2				= isNull(fulfilmentShipAdress.getValue({fieldId: 'addr2'}),'');
+						        			var fulfilmentAddr3				= isNull(fulfilmentShipAdress.getValue({fieldId: 'addr3'}),'');
+						        			var fulfilmentCity				= isNull(fulfilmentShipAdress.getValue({fieldId: 'city'}),'');
+						        			var fulfilmentState				= isNull(fulfilmentShipAdress.getValue({fieldId: 'state'}),'');
+						        			var fulfilmentZip				= isNull(fulfilmentShipAdress.getValue({fieldId: 'zip'}),'');
+						        			var fulfilmentAddrPhone			= isNull(fulfilmentShipAdress.getValue({fieldId: 'addrphone'}),'');
+						        			var fulfilmentCountry			= isNull(countries_list[fulfilmentShipAdress.getValue({fieldId: 'country'})],'');
 						        			
 						        			customerPhone = (customerPhone == null || customerPhone == '' ? fulfilmentAddrPhone : customerPhone);
 						        			
@@ -409,6 +409,18 @@ function(file, record, search, http, xml, format)
 			        			}
 	        			}
 		    	}
+	    }
+    
+    function isNull(_string, _replacer)
+	    {
+	    	if(_string == null)
+	    		{
+	    			return _replacer;
+	    		}
+	    	else
+	    		{
+	    			return _string;
+	    		}
 	    }
 
     function getItemRecordType(_itemType)
