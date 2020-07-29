@@ -125,6 +125,9 @@ function(runtime, ui, message, search, render, email, url, redirect) {
 						    breakType: ui.FieldBreakType.STARTCOL
 						});
 						
+						// set the email address field to be mandatory
+						emailAddress.isMandatory = true;
+						
 						// set the default value of the email address field
 						emailAddress.defaultValue = getCustomerEmailAddress(customerID); // call function to return the customer's email address
 						
@@ -187,6 +190,12 @@ function(runtime, ui, message, search, render, email, url, redirect) {
 						});
 						
 						transactionSublist.addField({
+							type: ui.FieldType.TEXT,
+							id: 'customername',
+							label: 'Customer'
+						});
+						
+						transactionSublist.addField({
 							type: ui.FieldType.CURRENCY,
 							id: 'transactionamount',
 							label: 'Amount'
@@ -218,6 +227,10 @@ function(runtime, ui, message, search, render, email, url, redirect) {
 							
 							var transactionStatus = result.getText({
 								name: 'statusref'
+							});
+							
+							var customerName = result.getText({
+								name: 'mainname'
 							});
 							
 							var amount = result.getValue({
@@ -253,6 +266,12 @@ function(runtime, ui, message, search, render, email, url, redirect) {
 								id: 'transactionstatus',
 								line: line,
 								value: transactionStatus
+							});
+							
+							transactionSublist.setSublistValue({
+								id: 'customername',
+								line: line,
+								value: customerName
 							});
 							
 							transactionSublist.setSublistValue({
@@ -382,35 +401,27 @@ function(runtime, ui, message, search, render, email, url, redirect) {
     	var transactionSearch = search.create({
     		type: search.Type.TRANSACTION,
     			
-    		filters: [{
-    			name: 'mainline',
-    			operator: search.Operator.IS,
-    			values: ['T']
-    		},
-    				{
-    			name: 'mainname',
-    			operator: search.Operator.ANYOF,
-    			values: [customerID]
-    		},
-    				{
-    			name: 'status',
-    			operator: search.Operator.ANYOF,
-    			values: [	'CustCred:A', 	// Credit Memo:Open
-    						'CustInvc:A', 	// Invoice:Open
-    						'SalesOrd:D', 	// Sales Order:Partially Fulfilled
-    						'SalesOrd:F', 	// Sales Order:Pending Billing
-    						'SalesOrd:E',	// Sales Order:Pending Billing/Partially Fulfilled
-    						'SalesOrd:B',	// Sales Order:Pending Fulfilled
-    						'Estimate:A'	// Quote:Open
-    					]
-    				}],
+    		filters: [
+	            		['mainline', search.Operator.IS, 'T'],
+	            			'AND',
+	            		['status', search.Operator.ANYOF, 'CustCred:A', 'CustInvc:A', 'SalesOrd:D', 'SalesOrd:F', 'SalesOrd:E',	'SalesOrd:B', 'Estimate:A'], // Credit Memo:Open, Invoice:Open, Sales Order:Partially Fulfilled, Sales Order:Pending Billing, Sales Order:Pending Billing/Partially Fulfilled, Sales Order:Pending Fulfilled, Quote:Open
+	            			'AND',
+	            		[
+	            			['mainname', search.Operator.ANYOF, customerID],
+	            				'OR',
+	            			['customer.parent', search.Operator.ANYOF, customerID] // Include subcustomers
+	            		]
+	            	],
     			
     		columns: [{
     			name: 'trandate'
     		},
     				{
-    			name: 'tranid',
-    			sort: search.Sort.DSC
+    			name: 'mainname',
+    			sort: search.Sort.ASC
+    		},	
+    				{
+    			name: 'tranid'
     		},
     				{
     			name: 'type',

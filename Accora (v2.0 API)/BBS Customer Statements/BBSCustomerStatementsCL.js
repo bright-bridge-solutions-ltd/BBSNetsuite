@@ -32,6 +32,28 @@ function(url, dialog) {
      * @since 2015.2
      */
     function fieldChanged(scriptContext) {
+    	
+    	// If the subsidiary field has been changed
+    	if (scriptContext.fieldId == 'subsidiary')
+    		{
+    			// get the value of the subsidiary field
+    			var subsidiary = scriptContext.currentRecord.getValue({
+    				fieldId: 'subsidiary'
+    			});
+    			
+    			// get the URL of the Suitelet and pass customer ID/openOnly to the Suitelet as a parameter
+    			var suiteletURL = url.resolveScript({
+    			    scriptId: 'customscript_bbs_customer_statements_sl',
+    			    deploymentId: 'customdeploy_bbs_customer_statements_sl',
+    			    params: {
+    			    	subsidiary: subsidiary
+    			    }
+    			});
+    			
+    			// reload the Suitelet
+    			window.onbeforeunload = null;
+				window.location.href = suiteletURL;
+    		}
 
     }
 
@@ -202,7 +224,8 @@ function(url, dialog) {
     }
 
     return {
-        saveRecord: saveRecord
+        fieldChanged: fieldChanged,
+    	saveRecord: saveRecord
     };
     
 });

@@ -8,169 +8,221 @@ define(['N/runtime', 'N/record', 'N/search', 'N/file', 'N/xml'],
  * @param {record} record
  * @param {search} search
  */
-function(runtime, record, search, file, xml) 
-{
+function(runtime, record, search, file, xml) {
+	
 	function salesOrderBeforeSubmit(scriptContext) {
 			
-			// check the record is being created or edited
-			if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
-				{
-					// retrieve script parameters
-					var splitLevelAmount = runtime.getCurrentScript().getParameter({
-						name: 'custscript_bbs_split_ship_indicator_amt'
-					});
-					
-					var splitShipChannel = runtime.getCurrentScript().getParameter({
-						name: 'custscript_bbs_split_ship_channel'
-					});
-					
-					var splitShipCountry = runtime.getCurrentScript().getParameter({
-						name: 'custscript_bbs_split_ship_country'
-					});
+		// check the record is being created
+		if (scriptContext.type == scriptContext.UserEventType.CREATE)
+			{
+				// retrieve script parameters
+				var currentScript = runtime.getCurrentScript();
+			
+				var doNotCommitChannel = currentScript.getParameter({
+					name: 'custscript_bbs_do_not_commit_channel'
+				});
 				
-					// get the current record
-					var currentRecord = scriptContext.newRecord;
+				var doNotCommitLocation = currentScript.getParameter({
+					name: 'custscript_bbs_do_not_commit_location'
+				});
+				
+				// get the current record
+				var currentRecord = scriptContext.newRecord;
 					
-					// get the value of the Channel (class) field
-					var channel = currentRecord.getValue({
-						fieldId: 'class'
-					});
+				// get the value of the Channel (class) field
+				var channel = currentRecord.getValue({
+					fieldId: 'class'
+				});
+				
+				// get the value of the Location field
+				var location = currentRecord.getValue({
+					fieldId: 'location'
+				});
 					
-					// get the shipping country from the record
-					var shippingCountry = currentRecord.getSubrecord({
-						fieldId: 'shippingaddress'
-					}).getValue({
-						fieldId: 'country'
-					});
-					
-					// check if shplitShipChannel = channel AND splitShipCountry = shippingCountry
-					if (splitShipChannel == channel && splitShipCountry == shippingCountry)
-						{
-							// declare and initialize variables
-							var lineTotal = 0;
-							var splitShipIndicator = 1;
-					
-							// get line item count
-							var lineCount = currentRecord.getLineCount({
-								sublistId: 'item'
-							});
+				// if doNotCommitChannel = channel AND doNotCommitLocation = location
+				if (doNotCommitChannel == channel && doNotCommitLocation == location)
+					{
+						// get line item count
+						var lineCount = currentRecord.getLineCount({
+							sublistId: 'item'
+						});
 							
-							// loop through items
-							for (var i = 0; i < lineCount; i++)
-								{
-									// get the line total
-									var lineAmount = currentRecord.getSublistValue({
-										sublistId: 'item',
-										fieldId: 'amount',
-										line: i
-									});
+						// loop through items
+						for (var i = 0; i < lineCount; i++)
+							{
+								// set the commit flag to Do Not Commit
+								currentRecord.setSublistValue({
+									sublistId: 'item',
+									fieldId: 'commitinventory',
+									value: 3, // 3 = Do Not Commit
+									line: i
+								});
+							}
+					}
+			}
+		
+		// check the record is being created or edited
+		if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
+			{
+				// retrieve script parameters
+				var currentScript = runtime.getCurrentScript();
+			
+				// retrieve script parameters
+				var splitLevelAmount = currentScript.getParameter({
+					name: 'custscript_bbs_split_ship_indicator_amt'
+				});
+					
+				var splitShipChannel = currentScript.getParameter({
+					name: 'custscript_bbs_split_ship_channel'
+				});
+					
+				var splitShipCountry = currentScript.getParameter({
+					name: 'custscript_bbs_split_ship_country'
+				});
+				
+				// get the current record
+				var currentRecord = scriptContext.newRecord;
+					
+				// get the value of the Channel (class) field
+				var channel = currentRecord.getValue({
+					fieldId: 'class'
+				});
+					
+				// get the shipping country from the record
+				var shippingCountry = currentRecord.getSubrecord({
+					fieldId: 'shippingaddress'
+				}).getValue({
+					fieldId: 'country'
+				});
+					
+				// check if shplitShipChannel = channel AND splitShipCountry = shippingCountry
+				if (splitShipChannel == channel && splitShipCountry == shippingCountry)
+					{
+						// declare and initialize variables
+						var lineTotal = 0;
+						var splitShipIndicator = 1;
+				
+						// get line item count
+						var lineCount = currentRecord.getLineCount({
+							sublistId: 'item'
+						});
+							
+						// loop through items
+						for (var i = 0; i < lineCount; i++)
+							{
+								// get the line total
+								var lineAmount = currentRecord.getSublistValue({
+									sublistId: 'item',
+									fieldId: 'amount',
+									line: i
+								});
 									
-									// add lineAmount to the lineTotal
-									lineTotal += lineAmount;
+								// add lineAmount to the lineTotal
+								lineTotal += lineAmount;
 									
-									// check if lineTotal is greater than splitLevelAmount script parameter AND this is not the first line
-									if (lineTotal > splitLevelAmount && i > 0)
-										{
-											// increase splitShipIndicator variable by 1
-											splitShipIndicator++;
+								// check if lineTotal is greater than splitLevelAmount script parameter AND this is not the first line
+								if (lineTotal > splitLevelAmount && i > 0)
+									{
+										// increase splitShipIndicator variable by 1
+										splitShipIndicator++;
 											
-											// set lineTotal variable to be the lineAmount
-											lineTotal = lineAmount;
-										}
+										// set lineTotal variable to be the lineAmount
+										lineTotal = lineAmount;
+									}
 									
-									// set the Split Ship field using the splitShip variable
-									currentRecord.setSublistValue({
-										sublistId: 'item',
-										fieldId: 'custcol_bbs_split_ship',
-										value: splitShipIndicator,
-										line: i
-									});
+								// set the Split Ship field using the splitShip variable
+								currentRecord.setSublistValue({
+									sublistId: 'item',
+									fieldId: 'custcol_bbs_split_ship',
+									value: splitShipIndicator,
+									line: i
+								});
 									
-								}
-						}
-				}
+							}
+					}
+			}
 		
-			// check the record is being created and the excecution context is web services
-			if (scriptContext.type == scriptContext.UserEventType.CREATE && runtime.executionContext == runtime.ContextType.WEBSERVICES)
-				{
-					// retrieve script parameters
-					var splitLevelAmount = runtime.getCurrentScript().getParameter({
-						name: 'custscript_bbs_split_ship_indicator_amt'
-					});
+		// check the record is being created and the excecution context is web services
+		if (scriptContext.type == scriptContext.UserEventType.CREATE && runtime.executionContext == runtime.ContextType.WEBSERVICES)
+			{
+				// retrieve script parameters
+				var splitLevelAmount = runtime.getCurrentScript().getParameter({
+					name: 'custscript_bbs_split_ship_indicator_amt'
+				});
 					
-					// declare and initialize variables
-					var lineTotal = 0;
-					var splitShipIndicator = 1;
+				// declare and initialize variables
+				var lineTotal = 0;
+				var splitShipIndicator = 1;
 					
-					// get the current record
-					var currentRecord = scriptContext.newRecord;
+				// get the current record
+				var currentRecord = scriptContext.newRecord;
 					
-					// get line item count
-					var lineCount = currentRecord.getLineCount({
-						sublistId: 'item'
-					});
+				// get line item count
+				var lineCount = currentRecord.getLineCount({
+					sublistId: 'item'
+				});
 					
-					// loop through items
-					for (var i = 0; i < lineCount; i++)
-						{
-							// get the line total
-							var lineAmount = currentRecord.getSublistValue({
-								sublistId: 'item',
-								fieldId: 'amount',
-								line: i
-							});
+				// loop through items
+				for (var i = 0; i < lineCount; i++)
+					{
+						// get the line total
+						var lineAmount = currentRecord.getSublistValue({
+							sublistId: 'item',
+							fieldId: 'amount',
+							line: i
+						});
 							
-							// add lineAmount to the lineTotal
-							lineTotal += lineAmount;
+						// add lineAmount to the lineTotal
+						lineTotal += lineAmount;
 							
-							// check if lineTotal is greater than splitLevelAmount script parameter
-							if (lineTotal > splitLevelAmount)
-								{
-									// increase splitShipIndicator variable by 1
-									splitShipIndicator++;
+						// check if lineTotal is greater than splitLevelAmount script parameter
+						if (lineTotal > splitLevelAmount)
+							{
+								// increase splitShipIndicator variable by 1
+								splitShipIndicator++;
 									
-									// set lineTotal variable to be the lineAmount
-									lineTotal = lineAmount;
-								}
+								// set lineTotal variable to be the lineAmount
+								lineTotal = lineAmount;
+							}
 							
-							// set the Split Ship field using the splitShip variable
-							currentRecord.setSublistValue({
-								sublistId: 'item',
-								fieldId: 'custcol_bbs_split_ship',
-								value: splitShipIndicator,
-								line: i
-							});
+						// set the Split Ship field using the splitShip variable
+						currentRecord.setSublistValue({
+							sublistId: 'item',
+							fieldId: 'custcol_bbs_split_ship',
+							value: splitShipIndicator,
+							line: i
+						});
 							
-						}
-				}
+					}
+			}
 		
-			// check the record is being created and the excecution context is web services
-			if (scriptContext.type == scriptContext.UserEventType.CREATE && runtime.executionContext == runtime.ContextType.WEBSERVICES)
-				{
-					// get the current record
-					var currentRecord = scriptContext.newRecord;
+		// check the record is being created and the excecution context is web services
+		if (scriptContext.type == scriptContext.UserEventType.CREATE && runtime.executionContext == runtime.ContextType.WEBSERVICES)
+			{
+				// get the current record
+				var currentRecord = scriptContext.newRecord;
 					
-					if(currentRecord != null)
-						{
-							// get line item count
-							var lineCount = currentRecord.getLineCount({
-								sublistId: 'item'
-							});
+				if (currentRecord)
+					{
+						// get line item count
+						var lineCount = currentRecord.getLineCount({
+							sublistId: 'item'
+						});
 							
-							// loop through items
-							for (var i = 0; i < lineCount; i++)
-								{
-									// set the 'Create PO' field to null
-									currentRecord.setSublistValue({
-										sublistId: 'item',
-										fieldId: 'createpo',
-										line: i,
-										value: null
-									});
-								}
-						}
-				}
-		}
+						// loop through items
+						for (var i = 0; i < lineCount; i++)
+							{
+								// set the 'Create PO' field to null
+								currentRecord.setSublistValue({
+									sublistId: 'item',
+									fieldId: 'createpo',
+									line: i,
+									value: null
+								});
+							}
+					}
+			}
+	}
     
 	
 	

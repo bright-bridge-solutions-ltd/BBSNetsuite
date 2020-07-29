@@ -142,6 +142,14 @@ function(runtime, search, render, email) {
     	var customerLookup 			= searchCustomer(customerID);
     	var companyName 			= customerLookup.companyName;
     	var statementEmailAddress 	= customerLookup.statementEmailAddress;
+    	var mainEmail				= customerLookup.mainEmail;
+    	
+    	// if statementEmailAddress is empty
+    	if (!statementEmailAddress)
+    		{
+    			// set statementEmailAddress variable using the mainEmail variable
+    			statementEmailAddress = mainEmail;
+    		}
     	
     	try
 	    	{
@@ -213,13 +221,14 @@ function(runtime, search, render, email) {
     	var customerLookup = search.lookupFields({
     		type: search.Type.CUSTOMER,
     		id: customerID,
-    		columns: ['companyname', 'custentity_acc_customer_statement_email']
+    		columns: ['companyname', 'custentity_acc_customer_statement_email', 'email']
     	});
     	
-    	// return values to the main script finction
+    	// return values to the main script function
     	return {
     		companyName: customerLookup.companyname,
-    		statementEmailAddress: customerLookup.custentity_acc_customer_statement_email
+    		statementEmailAddress: customerLookup.custentity_acc_customer_statement_email,
+    		mainEmail: customerLookup.email
     	}
     	
     }

@@ -3,8 +3,8 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['N/ui/serverWidget', 'N/ui/message', 'N/search', 'N/task', 'N/url', 'N/redirect'],
-function(ui, message, search, task, url, redirect) {
+define(['N/ui/serverWidget', 'N/ui/message', 'N/runtime', 'N/search', 'N/task', 'N/url', 'N/redirect'],
+function(ui, message, runtime, search, task, url, redirect) {
    
     /**
      * Definition of the Suitelet script trigger point.
@@ -23,7 +23,8 @@ function(ui, message, search, task, url, redirect) {
     			var today = new Date();
     			
     			// retrieve script parameters
-    			var statementsSent		= context.request.parameters.statementssent;
+    			var statementsSent	= context.request.parameters.statementssent;
+    			var subsidiary		= context.request.parameters.subsidiary;
     		
     			// create form
 				var form = ui.createForm({
@@ -64,6 +65,13 @@ function(ui, message, search, task, url, redirect) {
 					label: 'Statement Date'
 				});
 				
+				var subsidiaryField = form.addField({
+					id: 'subsidiary',
+					type: ui.FieldType.SELECT,
+					label: 'Subsidiary',
+					source: 'subsidiary'
+				});
+				
 				var openTransactionsOnly = form.addField({
 					id: 'opentransactionsonly',
 					type: ui.FieldType.CHECKBOX,
@@ -87,7 +95,7 @@ function(ui, message, search, task, url, redirect) {
 				    breakType : ui.FieldBreakType.STARTCOL
 				});
 				
-				openTransactionsOnly.updateBreakType({
+				subsidiaryField.updateBreakType({
 				    breakType : ui.FieldBreakType.STARTCOL
 				});
 				
@@ -97,6 +105,18 @@ function(ui, message, search, task, url, redirect) {
 				statementDate.defaultValue			= new Date(today.getFullYear(), today.getMonth()+1, 0); // last day of current month
 				openTransactionsOnly.defaultValue	= 'T';
 				inCustomerLocale.defaultValue		= 'T';
+				
+				// if subsidiary returns a value
+				if (subsidiary)
+					{
+						// set default value of subsidiary field using subsidiary variable
+						subsidiaryField.defaultValue = subsidiary;
+					}
+				else
+					{
+						// set default value of subsidiary field using current user's subsidiary
+						subsidiaryField.defaultValue = runtime.getCurrentUser().subsidiary;
+					}
 				
 				// add a sublist to the form
 				var customerSublist = form.addSublist({
@@ -133,6 +153,12 @@ function(ui, message, search, task, url, redirect) {
 				});
 				
 				customerSublist.addField({
+					type: ui.FieldType.EMAIL,
+					id: 'statementemailaddress',
+					label: 'Email Address'
+				});
+				
+				customerSublist.addField({
 					type: ui.FieldType.SELECT,
 					id: 'currency',
 					label: 'Currency',
@@ -148,13 +174,13 @@ function(ui, message, search, task, url, redirect) {
 				});
 				
 				// call function to search for customer records
-				var searchResults = searchCustomers();
+				var searchResults = searchCustomers(subsidiary);
 				
 				// initiate line variable
 				var line = 0;
 						
 				// run search and process results
-				searchResults.each(function(result){
+				searchResults.run().each(function(result){
 							
 					// retrieve search results
 					var internalID = result.id;
@@ -165,6 +191,10 @@ function(ui, message, search, task, url, redirect) {
 							
 					var customerName = result.getValue({
 						name: 'altname'
+					});
+					
+					var statementEmailAddress = result.getValue({
+						name: 'formulatext'
 					});
 					
 					var currency = result.getValue({
@@ -192,6 +222,12 @@ function(ui, message, search, task, url, redirect) {
 						id: 'customername',
 						line: line,
 						value: customerName
+					});
+					
+					customerSublist.setSublistValue({
+						id: 'statementemailaddress',
+						line: line,
+						value: statementEmailAddress
 					});
 					
 					customerSublist.setSublistValue({
@@ -235,7 +271,7 @@ function(ui, message, search, task, url, redirect) {
     			var startDate 				= 	context.request.parameters.startdate;
     			var statementDate			= 	context.request.parameters.statementdate;
     			var openTransactionsOnly	=	context.request.parameters.opentransactionsonly;
-    			var inCustomerLocale		=	context.request.parameters.opentransactionsonly; 	
+    			var inCustomerLocale		=	context.request.parameters.incustomerlocale; 	
     			var consolidateStatements	=	context.request.parameters.consolidatestatements;
     		
     			// get count of lines on the sublist
@@ -294,10 +330,10 @@ function(ui, message, search, task, url, redirect) {
     // FUNCTION TO SEARCH FOR CUSTOMER RECORDS TO BE PROCESSED
     // =======================================================
     
-    function searchCustomers() {
+    function searchCustomers(subsidiary) {
     		
-    	// run search to find customer records to be processed and return search results
-    	return search.create({
+    	// create search to find customer records to be processed and return search results
+    	var customerSearch = search.create({
     		type: search.Type.CUSTOMER,
     			
     		filters: [{
@@ -306,13 +342,13 @@ function(ui, message, search, task, url, redirect) {
     			values: ['F']
     		},
     				{
-    			name: 'custentity_acc_customer_statement_email',
+    			name: 'email',
     			operator: search.Operator.ISNOTEMPTY,
     			values: []
     		},
     				{
     			name: 'balance',
-    			operator: search.Operator.GREATERTHAN,
+    			operator: search.Operator.NOTEQUALTO,
     			values: [0.00]
     		}],
     			
@@ -324,7 +360,8 @@ function(ui, message, search, task, url, redirect) {
     			name: 'altname'
     		},
     				{
-    			name: 'custentity_acc_customer_statement_email'
+    			name: 'formulatext',
+    			formula: 'CASE WHEN {custentity_acc_customer_statement_email} IS NOT NULL THEN {custentity_acc_customer_statement_email} ELSE {email} END'
     		},
     				{
     			name: 'currency'
@@ -333,8 +370,32 @@ function(ui, message, search, task, url, redirect) {
     			name: 'fxbalance'
     		}],
 
-    	}).run();
-    		
+    	});
+    	
+    	// if subsidiary returns a value
+    	if (subsidiary)
+    		{
+	    		// add a new filter to the search to filter the subsidiary
+    			customerSearch.filters.push(search.createFilter({
+													name: 'subsidiary',
+													operator: search.Operator.ANYOF,
+													values: [subsidiary]
+												})
+											);
+    		}
+    	else
+    		{
+	    		// add a new filter to the search to filter the subsidiary (user's subsidiary)
+				customerSearch.filters.push(search.createFilter({
+													name: 'subsidiary',
+													operator: search.Operator.ANYOF,
+													values: [runtime.getCurrentUser().subsidiary]
+												})
+											);
+    		}
+    	
+    	// return search object
+    	return customerSearch;
     }
     
     // ==================================================================
