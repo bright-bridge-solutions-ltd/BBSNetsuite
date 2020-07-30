@@ -25,6 +25,10 @@ function(record, search) {
 			var outputDocName 	= currentRecord.getValue({fieldId: 'custentity_bbs_ouput_doc_name'});
 			var companyName 	= currentRecord.getValue({fieldId: 'companyname'});
 				
+			//Get the parent company
+			//
+			var parentCompany 	= currentRecord.getValue({fieldId: 'parent'});
+			
 			//Get the count of address lines
 			//
 	    	var addressLines = currentRecord.getLineCount({sublistId: 'addressbook'}); 
@@ -55,7 +59,7 @@ function(record, search) {
 							addrUrl		= 'https://www.google.com/maps/place/';
 							//addrUrl		= '<p><a href="https://www.google.com/maps/place/';
 									
-							if(addr1 != null && addr1 != '')
+				/*			if(addr1 != null && addr1 != '')
 								{
 									addrUrl += addr1.replace(/ /g,'+') + ',';
 								}
@@ -74,7 +78,7 @@ function(record, search) {
 								{
 									addrUrl += state.replace(/ /g,'+') + ',';
 								}
-								
+					*/			
 							if(zip != null && zip != '')
 								{
 									addrUrl += zip.replace(/ /g,'+');
@@ -89,9 +93,9 @@ function(record, search) {
 							fieldObj['custentity_bbs_del_address'] 		= addrtext;
 							fieldObj['custentity_bbs_del_address_map']	= addrUrl;
 									
-							//Check to see if we need to update output document name
+							//Check to see if we need to update output document name, only if output doc name is empty & parent company is not empty
 							//
-							if(outputDocName == null || outputDocName == '')
+							if((outputDocName == null || outputDocName == '') && (parentCompany != null && parentCompany != ''))
 										{
 											fieldObj['custentity_bbs_ouput_doc_name'] 	= companyName; 
 											fieldObj['companyname'] 					= companyName + ' - ' + zip;

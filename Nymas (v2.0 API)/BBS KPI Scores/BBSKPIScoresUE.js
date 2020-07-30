@@ -42,7 +42,7 @@ function(record, search)
 					//Get the company & contact from the activity
 					//
 					activityCompany 	= currentRecord.getValue({fieldId: 'company'});
-					activityContact 	= currentRecord.getValue({fieldId: 'assigned'});
+					activityContact 	= currentRecord.getValue({fieldId: 'contact'});
 					
 					//Get the activity category based on the record type
 					//
@@ -77,9 +77,18 @@ function(record, search)
 																type:		search.Type.CUSTOMER,
 																id:			activityCompany,
 																columns:	'custentity_bbs_channel'
-																})['custentity_bbs_channel'];
+																});
 							
-							companyChannel = (companyChannel.length > 0 ? companyChannel[0].value : null);
+							if(companyChannel.hasOwnProperty('custentity_bbs_channel'))
+								{
+									companyChannel = companyChannel['custentity_bbs_channel'];
+									companyChannel = (companyChannel.length > 0 ? companyChannel[0].value : null);
+								}
+							else
+								{
+									companyChannel = null;
+								}
+							
 							
 							//Did we get a company channel?
 							//
@@ -95,9 +104,18 @@ function(record, search)
 																					type:		search.Type.CONTACT,
 																					id:			activityContact,
 																					columns:	'custentity_bbs_nymas_job_title'
-																					})['custentity_bbs_nymas_job_title'];
+																					});
 											
-											contactJobTitle = (contactJobTitle.length > 0 ? contactJobTitle[0].value : null);
+											if(contactJobTitle.hasOwnProperty('custentity_bbs_nymas_job_title'))
+												{
+													contactJobTitle = contactJobTitle['custentity_bbs_nymas_job_title'];
+													contactJobTitle = (contactJobTitle.length > 0 ? contactJobTitle[0].value : null);
+												}
+											else
+												{
+													contactJobTitle = null;
+												}
+											
 											
 											//Did we get a job title?
 											//

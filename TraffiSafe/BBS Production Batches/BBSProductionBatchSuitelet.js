@@ -532,6 +532,13 @@ function productionBatchSuitelet(request, response)
 				var listBelongs = subList.addField('custpage_sublist_belongs', 'text', 'Assembly Belongs To', null);
 				var listQty = subList.addField('custpage_sublist_qty', 'integer', 'Quantity', null);
 				var listDate = subList.addField('custpage_sublist_date', 'text', 'Date Entered', null);
+				
+				if(soLink == 'T')
+					{
+						var listPromisedDate = subList.addField('custpage_sublist_promised_date', 'text', 'Promised Dispatch Date', null);
+					
+					}
+				
 				var listStatus = subList.addField('custpage_sublist_status', 'text', 'WO Commit Status', null);
 				var listId = subList.addField('custpage_sublist_id', 'text', 'Id', null);
 				listId.setDisplayType('hidden');
@@ -608,7 +615,8 @@ function productionBatchSuitelet(request, response)
 						   new nlobjSearchColumn("custbody_bbs_wo_ffi",null,null), 
 						   new nlobjSearchColumn("custbody_bbs_commitment_status","createdFrom",null), 
 						   new nlobjSearchColumn("tranid","createdFrom",null), 
-						   new nlobjSearchColumn("externalid","customer",null)
+						   new nlobjSearchColumn("externalid","customer",null),
+						   new nlobjSearchColumn("custbodycust_bw_promised_dispatch_date","createdFrom",null)
 						]
 						);
 						
@@ -658,6 +666,11 @@ function productionBatchSuitelet(request, response)
 					subList.setLineItemValue('custpage_sublist_so_status', line, searchResultSet[int].getText('custbody_bbs_commitment_status','createdFrom'));
 					subList.setLineItemValue('custpage_sublist_so_tranid', line, searchResultSet[int].getValue('tranid','createdFrom'));
 					subList.setLineItemValue('custpage_sublist_cust_entityid', line, searchResultSet[int].getValue('externalid','customer'));
+					
+					if(soLink == 'T')
+						{
+							subList.setLineItemValue('custpage_sublist_promised_date', line, searchResultSet[int].getValue('custbodycust_bw_promised_dispatch_date','createdFrom'));
+						}
 				}
 		
 				switch(mode)
