@@ -24,16 +24,3 @@ function salesOrderFieldChanged(type, name, linenum)
 		}
 	
 }
-
-/**
-* The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
-* @appliedtorecord recordType
-* 
-* @param {String} type Sublist internal id
-* @param {String} name Field internal id
-* @returns {Void}
-*/
-function clientPostSourcing(type, name) 
-{
-  
-}

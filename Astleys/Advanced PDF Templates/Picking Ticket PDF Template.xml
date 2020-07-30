@@ -10,14 +10,19 @@
 				<tr>
 					<td align="left" style="padding-bottom: 10px;">Order #<br/>${record.tranid}</td>
                   	<td align="left" style="padding-bottom: 10px;" colspan="2"><barcode codetype="code128" showtext="false" value="${record.tranid}"/></td>
-                  	<td align="left" colspan="2" style="vertical-align: middle; padding-bottom: 10px">Ship Date: ${record.shipdate?string["dd MMM yyyy"]}</td>
+                  	<td align="left" colspan="2" style="vertical-align: middle; padding-bottom: 10px">Ship Date: ${record.shipdate?string["dd MMM yyyy"]}<br/><br/>Shipping Charge: ${record.shippingcost}</td>
                   	<td align="right" style="font-size:14pt; font-weight: bold; padding-bottom: 10px">${record.shipdate?string["E"]}</td>
 				</tr>
               	<tr>
 					<td align="left" style="padding-bottom: 10px;">Ship Method<br/>${record.shipmethod}</td>
                   	<td align="left" style="padding-bottom: 10px;" colspan="2">&nbsp;</td>
-                  	<td align="left" colspan="2" style="vertical-align: middle; padding-bottom: 10px;">&nbsp;</td>
+                  	<td align="left" colspan="2" style="vertical-align: middle; padding-bottom: 10px;">Order Taken By: ${record.custbody_bbs_createdby}</td>
                   	<td align="right" style="font-size:14pt; font-weight: bold; padding-bottom: 10px;">&nbsp;</td>
+				</tr>
+				<tr>
+					<td align="left" style="padding-bottom: 10px;">&nsbp;</td>
+                  	<td align="left" style="padding-bottom: 10px;" colspan="2">&nbsp;</td>
+                  	<td align="left" colspan="3" style="vertical-align: middle; padding-bottom: 10px;">Order Date/Time: ${record.custbody_bbs_datecreated}</td>
 				</tr>
          	</table>
 
@@ -32,6 +37,9 @@
               	<tr>
 					<td class="address">${record.shipaddress}</td>
 				</tr>
+			</table>
+			
+			<table style="width: 100%;">
 				<tr>
                   	<td rowspan="5" style="margin-top: 10px; border: 1px solid black;"><b>DELIVERY INSTRUCTIONS</b><br/><br/>${record.custbody_bbs_so_delivery_instructions}</td>
 				</tr>
@@ -124,44 +132,40 @@
 </style>
 </head>
 
-<body header="nlheader" header-height="200pt" footer="nlfooter" footer-height="20pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="225pt" footer="nlfooter" footer-height="20pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
 
 
   
 <#if record.item?has_content>
-
-<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list record.item as item><#if item_index==0>
-<thead>
-	<tr>
-	<th>${item.custcol_bbs_item_bin@label}</th>
-    <th colspan="4">${item.item@label}</th>
-	<th>${item.options@label}</th>
-	<th>${item.quantity@label}</th>
-	<th>${item.units@label}</th>
-	<th colspan="2">${item.quantitycommitted@label}</th>
-    <th>${item.custcol_bbs_item_bin@label}</th>
-	</tr>
-</thead>
-</#if>
-  <tr>
-	<td>${item.custcol_bbs_item_bin}</td>
-  	<td colspan="4"><span class="itemname">${item.custcol_bbs_sku}</span>&nbsp;${item.description}</td>
-	<td>${item.options}</td>
-	<td>${item.quantity}</td>
-	<td>${item.units}</td>
-	<td colspan="2">${item.quantitycommitted}</td>
-    <td>${item.custcol_bbs_item_bin}</td>
-  </tr>
-      <#if item.custcol_bbs_item_serialornot>
-      <tr>
-      <td>&nbsp;</td>
-      <td colspan="10" height="150%"><b>Serial No(s).</b></td>
-      </tr>
-        </#if>
-
-    
-	</#list><!-- end items --></table>
+	<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items -->
+		<#list record.item as item>
+			<#if item_index==0>
+				<thead>
+					<tr>
+					    <th>${item.custcol_bbs_item_bin@label}</th>
+						<th colspan="4">${item.item@label}</th>
+						<th>${item.options@label}</th>
+						<th>${item.quantity@label}</th>
+						<th>${item.units@label}</th>
+						<th colspan="2">${item.quantitycommitted@label}</th>
+					    <th>${item.custcol_bbs_item_bin@label}</th>
+					</tr>
+				</thead>
+			</#if>
+			<tr>
+  				<td>${item.custcol_bbs_item_bin}</td>
+				<td colspan="4"><span class="itemname">${item.custcol_bbs_sku}</span>&nbsp;${item.description}</td>
+				<td>${item.options}</td>
+				<td>${item.quantity}</td>
+				<td>${item.units}</td>
+				<td colspan="2">${item.quantitycommitted}</td>
+      			<td>${item.custcol_bbs_item_bin}</td>
+			</tr>
+		</#list><!-- end items -->
+	</table>
+<#else>
+	<p>&nbsp;</p>
 </#if>
 </body>
 </pdf>
