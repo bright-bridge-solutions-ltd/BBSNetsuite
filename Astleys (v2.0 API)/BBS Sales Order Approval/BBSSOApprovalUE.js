@@ -124,7 +124,7 @@ function(search, runtime, render, email) {
     	var customerLookup = search.lookupFields({
     		type: search.Type.CUSTOMER,
     		id: customerID,
-    		columns: ['creditlimit', 'balance', 'unbilledorders', 'overduebalance']
+    		columns: ['creditlimit', 'balance', 'unbilledorders', 'overduebalance', 'pricelevel']
     	});
     	
     	// retrieve values from the customerLookup object
@@ -132,6 +132,7 @@ function(search, runtime, render, email) {
 		var balance		= customerLookup.balance;
 		var unbilled	= customerLookup.unbilledorders;
 		var overdue		= customerLookup.overduebalance;
+		var priceLevel 	= customerLookup.pricelevel[0].value;
 		
 		// do we have a credit limit
 		if (creditLimit)
@@ -139,7 +140,7 @@ function(search, runtime, render, email) {
 				// use parseFloat to convert to number
 				creditLimit = parseFloat(creditLimit);
 			}
-		
+				
 		// do we have a balance
 		if (balance)
 			{
@@ -151,7 +152,7 @@ function(search, runtime, render, email) {
 				// set balance to 0
 				balance = 0;
 			}
-		
+				
 		// do we have an unbilled balance
 		if (unbilled)
 			{
@@ -163,7 +164,7 @@ function(search, runtime, render, email) {
 				// set unbilled to 0
 				unbilled = 0;
 			}
-		
+				
 		// do we have an overdue balance
 		if (overdue)
 			{
@@ -175,12 +176,12 @@ function(search, runtime, render, email) {
 				// set overdue to 0
 				overdue = 0;
 			}
-		
+				
 		// add unbilled and balance together
 		balance = balance + unbilled;
-		
-		// if we have a creditLimit AND the customer exceeded their credit limit OR has an overdue balance
-		if ((creditLimit && balance > creditLimit) || overdue > 0)
+				
+		// if we have a creditLimit AND the customer exceeded their credit limit OR priceLevel is not 18 (Citizen) AND 11 (UoB) AND overdue balance greater than 250
+		if ((creditLimit && balance > creditLimit) || (priceLevel != 18 && priceLevel != 11 && overdue > 250))
 			{
 				// set creditControlApproval variable to true
 				creditControlApproval = true;
