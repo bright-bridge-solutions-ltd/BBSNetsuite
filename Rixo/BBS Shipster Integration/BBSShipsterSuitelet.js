@@ -281,52 +281,56 @@ function(file, record, search, http, xml, format)
 					        						var packageWeight	= Number(fulfilmentRecord.getSublistValue({sublistId: 'package', fieldId: 'packageweight', line: packages}));
 					        						var packageName		= fulfilmentRecord.getSublistValue({sublistId: 'package', fieldId: 'packagedescr', line: packages});
 					        					
-					        						totalPackageWeight += packageWeight;
-					        						
-					        						//Start of new package
-					        						//
-					        						xmlString += '<DespatchPackage>\n';
-					        						xmlString += '<PackageName>' 			+ xml.escape({xmlText: packageName}) 					+ '</PackageName>\n';
-					        						xmlString += '<Weight>' 				+ xml.escape({xmlText: packageWeight.toFixed(2)}) 		+ '</Weight>\n';
-					        						xmlString += '<TotalGrossWeight>' 		+ xml.escape({xmlText: packageWeight.toFixed(2)}) 		+ '</TotalGrossWeight>\n';
+					        						if(packageName != null && packageName != '')
+					        							{
+							        						totalPackageWeight += packageWeight;
+							        						
+							        						//Start of new package
+							        						//
+							        						xmlString += '<DespatchPackage>\n';
+							        						xmlString += '<PackageName>' 			+ xml.escape({xmlText: packageName}) 					+ '</PackageName>\n';
+							        						xmlString += '<Weight>' 				+ xml.escape({xmlText: packageWeight.toFixed(2)}) 		+ '</Weight>\n';
+							        						xmlString += '<TotalGrossWeight>' 		+ xml.escape({xmlText: packageWeight.toFixed(2)}) 		+ '</TotalGrossWeight>\n';
+								        					
+								        					//Items in package
+								        					//
+								        					xmlString += '<Items>\n';
+								        					
+								        					for (var itemIndex = 0; itemIndex < itemsArray.length; itemIndex++) 
+								        						{
+								        							var packagesArray = itemsArray[itemIndex].packages;
+								        							
+								        							for (var packageIndex = 0; packageIndex < packagesArray.length; packageIndex++) 
+											        					{
+									        								if(packagesArray[packageIndex].package == packageName)
+										        								{
+											        								xmlString += '<Item>\n';
+											        								
+														        					xmlString += '<Name>' 					+ xml.escape({xmlText: itemsArray[itemIndex].description}) 																+ '</Name>\n';
+														        					xmlString += '<ItemCode>' 				+ xml.escape({xmlText: itemsArray[itemIndex].name}) 																	+ '</ItemCode>\n';
+														        					xmlString += '<QuantityOrdered>' 		+ xml.escape({xmlText: packagesArray[packageIndex].quantity.toFixed(2)}) 												+ '</QuantityOrdered>\n';
+														        					xmlString += '<BuyPrice>' 				+ xml.escape({xmlText: (packagesArray[packageIndex].quantity * itemsArray[itemIndex].cost).toFixed(2)}) 				+ '</BuyPrice>\n';
+														        					xmlString += '<RetailPrice>' 			+ xml.escape({xmlText: (packagesArray[packageIndex].quantity * itemsArray[itemIndex].rate).toFixed(2)}) 				+ '</RetailPrice>\n';
+														        					xmlString += '<Weight>' 				+ xml.escape({xmlText: itemsArray[itemIndex].itemUnitWeight.toFixed(2)}) 												+ '</Weight>\n';
+														        					xmlString += '<TotalGrossWeight>' 		+ xml.escape({xmlText: (packagesArray[packageIndex].quantity * itemsArray[itemIndex].itemUnitWeight).toFixed(2)}) 		+ '</TotalGrossWeight>\n';
+														        					xmlString += '<Attribute1>' 			+ xml.escape({xmlText: itemsArray[itemIndex].rate.toFixed(2)}) 															+ '</Attribute1>\n';
+														        					xmlString += '<Attribute2>' 			+ xml.escape({xmlText: itemsArray[itemIndex].vat.toFixed(2)}) 															+ '</Attribute2>\n';
+														        					xmlString += '<CommodityCode>' 			+ xml.escape({xmlText: itemsArray[itemIndex].commodityCode}) 															+ '</CommodityCode>\n';
+														        					xmlString += '<CountryOfManufacture>' 	+ xml.escape({xmlText: itemsArray[itemIndex].countryOfManufacture}) 													+ '</CountryOfManufacture>\n';
+														        					xmlString += '<ItemGroupName>' 			+ xml.escape({xmlText: itemsArray[itemIndex].groupName}) 																+ '</ItemGroupName>\n';
+														        					
+														        					xmlString += '</Item>\n';
+										        								}
+											        					}
+								        						}
+								        					
+								        					xmlString += '</Items>\n';
+								        					
+								        					//End of package
+								        					//
+								        					xmlString += '</DespatchPackage>\n';
 						        					
-						        					//Items in package
-						        					//
-						        					xmlString += '<Items>\n';
-						        					
-						        					for (var itemIndex = 0; itemIndex < itemsArray.length; itemIndex++) 
-						        						{
-						        							var packagesArray = itemsArray[itemIndex].packages;
-						        							
-						        							for (var packageIndex = 0; packageIndex < packagesArray.length; packageIndex++) 
-									        					{
-							        								if(packagesArray[packageIndex].package == packageName)
-								        								{
-									        								xmlString += '<Item>\n';
-									        								
-												        					xmlString += '<Name>' 					+ xml.escape({xmlText: itemsArray[itemIndex].description}) 																+ '</Name>\n';
-												        					xmlString += '<ItemCode>' 				+ xml.escape({xmlText: itemsArray[itemIndex].name}) 																	+ '</ItemCode>\n';
-												        					xmlString += '<QuantityOrdered>' 		+ xml.escape({xmlText: packagesArray[packageIndex].quantity.toFixed(2)}) 												+ '</QuantityOrdered>\n';
-												        					xmlString += '<BuyPrice>' 				+ xml.escape({xmlText: (packagesArray[packageIndex].quantity * itemsArray[itemIndex].cost).toFixed(2)}) 				+ '</BuyPrice>\n';
-												        					xmlString += '<RetailPrice>' 			+ xml.escape({xmlText: (packagesArray[packageIndex].quantity * itemsArray[itemIndex].rate).toFixed(2)}) 				+ '</RetailPrice>\n';
-												        					xmlString += '<Weight>' 				+ xml.escape({xmlText: itemsArray[itemIndex].itemUnitWeight.toFixed(2)}) 												+ '</Weight>\n';
-												        					xmlString += '<TotalGrossWeight>' 		+ xml.escape({xmlText: (packagesArray[packageIndex].quantity * itemsArray[itemIndex].itemUnitWeight).toFixed(2)}) 		+ '</TotalGrossWeight>\n';
-												        					xmlString += '<Attribute1>' 			+ xml.escape({xmlText: itemsArray[itemIndex].rate.toFixed(2)}) 															+ '</Attribute1>\n';
-												        					xmlString += '<Attribute2>' 			+ xml.escape({xmlText: itemsArray[itemIndex].vat.toFixed(2)}) 															+ '</Attribute2>\n';
-												        					xmlString += '<CommodityCode>' 			+ xml.escape({xmlText: itemsArray[itemIndex].commodityCode}) 															+ '</CommodityCode>\n';
-												        					xmlString += '<CountryOfManufacture>' 	+ xml.escape({xmlText: itemsArray[itemIndex].countryOfManufacture}) 													+ '</CountryOfManufacture>\n';
-												        					xmlString += '<ItemGroupName>' 			+ xml.escape({xmlText: itemsArray[itemIndex].groupName}) 																+ '</ItemGroupName>\n';
-												        					
-												        					xmlString += '</Item>\n';
-								        								}
-									        					}
-						        						}
-						        					
-						        					xmlString += '</Items>\n';
-						        					
-						        					//End of package
-						        					//
-						        					xmlString += '</DespatchPackage>\n';
+					        							}
 					        					}
 					        				
 					        				//End of packages

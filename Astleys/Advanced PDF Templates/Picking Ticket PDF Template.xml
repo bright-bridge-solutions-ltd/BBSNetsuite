@@ -16,7 +16,17 @@
               	<tr>
 					<td align="left" style="padding-bottom: 10px;">Ship Method<br/>${record.shipmethod}</td>
                   	<td align="left" style="padding-bottom: 10px;" colspan="2">&nbsp;</td>
+<<<<<<< HEAD
                   	<td align="left" colspan="2" style="vertical-align: middle; padding-bottom: 10px;">Order Taken By: ${record.custbody_bbs_createdby}</td>
+=======
+                  	<td align="left" colspan="2" style="vertical-align: middle; padding-bottom: 10px;">Order Taken By<br/>${record.custbody_bbs_createdby}</td>
+                  	<td align="right" style="font-size:14pt; font-weight: bold; padding-bottom: 10px;">&nbsp;</td>
+				</tr>
+				<tr>
+					<td align="left" style="padding-bottom: 10px;">&nbsp;</td>
+                  	<td align="left" style="padding-bottom: 10px;" colspan="2">&nbsp;</td>
+                  	<td align="left" colspan="2" style="vertical-align: middle; padding-bottom: 10px;">Order Date/Time<br/>${record.custbody_bbs_datecreated}</td>
+>>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite
                   	<td align="right" style="font-size:14pt; font-weight: bold; padding-bottom: 10px;">&nbsp;</td>
 				</tr>
 				<tr>
@@ -132,12 +142,14 @@
 </style>
 </head>
 
+<<<<<<< HEAD
 <body header="nlheader" header-height="225pt" footer="nlfooter" footer-height="20pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+=======
+<body header="nlheader" header-height="250pt" footer="nlfooter" footer-height="20pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+>>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite
 
-
-
-  
 <#if record.item?has_content>
+<<<<<<< HEAD
 	<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items -->
 		<#list record.item as item>
 			<#if item_index==0>
@@ -166,6 +178,44 @@
 	</table>
 <#else>
 	<p>&nbsp;</p>
+=======
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items--><#list record.item as item><#if item_index==0>
+<thead>
+	<tr>
+	<th>${item.custcol_bbs_item_bin@label}</th>
+    <th colspan="4">${item.item@label}</th>
+	<th>${item.options@label}</th>
+	<th>${item.quantity@label}</th>
+	<th>${item.units@label}</th>
+	<th colspan="2">${item.quantitycommitted@label}</th>
+    <th>${item.custcol_bbs_item_bin@label}</th>
+	</tr>
+</thead>
 </#if>
+  <tr>
+	<td>${item.custcol_bbs_item_bin}</td>
+  	<td colspan="4"><span class="itemname">${item.custcol_bbs_sku}</span>&nbsp;${item.description}</td>
+	<td>${item.options}</td>
+	<td>${item.quantity}</td>
+	<td>${item.units}</td>
+	<td colspan="2">${item.quantitycommitted}</td>
+    
+    <td>${item.custcol_bbs_item_bin}</td>
+  </tr>
+      <#if item.custcol_bbs_item_serialornot?has_content>
+      	<tr>
+      		<td>&nbsp;</td>
+      		<td colspan="10" height="150%"><b>Serial No(s).</b></td>
+      	</tr>
+       </#if>
+
+    
+	</#list><!-- end items </table>
+>>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite
+</#if>
+
+  
+
 </body>
 </pdf>
