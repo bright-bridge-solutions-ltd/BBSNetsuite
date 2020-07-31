@@ -50,10 +50,10 @@ function(search, runtime, render, email) {
 		    			// check the user's role is not 3 (Administrator) OR approvalRole AND creditControlApproval returns true
 		    			if (userRole != 3 && userRole != approvalRole && creditControlApproval == true)
 		    				{
-		    					// disable the approval button
+		    					// hidden the approval button
 		    					scriptContext.form.getButton({
 						    		id: 'approve'
-						    	}).isDisabled = true;
+						    	}).isHidden = true;
 		    				}
     				}
     		}
@@ -124,12 +124,13 @@ function(search, runtime, render, email) {
     	var customerLookup = search.lookupFields({
     		type: search.Type.CUSTOMER,
     		id: customerID,
-    		columns: ['creditlimit', 'balance', 'overduebalance']
+    		columns: ['creditlimit', 'balance', 'unbilledorders', 'overduebalance']
     	});
     	
     	// retrieve values from the customerLookup object
 		var creditLimit = customerLookup.creditlimit;
 		var balance		= customerLookup.balance;
+		var unbilled	= customerLookup.unbilledorders;
 		var overdue		= customerLookup.overduebalance;
 		
 		// do we have a credit limit
@@ -137,11 +138,6 @@ function(search, runtime, render, email) {
 			{
 				// use parseFloat to convert to number
 				creditLimit = parseFloat(creditLimit);
-			}
-		else
-			{
-				// set creditLimit to 0
-				creditLimit = 0;
 			}
 		
 		// do we have a balance
@@ -156,6 +152,18 @@ function(search, runtime, render, email) {
 				balance = 0;
 			}
 		
+		// do we have an unbilled balance
+		if (unbilled)
+			{
+				// use parseFloat to conver to number
+				unbilled = parseFloat(unbilled);
+			}
+		else
+			{
+				// set unbilled to 0
+				unbilled = 0;
+			}
+		
 		// do we have an overdue balance
 		if (overdue)
 			{
@@ -168,8 +176,11 @@ function(search, runtime, render, email) {
 				overdue = 0;
 			}
 		
-		// has the customer exceeded their credit limit OR has an overdue balance
-		if (balance > creditLimit || overdue > 0)
+		// add unbilled and balance together
+		balance = balance + unbilled;
+		
+		// if we have a creditLimit AND the customer exceeded their credit limit OR has an overdue balance
+		if ((creditLimit && balance > creditLimit) || overdue > 0)
 			{
 				// set creditControlApproval variable to true
 				creditControlApproval = true;
