@@ -23,8 +23,9 @@ function(ui, message, runtime, search, task, url, redirect) {
     			var today = new Date();
     			
     			// retrieve script parameters
-    			var statementsSent	= context.request.parameters.statementssent;
-    			var subsidiary		= context.request.parameters.subsidiary;
+    			var statementsSent	= 	context.request.parameters.statementssent;
+    			var subsidiary		= 	context.request.parameters.subsidiary;
+    			var consolidate		=	context.request.parameters.consolidate;
     		
     			// create form
 				var form = ui.createForm({
@@ -105,6 +106,7 @@ function(ui, message, runtime, search, task, url, redirect) {
 				statementDate.defaultValue			= new Date(today.getFullYear(), today.getMonth()+1, 0); // last day of current month
 				openTransactionsOnly.defaultValue	= 'T';
 				inCustomerLocale.defaultValue		= 'T';
+				consolidateStatements.defaultValue	= consolidate;
 				
 				// if subsidiary returns a value
 				if (subsidiary)
@@ -174,7 +176,7 @@ function(ui, message, runtime, search, task, url, redirect) {
 				});
 				
 				// call function to search for customer records
-				var searchResults = searchCustomers(subsidiary);
+				var searchResults = searchCustomers(subsidiary, consolidate);
 				
 				// initiate line variable
 				var line = 0;
@@ -330,7 +332,7 @@ function(ui, message, runtime, search, task, url, redirect) {
     // FUNCTION TO SEARCH FOR CUSTOMER RECORDS TO BE PROCESSED
     // =======================================================
     
-    function searchCustomers(subsidiary) {
+    function searchCustomers(subsidiary, consolidate) {
     		
     	// create search to find customer records to be processed and return search results
     	var customerSearch = search.create({
@@ -392,6 +394,19 @@ function(ui, message, runtime, search, task, url, redirect) {
 													values: [runtime.getCurrentUser().subsidiary]
 												})
 											);
+    		}
+    	
+    	// if consolidate returns 'T'
+    	if (consolidate == 'T')
+    		{
+    			// add a new filter to the search to only display parent customers
+		    		customerSearch.filters.push(search.createFilter({
+						name: 'internalid',
+						join: 'parentcustomer',
+						operator: search.Operator.ANYOF,
+						values: ['@NONE@']
+					})
+				);
     		}
     	
     	// return search object

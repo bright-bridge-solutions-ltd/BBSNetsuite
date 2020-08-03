@@ -33,20 +33,25 @@ function(url, dialog) {
      */
     function fieldChanged(scriptContext) {
     	
-    	// If the subsidiary field has been changed
-    	if (scriptContext.fieldId == 'subsidiary')
+    	// if the subsidiary or consolidate statement fields have been changed
+    	if (scriptContext.fieldId == 'subsidiary' || scriptContext.fieldId == 'consolidatestatements')
     		{
-    			// get the value of the subsidiary field
+    			// get the value of the subsidiary and consolidate statement fields
     			var subsidiary = scriptContext.currentRecord.getValue({
     				fieldId: 'subsidiary'
     			});
+    			
+    			var consolidateStatements = convertToNonBoolean(scriptContext.currentRecord.getValue({
+    				fieldId: 'consolidatestatements'
+    			})); // call function to convert to non boolean
     			
     			// get the URL of the Suitelet and pass customer ID/openOnly to the Suitelet as a parameter
     			var suiteletURL = url.resolveScript({
     			    scriptId: 'customscript_bbs_customer_statements_sl',
     			    deploymentId: 'customdeploy_bbs_customer_statements_sl',
     			    params: {
-    			    	subsidiary: subsidiary
+    			    	subsidiary: subsidiary,
+    			    	consolidate: consolidateStatements
     			    }
     			});
     			
@@ -221,6 +226,32 @@ function(url, dialog) {
 				return false;
 			}
 
+    }
+    
+    // =========================================
+    // FUNCTION TO CONVERT VALUES TO NON BOOLEAN
+    // =========================================
+    
+    function convertToNonBoolean(value) {
+    	
+    	// declare and initialize variables
+    	var returnValue = null;
+    	
+    	// if value is true
+    	if (value == true)
+    		{
+    			// set returnValue to 'T'
+    			returnValue = 'T';
+    		}
+    	else if (value == false) // if value is false
+    		{
+    			// set returnValue to 'F'
+    			returnValue = 'F'
+    		}
+    	
+    	// return returnValue to main script function
+    	return returnValue;
+    	
     }
 
     return {

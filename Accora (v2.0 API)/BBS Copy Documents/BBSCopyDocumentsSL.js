@@ -196,6 +196,12 @@ function(runtime, ui, message, search, render, email, url, redirect) {
 						});
 						
 						transactionSublist.addField({
+							type: ui.FieldType.DATE,
+							id: 'duedate',
+							label: 'Due Date'
+						});
+						
+						transactionSublist.addField({
 							type: ui.FieldType.CURRENCY,
 							id: 'transactionamount',
 							label: 'Amount'
@@ -231,6 +237,10 @@ function(runtime, ui, message, search, render, email, url, redirect) {
 							
 							var customerName = result.getText({
 								name: 'mainname'
+							});
+							
+							var dueDate = result.getValue({
+								name: 'duedate'
 							});
 							
 							var amount = result.getValue({
@@ -273,6 +283,16 @@ function(runtime, ui, message, search, render, email, url, redirect) {
 								line: line,
 								value: customerName
 							});
+							
+							// if we have a due date
+							if (dueDate)
+								{
+									transactionSublist.setSublistValue({
+										id: 'duedate',
+										line: line,
+										value: dueDate
+									});
+								}
 							
 							transactionSublist.setSublistValue({
 								id: 'transactionamount',
@@ -428,7 +448,10 @@ function(runtime, ui, message, search, render, email, url, redirect) {
     			sort: search.Sort.ASC
     		},
     				{
-    			name: 'statusref',
+    			name: 'statusref'
+    		},
+    				{
+    			name: 'duedate',
         		sort: search.Sort.ASC
     		},
     				{

@@ -33,7 +33,7 @@ function(runtime, record, search, libraryModule, plugin)
 					{
 						try
 							{
-								// get the current record and required info to populate request
+								// get the old/current records and required info to populate request
 								var currentRecord 		= 	scriptContext.newRecord;
 								var currentRecordType	=	currentRecord.type;
 								var currentRecordID		=	currentRecord.id;
@@ -64,6 +64,18 @@ function(runtime, record, search, libraryModule, plugin)
 									{
 										// set adjustment variable to false
 										var adjustment = false;	
+									}
+								
+								// if this is an invoice
+								if (currentRecordType == 'invoice')
+									{
+										// get the value of the commit taxes field from the current record object
+										var commitTaxes	= currentRecord.getValue({fieldId: 'custbody_bbs_tfc_commit_taxes'});
+									}
+								else
+									{
+										// set commitTaxes variable to false
+										var commitTaxes = false;
 									}
 								
 								// call function to return/lookup fields on the customer record
@@ -116,7 +128,7 @@ function(runtime, record, search, libraryModule, plugin)
 								        //Fill in the invoice line object properties (details about the invoice/sales order we are processing)
 										//
 										taxReqInvObj.doc			=	currentRecordID;
-										taxReqInvObj.cmmt			=	false; // do not commit straight away
+										taxReqInvObj.cmmt			=	commitTaxes;
 										taxReqInvObj.bill.pcd		=	billToPCode;
 										taxReqInvObj.cust			=	customerType;
 										taxReqInvObj.lfln			=	lifeline;
