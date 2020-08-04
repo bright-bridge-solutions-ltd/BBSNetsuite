@@ -68,11 +68,24 @@
         </macro>
         <macro id="nlfooter">
 		<table style="width: 100%;">
-         <tr class="messagerow">
-            <td align="left" class="message">${regInfo}<br/>${regInfo1}</td>
-		  </tr>
+        	<tr>
+          		<td><b>Bank Details for payment: Account Number: 00178123 Sort Code: 30-92-33</b></td>
+          	</tr>
+          	<tr>
+            	<td>&nbsp;</td>
+          	</tr>
         </table>
-
+       <table style="width: 100%;">
+      		<tr class="messagerow">
+          		<td align="left" class="message"><b>${footerMsg}</b></td>
+		  	</tr>
+		  	<tr class="messagerow">
+              <td align="left" class="message">&nbsp;</td>
+		  	</tr>
+         	<tr class="messagerow">
+            	<td align="left" class="message">${regInfo}<br/>${regInfo1}</td>
+		  	</tr>
+        </table>
 		<table class="footer" style="width: 100%;">
           <tr>
 			<td align="right"><pagenumber/> of <totalpages/></td>
@@ -180,7 +193,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="300px" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="300px" footer="nlfooter" footer-height="50px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
     <#if record.lines?has_content>
 <table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list record.lines as line><#if line_index==0>

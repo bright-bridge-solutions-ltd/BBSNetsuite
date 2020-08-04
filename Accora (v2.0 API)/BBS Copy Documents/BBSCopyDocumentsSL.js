@@ -200,7 +200,13 @@ function(runtime, ui, message, search, render, email, url, redirect) {
 							id: 'duedate',
 							label: 'Due Date'
 						});
-						
+                        
+				        transactionSublist.addField({
+							type: ui.FieldType.TEXT,
+							id: 'otherrefnum',
+							label: 'PO No'
+						});
+                        
 						transactionSublist.addField({
 							type: ui.FieldType.CURRENCY,
 							id: 'transactionamount',
@@ -243,6 +249,10 @@ function(runtime, ui, message, search, render, email, url, redirect) {
 								name: 'duedate'
 							});
 							
+                            var poNum = result.getValue({
+								name: 'otherrefnum'
+							});
+                            
 							var amount = result.getValue({
 								name: 'fxamount'
 							});
@@ -294,6 +304,16 @@ function(runtime, ui, message, search, render, email, url, redirect) {
 									});
 								}
 							
+							// if we have a po number
+							if (poNum)
+								{
+									transactionSublist.setSublistValue({
+										id: 'otherrefnum',
+										line: line,
+										value: poNum
+									});
+								}
+                            
 							transactionSublist.setSublistValue({
 								id: 'transactionamount',
 								line: line,
@@ -453,6 +473,9 @@ function(runtime, ui, message, search, render, email, url, redirect) {
     				{
     			name: 'duedate',
         		sort: search.Sort.ASC
+    		},
+    				{
+    			name: 'otherrefnum'
     		},
     				{
     			name: 'fxamount'

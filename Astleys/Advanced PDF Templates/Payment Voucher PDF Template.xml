@@ -72,37 +72,19 @@
         </macro>
 
         <macro id="nlfooter">
-
-        <table style="width: 100%;">
-          <tr><td>&nbsp;</td></tr>
-          <tr><td>&nbsp;</td></tr>
-          <tr><td>&nbsp;</td></tr>
-          <tr><td>&nbsp;</td></tr>
-          <tr><td>&nbsp;</td></tr>
-          <tr><td>&nbsp;</td></tr>
-          <tr><td>&nbsp;</td></tr>
-          <tr><td>&nbsp;</td></tr>
-          <tr><td>&nbsp;</td></tr>
-        </table>
-
-
-
-        <table style="width: 100%;">
-
-          <tr class="messagerow">
-              <td align="left" class="message"><b>Cleared Funds Will Be Received Within 3 Business Days Of The Above Mentioned Payment Date</b></td>
-          </tr>
-          <tr class="messagerow">
-            <td align="left" class="message">${regInfo}</td>
-          </tr>
-        </table>
-
+			<table style="width: 100%;">
+          		<tr class="messagerow">
+              		<td align="left" class="message"><b>Cleared Funds Will Be Received Within 3 Business Days Of The Above Mentioned Payment Date</b></td>
+          		</tr>
+		       	<tr class="messagerow">
+		            <td align="left" class="message">${regInfo}</td>
+		       	</tr>
+        	</table>
         <table class="footer" style="width: 100%;">
-          <tr>
-            <td align="right"><pagenumber/> of <totalpages/></td>
-        </tr>
+          	<tr>
+            	<td align="right"><pagenumber/> of <totalpages/></td>
+        	</tr>
         </table>
-
         </macro>
     </macrolist>
 
@@ -208,7 +190,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="29%" footer="nlfooter" footer-height="11%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="225pt" footer="nlfooter" footer-height="30pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
     <table style="width: 100%;">
     <tr>

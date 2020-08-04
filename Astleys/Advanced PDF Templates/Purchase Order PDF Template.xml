@@ -202,7 +202,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="400px" footer="nlfooter" footer-height="25px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="400px" footer="nlfooter" footer-height="50px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
 
 <#if record.item?has_content>
@@ -213,11 +213,11 @@
     <th align="left" colspan="2"><br/>Code</th>
   	<th align="left" colspan="6"><br/>Description</th>
   	<th align="left" colspan="2"><br/>Supplier SKU</th>
-  	<th align="right" colspan="2">Pack<br/>Size</th>
-    <th align="right" colspan="1">Quantity</th>
-    <th align="right" colspan="2">Unit Price</th>
-    <th align="center" colspan="2">VAT Code</th>
-    <th align="right" colspan="2">Amount</th>
+  	<th align="right" colspan="2"><p align="right">Pack<br/>Size</p></th>
+    <th align="right" colspan="2"><br/>Quantity</th>
+    <th align="right" colspan="2"><p align="right">Unit<br/>Price</p></th>
+    <th align="center" colspan="2"><p align="right">VAT<br/>Code</p></th>
+    <th align="right" colspan="2"><br/>Amount</th>
   </tr>
 </thead>
 </#if>
@@ -227,7 +227,7 @@
   	<td align="left" colspan="6">${item.description}</td>
     <td align="left" colspan="2">${item.custcol_bbs_supplier_sku}</td>
     <td align="right" colspan="2">${item.units}</td>
-    <td align="right" colspan="1">${item.quantity}</td>
+    <td align="right" colspan="2">${item.quantity}</td>
     <td align="right" colspan="2">${item.rate}</td>
     <td align="center" colspan="2">${item.taxrate1}</td>
     <td align="right" colspan="2">${item.amount}</td>

@@ -215,11 +215,11 @@
 	<tr >
      <th align="left" colspan="2"><br/>Code</th>
   	<th align="left" colspan="6"><br/>Description</th>
-  		<th align="right">VAT<br/>Code</th>
-  		<th align="right">Pack<br/>Size</th>
-  		<th align="right"><br/>Quantity</th>
-  		<th align="right">Unit<br/>Price</th>
-  		<th align="right">Net<br/>Amount</th>
+  		<th align="right" colspan="2"><p align="right">VAT<br/>Code</p></th>
+  		<th align="right" colspan="2"><p align="right">Pack<br/>Size</p></th>
+  		<th align="right" colspan="2"><br/>Quantity</th>
+  		<th align="right" colspan="2"><p align="right">Unit<br/>Price</p></th>
+  		<th align="right" colspan="2"><p align="right">Net<br/>Amount</p></th>
 	</tr>
 </thead>
 </#if>
@@ -227,11 +227,11 @@
   <tr>
     <td align="left" colspan="2">${item.custcol_bbs_sku}</td>
   	<td align="left" colspan="6">${item.description}<br />${item.custcol_scm_customerpartnumber}</td>
-  	<td align="right">${item.taxrate1}</td>
-  	<td align="right">${item.units}</td>
-  	<td align="right">${item.quantity}</td>
-  	<td align="right">${item.rate?string("0.00")}</td>
-  	<td align="right">${item.amount?string("0.00")}</td>
+  	<td align="right" colspan="2">${item.taxrate1}</td>
+  	<td align="right" colspan="2">${item.units}</td>
+  	<td align="right" colspan="2">${item.quantity}</td>
+  	<td align="right" colspan="2">${item.rate?string("0.00")}</td>
+  	<td align="right" colspan="2">${item.amount?string("0.00")}</td>
 	</tr>
 	</#list><!-- end items --></table>
 </#if>

@@ -99,7 +99,8 @@ function(runtime, search, record, format, render, file, task) {
     		
     		columns: [{
     			name: 'custrecord_bbs_service_data_site_record',
-    			summary: 'GROUP'
+    			summary: 'GROUP',
+    			sort: search.Sort.ASC
     		},
     				{
     			name: 'internalid',
@@ -238,7 +239,7 @@ function(runtime, search, record, format, render, file, task) {
 		    			operator: 'noneof',
 		    			values: ['@NONE@']
 		    		},
-		    				{
+		    		{
 		    			name: 'custrecord_bbs_service_data_product_rec',
 		    			operator: 'noneof',
 		    			values: ['@NONE@']
@@ -348,7 +349,7 @@ function(runtime, search, record, format, render, file, task) {
 				
 				log.audit({
 					title: 'Invoice Created',
-					details: 'Invoice ID: ' + invoiceID
+					details: 'Site ID: ' + siteID + '<br>Site Name: ' + siteName + '<br>Invoice ID: ' + invoiceID
 				});
 				
 				// call function to create CSV report. Pass invoiceID, siteID and siteAlias variables
@@ -358,7 +359,7 @@ function(runtime, search, record, format, render, file, task) {
 			{
 				log.error({
 					title: 'Unable to Create Invoice',
-					details: 'Error: ' + e
+					details: 'Site ID: ' + siteID + '<br>Site Name: ' + siteName + '<br>Error: ' + e
 				});
 			}
     }
@@ -769,7 +770,7 @@ function(runtime, search, record, format, render, file, task) {
     return {
         getInputData: getInputData,
         map: map,
-        //summarize: summarize
+        summarize: summarize
     };
     
 });
