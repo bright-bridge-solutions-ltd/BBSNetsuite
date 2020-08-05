@@ -932,6 +932,11 @@ function(ui, url, runtime, record, search, format, task, redirect) {
     					value: currentRecordID
     				});
     				
+    				journalRecord.setValue({
+	    				fieldId: 'approvalstatus',
+	    				value: 2 // Approved
+	    			});
+    				
     				// add a line to the journal to subtract balance from the unused minimums account
     				journalRecord.selectNewLine({
     					sublistId: 'line'

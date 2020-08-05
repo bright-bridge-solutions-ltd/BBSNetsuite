@@ -2649,6 +2649,11 @@ function(runtime, search, record, format, task) {
 								fieldId: 'currency',
 								value: contractCurrency
 							});
+							
+							journalRecord.setValue({
+			    				fieldId: 'approvalstatus',
+			    				value: 2 // Approved
+			    			});
 								    
 							// check if this is a clearing journal
 							if (clearingJournal == true)
@@ -2861,10 +2866,7 @@ function(runtime, search, record, format, task) {
 								}
 							
 							// save the journal record
-							var journalID = journalRecord.save({
-								enableSourcing: false,
-						    	ignoreMandatoryFields: true
-			    			});
+							var journalID = journalRecord.save();
 							
 							log.audit({
 								title: 'Management Fee Journal Created',
@@ -3443,6 +3445,11 @@ function(runtime, search, record, format, task) {
 								    	fieldId: 'custbody_bbs_related_sales_order',
 								    	value: recordID
 								    });
+								    
+								    journalRecord.setValue({
+					    				fieldId: 'approvalstatus',
+					    				value: 2 // Approved
+					    			});
 								    
 								    // check if this is a clearing journal
 								    if (clearingJournal == true)
