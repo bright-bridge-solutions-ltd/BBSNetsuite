@@ -234,6 +234,7 @@ function(runtime, search, email, render, record) {
 	    				type: record.Type.INVOICE,
 	    				id: invoiceID,
 	    				values: {
+	    					custbody_bbs_tfc_commit_taxes: true,
 	    					custbody_bbs_email_sent: true,
 	    					custbody_bbs_date_email_sent: new Date() // today's date
 	    				}

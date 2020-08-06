@@ -127,7 +127,8 @@ function(runtime, search, file, task) {
 				customerName = accountAlias;
 			}
 		
-		// call function to create CSV reports
+		// call functions to create CSV reports
+		createConsolidatedSummaryTenantChargesReport(reportDate, customerID, customerName);
 		createConsolidatedTenantsReport(reportDate, customerID, customerName);
 		
     }
@@ -186,6 +187,120 @@ function(runtime, search, file, task) {
     // FUNCTION TO CREATE CSV REPORTS
     // ==============================
     
+    function createConsolidatedSummaryTenantChargesReport(reportDate, customerID, customerName) {
+    	
+    	log.audit({
+    		title: 'CREATING CONSOLIDATED SUMMARY TENANT CHARGES REPORT',
+    		details: customerName
+    	});
+    	
+    	// specify the file name
+		var fileName = filePrefix + '-' + reportDate + '-' + customerName + '-consolidated_summary_tenantcharges.csv';
+		
+		// start off the CSV
+		var CSV = '"ClientID","ClientAmount","OperatorAmount","Margin","ClientName","StartDateTime","EndDateTime","Site","BillingRef","LinkInvoiceYear","LinkInvoiceMonth"\r\n';
+		
+		// create search to find service data records to be included in the report
+		var serviceDataSearch = search.create({
+			type: 'customrecord_bbs_service_data',
+			
+			filters: [{
+	    		name: 'parent',
+				join: 'custrecord_bbs_service_data_customer_rec',
+	    		operator: 'anyof',
+	    		values: [customerID]
+	    	},
+	    			{
+	    		name: 'custrecord_bbs_service_data_start_date',
+	    		operator: 'notafter',
+	    		values: ['lastmonth'] // lastmonth means end of last month
+	    	},
+	    			{
+	    		name: 'custrecord_bbs_service_data_end_date',
+	    		operator: 'notbefore',
+	    		values: ['startoflastmonth']
+	    	}],
+	    	
+	    	columns: [{
+	    		name: 'custrecord_bbs_service_data_site_name',
+	    		summary: 'GROUP',
+	    		sort: search.Sort.ASC
+	    	},
+	    			{
+    			name: 'custrecord_bbs_service_data_tenant_name',
+    			summary: 'GROUP',
+    			sort: search.Sort.ASC
+    		},
+	    			{
+	    		name: 'custrecord_bbs_service_data_tenant_alias',
+	    		summary: 'GROUP'
+	    	},
+	    			{
+    			name: 'formulacurrency',
+    			formula: "{custrecord_bbs_service_data_sales_price} * {custrecord_bbs_service_data_quantity}",
+    			summary: 'SUM'
+    		},
+    				{
+    			name: 'formulacurrency',
+    			formula: "{custrecord_bbs_service_data_op_cost} * {custrecord_bbs_service_data_quantity}",
+    			summary: 'SUM'
+    		},
+    				{
+    			name: 'formuladate',
+    			formula: "CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_start_date} ELSE LAST_DAY(ADD_MONTHS({today},-2))+1 END",
+    			summary: 'GROUP'
+    		},
+    				{
+    			name: 'formuladate',
+    			formula: "CASE WHEN TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_end_date} ELSE LAST_DAY(ADD_MONTHS({today}, -1)) END",
+    			summary: 'GROUP'
+    		},
+    				{
+    			name: 'custrecord_bbs_service_data_billing_ref',
+    			summary: 'GROUP',
+    		},
+    				{
+    			name: 'formulatext',
+    			formula: "TO_CHAR({today},'YYYY')",
+    			summary: 'MAX'
+    		},
+    				{
+    			name: 'formulatext',
+    			formula: "TO_CHAR({today},'MM') - 1",
+    			summary: 'MAX'
+    		}],
+    		
+		});
+		
+		// get all the search results
+		var searchResults = getAllResults(serviceDataSearch);
+		
+		// process search results
+		for (var i = 0; i < searchResults.length; i++)
+			{
+				// retrieve search results. Using column numbers to return formula values
+				var site 				= searchResults[i].getValue(searchResults[i].columns[0]);
+				var clientName 			= searchResults[i].getValue(searchResults[i].columns[1]);
+				var clientID 			= searchResults[i].getValue(searchResults[i].columns[2]);
+				var clientAmount 		= searchResults[i].getValue(searchResults[i].columns[3]);
+				var operatorAmount 		= searchResults[i].getValue(searchResults[i].columns[4]);
+				var margin 				= parseFloat(clientAmount - operatorAmount);			
+				var startDateTime 		= searchResults[i].getValue(searchResults[i].columns[5]);
+				var endDateTime 		= searchResults[i].getValue(searchResults[i].columns[6]);
+				var billingRef 			= searchResults[i].getValue(searchResults[i].columns[7]);
+				var linkInvoiceYear 	= searchResults[i].getValue(searchResults[i].columns[8]);
+				var linkInvoiceMonth 	= searchResults[i].getValue(searchResults[i].columns[9]);
+				
+				// add the service data record details to the CSV
+				CSV += clientID + ',' + clientAmount + ',' + operatorAmount + ',' + margin + ',' + clientName + ',' + startDateTime + ',' + endDateTime + ',' + site + ',' + billingRef + ',' + linkInvoiceYear + ',' + linkInvoiceMonth;
+				CSV += '\r\n';
+			}
+		
+		// call function to create the CSV file
+		createCSV(fileName, CSV);
+    	
+    }
+    
     function createConsolidatedTenantsReport(reportDate, customerID, customerName) {
     	
     	log.audit({
@@ -197,7 +312,7 @@ function(runtime, search, file, task) {
 		var fileName = filePrefix + '-' + reportDate + '-' + customerName + '-consolidated_tenant_charges_by_line_item.csv';
 		
 		// start off the CSV
-		var CSV = '"Quantity","Telephone","AccountCode","Product","Type","Due","UnitCost","Discount","Cost","Site"\r\n';
+		var CSV = '"Quantity","Telephone","ClientName","Product","Type","Due","UnitCost","Discount","Cost","Site"\r\n';
     	
     	// create search to find service data records to be included in the report
 		var serviceDataSearch = search.create({
@@ -226,11 +341,13 @@ function(runtime, search, file, task) {
     		},
     				{
     			name: 'custrecord_bbs_service_data_site_name',
-    			summary: 'GROUP'
+    			summary: 'GROUP',
+    			sort: search.Sort.ASC
     		},
 					{
 				name: 'custrecord_bbs_service_data_tenant_name',
-				summary: 'GROUP'
+				summary: 'GROUP',
+				sort: search.Sort.ASC
 			},
     				{
     			name: 'custrecord_bbs_service_data_parent_prod',

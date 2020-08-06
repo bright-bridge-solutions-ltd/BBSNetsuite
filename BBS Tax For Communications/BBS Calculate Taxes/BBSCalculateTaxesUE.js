@@ -33,19 +33,24 @@ function(runtime, record, search, libraryModule, plugin)
 					{
 						try
 							{
-								// get the old/current records and required info to populate request
+								// get the current record
 								var currentRecord 		= 	scriptContext.newRecord;
 								var currentRecordType	=	currentRecord.type;
 								var currentRecordID		=	currentRecord.id;
-								var tranID				=	currentRecord.getValue({fieldId: 'tranid'});
-								var tranDate			=	currentRecord.getValue({fieldId: 'trandate'});
-								var createdFrom			=	currentRecord.getValue({fieldId: 'createdfrom'});
-								var customerID			=	currentRecord.getValue({fieldId: 'entity'});
-								var currency			=	currentRecord.getValue({fieldId: 'currency'});
-								var siteID				=	currentRecord.getValue({fieldId: 'custbody_bbs_site_name'});
-								var subsidiaryID		=	currentRecord.getValue({fieldId: 'subsidiary'});
-								var billToPCode			=	currentRecord.getSubrecord({fieldId: 'billingaddress'}).getValue({fieldId: 'custrecord_bbstfc_address_pcode'});
-								var lineCount			=	currentRecord.getLineCount({sublistId: 'item'});
+								
+								// reload the transaction record
+								var transactionRecord = record.load({type: currentRecordType, id: currentRecordID, isDynamic: true});
+								
+								// return values from the transaction record to gather required info to populate request
+								var tranID				=	transactionRecord.getValue({fieldId: 'tranid'});
+								var tranDate			=	transactionRecord.getValue({fieldId: 'trandate'});
+								var createdFrom			=	transactionRecord.getValue({fieldId: 'createdfrom'});
+								var customerID			=	transactionRecord.getValue({fieldId: 'entity'});
+								var currency			=	transactionRecord.getValue({fieldId: 'currency'});
+								var siteID				=	transactionRecord.getValue({fieldId: 'custbody_bbs_site_name'});
+								var subsidiaryID		=	transactionRecord.getValue({fieldId: 'subsidiary'});
+								var billToPCode			=	transactionRecord.getSubrecord({fieldId: 'billingaddress'}).getValue({fieldId: 'custrecord_bbstfc_address_pcode'});
+								var lineCount			=	transactionRecord.getLineCount({sublistId: 'item'});
 								
 								// if this is this a credit memo, cashrefund or returnauthorization
 								if (currentRecordType == 'creditmemo' || currentRecordType == 'cashrefund' || currentRecordType == 'returnauthorization')
@@ -69,8 +74,8 @@ function(runtime, record, search, libraryModule, plugin)
 								// if this is an invoice
 								if (currentRecordType == 'invoice')
 									{
-										// get the value of the commit taxes field from the current record object
-										var commitTaxes	= currentRecord.getValue({fieldId: 'custbody_bbs_tfc_commit_taxes'});
+										// get the value of the commit taxes field from the transactionRecord object
+										var commitTaxes	= transactionRecord.getValue({fieldId: 'custbody_bbs_tfc_commit_taxes'});
 									}
 								else
 									{
