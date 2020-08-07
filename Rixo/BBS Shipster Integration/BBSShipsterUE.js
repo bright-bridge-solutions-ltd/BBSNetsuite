@@ -20,7 +20,7 @@ function(url, search) {
 	    {
     		var status = scriptContext.newRecord.getValue({fieldId: 'status'});
     		
-	    	if (scriptContext.type == 'view' && status == 'Packed')
+	    	if (scriptContext.type == 'view' ) //&& status == 'Packed')
 				{
 	    			//Find the client script
 	    			//
