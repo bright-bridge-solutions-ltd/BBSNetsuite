@@ -173,6 +173,7 @@ function(record, runtime, search, plugin, format)
 			this.taxCalculationAddress		= '';
 			this.taxCustomAddressRecType	= '';
 			this.taxCustomAddressIdFrom		= '';
+			this.subsidiariesEnabled		= [];
 		}
 	
 	//Generic response from api object
