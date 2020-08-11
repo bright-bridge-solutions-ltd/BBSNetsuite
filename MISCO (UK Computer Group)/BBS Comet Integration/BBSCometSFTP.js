@@ -923,12 +923,13 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
     function findSupplier(_supplier, _supplierSuffixParam)
     	{
     		var supplierId = null;
+    		var supplerSearch = (_supplier == 'Ingram Micro' ? _supplier : _supplier + ' ' + _supplierSuffixParam);
     		
 	    	var vendorSearchObj = getResults(search.create({
 				   type: 	"vendor",
 				   filters:
 							   [
-							      ["entityid","is",_supplier + ' ' + _supplierSuffixParam]
+							      ["entityid","is",supplerSearch]
 							   ],
 				   columns:
 							   [

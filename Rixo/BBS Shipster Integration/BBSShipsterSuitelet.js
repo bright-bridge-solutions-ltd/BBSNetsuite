@@ -403,6 +403,26 @@ function(file, record, search, http, xml, format)
 					        										contents:	xmlString
 					        										});
 					        				
+					        				//Update the fulfilment record to show it's been exported to Shipster
+					        				//
+					        				try
+					        					{
+						        					record.submitFields({
+										        	        			type: 		record.Type.ITEM_FULFILLMENT,
+										        	        			id: 		recordID,
+										        	        			values: 	{
+												        	        				custbody_bbs_exported_to_shipster:		true
+										        	        						}
+						        										});
+					        					}
+					        				catch(err)
+					        					{
+						        					log.error({
+																title:		'Error marking fulfillment record as exported to shipster with id = ' + recordID,
+																details:	err
+																});
+					        					}
+					        				
 					        				//Return the file to the browser
 					        				//
 					        				context.response.writeFile({
