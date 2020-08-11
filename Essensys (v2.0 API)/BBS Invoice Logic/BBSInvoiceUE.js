@@ -161,7 +161,7 @@ function(runtime, search, record, render, file) {
 								});
 								
 								// check the invoice is NOT linked to an invoice
-								if (createdFrom == '')
+								if (!createdFrom)
 									{
 										// set the PO# field on the invoice
 										invoiceRecord.setValue({
