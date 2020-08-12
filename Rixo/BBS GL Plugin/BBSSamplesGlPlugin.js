@@ -10,11 +10,13 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 {
 	try
 		{
-			//Get the parameters
+			//Variables
 			//
 			var context 			= nlapiGetContext();
-			var samplesLocation 	= 315;
-			var standardCogs 		= 340;
+			var samplesLocation 	= 315;				//Press
+			var standardCogs 		= 214;				//51100 COGS: Cost of Goods Sold
+			var samplesCogsId		= null;
+			var samplesCogs			= null;
 			
 			//Get the source record type & id
 			//
@@ -25,7 +27,12 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 				{
 					//Get the destination COGS account
 					//
-					var samplesCogs = transactionRecord.getFieldValue('custbody_bbs_press_cogs');
+					samplesCogsId = transactionRecord.getFieldValue('custbody_bbs_press_cogs');
+					
+					if(samplesCogsId != null && samplesCogsId != '')
+						{
+							samplesCogs = nlapiLookupField('customrecord_bbs_press_sample_gl_account',samplesCogsId, 'custrecord_bbs_press_gl_account');
+						}
 					
 					if(samplesCogs != null && samplesCogs != '')
 						{
@@ -49,10 +56,12 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 											//
 											if(line.isPosting() && line.getId() != 0)
 												{
-													var account 	= line.getAccountId();
-													var debit 		= Number(line.getDebitAmount());
-													var entityId 	= line.getEntityId();
-													var location 	= line.getLocationId();
+													var account 		= line.getAccountId();
+													var debit 			= Number(line.getDebitAmount());
+													var entityId 		= line.getEntityId();
+													var location 		= line.getLocationId();
+													var classId 		= line.getClassId();
+													var departmentId 	= line.getDepartmentId();
 														
 													//Find the relevant posting line by looking at the account id
 													//
@@ -69,6 +78,9 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 																	newLine.setCreditAmount(debit);
 																	newLine.setMemo('Custom GL Plugin Samples Posting');
 																	newLine.setEntityId(entityId);
+																	newLine.setClassId(classId);
+																	newLine.setDepartmentId(departmentId);
+																	newLine.setLocationId(location);
 																	
 																	//Debit the "Samples COGS" account
 																	//
@@ -77,6 +89,10 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 																	newLine.setDebitAmount(debit);
 																	newLine.setMemo('Custom GL Plugin Samples Posting');
 																	newLine.setEntityId(entityId);
+																	newLine.setClassId(classId);
+																	newLine.setDepartmentId(departmentId);
+																	newLine.setLocationId(location);
+																	
 																}							
 														}
 												}
