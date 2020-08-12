@@ -54,6 +54,12 @@
                   	<td class="totalcell" align="left" style="padding-left: 5px;"><b>Packed By:</b></td>
             	</tr>
           	</table>
+          
+            <table class="footer" style="width: 100%; margin-top: 10px;">
+          		<tr>
+					<td align="right">Page <pagenumber/> of <totalpages/></td>
+				</tr>
+        	</table>
         </macro>
     </macrolist>
 
@@ -121,7 +127,7 @@
 		}
 		span.itemname {
 			font-weight: bold;
-			line-height: 150%;
+			line-height: 100%;
 		}
 		hr {
 			width: 100%;
@@ -132,7 +138,7 @@
 </style>
 </head>
 
-<body header="nlheader" header-height="225pt" footer="nlfooter" footer-height="50pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="225pt" footer="nlfooter" footer-height="40pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
 
 
@@ -143,24 +149,24 @@
 			<#if item_index==0>
 				<thead>
 					<tr>
-					    <th>${item.custcol_bbs_item_bin@label}</th>
-						<th colspan="4">${item.item@label}</th>
-						<th>${item.options@label}</th>
-						<th>${item.quantity@label}</th>
-						<th>${item.units@label}</th>
-						<th colspan="2">${item.quantitycommitted@label}</th>
-					    <th>${item.custcol_bbs_item_bin@label}</th>
+					    <th colspan="2">Bin</th>
+						<th colspan="10">${item.item@label}</th>
+						<th colspan="2">${item.quantity@label}</th>
+						<th colspan="2">Units/<br/>Case</th>
+						<th colspan="2">Pack<br/>Size</th>
+						<th colspan="3">${item.quantitycommitted@label}</th>
+					    <th colspan="2">Bin</th>
 					</tr>
 				</thead>
 			</#if>
 			<tr>
-  				<td>${item.custcol_bbs_item_bin}</td>
-				<td colspan="4"><span class="itemname">${item.custcol_bbs_sku}</span>&nbsp;${item.description}</td>
-				<td>${item.options}</td>
-				<td>${item.quantity}</td>
-				<td>${item.units}</td>
-				<td colspan="2">${item.quantitycommitted}</td>
-      			<td>${item.custcol_bbs_item_bin}</td>
+  			  	<td colspan="2">${item.custcol_bbs_item_bin}</td>
+				<td colspan="10"><span class="itemname">${item.custcol_bbs_sku}</span>&nbsp;${item.description}</td>
+				<td colspan="2">${item.quantity}</td>
+				<td colspan="2">${item.custcol_bbs_trx_units_case}</td>
+				<td colspan="2">${item.units}</td>
+				<td colspan="3">${item.quantitycommitted}</td>
+      			<td colspan="2">${item.custcol_bbs_item_bin}</td>
 			</tr>
 		</#list><!-- end items -->
 	</table>

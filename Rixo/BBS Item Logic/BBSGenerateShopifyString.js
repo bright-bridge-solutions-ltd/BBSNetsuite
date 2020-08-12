@@ -41,6 +41,11 @@ function(runtime, search, record) {
     			name: 'matrix',
     			operator: search.Operator.IS,
     			values: ['T']
+    		},
+    				{
+    			name: 'custitem_fa_shopify_flag',
+    			operator: search.Operator.ANYOF,
+    			values: [1, 4] // 1 = Add/Update Item, 4 = Post Children as Stand-Alone
     		}],
     		
     		columns: [{

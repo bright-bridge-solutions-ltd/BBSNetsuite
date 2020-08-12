@@ -264,6 +264,7 @@
           <tr>
   		  <th align="left" colspan="2"><br/>Code</th>
   		  <th align="left" colspan="6"><br/>Description</th>
+  		  <th align="right" colspan="2"><p align="right">Units/<br/>Case</p></th>
           <th align="right" colspan="2"><p align="right">Pack<br/>Size</p></th>
           <th align="right" colspan="2"><br/>Ordered</th>
           <th align="right" colspan="2"><p align="right">Back<br/>Ordered</p></th>
@@ -278,6 +279,7 @@
   						<tr>
                             <td align="left" colspan="2">${item.custcol_bbs_sku}</td>
   							<td align="left" colspan="6">${item.description}</td>
+  							<td align="right" colspan="2">${tranline.custcol_bbs_trx_units_case}</td>
   							<td align="right" colspan="2">${tranline.units}</td>
       						<td align="right" colspan="2">${tranline.quantity}</td>
 <!--                                						<td align="right" colspan="2" style="margin-top: 5px;">${tranline.quantity}</td>-->
@@ -618,6 +620,7 @@
           <tr>
   		  <th align="left" colspan="2"><br/>Code</th>
   		  <th align="left" colspan="6"><br/>Description</th>
+          <th align="right" colspan="2"><p align="right">Units/<br/>Case</p></th>
           <th align="right" colspan="2"><p align="right">Pack<br/>Size</p></th>
           <th align="right" colspan="2"><br/>Ordered</th>
           <th align="right" colspan="2"><p align="right">Back<br/>Ordered</p></th>
@@ -632,6 +635,7 @@
   						<tr>
                             <td align="left" colspan="2">${item.custcol_bbs_sku}</td>
   							<td align="left" colspan="6">${item.description}</td>
+  							<td align="right" colspan="2">${tranline.custcol_bbs_trx_units_case}</td>
   							<td align="right" colspan="2">${tranline.units}</td>
       						<td align="right" colspan="2">${tranline.quantity}</td>
     						<td align="right" colspan="2">${tranline.quantitybackordered}</td>
@@ -654,6 +658,7 @@
                   <tr>
                       <td align="left" colspan="2">${tranline.custcol_bbs_sku}</td>
                       <td align="left" colspan="6">${tranline.description}</td>
+                      <td align="left" colspan="2">${tranline.custcol_bbs_trx_units_case}</td>
                       <td align="right" colspan="2">${tranline.units}</td>
                       <td align="right" colspan="2">${tranline.quantity}</td>
                       <td align="right" colspan="2">${tranline.quantityremaining}</td>
