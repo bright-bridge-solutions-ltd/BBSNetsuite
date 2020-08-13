@@ -296,7 +296,8 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																						var lineDescription			= output.Order.OrderLines[int2].ProductLine.Label;
 																						var lineSupplierAricleNo	= output.Order.OrderLines[int2].ProductLine.SupplierArticleNo;
 																						var lineQuantity 			= output.Order.OrderLines[int2].ProductLine.Quantity;
-																						var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.Supplier;
+																				//		var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.Supplier;
+																						var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.SupplierExportId;
 																						var linePoPrice 			= output.Order.OrderLines[int2].ProductLine.Price;
 																						var lineSalesRate 			= output.Order.OrderLines[int2].ProductLine.SalesPrice.ExclusiveVAT;
 																						var lineSalesAmount 		= output.Order.OrderLines[int2].ProductLine.TotalPrice.ExclusiveVAT;
@@ -369,44 +370,52 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																															value:		lineProduct
 																															});	
 																		
-																										//Add the supplier sublist
-																										//
-																										itemRecord.selectNewLine({
-																																sublistId:	'itemvendor'
-																																});
 																										
 																										//Find the supplier
 																										//
 																										var supplierId = findSupplier(lineSupplier, supplierSuffixParam);
 																										
-																									
-																										itemRecord.setCurrentSublistValue({
-																																			sublistId: 	'itemvendor',
-																																			fieldId: 	'vendor',
-																																			value: 		supplierId
-																																			});
-																										
-																										itemRecord.setCurrentSublistValue({
-																																			sublistId: 	'itemvendor',
-																																			fieldId: 	'preferredvendor',
-																																			value: 		true
-																																			});
-																										
-																										itemRecord.setCurrentSublistValue({
-																																			sublistId: 	'itemvendor',
-																																			fieldId: 	'purchaseprice',
-																																			value: 		linePoPrice
-																																			});
-																		
-																										itemRecord.commitLine({
-																																sublistId: 'itemvendor'
-																																});
-																										
-																										itemId = itemRecord.save({	
-																																enableSourcing:			true,
-																																ignoreMandatoryFields:	true
-																																});
-					
+																										if(supplierId != null && supplierId != '')
+																											{
+																												//Add the supplier sublist
+																												//
+																												itemRecord.selectNewLine({
+																																		sublistId:	'itemvendor'
+																																		});
+																											
+																												itemRecord.setCurrentSublistValue({
+																																					sublistId: 	'itemvendor',
+																																					fieldId: 	'vendor',
+																																					value: 		supplierId
+																																					});
+																												
+																												itemRecord.setCurrentSublistValue({
+																																					sublistId: 	'itemvendor',
+																																					fieldId: 	'preferredvendor',
+																																					value: 		true
+																																					});
+																												
+																												itemRecord.setCurrentSublistValue({
+																																					sublistId: 	'itemvendor',
+																																					fieldId: 	'purchaseprice',
+																																					value: 		linePoPrice
+																																					});
+																				
+																												itemRecord.commitLine({
+																																		sublistId: 'itemvendor'
+																																		});
+																											
+																												//Save the item record
+																												//
+																												itemId = itemRecord.save({	
+																																		enableSourcing:			true,
+																																		ignoreMandatoryFields:	true
+																																		});
+																											}
+																										else
+																											{
+																												emailMessage += 'Cannot find supplier "' + lineSupplier + '" while attempting to create product with code ' + lineProduct + ' for order # '+ headerOrderNo + ' - Line not added to order\n\n';
+																											}
 																									}
 																								catch(err)
 																									{
@@ -428,73 +437,82 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																								//
 																								var supplierId = findSupplier(lineSupplier, supplierSuffixParam);
 																							
-																								salesOrderRecord.selectNewLine({
-																											    				sublistId: 'item'
-																											    				});
-																								
-																								salesOrderRecord.setCurrentSublistValue({
-																													    				sublistId: 	'item',
-																													    				fieldId: 	'item',
-																													    				value: 		itemId
-																													    				});
-															
-																								salesOrderRecord.setCurrentSublistValue({
-																													    				sublistId: 	'item',
-																													    				fieldId: 	'quantity',
-																													    				value: 		lineQuantity
-																													    				});
-																								
-																								salesOrderRecord.setCurrentSublistValue({
-																													    				sublistId: 	'item',
-																													    				fieldId: 	'rate',
-																													    				value: 		lineSalesRate
-																													    				});
-															
-																								salesOrderRecord.setCurrentSublistValue({
-																													    				sublistId: 	'item',
-																													    				fieldId: 	'amount',
-																													    				value: 		lineSalesAmount
-																													    				});
-						
-																								//If we have found the supplier then we can explicitly set it
+																								//Only add the line if we have found the supplier
 																								//
 																								if(supplierId != null)
 																									{
+																										salesOrderRecord.selectNewLine({
+																													    				sublistId: 'item'
+																													    				});
+																										
 																										salesOrderRecord.setCurrentSublistValue({
 																															    				sublistId: 	'item',
-																															    				fieldId: 	'povendor',
-																															    				value: 		supplierId
+																															    				fieldId: 	'item',
+																															    				value: 		itemId
 																															    				});
+																	
+																										salesOrderRecord.setCurrentSublistValue({
+																															    				sublistId: 	'item',
+																															    				fieldId: 	'quantity',
+																															    				value: 		lineQuantity
+																															    				});
+																										
+																										salesOrderRecord.setCurrentSublistValue({
+																															    				sublistId: 	'item',
+																															    				fieldId: 	'rate',
+																															    				value: 		lineSalesRate
+																															    				});
+																	
+																										salesOrderRecord.setCurrentSublistValue({
+																															    				sublistId: 	'item',
+																															    				fieldId: 	'amount',
+																															    				value: 		lineSalesAmount
+																															    				});
+								
+																										//If we have found the supplier then we can explicitly set it
+																										//
+																										if(supplierId != null)
+																											{
+																												salesOrderRecord.setCurrentSublistValue({
+																																	    				sublistId: 	'item',
+																																	    				fieldId: 	'povendor',
+																																	    				value: 		supplierId
+																																	    				});
+																											}
+																										
+																										salesOrderRecord.setCurrentSublistValue({
+																															    				sublistId: 	'item',
+																															    				fieldId: 	'porate',
+																															    				value: 		linePoPrice
+																															    				});
+							
+																										salesOrderRecord.setCurrentSublistValue({
+																															    				sublistId: 	'item',
+																															    				fieldId: 	'costestimatetype',
+																															    				value: 		'CUSTOM'
+																															    				});
+																										
+																										salesOrderRecord.setCurrentSublistValue({
+																															    				sublistId: 	'item',
+																															    				fieldId: 	'costestimaterate',
+																															    				value: 		linePoPrice
+																															    				});
+							
+																										salesOrderRecord.setCurrentSublistValue({
+																															    				sublistId: 	'item',
+																															    				fieldId: 	'createpo',
+																															    				value: 		'DropShip'
+																															    				});
+		
+								
+																										salesOrderRecord.commitLine({
+																																	sublistId: 	'item'
+																																	});
 																									}
-																								
-																								salesOrderRecord.setCurrentSublistValue({
-																													    				sublistId: 	'item',
-																													    				fieldId: 	'porate',
-																													    				value: 		linePoPrice
-																													    				});
-					
-																								salesOrderRecord.setCurrentSublistValue({
-																													    				sublistId: 	'item',
-																													    				fieldId: 	'costestimatetype',
-																													    				value: 		'CUSTOM'
-																													    				});
-																								
-																								salesOrderRecord.setCurrentSublistValue({
-																													    				sublistId: 	'item',
-																													    				fieldId: 	'costestimaterate',
-																													    				value: 		linePoPrice
-																													    				});
-					
-																								salesOrderRecord.setCurrentSublistValue({
-																													    				sublistId: 	'item',
-																													    				fieldId: 	'createpo',
-																													    				value: 		'DropShip'
-																													    				});
-
-						
-																								salesOrderRecord.commitLine({
-																															sublistId: 	'item'
-																															});
+																								else
+																									{
+																										emailMessage += 'Cannot find supplier "' + lineSupplier + '" for product with code ' + lineProduct + ' for order # '+ headerOrderNo + ' - Line not added to order\n\n';
+																									}
 																							}
 																						else
 																							{
