@@ -46,6 +46,11 @@ function(runtime, search, record) {
     			name: 'custitem_fa_shopify_flag',
     			operator: search.Operator.ANYOF,
     			values: [1, 4] // 1 = Add/Update Item, 4 = Post Children as Stand-Alone
+    		},
+    				{
+    			name: 'custitem_fa_shopify_handle',
+    			operator: search.Operator.ISNOTEMPTY,
+    			values: []
     		}],
     		
     		columns: [{
@@ -56,7 +61,7 @@ function(runtime, search, record) {
     				{
     			name: 'formulatext',
     			summary: 'MAX',
-    			formula: "REPLACE(NS_CONCAT(REPLACE({displayname}, ' ', '-')), ',','|')"
+    			formula: "REPLACE(NS_CONCAT({custitem_fa_shopify_handle}), ',','|')"
     		}],
     		
     	}).run().each(function(result){

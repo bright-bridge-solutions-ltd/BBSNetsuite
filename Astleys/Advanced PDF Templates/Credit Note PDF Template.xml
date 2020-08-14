@@ -213,7 +213,7 @@
 <table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
 <thead >
 	<tr >
-     <th align="left" colspan="2"><br/>Code</th>
+     <th align="left" colspan="4"><br/>Code</th>
   	<th align="left" colspan="6"><br/>Description</th>
   		<th align="right" colspan="2"><p align="right">VAT<br/>Code</p></th>
   		<th align="right" colspan="2"><p align="right">Pack<br/>Size</p></th>
@@ -225,12 +225,12 @@
 </#if>
 
   <tr>
-    <td align="left" colspan="2">${item.custcol_bbs_sku}</td>
+    <td align="left" colspan="4">${item.custcol_bbs_sku}</td>
   	<td align="left" colspan="6">${item.description}<br />${item.custcol_scm_customerpartnumber}</td>
   	<td align="right" colspan="2">${item.taxrate1}</td>
   	<td align="right" colspan="2">${item.units}</td>
   	<td align="right" colspan="2">${item.quantity}</td>
-  	<td align="right" colspan="2">${item.rate?string("0.00")}</td>
+  	<td align="right" colspan="2">${item.rate?string("0.00")}<!-- If item is Restocking Charge print % symbol --><#if item.custcol_bbs_sku == 'Restocking Charge'>%</#if></td>
   	<td align="right" colspan="2">${item.amount?string("0.00")}</td>
 	</tr>
 	</#list><!-- end items --></table>
