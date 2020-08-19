@@ -31,10 +31,10 @@
 	<td align="right">&nbsp;</td>
 	</tr>
 	<tr>
-        <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Supplier Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.vatregnum}</span></td>
+        <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Supplier Id:&nbsp;</b>${record.entity.entityid}</span><br /><span style="font-size:10pt"><b>Supplier Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.vatregnum}</span></td>
 	<td align="right" style="font-size:10pt"></td>
       
-    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${companyInformation.companyName}<br />${subsidiary.mainaddress_text}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${subsidiary.mainaddress_text}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
 	</tr>
           </table>
           
@@ -62,22 +62,22 @@
 	</#if>
     </tr>
     <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Merch Channel</b></td>
-	<td align="right" style="font-size:10pt">${record.class}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Delivery Date</b></td>
+	<#if record.duedate?length gt 0>
+		<td align="right" style="font-size:10pt">${record.duedate?string["dd MMM yyyy"]}</td>
+	<#else>
+		<td align="right" style="font-size:10pt">&nbsp;</td>
+	</#if>
     </tr>
     <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Merch Sub Channel</b></td>
-	<td align="right" style="font-size:10pt">&nbsp;</td>
-    </tr>
-    <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Special Order Ref</b></td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Special Order Pref</b></td>
 	<td align="right" style="font-size:10pt">${record.custbody_bbs_special_order_preference}</td>
     </tr>
-      <tr>
+    <tr>
 	<td class="address">&nbsp;</td>
     <td class="address">&nbsp;</td>
     </tr>
-      <tr>
+    <tr>
 	<td class="address">&nbsp;</td>
     <td class="address">&nbsp;</td>
     </tr>
@@ -232,7 +232,7 @@
 
   <tr>
 	<td align="left" colspan="8"><b>${item.item}</b><br/>${item.description}</td>
-    <td align="center" colspan="2">${item.item?keep_after_last(".")?number}</td>
+    <td align="center" colspan="2">${item.item?keep_after_last(".")}</td>
 	<td align="center" colspan="2">${item.quantity}</td>
 	<td align="right" colspan="2">${item.rate}</td>
     <td align="right" colspan="3">${item.amount}</td>

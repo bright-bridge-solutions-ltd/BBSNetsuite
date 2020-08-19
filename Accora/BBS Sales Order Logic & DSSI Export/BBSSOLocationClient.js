@@ -26,9 +26,13 @@ function salesOrderLineInit(type)
     
      var mainLocation = nlapiGetFieldValue(location_header_field);
      
-     if(mainLocation != null && mainLocation != '')
+     if(mainLocation) // if we have a location
        {
-        nlapiSetCurrentLineItemValue('item', location_detail_field, mainLocation, true, true);
+    	 	// get the subsidiary from the location record
+    	 	var locationSubsidiary = getLocationSubsidiary(mainLocation);
+    	 
+    	 	nlapiSetCurrentLineItemValue('item', location_detail_field, mainLocation, true, true);
+    	 	nlapiSetCurrentLineItemValue('item', 'inventorysubsidiary', locationSubsidiary, true, true);
        }
 }
 
@@ -79,30 +83,45 @@ function SalesOrderValidateLine(type)
   
   if(subsidiaryId == '7')
     {
-      location_header_field = 'custpage_subsid_location';
+      	location_header_field = 'custpage_subsid_location';
     }
   
   var mainLocation = nlapiGetFieldValue(location_header_field);
-    
+  
   var lineLocation = nlapiGetCurrentLineItemValue('item', location_detail_field);
   
-  if(lineLocation == null || lineLocation == '')
-    {
-      if(mainLocation != null && mainLocation != '')
-           {
-            nlapiSetCurrentLineItemValue('item', location_detail_field, mainLocation, true, true);
-            return true;
-           }
-      else
-        {
-          alert("Please enter a value for location");
-          return false;
-        }
-    }
+  if (!lineLocation) // if lineLocation is empty
+	  {
+	  		if (mainLocation) // if we have a main location
+	  			{
+			  		nlapiSetCurrentLineItemValue('item', location_detail_field, mainLocation, true, true);
+			  		return true;
+	  			}
+	  		else
+	  			{
+		  			alert("Please enter a value for location");
+		            return false;
+	  			}
+	  }
   else
-    {
-      return true;
-    }
+	  {
+	  		return true;
+	  }
+  
+  
+  
+  
+    
+  if (mainLocation)
+  	{
+	  	nlapiSetCurrentLineItemValue('item', location_detail_field, mainLocation, true, true);
+	  	return true;
+  	}
+  else
+	  {
+		  alert("Please enter a value for location");
+	      return false;
+	  }
 
 }
 
@@ -126,4 +145,29 @@ function salesOrderSaveRecord()
 		}
 
     return validated;
+}
+
+// =======================================
+// FUNCTION TO GET THE LOCATION SUBSIDIARY
+// =======================================
+
+function getLocationSubsidiary(locationID)
+{
+	// declare and initialize variables
+	var subsidiaryID = null;
+	
+	try
+		{
+			// load the location record
+			var locationRecord = nlapiLoadRecord('location', locationID);
+			
+			// get the value of the subsidiary field from the location record
+			subsidiaryID = locationRecord.getFieldValue('subsidiary');
+		}
+	catch(e)
+		{
+			nlapiLogExecution('ERROR', 'Error Loading Location Record', e);
+		}
+	
+	return subsidiaryID;
 }

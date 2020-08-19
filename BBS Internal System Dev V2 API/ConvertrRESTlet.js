@@ -31,7 +31,8 @@ function(record) {
     		{
     			// create a new lead record
     			var leadRecord = record.create({
-    				type: record.Type.LEAD
+    				type: record.Type.LEAD,
+    				isDynamic: true
     			});
     			
     			// set fields on the lead record
@@ -70,9 +71,39 @@ function(record) {
     				value: phone
     			});
     			
-    			leadRecord.setValue({
-    				fieldId: 'phone',
-    				value: phone
+    			// create a new line in the addressbook
+    			leadRecord.selectNewLine({
+    				sublistId: 'addressbook'
+    			});
+    			
+    			// set fields on the new line
+    			leadRecord.setCurrentSublistValue({
+    				sublistId: 'addressbook',
+    				fieldId: 'defaultshipping',
+    				value: true
+    			});
+    			
+    			leadRecord.setCurrentSublistValue({
+    				sublistId: 'addressbook',
+    				fieldId: 'defaultbilling',
+    				value: true
+    			});
+    			
+    			// create address subrecord
+    			var addressSubrecord = leadRecord.getCurrentSublistSubrecord({
+    			    sublistId: 'addressbook',
+    			    fieldId: 'addressbookaddress'
+    			});
+    			
+    			// set fields on the address subrecord
+    			addressSubrecord.setValue({
+    				fieldId: 'zip',
+    				value: postcode
+    			});
+    			
+    			// save the changes to the address subrecord and sublist line
+    			leadRecord.commitLine({
+    				sublistId: 'addressbook'
     			});
     			
     			// save the lead record
