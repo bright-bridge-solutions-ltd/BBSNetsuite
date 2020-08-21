@@ -255,7 +255,7 @@ function(file, record, search, http, xml, format)
 						        					xmlString += '<BuyPrice>' 				+ xml.escape({xmlText: (itemQuantity * itemSoCost).toFixed(2)}) 		+ '</BuyPrice>\n';
 						        					xmlString += '<RetailPrice>' 			+ xml.escape({xmlText: (itemQuantity * itemSoRate).toFixed(2)}) 		+ '</RetailPrice>\n';
 						        					xmlString += '<Weight>' 				+ xml.escape({xmlText: itemUnitWeight.toFixed(2)}) 						+ '</Weight>\n';
-						        					xmlString += '<TotalGrossWeight>' 		+ '' 																	+ '</TotalGrossWeight>\n';
+						        					xmlString += '<TotalGrossWeight></TotalGrossWeight>\n';
 						        					xmlString += '<Attribute1>' 			+ xml.escape({xmlText: itemSoRate.toFixed(2)}) 							+ '</Attribute1>\n';
 						        					xmlString += '<Attribute2>' 			+ xml.escape({xmlText: itemSoVat.toFixed(2)}) 							+ '</Attribute2>\n';
 						        					xmlString += '<CommodityCode>' 			+ xml.escape({xmlText: itemAdditionalDetails.commodityCode}) 			+ '</CommodityCode>\n';
@@ -290,7 +290,7 @@ function(file, record, search, http, xml, format)
 							        						xmlString += '<DespatchPackage>\n';
 							        						xmlString += '<PackageName>' 			+ xml.escape({xmlText: packageName}) 					+ '</PackageName>\n';
 							        						xmlString += '<Weight>' 				+ xml.escape({xmlText: packageWeight.toFixed(2)}) 		+ '</Weight>\n';
-							        						xmlString += '<TotalGrossWeight>' 		+ xml.escape({xmlText: packageWeight.toFixed(2)}) 		+ '</TotalGrossWeight>\n';
+							        						xmlString += '<TotalGrossWeight></TotalGrossWeight>\n';
 								        					
 								        					//Items in package
 								        					//
@@ -312,7 +312,7 @@ function(file, record, search, http, xml, format)
 														        					xmlString += '<BuyPrice>' 				+ xml.escape({xmlText: (packagesArray[packageIndex].quantity * itemsArray[itemIndex].cost).toFixed(2)}) 				+ '</BuyPrice>\n';
 														        					xmlString += '<RetailPrice>' 			+ xml.escape({xmlText: (packagesArray[packageIndex].quantity * itemsArray[itemIndex].rate).toFixed(2)}) 				+ '</RetailPrice>\n';
 														        					xmlString += '<Weight>' 				+ xml.escape({xmlText: itemsArray[itemIndex].itemUnitWeight.toFixed(2)}) 												+ '</Weight>\n';
-														        					xmlString += '<TotalGrossWeight>' 		+ '' 																													+ '</TotalGrossWeight>\n';
+														        					xmlString += '<TotalGrossWeight></TotalGrossWeight>\n';
 														        					xmlString += '<Attribute1>' 			+ xml.escape({xmlText: itemsArray[itemIndex].rate.toFixed(2)}) 															+ '</Attribute1>\n';
 														        					xmlString += '<Attribute2>' 			+ xml.escape({xmlText: itemsArray[itemIndex].vat.toFixed(2)}) 															+ '</Attribute2>\n';
 														        					xmlString += '<CommodityCode>' 			+ xml.escape({xmlText: itemsArray[itemIndex].commodityCode}) 															+ '</CommodityCode>\n';
@@ -385,7 +385,7 @@ function(file, record, search, http, xml, format)
 					        				//
 					        				xmlString += '<PaymentMethod/>\n';
 					        				xmlString += '<PropertyName/>\n';
-					        				xmlString += '<TotalGrossWeight>' 		+ ''														+ '</TotalGrossWeight>\n';
+					        				xmlString += '<TotalGrossWeight></TotalGrossWeight>\n';
 					        				xmlString += '<TotalPrice>' 			+ xml.escape({xmlText: salesOrderTotal}) 					+ '</TotalPrice>\n';
 					        				xmlString += '<CurrencyCode>' 			+ xml.escape({xmlText: fulfilmentCurrency}) 				+ '</CurrencyCode>\n';
 					        				xmlString += '<WeightType>KG</WeightType>\n';

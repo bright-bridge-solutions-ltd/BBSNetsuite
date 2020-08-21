@@ -43,7 +43,7 @@
 	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
 	</tr>
 	<tr>
-	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
+	<td colspan="2" rowspan="7" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
 	</tr>
 	<tr>
 	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Purchase Order No</b></td>
@@ -57,6 +57,14 @@
 	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Cancel Date</b></td>
 	<#if record.custbody_bbs_cancel_date?length gt 0>
 		<td align="right" style="font-size:10pt">${record.custbody_bbs_cancel_date?string["dd MMM yyyy"]}</td>
+	<#else>
+		<td align="right" style="font-size:10pt">&nbsp;</td>
+	</#if>
+    </tr>
+        <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Ex Fact Date</b></td>
+	<#if record.custbody_bbs_ex_factory_date?length gt 0>
+		<td align="right" style="font-size:10pt">${record.custbody_bbs_ex_factory_date?string["dd MMM yyyy"]}</td>
 	<#else>
 		<td align="right" style="font-size:10pt">&nbsp;</td>
 	</#if>
@@ -78,8 +86,14 @@
     <td class="address">&nbsp;</td>
     </tr>
     <tr>
-	<td class="address">&nbsp;</td>
-    <td class="address">&nbsp;</td>
+	<td class="address"><b>Season:</b></td>
+    <td class="address"><b>Merch Channel:</b></td>
+    <td class="address">${record.custbody_bbs_merch_channel}</td>
+    </tr>
+    <tr>
+	<td class="address">${record.custbody_bbs_season}</td>
+    <td class="address"><b>Merch Sub Channel:</b></td>
+    <td class="address">${record.custbody_bbs_merch_sub_channel}</td>
     </tr>
   </table>
         </macro>
@@ -129,7 +143,7 @@
         td {
             padding: 0px;
             vertical-align: top;
-            font-size:10px;
+            font-size: 10px;
         }
         b {
             font-weight: bold;
@@ -146,7 +160,9 @@
         table.itemtable th {
             padding-bottom: 0px;
             padding-top: 0px;
-
+        }
+        table.itemtable td {
+        	margin-top: 5px;
         }
         table.body td {
             padding-top: 0px;
@@ -154,16 +170,16 @@
         table.total {
             page-break-inside: avoid;
         }
-      table.message{
+      	table.message{
         border: 1px solid #dddddd;
-      }
+      	}
         tr.totalrow {
             <!--background-color: #e3e3e3;-->
             line-height: 200%;
         }
-      tr.messagerow{
+      	tr.messagerow{
         font-size: 6pt;
-      }
+      	}
         td.totalboxtop {
             font-size: 12pt;
             background-color: #e3e3e3;
@@ -186,9 +202,9 @@
           border-bottom: 1px solid black;
     		border-collapse: collapse;
         }
-      td.message{
+      	td.message{
         font-size: 8pt;
-      }
+      	}
         td.totalboxbot {
             background-color: #e3e3e3;
             font-weight: bold;
@@ -211,7 +227,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="370px" footer="nlfooter" footer-height="40px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="390px" footer="nlfooter" footer-height="40px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
     
 <#if record.item?has_content>
@@ -219,7 +235,7 @@
 <table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
 <thead >
 	<tr >
-	<th align="left" colspan="8">SKU<br/>Description</th>
+	<th align="left" colspan="8">Description<br/>SKU</th>
     <th align="center" colspan="2"><br/>Size</th>
 	<th align="center" colspan="2"><br/>Quantity</th>
 	<th align="right" colspan="2">Unit<br/>Price</th>
@@ -231,8 +247,8 @@
 </#if>
 
   <tr>
-	<td align="left" colspan="8"><b>${item.item}</b><br/>${item.description}</td>
-    <td align="center" colspan="2">${item.item?keep_after_last(".")}</td>
+	<td align="left" colspan="8">${item.description}<br/><b>${item.item?keep_before(" ")}</b></td>
+    <td align="center" colspan="2">${item.item?keep_after_last(".")?keep_before(" ")}</td>
 	<td align="center" colspan="2">${item.quantity}</td>
 	<td align="right" colspan="2">${item.rate}</td>
     <td align="right" colspan="3">${item.amount}</td>
@@ -260,6 +276,17 @@
 	</tr>
 	<tr>
 	<td>&nbsp;</td>
-	</tr></table>
+	</tr>
+</table>
+
+<table style="width: 100%;">
+	<tr>
+		<td><b>Memo</b></td>
+	</tr>
+	<tr>
+		<td>${record.memo}</td>
+	</tr>
+</table>
+
 </body>
 </pdf>

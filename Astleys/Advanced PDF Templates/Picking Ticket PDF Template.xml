@@ -161,7 +161,7 @@
 			</#if>
 			<tr>
   			  	<td colspan="2">${item.custcol_bbs_item_bin}</td>
-				<td colspan="10"><span class="itemname">${item.custcol_bbs_sku}</span>&nbsp;${item.description}<#if item.custcol_scm_customerpartnumber?has_content><br/><br/>${item.custcol_scm_customerpartnumber}</#if></td>
+				<td colspan="10"><span class="itemname">${item.custcol_bbs_sku}</span>&nbsp;${item.description}<#if item.custcol_scm_customerpartnumber?has_content><br/>${item.custcol_scm_customerpartnumber}</#if></td>
 				<td colspan="2">${item.quantity}</td>
 				<td colspan="2">${item.custcol_bbs_trx_units_case}</td>
 				<td colspan="2">${item.units}</td>
