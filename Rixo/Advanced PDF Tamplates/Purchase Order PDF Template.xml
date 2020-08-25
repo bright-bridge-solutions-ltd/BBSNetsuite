@@ -235,7 +235,7 @@
 <table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
 <thead >
 	<tr >
-	<th align="left" colspan="8">Description<br/>SKU</th>
+	<th align="left" colspan="8">SKU<br/>Description</th>
     <th align="center" colspan="2"><br/>Size</th>
 	<th align="center" colspan="2"><br/>Quantity</th>
 	<th align="right" colspan="2">Unit<br/>Price</th>
@@ -247,7 +247,7 @@
 </#if>
 
   <tr>
-	<td align="left" colspan="8">${item.description}<br/><b>${item.item?keep_before(" ")}</b></td>
+	<td align="left" colspan="8"><b>${item.item?keep_before(" ")}</b><br/>${item.description}</td>
     <td align="center" colspan="2">${item.item?keep_after_last(".")?keep_before(" ")}</td>
 	<td align="center" colspan="2">${item.quantity}</td>
 	<td align="right" colspan="2">${item.rate}</td>

@@ -156,7 +156,7 @@ function(search) {
     	});
     	
     	// if the customerName contains 'Guest Shopper'
-    	if (customerName.includes('customerName'))
+    	if (customerName.includes('Guest Shopper'))
     		{
     			// set passedRules variable to false
     			passedRules = false;
@@ -171,7 +171,83 @@ function(search) {
     			// loop through item lines
     			for (var i = 0; i < itemCount; i++)
     				{
+    					// get the item name
+    					var itemName = currentRecord.getSublistText({
+    						sublistId: 'item',
+    						fieldId: 'item',
+    						line: i
+    					});
     					
+    					// if the itemName contain 'VIN'
+    					if (itemName.includes('VIN'))
+    						{
+    							// loop through the items again
+    							for (var x = 0; x < itemCount; x++)
+    								{
+    									// get the item name
+	    								var itemName = currentRecord.getSublistText({
+	    		    						sublistId: 'item',
+	    		    						fieldId: 'item',
+	    		    						line: x
+	    		    					});
+	    								
+	    								// if part code matches to one of these products
+	    								if (itemName == 'ACC-UN-NO-008' || itemName == 'ACC-UN-NO-005' || itemName == 'ACC-UN-NO-004' || 'ACC-UN-NO-002' || 'ACC-UN-FB-55' || 'ACC-UN-FF-001')
+	    									{
+	    										// set passedRules variable to false
+	    										passedRules = false;
+	    										
+	    										// break the loop
+	    										break;
+	    									}
+    								}
+    						}
+    					else if (itemName.includes('SOL')) // if the itemName contain 'SOL'
+    						{
+    							// loop through the items again
+    							for (var x = 0; x < itemCount; x++)
+    								{
+    									// get the item name
+    									var itemName = currentRecord.getSublistText({
+    										sublistId: 'item',
+    										fieldId: 'item',
+    										line: x
+    									});
+    									
+    									// if part code matches to one of these products
+    									if (itemName == 'ACC-UN-NO-008' || itemName == 'ACC-UN-NO-005' || itemName == 'ACC-UN-NO-004' || itemName == 'ACC-UN-NO-002' || itemName == 'ACC-UN-FB-55' || itemName == 'ACC-UN-LC-03' || itemName.includes('S-VIN') || itemName.includes('S-SOL'))
+    										{
+	    										// set passedRules variable to false
+	    										passedRules = false;
+	    										
+	    										// break the loop
+	    										break;
+    										}
+    								}
+    						}
+    					else if (itemName.includes('VIN')) // if the itemName contains 'VIN'
+    						{
+    							// loop through the items again
+    							for (var x = 0; x < itemCount; x++)
+    								{
+	    								// get the item name
+										var itemName = currentRecord.getSublistText({
+											sublistId: 'item',
+											fieldId: 'item',
+											line: x
+										});
+										
+										// if itemName includes 'S-VIN' or 'S-SOL'
+										if (itemName.includes('S-VIN') || itemName.includes('S-SOL'))
+											{
+												// set passedRules variable to false
+												passedRules = false;
+												
+												// break the loop
+												break;
+											}
+    								}
+    						}
     				}
     		}
     	

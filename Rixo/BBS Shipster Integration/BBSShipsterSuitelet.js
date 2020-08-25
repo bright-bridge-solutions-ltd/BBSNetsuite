@@ -34,6 +34,7 @@ function(file, record, search, http, xml, format)
 	        		var customerId			= null;
 	        		var createdFromId		= null;
 	        		var fileObj				= null;
+	        		var supplierID			= null;
 	        		var tranId	 			= '';
 	        		var xmlString 			= '';
 	        		var itemsArray			= [];
@@ -65,7 +66,25 @@ function(file, record, search, http, xml, format)
 	        				createdFromId	= fulfilmentRecord.getValue({fieldId: 'createdfrom'});
 	        				tranId			= fulfilmentRecord.getValue({fieldId: 'tranid'});
 	        				
-			        		//Load the customer
+	        				// get value of the 'Created PO' field from the first item line of lines on the fulfilment
+	        				var dropShipPO = fulfilmentRecord.getSublistValue({
+	        					sublistId: 'item',
+	        					fieldId: 'createdpo',
+	        					line: 0
+	        				});
+	        				
+	        				// if we have a drop ship PO
+	        				if (dropShipPO)
+	        					{
+	        						// lookup fields on the PO record
+	        						supplierID = search.lookupFields({
+	        							type: search.Type.PURCHASE_ORDER,
+	        							id: dropShipPO,
+	        							columns: ['entity']
+	        						}).entity[0].value;
+	        					}
+	        				
+	        				//Load the customer
 			        		//
 			        		try
 			        			{
@@ -380,6 +399,13 @@ function(file, record, search, http, xml, format)
 					        				//
 					        				xmlString += '<Attribute3>' 				+ xml.escape({xmlText: salesOrderDiscountCode}) 	+ '</Attribute3>\n';
 					        				xmlString += '<Attribute4>' 				+ xml.escape({xmlText: salesOrderSubTotal}) 		+ '</Attribute4>\n';
+					        				
+					        				// if we have a supplierID
+					        				if (supplierID)
+					        					{
+					        						// add the Attribute5 tag
+					        						xmlString += '<Attribute5>' + xml.escape({xmlText: supplierID}) + '</Attribute5>\n';
+					        					}
 					        				
 					        				//Other sundry tags
 					        				//

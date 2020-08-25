@@ -41,50 +41,65 @@
     <table style="width: 100%; margin-top: 10px;">
     
 	<tr>
-	<td align="left" style="font-size:10pt"><b>Return Location</b></td>
-	<td align="left" style="font-size:10pt">${record.location}</td>
+      <td align="left" colspan="2" rowspan="8" style="font-size:10pt"><b>Return Address:</b><br/><span class="nameandaddress" style="font-size:10pt">${record.custbody_bbs_return_address}</span></td>
 	<td class="address">&nbsp;</td>
 	<td align="left" style="font-size:10pt"><b>Returns No.</b></td>
 	<td align="right" style="font-size:10pt">${record.tranid}</td>
     </tr>
 	<tr>
-	<td align="left" style="font-size:10pt"><b>Expected Delivery</b></td>
-	<td align="left" style="font-size:10pt">${record.custbody_bbs_expected_del_date_into_dc}</td>
 	<td class="address">&nbsp;</td>
 	<td align="left" style="font-size:10pt"><b>Date</b></td>
 	<td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
     </tr>
     <tr>
-	<td align="left" style="font-size:10pt"><b>Sales Rep</b></td>
-	<td align="left" style="font-size:10pt">${record.salesrep}</td>
 	<td class="address">&nbsp;</td>
 	<td align="left" style="font-size:10pt"><b>Sales Order</b></td>
 	<td align="right" style="font-size:10pt">${record.createdfrom.tranid}</td>
     </tr>
     <tr>
-	<td align="left" style="font-size:10pt"><b>Price List</b></td>
-	<td align="left" style="font-size:10pt">${record.entity.pricelevel}</td>
 	<td class="address">&nbsp;</td>
 	<td align="left" style="font-size:10pt"><b>Exchange Rate</b></td>
 	<td align="right" style="font-size:10pt">${record.exchangerate}</td>
     </tr>
 	<tr>
-	<td align="left" style="font-size:10pt"><b>Terms</b></td>
-	<td align="left" style="font-size:10pt">${record.entity.terms}</td>
 	<td class="address">&nbsp;</td>
 	<td align="left" style="font-size:10pt"><b>Shipping Method</b></td>
 	<td align="right" style="font-size:10pt">${record.custbody_bbs_shipping_method}</td>
     </tr>
 	<tr>
-	<td align="left" style="font-size:10pt"><b>Reason For Return:</b></td>
-	<td align="left" style="font-size:10pt">&nbsp;</td>
 	<td class="address">&nbsp;</td>
 	<td align="left" style="font-size:10pt"><b>Tracking Number</b></td>
 	<td align="right" style="font-size:10pt">${record.custbody_bbs_tracking_ref}</td>
     </tr>
 	<tr>
-	<td colspan="5" align="left" style="font-size:10pt">${record.memo}</td>
+	<td class="address">&nbsp;</td>
+	<td align="left" style="font-size:10pt"><b>Expected Delivery</b></td>
+	<td align="left" style="font-size:10pt">${record.custbody_bbs_expected_del_date_into_dc}</td>
     </tr>
+    <tr>
+	<td class="address">&nbsp;</td>
+	<td align="left" style="font-size:10pt"><b>Sales Rep</b></td>
+	<td align="right" style="font-size:10pt">${record.salesrep}</td>
+    </tr>
+    <tr>
+	<td align="left" style="font-size:10pt">&nbsp;</td>
+	<td class="address">&nbsp;</td>
+	<td class="address">&nbsp;</td>
+	<td align="left" style="font-size:10pt"><b>Terms</b></td>
+	<td align="right" style="font-size:10pt">${record.entity.terms}</td>
+    </tr>
+    <tr>
+	<td align="left" style="font-size:10pt"><b>Reason For Return:</b></td>
+	<td class="address">&nbsp;</td>
+	<td class="address">&nbsp;</td>
+	<td align="left" style="font-size:10pt"><b>Tracking Number</b></td>
+	<td align="right" style="font-size:10pt">${record.custbody_bbs_tracking_ref}</td>
+    </tr> 
+    <tr>
+	<td colspan="5" align="left" style="font-size:10pt">${record.memo}</td>
+    </tr>   
+      
+      
   </table>
         </macro>
 
@@ -151,7 +166,9 @@
         table.itemtable th {
             padding-bottom: 0px;
             padding-top: 0px;
-
+        }
+        table.itemtable td {
+        	margin-top: 5px;
         }
         table.body td {
             padding-top: 0px;
@@ -159,16 +176,16 @@
         table.total {
             page-break-inside: avoid;
         }
-      table.message{
-        border: 1px solid #dddddd;
-      }
+      	table.message{
+        	border: 1px solid #dddddd;
+      	}
         tr.totalrow {
             <!--background-color: #e3e3e3;-->
             line-height: 200%;
         }
-      tr.messagerow{
-        font-size: 6pt;
-      }
+      	tr.messagerow{
+        	font-size: 6pt;
+      	}
         td.totalboxtop {
             font-size: 12pt;
             background-color: #e3e3e3;
@@ -180,7 +197,7 @@
         }
         td.address {
             padding-top: 0;
-          font-size: 10pt;
+          	font-size: 10pt;
         }
         td.totalboxmid {
             font-size: 28pt;
@@ -188,12 +205,12 @@
             background-color: #e3e3e3;
         }
         td.totalcell {
-          border-bottom: 1px solid black;
+         	border-bottom: 1px solid black;
     		border-collapse: collapse;
         }
-      td.message{
-        font-size: 8pt;
-      }
+      	td.message{
+        	font-size: 8pt;
+      	}
         td.totalboxbot {
             background-color: #e3e3e3;
             font-weight: bold;
@@ -216,7 +233,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="400px" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="440px" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
     
 <#if record.item?has_content>
@@ -238,7 +255,7 @@
 
  <tr>
 	<td align="left" colspan="8"><b>${item.item}</b><br/>${item.description}</td>
-	<td align="right" colspan="1">${item.item?keep_after_last(".")?number}</td>
+	<td align="right" colspan="1">${item.item?keep_after_last(".")?keep_before(" ")}</td>
     <td align="left" colspan="2">${item.custcol_bbs_commodity_code}</td>
     <td align="center" colspan="2">${item.quantity}</td>
 	<td align="right" colspan="2">${item.rate}</td>

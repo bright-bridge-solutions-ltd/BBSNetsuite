@@ -91,7 +91,7 @@ function(runtime, search, record) {
     	shopifyString = shopifyString.slice(0, -1);
     	
     	// finish off the shopifyString
-    	shopifyString += ']';
+    	shopifyString += ']"';
     	
     	try
     		{
