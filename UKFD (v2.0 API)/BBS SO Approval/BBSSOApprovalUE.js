@@ -31,10 +31,12 @@ function(search) {
     function beforeSubmit(scriptContext) {
     	
     	// check the record is being created
-    	if (scriptContext.type == scriptContext.UserEventType.CREATE)
+    	if (scriptContext.type == scriptContext.UserEventType.EDIT)
     		{
 		    	// declare and initialize variables
-		    	var paymentAuthorisation = false;
+		    	var paymentApproval 		= false;
+		    	var passedBusinessRules 	= false;
+		    	var allItemsInStock			= false;
 		    	
 		    	// get the current record
 		    	var currentRecord = scriptContext.newRecord;
@@ -47,7 +49,40 @@ function(search) {
 		    	// if paymentMethod is 9 (PayPal (Other)) or 16 (PayPal (UKFD Site))
 		    	if (paymentMethod == 9 || paymentMethod == 16)
 		    		{
+		    			// get the billing address
+		    			var billingAddress = currentRecord.getValue({
+		    				fieldId: 'billaddress'
+		    			});
 		    			
+		    			// check if we have a billing address
+		    			if (billingAddress)
+		    				{
+		    					// get the billing address subrecord
+		    					var billingAddressSubrecord = currentRecord.getSubrecord({
+		    						fieldId: 'billingaddress'
+		    					});
+		    					
+		    					// retrieve details from the billing address
+		    					var customerName = billingAddressSubrecord.getValue({
+		    						fieldId: 'addressee'
+		    					});
+		    					
+		    					var postcode = billingAddressSubrecord.getValue({
+		    						fieldId: 'zip'
+		    					});
+		    					
+		    					// get the customer's phone number
+		    					var telephoneNumber = currentRecord.getValue({
+		    						fieldId: 'custbody_customerphonesourced'
+		    					});
+		    					
+		    					// if we have a customerName, telephoneNumber and a postcode
+		    					if (customerName && telephoneNumber && postcode)
+		    						{
+		    							// set paymentApproval to true
+		    							paymentApproval = true;
+		    						}
+		    				}
 		    		}
 		    	else if (paymentMethod == 13 || paymentMethod == 14) // if paymentMethod is 13 (VISA) or 14 (Master Card)
 		    		{
@@ -90,7 +125,12 @@ function(search) {
 		    				value: paymentResults.avsZip
 		    			});
 		    			
-		    			if ((paymentResults.eci == 5 || paymentResults.eci == 2) && paymentResults.paresStatus == 'Y' && paymentResults.reasonCode == 100)
+		    			currentRecord.setValue({
+		    				fieldId: 'custbody_bbs_payment_csc',
+		    				value: paymentResults.csc
+		    			});
+		    			
+		    			if ((paymentResults.eciRaw == 05 || paymentResults.eciRaw == 02) && paymentResults.paresStatus == 'Y' && paymentResults.reasonCode == 100)
 	    					{
 		    					// set the 3D secure checkbox on the record
 		    					currentRecord.setValue({
@@ -101,29 +141,43 @@ function(search) {
 		    					// if avsStreet/avsZip/csc = true and decision = ACCEPT
 		    					if (paymentResults.avsStreet == true && paymentResults.avsZip == true && paymentResults.csc == true && paymentResults.decision == 'ACCEPT')
 		    						{
-		    							// set paymentAuthorisation to true
-		    							paymentAuthorisation = true;
+		    							// set paymentApproval to true
+		    							paymentApproval = true;
 		    						}
 	    					}
 		    		}
 		    	
-		    	// have we achieved payment authorisation
-		    	if (paymentAuthorisation)
+		    	// call function to check if the order passes Universal Business Rules
+		    	passedBusinessRules = checkUniversalBusinessRules(currentRecord);
+		    	
+		    	// call function to check if all items are in stock
+		    	allItemsInStock = checkStockLevels(currentRecord);
+		    	
+		    	// set the approval checkboxes on the record
+		    	currentRecord.setValue({
+		    		fieldId: 'custbody_bbs_passed_payment_approval',
+		    		value: paymentApproval
+		    	});
+		    	
+		    	currentRecord.setValue({
+		    		fieldId: 'custbody_bbs_passed_uni_business_rules',
+		    		value: passedBusinessRules
+		    	});
+		    	
+		    	currentRecord.setValue({
+		    		fieldId: 'custbody_bbs_all_items_in_stock',
+		    		value: allItemsInStock
+		    	});
+		    	
+		    	// if all checks have passed
+		    	if (paymentApproval == true && passedBusinessRules == true && allItemsInStock == true)
 		    		{
-		    			// call function to check if the order passes Universal Business Rules
-		    			if(checkUniversalBusinessRules(currentRecord))
-		    				{
-		    					// call function to check all items are in stock
-		    					if(checkStockLevels(currentRecord))
-		    						{
-			    						// set the order status to Pending Fulfilment
-		    							currentRecord.setValue({
-		    								fieldId: 'orderstatus',
-		    								value: 'B' // B = Pending Fulfilment
-		    							});
-		    						}
-		    				}
-					}
+			    		// set the order status to Pending Fulfilment
+						currentRecord.setValue({
+							fieldId: 'orderstatus',
+							value: 'B' // B = Pending Fulfilment
+						});
+		    		}
     		}
 
     }
@@ -156,14 +210,14 @@ function(search) {
     	});
     	
     	// if the customerName contains 'Guest Shopper'
-    	if (customerName.includes('Guest Shopper'))
+    	if (customerName.indexOf('Guest Shopper') > -1)
     		{
     			// set passedRules variable to false
     			passedRules = false;
     		}
     	else
     		{
-    			// get item count
+	    		// get item count
     			var itemCount = currentRecord.getLineCount({
     				sublistId: 'item'
     			});
@@ -178,8 +232,8 @@ function(search) {
     						line: i
     					});
     					
-    					// if the itemName contain 'VIN'
-    					if (itemName.includes('VIN'))
+    					// if the itemName contains 'VIN'
+    					if (itemName.indexOf('VIN') > -1)
     						{
     							// loop through the items again
     							for (var x = 0; x < itemCount; x++)
@@ -192,7 +246,7 @@ function(search) {
 	    		    					});
 	    								
 	    								// if part code matches to one of these products
-	    								if (itemName == 'ACC-UN-NO-008' || itemName == 'ACC-UN-NO-005' || itemName == 'ACC-UN-NO-004' || 'ACC-UN-NO-002' || 'ACC-UN-FB-55' || 'ACC-UN-FF-001')
+	    								if (itemName == 'ACC-UN-NO-008' || itemName == 'ACC-UN-NO-005' || itemName == 'ACC-UN-NO-004' || itemName == 'ACC-UN-NO-002' || itemName == 'ACC-UN-FB-55' || itemName == 'ACC-UN-FF-001' || itemName.indexOf('S-VIN') > -1 || itemName.indexOf('S-SOL') > -1)
 	    									{
 	    										// set passedRules variable to false
 	    										passedRules = false;
@@ -202,7 +256,7 @@ function(search) {
 	    									}
     								}
     						}
-    					else if (itemName.includes('SOL')) // if the itemName contain 'SOL'
+    					else if (itemName.indexOf('SOL') > -1) // if the itemName contain 'SOL'
     						{
     							// loop through the items again
     							for (var x = 0; x < itemCount; x++)
@@ -215,7 +269,7 @@ function(search) {
     									});
     									
     									// if part code matches to one of these products
-    									if (itemName == 'ACC-UN-NO-008' || itemName == 'ACC-UN-NO-005' || itemName == 'ACC-UN-NO-004' || itemName == 'ACC-UN-NO-002' || itemName == 'ACC-UN-FB-55' || itemName == 'ACC-UN-LC-03' || itemName.includes('S-VIN') || itemName.includes('S-SOL'))
+    									if (itemName == 'ACC-UN-NO-008' || itemName == 'ACC-UN-NO-005' || itemName == 'ACC-UN-NO-004' || itemName == 'ACC-UN-NO-002' || itemName == 'ACC-UN-FB-55' || itemName == 'ACC-UN-LC-03' || itemName.indexOf('S-VIN') > -1 || itemName.indexOf('S-SOL') > -1)
     										{
 	    										// set passedRules variable to false
 	    										passedRules = false;
@@ -223,29 +277,6 @@ function(search) {
 	    										// break the loop
 	    										break;
     										}
-    								}
-    						}
-    					else if (itemName.includes('VIN')) // if the itemName contains 'VIN'
-    						{
-    							// loop through the items again
-    							for (var x = 0; x < itemCount; x++)
-    								{
-	    								// get the item name
-										var itemName = currentRecord.getSublistText({
-											sublistId: 'item',
-											fieldId: 'item',
-											line: x
-										});
-										
-										// if itemName includes 'S-VIN' or 'S-SOL'
-										if (itemName.includes('S-VIN') || itemName.includes('S-SOL'))
-											{
-												// set passedRules variable to false
-												passedRules = false;
-												
-												// break the loop
-												break;
-											}
     								}
     						}
     				}
@@ -267,9 +298,9 @@ function(search) {
     	var eciRaw			= 	null;
     	var paresStatus		= 	null;
     	var reasonCode		= 	null;
-    	var avsStreet		= 	null;
-    	var avsZip			= 	null;
-    	var csc				= 	null;
+    	var avsStreet		= 	false;
+    	var avsZip			= 	false;
+    	var csc				= 	false;
     	var decision		= 	null;
     	
     	// get count of payment event lines
@@ -293,8 +324,8 @@ function(search) {
     				line: i
     			});
     			
-    			// if the type is Authorisation and the result is Accept
-    			if (type == 'Authorisation' && result == 'Accept')
+    			// if the type is Authorization and the result is Accept
+    			if (type == 'Authorization' && result == 'Accept')
     				{
     					// return values from the line
     					avsStreet = convertToBoolean(
@@ -350,7 +381,7 @@ function(search) {
     		decision:		decision,
     		avsStreet:		avsStreet,
     		avsZip:			avsZip,
-    		csc:			csc,
+    		csc:			csc
     	}
     	
     }
@@ -370,7 +401,7 @@ function(search) {
     			// set returnValue to true
     			returnValue = true;
     		}
-    	else if (value == 'N') // if value is N
+    	else
     		{
     			// set returnValue to false
     			returnValue = false;

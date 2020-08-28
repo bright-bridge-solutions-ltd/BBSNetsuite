@@ -247,7 +247,7 @@
 </#if>
 
   <tr>
-	<td align="left" colspan="8"><b>${item.item?keep_before(" ")}</b><br/>${item.description}</td>
+	<td align="left" colspan="8"><b>${item.item?keep_before(" ")}</b><br/>${item.custcol_bbs_item_display_name}</td>
     <td align="center" colspan="2">${item.item?keep_after_last(".")?keep_before(" ")}</td>
 	<td align="center" colspan="2">${item.quantity}</td>
 	<td align="right" colspan="2">${item.rate}</td>

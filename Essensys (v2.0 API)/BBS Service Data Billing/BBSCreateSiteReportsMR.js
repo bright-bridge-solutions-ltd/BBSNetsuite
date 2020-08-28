@@ -297,7 +297,7 @@ function(runtime, search, file, task) {
     	});
     	
     	// specify the file name
-		var fileName = filePrefix + '-' + reportDate + '-' + siteAlias + '-arrears_invoice_reports.csv';
+		var fileName = filePrefix + '-' + reportDate + '-' + siteAlias + '-mp_invoice_reports.csv';
 		
 		// start off the CSV
 		var CSV = '"Quantity","Telephone","AccountCode","Product","Type","Due","Unit Cost","Discount","Cost"\r\n';

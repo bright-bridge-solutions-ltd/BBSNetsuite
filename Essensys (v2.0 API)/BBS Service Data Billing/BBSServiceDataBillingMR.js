@@ -239,7 +239,7 @@ function(runtime, search, record, format, render, file, task) {
 		    			operator: 'noneof',
 		    			values: ['@NONE@']
 		    		},
-		    		{
+		    				{
 		    			name: 'custrecord_bbs_service_data_product_rec',
 		    			operator: 'noneof',
 		    			values: ['@NONE@']
@@ -436,7 +436,7 @@ function(runtime, search, record, format, render, file, task) {
 			fileDate = fileDate.format('ymd'); // format date in the following format YYMMDD
     	
     		// specify the file name
-    		var fileName = filePrefix + '-' + fileDate + '-' + siteAlias + '-' + tranID + '-' + 'marketplaceservices-report.csv';
+    		var fileName = filePrefix + '-' + fileDate + '-' + siteAlias + '-arrears_invoice_reports_' + tranID + '.csv';
     		
     		// start off the CSV
     		var CSV = '"Accounts id","Account Name","Invoice Number","Date From","Date To","Product","Quantity","Operator Cost","Operator Total Cost","Tenant Alias","Tenant Name","Tenant Billing Reference","Tenant Cost","Tenant Total","Margin"\r\n';

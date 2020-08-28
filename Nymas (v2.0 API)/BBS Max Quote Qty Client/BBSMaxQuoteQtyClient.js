@@ -57,7 +57,7 @@ function(dialog) {
     					// display an alert to the user
     					dialog.create({
     						title: '⚠️ Maximum Quote Quantity Exceeded',
-    						message: 'The quantity you have entered (<b>' + lineQuantity + '</b>) is greater than the maximum quote quantity (<b>' + maxQuoteQty + '</b>) for this item.<br><br>If you continue, the quote will require approval before it can be processed.'
+    						message: 'The quantity you have entered (<b>' + lineQuantity + '</b>) is greater than the maximum quote quantity (<b>' + maxQuoteQty + '</b>) for this item.<br><br>If you continue, the transaction will require approval before it can be processed.'
     					});
     				}
     		}
@@ -221,7 +221,7 @@ function(dialog) {
     	
     	// set the 'Max Quote Qty Exceeded' checkbox on the record
     	currentRecord.setValue({
-    		fieldId: 'custbody_bbs_max_quote_qty_exceeded',
+    		fieldId: 'custbody_bbs_apply_mqq_block',
     		value: maxQuoteQtyExceeded
     	});
     	

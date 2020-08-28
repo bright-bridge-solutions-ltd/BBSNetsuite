@@ -174,28 +174,28 @@ function(file, record, search, http, xml, format)
 						        			//
 					        				xmlString += '<Despatch xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n';
 					        				xmlString += '<ImportFormat>SHP</ImportFormat>\n';
-					        				xmlString += '<CustomerName>' 				+ xml.escape({xmlText: customerFullName}) 			+ '</CustomerName>\n';
-					        				xmlString += '<CustomerEmail>' 				+ xml.escape({xmlText: customerEmail}) 				+ '</CustomerEmail>\n';
-					        				xmlString += '<CarrierName>' 				+ xml.escape({xmlText: fulfilmentShippingCarrier}) 	+ '</CarrierName>\n';
-					        				xmlString += '<ServiceTypeName>' 			+ xml.escape({xmlText: fulfilmentShippingMethod}) 	+ '</ServiceTypeName>\n';
-					        				xmlString += '<SalesOrderNumber>' 			+ xml.escape({xmlText: salesOrderNumber}) 			+ '</SalesOrderNumber>\n';
-					        				xmlString += '<ShippingCost>' 				+ xml.escape({xmlText: fulfilmentShippingCost}) 	+ '</ShippingCost>\n';
-					        				xmlString += '<CustomerReference>' 			+ xml.escape({xmlText: salesOrderCustRef}) 			+ '</CustomerReference>\n';
-					        				xmlString += '<CustomerPhone>' 				+ xml.escape({xmlText: customerPhone}) 				+ '</CustomerPhone>\n';
-					        				xmlString += '<CustomerMobile>' 			+ xml.escape({xmlText: customerMobile}) 			+ '</CustomerMobile>\n';
-					        				xmlString += '<TotalSale>' 					+ xml.escape({xmlText: salesOrderTotal}) 			+ '</TotalSale>\n';
-					        				xmlString += '<Discount>' 					+ xml.escape({xmlText: salesOrderDiscount}) 		+ '</Discount>\n';
-					        				xmlString += '<TaxPaid>' 					+ xml.escape({xmlText: salesOrderTax}) 				+ '</TaxPaid>\n';
-					        				xmlString += '<CreatedDate>' 				+ xml.escape({xmlText: fulfilmentDate}) 			+ '</CreatedDate>\n';
-					        				xmlString += '<ChannelName>' 				+ xml.escape({xmlText: salesOrderChannel}) 			+ '</ChannelName>\n';
-					        				xmlString += '<ShippingAddressLine1>' 		+ xml.escape({xmlText: fulfilmentAddr1}) 			+ '</ShippingAddressLine1>\n';
-					        				xmlString += '<ShippingAddressLine2>' 		+ xml.escape({xmlText: fulfilmentAddr2}) 			+ '</ShippingAddressLine2>\n';
-					        				xmlString += '<ShippingAddressTownCity>' 	+ xml.escape({xmlText: fulfilmentCity}) 			+ '</ShippingAddressTownCity>\n';
-					        				xmlString += '<ShippingAddressRegion>' 		+ xml.escape({xmlText: fulfilmentState}) 			+ '</ShippingAddressRegion>\n';
-					        				xmlString += '<ShippingAddressPostCode>' 	+ xml.escape({xmlText: fulfilmentZip}) 				+ '</ShippingAddressPostCode>\n';
-					        				xmlString += '<ShippingAddressCountry>' 	+ xml.escape({xmlText: fulfilmentCountry}) 			+ '</ShippingAddressCountry>\n';
-					        				xmlString += '<DespatchNumber>' 			+ xml.escape({xmlText: fulfilmentReference}) 		+ '</DespatchNumber>\n';
-					        				xmlString += '<DespatchDate>' 				+ xml.escape({xmlText: fulfilmentShippedDate}) 		+ '</DespatchDate>\n';
+					        				xmlString += '<CustomerName>' 				+ xml.escape({xmlText: customerFullName.substring(0,35)}) 			+ '</CustomerName>\n';
+					        				xmlString += '<CustomerEmail>' 				+ xml.escape({xmlText: customerEmail}) 								+ '</CustomerEmail>\n';
+					        				xmlString += '<CarrierName>' 				+ xml.escape({xmlText: fulfilmentShippingCarrier}) 					+ '</CarrierName>\n';
+					        				xmlString += '<ServiceTypeName>' 			+ xml.escape({xmlText: fulfilmentShippingMethod}) 					+ '</ServiceTypeName>\n';
+					        				xmlString += '<SalesOrderNumber>' 			+ xml.escape({xmlText: salesOrderNumber}) 							+ '</SalesOrderNumber>\n';
+					        				xmlString += '<ShippingCost>' 				+ xml.escape({xmlText: fulfilmentShippingCost}) 					+ '</ShippingCost>\n';
+					        				xmlString += '<CustomerReference>' 			+ xml.escape({xmlText: salesOrderCustRef}) 							+ '</CustomerReference>\n';
+					        				xmlString += '<CustomerPhone>' 				+ xml.escape({xmlText: customerPhone}) 								+ '</CustomerPhone>\n';
+					        				xmlString += '<CustomerMobile>' 			+ xml.escape({xmlText: customerMobile}) 							+ '</CustomerMobile>\n';
+					        				xmlString += '<TotalSale>' 					+ xml.escape({xmlText: salesOrderTotal}) 							+ '</TotalSale>\n';
+					        				xmlString += '<Discount>' 					+ xml.escape({xmlText: salesOrderDiscount}) 						+ '</Discount>\n';
+					        				xmlString += '<TaxPaid>' 					+ xml.escape({xmlText: salesOrderTax}) 								+ '</TaxPaid>\n';
+					        				xmlString += '<CreatedDate>' 				+ xml.escape({xmlText: fulfilmentDate}) 							+ '</CreatedDate>\n';
+					        				xmlString += '<ChannelName>' 				+ xml.escape({xmlText: salesOrderChannel}) 							+ '</ChannelName>\n';
+					        				xmlString += '<ShippingAddressLine1>' 		+ xml.escape({xmlText: fulfilmentAddr1.substring(0,35)}) 			+ '</ShippingAddressLine1>\n';
+					        				xmlString += '<ShippingAddressLine2>' 		+ xml.escape({xmlText: fulfilmentAddr2.substring(0,35)}) 			+ '</ShippingAddressLine2>\n';
+					        				xmlString += '<ShippingAddressTownCity>' 	+ xml.escape({xmlText: fulfilmentCity.substring(0,35)}) 			+ '</ShippingAddressTownCity>\n';
+					        				xmlString += '<ShippingAddressRegion>' 		+ xml.escape({xmlText: fulfilmentState.substring(0,35)}) 			+ '</ShippingAddressRegion>\n';
+					        				xmlString += '<ShippingAddressPostCode>' 	+ xml.escape({xmlText: fulfilmentZip}) 								+ '</ShippingAddressPostCode>\n';
+					        				xmlString += '<ShippingAddressCountry>' 	+ xml.escape({xmlText: fulfilmentCountry.substring(0,35)}) 			+ '</ShippingAddressCountry>\n';
+					        				xmlString += '<DespatchNumber>' 			+ xml.escape({xmlText: fulfilmentReference}) 						+ '</DespatchNumber>\n';
+					        				xmlString += '<DespatchDate>' 				+ xml.escape({xmlText: fulfilmentShippedDate}) 						+ '</DespatchDate>\n';
 					        				
 					        				
 					        				
@@ -268,18 +268,19 @@ function(file, record, search, http, xml, format)
 						        					//
 						        					xmlString += '<Item>\n';
 						        					
-						        					xmlString += '<Name>' 					+ xml.escape({xmlText: itemDescription}) 								+ '</Name>\n';
-						        					xmlString += '<ItemCode>' 				+ xml.escape({xmlText: itemName}) 										+ '</ItemCode>\n';
-						        					xmlString += '<QuantityOrdered>' 		+ xml.escape({xmlText: itemQuantity.toFixed(2)}) 						+ '</QuantityOrdered>\n';
-						        					xmlString += '<BuyPrice>' 				+ xml.escape({xmlText: (itemQuantity * itemSoCost).toFixed(2)}) 		+ '</BuyPrice>\n';
-						        					xmlString += '<RetailPrice>' 			+ xml.escape({xmlText: (itemQuantity * itemSoRate).toFixed(2)}) 		+ '</RetailPrice>\n';
-						        					xmlString += '<Weight>' 				+ xml.escape({xmlText: itemUnitWeight.toFixed(2)}) 						+ '</Weight>\n';
+						        					xmlString += '<Name>' 					+ xml.escape({xmlText: itemAdditionalDetails.displayName + ' ' + itemAdditionalDetails.size})		+ '</Name>\n';
+						        					xmlString += '<Description>' 			+ xml.escape({xmlText: itemDescription}) 															+ '</Description>\n';
+						        					xmlString += '<ItemCode>' 				+ xml.escape({xmlText: itemName}) 																	+ '</ItemCode>\n';
+						        					xmlString += '<QuantityOrdered>' 		+ xml.escape({xmlText: itemQuantity.toFixed(2)}) 													+ '</QuantityOrdered>\n';
+						        					xmlString += '<BuyPrice>' 				+ xml.escape({xmlText: (itemQuantity * itemSoCost).toFixed(2)}) 									+ '</BuyPrice>\n';
+						        					xmlString += '<RetailPrice>' 			+ xml.escape({xmlText: (itemQuantity * itemSoRate).toFixed(2)}) 									+ '</RetailPrice>\n';
+						        					xmlString += '<Weight>' 				+ xml.escape({xmlText: itemUnitWeight.toFixed(2)}) 													+ '</Weight>\n';
 						        					xmlString += '<TotalGrossWeight></TotalGrossWeight>\n';
-						        					xmlString += '<Attribute1>' 			+ xml.escape({xmlText: itemSoRate.toFixed(2)}) 							+ '</Attribute1>\n';
-						        					xmlString += '<Attribute2>' 			+ xml.escape({xmlText: itemSoVat.toFixed(2)}) 							+ '</Attribute2>\n';
-						        					xmlString += '<CommodityCode>' 			+ xml.escape({xmlText: itemAdditionalDetails.commodityCode}) 			+ '</CommodityCode>\n';
-						        					xmlString += '<CountryOfManufacture>' 	+ xml.escape({xmlText: itemAdditionalDetails.countryOfManufacture}) 	+ '</CountryOfManufacture>\n';
-						        					xmlString += '<ItemGroupName>' 			+ xml.escape({xmlText: itemAdditionalDetails.groupName}) 				+ '</ItemGroupName>\n';
+						        					xmlString += '<Attribute1>' 			+ xml.escape({xmlText: itemSoRate.toFixed(2)}) 														+ '</Attribute1>\n';
+						        					xmlString += '<Attribute2>' 			+ xml.escape({xmlText: itemSoVat.toFixed(2)}) 														+ '</Attribute2>\n';
+						        					xmlString += '<CommodityCode>' 			+ xml.escape({xmlText: itemAdditionalDetails.commodityCode}) 										+ '</CommodityCode>\n';
+						        					xmlString += '<CountryOfManufacture>' 	+ xml.escape({xmlText: itemAdditionalDetails.countryOfManufacture}) 								+ '</CountryOfManufacture>\n';
+						        					xmlString += '<ItemGroupName>' 			+ xml.escape({xmlText: itemAdditionalDetails.groupName}) 											+ '</ItemGroupName>\n';
 						        					
 						        					xmlString += '</Item>\n';
 						        					
@@ -524,6 +525,8 @@ function(file, record, search, http, xml, format)
 			var state 					= '';
 			var zip 					= '';
 			var country 				= '';
+			var displayName				= '';
+			var size					= '';
 				
     		try
     			{
@@ -546,6 +549,8 @@ function(file, record, search, http, xml, format)
     			{
 	    			commodityCode 			= itemRecord.getValue({fieldId: 'custitem_commodity_code'});
 	        		countryOfManufacture 	= itemRecord.getValue({fieldId: 'countryofmanufacture'});
+	        		displayName				= itemRecord.getValue({fieldId: 'displayname'});
+	        		size					= itemRecord.getText({fieldId: 'custitem_bbs_matrix_size'});
 	        		
 	        		try
 	        			{
@@ -618,7 +623,9 @@ function(file, record, search, http, xml, format)
     		additionalInfoObj = new itemAdditionalInfo(
     													commodityCode, 
     													countryOfManufacture, 
-    													groupName, 
+    													groupName,
+    													displayName,
+    													size,
     													new addressObject(addr1, addr2, city, state, zip, country)
     													); 
     	
@@ -746,11 +753,13 @@ function(file, record, search, http, xml, format)
 			this.country				= _country;
     	}
     
-    function itemAdditionalInfo(_commodityCode, _countryOfManufacture, _groupName, _address)
+    function itemAdditionalInfo(_commodityCode, _countryOfManufacture, _groupName, _displayName, _size, _address)
     	{
     		this.commodityCode			= _commodityCode;
     		this.countryOfManufacture	= _countryOfManufacture;
     		this.groupName				= _groupName;
+    		this.displayName			= _displayName;
+    		this.size					= _size;
     		this.address				= _address;
     	}
     

@@ -13,7 +13,12 @@ function(record) {
      * @returns {string | Object} HTTP response body; return string when request Content-Type is 'text/plain'; return Object when request Content-Type is 'application/json'
      * @since 2015.1
      */
-    function doGet(requestParams) {
+    function doGet(requestParams){
+    	
+    	log.debug({
+    		title: 'Script Check',
+    		details: requestParams
+    	});
     	
     	// declare and initialize variables
     	var returnMessage = null;
@@ -145,6 +150,115 @@ function(record) {
      * @since 2015.2
      */
     function doPost(requestBody) {
+    	
+    	// get the request body and convert to a JSON object
+    	requestBody = JSON.parse(JSON.stringify(requestBody));
+    	
+    	// declare and initialize variables
+    	var returnMessage = null;
+    	
+    	// retrieve values from the requestBody object
+    	var firstName 		= 	requestBody.firstname;
+    	var lastName		=	requestBody.lastname;
+    	var jobTitle		=	requestBody.jobtitle;
+    	var companyName		=	requestBody.companyname;
+    	var email			=	requestBody.email;
+    	var phone			=	requestBody.phone;
+    	var postcode		=	requestBody.postcode;
+    	
+    	try
+    		{
+    			// create a new lead record
+    			var leadRecord = record.create({
+    				type: record.Type.LEAD,
+    				isDynamic: true
+    			});
+    			
+    			// set fields on the lead record
+    			leadRecord.setValue({
+    				fieldId: 'subsidiary',
+    				value: 6 // 6 = UK
+    			});
+    			
+    			leadRecord.setValue({
+    				fieldId: 'firstname',
+    				value: firstName
+    			});
+    			
+    			leadRecord.setValue({
+    				fieldId: 'lastname',
+    				value: lastName
+    			});
+    			
+    			leadRecord.setValue({
+    				fieldId: 'title',
+    				value: jobTitle
+    			});
+    			
+    			leadRecord.setValue({
+    				fieldId: 'companyname',
+    				value: companyName
+    			});
+    			
+    			leadRecord.setValue({
+    				fieldId: 'email',
+    				value: email
+    			});
+    			
+    			leadRecord.setValue({
+    				fieldId: 'phone',
+    				value: phone
+    			});
+    			
+    			// create a new line in the addressbook
+    			leadRecord.selectNewLine({
+    				sublistId: 'addressbook'
+    			});
+    			
+    			// set fields on the new line
+    			leadRecord.setCurrentSublistValue({
+    				sublistId: 'addressbook',
+    				fieldId: 'defaultshipping',
+    				value: true
+    			});
+    			
+    			leadRecord.setCurrentSublistValue({
+    				sublistId: 'addressbook',
+    				fieldId: 'defaultbilling',
+    				value: true
+    			});
+    			
+    			// create address subrecord
+    			var addressSubrecord = leadRecord.getCurrentSublistSubrecord({
+    			    sublistId: 'addressbook',
+    			    fieldId: 'addressbookaddress'
+    			});
+    			
+    			// set fields on the address subrecord
+    			addressSubrecord.setValue({
+    				fieldId: 'zip',
+    				value: postcode
+    			});
+    			
+    			// save the changes to the address subrecord and sublist line
+    			leadRecord.commitLine({
+    				sublistId: 'addressbook'
+    			});
+    			
+    			// save the lead record
+    			var leadID = leadRecord.save();
+    			
+    			// set returnMessage
+    			returnMessage = 'Lead Successfully Created - ' + leadID;
+    			
+    		}
+    	catch(e)
+    		{
+    			// set value of returnMessage
+    			returnMessage = e.message;
+    		}				
+    	
+    	return returnMessage;
 
     }
 
@@ -161,8 +275,8 @@ function(record) {
 
     return {
         'get': doGet,
-        put: doPut,
-        post: doPost,
+        'put': doPut,
+        'post': doPost,
         'delete': doDelete
     };
     
