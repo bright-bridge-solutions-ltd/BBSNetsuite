@@ -2,12 +2,12 @@
  * @NApiVersion 2.x
  * @NModuleScope Public
  */
-define(['N/record', 'N/runtime', 'N/search', 'N/plugin', 'N/format'],
+define(['N/record', 'N/config', 'N/runtime', 'N/search', 'N/plugin', 'N/format'],
 /**
  * @param {record} record
  * @param {search} search
  */
-function(record, runtime, search, plugin, format) 
+function(record, config, runtime, search, plugin, format) 
 {
 
 	//=====================================================================
@@ -174,6 +174,7 @@ function(record, runtime, search, plugin, format)
 			this.taxCustomAddressRecType	= '';
 			this.taxCustomAddressIdFrom		= '';
 			this.subsidiariesEnabled		= [];
+			this.pCode						= '';
 		}
 	
 	//Generic response from api object
@@ -659,28 +660,40 @@ function(record, runtime, search, plugin, format)
 	function getSubsidiaryInfo(subsidiaryID) {
 		
 		// declare array to hold return values
-		var returnArray = new Array();
+		var returnArray 	= new Array();
+		var clientProfileID = null;
+		var pCode 			= null;
 		
-		// load the subsidiary record
-		var subsidiaryRecord = record.load({
-			type: record.Type.SUBSIDIARY,
-			id: subsidiaryID
-		});
-		
-		// get the client profile ID
-		var clientProfileID = subsidiaryRecord.getValue({
-			fieldId: 'custrecord_bbstfc_subsid_profile_id'
-		});
-		
-		// get the address subrecord
-		var addressSubrecord = subsidiaryRecord.getSubrecord({
-			fieldId: 'mainaddress'
-		});
-		
-		// get the P Code
-		var pCode = addressSubrecord.getValue({
-			fieldId: 'custrecord_bbstfc_address_pcode'
-		});
+		try
+			{
+				// load the subsidiary record
+				var subsidiaryRecord = record.load({
+					type: record.Type.SUBSIDIARY,
+					id: subsidiaryID
+				});
+				
+				// get the client profile ID
+				clientProfileID = subsidiaryRecord.getValue({
+					fieldId: 'custrecord_bbstfc_subsid_profile_id'
+				});
+				
+				// get the address subrecord
+				var addressSubrecord = subsidiaryRecord.getSubrecord({
+					fieldId: 'mainaddress'
+				});
+				
+				// get the P Code
+				pCode = addressSubrecord.getValue({
+					fieldId: 'custrecord_bbstfc_address_pcode'
+				});
+			}
+		catch(e) // error because of Non-OneWorld account
+			{
+				log.error({
+					title: 'Error Retrieving Subsdiary Info',
+					details: e
+				});
+			}
 		
 		// push values to the returnArray
 		returnArray.push(clientProfileID);
@@ -747,6 +760,24 @@ function(record, runtime, search, plugin, format)
 					id: salesTypeID,
 					columns: ['custrecord_bbstfc_sale_type_code']
 				}).custrecord_bbstfc_sale_type_code;
+			}
+		else
+			{
+				return null;
+			}
+		
+	}
+	
+	function getDiscountTypeCode(discountTypeID) {
+		
+		// do we have a discount type ID
+		if (discountTypeID)
+			{
+				return search.lookupFields({
+					type: 'customrecord_bbstfc_discount_type',
+					id: discountTypeID,
+					columns: ['custrecord_bbstfc_discount_type_id']
+				}).custrecord_bbstfc_discount_type_id;
 			}
 		else
 			{
@@ -1836,6 +1867,8 @@ function(record, runtime, search, plugin, format)
 			getTransactionServicePair:		getTransactionServicePair,
     		getSubsidiaryInfo:				getSubsidiaryInfo,
     		getSiteInfo:					getSiteInfo,
+    		getSalesTypeCode:				getSalesTypeCode,
+    		getDiscountTypeCode:			getDiscountTypeCode,
     		getISOCode:						getISOCode,
     		getTaxCategories:				getTaxCategories,
 			getTaxLevels:					getTaxLevels,

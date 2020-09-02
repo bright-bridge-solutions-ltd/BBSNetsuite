@@ -23,17 +23,34 @@ function(runtime, render, file, url, record) {
     	// check if the record is being created or edited
     	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
     		{
+    			// retrieve script parameters
+    			var enabledLocation = runtime.getCurrentScript().getParameter({
+    				name: 'custscript_bbs_sales_order_ue_location'
+    			});
+    		
+    			// get the current record
+    			var currentRecord = scriptContext.newRecord;
+    		
     			// get the ID of the current record
-    			var recordID = scriptContext.newRecord.id;
+    			var recordID = currentRecord.id;
     			
-    			// call function to generate the PDF of the transaction.
-    			var fileID = generatePDF(recordID);
+    			// get the value of the location field
+    			var location = currentRecord.getValue({
+    				fieldId: 'location'
+    			});
     			
-    			// check the file was created successfully
-    			if (fileID)
+    			// if enabledLocation = location
+    			if (enabledLocation == location)
     				{
-    					// call function to update the transaction with the URL of the file
-    					updateTransaction(recordID, fileID);
+		    			// call function to generate the PDF of the transaction.
+		    			var fileID = generatePDF(recordID);
+		    			
+		    			// check the file was created successfully
+		    			if (fileID)
+		    				{
+		    					// call function to update the transaction with the URL of the file
+		    					updateTransaction(recordID, fileID);
+		    				}
     				}
     		}   	
     }

@@ -195,7 +195,7 @@ function(runtime, search, file, task) {
     	});
     	
     	// specify the file name
-		var fileName = filePrefix + '-' + reportDate + '-' + customerName + '-consolidated_summary_tenantcharges.csv';
+		var fileName = filePrefix + '-' + reportDate + '-' + customerName + '-allsites_mp_clientservices_report.csv';
 		
 		// start off the CSV
 		var CSV = '"ClientID","ClientAmount","OperatorAmount","Margin","ClientName","StartDateTime","EndDateTime","Site","BillingRef","LinkInvoiceYear","LinkInvoiceMonth"\r\n';
@@ -309,7 +309,7 @@ function(runtime, search, file, task) {
     	});
     	
     	// specify the file name
-		var fileName = filePrefix + '-' + reportDate + '-' + customerName + '-consolidated_tenant_charges_by_line_item.csv';
+		var fileName = filePrefix + '-' + reportDate + '-' + customerName + '-allsites_mp_invoice_report.csv';
 		
 		// start off the CSV
 		var CSV = '"Quantity","Telephone","ClientName","Product","Type","Due","UnitCost","Discount","Cost","Site"\r\n';

@@ -9,15 +9,17 @@ define(['N/record', 'N/search'],
  */
 function(record, search) {
 
-    /**
-     * Function definition to be triggered before record is loaded.
-     *
-     * @param {Object} scriptContext
-     * @param {Record} scriptContext.newRecord - New record
-     * @param {Record} scriptContext.oldRecord - Old record
-     * @param {string} scriptContext.type - Trigger type
-     * @Since 2015.2
-     */
+    function poBeforeSubmit(scriptContext) {
+    	
+    	// check the record is being created
+    	if (scriptContext.type == scriptContext.UserEventType.CREATE)
+    		{
+    			// get the 
+    		}
+    	
+    	
+    }
+	
     function poSetDepartmentsAS(scriptContext) 
 	    {
     		if(scriptContext.type == 'create' || scriptContext.type == 'dropship' || scriptContext.type == 'specialorder')

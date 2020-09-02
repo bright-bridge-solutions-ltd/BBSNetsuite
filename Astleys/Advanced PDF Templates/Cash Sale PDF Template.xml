@@ -235,7 +235,7 @@
 			<thead>
   				<tr>
   					<th align="left" colspan="2"><br/>Code</th>
-  					<th align="left" colspan="6"><br/>Description</th>
+  					<th align="left" colspan="8"><br/>Description</th>
   					<th align="right" colspan="2"><br/>Bin</th>
   					<th align="right" colspan="2"><p align="right">VAT<br/>Code</p></th>
   					<th align="right" colspan="2"><p align="right">Pack<br/>Size</p></th>
@@ -247,7 +247,7 @@
   			</#if>
   				<tr>
   					<td align="left" colspan="2">${item.custcol_bbs_sku}</td>
-  					<td align="left" colspan="6">${item.description}<br />${item.custcol_scm_customerpartnumber}</td>
+  					<td align="left" colspan="8">${item.description}<br />${item.custcol_scm_customerpartnumber}</td>
   					<td align="right" colspan="2">${item.custcol_bbs_item_bin}</td>
   					<td align="right" colspan="2">${item.taxrate1}</td>
   					<td align="right" colspan="2">${item.units}</td>
