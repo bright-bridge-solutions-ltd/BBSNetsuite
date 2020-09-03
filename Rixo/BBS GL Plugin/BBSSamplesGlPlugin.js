@@ -13,17 +13,21 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 			//Variables
 			//
 			var context 			= nlapiGetContext();
-			var samplesLocation 	= 315;				//Press
+			//var samplesLocation 	= 315;				//Press
 			var standardCogs 		= 214;				//51100 COGS: Cost of Goods Sold
+			var returnCogs 			= 342;				//51400 COGS: Returns (Cogs)
+			var samplesCustCategory	= 5;				//Press Sample
 			var samplesCogsId		= null;
 			var samplesCogs			= null;
+			var customerId			= null;
+			var customerCategory	= null;
 			
 			//Get the source record type & id
 			//
 			var recType 	= transactionRecord.getRecordType();
 			var recId   	= transactionRecord.getId();
 			
-			if(recType == 'itemfulfillment')
+			if(recType == 'itemfulfillment' || recType == 'itemreceipt')
 				{
 					//Get the destination COGS account
 					//
@@ -34,7 +38,18 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 							samplesCogs = nlapiLookupField('customrecord_bbs_press_sample_gl_account',samplesCogsId, 'custrecord_bbs_press_gl_account');
 						}
 					
-					if(samplesCogs != null && samplesCogs != '')
+					//Get the customer category
+					//
+					customerId = transactionRecord.getFieldValue('entity');
+					
+					if(customerId != null && customerId != '')
+						{
+							customerCategory = nlapiLookupField('customer',customerId, 'category');
+						}
+					
+					//If we have a COGS account for samples & the customer has a category of 'Press Sample'
+					//
+					if(samplesCogs != null && samplesCogs != '' && customerCategory == samplesCustCategory)
 						{
 							//Get the count of standard lines
 							//
@@ -58,6 +73,7 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 												{
 													var account 		= line.getAccountId();
 													var debit 			= Number(line.getDebitAmount());
+													var credit 			= Number(line.getCreditAmount());
 													var entityId 		= line.getEntityId();
 													var location 		= line.getLocationId();
 													var classId 		= line.getClassId();
@@ -65,7 +81,8 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 														
 													//Find the relevant posting line by looking at the account id
 													//
-													if(samplesLocation == location && account == standardCogs)
+													//if(samplesLocation == location && account == standardCogs)
+													if(account == standardCogs)
 														{
 															//Add new posting lines here
 															//
@@ -76,7 +93,7 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 																	var newLine = customLines.addNewLine();
 																	newLine.setAccountId(parseInt(standardCogs));
 																	newLine.setCreditAmount(debit);
-																	newLine.setMemo('Custom GL Plugin Samples Posting');
+																	newLine.setMemo('Custom GL Plugin Samples Posting v2');
 																	newLine.setEntityId(entityId);
 																	newLine.setClassId(classId);
 																	newLine.setDepartmentId(departmentId);
@@ -87,12 +104,41 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 																	var newLine = customLines.addNewLine();
 																	newLine.setAccountId(parseInt(samplesCogs));
 																	newLine.setDebitAmount(debit);
-																	newLine.setMemo('Custom GL Plugin Samples Posting');
+																	newLine.setMemo('Custom GL Plugin Samples Posting v2');
+																	newLine.setEntityId(entityId);
+																	newLine.setClassId(classId);
+																	newLine.setDepartmentId(departmentId);
+																	newLine.setLocationId(location);
+																}							
+														}
+													
+													if(account == returnCogs)
+														{
+															//Add new posting lines here
+															//
+															if(credit != 0)
+																{
+																	//Debit the original line
+																	//
+																	var newLine = customLines.addNewLine();
+																	newLine.setAccountId(parseInt(returnCogs));
+																	newLine.setDebitAmount(credit);
+																	newLine.setMemo('Custom GL Plugin Samples Posting v2');
 																	newLine.setEntityId(entityId);
 																	newLine.setClassId(classId);
 																	newLine.setDepartmentId(departmentId);
 																	newLine.setLocationId(location);
 																	
+																	//Credit the "Samples COGS" account
+																	//
+																	var newLine = customLines.addNewLine();
+																	newLine.setAccountId(parseInt(samplesCogs));
+																	newLine.setCreditAmount(credit);
+																	newLine.setMemo('Custom GL Plugin Samples Posting v2');
+																	newLine.setEntityId(entityId);
+																	newLine.setClassId(classId);
+																	newLine.setDepartmentId(departmentId);
+																	newLine.setLocationId(location);
 																}							
 														}
 												}
