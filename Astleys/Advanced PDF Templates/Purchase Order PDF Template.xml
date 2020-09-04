@@ -211,8 +211,9 @@
 <thead >
   <tr >
     <th align="left" colspan="2"><br/>Code</th>
-  	<th align="left" colspan="6"><br/>Description</th>
-  	<th align="left" colspan="2"><br/>Supplier SKU</th>
+    <th align="left" colspan="2"><br/>Bin</th>
+  	<th align="left" colspan="8"><br/>Description</th>
+  	<th align="left" colspan="4"><br/>Supplier SKU</th>
   	<th align="right" colspan="2"><p align="right">Pack<br/>Size</p></th>
     <th align="right" colspan="2"><br/>Quantity</th>
     <th align="right" colspan="2"><p align="right">Unit<br/>Price</p></th>
@@ -224,8 +225,9 @@
 
   <tr>
   	<td align="left" colspan="2">${item.custcol_bbs_sku}</td>
-  	<td align="left" colspan="6">${item.description}</td>
-    <td align="left" colspan="2">${item.custcol_bbs_supplier_sku}</td>
+  	<td align="left" colspan="2">${item.custcol_bbs_item_bin}</td>
+  	<td align="left" colspan="8">${item.description}</td>
+    <td align="left" colspan="4">${item.custcol_bbs_supplier_sku}</td>
     <td align="right" colspan="2">${item.units}</td>
     <td align="right" colspan="2">${item.quantity}</td>
     <td align="right" colspan="2">${item.rate}</td>

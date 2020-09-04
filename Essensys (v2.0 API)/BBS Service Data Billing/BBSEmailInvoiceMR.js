@@ -27,12 +27,18 @@ function(runtime, search, email, render, record) {
 			emailSender = currentScript.getParameter({
 				name: 'custscript_bbs_ar_uk_email_sender'
 			});
+			
+			// set commit taxes to false
+			commitTaxes = false;
 		}
 	else if (subsidiary == 3) // if subsidiary is 3 (US)
 		{
 			emailSender = currentScript.getParameter({
 				name: 'custscript_bbs_ar_us_email_sender'
 			});
+			
+			// set commit taxes to true
+			commitTaxes = true;
 		}
 	
 	/**
@@ -234,7 +240,7 @@ function(runtime, search, email, render, record) {
 	    				type: record.Type.INVOICE,
 	    				id: invoiceID,
 	    				values: {
-	    					custbody_bbs_tfc_commit_taxes: true,
+	    					custbody_bbs_tfc_commit_taxes: commitTaxes,
 	    					custbody_bbs_email_sent: true,
 	    					custbody_bbs_date_email_sent: new Date() // today's date
 	    				}

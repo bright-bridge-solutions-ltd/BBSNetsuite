@@ -113,8 +113,18 @@
         </macro>
 
         <macro id="nlfooter">
+        
+        	<table class="footer" style="width: 100%; margin-top: 10px; page-break-inside: avoid;">
+				<tr>
+      				<#if record.entity.custentitycustentity_bbs_cus_pay_meth == 'Credit Card'>
+      					<td colspan="9" style="font-size: 10pt; font-weight: bold;" align="center">Please note the amount due will automatically be taken from your credit card on the 7th ${record.trandate?string["MMMM"]}</td>
+      				<#else>
+      					<td colspan="9">&nsbp;</td>
+      				</#if>
+    			</tr>
+			</table>
 
-			<table class="footer" style="width: 100%;">
+			<table class="footer" style="width: 100%; margin-top: 10px;">
           		<#if subsidiary.id == "6"> <!-- France -->
           			<tr padding-bottom="10">
           				<td colspan="9" style="font-size: 8pt;">In accordance with Articles L. 441-3 and L. 441-6 of the French Commercial Code: late penalties, equal to 3 times the legal interest rate, and compensation of € 40 are due if payment is not made at the latest the day after the due date payment indicated on the invoice.<br/></td>
@@ -224,9 +234,9 @@
 </style>
 </head>
 <#if subsidiary.id == "6"> <!-- France -->
-	<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="125px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+	<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="150px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 <#else>
-	<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="10px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+	<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="50px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 </#if>
   
 <#if subsidiary.id == "10"> <!--India-->
@@ -247,73 +257,86 @@
 </#if>
   
 
-<#assign summary_info = record.custbody_bbs_json_summary?eval>
-			
-<#if summary_info?has_content>
-  <table class="itemtable" style="width: 100%;">
-      <#list summary_info as item>
-          <#if item_index==0>
-              <thead>
-                  <tr>
-                      <th colspan="10" style="font-size: 12pt;">Description</th>
-                      <th align="center" colspan="4" style="font-size: 12pt;">Quantity</th>
-                      <th align="right" colspan="4" style="font-size: 12pt;">Unit Price</th>
-                      <th align="right" colspan="4" style="padding: 10px 6px; white-space: nowrap; font-size: 12pt;">Tax Rate</th>
-                      <th align="right" colspan="5" style="font-size: 12pt;">Amount</th>
-                  </tr>
-              </thead>
-          </#if>
-          <tr>
-              <td class="itemtable" colspan="10" style="font-size: 12pt;">${item.salesDescription}</td>
-              <td class="itemtable" align="center" colspan="4" line-height="150%" style="font-size: 12pt;">${item.quantity?string["#,##0"]}</td>
-              <td class="itemtable" align="right" colspan="4" style="font-size: 12pt;">${item.symbol}${item.unitPrice?string["#,##0.00"]}</td>
-              <td class="itemtable" align="right" colspan="4" style="font-size: 12pt;">${item.vatRate}</td>
-              <td class="itemtable" align="right" colspan="5" style="font-size: 12pt;">${item.symbol}${item.amount?string["#,##0.00"]}</td>
-          </tr>
-      </#list>
-  </table>
+<#if record.custbody_bbs_json_summary?length gt 0> 
+  
+  <#assign summary_info = record.custbody_bbs_json_summary?eval>
+    
+  <#if summary_info?has_content>
+    <table class="itemtable" style="width: 100%;">
+        <#list summary_info as item>
+            <#if item_index==0>
+                <thead>
+                    <tr>
+                        <th colspan="10" style="font-size: 12pt;">Description</th>
+                        <th align="center" colspan="4" style="font-size: 12pt;">Quantity</th>
+                        <th align="right" colspan="5" style="font-size: 12pt;">Unit Price</th>
+                        <th align="right" colspan="4" style="padding: 10px 6px; white-space: nowrap; font-size: 12pt;">Tax Rate</th>
+                        <th align="right" colspan="5" style="font-size: 12pt;">Amount</th>
+                    </tr>
+                </thead>
+            </#if>
+            <tr>
+                <td class="itemtable" colspan="10" style="font-size: 12pt;">${item.salesDescription}</td>
+                <td class="itemtable" align="center" colspan="4" line-height="150%" style="font-size: 12pt;">${item.quantity?string["#,##0"]}</td>
+                <td class="itemtable" align="right" colspan="5" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${item.unitPrice?string["#,##0.00"]}</td>
+                <td class="itemtable" align="right" colspan="4" style="font-size: 12pt;">${item.vatRate}</td>
+                <td class="itemtable" align="right" colspan="5" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${item.amount?string["#,##0.00"]}</td>
+            </tr>
+        </#list>
+    </table>
+  </#if>
 </#if>
-
 
 <table class="total" style="width: 100%; margin-top: 10px;">
 	<tr>
-      <td colspan="4">&nbsp;</td>
-      <td align="right" style="font-size: 12pt;"><b>${record.subtotal@label}</b></td>
-      <td align="right" style="font-size: 12pt;">${record.subtotal}</td>
+      <td colspan="3">&nbsp;</td>
+      <td colspan="2" align="right" style="font-size: 12pt;">Subtotal</td>
+      <td align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.subtotal?string["#,##0.00"]}</td>
       </tr>
       
       <#if subsidiary.id == "10"> <!-- India -->
       	<#if record.taxtotal36?has_content> <!-- if CGST populated -->
 	      <tr>
-	      	<td colspan="4">&nbsp;</td>
-	      	<td align="right" style="font-size: 12pt;"><b>CGST (9%)</b></td>
-	      	<td align="right" style="font-size: 12pt;">${record.taxtotal36}</td>
+	      		<td colspan="3">&nbsp;</td>
+	      		<td colspan="2" align="right" style="font-size: 12pt;">CGST (9%)</td>
+	      		<td align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.taxtotal36?string["#,##0.00"]}</td>
 	      </tr>
 	      <tr>
-	      	<td colspan="4">&nbsp;</td>
-	      	<td align="right" style="font-size: 12pt;"><b>SGST (9%)</b></td>
-	      	<td align="right" style="font-size: 12pt;">${record.taxtotal37}</td>
+	      		<td colspan="3">&nbsp;</td>
+	      		<td colspan="2" align="right" style="font-size: 12pt;">SGST (9%)</td>
+	      		<td align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.taxtotal37?string["#,##0.00"]}</td>
 	      </tr>
 	     <#else>
 	     	<tr>
-		      	<td colspan="4">&nbsp;</td>
-		      	<td align="right" style="font-size: 12pt;"><b>IGST (18%)</b></td>
-		      	<td align="right" style="font-size: 12pt;">${record.taxtotal35}</td>
+		      	<td colspan="3">&nbsp;</td>
+		      	<td colspan="2" align="right" style="font-size: 12pt;">IGST (18%)</td>
+		      	<td align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.taxtotal35?string["#,##0.00"]}</td>
 	      </tr>
 	     </#if>
       <#else>
-      <tr>
-      <td colspan="4">&nbsp;</td>
-      	<td align="right" style="font-size: 12pt;"><b>Tax</b></td>
-      	<td align="right" style="font-size: 12pt;">${record.taxtotal}</td>
-      </tr>
+      	<tr>
+      		<td colspan="3">&nbsp;</td>
+      		<td colspan="2" align="right" style="font-size: 12pt;">Tax</td>
+      		<td align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.taxtotal?string["#,##0.00"]}</td>
+      	</tr>
       </#if>
-      
-      <tr>
-      <td colspan="4">&nbsp;</td>
-      <td align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.total@label}</b></td>
-      <td align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.total}</b></td>
-	</tr>
+      	<tr>
+      		<td colspan="3">&nbsp;</td>
+      		<td colspan="2" align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>TOTAL</b></td>
+      		<td align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.custbody_bbs_currency_symbol}${record.total?string["#,##0.00"]}</b></td>
+		</tr>
+		<#if record.amountpaid gt 0> <!-- If we have had any payments -->
+			<tr>
+	      		<td colspan="3">&nbsp;</td>
+	      		<td colspan="2" align="right" style="font-size: 12pt;">Less Amount Paid</td>
+	      		<td align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.amountpaid?string["#,##0.00"]}</td>
+			</tr>
+			<tr>
+	      		<td colspan="3">&nbsp;</td>
+	      		<td colspan="2" align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>AMOUNT DUE</b></td>
+	      		<td align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.custbody_bbs_currency_symbol}${record.amountremaining?string["#,##0.00"]}</b></td>
+			</tr>
+		</#if>
 </table>
 
 <#assign dueDate="">
@@ -326,7 +349,7 @@
       <td colspan="4" style="font-size: 12pt; font-weight: bold;">Due Date: ${dueDate}</td>
     </tr>
 </table>
-  
+
 <table class="header" style="width: 100%; margin-top: 20px; page-break-inside: avoid;">
 	<tr>
       <td style="font-size: 12pt;">Bank:</td>

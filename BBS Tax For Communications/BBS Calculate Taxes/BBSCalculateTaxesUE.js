@@ -163,12 +163,13 @@ function(runtime, record, search, libraryModule, plugin)
 										for (var i = 0; i < lineCount; i++)
 											{
 										        // retrieve line item values
-												var itemID			=	currentRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: i});
-												var itemType		=	currentRecord.getSublistValue({sublistId: 'item', fieldId: 'itemtype', line: i});
-												var itemRate		=	currentRecord.getSublistValue({sublistId: 'item', fieldId: 'amount', line: i});
-												var quantity		=	currentRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: i});
-												var salesType		=	currentRecord.getSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_tfc_sales_type', line: i});
-												var discountType	=	currentRecord.getSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_tfc_discount_type', line: i});
+												var itemID				=	currentRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: i});
+												var itemType			=	currentRecord.getSublistValue({sublistId: 'item', fieldId: 'itemtype', line: i});
+												var itemRate			=	currentRecord.getSublistValue({sublistId: 'item', fieldId: 'amount', line: i});
+												var quantity			=	currentRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: i});
+												var salesType			=	currentRecord.getSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_tfc_sales_type', line: i});
+												var discountType		=	currentRecord.getSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_tfc_discount_type', line: i});
+												var privateLineSplit	=	currentRecord.getSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_tfc_private_line_split', line: i});
 												
 												// do we have a salesType
 												if (salesType)
@@ -231,6 +232,13 @@ function(runtime, record, search, libraryModule, plugin)
 														taxReqItemObj.date		=	tranDate;
 														taxReqItemObj.qty		=	1;
 														taxReqItemObj.glref		=	i;
+														
+														// have we got a private line split
+														if (privateLineSplit)
+															{
+																// fill in the private line splut property in the item object
+																taxReqItemObj.plsp = privateLineSplit;
+															}
 												        
 												        //Add the item object to the invoice line object array
 												        //

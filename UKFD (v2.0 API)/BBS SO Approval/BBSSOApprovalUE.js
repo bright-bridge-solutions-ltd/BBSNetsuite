@@ -49,35 +49,27 @@ function(search) {
 		    	// if paymentMethod is 9 (PayPal (Other)) or 16 (PayPal (UKFD Site))
 		    	if (paymentMethod == 9 || paymentMethod == 16)
 		    		{
-		    			// get the billing address
+		    			// get the billing/shipping addresses
 		    			var billingAddress = currentRecord.getValue({
 		    				fieldId: 'billaddress'
 		    			});
 		    			
-		    			// check if we have a billing address
-		    			if (billingAddress)
+		    			var shippingAddress = currentRecord.getValue({
+		    				fieldId: 'shipaddress'
+		    			});
+		    			
+		    			// check if we have a billing address and a shipping address 
+		    			if (billingAddress && shippingAddress)
 		    				{
-		    					// get the billing address subrecord
-		    					var billingAddressSubrecord = currentRecord.getSubrecord({
-		    						fieldId: 'billingaddress'
+		    					// retrieve the customer's phone number from the shipping address subrecord
+		    					var customerPhone = currentRecord.getSubrecord({
+		    						fieldId: 'shippingaddress'
+		    					}).getValue({
+		    						fieldId: 'addrphone'
 		    					});
 		    					
-		    					// retrieve details from the billing address
-		    					var customerName = billingAddressSubrecord.getValue({
-		    						fieldId: 'addressee'
-		    					});
-		    					
-		    					var postcode = billingAddressSubrecord.getValue({
-		    						fieldId: 'zip'
-		    					});
-		    					
-		    					// get the customer's phone number
-		    					var telephoneNumber = currentRecord.getValue({
-		    						fieldId: 'custbody_customerphonesourced'
-		    					});
-		    					
-		    					// if we have a customerName, telephoneNumber and a postcode
-		    					if (customerName && telephoneNumber && postcode)
+		    					// if we have a customer phone number
+		    					if (customerPhone)
 		    						{
 		    							// set paymentApproval to true
 		    							paymentApproval = true;
@@ -537,7 +529,7 @@ function(search) {
 								// break the loop
 								break;
 							}
-					}	
+					}
     		}
     	
     	// return allItemsInStock to main script function

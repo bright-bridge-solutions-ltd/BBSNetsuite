@@ -7,7 +7,7 @@
       		<table style="width: 100%; font-size: 10pt;">
       			<tr>
       				<td colspan="4"><span style="font-size: 16pt; font-weight: bold;">SUPPLIER RETURN NOTE</span></td>
-      				<td colspan="4" rowspan="4"><p align="center"><img src="${record.cseg_bbs_brand.custrecord_bbs_brand_logo@url}" style="float: center; width:100px; height:50px;"/><br/><br/>${record.cseg_bbs_brand.custrecord_bbs_brand_legal_name}<br/>${record.cseg_bbs_brand.custrecord_bbs_brand_address_1}<br/>${record.cseg_bbs_brand.custrecord_bbs_brand_address_2}, ${record.cseg_bbs_brand.custrecord_bbs_brand_address_3}<br/>${record.cseg_bbs_brand.custrecord_bbs_brand_city}, ${record.cseg_bbs_brand.custrecord_bbs_brand_county}, ${record.cseg_bbs_brand.custrecord_bbs_brand_postcode}<br/>Tel: ${record.cseg_bbs_brand.custrecord_bbs_brand_phone}<#if record.cseg_bbs_brand.custrecord_bbs_brand_fax_number?has_content> Fax: ${record.cseg_bbs_brand.custrecord_bbs_brand_fax_number}</#if><br/>Email: ${record.cseg_bbs_brand.custrecord_bbs_brand_sales_email}<br/>${record.cseg_bbs_brand.custrecord_bbs_brand_website}</p></td>
+      				<td colspan="4" rowspan="4"><p align="center"><img src="${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_logo@url}" style="float: center; width:100px; height:50px;"/><br/><br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_legal_name}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_1}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_2}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_3}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_city}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_county}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_postcode}<br/>Tel: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_telephone}<#if record.custbody_bbs_output_logo.custrecord_bbs_output_logo_fax?has_content> Fax: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_fax}</#if><br/>Email: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_sales_email}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_website}</p></td>
       			</tr>
       			<tr>
       				<td colspan="2" style="border-left: 1px solid black; border-top: 1px solid black;"><b>Return Number</b></td>
@@ -28,8 +28,8 @@
 			<table style="width: 100%; margin-top: 10px;">
         		<tr>
 			        <td align="left" colspan="4" class="footer">Printed : ${.now?datetime?string["EEE dd MMM yyyy HH:mm"]}</td>
-			        <td align="center" colspan="4" class="footer">Company Reg.No.: ${record.cseg_bbs_brand.custrecord_bbs_brand_vat_number}</td>
-			        <td align="center" colspan="3" class="footer">VAT Reg. No.: ${record.cseg_bbs_brand.custrecord_bbs_brand_vat_number}</td>
+			        <td align="center" colspan="4" class="footer">Company Reg.No.: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_company_reg}</td>
+			        <td align="center" colspan="3" class="footer">VAT Reg. No.: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_vat_number}</td>
 			        <td align="right" colspan="2" class="footer"><p align="right">Page <pagenumber/> of <totalpages/></p></td>
         		</tr>
         	</table>

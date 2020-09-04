@@ -222,7 +222,6 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				var headerShipVat		= getDataElement(output, 'output.Order.OrderHeader.ShippingTotal.VAT');
 																				var headerOrderTotal	= getDataElement(output, 'output.Order.OrderHeader.OrderTotal.ExclusiveVAT');
 																				var headerOrderVat		= getDataElement(output, 'output.Order.OrderHeader.OrderTotal.VAT');
-					
 																				var headerDateString 	= rawDateArray[2] + '/' + rawDateArray[1] + '/' + rawDateArray[0];
 																				var headerDate 			= format.parse({value: headerDateString, type: format.Type.DATE});
 																				
@@ -298,6 +297,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																						var lineQuantity 			= output.Order.OrderLines[int2].ProductLine.Quantity;
 																				//		var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.Supplier;
 																						var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.SupplierExportId;
+																						var linePoNumber			= output.Order.OrderLines[int2].ProductLine.PurchaseOrderNumber;
 																						var linePoPrice 			= output.Order.OrderLines[int2].ProductLine.Price;
 																						var lineSalesRate 			= output.Order.OrderLines[int2].ProductLine.SalesPrice.ExclusiveVAT;
 																						var lineSalesAmount 		= output.Order.OrderLines[int2].ProductLine.TotalPrice.ExclusiveVAT;
@@ -353,7 +353,12 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																										itemRecord.setValue({
 																															fieldId:	'isdropshipitem',
 																															value:		true
-																															});	
+																															});
+																										
+																										itemRecord.setValue({
+																															fieldId: 	'offersupport',
+																															value: 		true
+																															});
 																						
 																										itemRecord.setValue({
 																															fieldId:	'purchasedescription',
@@ -503,6 +508,12 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																															    				fieldId: 	'createpo',
 																															    				value: 		'DropShip'
 																															    				});
+																										
+																										salesOrderRecord.setCurrentSublistValue({
+																						    													sublistId: 	'item',
+																						    													fieldId: 	'custcol_bbs_sales_trx_ponumber',
+																						    													value: 		linePoNumber
+																						    													});
 		
 								
 																										salesOrderRecord.commitLine({
@@ -690,7 +701,6 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				var headerShipVat		= getDataElement(output, 'output.Order.OrderHeader.ShippingTotal.VAT');
 																				var headerOrderTotal	= getDataElement(output, 'output.Order.OrderHeader.OrderTotal.ExclusiveVAT');
 																				var headerOrderVat		= getDataElement(output, 'output.Order.OrderHeader.OrderTotal.VAT');
-					
 																				var headerDateString 	= rawDateArray[2] + '/' + rawDateArray[1] + '/' + rawDateArray[0];
 																				var headerDate 			= format.parse({value: headerDateString, type: format.Type.DATE});
 																				
@@ -766,6 +776,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																						var lineQuantity 			= output.Order.OrderLines[int2].ProductLine.Quantity;
 																				//		var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.Supplier;
 																						var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.SupplierExportId;
+																						var linePoNumber			= output.Order.OrderLines[int2].ProductLine.PurchaseOrderNumber;
 																						var linePoPrice 			= output.Order.OrderLines[int2].ProductLine.Price;
 																						var lineSalesRate 			= output.Order.OrderLines[int2].ProductLine.SalesPrice.ExclusiveVAT;
 																						var lineSalesAmount 		= output.Order.OrderLines[int2].ProductLine.TotalPrice.ExclusiveVAT;
@@ -821,7 +832,12 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																										itemRecord.setValue({
 																															fieldId:	'isdropshipitem',
 																															value:		true
-																															});	
+																															});
+																										
+																										itemRecord.setValue({
+																															fieldId: 	'offersupport',
+																															value: 		true
+																															});
 																						
 																										itemRecord.setValue({
 																															fieldId:	'purchasedescription',
@@ -971,6 +987,12 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																															    				fieldId: 	'createpo',
 																															    				value: 		'DropShip'
 																															    				});
+																										
+																										salesOrderRecord.setCurrentSublistValue({
+													    																						sublistId: 	'item',
+													    																						fieldId: 	'custcol_bbs_sales_trx_ponumber',
+													    																						value: 		linePoNumber
+													    																						});
 		
 								
 																										salesOrderRecord.commitLine({

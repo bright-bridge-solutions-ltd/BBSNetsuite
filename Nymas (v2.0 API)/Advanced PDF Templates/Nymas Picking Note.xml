@@ -61,8 +61,8 @@
 			<table style="width: 100%; margin-top: 30px;">
         		<tr>
 			        <td align="left" colspan="4" class="footer">Printed : ${.now?datetime?string["EEE dd MMM yyyy HH:mm"]}</td>
-			        <td align="center" colspan="4" class="footer">Company Reg.No.: ${record.cseg_bbs_brand.custrecord_bbs_brand_vat_number}</td>
-			        <td align="center" colspan="3" class="footer">VAT Reg. No.: ${record.cseg_bbs_brand.custrecord_bbs_brand_vat_number}</td>
+			        <td align="center" colspan="4" class="footer">Company Reg.No.: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_company_reg}</td>
+			        <td align="center" colspan="3" class="footer">VAT Reg. No.: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_vat_number}</td>
 			        <td align="right" colspan="2" class="footer"><p align="right">Page <pagenumber/> of <totalpages/></p></td>
         		</tr>
         	</table>
