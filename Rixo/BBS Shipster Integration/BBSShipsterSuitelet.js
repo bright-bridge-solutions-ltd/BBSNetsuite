@@ -143,7 +143,8 @@ function(file, record, search, http, xml, format)
 						        			var salesOrderChannel 			= isNull(salesOrderRecord.getText({fieldId: 'class'}),'');
 						        			var salesOrderShopify 			= isNull(salesOrderRecord.getValue({fieldId: 'custbody_bbs_shopify_order_number'}),'');
 						        			var salesOrderJoor 				= isNull(salesOrderRecord.getValue({fieldId: 'custbody_bbs_joor_so_number'}),'');
-						        			var salesOrderCustRef			= (salesOrderShopify != '' ? salesOrderShopify : (salesOrderJoor != '' ? salesOrderJoor : ''))
+						        			var salesOrderFarapp			= isNull(salesOrderRecord.getValue({fieldId: 'custbody_fa_channel_order'}),'');
+						        			var salesOrderCustRef			= (salesOrderFarapp != '' ? salesOrderFarapp : (salesOrderJoor != '' ? salesOrderJoor : ''))
 						        			var salesOrderTotal				= Number(salesOrderRecord.getValue({fieldId: 'total'})).toFixed(2);
 						        			var salesOrderSubTotal			= Number(salesOrderRecord.getValue({fieldId: 'subtotal'})).toFixed(2);
 						        			var salesOrderTax				= Number(salesOrderRecord.getValue({fieldId: 'taxtotal'})).toFixed(2);
