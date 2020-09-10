@@ -300,7 +300,7 @@ function(runtime, search, file, task) {
 		var fileName = filePrefix + '-' + reportDate + '-' + siteAlias + '-mp_invoice_reports.csv';
 		
 		// start off the CSV
-		var CSV = '"Quantity","Telephone","AccountCode","Product","Type","Due","Unit Cost","Discount","Cost"\r\n';
+		var CSV = '"Quantity","Telephone","AccountCode","Service Name","Type","Due","Unit Cost","Discount","Cost"\r\n';
 		
 		// create search to find service data records to be included in the report
 		var serviceDataSearch = search.create({
@@ -331,7 +331,7 @@ function(runtime, search, file, task) {
     			summary: 'GROUP'
     		},
     				{
-    			name: 'custrecord_bbs_service_data_parent_prod',
+    			name: 'custrecord_bbs_service_data_service_name',
     			summary: 'GROUP'
     		},
     				{
@@ -363,8 +363,8 @@ function(runtime, search, file, task) {
     				summary: 'GROUP'
     			});
     			
-    			var product = searchResults[i].getValue({
-    				name: 'custrecord_bbs_service_data_parent_prod',
+    			var serviceName = searchResults[i].getValue({
+    				name: 'custrecord_bbs_service_data_service_name',
     				summary: 'GROUP'
     			});
     			
@@ -379,7 +379,7 @@ function(runtime, search, file, task) {
     			});
 			
     			// add the service data record details to the CSV
-    			CSV += quantity + ',' + ',' + accountCode + ',' + product + ',' + ',' + ',' + unitCost + ',' + 0 + ',' + cost;
+    			CSV += quantity + ',' + ',' + accountCode + ',' + serviceName + ',' + ',' + ',' + unitCost + ',' + 0 + ',' + cost;
     			CSV += '\r\n';
 			}
 		

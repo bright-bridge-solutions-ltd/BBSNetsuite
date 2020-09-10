@@ -439,7 +439,7 @@ function(runtime, search, record, format, render, file, task) {
     		var fileName = filePrefix + '-' + fileDate + '-' + siteAlias + '-arrears_invoice_reports_' + tranID + '.csv';
     		
     		// start off the CSV
-    		var CSV = '"Accounts id","Account Name","Invoice Number","Date From","Date To","Product","Quantity","Operator Cost","Operator Total Cost","Tenant Alias","Tenant Name","Tenant Billing Reference","Tenant Cost","Tenant Total","Margin"\r\n';
+    		var CSV = '"Accounts id","Account Name","Invoice Number","Date From","Date To","Service Name","Quantity","Operator Cost","Operator Total Cost","Tenant Alias","Tenant Name","Tenant Billing Reference","Tenant Cost","Tenant Total","Margin"\r\n';
     	
     		// create search to find service data records for this site
     		var serviceDataSearch = search.create({

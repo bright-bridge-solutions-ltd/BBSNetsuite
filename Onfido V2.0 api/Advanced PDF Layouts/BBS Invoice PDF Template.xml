@@ -393,6 +393,25 @@
       </tr>
   </table>
 </#if>
+
+<#if record.currency != subsidiary.currency> <!-- If the invoice is not in the subsidiary's currency -->
+	<table class="header" style="width: 30%; margin-top: 20px; page-break-inside: avoid;">
+		<tr>
+			<td colspan="2"><u>Local Currency Equivalent</u></td>
+		</tr>
+		<tr>
+			<td colspan="2">Exchange Rate ${record.exchangerate?string["#,##0.00"]}</td>
+		</tr>
+		<tr>
+			<td colspan="2">Subtotal ${(record.exchangerate * record.subtotal)?string["#,##0.00"]} ${record.custbody_bbs_subsidiary_currency_sym}</td>
+		</tr>
+		<tr>
+			<td colspan="2">Tax ${(record.exchangerate * record.taxtotal)?string["#,##0.00"]} ${record.custbody_bbs_subsidiary_currency_sym}</td>
+		</tr>
+	</table>
+</#if>
+
+${subsidiary.currency.symbol}
   
 </body>
 </pdf>

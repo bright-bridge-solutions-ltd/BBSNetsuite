@@ -1043,7 +1043,9 @@ function productionBatchSuitelet(request, response)
 							   new nlobjSearchColumn("quantitycommitted",null,null),
 							   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null),
 							   new nlobjSearchColumn("custitem_bbs_matrix_item_seq","item",null),
-							   new nlobjSearchColumn("custitemfinish_type","item",null)
+							   new nlobjSearchColumn("custitemfinish_type","item",null),
+							   new nlobjSearchColumn("formulatext", null, null).setFormula("CASE WHEN {createdfrom.custbody_bbs_notes_on_wo} = 'T' THEN {createdfrom.custbody_sw_order_notes} END"),
+							   new nlobjSearchColumn("custbodycust_bw_promised_dispatch_date", "createdfrom", null)
 							]
 							);
 
@@ -1069,13 +1071,14 @@ function productionBatchSuitelet(request, response)
 								searchResultSet = searchResultSet.concat(moreSearchResultSet);
 						}
 					
-					
-					//Work out the customer sub group
+					//Declare and initialize variables
 					//
 					var subGroup = '';
 					var thisEntity = '';
+					var orderNotes = '';
+					var promisedDispatchDate = '';
 					
-					//If we are linked to sales orders, then read the first w/o to get the customer from the w/o & then get the sub group
+					//If we are linked to sales orders, then read the first w/o to get the customer and order notes from the w/o & then get the sub group
 					//
 					if(solink == 'T')
 						{
@@ -1092,6 +1095,13 @@ function productionBatchSuitelet(request, response)
 								{
 									thisEntity = searchResultSet[0].getValue("custitem_bbs_item_customer","item");
 								}
+						}
+					
+					// get the order notes and promised dispatch date from the first result
+					if(searchResultSet != null && searchResultSet.length > 0)
+						{
+							orderNotes 				= searchResultSet[0].getValue("formulatext");
+							promisedDispatchDate 	= searchResultSet[0].getValue("custbodycust_bw_promised_dispatch_date", "createdfrom");
 						}
 					
 					if(thisEntity !=  null && thisEntity != '')
@@ -1175,6 +1185,36 @@ function productionBatchSuitelet(request, response)
 					xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
 					xmlPb += "</tr>";
 					
+					//If we have order notes
+					//
+					if (orderNotes)
+						{
+							xmlPb += "<tr>";
+							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Order Notes</b></td>";
+							xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px;\">" + nlapiEscapeXML(orderNotes) + "</td>";
+							xmlPb += "</tr>";
+						
+							xmlPb += "<tr>";
+							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlPb += "</tr>";
+						}
+					
+					//If we have a promised dispatch date
+					//
+					if (promisedDispatchDate)
+						{
+							xmlPb += "<tr>";
+							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Promised Dispatch Date</b></td>";
+							xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px;\">" + nlapiEscapeXML(promisedDispatchDate) + "</td>";
+							xmlPb += "</tr>";
+							
+							xmlPb += "<tr>";
+							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlPb += "</tr>";
+						}
+					
 					xmlPb += "<tr>";
 					xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Id</b></td>";
 					xmlPb += "<td colspan=\"3\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
@@ -1189,7 +1229,7 @@ function productionBatchSuitelet(request, response)
 					
 					//Body
 					//
-					xmlPb += "<body header=\"nlheader\" header-height=\"150px\" footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+					xmlPb += "<body header=\"nlheader\" header-height=\"175px\" footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
 					
 					//Init some variables
 					//
@@ -1199,6 +1239,8 @@ function productionBatchSuitelet(request, response)
 					//
 					if(searchResultSet != null)
 						{
+							
+						
 							var thisFinishedItem = '';
 						
 							for (var int3 = 0; int3 < searchResultSet.length; int3++) 
@@ -1440,6 +1482,36 @@ function productionBatchSuitelet(request, response)
 					xmlCb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
 					xmlCb += "</tr>";
 					
+					//If we have order notes
+					//
+					if (orderNotes)
+						{
+							xmlCb += "<tr>";
+							xmlCb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Order Notes</b></td>";
+							xmlCb += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px;\">" + nlapiEscapeXML(orderNotes) + "</td>";
+							xmlCb += "</tr>";
+						
+							xmlCb += "<tr>";
+							xmlCb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlCb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlCb += "</tr>";
+						}
+					
+					//If we have a promised dispatch date
+					//
+					if (promisedDispatchDate)
+						{
+							xmlCb += "<tr>";
+							xmlCb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Promised Dispatch Date</b></td>";
+							xmlCb += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px;\">" + nlapiEscapeXML(promisedDispatchDate) + "</td>";
+							xmlCb += "</tr>";
+							
+							xmlCb += "<tr>";
+							xmlCb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlCb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlCb += "</tr>";
+						}
+					
 					xmlCb += "<tr>";
 					xmlCb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Id</b></td>";
 					xmlCb += "<td colspan=\"3\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
@@ -1454,7 +1526,7 @@ function productionBatchSuitelet(request, response)
 					
 					//Body
 					//
-					xmlCb += "<body header=\"nlheader\" header-height=\"150px\" footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+					xmlCb += "<body header=\"nlheader\" header-height=\"175px\" footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
 					
 					xmlCb += "<table class=\"itemtable\" style=\"width: 100%;\">";
 					xmlCb += "<thead >";
@@ -1607,6 +1679,36 @@ function productionBatchSuitelet(request, response)
 					xmlCf += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
 					xmlCf += "</tr>";
 					
+					//If we have order notes
+					//
+					if (orderNotes)
+						{
+							xmlCf += "<tr>";
+							xmlCf += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Order Notes</b></td>";
+							xmlCf += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px;\">" + nlapiEscapeXML(orderNotes) + "</td>";
+							xmlCf += "</tr>";
+						
+							xmlCf += "<tr>";
+							xmlCf += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlCf += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlCf += "</tr>";
+						}
+					
+					//If we have a promised dispatch date
+					//
+					if (promisedDispatchDate)
+						{
+							xmlCf += "<tr>";
+							xmlCf += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Promised Dispatch Date</b></td>";
+							xmlCf += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px;\">" + nlapiEscapeXML(promisedDispatchDate) + "</td>";
+							xmlCf += "</tr>";
+							
+							xmlCf += "<tr>";
+							xmlCf += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlCf += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlCf += "</tr>";
+						}
+					
 					xmlCf += "<tr>";
 					xmlCf += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Id</b></td>";
 					xmlCf += "<td colspan=\"3\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
@@ -1621,7 +1723,7 @@ function productionBatchSuitelet(request, response)
 					
 					//Body
 					//
-					xmlCf += "<body header=\"nlheader\" header-height=\"150px\" footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+					xmlCf += "<body header=\"nlheader\" header-height=\"175px\" footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
 
 					//xmlCf += "<table class=\"itemtable\" style=\"width: 100%;\">";
 					//xmlCf += "<thead >";
