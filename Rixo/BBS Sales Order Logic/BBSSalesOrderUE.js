@@ -369,12 +369,20 @@ function(runtime, record, search, file, xml) {
 							
 						}
     				
-
-	    			currentRecord.save({
-	    								doSourcing:				true,
-	    								ignoreMandatoryFields:	true
-	    								});
-
+    				try
+    					{
+			    			currentRecord.save({
+			    								doSourcing:				true,
+			    								ignoreMandatoryFields:	true
+			    								});
+    					}
+    				catch(err)
+    					{
+	    					log.error({
+										title:		'Error saving sales order record',
+										details:	err
+										});
+    					}
     			}
 	    }
 

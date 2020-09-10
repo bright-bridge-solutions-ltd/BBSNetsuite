@@ -17,13 +17,30 @@
  */
 function poFieldChanged(type, name, linenum)
 {
-	if(name == 'otherrefnum')
+	if(name == 'otherrefnum' || name == 'custbody_bbs_weborderref')
 		{
 			//Get the current record id, the current po number and the customer
 			//
-			var currentId = nlapiGetRecordId();
-			var currentPoNo = nlapiGetFieldValue('otherrefnum');
+			var currentId 	= nlapiGetRecordId();
+			var currentPoNo = nlapiGetFieldValue(name);
 			var currentType = '';
+			var searchField = '';
+			var warningMsg 	= '';
+			
+			switch(name)
+				{
+					case 'otherrefnum':
+						searchField = 'poastext';
+						warningMsg = 'WARNING - Purchase Order Number ';
+						
+						break;
+						
+					case 'custbody_bbs_weborderref':
+						searchField = 'custbody_bbs_weborderref';
+						warningMsg = 'WARNING - Web Order Ref  ';
+						
+						break;
+				}
 			
 			switch(nlapiGetRecordType())
 				{
@@ -48,12 +65,11 @@ function poFieldChanged(type, name, linenum)
 					//Basic filter
 					//
 					var filters = [
-								   //["type","anyof","Estimate","CustInvc","SalesOrd"], 
 								   ["type", "anyof", currentType], 
 								   "AND", 
 								   ["mainline", "is", "T"], 
 								   "AND",
-								   ["poastext", "is", currentPoNo]
+								   [searchField, "is", currentPoNo]
 								];
 					
 					//If the current id is not -1 (new record) then exclude it from the serach
@@ -75,8 +91,7 @@ function poFieldChanged(type, name, linenum)
 					//
 					if(transactionSearch != null && transactionSearch.length > 0)
 						{
-							alert('WARNING - Purchase Order Number ' + currentPoNo + ' Has Already Been Used On Another Transaction');
-							//nlapiSetFieldValue('otherrefnum', '', false, true);
+							alert(warningMsg + currentPoNo + ' Has Already Been Used On Another Transaction');
 						}
 				}
 		}
