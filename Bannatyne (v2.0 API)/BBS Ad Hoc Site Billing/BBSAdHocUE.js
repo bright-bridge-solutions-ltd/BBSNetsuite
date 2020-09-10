@@ -90,10 +90,15 @@ function(config, runtime, record, format, search) {
      * @Since 2015.2
      */
     function afterSubmit(scriptContext) {
+    	
+    	log.debug({
+    		title: 'Script Context',
+    		details: scriptContext
+    	});
 
     	// check if the record is being edited
     	if (scriptContext.type == scriptContext.UserEventType.EDIT)
-    		{    	
+    		{   	
 	    		// get the oldrecord and newrecord objects
     			var oldRecord = scriptContext.oldRecord;
     			var newRecord = scriptContext.newRecord;
@@ -239,11 +244,11 @@ function(config, runtime, record, format, search) {
 					    						
 					    						// call function to create a pro rata invoice. Pass newRecord, currentRecordID, customerID, invoiceAmount, invoiceType
 					        					createProRataInvoice(newRecord, currentRecordID, customerID, invoiceAmount, invoiceType);
-		
-												// call function to update the ad hoc site record with the customer. Pass currentRecordID and customerID variables
-												updateAdHocSiteRecord(currentRecordID, customerID);
 			        						}
 		    						}
+		
+								// call function to update the ad hoc site record with the customer. Pass currentRecordID and customerID variables
+								updateAdHocSiteRecord(currentRecordID, customerID);
 							}
     				}
     			// check if the oldContractTerminated variable returns false and the newContractTerminated variable returns true

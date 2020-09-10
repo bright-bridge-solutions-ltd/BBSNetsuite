@@ -97,7 +97,7 @@ function(runtime, record, search, libraryModule, plugin)
 								
 								// call function to return/lookup fields on the site record
 								//var shipToPCode	= libraryModule.getSiteInfo(siteID);
-								var shipToPCode	= libraryModule.libGetDestinationPcode(currentRecord);
+								var shipToPCode	= libraryModule.libGetDestinationPcode(transactionRecord);
 								
 								// call function to return any exemptions for the customer
 								var customerExemptions = libraryModule.getCustomerExemptions(customerID, tranDate);
@@ -310,106 +310,110 @@ function(runtime, record, search, libraryModule, plugin)
 																	}
 															}
 														
-															// get the items
-															var items = invoices[i]['itms'];
-															
-															// do we have any items
-															if (items)
-																{
-																	// loop through items
-																	for (var y = 0; y < items.length; y++)
-																		{
-																			// get the errors
-																			var errors = items[y]['err'];
+														// get the items
+														var items = invoices[i]['itms'];
+																
+														// do we have any items
+														if (items)
+															{
+																// loop through items
+																for (var y = 0; y < items.length; y++)
+																	{
+																		// get the errors
+																		var errors = items[y]['err'];
+																					
+																		// have we got any errors
+																		if (errors)
+																			{
+																				// process errors
+																				for (var int3 = 0; int3 < errors.length; int3++)
+																					{
+																						log.error({
+																							title: 'Error Returned by Avalara',
+																							details: errors[int3].msg
+																						});
+																									
+																						// add the error to the errorMessages string
+																						errorMessages += errors[int3].msg;
+																						errorMessages += '<br>';
+																					}
+																			}
+																		else
+																			{
+																				// get the line number
+																				var lineNumber = items[y].ref;
 																				
-																			// have we got any errors
-																			if (errors)
-																				{
-																					// process errors
-																					for (var int3 = 0; int3 < errors.length; int3++)
-																						{
-																							log.error({
-																								title: 'Error Returned by Avalara',
-																								details: errors[int3].msg
-																							});
-																								
-																							// add the error to the errorMessages string
-																							errorMessages += errors[int3].msg;
-																							errorMessages += '<br>';
-																						}
-																				}
-																			else
-																				{
-																					// get the line number
-																					var lineNumber = items[y].ref;
-																			
-																					// push the line number to the linesToUpdate array
-																					linesToUpdate.push(lineNumber);	
+																				// push the line number to the linesToUpdate array
+																				linesToUpdate.push(lineNumber);	
+																							
+																				// get the taxes
+																				var taxes = items[y]['txs'];
 																						
-																					// get the taxes
-																					var taxes = items[y]['txs'];
-																						
-																					// loop through taxes
-																					for (var z = 0; z < taxes.length; z++)
-																						{
-																							// get the tax name, tax category, tax level, tax type and tax amount
-																							var taxName		= 	taxes[z].name;
-																							var taxCategory	=	libraryModule.getTaxCategory(taxCategories, taxes[z].cid);
-																							var taxLevel	=	libraryModule.getTaxLevel(taxLevels, taxes[z].lvl);
-																							var taxType		=	libraryModule.getTaxType(taxTypes, taxes[z].tid);
-																							var taxAmount	= 	parseFloat(taxes[z].tax);
-																							
-																							// build up the key for the summary
-																							// taxName + taxLevel
-																							var key = libraryModule.padding_left(taxName, '0', 6) + 
-																				        	libraryModule.padding_left(taxLevel.name, '0', 6);
-																							
-																							// does the taxName exist in the tax summary, if not create a new entry
-																							if (!taxSummary[key])
-																								{
-																									taxSummary[key] = new libraryModule.libTaxSummaryObj(taxName, taxLevel.name);
-																								}
+																				// do we have any taxes
+																				if (taxes)
+																					{
+																						// loop through taxes
+																						for (var z = 0; z < taxes.length; z++)
+																							{
+																								// get the tax name, tax category, tax level, tax type and tax amount
+																								var taxName		= 	taxes[z].name;
+																								var taxCategory	=	libraryModule.getTaxCategory(taxCategories, taxes[z].cid);
+																								var taxLevel	=	libraryModule.getTaxLevel(taxLevels, taxes[z].lvl);
+																								var taxType		=	libraryModule.getTaxType(taxTypes, taxes[z].tid);
+																								var taxAmount	= 	parseFloat(taxes[z].tax);
+																										
+																								// build up the key for the summary
+																								// taxName + taxLevel
+																								var key = libraryModule.padding_left(taxName, '0', 6) + 
+																								libraryModule.padding_left(taxLevel.name, '0', 6);
+																										
+																								// does the taxName exist in the tax summary, if not create a new entry
+																								if (!taxSummary[key])
+																									{
+																										taxSummary[key] = new libraryModule.libTaxSummaryObj(taxName, taxLevel.name);
+																									}
+																											
+																								// update the tax amount in the summary
+																								taxSummary[key].taxAmount += taxAmount;
+																										
+																								// now we have done all summarising, we need to generate the output format
+																								var outputArray = null;
+																								outputArray = [];
+			
+																								// sort outputSummary
+																								const sortedSummary = {};
+																						                  
+																								for (key in sortedSummary)
+																									{
+																										delete sortedSummary[key]
+																									}
+																									      
+																								Object.keys(taxSummary).sort().forEach(function(key) {
+																									sortedSummary[key] = taxSummary[key];
+																								});
+																									      
+																								// loop through the summaries
+																								for (var key in sortedSummary)
+																									{
+																										// push a new instance of the output summary object onto the output array
+																										outputArray.push(new libraryModule.libOutputSummary(
+																																								taxSummary[key].taxName,
+																																								taxSummary[key].taxLevel,
+																																								taxSummary[key].taxAmount
+																																							)
+																														);
+																									}
 																								
-																							// update the tax amount in the summary
-																							taxSummary[key].taxAmount += taxAmount;
-																							
-																							// now we have done all summarising, we need to generate the output format
-																							var outputArray = null;
-																							outputArray = [];
-
-																						   	// sort outputSummary
-																						   	const sortedSummary = {};
-																			                  
-																						   	for (key in sortedSummary)
-																						     	{
-																						    		delete sortedSummary[key]
-																						      	}
-																						      
-																						 	Object.keys(taxSummary).sort().forEach(function(key) {
-																							    sortedSummary[key] = taxSummary[key];
-																						   	});
-																						      
-																						  	// loop through the summaries
-																						    for (var key in sortedSummary)
-																						    	{
-																									// push a new instance of the output summary object onto the output array
-																									outputArray.push(new libraryModule.libOutputSummary(
-																																							taxSummary[key].taxName,
-																																							taxSummary[key].taxLevel,
-																																							taxSummary[key].taxAmount
-																																						)
-																													);
-																								}
-																							
-																							// add the tax amount to the totalTaxes variable
-																							totalTaxes += taxAmount;
-																							
-																							// call function to create a new Calculated Taxes record
-																							libraryModule.createCalculatedTaxes(invoiceID, lineNumber, taxes[z], taxCategory.internalID, taxLevel.internalID, taxType.internalID);
-																						}	
-																				}
-																		}
-																}
+																								// add the tax amount to the totalTaxes variable
+																								totalTaxes += taxAmount;
+																										
+																								// call function to create a new Calculated Taxes record
+																								libraryModule.createCalculatedTaxes(invoiceID, lineNumber, taxes[z], taxCategory.internalID, taxLevel.internalID, taxType.internalID);
+																							}
+																					}
+																			}
+																	}
+															}
 													}
 												
 											}
@@ -418,7 +422,7 @@ function(runtime, record, search, libraryModule, plugin)
 												// add the response code and api response to the error messages
 												errorMessages += 'httpResponseCode: ' + taxResult.httpResponseCode;
 												errorMessages += '<br>';
-												errorMessages += 'apiResponse: ' + taxResult.apiResponse;
+												errorMessages += 'responseMessage: ' + taxResult.responseMessage;
 											}
 											
 										// call function to update the tax total on the record

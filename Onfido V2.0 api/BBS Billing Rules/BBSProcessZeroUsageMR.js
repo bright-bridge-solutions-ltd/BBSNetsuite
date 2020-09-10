@@ -79,7 +79,7 @@ function(runtime, search, record, task) {
     				{
     			name: 'custrecord_bbs_contract_start_date',
     			operator: 'notafter',
-    			values: ['today']
+    			values: ['lastmonth'] // lastmonth means end of last month
     		},
     				{
     			name: 'custrecord_bbs_contract_status',

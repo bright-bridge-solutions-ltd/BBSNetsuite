@@ -312,7 +312,7 @@ function(runtime, search, file, task) {
 		var fileName = filePrefix + '-' + reportDate + '-' + customerName + '-allsites_mp_invoice_report.csv';
 		
 		// start off the CSV
-		var CSV = '"Quantity","Telephone","ClientName","Product","Type","Due","UnitCost","Discount","Cost","Site"\r\n';
+		var CSV = '"Quantity","Telephone","ClientName","Service Name","Type","Due","UnitCost","Discount","Cost","Site"\r\n';
     	
     	// create search to find service data records to be included in the report
 		var serviceDataSearch = search.create({
@@ -350,7 +350,7 @@ function(runtime, search, file, task) {
 				sort: search.Sort.ASC
 			},
     				{
-    			name: 'custrecord_bbs_service_data_parent_prod',
+    			name: 'custrecord_bbs_service_data_service_name',
     			summary: 'GROUP'
     		},
     				{
@@ -387,8 +387,8 @@ function(runtime, search, file, task) {
 					summary: 'GROUP'
 				});
     			
-    			var product = searchResults[i].getValue({
-    				name: 'custrecord_bbs_service_data_parent_prod',
+    			var serviceName = searchResults[i].getValue({
+    				name: 'custrecord_bbs_service_data_service_name',
     				summary: 'GROUP'
     			});
     			
@@ -403,7 +403,7 @@ function(runtime, search, file, task) {
     			});
 			
     			// add the service data record details to the CSV
-    			CSV += quantity + ',' + ',' + tenantName + ',' + product + ',' + ',' + ',' + unitCost + ',' + 0 + ',' + cost + ',' + siteName;
+    			CSV += quantity + ',' + ',' + tenantName + ',' + serviceName + ',' + ',' + ',' + unitCost + ',' + 0 + ',' + cost + ',' + siteName;
     			CSV += '\r\n';
 			}
 		
