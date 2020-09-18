@@ -1,0 +1,1400 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<#if record.class == 'Connect'>
+<pdfset>
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#setting number_format="0.00">
+	<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
+	<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
+	
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    
+    <macrolist>
+        <macro id="nlheader">
+
+        </macro>
+        <macro id="nlfooter">
+        
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 10pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #CBCBCB;
+            color: #000000;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { 
+			align:left;
+		}
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 5px;
+            padding-top: 5px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #000066;
+        }
+        span.subtitle {
+            font-size: 12pt;
+            font-weight: bold;
+        }
+        span.address {
+        	font-size: 10pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+        a {
+        	color: #0000FF;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="10pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+<table style="width: 100%; margin-bottom: 30px;">
+	<tr>
+		<td align="center"><span class="subtitle">SERVICE ORDER</span></td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td align="left"><b>THIS MASTER SERVICES AGREEMENT (“MSA”) IS MADE BETWEEN:</b></td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>${subsidiary.name}, a company registered in ${subsidiary.mainaddress_text?keep_after_last('>')}, company number ${subsidiary.custrecord_bbs_company_no} and whose registered office is at ${subsidiary.mainaddress_text?replace('<br />', ' ')} (essensys)</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td><b>AND</b></td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>${record.entity}, a company registered in ${record.billaddress?keep_after_last('>')}, company number and whose registered office is at ${record.billaddress?replace('<br />', ' ')} (Customer)</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>After signature of this Services Order by both parties, Company shall provide Customer with the Services set out in this Service Order for the Term in accordance with the MSA terms (defined at <a href="https://essensys.tech/our-terms">https://essensys.tech/our-terms</a>). The Services shall be provided at the Premises set out in this Order Form for the Charges set out below.</td>
+	</tr>
+</table>
+
+<p><b>1.	Premises</b></p>
+
+<table style="width:100%;">
+	<thead>
+		<tr>
+			<th colspan="4" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Name</th>
+			<th colspan="6" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Address</th>
+			<th colspan="4" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">City</th>
+			<th colspan="4" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">State/Province</th>
+			<th colspan="4" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Country</th>
+			<th colspan="4" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Postcode/<br/>Zip code</th>
+		</tr>
+	</thead>
+	<tr>
+		<td colspan="4" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">${record.custbody_bbs_site_name.custrecord_site_name}</td>
+		<td colspan="6" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">${record.custbody_bbs_site_name.custrecord_bbs_site_address_1}<br/>${record.custbody_bbs_site_name.custrecord_bbs_site_address_2}<br/>${record.custbody_bbs_site_name.custrecord_bbs_site_address_3}</td>
+		<td colspan="4" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">${record.custbody_bbs_site_name.custrecord_bbs_site_address_city}</td>
+		<td colspan="4" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">${record.custbody_bbs_site_name.custrecord_bbs_site_address_state}</td>
+		<td colspan="4" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">&nbsp;</td>
+		<td colspan="4" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">${record.custbody_bbs_site_name.custrecord_bbs_site_address_zip}</td>
+	</tr>
+</table>
+
+<table style="width: 100%; margin-bottom: 30px;">
+	<tr>
+		<td>Total Number of Premises: ${record.custbody_site_count?string.number}</td>
+	</tr>
+</table>
+
+<p><b>2.	Term</b></p>
+
+<table style="width:100%; margin-bottom: 30px;">
+	<tr>
+		<td colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black; background-color: #CBCBCB; font-weight: bold;">Effective Date</td>
+		<td colspan="22" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Date of Signature</td>
+	</tr>
+	<tr>
+		<td colspan="4" style="border-bottom: 1px solid black; border-left: 1px solid black; background-color: #CBCBCB; font-weight: bold;">Term</td>
+		<td colspan="22" style="border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">A fixed period of 3 years starting from Commencement Date.</td>
+	</tr>
+</table>
+
+<p><b>3.	Payment Terms</b></p>
+
+<table style="width: 100%; margin-bottom: 30px;">
+	<tr>
+		<td>Payment terms are 30 days from invoice for all charges.</td>
+	</tr>
+</table>
+
+<p><b>4. 	Fees: Subscription Services - Fixed Recurring</b></p>
+
+<table style="width: 100%;">
+	<tr>
+		<td>Connect Fixed Recurring Fees are invoiced Monthly in Advance. </td>
+	</tr>
+	<tr>
+		<td>First invoice is at Commencement Date.</td>
+	</tr>
+</table>
+
+<#if record.item?has_content>
+	<table style="width:100%; margin-bottom: 10px;">
+		<thead>
+			<tr>
+				<th align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Connect Service – Essential Edition</th>
+				<th align="right" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Recurring Monthly Subscription Fee</th>
+			</tr>
+		</thead>
+		<!-- start items -->
+        <#list record.item as item>
+			<#if item.itemtype == 'NonInvtPart'> <!-- Only print Non Inventory items -->
+				<tr>			
+					<td align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">${item.item}</td>
+					<td align="right" style="border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">${currencySymbol}${item.amount}</td>
+				</tr>
+			</#if>
+		</#list>
+	</table>
+</#if>
+
+<table style="width: 100%;">
+	<tr>
+		<td>The Connect Service Description is available at <a href="https://essensys.tech/connect-service-description/">https://essensys.tech/connect-service-description/</a></td>
+	</tr>
+	<tr>
+		<td>The Connect SLA is available at <a href="https://essensys.tech/connect-service-description/">https://essensys.tech/connect-sla/</a></td>
+	</tr>
+</table>
+
+</body>
+</pdf>
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#setting number_format="0.00">
+	<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
+	<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
+	
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    
+    <macrolist>
+        <macro id="nlheader">
+
+        </macro>
+        <macro id="nlfooter">
+        
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 10pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #CBCBCB;
+            color: #000000;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { 
+			align:left;
+		}
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 5px;
+            padding-top: 5px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #000066;
+        }
+        span.subtitle {
+            font-size: 12pt;
+            font-weight: bold;
+        }
+        span.address {
+        	font-size: 10pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+        a {
+        	color: #0000FF;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="10pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+<p><b>5.	Fees: Connect On-Demand Marketplace Services - Monthly Variable Recurring </b></p>
+
+<table style="width: 100%; margin-bottom: 30px;">
+	<tr>
+		<td align="center">Connect Variable Recurring Fees are invoiced Monthly in Arrears based on actual consumption.</td>
+	</tr>
+</table>
+
+<table style="width:100%;">
+	<thead>
+		<tr>
+			<th colspan="16" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Connect Essential On-Demand Marketplace Description</th>
+			<th colspan="4" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Unit</th>
+			<th colspan="4" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Fee</th>
+		</tr>
+	</thead>
+	<tr>
+		<td colspan="16" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">&nbsp;</td>
+		<td colspan="4" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">&nbsp;</td>
+		<td colspan="4" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">&nbsp;</td>
+	</tr>
+</table>
+
+</body>
+</pdf>
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#setting number_format="0.00">
+	<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
+	<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
+	
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    
+    <macrolist>
+        <macro id="nlheader">
+
+        </macro>
+        <macro id="nlfooter">
+        
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 10pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #CBCBCB;
+            color: #000000;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { 
+			align:left;
+		}
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 5px;
+            padding-top: 5px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #000066;
+        }
+        span.subtitle {
+            font-size: 12pt;
+            font-weight: bold;
+        }
+        span.address {
+        	font-size: 10pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+        a {
+        	color: #0000FF;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="10pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+<p><b>6.	Fees: Connect Setup Services</b></p>
+
+<table style="width: 100%; margin-bottom: 30px;">
+	<tr>
+		<td align="left">Setup service fees are invoiced:</td>
+	</tr>
+	<tr>
+		<td align="left">● 50% upon service order Agreement and payable within 7 days</td>
+	</tr>
+	<tr>
+		<td align="left">● 50% upon Commencement Date and payable within 7 days</td>
+	</tr>
+	<tr>
+		<td align="left">Risks in these items pass to Customer on dispatch. Ownership of these items will pass to Customer on the latter of:</td>
+	</tr>
+	<tr>
+		<td align="left">(1) Installation thereof and</td>
+	</tr>
+	<tr>
+		<td align="left">(2) Receipt of all payments due in respect thereof by Company</td>
+	</tr>
+	<tr>
+		<td align="left">(3) Any set up fees exclude any applicable Excess Civil Charges or construction works on essensysCloud connectivity</td>
+	</tr>
+</table>
+
+<table style="width:100%; margin-bottom: 30px;">
+	<thead>
+		<tr>
+			<th colspan="4" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Quantity</th>
+			<th colspan="14" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Item</th>
+			<th colspan="6" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Fee</th>
+		</tr>
+	</thead>
+	<#list record.item as item>
+		<#if item.itemtype == 'InvtPart'> <!-- Only print Inventory items -->
+			<tr>
+				<td colspan="4" align="center" style="border-bottom: 1px solid black; border-left: 1px solid black;">${item.quantity?string.number}</td>
+				<td colspan="14" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">${item.item}</td>
+				<td colspan="6" align="right" style="border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">${currencySymbol}${item.amount}</td>
+			</tr>
+		</#if>
+	</#list>
+</table>
+
+<p><b>7.	Contact Details</b></p>
+
+<table style="width:100%; margin-bottom: 30px;">
+	<tr>
+		<td align="left" colspan="8">Project Manager</td>
+		<td align="left" colspan="4">Name</td>
+		<td align="left" colspan="5"><span style="color:#FF0000; font-weight: bold;">TODO</span></td>
+		<td align="left" colspan="4">Email</td>
+		<td align="left" colspan="5"><span style="color:#FF0000; font-weight: bold;">TODO</span></td>
+	</tr>
+	<tr>
+		<td align="left" colspan="8">Billing Contact</td>
+		<td align="left" colspan="4">Name</td>
+		<td align="left" colspan="5"><span style="color:#FF0000; font-weight: bold;">TODO</span></td>
+		<td align="left" colspan="4">Email</td>
+		<td align="left" colspan="5"><span style="color:#FF0000; font-weight: bold;">TODO</span></td>
+	</tr>
+	<tr>
+		<td align="left" colspan="8">Customer Billing Contact</td>
+		<td align="left" colspan="4">Name</td>
+		<td align="left" colspan="5"><span style="color:#FF0000; font-weight: bold;">TODO</span></td>
+		<td align="left" colspan="4">Email</td>
+		<td align="left" colspan="5"><span style="color:#FF0000; font-weight: bold;">TODO</span></td>
+	</tr>
+</table>
+
+<p><b>8.	Expected Site Go Live</b></p>
+
+<table style="width: 100%; margin-bottom: 30px;">
+	<tr>
+		<td align="left">${record.custbody_bbs_site_name.custrecord_site_planned}</td>
+	</tr>
+</table>
+
+</body>
+</pdf>
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#setting number_format="0.00">
+	<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
+	<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
+	
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    
+    <macrolist>
+        <macro id="nlheader">
+
+        </macro>
+        <macro id="nlfooter">
+        
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 10pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #CBCBCB;
+            color: #000000;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { 
+			align:left;
+		}
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 5px;
+            padding-top: 5px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #000066;
+        }
+        span.subtitle {
+            font-size: 12pt;
+            font-weight: bold;
+        }
+        span.address {
+        	font-size: 10pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+        a {
+        	color: #0000FF;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="10pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+<p><b>9.	Agreement</b></p>
+
+<table style="width: 100%; margin-bottom: 30px;">
+	<tr style="margin-bottom: 30px;">
+		<td align="left">Upon signing (or clicking the order button) this Order Form, the Customer acknowledges that it has read, understood and agrees to be bound by the terms of this MSA which consists of:</td>
+	</tr>
+	<tr>
+		<td align="left">1. Service Order</td>
+	</tr>
+	<tr>
+		<td align="left">2. Terms and Conditions: <a href="https://essensys.tech/our-terms">https://essensys.tech/our-terms</a></td>
+	</tr>
+	<tr>
+		<td align="left">3. Schedule 1 - End User Policy: <a href="https://essensys.tech/eup">https://essensys.tech/eup</a></td>
+	</tr>
+	<tr>
+		<td align="left">4. Schedule 2 – Connect Service Level Agreement: <a href="https://essensys.tech/connect-sla/">https://essensys.tech/connect-sla/</a></td>
+	</tr>
+</table>
+
+</body>
+</pdf>
+</pdfset>
+<#else>
+<pdfset>
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#setting number_format="0.00">
+	<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
+	<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
+	
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;">
+            	<tr>
+            		<td><img src="${logoInfo}" style="width: 200px; height: 50px; margin-bottom: 10px;"/></td>
+            	</tr>
+           	</table>
+        </macro>
+        <macro id="nlfooter">
+        	<table style="width: 100%;">
+        		<tr>
+        			<td align="center"><b>SERVICE ORDER</b></td>
+        		</tr>
+        		<tr>
+        			<td>&nbsp;</td>
+        		</tr>
+        		<tr>
+        			<td align="center">THIS MASTER SERVICES AGREEMENT ("MSA") IS MADE BETWEEN:</td>
+        		</tr>
+        		<tr>
+        			<td>&nbsp;</td>
+        		</tr>
+        		<tr>
+        			<td align="left">${subsidiary.name}, a company registered in ${subsidiary.mainaddress_text?keep_after_last('>')}, company number ${subsidiary.custrecord_bbs_company_no} and whose registered office is at ${subsidiary.mainaddress_text?replace('<br />', ' ')} (essensys)</td>
+        		</tr>
+        		<tr>
+        			<td>&nbsp;</td>
+        		</tr>
+        		<tr>
+        			<td align="left"><b>AND</b></td>
+        		</tr>
+        		<tr>
+        			<td>&nbsp;</td>
+        		</tr>
+        		<tr>
+        			<td align="left">${record.entity}, a company registered in ${record.billaddress?keep_after_last('>')}, company number ${record.entity.custentity_bbs_company_reg_no} and whose registered office is at ${record.billaddress?replace('<br />', ' ')} (Customer)</td>
+        		</tr>
+        	</table>
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 12pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #000000;
+            color: #FFFFFF;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { 
+			align:left;
+		}
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 5px;
+            padding-top: 5px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 16pt;
+            color: #A9A9A9;
+        }
+        span.subtitle {
+            font-size: 10pt;
+            color: #A9A9A90;
+        }
+        span.address {
+        	font-size: 10pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="100pt" footer="nlfooter" footer-height="250pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+<p><!-- Empty P tag --></p>
+
+</body>
+</pdf>
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#setting number_format="0.00">
+	<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
+	<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
+	
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    
+    <macrolist>
+        <macro id="nlheader">
+        	<table style="width: 100%;">
+				<tr>
+					<td>After signature of this Services Order by both parties, the Company shall provide the Customer with the Services set out in this Service Order for the Term in accordance with the <a href="https://essensys.tech/our-terms" style="font-weight: bold; color: #0000FF;">terms</a> of the MSA. The Services shall be provided at the Premises set out in this Order Form for the Charges set out below.</td>
+				</tr>
+			</table>
+        </macro>
+        <macro id="nlfooter">
+        
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 10pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #000000;
+            color: #FFFFFF;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { 
+			align:left;
+		}
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 5px;
+            padding-top: 5px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #000066;
+        }
+        span.subtitle {
+            font-size: 10pt;
+            color: #0000FF;
+        }
+        span.address {
+        	font-size: 10pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+        a {
+        	text-decoration: none;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="75pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+<table style="width: 100%; margin-bottom: 30px;">
+	<tr>
+		<td colspan="4">Contact:</td>
+		<td colspan="4">${record.entity.custentity_bbs_hellosign_primary}</td>
+		<td colspan="6">Contact Email:</td>
+		<td colspan="8">${record.entity.custentity_bbs_hellosign_primary_email}</td>
+	</tr>
+	<tr>
+		<td colspan="4">Billing Contact:</td>
+		<td colspan="4">${record.entity.custentity_bbs_hellosign_primary}</td>
+		<td colspan="6">Billing Contact Email:</td>
+		<td colspan="8">${record.entity.custentity_bbs_hellosign_primary_email}</td>
+	</tr>
+</table>
+
+<p><span class="title">1. Term</span></p>
+
+<table style="width: 50%; margin-bottom: 30px;">
+	<tr>
+		<td colspan="2" style="background-color: #000000;"><span style="color: #FFFFFF; font-weight: bold;">Start Date</span></td>
+		<td colspan="2">${record.startdate}</td>
+	</tr>
+	<tr>
+		<td colspan="2" style="background-color: #000000;"><span style="color: #FFFFFF; font-weight: bold;">Initial Term</span></td>
+		<td colspan="2">${record.custbody_so_term?string.number} <#if record.custbody_so_term gt 1>months<#else>month</#if></td>
+	</tr>
+</table>
+
+<p><span class="title">2. Invoice Terms</span></p>
+
+<table style="width: 100%; margin-bottom: 30px;">
+	<tr>
+		<td>One month in advance</td>
+	</tr>
+</table>
+
+<p><span class="title">3. Fees: Subscription Services - Fixed Recurring</span></p>
+
+<#if record.item?has_content>
+<#assign billingChargeAmount = 0> <!-- Define the billing charge amount variable -->
+	<table style="width:100%;">
+		<thead>
+			<tr>
+				<th colspan="4" align="left">Service</th>
+				<th colspan="2" align="left">QTY</th>
+				<th colspan="2" align="left">Schedule</th>
+				<th colspan="2" align="left">Site</th>
+				<th colspan="2" align="right">Item Price</th>
+				<th colspan="2" align="right">Total Monthly<br/>Recurring Fee</th>
+			</tr>
+		</thead>
+		<!-- start items -->
+        <#list record.item as item>
+        	<#if item.custcol_bbs_setup_fee == false> <!-- Only print items where the setup fee checkbox is NOT ticked -->
+				<tr>
+					<td colspan="4" align="left">${item.item}</td>
+					<td colspan="2" align="left">${item.quantity?string.number}</td>
+					<td colspan="2" align="left">${item.custcol_bbs_billing_frequency}</td>
+					<td colspan="2" align="left">${item.custcol_bbs_site}</td>
+					<td colspan="2" align="right">${currencySymbol}${item.rate}</td>
+					<td colspan="2" align="right">${currencySymbol}${item.amount}</td>
+				</tr>
+				<#assign billingChargeAmount += item.amount> <!-- Add the amount to the billingChargeAmount variable -->
+			</#if>
+		</#list>
+	</table>
+</#if>
+
+<table style="width: 100%; margin-bottom: 10px;">
+	<thead>
+		<tr>
+			<th colspan="5" align="center">Billing Charge</th>
+			<th colspan="5" align="center">Amount</th>
+		</tr>
+	</thead>
+	<tr>
+		<td colspan="5" align="center">${record.custbody_so_term?string.number} <#if record.custbody_so_term gt 1>months<#else>month</#if></td>
+		<td colspan="5" align="center">${currencySymbol}${billingChargeAmount}</td>
+	</tr>
+</table>
+
+<table style="width: 100%; margin-bottom: 30px;">
+	<tr>
+		<td>Subscription services are invoiced upon commencement of the Service Order Agreement start date. Subscription Service fees are non-refundable and non-cancellable. The number of Premises specified above may be increased, but cannot be reduced during the Term.</td>
+	</tr>
+</table>
+
+<p><span class="title">4. Fees: Operate Setup Services</span></p>
+
+<table style="width: 100%; margin-bottom: 30px;">
+	<tr>
+		<td>Setup service Fees are invoiced fully upon signature of the Service Order Agreement</td>
+	</tr>
+</table>
+
+<#if record.item?has_content>
+	<table style="width:100%; margin-bottom: 30px;">
+		<thead>
+			<tr>
+				<th colspan="4" align="left">Item</th>
+				<th colspan="2" align="left">Quantity</th>
+				<th colspan="2" align="right">Fee</th>
+				<th colspan="2" align="right">Total One Off Fee</th>
+			</tr>
+		</thead>
+		<!-- start items -->
+        <#list record.item as item>
+        	<#if item.custcol_bbs_setup_fee == true> <!-- Only print items where the setup fee checkbox is ticked -->
+				<tr>
+					<td colspan="4" align="left">${item.item}</td>
+					<td colspan="2" align="left">${item.quantity?string.number}</td>
+					<td colspan="2" align="right">${currencySymbol}${item.rate}</td>
+					<td colspan="2" align="right">${currencySymbol}${item.amount}</td>
+				</tr>
+			</#if>
+		</#list>
+	</table>
+</#if>
+
+</body>
+</pdf>
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#setting number_format="0.00">
+	<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
+	<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
+	
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    
+    <macrolist>
+        <macro id="nlheader">
+
+        </macro>
+        <macro id="nlfooter">
+        
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 10pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #000000;
+            color: #FFFFFF;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { 
+			align:left;
+		}
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 5px;
+            padding-top: 5px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #000066;
+        }
+        span.subtitle {
+            font-size: 10pt;
+            color: #0000FF;
+        }
+        span.address {
+        	font-size: 10pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+        a {
+        	font-weight: bold;
+        	color: #0000FF;
+        	text-decoration: none;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="10pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+<p><span class="title">6. Agreement</span></p>
+
+<table style="width: 100%; margin-bottom: 30px;">
+	<tr>
+		<td>Upon signing (or clicking the order button on) this Order Form, the Customer acknowledges that it has read, understood and agrees to be bound by the terms of the MSA which consists of:</td>
+	</tr>
+</table>
+
+<table style="width: 100%;">
+	<tr>
+		<td>1. Service Order</td>
+	</tr>
+	<tr>
+		<td>2. <a href="https://essensys.tech/our-terms">Terms and Conditions</a></td>
+	</tr>
+	<tr>
+		<td>3. <a href="https://essensys.tech/eup">Schedule 1 - End User Policy</a></td>
+	</tr>
+	<tr>
+		<td>4. <a href="https://essensys.tech/operate-community-sla">Schedule 2a - Operate Service Level Agreement</a></td>
+	</tr>
+</table>
+
+</body>
+</pdf>
+</pdfset>
+</#if>

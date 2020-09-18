@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/ui/dialog', 'N/url', 'N/https'],
-function(dialog, url, https) {
+define(['N/search', 'N/ui/dialog', 'N/url', 'N/https'],
+function(search, dialog, url, https) {
     
     /**
      * Function to be executed after page is initialized.
@@ -32,6 +32,37 @@ function(dialog, url, https) {
      * @since 2015.2
      */
     function fieldChanged(scriptContext) {
+    	
+    	// if the billing schedule field has been changed
+    	if (scriptContext.sublistId == 'item' && scriptContext.fieldId == 'billingschedule')
+    		{
+    			// get the current record
+    			var currentRecord = scriptContext.currentRecord;
+    			
+    			// get the internal ID of the billing schedule
+    			var billingSchedule = currentRecord.getCurrentSublistValue({
+    				sublistId: 'item',
+    				fieldId: 'billingschedule'
+    			});
+    			
+    			// check we have a billing schedule
+    			if (billingSchedule)
+    				{
+		    			// lookup fields on the billing schedule record
+		    			var billingFrequency = search.lookupFields({
+		    				type: search.Type.BILLING_SCHEDULE,
+		    				id: billingSchedule,
+		    				columns: ['frequency']
+		    			}).frequency[0].text;
+
+		    			// set the billing frequency field on the line
+		    			currentRecord.setCurrentSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'custcol_bbs_billing_frequency',
+		    				value: billingFrequency
+		    			});
+    				}
+    		}
 
     }
 
@@ -192,11 +223,9 @@ function(dialog, url, https) {
     	});
     	
     }
-    
-    
 
     return {
-        pageInit: pageInit,
+        fieldChanged: fieldChanged,
         reject: reject
     };
     

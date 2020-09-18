@@ -24,16 +24,16 @@ function(record, search) {
     	
     	// run search to find records to be processed
     	return search.create({
-    		type: 'customrecord_bbs_clover_orders',
+    		type: 'customrecord_bbs_clover_payments',
     		
     		columns: [{
 				name: 'internalid'
 			}],
 			
 			filters: [{
-				name: 'custrecord_bbs_order_date',
-				operator: search.Operator.ON,
-				values: ['4/3/2020']
+				name: 'isinactive',
+				operator: search.Operator.IS,
+				values: ['F']
 			}],
 
 		});
@@ -56,7 +56,7 @@ function(record, search) {
     		{
     			// delete the Clover Orders record
     			record.delete({
-    				type: 'customrecord_bbs_clover_orders',
+    				type: 'customrecord_bbs_clover_payments',
     				id: recordID
     			});
     			

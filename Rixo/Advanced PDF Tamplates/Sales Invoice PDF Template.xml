@@ -74,11 +74,12 @@
 
         <table style="width: 100%;">
           <tr><td>Bank Details for payments in ${record.currency}:</td></tr>
-          <tr><td>Bank Name: Santander</td></tr>
-          <tr><td>Account Number: 80567829</td></tr>
-          <tr><td>Sort Code: 09-01-28</td></tr>
-          <tr><td>IBAN: GB13ABBY09012880567829</td></tr>
-          <tr><td>Swift Code: ABBYG82LXXX</td></tr>
+          <tr><td>Bank Name: ${record.custbody_bbs_bank_account_name}</td></tr>
+          <tr><td>Account Number: ${record.custbody_bbs_bank_account_number}</td></tr>
+          <tr><td>Sort Code: ${record.custbody_bbs_bank_sort_code}</td></tr>
+          <tr><td>IBAN: ${record.custbody_bbs_bank_iban}</td></tr>
+          <tr><td>BIC: ${record.custbody_bbs_bank_bic}</td></tr>
+          <tr><td>Swift Code: ${record.custbody_bbs_bank_swift}</td></tr>
           <tr><td>&nbsp;</td></tr>
         </table>
 
@@ -208,7 +209,6 @@
 </style>
 </head>
 <body header="nlheader" header-height="370px" footer="nlfooter" footer-height="110px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
-
     
 <#if record.item?has_content>
 

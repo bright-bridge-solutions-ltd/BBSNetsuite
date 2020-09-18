@@ -630,7 +630,7 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 			    										{
 			    											// get any error messages
 			    											var errorMessages = processShipmentsResponse['message'];
-			    										
+			    											
 			    											// update the item fulfilment record
 			    											itemFulfillmentRecord.setValue({
 					    										fieldId: 'custbody_bbs_ci_consignment_number',
@@ -639,7 +639,7 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 					    									
 					    									itemFulfillmentRecord.setValue({
 					    										fieldId: 'custbody_bbs_ci_consignment_error',
-					    										value: errorMessages
+					    										value: errorMessages.message
 					    									});
 					    									
 					    									itemFulfillmentRecord.setValue({

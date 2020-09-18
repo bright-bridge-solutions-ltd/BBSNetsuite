@@ -1044,7 +1044,7 @@ function productionBatchSuitelet(request, response)
 							   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null),
 							   new nlobjSearchColumn("custitem_bbs_matrix_item_seq","item",null),
 							   new nlobjSearchColumn("custitemfinish_type","item",null),
-							   new nlobjSearchColumn("formulatext", null, null).setFormula("CASE WHEN {createdfrom.custbody_bbs_notes_on_wo} = 'T' THEN {createdfrom.custbody_sw_order_notes} END"),
+							   new nlobjSearchColumn("formulatext", null, null).setFormula("CASE WHEN {createdfrom.custbody_bbs_notes_on_wo} = 'T' THEN SUBSTR({createdfrom.custbody_sw_order_notes}, 0, 250) END"),
 							   new nlobjSearchColumn("custbodycust_bw_promised_dispatch_date", "createdfrom", null)
 							]
 							);
@@ -1229,7 +1229,7 @@ function productionBatchSuitelet(request, response)
 					
 					//Body
 					//
-					xmlPb += "<body header=\"nlheader\" header-height=\"175px\" footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+					xmlPb += "<body header=\"nlheader\" header-height=\"200px\" footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
 					
 					//Init some variables
 					//
@@ -1526,7 +1526,7 @@ function productionBatchSuitelet(request, response)
 					
 					//Body
 					//
-					xmlCb += "<body header=\"nlheader\" header-height=\"175px\" footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+					xmlCb += "<body header=\"nlheader\" header-height=\"200px\" footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
 					
 					xmlCb += "<table class=\"itemtable\" style=\"width: 100%;\">";
 					xmlCb += "<thead >";
@@ -1723,7 +1723,7 @@ function productionBatchSuitelet(request, response)
 					
 					//Body
 					//
-					xmlCf += "<body header=\"nlheader\" header-height=\"175px\" footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+					xmlCf += "<body header=\"nlheader\" header-height=\"200px\" footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
 
 					//xmlCf += "<table class=\"itemtable\" style=\"width: 100%;\">";
 					//xmlCf += "<thead >";

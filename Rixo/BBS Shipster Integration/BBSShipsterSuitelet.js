@@ -30,7 +30,7 @@ function(file, record, search, http, xml, format)
 	        		var recordID 			= context.request.parameters.id;
 	        		var fulfilmentRecord	= null;
 	        		var customerRecord 		= null;
-	        		var salesOrderRecord	= null;
+	        		var transactionRecord	= null;
 	        		var customerId			= null;
 	        		var createdFromId		= null;
 	        		var fileObj				= null;
@@ -62,8 +62,9 @@ function(file, record, search, http, xml, format)
 
 	        		if(fulfilmentRecord != null)
 	        			{
-	        				customerId 		= fulfilmentRecord.getValue({fieldId: 'entity'});
-	        				createdFromId	= fulfilmentRecord.getValue({fieldId: 'createdfrom'});
+	        				customerID 		= fulfilmentRecord.getValue({fieldId: 'entity'});
+	        				createdFromID	= fulfilmentRecord.getValue({fieldId: 'createdfrom'});
+	        				createdFromType	= fulfilmentRecord.getText({fieldId: 'createdfrom'}).split(" #").shift();
 	        				tranId			= fulfilmentRecord.getValue({fieldId: 'tranid'});
 	        				
 	        				// get value of the 'Created PO' field from the first item line of lines on the fulfilment
@@ -84,72 +85,111 @@ function(file, record, search, http, xml, format)
 	        						}).entity[0].value;
 	        					}
 	        				
-	        				//Load the customer
-			        		//
-			        		try
-			        			{
-			        				customerRecord = record.load({
-																	type:		record.Type.CUSTOMER,
-																	id:			customerId
-																	});
-			        			}
-			        		catch(err)
-			        			{
-				        			log.error({
-												title:		'Error loading customer record with id = ' + customerId,
-												details:	err
-												});
-				        			
-				        			customerRecord 		= null;
-			        			}
-		
-			        		if(customerRecord != null)
-			        			{
-					        		//Load the sales order
+	        				// if we have a customer ID
+	        				if (customerID)
+	        					{
+			        				//Load the customer
 					        		//
 					        		try
 					        			{
-					        				salesOrderRecord = record.load({
-																			type:		record.Type.SALES_ORDER,
-																			id:			createdFromId
-																			});
+					        				customerRecord = record.load({
+					        					type:		record.Type.CUSTOMER,
+					        					id:			customerID
+					        					});
 					        			}
 					        		catch(err)
 					        			{
 						        			log.error({
-														title:		'Error loading sales order record with id = ' + createdFromId,
-														details:	err
-														});
+						        				title:		'Error loading customer record with id = ' + customerId,
+												details:	err
+											});
+						        			
+						        			customerRecord 	= null;
+					        			}
+	        					}
+		
+			        		//if(customerRecord != null)
+			        			//{
+					        		//Load the transaction record
+					        		//
+					        		try
+					        			{
+					        				if (createdFromType == 'Sales Order')
+					        					{					        			
+							        				transactionRecord = record.load({
+							        					type:		record.Type.SALES_ORDER,
+														id:			createdFromID
+													});
+					        					}
+					        				else if (createdFromType == 'Transfer Order')
+					        					{
+						        					transactionRecord = record.load({
+														type:		record.Type.TRANSFER_ORDER,
+														id:			createdFromID
+													});
+					        					}
+					        			}
+					        		catch(err)
+					        			{
+						        			log.error({
+						        				title:		'Error loading ' + createdFromType + ' record with id = ' + createdFromID,
+												details:	err
+											});
 					        			
-						        			salesOrderRecord	= null;
+						        			transactionRecord	= null;
 					        			}
 					        		
-					        		if(salesOrderRecord	!= null)
+					        		if(transactionRecord != null)
 					        			{
 					        				//Build the output now we have all the records to work with
-					        				//
-						        			var customerFirstName 			= isNull(customerRecord.getValue({fieldId: 'firstname'}),'');
-						        			var customerLastName 			= isNull(customerRecord.getValue({fieldId: 'lastname'}),'');
-						        			var customerFullName 			= (customerFirstName + ' ' + customerLastName).trim();
-						        			var customerCompanyName			= isNull(customerRecord.getValue({fieldId: 'companyname'}),'');
-						        			var customerEmail 				= isNull(customerRecord.getValue({fieldId: 'email'}),'');
-						        			var customerPhone 				= isNull(customerRecord.getValue({fieldId: 'phone'}),'');
-						        			var customerMobile 				= isNull(customerRecord.getValue({fieldId: 'mobilephone'}),'');
-						        			var customerNumber				= isNull(customerRecord.getValue({fieldId: 'entityid'}),'');
+					        				//						        			
+						        			var salesOrderNumber 			= isNull(transactionRecord.getValue({fieldId: 'tranid'}),'');
+						        			var salesOrderTotal				= Number(transactionRecord.getValue({fieldId: 'total'})).toFixed(2);
+						        			var salesOrderSubTotal			= Number(transactionRecord.getValue({fieldId: 'subtotal'})).toFixed(2);
 						        			
-						        			customerFullName 				= (customerFullName != '' ? customerFullName : customerCompanyName);
-						        			
-						        			var salesOrderNumber 			= isNull(salesOrderRecord.getValue({fieldId: 'tranid'}),'');
-						        			var salesOrderChannel 			= isNull(salesOrderRecord.getText({fieldId: 'class'}),'');
-						        			var salesOrderShopify 			= isNull(salesOrderRecord.getValue({fieldId: 'custbody_bbs_shopify_order_number'}),'');
-						        			var salesOrderJoor 				= isNull(salesOrderRecord.getValue({fieldId: 'custbody_bbs_joor_so_number'}),'');
-						        			var salesOrderFarapp			= isNull(salesOrderRecord.getValue({fieldId: 'custbody_fa_channel_order'}),'');
-						        			var salesOrderCustRef			= (salesOrderFarapp != '' ? salesOrderFarapp : (salesOrderJoor != '' ? salesOrderJoor : ''))
-						        			var salesOrderTotal				= Number(salesOrderRecord.getValue({fieldId: 'total'})).toFixed(2);
-						        			var salesOrderSubTotal			= Number(salesOrderRecord.getValue({fieldId: 'subtotal'})).toFixed(2);
-						        			var salesOrderTax				= Number(salesOrderRecord.getValue({fieldId: 'taxtotal'})).toFixed(2);
-						        			var salesOrderDiscount			= Math.abs(Number(salesOrderRecord.getValue({fieldId: 'discounttotal'}))).toFixed(2);
-						        			var salesOrderDiscountCode		= isNull(salesOrderRecord.getText({fieldId: 'discountitem'}),'');
+						        			if (createdFromType == 'Transfer Order')
+						        				{
+						        					var locationLookup = search.lookupFields({
+						        						type: search.Type.LOCATION,
+						        						id: fulfilmentRecord.getValue({fieldId: 'transferlocation'}),
+						        						columns: ['custrecord_bbs_location_email', 'custrecord_bbs_location_phone']
+						        					});
+						        				
+						        					var customerFullName 		= isNull(fulfilmentRecord.getText({fieldId: 'transferlocation'}),'');
+						        					var customerEmail 			= locationLookup.custrecord_bbs_location_email;
+						        					var customerPhone 			= locationLookup.custrecord_bbs_location_phone;
+								        			var customerMobile 			= locationLookup.custrecord_bbs_location_phone;
+								        			var customerNumber			= isNull(fulfilmentRecord.getText({fieldId: 'transferlocation'}),'');
+						        				
+						        					var salesOrderChannel 		= 'Transfer';
+						        					var salesOrderShopify 		= isNull(transactionRecord.getValue({fieldId: 'tranid'}),'');
+						        					var salesOrderCustRef		= isNull(transactionRecord.getValue({fieldId: 'tranid'}),'');
+						        					var salesOrderTax			= Number(0).toFixed(2);
+								        			var salesOrderDiscount		= Number(0).toFixed(2);
+								        			var salesOrderDiscountCode	= '';
+						        				}
+						        			else if (createdFromType == 'Sales Order')
+						        				{
+						        					var customerCompanyName			= isNull(customerRecord.getValue({fieldId: 'companyname'}),'');
+						        					var customerFirstName 		= isNull(customerRecord.getValue({fieldId: 'firstname'}),'');
+								        			var customerLastName 		= isNull(customerRecord.getValue({fieldId: 'lastname'}),'');
+								        			var customerFullName 		= (customerFirstName + ' ' + customerLastName).trim();
+								        			var customerEmail			= isNull(customerRecord.getValue({fieldId: 'email'}),'');
+								        			var customerPhone 			= isNull(customerRecord.getValue({fieldId: 'phone'}),'');
+								        			var customerMobile 			= isNull(customerRecord.getValue({fieldId: 'mobilephone'}),'');
+								        			var customerNumber			= isNull(customerRecord.getValue({fieldId: 'entityid'}),'');
+								        			
+								        			customerFullName 			= (customerFullName != '' ? customerFullName : customerCompanyName);
+						        				
+						        					var salesOrderChannel 		= isNull(transactionRecord.getText({fieldId: 'class'}),'');
+						        					var salesOrderShopify 		= isNull(transactionRecord.getValue({fieldId: 'custbody_bbs_shopify_order_number'}),'');
+						        					var salesOrderOtherRef 		= isNull(transactionRecord.getValue({fieldId: 'otherrefnum'}),'');
+								        			var salesOrderFarapp		= isNull(transactionRecord.getValue({fieldId: 'custbody_fa_channel_order'}),'');
+								        			var salesOrderCustRef		= (salesOrderFarapp != '' ? salesOrderFarapp : (salesOrderOtherRef != '' ? salesOrderOtherRef : ''));
+								        			var salesOrderTax			= Number(transactionRecord.getValue({fieldId: 'taxtotal'})).toFixed(2);
+								        			var salesOrderDiscount		= Math.abs(Number(transactionRecord.getValue({fieldId: 'discounttotal'}))).toFixed(2);
+								        			var salesOrderDiscountCode	= isNull(transactionRecord.getText({fieldId: 'discountitem'}),'');
+						        				}
 						        			
 						        			var fulfilmentShippingCost		= Number(fulfilmentRecord.getValue({fieldId: 'shippingcost'})).toFixed(2);
 						        			var fulfilmentShippingMethod	= isNull(fulfilmentRecord.getText({fieldId: 'shipmethod'}),'');
@@ -231,21 +271,21 @@ function(file, record, search, http, xml, format)
 						        					
 						        					//Get the item rate & cost from the related sales order line
 						        					//
-						        					var soLineCount = salesOrderRecord.getLineCount({sublistId: 'item'});
+						        					var soLineCount = transactionRecord.getLineCount({sublistId: 'item'});
 							        				
 						        					for (var soLine = 0; soLine < soLineCount; soLine++) 
 							        					{
 						        							//Get the current sales order line number
 						        							//
-						        							var	soLineNumber 		= Number(salesOrderRecord.getSublistValue({sublistId: 'item', fieldId: 'line', line: soLine}));
+						        							var	soLineNumber 		= Number(transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'line', line: soLine}));
 						        							
 						        							//Do the line numbers match?
 						        							//
 						        							if(soLineNumber == itemSoLine)
 						        								{
-										        					itemSoRate			= Number(salesOrderRecord.getSublistValue({sublistId: 'item', fieldId: 'rate', line: soLine}));
-										        					itemSoCost			= Number(salesOrderRecord.getSublistValue({sublistId: 'item', fieldId: 'costestimaterate', line: soLine}));
-										        					itemSoVat			= Number(salesOrderRecord.getSublistValue({sublistId: 'item', fieldId: 'tax1amt', line: soLine}));
+										        					itemSoRate			= Number(transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'rate', line: soLine}));
+										        					itemSoCost			= Number(transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'costestimaterate', line: soLine}));
+										        					itemSoVat			= Number(transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'tax1amt', line: soLine}));
 										        					
 										        					break;
 						        								}
@@ -469,7 +509,7 @@ function(file, record, search, http, xml, format)
 					        											file:		fileObj,
 					        											isInline:	false
 					        											});
-					        			}
+					        			//}
 			        			}
 	        			}
 		    	}

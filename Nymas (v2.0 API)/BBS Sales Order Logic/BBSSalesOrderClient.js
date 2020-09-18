@@ -16,6 +16,33 @@ function(search, message) {
      * @since 2015.2
      */
     function pageInit(scriptContext) {
+    	
+    	// get the internal ID of the customer
+    	var customerID = scriptContext.currentRecord.getValue({
+    		fieldId: 'entity'
+    	});
+    			
+    	// if we have a customer ID
+    	if (customerID)
+    		{
+    			// lookup fields on the customer record
+    			var customerAlerts = search.lookupFields({
+    				type: search.Type.CUSTOMER,
+    				id: customerID,
+    				columns: ['custentity_bbs_customer_alerts']
+    			}).custentity_bbs_customer_alerts;
+    					
+    			// if we have any customer alerts
+    			if (customerAlerts)
+    				{
+    					// add a message at the top of the page
+	    				message.create({
+				    		type: message.Type.INFORMATION,
+				    		title: 'Customer Alerts',
+				    		message: customerAlerts
+				    	}).show();
+    				}
+    		}
 
     }
 
@@ -33,8 +60,37 @@ function(search, message) {
      */
     function fieldChanged(scriptContext) {
     	
-    	// if the Customer PO Number field has been changed
-    	if (scriptContext.fieldId == 'custbody_bbs_cust_po_number')
+    	// if the Customer field has been changed
+    	if (scriptContext.fieldId == 'entity')
+    		{
+	    		// get the internal ID of the customer
+	        	var customerID = scriptContext.currentRecord.getValue({
+	        		fieldId: 'entity'
+	        	});
+	        			
+	        	// if we have a customer ID
+	        	if (customerID)
+	        		{
+	        			// lookup fields on the customer record
+	        			var customerAlerts = search.lookupFields({
+	        				type: search.Type.CUSTOMER,
+	        				id: customerID,
+	        				columns: ['custentity_bbs_customer_alerts']
+	        			}).custentity_bbs_customer_alerts;
+	        					
+	        			// if we have any customer alerts
+	        			if (customerAlerts)
+	        				{
+	        					// add a message at the top of the page
+	    	    				message.create({
+	    				    		type: message.Type.INFORMATION,
+	    				    		title: 'Customer Alerts',
+	    				    		message: customerAlerts
+	    				    	}).show();
+	        				}
+	        		}
+    		}
+    	else if (scriptContext.fieldId == 'custbody_bbs_cust_po_number') // if the Customer PO Number field has been changed
     		{  	
 		    	// declare and initialize variables
 		    	var salesOrders = 0;
@@ -114,12 +170,6 @@ function(search, message) {
 				    				title: '⚠️ Error',
 				    				message: 'The Customer PO Number<b> ' + customerPO + '</b> has already been used on an existing Sales Order.<br><br>Please enter a unique Customer PO Number and try again.'
 				    			}).show(5000); // show for 5 seconds
-				    		
-				    			// clear the Customer PO Number field
-				    			currentRecord.setValue({
-				    				fieldId: 'custbody_bbs_cust_po_number',
-				    				value: null
-				    			});
 				    		}
 		    		}
     		}
@@ -242,7 +292,8 @@ function(search, message) {
     }
 
     return {
-        fieldChanged: fieldChanged
+        pageInit: pageInit,
+    	fieldChanged: fieldChanged
     };
     
 });
