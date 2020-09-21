@@ -70,7 +70,8 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 								//
 								headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
 								headerObj['Accept']				= '*/*';
-								headerObj['client_id']			= _subsidiaryClientProfileID; // use the subsidiary client profile id
+								headerObj['client_id']			= configurationObj.clientId;
+								headerObj['client_profile_id']	= _subsidiaryClientProfileID; // use the subsidiary client profile id
 								headerObj['Content-Type']		= 'application/json-patch+json';
 							}
 						else
@@ -79,7 +80,8 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 								//
 								headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
 								headerObj['Accept']				= '*/*';
-								headerObj['client_id']			= configurationObj.clientId; // use the client profile id from the config object
+								headerObj['client_id']			= configurationObj.clientId;
+								headerObj['client_profile_id']	= configurationObj.profileId; // use the client profile id from the config object
 								headerObj['Content-Type']		= 'application/json-patch+json';
 							}
 						
@@ -153,6 +155,7 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 						headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
 						headerObj['Accept']				= '*/*';
 						headerObj['client_id']			= configurationObj.clientId;
+						headerObj['client_profile_id']	= configurationObj.profileId;
 						headerObj['Content-Type']		= 'application/json';
 						
 						//Execute the request 
@@ -225,6 +228,7 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 						headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
 						headerObj['Accept']				= '*/*';
 						headerObj['client_id']			= configurationObj.clientId;
+						headerObj['client_profile_id']	= configurationObj.profileId;
 						headerObj['Content-Type']		= 'application/json';
 						
 						//Execute the request - adding * to the end of the url returns all tax types
@@ -411,6 +415,7 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 						headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
 						headerObj['Accept']				= '*/*';
 						headerObj['client_id']			= configurationObj.clientId;
+						headerObj['client_profile_id']	= configurationObj.profileId;
 						headerObj['Content-Type']		= 'application/json';
 						
 						//Execute the request
@@ -484,6 +489,7 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 						headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
 						headerObj['Accept']				= '*/*';
 						headerObj['client_id']			= configurationObj.clientId;
+						headerObj['client_profile_id']	= configurationObj.profileId;
 						headerObj['Content-Type']		= 'application/json';
 						
 						//Execute the request
@@ -557,6 +563,7 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 						headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
 						headerObj['Accept']				= '*/*';
 						headerObj['client_id']			= configurationObj.clientId;
+						headerObj['client_profile_id']	= configurationObj.profileId;
 						headerObj['Content-Type']		= 'application/json';
 						
 						//Execute the request

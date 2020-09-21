@@ -2,14 +2,14 @@
  * @NApiVersion 2.x
  * @NModuleScope Public
  */
-define(['N/encode', 'N/format', 'N/http', 'N/record', 'N/runtime', 'N/search', 'N/xml',
+define(['N/encode', 'N/format', 'N/https', 'N/record', 'N/runtime', 'N/search', 'N/xml',
         './BBSObjects',								//Objects used to pass info back & forth
         './BBSCommon'								//Common code
         ],
 /**
  * @param {encode} encode
  * @param {format} format
- * @param {https} https
+ * @param {httpss} httpss
  * @param {record} record
  * @param {runtime} runtime
  * @param {search} search
@@ -17,7 +17,7 @@ define(['N/encode', 'N/format', 'N/http', 'N/record', 'N/runtime', 'N/search', '
  * @param {BBSObjects} BBSObjects
  * @param {BBSCommon} BBSCommon
  */
-function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSCommon) 
+function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCommon) 
 {
 	//=========================================================================
 	//Main functions - This module implements the integration to GFS
@@ -52,7 +52,12 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 				commitShipmentsRequestGFS.RequestedCommitShipments.CarrierShipments.AuthenticationDetails.UserPassword 				= _commitShipmentRequest.configuration.password;
 				
 				// Declare xmlRequest variable and set SOAP envelope
-				var xmlRequest = '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:v5="http://justshoutgfs.com/Client/Ship/v5/"><SOAP-ENV:Body>';
+				var xmlRequest = '<SOAP-ENV:Envelope xmlns:SOAP-ENV="https://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance" xmlns:v5="https://justshoutgfs.com/Client/Ship/v5/"><SOAP-ENV:Body>';
+				
+				log.debug({
+					title: 'Request Object',
+					details: commitShipmentsRequestGFS
+				});
 				
 				//Convert the gfs request object into xml
 				//
@@ -64,7 +69,7 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 		
 				//Send the request to GFS
 				//
-				var xmlResponse = http.post({
+				var xmlResponse = https.post({
 				     							url: _commitShipmentRequest.configuration.url,
 				     							body: xmlRequest
 											});
@@ -76,6 +81,11 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 				//Convert the xml response back into a JSON object so that it is easier to manipulate
 				//
 				var responseObject = BBSCommon.xml2Json(xmlResponse);
+				
+				log.debug({
+					title: 'Response Object',
+					details: responseObject
+				});
 				
 				//Get the status of the response from the responseObject
 				//
@@ -138,25 +148,19 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 					//
 					
 					// Declare xmlRequest variable and set SOAP envelope
-					var xmlRequest = '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><SOAP-ENV:Body xmlns:s0="http://justshoutgfs.com/Client/Ship/v5/" xmlns:s1="http://www.w3.org/2001/XMLSchema">';
+					var xmlRequest = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v5="http://justshoutgfs.com/Client/Ship/v5/"><soapenv:Header/><soapenv:Body>';
 					
 					//Convert the gfs request object into xml. Add to xmlRequest variable
 					//
 					xmlRequest += BBSCommon.json2xml(processShipmentRequestGFS, '', 'v5:');
 					
-					//Fixup any missing bit of the xml e.g. xml namespaces and add envelope
-					//
-					xmlRequest = xmlRequest.replace('<v5:RequestedShipments>','<s0:RequestedShipments>');
-					xmlRequest = xmlRequest.replace('<v5:ShipRequests>','<v5:ShipRequests xmlns:v5="http://justshoutgfs.com/Client/Ship/v5/">');
-					xmlRequest = xmlRequest.replace('</v5:RequestedShipments>','</s0:RequestedShipments>');
-					
 					//Add closing SOAP envelope tags
 					//
-					xmlRequest += '</SOAP-ENV:Body></SOAP-ENV:Envelope>';
+					xmlRequest += '</soapenv:Body></soapenv:Envelope>';
 					
 					//Send the request to GFS
 					//
-					var xmlResponse = http.post({
+					var xmlResponse = https.post({
 					     url: _processShipmentRequest.configuration.url,
 					     body: xmlRequest
 					});
@@ -262,7 +266,7 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 					//
 					
 					// Declare xmlRequest variable and set SOAP envelope
-					var xmlRequest = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v5="http://justshoutgfs.com/Client/Ship/v5/"><soapenv:Body>';
+					var xmlRequest = '<soapenv:Envelope xmlns:soapenv="https://schemas.xmlsoap.org/soap/envelope/" xmlns:v5="https://justshoutgfs.com/Client/Ship/v5/"><soapenv:Body>';
 					
 					//Convert the gfs request object into xml. Add to xmlRequest variable
 					//
@@ -274,7 +278,7 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 					
 					//Send the request to GFS
 					//
-					var xmlResponse = http.post({
+					var xmlResponse = https.post({
 					     url: _cancelShipmentRequest.configuration.url,
 					     body: xmlRequest
 					});

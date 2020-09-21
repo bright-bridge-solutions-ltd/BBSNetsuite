@@ -13,7 +13,6 @@ function(record, runtime, search) {
 	
 	// set transaction date
 	transactionDate = new Date();
-	transactionDate = new Date(transactionDate.getFullYear(), transactionDate.getMonth(), transactionDate.getDate() - 1); // 1 day before
 	
 	// retrieve script parameters
 	var currentScript = runtime.getCurrentScript();

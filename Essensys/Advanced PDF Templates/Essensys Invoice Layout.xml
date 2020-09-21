@@ -333,8 +333,8 @@
 		<#else>
 			<td><span class="subtitle">Sort Code</span></td>
 			<td><b>${subsidiary.custrecord_bbs_sort_code}</b></td>
-			<td>&nsbp;</td>
-			<td>&nsbp;</td>
+			<td><span class="subtitle">IBAN</span></td>
+			<td><b>${subsidiary.custrecord_bbs_swift_code}</b></td>
 		</#if>
 	</tr>
 </table>
