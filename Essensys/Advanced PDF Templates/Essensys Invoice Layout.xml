@@ -2,7 +2,7 @@
 <pdf>
 <head>
 	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
-	<#setting number_format="0.00">
+	<#setting number_format=",##0.00">
 	<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
 	<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
 	
@@ -69,6 +69,10 @@
            		<tr style="margin-bottom: 5px;">
            			<td colspan="2"><span class="subtitle">PAYMENT TERMS:</span></td>
            			<td colspan="2"><span class="address">${record.terms}</span></td>
+           		</tr>
+           		<tr style="margin-bottom: 5px;">
+           			<td colspan="2"><span class="subtitle">CURRENCY</span></td>
+           			<td colspan="2"><span class="address">${record.currency}</span></td>
            		</tr>
            	</table>
         </macro>
@@ -213,7 +217,7 @@
 				<#if record.createdfrom?has_content>
 					<td align="left" colspan="4" style="border-left: 2px solid black;">${item.custcol_bbs_site?keep_before("-")}</td>
 				</#if>
-				<td align="right" colspan="4" style="border-left: 2px solid black;">${item.quantity}</td>
+				<td align="right" colspan="4" style="border-left: 2px solid black;">${item.quantity?string["0"]}</td>
 				<td align="right" colspan="4" style="border-left: 2px solid black;">${currencySymbol}${item.rate}</td>
 				<td align="right" colspan="4" style="border-left: 2px solid black;">${currencySymbol}${item.amount}</td>
 			</tr>
@@ -329,8 +333,8 @@
 		<#else>
 			<td><span class="subtitle">Sort Code</span></td>
 			<td><b>${subsidiary.custrecord_bbs_sort_code}</b></td>
-			<td>&nsbp;</td>
-			<td>&nsbp;</td>
+			<td><span class="subtitle">IBAN</span></td>
+			<td><b>${subsidiary.custrecord_bbs_swift_code}</b></td>
 		</#if>
 	</tr>
 </table>

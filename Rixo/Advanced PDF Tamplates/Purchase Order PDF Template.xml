@@ -1,19 +1,13 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
 <pdf>
 <head>
-              <#assign regInfo>Company Registration No: 09424938. Registered Office: Unit 2, Stephendale Yard, Stephendale Road, Fulham, SW6 2LR, United Kingdom.</#assign>
-              <#assign emailInfo>accounts@rixo.co.uk</#assign>
-              <#assign telInfo>020 3355 9097</#assign>
-              <#assign vatInfo>GB 216 0216 57</#assign>
-              <#assign logoInfo>https://5514691.app.netsuite.com/core/media/media.nl?id=5136&amp;c=5514691&amp;h=cc95dd17a4c8510ba547</#assign>
-  
     <macrolist>
         <macro id="nlheader">
             <table class="header" style="width: 100%;">
     <tr>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
-	<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:41px;" /></td>
+	<td align="right"><img src="${subsidiary.logo@URL}" style="float: right; width:250px; height:41px;" /></td>
     </tr>
     <!--<tr><td>&nbsp;</td></tr>-->
     <tr>
@@ -34,7 +28,7 @@
         <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Supplier Id:&nbsp;</b>${record.entity.entityid}</span><br /><span style="font-size:10pt"><b>Supplier Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.vatregnum}</span></td>
 	<td align="right" style="font-size:10pt"></td>
       
-    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${subsidiary.mainaddress_text}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${subsidiary.mainaddress_text}</span><br/>VAT No. ${subsidiary.federalidnumber}<br /><br/><b>Email:</b> ${subsidiary.custrecord_bbs_subsidiary_email_address}<br /><b>Tel:</b> ${subsidiary.custrecord_bbs_subsidiary_phone_number}</td>
 	</tr>
           </table>
           
@@ -105,15 +99,15 @@
               <td align="left" class="message">&nbsp;</td>
 		  </tr>
 		  <tr class="messagerow">
-              <td align="center" class="message">RIXO Ltd (trading as RIXO London Ltd) is a company registered in England &amp; Wales No. 09424938. A list of directors is available from the</td>
+              <td align="center" class="message">RIXO Ltd (trading as RIXO London Ltd) is a company registered in England &amp; Wales No. ${subsidiary.custrecord_bbs_company_reg_no}.</td>
 		  </tr>
 		  
           <tr class="messagerow">
-              <td align="center" class="message">Registered Office: Unit 2, Stephendale Yard, Stephendale Road, Fulham, SW6 2LR, United Kingdom.</td>
+              <td align="center" class="message">Registered Office: ${subsidiary.mainaddress_text?replace('<br />', ', ')}.</td>
 		  </tr>
 		  
 		  <tr class="messagerow">
-              <td align="center" class="message">VAT Number: 216 021 657</td>
+              <td align="center" class="message">VAT Number: ${subsidiary.federalidnumber}</td>
 		  </tr>
         </table>
 

@@ -13,7 +13,6 @@ function(record, runtime, search, task) {
 	
 	// set transaction date
 	transactionDate = new Date();
-	transactionDate = new Date(transactionDate.getFullYear(), transactionDate.getMonth(), transactionDate.getDate() - 1); // 1 day before
 	
 	// retrieve script parameters
 	var currentScript = runtime.getCurrentScript();
@@ -55,7 +54,7 @@ function(record, runtime, search, task) {
     				{
     			name: 'custrecord_bbs_clover_payment_date',
     			operator: 'on',
-    			values: ['4/3/2020']
+    			values: ['yesterday']
     		}],
     		
     		columns: [{
@@ -314,7 +313,7 @@ function(record, runtime, search, task) {
     				{
     			name: 'custrecord_bbs_clover_payment_date',
     			operator: 'on',
-    			values: ['4/3/2020']
+    			values: ['yesterday']
     		}],
     		
     		columns: [{

@@ -132,7 +132,7 @@ function(record, search, runtime) {
 				catch(err)
 					{
 						log.error({
-							title: 'Error updating purchase order with id = ' + currentRecordId,
+							title: 'Error updating purchase order with id = ' + currentRecordID,
 							details: err
 						});
 					}

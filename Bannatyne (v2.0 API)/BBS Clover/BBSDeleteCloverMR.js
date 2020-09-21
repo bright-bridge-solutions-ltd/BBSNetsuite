@@ -24,19 +24,42 @@ function(record, search) {
     	
     	// run search to find records to be processed
     	return search.create({
-    		type: 'customrecord_bbs_clover_orders',
+    		type: search.Type.CASH_SALE,
+    		
+    		filters: [{
+    			name: 'mainline',
+    			operator: search.Operator.IS,
+    			values: ['T']
+    		},
+    				{
+    			name: 'trandate',
+    			operator: search.Operator.ONORAFTER,
+    			values: ['18/9/2020']
+    		}],
+    		
+    		columns: [{
+    			name: 'tranid'
+    		}],
+    	
+    	});
+    	
+    	
+    	
+    	
+    	/*search.create({
+    		type: 'customrecord_bbs_clover_payments',
     		
     		columns: [{
 				name: 'internalid'
 			}],
 			
 			filters: [{
-				name: 'custrecord_bbs_order_date',
-				operator: search.Operator.ON,
-				values: ['4/3/2020']
+				name: 'isinactive',
+				operator: search.Operator.IS,
+				values: ['F']
 			}],
 
-		});
+		});*/
 
     }
 
@@ -56,7 +79,7 @@ function(record, search) {
     		{
     			// delete the Clover Orders record
     			record.delete({
-    				type: 'customrecord_bbs_clover_orders',
+    				type: record.Type.CASH_SALE,
     				id: recordID
     			});
     			

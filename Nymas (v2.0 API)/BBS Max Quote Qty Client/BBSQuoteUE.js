@@ -58,8 +58,8 @@ function(message) {
     				line: i
     			});
     			
-    			// if lineQuantity > maxQuoteQty
-    			if (lineQuantity > maxQuoteQty)
+    			// if lineQuantity >= maxQuoteQty
+    			if (lineQuantity >= maxQuoteQty)
     				{
     					// set maxQuoteQtyExceeded flag to true
     					maxQuoteQtyExceeded = true;

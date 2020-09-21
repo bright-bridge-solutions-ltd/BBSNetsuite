@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/ui/dialog'],
-function(dialog) {
+define(['N/url', 'N/https'],
+function(url, https) {
     
     /**
      * Function to be executed after page is initialized.
@@ -33,35 +33,6 @@ function(dialog) {
      */
     function fieldChanged(scriptContext) {
     	
-    	// check if the quantity field has been changed
-    	if (scriptContext.sublistId == 'item' && scriptContext.fieldId == 'quantity')
-    		{
-    			// get the current record
-    			var currentRecord = scriptContext.currentRecord;
-    			
-    			// get the quantity for the line
-    			var lineQuantity = currentRecord.getCurrentSublistValue({
-    				sublistId: 'item',
-    				fieldId: 'quantity'
-    			});
-    			
-    			// get the max quote quantity for the line
-    			var maxQuoteQty = currentRecord.getCurrentSublistValue({
-    				sublistId: 'item',
-    				fieldId: 'custcol_bbs_max_quote_qty'
-    			});
-    			
-    			// if lineQuantity >= maxQuoteQty
-    			if (lineQuantity >= maxQuoteQty)
-    				{
-    					// display an alert to the user
-    					dialog.create({
-    						title: '⚠️ Maximum Quote Quantity Exceeded',
-    						message: 'The quantity you have entered (<b>' + lineQuantity + '</b>) is greater than the maximum quote quantity (<b>' + maxQuoteQty + '</b>) for this item.<br><br>If you continue, the transaction will require approval before it can be processed.'
-    					});
-    				}
-    		}
-
     }
 
     /**
@@ -134,8 +105,6 @@ function(dialog) {
      * @since 2015.2
      */
     function validateLine(scriptContext) {
-    	
-    	
 
     }
 
@@ -179,60 +148,48 @@ function(dialog) {
      * @since 2015.2
      */
     function saveRecord(scriptContext) {
-    	
-    	// declare and initialize variables
-    	var maxQuoteQtyExceeded = false;
-    	
-    	// get the current record
-    	var currentRecord = scriptContext.currentRecord;
-    	
-    	// get count of item lines
-    	var itemCount = currentRecord.getLineCount({
-    		sublistId: 'item'
-    	});
-    	
-    	// loop through item lines
-    	for (var i = 0; i < itemCount; i++)
-    		{
-    			// get the quantity for the line
-    			var lineQuantity = currentRecord.getSublistValue({
-    				sublistId: 'item',
-    				fieldId: 'quantity',
-    				line: i
-    			});
-    			
-    			// get the max quote quantity for the line
-    			var maxQuoteQty = currentRecord.getSublistValue({
-    				sublistId: 'item',
-    				fieldId: 'custcol_bbs_max_quote_qty',
-    				line: i
-    			});
-    			
-    			// if lineQuantity >= maxQuoteQty
-    			if (lineQuantity >= maxQuoteQty)
-    				{
-    					// set maxQuoteQtyExceeded flag to true
-    					maxQuoteQtyExceeded = true;
-    					
-    					// break the loop
-    					break;
-    				}
-    		}
-    	
-    	// set the 'Max Quote Qty Exceeded' checkbox on the record
-    	currentRecord.setValue({
-    		fieldId: 'custbody_bbs_apply_mqq_block',
-    		value: maxQuoteQtyExceeded
-    	});
-    	
-    	// allow the record to be saved
-    	return true;
 
+    }
+    
+    function refreshStockCheck(recordID) {
+    	
+    	// define URL of Suitelet
+		var suiteletURL = url.resolveScript({
+			scriptId: 'customscript_bbs_so_approval_sl',
+			deploymentId: 'customdeploy_bbs_so_approval_sl',
+			params: {
+				'id': recordID
+			}
+		});
+		
+		// call a backend Suitelet to refresh the stock check on the sales order
+		var suiteletResponse = https.get({
+			url: suiteletURL
+		});
+		
+		// process the Suitelet response
+		var allItemsInStock = suiteletResponse.body.split(": ").pop();
+		
+		// if allItemsInStock is true
+		if (allItemsInStock == 'true')
+			{
+				allItemsInStock = '✅️ All Items Are In Stock';
+			}
+		else if (allItemsInStock == 'false') // if allItemsInStock is false
+			{
+				allItemsInStock = '❌ <b>Warning</b> At least one item is out of stock';
+			}
+		
+		new Ext.LoadMask(Ext.getBody(), {msg:'<span style="font-size:14px;">The stock check has been completed and the sales order will now refresh.<br><br>' + allItemsInStock + '</span>'}).show();
+		
+		// reload the current record to display the changes to the user
+		location.reload();
+    	
     }
 
     return {
-    	fieldChanged: fieldChanged,
-    	saveRecord: saveRecord
+        pageInit: 			pageInit,
+        refreshStockCheck:	refreshStockCheck
     };
     
 });

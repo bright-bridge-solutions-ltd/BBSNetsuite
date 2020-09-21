@@ -13,7 +13,6 @@ function(record, runtime, search, task) {
 	
 	// set transaction date
 	transactionDate = new Date();
-	transactionDate = new Date(transactionDate.getFullYear(), transactionDate.getMonth(), transactionDate.getDate() - 1); // 1 day before
 	
 	// call function to calculate the posting period
 	postingPeriod = getPostingPeriod(transactionDate);
@@ -70,7 +69,7 @@ function(record, runtime, search, task) {
     				{
     			name: 'custrecord_bbs_order_date',
     			operator: 'on',
-    			values: ['4/3/2020']
+    			values: ['yesterday']
     		}],
     		
     		columns: [{
@@ -325,7 +324,7 @@ function(record, runtime, search, task) {
     				{
     			name: 'custrecord_bbs_order_date',
     			operator: 'on',
-    			values: ['4/3/2020']
+    			values: ['yesterday']
     		}],
     		
     		columns: [{
