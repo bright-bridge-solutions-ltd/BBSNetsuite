@@ -59,6 +59,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 	    			var paramStage 				= Number(context.request.parameters['stage']);				//The stage the suitelet is in
 	    			var paramQuantity 			= Number(context.request.parameters['quantity']);			//The assembly quantity
 	    			var paramSelectType			= Number(context.request.parameters['type']);				//The selection type
+	    			var paramMaxBomLevel		= Number(context.request.parameters['maxbomlevel']);		//Maximum bom explosion level
 		    		
 					var stage 	= (paramStage == null || paramStage == '' || isNaN(paramStage) ? 1 : paramStage);
 					var bomList = new Array();
@@ -104,9 +105,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 											                label: 	'Stage'
 										            	});
 
-					stageParamField.updateDisplayType({
-														displayType: 	serverWidget.FieldDisplayType.HIDDEN
-														});
+					stageParamField.updateDisplayType({	displayType: serverWidget.FieldDisplayType.HIDDEN});
 					
 					stageParamField.defaultValue = stage;
 					
@@ -125,7 +124,20 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																		label:	'Filters'
 																		});
 								
-								//Add a field for the assembly items
+								//Add a field for the bom level
+								//
+								var bomLevelField = form.addField({
+													                id: 		'custpage_entry_bom_level',
+													                type: 		serverWidget.FieldType.INTEGER,
+													                label: 		'Max BOM Level',
+													                container:	'custpage_filters_group'
+												            		});
+								
+								bomLevelField.isMandatory = true;
+								bomLevelField.defaultValue = 2;
+								
+								
+								//Add a field for the selection type
 								//
 								var selectTypeField = form.addField({
 													                id: 		'custpage_entry_select_type',
@@ -274,6 +286,83 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								
 							case 2:
 								
+								//Add a field group for the filters
+								//
+								var filtersGroup = form.addFieldGroup({
+																		id:		'custpage_filters_group',
+																		label:	'Filters'
+																		});
+								
+								//Add hidden fields to hold the passed in parameters
+								//
+								var selectTypeField = form.addField({
+													                id: 		'custpage_entry_select_type',
+													                type: 		serverWidget.FieldType.TEXT,
+													                label: 		'Select Type',
+													                container:	'custpage_filters_group'
+												            		});
+								selectTypeField.defaultValue 	= paramSelectType;
+								selectTypeField.updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});
+								
+								//Add a field for the assembly items
+								//
+								var assemblyItemField = form.addField({
+													                id: 		'custpage_entry_assembly',
+													                type: 		serverWidget.FieldType.TEXT,
+													                label: 		'Assembly Item',
+													                container:	'custpage_filters_group'
+												            		});
+								assemblyItemField.defaultValue 	= paramAssemblyItem;
+								assemblyItemField.updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});
+								
+								//Add a field to filter by kit quantity
+								//
+								var quantityField = form.addField({
+														                id: 		'custpage_entry_quantity',
+														                type: 		serverWidget.FieldType.TEXT,
+														                label: 		'Assembly Item Quantity',
+														                container:	'custpage_filters_group'
+													            		});
+								quantityField.defaultValue 	= paramQuantity;
+								
+								//Add a field to filter by sales orders
+								//
+								var salesOrderField = form.addField({
+														                id: 		'custpage_entry_sales_order',
+														                type: 		serverWidget.FieldType.TEXT,
+														                label: 		'Sales Order',
+														                container:	'custpage_filters_group'	
+													            		});
+								salesOrderField.defaultValue 	= paramSalesOrder;
+								salesOrderField.updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});
+								
+								//Add a field to filter by works orders
+								//
+								var worksOrderField = form.addField({
+														                id: 		'custpage_entry_works_order',
+														                type: 		serverWidget.FieldType.TEXT,
+														                label: 		'Works Order',
+														                container:	'custpage_filters_group'
+													            		});
+								worksOrderField.defaultValue 	= paramWorksOrder;
+								worksOrderField.updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});
+								
+								
+
+								
+								//Allow the amendment of the bom level
+								//
+								var bomLevelField = form.addField({
+												                id: 		'custpage_entry_bom_level',
+												                type: 		serverWidget.FieldType.INTEGER,
+												                label: 		'Max BOM Level',
+												                container:	'custpage_filters_group'
+											            		});
+								
+								bomLevelField.defaultValue 	= paramMaxBomLevel;
+								bomLevelField.isMandatory 	= true;
+								
+								
 								var tab = form.addTab({
 														id:		'custpage_tab_items',
 														label:	'Trial Kit Results'
@@ -314,24 +403,40 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												});		
 
 								subList.addField({
-													id:		'custpage_sl_items_unit',
-													label:	'Unit',
+													id:		'custpage_sl_items_source',
+													label:	'Source',
 													type:	serverWidget.FieldType.TEXT
 												});		
 
 								subList.addField({
 													id:		'custpage_sl_items_qty',
 													label:	'Qty Required',
-													type:	serverWidget.FieldType.FLOAT
+													type:	serverWidget.FieldType.TEXT
 												});		
 
+								subList.addField({
+													id:		'custpage_sl_items_supply',
+													label:	'Supply Source',
+													type:	serverWidget.FieldType.TEXT
+												});		
 
+								subList.addField({
+												id:		'custpage_sl_items_available',
+												label:	'Available Date',
+												type:	serverWidget.FieldType.TEXT
+											});		
+
+								//Add a submit button
+					            //
+					            form.addSubmitButton({
+										                label: 'Regenerate Trial Kit'
+										            });
 					            
 					            //Search based on type selected
 					            //
 								var assebliesToProcess = [];
 								
-					            switch(type)
+					            switch(paramSelectType)
 					            	{
 							            case 1:		//assembly
 							            	assebliesToProcess.push(new assemblyItemData(paramAssemblyItem, paramQuantity));
@@ -416,30 +521,88 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					            		for (var int3 = 0; int3 < assebliesToProcess.length; int3++) 
 						            		{
 						            			level = Number(1);
-												explodeBom(assebliesToProcess[int3].id, bomList, level, assebliesToProcess[int3].qty, true, assebliesToProcess[int3].id, assebliesToProcess[int3].qty);
+												explodeBom(assebliesToProcess[int3].id, bomList, level, assebliesToProcess[int3].quantity, true, assebliesToProcess[int3].id, assebliesToProcess[int3].quantity, paramMaxBomLevel);
 											}
 					            	
 					            		//Fill out the bom components sublist on the suitelet form
 					    				//
-					    				var linenum = 1;
-					    				var filler = '__';
+					    				var linenum = 0;
+					    				var filler = '…';
 					    				
 					    				for (var int = 0; int < bomList.length; int++) 
 						    				{ 	
-						    					subList1.setLineItemValue('custpage_sl_items_level', linenum, filler.repeat(Number(bomList[int][0])) + Number(bomList[int][0]).toString());			
-						    					subList1.setLineItemValue('custpage_sl_items_item', linenum, bomList[int][2]);
-						    					subList1.setLineItemValue('custpage_sl_items_description', linenum, bomList[int][3]);
-						    					subList1.setLineItemValue('custpage_sl_items_unit', linenum, bomList[int][4]);
-						    					subList1.setLineItemValue('custpage_sl_items_type', linenum, bomList[int][6]);
-						    					subList1.setLineItemValue('custpage_sl_items_qty', linenum, bomList[int][5]);
-						    					
-						    					/*
 						    					 subList.setSublistValue({
-																		id:		'custpage_sl_items_con_id',
-																		line:	int,
-																		value:	customrecord_bbs_contractSearchObj[int].id
+																		id:		'custpage_sl_items_level',
+																		line:	linenum,
+																		value:	filler.repeat(Number(bomList[int].level)) + Number(bomList[int].level).toString()
 																		});	
-						    					 */
+						    					 
+						    					 if(bomList[int].itemText != '' && bomList[int].itemText != null)
+						    						 {
+							    						 subList.setSublistValue({
+																				id:		'custpage_sl_items_item',
+																				line:	linenum,
+																				value:	bomList[int].itemText
+																				});	
+						    						 }
+						    					 
+						    					 if(bomList[int].itemDesc != '' && bomList[int].itemDesc != null)
+						    						 {
+							    						 subList.setSublistValue({
+																				id:		'custpage_sl_items_description',
+																				line:	linenum,
+																				value:	bomList[int].itemDesc
+																				});	
+							    						 }
+						    					 
+						    					 if(bomList[int].itemType != '' && bomList[int].itemType != null)
+						    						 {
+							    						 subList.setSublistValue({
+																				id:		'custpage_sl_items_type',
+																				line:	linenum,
+																				value:	bomList[int].itemType
+																				});	
+						    						 }
+						    					 
+						    					 if(bomList[int].itemSource != '' && bomList[int].itemSource != null)
+						    						 {
+							    						 subList.setSublistValue({
+																				id:		'custpage_sl_items_source',
+																				line:	linenum,
+																				value:	bomList[int].itemSource
+																				});	
+						    						 }
+						    					 
+						    					 if(bomList[int].itemQty != '' && bomList[int].itemQty != null)
+						    						 {
+							    						 subList.setSublistValue({
+																				id:		'custpage_sl_items_qty',
+																				line:	linenum,
+																				value:	bomList[int].itemQty.toString()
+																				});	
+						    						 }
+						    					 
+						    					 if(bomList[int].supplySource != '' && bomList[int].supplySource != null)
+						    						 {
+							    						 subList.setSublistValue({
+																				id:		'custpage_sl_items_supply',
+																				line:	linenum,
+																				value:	bomList[int].supplySource
+																				});	
+						    						 }
+					    					 
+		    					 
+						    					 if(bomList[int].availDate != '' && bomList[int].availDate != null)
+						    						 {
+							    						 subList.setSublistValue({
+																				id:		'custpage_sl_items_available',
+																				line:	linenum,
+																				value:	bomList[int].availDate
+																				});	
+						    						 }
+				    					 
+	    					 
+	    					 
 						    					linenum++;
 						    				}
 					            	}
@@ -471,12 +634,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								
 								//Get user entered parameters
 								//
-								var assemblyItem 			= request.parameters['custpage_entry_assembly']
-								var salesOrder 				= request.parameters['custpage_entry_sales_order']
-								var worksOrder 				= request.parameters['custpage_entry_works_order']
-								var quantity 				= request.parameters['custpage_entry_quantity']
-								var type 					= request.parameters['custpage_entry_select_type']
-								
+								var assemblyItem 			= request.parameters['custpage_entry_assembly'];
+								var salesOrder 				= request.parameters['custpage_entry_sales_order'];
+								var worksOrder 				= request.parameters['custpage_entry_works_order'];
+								var quantity 				= request.parameters['custpage_entry_quantity'];
+								var type 					= request.parameters['custpage_entry_select_type'];
+								var maxBomLevel				= request.parameters['custpage_entry_bom_level'];
+								         					                     
 								//Increment the stage
 								//
 								stage++;
@@ -493,71 +657,443 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																			salesorder:		salesOrder,
 																			worksorder:		worksOrder,
 																			quantity:		quantity,
-																			type:			type
+																			type:			type,
+																			maxbomlevel:	maxBomLevel
 																		}
 														});
 								
 								break;
-
+								
+							default:
+							
+								//Get user entered parameters
+								//
+								var assemblyItem 			= request.parameters['custpage_entry_assembly'];
+								var salesOrder 				= request.parameters['custpage_entry_sales_order'];
+								var worksOrder 				= request.parameters['custpage_entry_works_order'];
+								var quantity 				= request.parameters['custpage_entry_quantity'];
+								var type 					= request.parameters['custpage_entry_select_type'];
+								var maxBomLevel				= request.parameters['custpage_entry_bom_level'];
+								
+								//Call the suitelet again
+								//
+								context.response.sendRedirect({
+														type: 			http.RedirectType.SUITELET, 
+														identifier: 	runtime.getCurrentScript().id, 
+														id: 			runtime.getCurrentScript().deploymentId, 
+														parameters:		{
+																			stage: 			stage,
+																			assemblyitem: 	assemblyItem,
+																			salesorder:		salesOrder,
+																			worksorder:		worksOrder,
+																			quantity:		quantity,
+																			type:			type,
+																			maxbomlevel:	maxBomLevel
+																		}
+														});
+								
+								break;
 						}
 		        }
 	    }
     
     function assemblyItemData(_id, _qty)
     	{
-    		this.id			= _id;
-    		this.quantity	= _qty;
+    		this.id			= _id;		//Assembly id
+    		this.quantity	= _qty;		//Assembly quantity required
     	}
     
-    function expolsionData(_level, _item, _itemText, _itemDesc, _itemUnit, _itemQty, _itemType, _itemSource)
+    function availabilityData(_supplySource, _availableDate, _transactionFound, _availableDateDate)
     	{
-    		this.level			= _level;
-    		this.item			= _item;
-    		this.itemText		= _itemText;
-    		this.itemDesc		= _itemDesc;
-    		this.itemUnit		= _itemUnit;
-    		this.itemQty		= _itemQty;
-    		this.itemType		= _itemType;
-    		this.itemSource		= _itemSource;
+    		this.supplySource		= _supplySource;		//Supply source text
+    		this.availableDate		= _availableDate;		//Available date as text
+    		this.transactionFound	= _transactionFound;	//Flag to show that a transaction was actually found for this item
+    		this.availableDateDate	= _availableDateDate;	//Available date as a date object
+    		
+    	}
+    
+    function expolsionData(_level, _item, _itemText, _itemDesc, _itemUnit, _itemQty, _itemType, _itemSource, _supplySource, _availDate, _availDateDate)
+    	{
+    		this.level			= _level;			//Bom explosion level
+    		this.item			= _item;			//Item id
+    		this.itemText		= _itemText;		//Item as text	
+    		this.itemDesc		= _itemDesc;		//Item description
+    		this.itemUnit		= _itemUnit;		//Item unit
+    		this.itemQty		= _itemQty;			//Item quantity required
+    		this.itemType		= _itemType;		//Item type InvtPart, Assembly, OthCharge etc.
+    		this.itemSource		= _itemSource;		//Item source STOCK, WORK_ORDER etc
+    		this.supplySource 	= _supplySource;	//Item supplied from source as text
+    		this.availDate		= _availDate;		//Item availability as text
+    		this.availDateDate	= _availDateDate;	//Item availability as date object
     	}
     
     //Function to explode BOM
     //
-    function explodeBom(topLevelAssemblyId, bomList, level, requiredQty, topLevel, itemId, itemQty)
+    function explodeBom(topLevelAssemblyId, bomList, level, requiredQty, topLevel, itemId, itemQty, maxBomLevel)
 	    {
-	    	var assemblyRecord = nlapiLoadRecord('assemblyitem', topLevelAssemblyId);
-	    	
-	    	if(topLevel)
+    		//Find the bom for the assembly, then find the bom revision which will give us the components
+    		//
+    		var bomSearchObj = getResults(search.create({
+										    		   type: "bom",
+										    		   filters:
+										    		   [
+										    		      ["assemblyitem.assembly","anyof",topLevelAssemblyId], 
+										    		      "AND", 
+										    		      ["assemblyitem.default","is","T"], 
+										    		      "AND", 
+										    		      ["revision.isinactive","is","F"]
+										    		   ],
+										    		   columns:
+										    		   [
+										    		      search.createColumn({name: "name", label: "Name"}),
+										    		      search.createColumn({name: "revisionname", label: "Revision : Name"}),
+										    		      search.createColumn({name: "internalid",join: "revision",label: "Internal ID"}),
+										    		      search.createColumn({name: "assembly",join: "assemblyItem",label: "Assembly"})
+										    		   ]
+										    		}));
+    		
+    		if(bomSearchObj != null && bomSearchObj.length > 0)
+    			{
+	    			var bomRevisionId = bomSearchObj[0].getValue({name: "internalid",join: "revision"});
+	    			var assemblyName = bomSearchObj[0].getText({name: "assembly",join: "assemblyItem"});
+	    			
+    				if(bomRevisionId != null && bomRevisionId != '')
+    					{
+    						//Find the components on the bom revision record
+    						//
+	    					var bomrevisionSearchObj = getResults(search.create({
+	    						   type: "bomrevision",
+	    						   filters:
+	    						   [
+	    						      ["internalidnumber","equalto",bomRevisionId]
+	    						   ],
+	    						   columns:
+	    						   [
+	    						      search.createColumn({
+	    						         name: "internalid",
+	    						         label: "Internal ID"
+	    						      }),
+	    						      search.createColumn({
+	    						         name: "baseunits",
+	    						         join: "component",
+	    						         label: "Base Units"
+	    						      }),
+	    						      search.createColumn({
+	    						         name: "bomquantity",
+	    						         join: "component",
+	    						         label: "Bom Quantity"
+	    						      }),
+	    						      search.createColumn({
+	    						         name: "bombasequantity",
+	    						         join: "component",
+	    						         label: "Bom Quantity in Base Units"
+	    						      }),
+	    						      search.createColumn({
+	    						         name: "componentyield",
+	    						         join: "component",
+	    						         label: "Component Yield"
+	    						      }),
+	    						      search.createColumn({
+	    						         name: "description",
+	    						         join: "component",
+	    						         label: "Description"
+	    						      }),
+	    						      search.createColumn({
+	    						         name: "internalid",
+	    						         join: "component",
+	    						         label: "Internal ID"
+	    						      }),
+	    						      search.createColumn({
+	    						         name: "item",
+	    						         join: "component",
+	    						         label: "Item"
+	    						      }),
+	    						      search.createColumn({
+	    						         name: "itemsource",
+	    						         join: "component",
+	    						         label: "Item Source"
+	    						      }),
+	    						      search.createColumn({
+	    						         name: "itemsubtype",
+	    						         join: "component",
+	    						         label: "Item Subtype"
+	    						      }),
+	    						      search.createColumn({
+	    						         name: "itemtype",
+	    						         join: "component",
+	    						         label: "Item Type"
+	    						      }),
+	    						      search.createColumn({
+	    						         name: "lineid",
+	    						         join: "component",
+	    						         label: "Line ID",
+	    						         sort: search.Sort.ASC
+	    						      }),
+	    						      search.createColumn({
+	    						         name: "quantity",
+	    						         join: "component",
+	    						         label: "Quantity"
+	    						      }),
+	    						      search.createColumn({
+	    						         name: "basequantity",
+	    						         join: "component",
+	    						         label: "Quantity in Base Units"
+	    						      }),
+	    						      search.createColumn({
+	    						         name: "bomrevision",
+	    						         join: "component",
+	    						         label: "Revision Name"
+	    						      }),
+	    						      search.createColumn({
+	    						         name: "units",
+	    						         join: "component",
+	    						         label: "Units"
+	    						      }),
+	    						      search.createColumn({
+	    						         name: "weight",
+	    						         join: "component",
+	    						         label: "Weight"
+	    						      })
+	    						   ]
+	    						}));
+	    					
+	    					if(bomrevisionSearchObj != null && bomrevisionSearchObj.length > 0)
+	    						{
+		    				    	if(topLevel)
+			    			    		{
+			    			    			var topLevelDescription = assemblyName;
+			    			    			var topLevelItemId 		= assemblyName;
+			    			    		
+			    			    			bomList.push(new expolsionData(0,itemId,topLevelItemId,topLevelDescription,'',itemQty,'Assembly','','','', null));
+			    			    		}
+	    						
+	    						
+		    						for (var int4 = 0; int4 < bomrevisionSearchObj.length; int4++) 
+					            		{
+			    							var memberItem 		= bomrevisionSearchObj[int4].getValue({name: "item", join: "component"}); 
+			    				    		var memberItemText 	= bomrevisionSearchObj[int4].getText({name: "item", join: "component"}); 
+			    				    		var memberDesc 		= bomrevisionSearchObj[int4].getValue({name: "description", join: "component"}); 
+			    				    		var memberUnit 		= bomrevisionSearchObj[int4].getValue({name: "units", join: "component"}); 
+			    				    		var memberQty 		= Number(bomrevisionSearchObj[int4].getValue({name: "bomquantity", join: "component"})) * requiredQty; 
+			    				    		var memberType 		= bomrevisionSearchObj[int4].getValue({name: "itemtype", join: "component"}); 
+			    				    		var memberSource 	= bomrevisionSearchObj[int4].getValue({name: "itemsource", join: "component"}); 
+			    				
+			    				    		//Get availability of item
+			    				    		//
+			    				    		var availabilityObj = getItemAvailablity(memberItem, memberType, memberQty);
+			    				    		
+			    				    		//Add this item to the bom list
+			    				    		//
+			    				    		bomList.push(new expolsionData(level,memberItem,memberItemText,memberDesc,memberUnit,memberQty,memberType,memberSource, availabilityObj.supplySource, availabilityObj.availableDate, availabilityObj.availableDateDate));
+		
+			    				    		//If we have found another assembly, then explode that as well
+			    				    		//
+			    				    		if(memberType == 'Assembly' && level < maxBomLevel)
+			    				    			{
+			    				    				explodeBom(memberItem, bomList, level + 1, requiredQty, false, null, null, maxBomLevel);
+			    				    			}
+						            	}
+			    				}
+    					}
+    			}
+	    }
+    
+    //Function to get availability of item
+    //
+    function getItemAvailablity(_memberItem, _memberType, _memberQty)
+	    {
+    		var availData = new availabilityData('','');
+    		
+	    	switch(_memberType)
 	    		{
-	    			var topLevelDescription = assemblyRecord.getFieldValue('description');
-	    			var topLevelItemId = assemblyRecord.getFieldValue('itemid');
-	    		
-	    			bomList.push(new expolsionData(0,itemId,topLevelItemId,topLevelDescription,'',itemQty,'Assembly',''));
-	    		
+			    	case 'OthCharge':	//Other charge
+			    		
+			    		availData.supplySource 		= '';
+			    		availData.availableDate		= 'Now';
+			    		availData.transactionFound	= true;
+			    		availData.availableDateDate	= new Date(new Date().toDateString());
+			    		
+			    		break;
+	    	
+			    	case 'Assembly':	//Assembly Item
+			    		
+			    		//Find any open WO's for the assembly item
+			    		//
+			    		var workorderSearchObj = getResults(search.create({
+			    			   type: "workorder",
+			    			   filters:
+			    			   [
+			    			      ["type","anyof","WorkOrd"], 
+			    			      "AND", 
+			    			      ["status","anyof","WorkOrd:D","WorkOrd:A","WorkOrd:B"], 
+			    			      "AND", 
+			    			      ["mainline","is","T"], 
+			    			      "AND", 
+			    			      ["item","anyof",_memberItem]
+			    			   ],
+			    			   columns:
+			    			   [
+			    			      search.createColumn({name: "trandate",sort: search.Sort.ASC,label: "Date"}),
+			    			      search.createColumn({name: "tranid", label: "Document Number"}),
+			    			      search.createColumn({name: "item", label: "Item"}),
+			    			      search.createColumn({name: "enddate", label: "End Date"}),
+			    			      search.createColumn({name: "quantity", label: "Quantity"})
+			    			   ]
+			    			}));
+			    			
+			    		if(workorderSearchObj != null && workorderSearchObj.length > 0)
+			    			{
+				    			var woNumber 	= workorderSearchObj[0].getValue({name: "tranid"});
+								var woDueDate	= workorderSearchObj[0].getValue({name: "enddate"});
+								var woAmountDue	= Number(workorderSearchObj[0].getValue({name: "quantity"}));
+								
+								availData.supplySource 		= 'Works Order (' + woNumber + '), ' + 
+															  woAmountDue.toString() + ' due ' + 
+															  (woDueDate == null || woDueDate == '' ? '<not known>' : woDueDate);
+								availData.availableDate		= (woDueDate == null || woDueDate == '' ? '<not known>' : woDueDate);
+								availData.transactionFound	= true;
+								availData.availableDateDate	= format.parse({value: woDueDate, type: format.Type.DATE});
+			    			}
+			    		else
+			    			{
+			    				//See if there is a purchase order for the assembly
+			    				//
+			    				availData = getPurchaseOrderInfo(_memberItem);
+			    				
+			    				//If no WO or PO is found, then we will return with the fact that a new WO must be created
+								//
+			    				if(!availData.transactionFound)
+			    					{
+				    					availData.supplySource 		= 'New Works Order';
+			    						availData.availableDate 	= '';
+			    						availData.transactionFound	= false;
+			    						availData.availableDateDate	= null;
+			    					}
+			    			}
+			    		
+			    		break;
+			    		
+			    	case 'InvtPart':	//Inventory Item
+			    		
+			    		//Find info about the item record (quantity on hand)
+			    		//
+			    		var itemSearchObj = getResults(search.create({
+										    			   type: "item",
+										    			   filters:
+										    			   [
+										    			      ["internalid","anyof",_memberItem]
+										    			   ],
+										    			   columns:
+										    			   [
+										    			      search.createColumn({
+										    			         name: "locationquantityonhand",
+										    			         summary: "SUM",
+										    			         label: "Location On Hand"
+										    			      })
+										    			   ]
+										    			}));
+			    		
+			    		if(itemSearchObj != null && itemSearchObj.length > 0)
+			    			{
+			    				//Get the available quantity
+			    				//
+			    				var stockQty = Number(itemSearchObj[0].getValue({name: "locationquantityonhand", summary: "SUM"}));
+			    				
+			    				//Do we have enough in stock?
+			    				//
+			    				if(stockQty >= _memberQty)
+			    					{
+			    						//Yes - return quantity available
+			    						//
+					    				availData.supplySource 		= 'Stock ' + itemSearchObj[0].getValue({name: "locationquantityonhand", summary: "SUM"}).toString();
+					    				availData.availableDate		= 'Now';
+					    				availData.transactionFound	= true;
+					    				availData.availableDateDate	= new Date(new Date().toDateString());
+			    					}
+			    				else
+			    					{
+			    						//No - find a PO if we can
+			    						//
+			    						availData = getPurchaseOrderInfo(_memberItem);
+			    					}
+			    			}
+			    			
+			    		break;
+	    	
 	    		}
 	    	
-	    	var memberCount = assemblyRecord.getLineItemCount('member');
-	    	
-	    	for (var int = 1; int <= memberCount; int++) 
-		    	{
-		    		var memberItem = assemblyRecord.getLineItemValue('member', 'item', int);
-		    		var memberItemText = assemblyRecord.getLineItemText('member', 'item', int);
-		    		var memberDesc = assemblyRecord.getLineItemValue('member', 'memberdescr', int);
-		    		var memberUnit = assemblyRecord.getLineItemValue('member', 'memberunit', int);
-		    		var memberQty = Number(assemblyRecord.getLineItemValue('member', 'quantity', int)) * requiredQty;
-		    		var memberType = assemblyRecord.getLineItemValue('member', 'sitemtype', int);
-		    		var memberSource = assemblyRecord.getLineItemValue('member', 'itemsource', int);
-		
-		    		bomList.push(new expolsionData(level,memberItem,memberItemText,memberDesc,memberUnit,memberQty,memberType,memberSource));
-
-		    		//If we have found another assembly, then explode that as well
-		    		//
-		    		if(memberType == 'Assembly')
-		    			{
-		    				explodeBom(memberItem, bomList, componentSummary, level + 1, requiredQty, false, null, null);
-		    			}
-		    	}
+	    	return availData;
 	    }
+    
+    		
+    //Function to find purchase orders for a particular item & return the info about the earliest one
+    //
+    function getPurchaseOrderInfo(_item)
+    	{
+    		var availData = new availabilityData('','');
+		
+    		var purchaseorderSearchObj = getResults(search.create({
+				   type: "purchaseorder",
+				   filters:
+				   [
+				      ["type","anyof","PurchOrd"], 
+				      "AND", 
+				      ["cogs","is","F"], 
+				      "AND", 
+				      ["taxline","is","F"], 
+				      "AND", 
+				      ["shipping","is","F"], 
+				      "AND", 
+				      ["status","anyof","PurchOrd:E","PurchOrd:B"], 
+				      "AND", 
+				      ["mainline","is","F"], 
+				      "AND", 
+				      ["formulanumeric: NVL({quantity},0) - NVL({quantityshiprecv},0)","greaterthan","0"], 
+				      "AND", 
+				      ["item","anyof",_item]
+				   ],
+				   columns:
+				   [
+				      search.createColumn({name: "duedate",sort: search.Sort.ASC,label: "Due Date/Receive By"}),
+				      search.createColumn({name: "trandate",sort: search.Sort.ASC,label: "Date"}),
+				      search.createColumn({name: "tranid", label: "Document Number"}),
+				      search.createColumn({name: "entity", label: "Name"}),
+				      search.createColumn({name: "item", label: "Item"}),
+				      search.createColumn({name: "quantity", label: "Quantity"}),
+				      search.createColumn({name: "quantityshiprecv", label: "Quantity Fulfilled/Received"}),
+				      search.createColumn({name: "formulanumeric",formula: "NVL({quantity},0) - NVL({quantityshiprecv},0)",label: "Outstanding"})
+				   ]
+				}));
+    		
+    		if(purchaseorderSearchObj != null && purchaseorderSearchObj.length > 0)
+				{ 
+					//Get the PO details
+					//
+					var poNumber 	= purchaseorderSearchObj[0].getValue({name: "tranid"});
+					var poDueDate	= purchaseorderSearchObj[0].getValue({name: "duedate"});
+					var poAmountDue	= Number(purchaseorderSearchObj[0].getValue({name: "formulanumeric"}));
+					
+					availData.supplySource 		= 'Purchase Order (' + poNumber + '), ' + 
+												  poAmountDue.toString() + ' due ' + 
+												  (poDueDate == null || poDueDate == '' ? '<not known>' : poDueDate);
+					availData.availableDate		= (poDueDate == null || poDueDate == '' ? '<not known>' : poDueDate);
+					availData.transactionFound	= true;
+					availData.availableDateDate	= format.parse({value: poDueDate, type: format.Type.DATE});
+				}
+			else
+				{
+					//If no PO is found, then we will return with the fact that a new PO must be created
+					//
+					availData.supplySource 		= 'New Purchase Order';
+					availData.availableDate 	= '';
+					availData.transactionFound	= false;
+					availData.availableDateDate	= null;
+				}
+    		
+    		return availData;
+    	}
+    
+    
     
     //Function to search for all assembly items
     //
