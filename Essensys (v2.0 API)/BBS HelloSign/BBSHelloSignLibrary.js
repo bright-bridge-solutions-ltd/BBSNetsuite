@@ -39,6 +39,7 @@ function(search, encode, https, render, file, record, url)
 		this.credentialsEncoded 			= null;
 		this.endpointSendSignatureRequest	= null;
 		this.endpointGetSignatureRequest	= null;
+		this.endpointCancelSignatureRequest	= null;
 		this.endpointGetFiles				= null;
 		this.subject						= null;
 		this.message						= null;
@@ -189,6 +190,70 @@ function(search, encode, https, render, file, record, url)
 		
 	}
 	
+	function cancelSignatureRequest(signatureRequestID) {
+		
+		// declare and initialize variables
+		var headerObj 			= {};
+		var responseObj 		= new libGenericResponseObj();
+		var responseBodyObj 	= null;
+		
+		// get the current configuration
+		var configurationObj = getConfiguration();
+		
+		// if we have got a configuration object
+		if (configurationObj)
+			{
+				// build up the headers for the get request
+				headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
+				headerObj['Accept']				= '*/*';
+				
+				try
+					{
+						// execute the request
+						var response = https.post({
+							url: configurationObj.endpointCancelSignatureRequest + '/' + signatureRequestID,
+							headers: headerObj
+						});
+						
+						// get the HTTP response code	
+						responseObj.httpResponseCode = response.code;
+						
+						// if we have a HTTP response body
+						if (response.body)
+							{
+								try
+									{
+										// parse the response body into a JSON object
+										responseBodyObj = JSON.parse(response.body);
+									}
+								catch(e)
+									{
+										responseBodyObj = null;
+									}
+								
+								// process the converted JSON object
+								if (responseBodyObj)
+									{
+										responseObj.apiResponse = responseBodyObj;
+									}
+							}
+					}
+				catch(e)
+					{
+						responseObj.responseMessage = e.message;
+					}
+			}
+		else
+			{
+				responseObj.responseMessage = 'No valid configuration found';
+			}
+		
+		// return responseObj to main script function
+		return responseObj;
+		
+		
+	}
+	
 	function getFiles(signatureRequestID){
 		
 		// declare and initialize variables
@@ -275,6 +340,9 @@ function(search, encode, https, render, file, record, url)
 				name: 'custrecord_bbs_hellosign_get_signature'
 			},
 					{
+				name: 'custrecord_bbs_hellosign_cancel_request'
+			},
+					{
 				name: 'custrecord_bbs_hellosign_get_files'
 			},
 					{
@@ -303,21 +371,22 @@ function(search, encode, https, render, file, record, url)
 			var combinedCredentials	= username + ':' + password;
 			var urlPrefix			= result.getValue({name: 'custrecord_bbs_hellosign_prod_prefix'});
 			
-			configObj 								= new libConfigObj();
-			configObj.endpointSendSignatureRequest	= urlPrefix + result.getValue({name: 'custrecord_bbs_hellosign_send_signature'});
-			configObj.endpointGetSignatureRequest	= urlPrefix + result.getValue({name: 'custrecord_bbs_hellosign_get_signature'});
-			configObj.endpointGetFiles				= urlPrefix + result.getValue({name: 'custrecord_bbs_hellosign_get_files'});
-			configObj.subject						= result.getValue({name: 'custrecord_bbs_hellosign_email_subject'});
-			configObj.message						= result.getValue({name: 'custrecord_bbs_hellosign_email_message'});
-			configObj.testMode						= result.getValue({name: 'custrecord_bbs_hellosign_test_mode'});
-			configObj.allowDecline					= result.getValue({name: 'custrecord_bbs_hellosign_allow_decline'});
-			configObj.allowReassign					= result.getValue({name: 'custrecord_bbs_hellosign_allow_reassign'});
-			configObj.fileCabinetFolderID			= result.getValue({name: 'custrecord_bbs_hellosign_folder_id'});
-			configObj.credentialsEncoded			= 'Basic ' + encode.convert({
-															string:			combinedCredentials,
-															inputEncoding:	encode.Encoding.UTF_8,
-															outputEncoding:	encode.Encoding.BASE_64
-														});
+			configObj 									= new libConfigObj();
+			configObj.endpointSendSignatureRequest		= urlPrefix + result.getValue({name: 'custrecord_bbs_hellosign_send_signature'});
+			configObj.endpointGetSignatureRequest		= urlPrefix + result.getValue({name: 'custrecord_bbs_hellosign_get_signature'});
+			configObj.endpointCancelSignatureRequest	= urlPrefix	+ result.getValue({name: 'custrecord_bbs_hellosign_cancel_request'});
+			configObj.endpointGetFiles					= urlPrefix + result.getValue({name: 'custrecord_bbs_hellosign_get_files'});
+			configObj.subject							= result.getValue({name: 'custrecord_bbs_hellosign_email_subject'});
+			configObj.message							= result.getValue({name: 'custrecord_bbs_hellosign_email_message'});
+			configObj.testMode							= convertToInteger(result.getValue({name: 'custrecord_bbs_hellosign_test_mode'}));
+			configObj.allowDecline						= convertToInteger(result.getValue({name: 'custrecord_bbs_hellosign_allow_decline'}));
+			configObj.allowReassign						= convertToInteger(result.getValue({name: 'custrecord_bbs_hellosign_allow_reassign'}));
+			configObj.fileCabinetFolderID				= result.getValue({name: 'custrecord_bbs_hellosign_folder_id'});
+			configObj.credentialsEncoded				= 'Basic ' + encode.convert({
+																string:			combinedCredentials,
+																inputEncoding:	encode.Encoding.UTF_8,
+																outputEncoding:	encode.Encoding.BASE_64
+															});
 			
 		});
 		
@@ -330,6 +399,7 @@ function(search, encode, https, render, file, record, url)
     	
     	// declare and initialize variables
     	var fileURL = null;
+    	var fileID	= null;
     	
     	try
     		{
@@ -344,7 +414,7 @@ function(search, encode, https, render, file, record, url)
     			fileObj.folder		= folderID;
     			
     			// save the file in the file cabinet
-    			var fileID = fileObj.save();
+    			fileID = fileObj.save();
     			
     			// build up the file URL
     			fileURL = 'https://';
@@ -356,18 +426,6 @@ function(search, encode, https, render, file, record, url)
     			fileURL += file.load({
     				id: fileID
     			}).url; // reload the file and retrieve it's URL
-    			
-    			// attach the PDF to the transaction
-    			record.attach({
-    				record: {
-    			        type: 'file',
-    			        id: fileID
-    			    },
-    			    to: {
-    			        type: record.Type.SALES_ORDER,
-    			        id: recordID
-    			    }
-    			});
     		}
     	catch(e)
     		{
@@ -377,10 +435,29 @@ function(search, encode, https, render, file, record, url)
     			});
     		}
     	
-    	// return fileURL to main script function
-    	return fileURL;
+    	return {
+    		url:	fileURL,
+    		id:		fileID
+    	}
     	
     }
+	
+	function deleteUnsignedFile(fileID) {
+			
+		try
+			{
+				file.delete({
+					id: fileID
+				});
+			}
+		catch(e)
+			{
+				log.error({
+					title: 'Error Deleting File with ID: ' + fileID,
+					details: e
+				});
+			}
+	}
 	
 	function getHelloSignContacts(customerID) {
 		
@@ -402,6 +479,10 @@ function(search, encode, https, render, file, record, url)
 	
 	function getEssensysSigner(subsidiaryID) {
 		
+		// declare and initialize variables
+		var recipientName 	= null;
+		var recipientEmail 	= null;
+		
 		// lookup fields on the subsidiary record
 		var subsidiaryLookup = search.lookupFields({
 			type: search.Type.SUBSIDIARY,
@@ -409,9 +490,17 @@ function(search, encode, https, render, file, record, url)
 			columns: ['custrecord_bbs_hellosign_recipient_name', 'custrecord_bbs_hellosign_recipient_email']
 		});
 		
+		// do we have a recipient
+		if (subsidiaryLookup.custrecord_bbs_hellosign_recipient_name.length > 0)
+			{
+				// get the recipient name and email address
+				recipientName	=	subsidiaryLookup.custrecord_bbs_hellosign_recipient_name[0].text,
+				recipientEmail	=	subsidiaryLookup.custrecord_bbs_hellosign_recipient_email
+			}
+		
 		return {
-			name: 	subsidiaryLookup['custrecord_bbs_hellosign_recipient_name'],
-			email:	subsidiaryLookup['custrecord_bbs_hellosign_recipient_email']
+			name: 	recipientName,
+			email:	recipientEmail
 		}
 		
 	}
@@ -470,6 +559,160 @@ function(search, encode, https, render, file, record, url)
 			}
 	}
 	
+	function createHellosignRecipientRecords(transactionID, signersArray) {
+		
+		// loop through signers array
+		for (var i = 0; i < signersArray.length; i++)
+			{
+				try
+					{
+						// create a new HelloSign recipients record
+						var helloSignRecipientsRecord = record.create({
+							type: 'customrecord_bbs_hellosign_recipients'
+						});
+						
+						helloSignRecipientsRecord.setValue({
+							fieldId: 'custrecord_bbs_hellosign_recipients_so',
+							value: transactionID
+						});
+						
+						helloSignRecipientsRecord.setValue({
+							fieldId: 'custrecord_bbs_hellosign_recipients_name',
+							value: signersArray[i].name
+						});
+						
+						helloSignRecipientsRecord.setValue({
+							fieldId: 'custrecord_bbs_hellosign_recipientsemail',
+							value: signersArray[i].email_address
+						});
+						
+						helloSignRecipientsRecord.setValue({
+							fieldId: 'custrecord_bbs_hellosign_recipientsorder',
+							value: signersArray[i].order
+						});
+						
+						helloSignRecipientsRecord.setValue({
+							fieldId: 'custrecord_bbs_hellosign_recipientstatus',
+							value: 'awaiting_signature'
+						});
+						
+						helloSignRecipientsRecord.save();
+					}
+				catch(e)
+					{
+						log.error({
+							title: 'Error Creating HelloSign Recipients Record',
+							details: e
+						});
+					}
+			}
+		
+	}
+	
+	function updateHellosignRecipientRecords(transactionID, helloSignRecipients) {
+		
+		// run a search to find helloSign recipient records for this transaction
+		search.create({
+			type: 'customrecord_bbs_hellosign_recipients',
+			
+			filters: [{
+				name: 'custrecord_bbs_hellosign_recipients_so',
+				operator: search.Operator.ANYOF,
+				values: [transactionID]
+			}],
+			
+			columns: [{
+				name: 'custrecord_bbs_hellosign_recipientsemail'
+			}],
+			
+		}).run().each(function(result){
+			
+			// get the recipient's email address
+			var recipientEmail = result.getValue({
+				name: 'custrecord_bbs_hellosign_recipientsemail'
+			});
+			
+			// loop through helloSignRecipients array
+			for (var i = 0; i < helloSignRecipients.length; i++)
+				{
+					// get the email address from the helloSignRecipients array
+					var arrayEmail = helloSignRecipients[i].signer_email_address;
+					
+					// if recipientEmail = arrayEmail
+					if (recipientEmail == arrayEmail)
+						{
+							// get the internal ID of the helloSign recipients record
+							var recipientRecordID = result.id;
+						
+							// get the status from the helloSignRecipients array
+							var recipientStatus = helloSignRecipients[i].status_code;
+							
+							// if the recipient has declined
+							if (recipientStatus == 'declined')
+								{
+									// get the decline reason
+									var declineReason = helloSignRecipients[i].decline_reason;
+								}
+							else
+								{
+									// set decline reason to null
+									var declineReason = null;
+								}
+							
+							try
+								{
+									// update fields on the helloSign recipients record
+									record.submitFields({
+										type: 'customrecord_bbs_hellosign_recipients',
+										id: recipientRecordID,
+										values: {
+											custrecord_bbs_hellosign_recipientstatus: 	recipientStatus,
+											custrecord_bbshellosignrecipientdecline:	declineReason
+										}
+									});
+								}
+							catch(e)
+								{
+									log.error({
+										title: 'Error Updating HelloSign Recipients Record with ID ' + recipientRecordID,
+										details: e
+									});
+								}
+						
+							// break the loop
+							break;
+						}
+				}
+			
+			// continue processing search results
+			return true;
+			
+		});		
+		
+	}
+	
+	function convertToInteger(value) {
+		
+		// declare and initialize variables
+		var returnValue = null;
+		
+		// if value is true
+		if (value == true)
+			{
+				// set returnValue to 1
+				returnValue = 1;
+			}
+		else if (value == false) // if value is false
+			{
+				// set returnValue to 0
+				returnValue = 0;
+			}
+		
+		// return returnValue to main script function
+		return returnValue;
+		
+	}
+	
 
 	//Left padding s with c to a total of n chars
 	//
@@ -492,19 +735,23 @@ function(search, encode, https, render, file, record, url)
     
     return {
     	
-    	libSendSignatureRequest:	libSendSignatureRequest,
-    	libSignerObj:				libSignerObj,
-    	libConfigObj:				libConfigObj,
-    	libGenericResponseObj:		libGenericResponseObj,
-    	sendSignatureRequest:		sendSignatureRequest,
-    	getSignatureRequest:		getSignatureRequest,
-    	getFiles:					getFiles,
-    	getConfiguration:			getConfiguration,
-    	generatePDF:				generatePDF,
-    	getHelloSignContacts:		getHelloSignContacts,
-    	getEssensysSigner:			getEssensysSigner,
-    	closeSalesOrder:			closeSalesOrder,
-    	padding_left:				padding_left
+    	libSendSignatureRequest:			libSendSignatureRequest,
+    	libSignerObj:						libSignerObj,
+    	libConfigObj:						libConfigObj,
+    	libGenericResponseObj:				libGenericResponseObj,
+    	sendSignatureRequest:				sendSignatureRequest,
+    	getSignatureRequest:				getSignatureRequest,
+    	cancelSignatureRequest:				cancelSignatureRequest,
+    	getFiles:							getFiles,
+    	getConfiguration:					getConfiguration,
+    	generatePDF:						generatePDF,
+    	deleteUnsignedFile:					deleteUnsignedFile,
+    	getHelloSignContacts:				getHelloSignContacts,
+    	getEssensysSigner:					getEssensysSigner,
+    	closeSalesOrder:					closeSalesOrder,
+    	createHellosignRecipientRecords:	createHellosignRecipientRecords,
+    	updateHellosignRecipientRecords:	updateHellosignRecipientRecords,
+    	padding_left:						padding_left
     };
     
 });

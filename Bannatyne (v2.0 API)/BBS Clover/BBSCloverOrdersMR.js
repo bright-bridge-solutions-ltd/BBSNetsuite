@@ -44,6 +44,10 @@ function(record, runtime, search, task) {
 	cloverCashControlBHL = currentScript.getParameter({
 		name: 'custscript_bbs_clover_cash_control_bhl'
 	});
+	
+	cloverDiscountItem = currentScript.getParameter({
+		name: 'custscript_bbs_clover_discount_item'
+	});
 
     /**
      * Marks the beginning of the Map/Reduce process and generates input data.
@@ -84,6 +88,10 @@ function(record, runtime, search, task) {
     				{
     			name: 'custrecord_bbs_merchant_id',
     			summary: 'MAX'
+    		},
+    				{
+    			name: 'custrecord_bbs_clover_order_disc_amount',
+    			summary: 'SUM'
     		}],
 
     	});
@@ -104,14 +112,15 @@ function(record, runtime, search, task) {
     	var locationID 		= searchResult.values["GROUP(custrecord_bbs_clover_location)"].value;
     	var subsidiaryID	= searchResult.values["MAX(internalid.custrecord_bbs_clover_subsidiary)"];
     	var merchantID		= searchResult.values["MAX(custrecord_bbs_merchant_id)"];
+    	var discountAmount	= parseFloat(searchResult.values["SUM(custrecord_bbs_clover_order_disc_amount)"]);
     	
     	log.audit({
     		title: 'Processing Location',
     		details: locationName + '(' + locationID + ')'
     	});
     	
-    	// call function to create a new cash sale. Pass subsidiaryID, locationID and merchantID
-    	createCashSale(subsidiaryID, locationID, merchantID);
+    	// call function to create a new cash sale. Pass subsidiaryID, locationID, merchantID and discountAmount
+    	createCashSale(subsidiaryID, locationID, merchantID, discountAmount);
     }
 
     /**
@@ -160,7 +169,7 @@ function(record, runtime, search, task) {
     // FUNCTION TO CREATE A CASH SALE
     // ==============================
     
-    function createCashSale(subsidiaryID, locationID, merchantID) {
+    function createCashSale(subsidiaryID, locationID, merchantID, discountAmount) {
     	
     	try
     		{
@@ -208,6 +217,21 @@ function(record, runtime, search, task) {
     				fieldId: 'account',
     				value: postingAccount
     			});
+    			
+    			// if the discountAmount is less than 0 (IE we have a discount)
+    			if (discountAmount < 0)
+    				{
+    					// add the discount item to the cash sale
+    					cashSale.setValue({
+    						fieldId: 'discountitem',
+    						value: cloverDiscountItem
+    					});
+    					
+    					cashSale.setValue({
+    						fieldId: 'discountrate',
+    						value: discountAmount
+    					});
+    				}
     			
     			// call function to return Clover order lines for this location
     			var cloverOrderLines = searchCloverOrderLines(locationID);

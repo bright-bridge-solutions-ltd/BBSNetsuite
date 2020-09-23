@@ -32,9 +32,9 @@ function(record, search) {
     			values: ['T']
     		},
     				{
-    			name: 'trandate',
+    			name: 'datecreated',
     			operator: search.Operator.ONORAFTER,
-    			values: ['18/9/2020']
+    			values: ['22/09/2020']
     		}],
     		
     		columns: [{

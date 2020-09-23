@@ -1,5 +1,5 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
-<#if record.class == 'Connect'>
+<#if record.custbody_bbs_order_type == 'Connect'>
 <pdfset>
 <pdf>
 <head>
@@ -175,26 +175,37 @@
 
 <p><b>1.	Premises</b></p>
 
-<table style="width:100%;">
-	<thead>
-		<tr>
-			<th colspan="4" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Name</th>
-			<th colspan="6" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Address</th>
-			<th colspan="4" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">City</th>
-			<th colspan="4" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">State/Province</th>
-			<th colspan="4" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Country</th>
-			<th colspan="4" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Postcode/<br/>Zip code</th>
-		</tr>
-	</thead>
-	<tr>
-		<td colspan="4" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">${record.custbody_bbs_site_name.custrecord_site_name}</td>
-		<td colspan="6" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">${record.custbody_bbs_site_name.custrecord_bbs_site_address_1}<br/>${record.custbody_bbs_site_name.custrecord_bbs_site_address_2}<br/>${record.custbody_bbs_site_name.custrecord_bbs_site_address_3}</td>
-		<td colspan="4" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">${record.custbody_bbs_site_name.custrecord_bbs_site_address_city}</td>
-		<td colspan="4" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">${record.custbody_bbs_site_name.custrecord_bbs_site_address_state}</td>
-		<td colspan="4" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">&nbsp;</td>
-		<td colspan="4" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">${record.custbody_bbs_site_name.custrecord_bbs_site_address_zip}</td>
-	</tr>
-</table>
+
+
+<#if record.custbody_bbs_premises_json?length gt 0> 
+	<#assign premises_summary = record.custbody_bbs_premises_json?eval>
+    	<#if premises_summary?has_content>
+ 			<table style="width:100%;">
+ 				<#list premises_summary as premises>
+ 					<#if premises_index==0>
+						<thead>
+							<tr>
+								<th colspan="4" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Name</th>
+								<th colspan="6" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Address</th>
+								<th colspan="4" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">City</th>
+								<th colspan="4" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">State/Province</th>
+								<th colspan="4" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Country</th>
+								<th colspan="4" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Postcode/<br/>Zip code</th>
+							</tr>
+						</thead>
+					</#if>
+					<tr>
+						<td colspan="4" align="center" style="border-bottom: 1px solid black; border-left: 1px solid black;">${premises.name}</td>
+						<td colspan="6" align="center" style="border-bottom: 1px solid black; border-left: 1px solid black;">${premises.address1}<br/>${premises.address2}<br/>${premises.address3}</td>
+						<td colspan="4" align="center" style="border-bottom: 1px solid black; border-left: 1px solid black;">${premises.city}</td>
+						<td colspan="4" align="center" style="border-bottom: 1px solid black; border-left: 1px solid black;">${premises.state}</td>
+						<td colspan="4" align="center" style="border-bottom: 1px solid black; border-left: 1px solid black;">&nbsp;</td>
+						<td colspan="4" align="center" style="border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">${premises.zip}</td>
+					</tr>
+				</#list>
+			</table>
+		</#if>
+</#if>
 
 <table style="width: 100%; margin-bottom: 30px;">
 	<tr>
@@ -244,7 +255,7 @@
 		</thead>
 		<!-- start items -->
         <#list record.item as item>
-			<#if item.itemtype == 'NonInvtPart'> <!-- Only print Non Inventory items -->
+			<#if item.custcol_bbs_setup_fee == true> <!-- Only print items where the setup fee checkbox IS ticked -->
 				<tr>			
 					<td align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">${item.item}</td>
 					<td align="right" style="border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">${currencySymbol}${item.amount}</td>
@@ -413,15 +424,20 @@
 	<thead>
 		<tr>
 			<th colspan="16" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Connect Essential On-Demand Marketplace Description</th>
-			<th colspan="4" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Unit</th>
-			<th colspan="4" align="left" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Fee</th>
+			<th colspan="4" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Unit</th>
+			<th colspan="4" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Fee</th>
 		</tr>
 	</thead>
-	<tr>
-		<td colspan="16" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">&nbsp;</td>
-		<td colspan="4" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">&nbsp;</td>
-		<td colspan="4" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">&nbsp;</td>
-	</tr>
+	<!-- start items -->
+    <#list record.item as item>
+		<#if item.custcol_bbs_setup_fee == false> <!-- Only print items where the setup fee checkbox is NOT ticked -->
+			<tr>			
+				<td colspan="16" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">${item.item}</td>
+				<td colspan="4" align="center" style="border-bottom: 1px solid black; border-left: 1px solid black;">${item.quantity?string.number}</td>
+				<td colspan="4" align="right" style="border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">${currencySymbol}${item.amount}</td>
+			</tr>
+		</#if>
+	</#list>
 </table>
 
 </body>
@@ -597,7 +613,7 @@
 		</tr>
 	</thead>
 	<#list record.item as item>
-		<#if item.itemtype == 'InvtPart'> <!-- Only print Inventory items -->
+		<#if item.custcol_bbs_setup_fee == true> <!-- Only print items where the setup fee checkbox IS ticked -->
 			<tr>
 				<td colspan="4" align="center" style="border-bottom: 1px solid black; border-left: 1px solid black;">${item.quantity?string.number}</td>
 				<td colspan="14" align="left" style="border-bottom: 1px solid black; border-left: 1px solid black;">${item.item}</td>
@@ -802,7 +818,7 @@
 </body>
 </pdf>
 </pdfset>
-<#else>
+<#elseif record.custbody_bbs_order_type = 'Operate'>
 <pdfset>
 <pdf>
 <head>
@@ -1115,15 +1131,15 @@
 <table style="width: 100%; margin-bottom: 30px;">
 	<tr>
 		<td colspan="4">Contact:</td>
-		<td colspan="4">${record.entity.custentity_bbs_hellosign_primary}</td>
+		<td colspan="4"><span style="color:#FF0000; font-weight: bold;">TODO</span></td>
 		<td colspan="6">Contact Email:</td>
-		<td colspan="8">${record.entity.custentity_bbs_hellosign_primary_email}</td>
+		<td colspan="8"><span style="color:#FF0000; font-weight: bold;">TODO</span></td>
 	</tr>
 	<tr>
 		<td colspan="4">Billing Contact:</td>
-		<td colspan="4">${record.entity.custentity_bbs_hellosign_primary}</td>
+		<td colspan="4"><span style="color:#FF0000; font-weight: bold;">TODO</span></td>
 		<td colspan="6">Billing Contact Email:</td>
-		<td colspan="8">${record.entity.custentity_bbs_hellosign_primary_email}</td>
+		<td colspan="8"><span style="color:#FF0000; font-weight: bold;">TODO</span></td>
 	</tr>
 </table>
 
@@ -1155,24 +1171,24 @@
 	<table style="width:100%;">
 		<thead>
 			<tr>
-				<th colspan="4" align="left">Service</th>
+				<th colspan="8" align="left">Service</th>
 				<th colspan="2" align="left">QTY</th>
-				<th colspan="2" align="left">Schedule</th>
-				<th colspan="2" align="left">Site</th>
-				<th colspan="2" align="right">Item Price</th>
-				<th colspan="2" align="right">Total Monthly<br/>Recurring Fee</th>
+				<th colspan="4" align="left">Schedule</th>
+				<th colspan="4" align="left">Site</th>
+				<th colspan="4" align="right">Item Price</th>
+				<th colspan="4" align="right">Total Monthly<br/>Recurring Fee</th>
 			</tr>
 		</thead>
 		<!-- start items -->
         <#list record.item as item>
         	<#if item.custcol_bbs_setup_fee == false> <!-- Only print items where the setup fee checkbox is NOT ticked -->
 				<tr>
-					<td colspan="4" align="left">${item.item}</td>
+					<td colspan="8" align="left">${item.item}</td>
 					<td colspan="2" align="left">${item.quantity?string.number}</td>
-					<td colspan="2" align="left">${item.custcol_bbs_billing_frequency}</td>
-					<td colspan="2" align="left">${item.custcol_bbs_site}</td>
-					<td colspan="2" align="right">${currencySymbol}${item.rate}</td>
-					<td colspan="2" align="right">${currencySymbol}${item.amount}</td>
+					<td colspan="4" align="left">${item.custcol_bbs_billing_frequency}</td>
+					<td colspan="4" align="left">${item.custcol_bbs_site_name}</td>
+					<td colspan="4" align="right">${currencySymbol}${item.rate}</td>
+					<td colspan="4" align="right">${currencySymbol}${item.amount}</td>
 				</tr>
 				<#assign billingChargeAmount += item.amount> <!-- Add the amount to the billingChargeAmount variable -->
 			</#if>
@@ -1211,20 +1227,20 @@
 	<table style="width:100%; margin-bottom: 30px;">
 		<thead>
 			<tr>
-				<th colspan="4" align="left">Item</th>
-				<th colspan="2" align="left">Quantity</th>
-				<th colspan="2" align="right">Fee</th>
-				<th colspan="2" align="right">Total One Off Fee</th>
+				<th colspan="12" align="left">Item</th>
+				<th colspan="4" align="center">Quantity</th>
+				<th colspan="4" align="right">Fee</th>
+				<th colspan="4" align="right">Total One Off Fee</th>
 			</tr>
 		</thead>
 		<!-- start items -->
         <#list record.item as item>
         	<#if item.custcol_bbs_setup_fee == true> <!-- Only print items where the setup fee checkbox is ticked -->
 				<tr>
-					<td colspan="4" align="left">${item.item}</td>
-					<td colspan="2" align="left">${item.quantity?string.number}</td>
-					<td colspan="2" align="right">${currencySymbol}${item.rate}</td>
-					<td colspan="2" align="right">${currencySymbol}${item.amount}</td>
+					<td colspan="12" align="left">${item.item}</td>
+					<td colspan="4" align="center">${item.quantity?string.number}</td>
+					<td colspan="4" align="right">${currencySymbol}${item.rate}</td>
+					<td colspan="4" align="right">${currencySymbol}${item.amount}</td>
 				</tr>
 			</#if>
 		</#list>
@@ -1393,6 +1409,143 @@
 		<td>4. <a href="https://essensys.tech/operate-community-sla">Schedule 2a - Operate Service Level Agreement</a></td>
 	</tr>
 </table>
+
+</body>
+</pdf>
+</pdfset>
+<#else>
+<pdfset>
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#setting number_format="0.00">
+	<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
+	<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
+	
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    
+    <macrolist>
+        <macro id="nlheader">
+        </macro>
+        <macro id="nlfooter">
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 12pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #000000;
+            color: #FFFFFF;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { 
+			align:left;
+		}
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 5px;
+            padding-top: 5px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 16pt;
+            color: #A9A9A9;
+        }
+        span.subtitle {
+            font-size: 10pt;
+            color: #A9A9A90;
+        }
+        span.address {
+        	font-size: 10pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="10pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+<p><b>No template setup for this order type (${record.custbody_bbs_order_type})</b></p>
 
 </body>
 </pdf>

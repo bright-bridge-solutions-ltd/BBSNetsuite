@@ -20,7 +20,7 @@
 	</#if>
   
   	<#if subsidiary.id == "15"> <!--Singapore-->
-  		<#assign vatInfo></#assign>
+  		<#assign vatInfo>201915799K</#assign>
   		<#assign regInfo>Company Registration No: 201915799K. Registered Office: 20 Tanjong Pagar Road, Singapore, 088443</#assign>
     </#if>
   

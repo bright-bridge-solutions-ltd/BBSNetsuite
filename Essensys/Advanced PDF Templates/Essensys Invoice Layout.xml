@@ -310,31 +310,31 @@
 
 <table style="width: 100%;"> <!-- Bank Details -->
 	<tr>
-		<td colspan="6"><b>Please remit your <#if subsidiary.id == '3'><!-- US -->ACH/Wire Payment to:<#else>Payment to ${subsidiary.name}</#if></b></td>
+		<td colspan="20"><b>Please remit your <#if subsidiary.id == '3'><!-- US -->ACH/Wire Payment to:<#else>Payment to ${subsidiary.name}</#if></b></td>
 	</tr>
 	<tr>
 		<#if subsidiary.id == '3'><!-- US -->
-			<td><span class="subtitle">Bank Name</span></td>
-			<td colspan="2"><b>${subsidiary.custrecord_bbs_bank_name}</b></td>
-			<td><span class="subtitle">Bank Address</span></td>
-			<td colspan="2">&nsbp;</td>
+			<td colspan="3"><span class="subtitle">Bank Name</span></td>
+			<td colspan="4"><b>${subsidiary.custrecord_bbs_bank_name}</b></td>
+			<td colspan="4"><span class="subtitle">Bank Address</span></td>
+			<td colspan="4">&nsbp;</td>
 		<#else>
-			<td colspan="6"><b>BACS Payments to ${subsidiary.custrecord_bbs_bank_name}</b></td>
+			<td colspan="20"><b>BACS Payments to ${subsidiary.custrecord_bbs_bank_name}</b></td>
 		</#if>
 	</tr>
 	<tr>
-		<td><span class="subtitle">Account No</span></td>
-		<td><b>${subsidiary.custrecord_bbs_account_no}</b></td>
+		<td colspan="3"><span class="subtitle">Account No</span></td>
+		<td colspan="4"><b>${subsidiary.custrecord_bbs_account_no}</b></td>
 		<#if subsidiary.id == '3'><!-- US -->
-			<td><span class="subtitle">ABA No</span></td>
-			<td><b>${subsidiary.custrecord_bbs_aba_no}</b></td>
-			<td><span class="subtitle">SWIFT Code</span></td>
-			<td><b>${subsidiary.custrecord_bbs_swift_code}</b></td>
+			<td colspan="3"><span class="subtitle">ABA No</span></td>
+			<td colspan="4"><b>${subsidiary.custrecord_bbs_aba_no}</b></td>
+			<td colspan="3"><span class="subtitle">SWIFT Code</span></td>
+			<td colspan="6"><b>${subsidiary.custrecord_bbs_swift_code}</b></td>
 		<#else>
-			<td><span class="subtitle">Sort Code</span></td>
-			<td><b>${subsidiary.custrecord_bbs_sort_code}</b></td>
-			<td><span class="subtitle">IBAN</span></td>
-			<td><b>${subsidiary.custrecord_bbs_swift_code}</b></td>
+			<td colspan="3"><span class="subtitle">Sort Code</span></td>
+			<td colspan="4"><b>${subsidiary.custrecord_bbs_sort_code}</b></td>
+			<td colspan="2"><span class="subtitle">IBAN</span></td>
+			<td colspan="6"><b>${subsidiary.custrecord_bbs_swift_code}</b></td>
 		</#if>
 	</tr>
 </table>

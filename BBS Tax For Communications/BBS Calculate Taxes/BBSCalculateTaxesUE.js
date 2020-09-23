@@ -145,7 +145,6 @@ function(runtime, record, search, libraryModule, plugin)
 										        
 										        //Fill in the invoice line object properties (details about the invoice/sales order we are processing)
 												//
-												taxReqInvObj.doc			=	currentRecordID;
 												taxReqInvObj.cmmt			=	commitTaxes;
 												taxReqInvObj.bill.pcd		=	billToPCode;
 												taxReqInvObj.cust			=	customerType;
@@ -162,6 +161,15 @@ function(runtime, record, search, libraryModule, plugin)
 												taxReqInvObj.bpd.month		=	tranDate.getMonth()+1;
 												taxReqInvObj.bpd.year		=	tranDate.getFullYear();
 												taxReqInvObj.ccycd			=	ISOCode;
+												
+												if (commitTaxes == true)
+													{
+														taxReqInvObj.doc = currentRecordID;
+													}
+												else if (commitTaxes == false)
+													{
+														taxReqInvObj.doc = null;
+													}
 												
 												//Loop through each item line to process
 												//
@@ -293,9 +301,6 @@ function(runtime, record, search, libraryModule, plugin)
 														// loop through invoices
 														for (var i = 0; i < invoices.length; i++)
 															{
-																// get the internal ID of the invoice
-																var invoiceID = invoices[i].doc;
-																		
 																// get the errors
 																var errors = invoices[i]['err'];
 																		
@@ -414,7 +419,7 @@ function(runtime, record, search, libraryModule, plugin)
 																										totalTaxes += taxAmount;
 																												
 																										// call function to create a new Calculated Taxes record
-																										libraryModule.createCalculatedTaxes(invoiceID, lineNumber, taxes[z], taxCategory.internalID, taxLevel.internalID, taxType.internalID);
+																										libraryModule.createCalculatedTaxes(currentRecordID, lineNumber, taxes[z], taxCategory.internalID, taxLevel.internalID, taxType.internalID);
 																									}
 																							}
 																					}

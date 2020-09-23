@@ -29,6 +29,39 @@ function(helloSignLibrary, record) {
      * @Since 2015.2
      */
     function beforeSubmit(scriptContext) {
+    	
+    	// check the record is being created
+    	if (scriptContext.type == scriptContext.UserEventType.CREATE)
+    		{
+    			// get the current record
+    			var currentRecord = scriptContext.newRecord;
+    			
+    			// re-set HelloSign fields
+    			currentRecord.setValue({
+    				fieldId: 'custbody_bbs_hellosign_sig_request_id',
+    				value: null
+    			});
+    			
+    			currentRecord.setValue({
+    				fieldId: 'custbody_bbs_hellosign_errors',
+    				value: null
+    			});
+    			
+    			currentRecord.setValue({
+    				fieldId: 'custbody_bbs_hellosign_is_complete',
+    				value: false
+    			});
+    			
+    			currentRecord.setValue({
+    				fieldId: 'custbody_bbs_hellosign_is_declined',
+    				value: false
+    			});
+    			
+    			currentRecord.setValue({
+    				fieldId: 'custbody_bbs_hellosign_is_cancelled',
+    				value: false
+    			});
+    		}
 
     }
 
@@ -51,24 +84,24 @@ function(helloSignLibrary, record) {
 		    	var currentRecord 	= scriptContext.newRecord;
 		    	
 		    	// get the approval status from the old/new record objects
-		    	var oldStatus = oldRecord.getValue({
+		    	var oldApprovalStatus = oldRecord.getValue({
 		    		fieldId: 'custbody_bbs_approval_status'
 		    	});
 		    	
-		    	var newStatus = currentRecord.getValue({
+		    	var newApprovalStatus = currentRecord.getValue({
 		    		fieldId: 'custbody_bbs_approval_status'
 		    	});
 		    	
 		    	// if the status has changed from 2 (Finance Approval) to 4 (Approved - Pending Signatures)
-		    	if (oldStatus == 2 && newStatus == 4)
+		    	if (oldApprovalStatus == 2 && newApprovalStatus == 4)
 		    		{
 		    			// get the configuration
-		    			var configuration = helloSignLibrary.getConfiguration();
-		    			
-		    			// have we got managed to retrieve the configuration
-		    			if (configuration)
-		    				{
-		    					try
+	    				var configuration = helloSignLibrary.getConfiguration();
+	    			
+	    				// have we got managed to retrieve the configuration
+	    				if (configuration)
+	    					{
+	    						try
 		    						{
 		    							// reload the current record
 		    							currentRecord = record.load({
@@ -89,8 +122,13 @@ function(helloSignLibrary, record) {
 										sendSignatureRequestObj.subject			= configuration.subject;
 										sendSignatureRequestObj.message			= configuration.message;
 										
-										// call function to generate the PDF and return it's URL. Push it to the file_url array
-		    							sendSignatureRequestObj.file_url.push(helloSignLibrary.generatePDF(currentRecord.id, configuration.fileCabinetFolderID));
+										// call function to generate the PDF
+										var contractPDF = helloSignLibrary.generatePDF(currentRecord.id, configuration.fileCabinetFolderID);
+										var fileURL		= contractPDF.url;
+										var fileID		= contractPDF.id;
+										
+										// push the file's URL to the request object
+										sendSignatureRequestObj.file_url.push(fileURL);
 										
 										// call function to get the signers from the customer record
 		    							var helloSignSigners = helloSignLibrary.getHelloSignContacts(customerID);
@@ -118,9 +156,15 @@ function(helloSignLibrary, record) {
 			    								// create a new signers object and push it to the signers array
 		    									sendSignatureRequestObj.signers.push(new helloSignLibrary.libSignerObj(essensysSigner.name, essensysSigner.email, sendSignatureRequestObj.signers.length));
 		    								}
-										
-										// call function to make the API call to send the signature request
+		    							
+		    							// call function to make the API call to send the signature request
 										var sendSignatureRequest = helloSignLibrary.sendSignatureRequest(sendSignatureRequestObj);
+										
+										// call function to create HelloSign recipients records
+		    							helloSignLibrary.createHellosignRecipientRecords(currentRecord.id, sendSignatureRequestObj.signers);
+										
+										// call function to delete the unsigned contract file
+										helloSignLibrary.deleteUnsignedFile(fileID);
 										
 										// declare and initialize variables
 										var signatureRequestID 	= 	null;
@@ -162,18 +206,75 @@ function(helloSignLibrary, record) {
 		    					catch(e)
 		    						{
 		    							log.error({
-		    								title: 'Error Occured Making Send Signature Request',
+		    								title: 'Error Making Send Signature Request',
 		    								details: e
 		    							})
 		    						}
 		    				}
 		    		}
     		}
+    	else if (scriptContext.type == scriptContext.UserEventType.CANCEL) // if the order has been cancelled
+    		{
+	    		// get the configuration
+				var configuration = helloSignLibrary.getConfiguration();
+				
+				// have we got managed to retrieve the configuration
+				if (configuration)
+					{
+		    			// get the signature request ID
+						var signatureRequestID = scriptContext.newRecord.getValue({
+							fieldId: 'custbody_bbs_hellosign_sig_request_id'
+						});
+						
+						// if we have a signature request id
+						if (signatureRequestID)
+							{
+								// make an API call to cancel the signature request
+								var cancelSignatureRequest = helloSignLibrary.cancelSignatureRequest(signatureRequestID);
+								
+								// declare and initialize variables
+								var isCancelled 	= false;
+								var errorMessages	= null;
+								
+								// check the result of the API call
+								if (cancelSignatureRequest != null && cancelSignatureRequest.httpResponseCode == '200')
+									{
+										// set isCancelled variable to true
+										isCancelled = true;
+									}
+								else
+									{
+										// add the API response to the error messages
+										errorMessages = cancelSignatureRequest.apiResponse.error.error_msg;
+									}
+								
+								try
+									{
+										record.submitFields({
+											type: record.Type.SALES_ORDER,
+											id: scriptContext.newRecord.id,
+											values: {
+												custbody_bbs_hellosign_errors:			errorMessages,
+												custbody_bbs_hellosign_is_cancelled:	isCancelled
+											}
+										});
+									}
+								catch(e)
+									{
+										log.error({
+											title: 'Error Updating Transaction',
+											details: e
+										});
+									}
+							}
+					}
+    		}
 
     }
 
     return {
-        afterSubmit: afterSubmit
+        beforeSubmit: beforeSubmit,
+    	afterSubmit: afterSubmit
     };
     
 });

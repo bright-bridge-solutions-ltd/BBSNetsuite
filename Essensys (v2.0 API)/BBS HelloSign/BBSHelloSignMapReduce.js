@@ -35,10 +35,18 @@ function(helloSignLibrary, search, record, file) {
     				{
     			name: 'custbody_bbs_hellosign_sig_request_id',
     			operator: search.Operator.ISNOTEMPTY
+    		},
+    				{
+    			name: 'internalid',
+    			operator: search.Operator.ANYOF,
+    			values: [99876]
     		}],
     		
     		columns: [{
     			name: 'custbody_bbs_hellosign_sig_request_id'
+    		},
+    				{
+    			name: 'tranid'
     		}],
     		
     	});
@@ -56,6 +64,7 @@ function(helloSignLibrary, search, record, file) {
     	// retrieve search results
     	var searchResults 		= JSON.parse(context.value);
     	var recordID 			= searchResults.id;
+    	var tranID				= searchResults.values['tranid'];
     	var signatureRequestID 	= searchResults.values['custbody_bbs_hellosign_sig_request_id'];
     	
     	log.audit({
@@ -73,6 +82,7 @@ function(helloSignLibrary, search, record, file) {
 				var isComplete 		= 	false;
 				var isDeclined		=	false;
 				var errorMessages	=	null;
+				var fileName		= 	null;
 			
 				try
 					{
@@ -85,58 +95,72 @@ function(helloSignLibrary, search, record, file) {
 								// return values from the getSignatureRequest object
 								isComplete	= getSignatureRequest.apiResponse.signature_request.is_complete;
 								isDeclined	= getSignatureRequest.apiResponse.signature_request.is_declined;
+								
+								// call function to update the HelloSign Recipients statuses
+								helloSignLibrary.updateHellosignRecipientRecords(recordID, getSignatureRequest.apiResponse.signature_request.signatures);
+						
+								// has the signature request been declined or completed
+								if (isComplete == true || isDeclined == true)
+									{
+										// if the signature request has been completed
+										if (isComplete == true)
+											{
+												// set the fileName variable
+												fileName = 'Sales Order_' + tranID + '_signed';
+											}
+										// if the signature request has been declined
+										else if (isDeclined == true)
+											{
+												// call function to make the sales order as closed
+												helloSignLibrary.closeSalesOrder(recordID);
+												
+												// set the fileName variable
+												fileName = 'Sales Order_' + tranID + '_declined';
+											}
+										
+										// call function to make the API call to get the URL of the signed document
+										var getFilesRequest = helloSignLibrary.getFiles(signatureRequestID);
+												
+										// check the result of the API call
+										if (getFilesRequest != null && getFilesRequest.httpResponseCode == '200')
+											{
+												// create the PDF file and save to the file cabinet
+												var fileID = file.create({
+													fileType: file.Type.PDF,
+													name: fileName,
+													contents: getFilesRequest.apiResponse,
+													folder: configuration.fileCabinetFolderID,
+													isOnline: true
+												}).save();
+														
+												// attach the file to the sales order
+												record.attach({
+													record: {
+														type: 'file',
+														id: fileID
+													},
+													to: {
+														type: record.Type.SALES_ORDER,
+														id: recordID
+													}
+												});
+														
+												log.audit({
+													title: 'Contract File Attached to Sales Order',
+													details: recordID
+												});
+											}
+										else
+											{
+												// add the API response to the error messages
+												errorMessages = getFilesRequest.apiResponse.error.error_msg;
+											}
+									}
 							}
 						else
 							{
 								// add the API response to the error messages
 								errorMessages = getSignatureRequest.apiResponse.error.error_msg;
-							}
-						
-						// if the signature request has been declined
-						if (isDeclined == true)
-							{
-								// call function to make the sales order as closed
-								helloSignLibrary.closeSalesOrder(recordID);
-							}
-						else if (isComplete == true) // if the signature request is complete	
-							{
-								// call function to make the API call to get the URL of the signed document
-								var getFilesRequest = helloSignLibrary.getFiles(signatureRequestID);
-										
-								// check the result of the API call
-								if (getFilesRequest != null && getFilesRequest.httpResponseCode == '200')
-									{
-										// create the PDF file and save to the file cabinet
-										var fileID = file.create({
-											fileType: file.Type.PDF,
-											name: signatureRequestID + '_completed',
-											contents: getFilesRequest.apiResponse,
-											folder: configuration.fileCabinetFolderID,
-											isOnline: true
-										}).save();
-												
-										// attach the file to the sales order
-										record.attach({
-											record: {
-												type: 'file',
-												id: fileID
-											},
-											to: {
-												type: record.Type.SALES_ORDER,
-												id: recordID
-											}
-										});
-												
-										log.audit({
-											title: 'Signed Contract Attached to Sales Order',
-											details: recordID
-										});
-									}
-								else
-									{
-										// add the API response to the error messages
-										errorMessages = getFilesRequest.apiResponse.error.error_msg;
-									}
 							}
 								
 						// update fields on the sales order

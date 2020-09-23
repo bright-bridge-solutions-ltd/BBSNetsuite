@@ -146,6 +146,7 @@ function(file, record, search, http, xml, format)
 						        			var salesOrderNumber 			= isNull(transactionRecord.getValue({fieldId: 'tranid'}),'');
 						        			var salesOrderTotal				= Number(transactionRecord.getValue({fieldId: 'total'})).toFixed(2);
 						        			var salesOrderSubTotal			= Number(transactionRecord.getValue({fieldId: 'subtotal'})).toFixed(2);
+						        			var subsidiaryDetails			= getSubsidiaryInfo(transactionRecord.getValue({fieldId: 'subsidiary'}));
 						        			
 						        			if (createdFromType == 'Transfer Order')
 						        				{
@@ -447,6 +448,13 @@ function(file, record, search, http, xml, format)
 					        					{
 					        						// add the Attribute5 tag
 					        						xmlString += '<Attribute5>' + xml.escape({xmlText: supplierID}) + '</Attribute5>\n';
+					        					}
+					        				
+					        				// if we have subsidiary details
+					        				if (subsidiaryDetails)
+					        					{
+					        						// add the Attribute6 tag
+					        						xmlString += '<Attribute6>' + xml.escape({xmlText: subsidiaryDetails}) + '</Attribute6>\n';
 					        					}
 					        				
 					        				//Other sundry tags
@@ -819,11 +827,78 @@ function(file, record, search, http, xml, format)
     		this.groupName				= _groupName;
     	}
     
-	    function packageInfo(_package, _quantity)
+    function packageInfo(_package, _quantity)
 		{
 			this.quantity		= _quantity;
 			this.package		= _package;
 		}
+	    
+	 function getSubsidiaryInfo(subsidiaryID) {
+		 
+		 // declare and initialize variables
+		 var returnString = '';
+		 
+		 try
+		 	{
+			 	// load the subsidiary record
+			 	var subsidiaryRecord = record.load({
+			 		type: record.Type.SUBSIDIARY,
+			 		id: subsidiaryID
+			 	});
+			 	
+			 	// retrieve values from the subsidiary record
+			 	var companyReg = subsidiaryRecord.getValue({
+			 		fieldId: 'custrecord_bbs_company_reg_no'
+			 	});
+			 	
+			 	// get the address subrecord
+			 	var addressSubrecord = subsidiaryRecord.getSubrecord({
+			 		fieldId: 'mainaddress'
+			 	});
+			 	
+			 	// get address fields
+			 	var address1 = addressSubrecord.getValue({
+			 		fieldId: 'addr1'
+			 	});
+			 	
+			 	var address2 = addressSubrecord.getValue({
+			 		fieldId: 'addr2'
+			 	});
+			 	
+			 	var addressCity = addressSubrecord.getValue({
+			 		fieldId: 'city'
+			 	});
+			 	
+			 	var addressCounty = addressSubrecord.getValue({
+			 		fieldId: 'state'
+			 	});
+			 	
+			 	var addressPostcode = addressSubrecord.getValue({
+			 		fieldId: 'zip'
+			 	});
+			 	
+			 	// add to the returnString variable
+			 	returnString += 'Company Reg No: ';
+			 	returnString += companyReg;
+			 	returnString += ' Registered Office: ';;
+			 	returnString += address1 + ', ';
+			 	returnString += address2 + ', ';
+			 	returnString += addressCity + ', ';
+			 	returnString += addressCounty + ', ';
+			 	returnString += addressPostcode;
+		 	}
+		 catch(e)
+		 	{
+			 	log.error({
+			 		title: 'Error Retrieving Subsidiary Details',
+			 		details: e
+			 	});
+		 	}
+		 
+		 return returnString;
+		 
+	 }
+	    
 
 
     function getResults(_searchObject)
