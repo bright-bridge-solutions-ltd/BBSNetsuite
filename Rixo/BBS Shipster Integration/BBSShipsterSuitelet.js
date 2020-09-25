@@ -3,13 +3,13 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['N/file', 'N/record', 'N/search', 'N/http', 'N/xml', 'N/format'],
+define(['N/file', 'N/record', 'N/search', 'N/http', 'N/xml', 'N/format','N/runtime'],
 /**
  * @param {file} file
  * @param {record} record
  * @param {search} search
  */
-function(file, record, search, http, xml, format) 
+function(file, record, search, http, xml, format, runtime) 
 {
    
     /**
@@ -41,7 +41,7 @@ function(file, record, search, http, xml, format)
 	        		var shippingCarriers	= getShippingCarriers();
 	        		var manufacturersObject	= {};
 	        		
-	        		//Load the item fulfilment
+	        		//Load the item fulfilment (10GU's)
 	        		//
 	        		try
 	        			{
@@ -77,7 +77,7 @@ function(file, record, search, http, xml, format)
 	        				// if we have a drop ship PO
 	        				if (dropShipPO)
 	        					{
-	        						// lookup fields on the PO record
+	        						// lookup fields on the PO record (1Gu's)
 	        						supplierID = search.lookupFields({
 	        							type: search.Type.PURCHASE_ORDER,
 	        							id: dropShipPO,
@@ -88,7 +88,7 @@ function(file, record, search, http, xml, format)
 	        				// if we have a customer ID
 	        				if (customerID)
 	        					{
-			        				//Load the customer
+			        				//Load the customer (5GU's)
 					        		//
 					        		try
 					        			{
@@ -110,7 +110,7 @@ function(file, record, search, http, xml, format)
 		
 			        		//if(customerRecord != null)
 			        			//{
-					        		//Load the transaction record
+					        		//Load the transaction record (10GU's)
 					        		//
 					        		try
 					        			{
@@ -150,6 +150,7 @@ function(file, record, search, http, xml, format)
 						        			
 						        			if (createdFromType == 'Transfer Order')
 						        				{
+						        					//Read the location info (1GU's)
 						        					var locationLookup = search.lookupFields({
 						        						type: search.Type.LOCATION,
 						        						id: fulfilmentRecord.getValue({fieldId: 'transferlocation'}),
@@ -240,6 +241,10 @@ function(file, record, search, http, xml, format)
 					        				xmlString += '<DespatchDate>' 				+ xml.escape({xmlText: fulfilmentShippedDate}) 						+ '</DespatchDate>\n';
 					        				
 					        				
+					        				log.debug({
+						        				title:		'Remaining Usage before items',
+												details:	runtime.getCurrentScript().getRemainingUsage()
+											});
 					        				
 					        				//Items
 					        				//
@@ -326,6 +331,10 @@ function(file, record, search, http, xml, format)
 						        					
 						        					xmlString += '</Item>\n';
 						        					
+						        					log.debug({
+								        				title:		'Remaining Usage after item ' + items,
+														details:	runtime.getCurrentScript().getRemainingUsage()
+													});
 					        					}
 					        				
 					        				xmlString += '</Items>\n';
@@ -471,7 +480,7 @@ function(file, record, search, http, xml, format)
 					        				xmlString += '</Despatch>\n';
 					        				
 					        				
-					        				//Create a file to hold the results
+					        				//Create a file to hold the results (0GU's)
 					        				//
 					        				fileObj = file.create({
 					        										name:		'Shipster_' + tranId + '.shp',
@@ -483,7 +492,7 @@ function(file, record, search, http, xml, format)
 					        				//
 					        				try
 					        					{
-						        					// load the IF record
+						        					// load the IF record (10GU's)
 					        						var fulfilmentRecord = record.load({
 					        							type: record.Type.ITEM_FULFILLMENT,
 					        							id: recordID
@@ -500,7 +509,7 @@ function(file, record, search, http, xml, format)
 					        							value: true
 					        						});
 					        						
-					        						// save the changes to the IF record
+					        						// save the changes to the IF record (20GU's)
 					        						fulfilmentRecord.save();
 					        					}
 					        				catch(err)
@@ -579,6 +588,7 @@ function(file, record, search, http, xml, format)
 				
     		try
     			{
+    				//Load th eitem record (5GU's)
 	    			itemRecord = record.load({
 												type:		getItemRecordType(_itemType),
 												id:			_itemId
@@ -621,7 +631,7 @@ function(file, record, search, http, xml, format)
 	        			{
 	        				var supplierId = itemRecord.getSublistValue({sublistId: 'itemvendor', fieldId: 'vendor', line: supplier});
 	        				
-	        				//Read in the supplier
+	        				//Read in the supplier (5GU's)
 	        				//
 	        				var supplierRecord = null;
 	        				
@@ -685,6 +695,7 @@ function(file, record, search, http, xml, format)
     	{
     		var weightInKg = 0;
     	
+    		//Get the item weight (1GU's)
     		var searchResult = search.lookupFields({
 	    											type:		search.Type.ITEM,
 	    											id:			_itemId,
@@ -905,11 +916,11 @@ function(file, record, search, http, xml, format)
 	    {
 	    	var results = [];
 	
-	    	var pageData = _searchObject.runPaged({pageSize: 1000});
+	    	var pageData = _searchObject.runPaged({pageSize: 1000});	//5GU's
 	
 	    	for (var int = 0; int < pageData.pageRanges.length; int++) 
 	    		{
-	    			var searchPage = pageData.fetch({index: int});
+	    			var searchPage = pageData.fetch({index: int});		//5GU's
 	    			var data = searchPage.data;
 	    			
 	    			results = results.concat(data);
