@@ -61,7 +61,7 @@ function(runtime, search, record, format) {
     				{
     			name: 'custrecord_bbs_bl_charge_date',
     			operator: 'on',
-    			values: ['yesterday']
+    			values: ['1/9/2020']
     		}],
     		
     		columns: [{
@@ -94,14 +94,13 @@ function(runtime, search, record, format) {
     	
     	// retrieve search results
     	var searchResult 	= JSON.parse(context.value);
-    	var clubID 			= searchResult.values['GROUP(custrecord_bbs_brightlime_club_id)'].value;
-    	var clubName		= searchResult.values['GROUP(custrecord_bbs_brightlime_club_id)'].text;
+    	var clubID 			= searchResult.values['GROUP(custrecord_bbs_brightlime_club_id)'];
     	var location 		= searchResult.values['MAX(internalid.custrecord_bbs_bl_location1)'];
     	var subsidiary 		= searchResult.values['MAX(internalid.custrecord_bbs_bl_subsidiary1)'];
     	
     	log.audit({
     		title: 'Processing Club',
-    		details: 'Club ID: ' + clubID + '<br>Club Name: ' + clubName + '<br>Location: ' + location + '<br>Subsidiary: ' + subsidiary
+    		details: 'Club ID: ' + clubID + '<br>Location: ' + location + '<br>Subsidiary: ' + subsidiary
     	});
     	
     	// call function to create a new journal record. Pass subsidiary, location and clubID
@@ -205,7 +204,7 @@ function(runtime, search, record, format) {
 		    	    		});
 		    	    		
 		    	    		// check if we have a glAccountID
-		    	    		if (glAccountID)
+		    	    		if (glAccountID != '- None -')
 		    	    			{
 		    	    				// set account on the new journal line using the glAccountID
 		    	    				journalRec.setCurrentSublistValue({
@@ -339,11 +338,11 @@ function(runtime, search, record, format) {
         				{
         			name: 'custrecord_bbs_bl_charge_date',
         			operator: 'on',
-        			values: ['yesterday']
+        			values: ['1/9/2020']
         		},
         				{
         			name: 'custrecord_bbs_brightlime_club_id',
-        			operator: 'anyof',
+        			operator: 'is',
         			values: [clubID]
         		}],
         		

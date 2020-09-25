@@ -410,7 +410,7 @@ function(file, record, search, http, xml, format)
 					        //				xmlString += '<![CDATA[';
 					        //				xmlString += '<Manufacturers>';
 					        				
-					        				for ( var manufacturer in manufacturersObject) 
+					        				for (var manufacturer in manufacturersObject) 
 						        				{
 					        //						xmlString += '<Manufacturer>';
 					        

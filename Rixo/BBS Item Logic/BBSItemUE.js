@@ -44,8 +44,8 @@ function(runtime, search, record) {
     
     function afterSubmit(scriptContext) {
     	
-    	// check the record is being created or edited
-    	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
+    	// check the record is being edited
+    	if (scriptContext.type == scriptContext.UserEventType.EDIT)
     		{
 	    		// call function to update matrix item attributes. Pass current record
 		    	updateMatrixItemAttributes(scriptContext.newRecord);

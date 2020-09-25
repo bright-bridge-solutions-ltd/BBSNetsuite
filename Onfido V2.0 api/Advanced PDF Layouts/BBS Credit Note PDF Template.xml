@@ -21,7 +21,7 @@
     </#if>
   
   	<#if subsidiary.id == "15"> <!--Singapore-->
-  		<#assign vatInfo></#assign>
+  		<#assign vatInfo>VAT No: 201915799K</#assign>
   		<#assign regInfo>Company Registration No: 201915799K. Registered Office: 20 Tanjong Pagar Road, Singapore, 088443</#assign>
     </#if>
   
@@ -249,21 +249,49 @@
 
 
 <table class="total" style="width: 100%; margin-top: 10px;">
-	<tr>
-      <td colspan="4">&nbsp;</td>
-      <td align="right" style="font-size: 12pt;"><b>${record.subtotal@label}</b></td>
-      <td align="right" style="font-size: 12pt;">${record.subtotal}</td>
-      </tr>
-      <tr>
-      <td colspan="4">&nbsp;</td>
-      <td align="right" style="font-size: 12pt;"><b>${record.taxtotal@label}</b></td>
-      <td align="right" style="font-size: 12pt;">${record.taxtotal}</td>
-      </tr>
-      <tr>
-      <td colspan="4">&nbsp;</td>
-      <td align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.total@label}</b></td>
-      <td align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.total}</b></td>
-	</tr>
+	<#if record.unapplied gt 0> <!-- If we have any remaining balance -->
+		<tr>
+			<td colspan="4">&nbsp;</td>
+		   	<td colspan="2" align="right" style="font-size: 12pt;"><b>${record.subtotal@label}</b></td>
+			<td align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.subtotal?string["#,##0.00"]}</td>
+		</tr>
+		<tr>
+			<td colspan="4">&nbsp;</td>
+	      	<td colspan="2" align="right" style="font-size: 12pt;"><b>${record.taxtotal@label}</b></td>
+	      	<td align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.taxtotal?string["#,##0.00"]}</td>
+		</tr>
+	 	<tr>
+			<td colspan="4">&nbsp;</td>
+	    	<td colspan="2" align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.total@label}</b></td>
+	      	<td align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.custbody_bbs_currency_symbol}${record.total?string["#,##0.00"]}</b></td>
+		</tr>		
+		<tr>
+	      	<td colspan="4">&nbsp;</td>
+	      	<td colspan="2" align="right" style="font-size: 12pt;">Less Amount Applied</td>
+	      	<td align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.applied?string["#,##0.00"]}</td>
+		</tr>
+		<tr>
+	      	<td colspan="4">&nbsp;</td>
+	      	<td colspan="2" align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>CREDIT REMAINING</b></td>
+	      	<td align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.custbody_bbs_currency_symbol}${record.unapplied?string["#,##0.00"]}</b></td>
+		</tr>
+	<#else>
+		<tr>
+			<td colspan="4">&nbsp;</td>
+		   	<td align="right" style="font-size: 12pt;"><b>${record.subtotal@label}</b></td>
+			<td align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.subtotal?string["#,##0.00"]}</td>
+		</tr>
+		<tr>
+			<td colspan="4">&nbsp;</td>
+	      	<td align="right" style="font-size: 12pt;"><b>${record.taxtotal@label}</b></td>
+	      	<td align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.taxtotal?string["#,##0.00"]}</td>
+		</tr>
+	 	<tr>
+			<td colspan="4">&nbsp;</td>
+	    	<td align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.total@label}</b></td>
+	      	<td align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.custbody_bbs_currency_symbol}${record.total?string["#,##0.00"]}</b></td>
+		</tr>
+	</#if>
 </table>
 
   
@@ -282,6 +310,23 @@
         <td>${subsidiary.custrecord_in_permanent_account_number}</td>
       </tr>
   </table>
+</#if>
+
+<#if record.currency != subsidiary.currency> <!-- If the invoice is not in the subsidiary's currency -->
+	<table class="header" style="width: 30%; margin-top: 20px; page-break-inside: avoid;">
+		<tr>
+			<td colspan="2"><u>Local Currency Equivalent</u></td>
+		</tr>
+		<tr>
+			<td colspan="2">Exchange Rate ${record.exchangerate?string["#,##0.00"]}</td>
+		</tr>
+		<tr>
+			<td colspan="2">Subtotal ${(record.exchangerate * record.subtotal)?string["#,##0.00"]} ${record.custbody_bbs_subsidiary_currency_sym}</td>
+		</tr>
+		<tr>
+			<td colspan="2">Tax ${(record.exchangerate * record.taxtotal)?string["#,##0.00"]} ${record.custbody_bbs_subsidiary_currency_sym}</td>
+		</tr>
+	</table>
 </#if>
   
 </body>
