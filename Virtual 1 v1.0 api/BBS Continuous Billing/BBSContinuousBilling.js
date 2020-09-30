@@ -1093,7 +1093,7 @@ function createProRataInvoice(_salesOrderRecord)
 	var billingEndDate 		= nlapiStringToDate(_salesOrderRecord.getFieldValue('custbody_bbs_billing_end_date'));
 	var invoiceDate 		= new Date(salesOrderCloseDate.getFullYear(), salesOrderCloseDate.getMonth() + 1, 1); 	//1st day on month after the close date
 	var salesOrderValue 	= Number(_salesOrderRecord.getFieldValue('subtotal'));
-	var daysToInvoice 		= (Math.abs(billingEndDate.getTime() - invoiceDate.getTime()) / (1000 * 3600 * 24)) + 1;
+	var daysToInvoice 		= Math.round(((Math.abs(billingEndDate.getTime() - invoiceDate.getTime()) / (1000 * 3600 * 24)) + 1));
 	var invoiceValue 		= ((salesOrderValue / 365) * daysToInvoice).toFixed(2);
 	
 	var invoiceRecord = null;
