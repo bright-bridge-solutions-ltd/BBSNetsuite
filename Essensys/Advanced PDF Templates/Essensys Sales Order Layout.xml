@@ -189,7 +189,6 @@
 								<th colspan="6" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Address</th>
 								<th colspan="4" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">City</th>
 								<th colspan="4" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">State/Province</th>
-								<th colspan="4" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Country</th>
 								<th colspan="4" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Postcode/<br/>Zip code</th>
 							</tr>
 						</thead>
@@ -199,7 +198,6 @@
 						<td colspan="6" align="center" style="border-bottom: 1px solid black; border-left: 1px solid black;">${premises.address1}<br/>${premises.address2}<br/>${premises.address3}</td>
 						<td colspan="4" align="center" style="border-bottom: 1px solid black; border-left: 1px solid black;">${premises.city}</td>
 						<td colspan="4" align="center" style="border-bottom: 1px solid black; border-left: 1px solid black;">${premises.state}</td>
-						<td colspan="4" align="center" style="border-bottom: 1px solid black; border-left: 1px solid black;">&nbsp;</td>
 						<td colspan="4" align="center" style="border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">${premises.zip}</td>
 					</tr>
 				</#list>

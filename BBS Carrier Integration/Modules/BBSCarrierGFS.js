@@ -52,7 +52,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 				commitShipmentsRequestGFS.RequestedCommitShipments.CarrierShipments.AuthenticationDetails.UserPassword 				= _commitShipmentRequest.configuration.password;
 				
 				// Declare xmlRequest variable and set SOAP envelope
-				var xmlRequest = '<SOAP-ENV:Envelope xmlns:SOAP-ENV="https://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance" xmlns:v5="https://justshoutgfs.com/Client/Ship/v5/"><SOAP-ENV:Body>';
+				var xmlRequest = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v5="http://justshoutgfs.com/Client/Ship/v5/"><soapenv:Header/><soapenv:Body>';
 				
 				log.debug({
 					title: 'Request Object',
@@ -65,7 +65,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 		
 				//Add closing SOAP envelope tags
 				//
-				xmlRequest += '</SOAP-ENV:Body></SOAP-ENV:Envelope>';
+				xmlRequest += '</soapenv:Body></soapenv:Envelope>';
 		
 				//Send the request to GFS
 				//

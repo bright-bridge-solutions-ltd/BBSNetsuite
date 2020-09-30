@@ -218,7 +218,6 @@
     </tr>
   </table>
 </#if>
-  
 
 <#assign summary_info = record.custbody_bbs_json_summary?eval>
 			
@@ -229,19 +228,19 @@
               <thead>
                   <tr>
                       <th colspan="12" style="font-size: 12pt;">Description</th>
-                      <th align="center" colspan="3" style="font-size: 12pt;">Quantity</th>
-                      <th align="right" colspan="4" style="font-size: 12pt;">Unit Price</th>
+                      <th align="center" colspan="4" style="font-size: 12pt;">Quantity</th>
+                      <th align="right" colspan="6" style="font-size: 12pt;">Unit Price</th>
                       <th align="right" colspan="4" style="padding: 10px 6px; white-space: nowrap; font-size: 12pt;">Tax Rate</th>
-                      <th align="right" colspan="4" style="font-size: 12pt;">Amount</th>
+                      <th align="right" colspan="6" style="font-size: 12pt;">Amount</th>
                   </tr>
               </thead>
           </#if>
           <tr>
               <td class="itemtable" colspan="12" style="font-size: 12pt;">${item.salesDescription}</td>
-              <td class="itemtable" align="center" colspan="3" line-height="150%" style="font-size: 12pt;">${item.quantity?string["#,##0"]}</td>
-              <td class="itemtable" align="right" colspan="4" style="font-size: 12pt;">${item.symbol}${item.unitPrice?string["#,##0.00"]}</td>
+              <td class="itemtable" align="center" colspan="4" line-height="150%" style="font-size: 12pt;">${item.quantity?string["#,##0"]}</td>
+              <td class="itemtable" align="right" colspan="6" style="font-size: 12pt;">${item.symbol}${item.unitPrice?string["#,##0.00"]}</td>
               <td class="itemtable" align="right" colspan="4" style="font-size: 12pt;">${item.vatRate}</td>
-              <td class="itemtable" align="right" colspan="4" style="font-size: 12pt;">${item.symbol}${item.amount?string["#,##0.00"]}</td>
+              <td class="itemtable" align="right" colspan="6" style="font-size: 12pt;">${item.symbol}${item.amount?string["#,##0.00"]}</td>
           </tr>
       </#list>
   </table>
@@ -249,51 +248,32 @@
 
 
 <table class="total" style="width: 100%; margin-top: 10px;">
-	<#if record.unapplied gt 0> <!-- If we have any remaining balance -->
-		<tr>
-			<td colspan="4">&nbsp;</td>
-		   	<td colspan="2" align="right" style="font-size: 12pt;"><b>${record.subtotal@label}</b></td>
-			<td align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.subtotal?string["#,##0.00"]}</td>
-		</tr>
-		<tr>
-			<td colspan="4">&nbsp;</td>
-	      	<td colspan="2" align="right" style="font-size: 12pt;"><b>${record.taxtotal@label}</b></td>
-	      	<td align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.taxtotal?string["#,##0.00"]}</td>
-		</tr>
-	 	<tr>
-			<td colspan="4">&nbsp;</td>
-	    	<td colspan="2" align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.total@label}</b></td>
-	      	<td align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.custbody_bbs_currency_symbol}${record.total?string["#,##0.00"]}</b></td>
-		</tr>		
-		<tr>
-	      	<td colspan="4">&nbsp;</td>
-	      	<td colspan="2" align="right" style="font-size: 12pt;">Less Amount Applied</td>
-	      	<td align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.applied?string["#,##0.00"]}</td>
-		</tr>
-		<tr>
-	      	<td colspan="4">&nbsp;</td>
-	      	<td colspan="2" align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>CREDIT REMAINING</b></td>
-	      	<td align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.custbody_bbs_currency_symbol}${record.unapplied?string["#,##0.00"]}</b></td>
-		</tr>
-	<#else>
-		<tr>
-			<td colspan="4">&nbsp;</td>
-		   	<td align="right" style="font-size: 12pt;"><b>${record.subtotal@label}</b></td>
-			<td align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.subtotal?string["#,##0.00"]}</td>
-		</tr>
-		<tr>
-			<td colspan="4">&nbsp;</td>
-	      	<td align="right" style="font-size: 12pt;"><b>${record.taxtotal@label}</b></td>
-	      	<td align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.taxtotal?string["#,##0.00"]}</td>
-		</tr>
-	 	<tr>
-			<td colspan="4">&nbsp;</td>
-	    	<td align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.total@label}</b></td>
-	      	<td align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.custbody_bbs_currency_symbol}${record.total?string["#,##0.00"]}</b></td>
-		</tr>
-	</#if>
+	<tr>
+		<td colspan="4">&nbsp;</td>
+		<td colspan="2" align="right" style="font-size: 12pt;"><b>${record.subtotal@label}</b></td>
+		<td colspan="2" align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.subtotal?string["#,##0.00"]}</td>
+	</tr>
+	<tr>
+		<td colspan="4">&nbsp;</td>
+	   	<td colspan="2" align="right" style="font-size: 12pt;"><b>${record.taxtotal@label}</b></td>
+		<td colspan="2" align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.taxtotal?string["#,##0.00"]}</td>
+	</tr>
+	<tr>
+		<td colspan="4">&nbsp;</td>
+	    <td colspan="2" align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.total@label}</b></td>
+	   	<td colspan="2" align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.custbody_bbs_currency_symbol}${record.total?string["#,##0.00"]}</b></td>
+	</tr>		
+	<tr>
+	  	<td colspan="4">&nbsp;</td>
+	    <td colspan="2" align="right" style="font-size: 12pt;">Less Amount Applied</td>
+	   	<td colspan="2" align="right" style="font-size: 12pt;">${record.custbody_bbs_currency_symbol}${record.applied?string["#,##0.00"]}</td>
+	</tr>
+	<tr>
+		<td colspan="4">&nbsp;</td>
+	    <td colspan="2" align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>CREDIT REMAINING</b></td>
+	    <td colspan="2" align="right" style="border-top: 1px solid black; font-size: 12pt;"><b>${record.custbody_bbs_currency_symbol}${record.unapplied?string["#,##0.00"]}</b></td>
+	</tr>
 </table>
-
   
 <#if subsidiary.id == "10"> <!--India-->
   <table class="header" style="width: 100%; margin-top: 20px; page-break-inside: avoid;">

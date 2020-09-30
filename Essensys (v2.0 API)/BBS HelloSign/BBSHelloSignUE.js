@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['./BBSHelloSignLibrary', 'N/record'],
-function(helloSignLibrary, record) {
+define(['./BBSHelloSignLibrary', 'N/record', 'N/render'],
+function(helloSignLibrary, record, render) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -114,13 +114,19 @@ function(helloSignLibrary, record) {
 		    								fieldId: 'entity'
 		    							});
 		    							
+		    							// render the email template
+		    							var mergeResult = render.mergeEmail({
+		    								templateId: configuration.emailTemplate,
+		    							    transactionId: currentRecord.id
+		    							});
+		    							
 		    							// construct a send signature request object
 										var sendSignatureRequestObj 			= new helloSignLibrary.libSendSignatureRequest();
 										sendSignatureRequestObj.test_mode		= configuration.testMode;
 										sendSignatureRequestObj.allow_decline	= configuration.allowDecline;
 										sendSignatureRequestObj.allow_reassign	= configuration.allowReassign;
-										sendSignatureRequestObj.subject			= configuration.subject;
-										sendSignatureRequestObj.message			= configuration.message;
+										sendSignatureRequestObj.subject			= mergeResult.subject;
+										sendSignatureRequestObj.message			= mergeResult.body;
 										
 										// call function to generate the PDF
 										var contractPDF = helloSignLibrary.generatePDF(currentRecord.id, configuration.fileCabinetFolderID);

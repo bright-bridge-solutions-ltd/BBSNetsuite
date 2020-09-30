@@ -41,8 +41,7 @@ function(search, encode, https, render, file, record, url)
 		this.endpointGetSignatureRequest	= null;
 		this.endpointCancelSignatureRequest	= null;
 		this.endpointGetFiles				= null;
-		this.subject						= null;
-		this.message						= null;
+		this.emailTemplate					= null;
 		this.testMode						= null;
 		this.allowDecline					= null;
 		this.allowReassign					= null;
@@ -346,10 +345,7 @@ function(search, encode, https, render, file, record, url)
 				name: 'custrecord_bbs_hellosign_get_files'
 			},
 					{
-				name: 'custrecord_bbs_hellosign_email_subject'
-			},
-					{
-				name: 'custrecord_bbs_hellosign_email_message'
+				name: 'custrecord_bbs_hellosign_email_template'
 			},
 					{
 				name: 'custrecord_bbs_hellosign_test_mode'
@@ -376,8 +372,7 @@ function(search, encode, https, render, file, record, url)
 			configObj.endpointGetSignatureRequest		= urlPrefix + result.getValue({name: 'custrecord_bbs_hellosign_get_signature'});
 			configObj.endpointCancelSignatureRequest	= urlPrefix	+ result.getValue({name: 'custrecord_bbs_hellosign_cancel_request'});
 			configObj.endpointGetFiles					= urlPrefix + result.getValue({name: 'custrecord_bbs_hellosign_get_files'});
-			configObj.subject							= result.getValue({name: 'custrecord_bbs_hellosign_email_subject'});
-			configObj.message							= result.getValue({name: 'custrecord_bbs_hellosign_email_message'});
+			configObj.emailTemplate						= result.getValue({name: 'custrecord_bbs_hellosign_email_template'});
 			configObj.testMode							= convertToInteger(result.getValue({name: 'custrecord_bbs_hellosign_test_mode'}));
 			configObj.allowDecline						= convertToInteger(result.getValue({name: 'custrecord_bbs_hellosign_allow_decline'}));
 			configObj.allowReassign						= convertToInteger(result.getValue({name: 'custrecord_bbs_hellosign_allow_reassign'}));

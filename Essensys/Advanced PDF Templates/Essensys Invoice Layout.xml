@@ -236,17 +236,7 @@
 		</#if>
 		<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-top: 2px solid black; border-bottom: 2px solid black;">${currencySymbol}${record.subtotal}</td>
 	</tr>
-	<#if subsidiary.id == "2" && record.vatregnum?has_content && !record.billaddress?contains("United Kingdom")> <!-- If subsidiary is UK AND we have a customer VAT number AND the country is not UK-->
-		<tr>
-			<td colspan="10">&nbsp;</td>
-			<#if record.createdfrom?has_content>
-				<td colspan="20" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>20% Standard Vat Rate</b></td>
-			<#else>
-				<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>20% Standard Vat Rate</b></td>
-			</#if>
-			<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">${currencySymbol}${record.taxtotal}</td>
-		</tr>
-	<#elseif subsidiary.id == "3"> <!-- US -->
+	<#if subsidiary.id == "3"> <!-- US -->
 		<#if record.custbody_bbs_tfc_tax_summ_json?has_content>
 			<#assign tax_summary = record.custbody_bbs_tfc_tax_summ_json?eval>
 				<#list tax_summary as taxes>
@@ -293,6 +283,18 @@
 				<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>PST</b></td>
 			</#if>
 			<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">${currencySymbol}${record.tax2total}</td>
+		</tr>
+	<#elseif subsidiary.id == "2" && record.vatregnum?has_content && !record.billaddress?contains("United Kingdom")> <!-- If subsidiary is UK AND we have a customer VAT number AND the country is not UK-->
+		<!-- DO NOTHING -->
+	<#else>
+		<tr>
+			<td colspan="10">&nbsp;</td>
+			<#if record.createdfrom?has_content>
+				<td colspan="20" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>20% Standard Vat Rate</b></td>
+			<#else>
+				<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>20% Standard Vat Rate</b></td>
+			</#if>
+			<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">${currencySymbol}${record.taxtotal}</td>
 		</tr>
 	</#if>
 	<tr>
