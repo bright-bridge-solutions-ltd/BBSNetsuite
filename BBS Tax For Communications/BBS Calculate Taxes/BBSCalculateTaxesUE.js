@@ -151,7 +151,7 @@ function(runtime, record, search, libraryModule, plugin)
 												taxReqInvObj.lfln			=	lifeline;
 												taxReqInvObj.date			=	tranDate;
 												taxReqInvObj.exms			=	customerExemptions;
-												taxReqInvObj.invoiceMode	=	false; // line Items are unrelated
+												taxReqInvObj.invm			=	true; 
 												taxReqInvObj.dtl			=	true; // return Line Item level tax results
 												taxReqInvObj.summ			=	true; // return summarized tax results
 												taxReqInvObj.acct			=	customerName;
@@ -267,188 +267,215 @@ function(runtime, record, search, libraryModule, plugin)
 											    //
 											    taxReqObj.inv.push(taxReqInvObj);
 							
-												//Finally, call the plugin method
-												//
-												var taxResult = tfcPlugin.getTaxCalculation(taxReqObj, subsidiaryClientProfileID);
-												
-												// call function to create AFC Call Log records
-												libraryModule.createAFCCallLogRecords(currentRecordID, taxReqObj, taxResult);
-												
-												// call function to delete existing Calculated Taxes records
-												libraryModule.deleteCalculatedTaxes(currentRecordID);
-												
-												// declare and initialize variables
-												var totalTaxes = 0;
-												var linesToUpdate = new Array();
-												var errorMessages = '';
-												var taxSummary = {};
-												
-												//Check the result of the call to the plugin
-												//
-												if(taxResult != null && taxResult.httpResponseCode == '200')
-													{
-														// call functions to return the tax categories, levels and types
-														var taxCategories 	= libraryModule.getTaxCategories();
-														var taxLevels		= libraryModule.getTaxLevels();
-														var taxTypes		= libraryModule.getTaxTypes();
+											    //Check to see if we are exceeding the maximum number of lines to process
+											    //
+											    if(taxReqObj.inv[0].itms.length > configuration.maxTaxLinesToProcess)
+											    	{
+											    		var linesExceededMsg = 'Number of lines to process has exceeded maximum allowed ' + taxReqObj.inv[0].itms.length + '/' + configuration.maxTaxLinesToProcess;
+											    		
+											    		//Report an error 
+											    		//
+												    	log.error({
+																	title: 	linesExceededMsg,
+																	details: ''
+																});
+												    	
+												    	var totalTaxes = 0;
+														var linesToUpdate = new Array();
+														var errorMessages = '';
+														var taxSummary = {};
 														
-														// get the API response body
-														var taxResultDetails = taxResult.apiResponse;
+														// call function to delete existing Calculated Taxes records
+														libraryModule.deleteCalculatedTaxes(currentRecordID);
 														
-														// get the invoices
-														var invoices = taxResultDetails['inv'];
-																
-														// loop through invoices
-														for (var i = 0; i < invoices.length; i++)
+														// call function to update the tax total on the record
+														libraryModule.updateTaxTotal(currentRecordType, currentRecordID, linesToUpdate, linesExceededMsg, outputArray, totalTaxes);
+														
+											    	}
+											    else
+											    	{
+														//Call the plugin to get the taxes
+														//
+														var taxResult = tfcPlugin.getTaxCalculation(taxReqObj, subsidiaryClientProfileID);
+														
+														// call function to create AFC Call Log records
+														libraryModule.createAFCCallLogRecords(currentRecordID, taxReqObj, taxResult);
+														
+														// call function to delete existing Calculated Taxes records
+														libraryModule.deleteCalculatedTaxes(currentRecordID);
+														
+														// declare and initialize variables
+														var totalTaxes = 0;
+														var linesToUpdate = new Array();
+														var errorMessages = '';
+														var taxSummary = {};
+														
+														//Check the result of the call to the plugin
+														//
+														if(taxResult != null && taxResult.httpResponseCode == '200')
 															{
-																// get the errors
-																var errors = invoices[i]['err'];
-																		
-																// have we got any errors?
-																if (errors)
-																	{
-																		// process errors
-																		for (var int2 = 0; int2 < errors.length; int2++)
-																			{
-																				log.error({
-																					title: 'Error Returned by Avalara',
-																					details: errors[int2].msg
-																				});
-																				
-																				// add the error to the errorMessages string
-																				errorMessages += errors[int2].msg;
-																				errorMessages += '<br>';
-																			}
-																	}
+																// call functions to return the tax categories, levels and types
+																var taxCategories 	= libraryModule.getTaxCategories();
+																var taxLevels		= libraryModule.getTaxLevels();
+																var taxTypes		= libraryModule.getTaxTypes();
 																
-																// get the items
-																var items = invoices[i]['itms'];
+																// get the API response body
+																var taxResultDetails = taxResult.apiResponse;
+																
+																// get the invoices
+																var invoices = taxResultDetails['inv'];
 																		
-																// do we have any items
-																if (items)
+																// loop through invoices
+																for (var i = 0; i < invoices.length; i++)
 																	{
-																		// loop through items
-																		for (var y = 0; y < items.length; y++)
+																		// get the errors
+																		var errors = invoices[i]['err'];
+																				
+																		// have we got any errors?
+																		if (errors)
 																			{
-																				// get the errors
-																				var errors = items[y]['err'];
-																							
-																				// have we got any errors
-																				if (errors)
+																				// process errors
+																				for (var int2 = 0; int2 < errors.length; int2++)
 																					{
-																						// process errors
-																						for (var int3 = 0; int3 < errors.length; int3++)
-																							{
-																								log.error({
-																									title: 'Error Returned by Avalara',
-																									details: errors[int3].msg
-																								});
-																											
-																								// add the error to the errorMessages string
-																								errorMessages += errors[int3].msg;
-																								errorMessages += '<br>';
-																							}
-																					}
-																				else
-																					{
-																						// get the line number
-																						var lineNumber = items[y].ref;
+																						log.error({
+																							title: 'Error Returned by Avalara',
+																							details: errors[int2].msg
+																						});
 																						
-																						// push the line number to the linesToUpdate array
-																						linesToUpdate.push(lineNumber);	
+																						// add the error to the errorMessages string
+																						errorMessages += errors[int2].msg;
+																						errorMessages += '<br>';
+																					}
+																			}
+																		
+																		// get the items
+																		var items = invoices[i]['itms'];
+																				
+																		// do we have any items
+																		if (items)
+																			{
+																				// loop through items
+																				for (var y = 0; y < items.length; y++)
+																					{
+																						// get the errors
+																						var errors = items[y]['err'];
 																									
-																						// get the taxes
-																						var taxes = items[y]['txs'];
-																								
-																						// do we have any taxes
-																						if (taxes)
+																						// have we got any errors
+																						if (errors)
 																							{
-																								// loop through taxes
-																								for (var z = 0; z < taxes.length; z++)
+																								// process errors
+																								for (var int3 = 0; int3 < errors.length; int3++)
 																									{
-																										// get the tax name, tax category, tax level, tax type and tax amount
-																										var taxName		= 	taxes[z].name;
-																										var taxCategory	=	libraryModule.getTaxCategory(taxCategories, taxes[z].cid);
-																										var taxLevel	=	libraryModule.getTaxLevel(taxLevels, taxes[z].lvl);
-																										var taxType		=	libraryModule.getTaxType(taxTypes, taxes[z].tid);
-																										var taxAmount	= 	parseFloat(taxes[z].tax);
-																												
-																										// build up the key for the summary
-																										// taxName + taxLevel
-																										var key = libraryModule.padding_left(taxName, '0', 6) + 
-																										libraryModule.padding_left(taxLevel.name, '0', 6);
-																												
-																										// does the taxName exist in the tax summary, if not create a new entry
-																										if (!taxSummary[key])
-																											{
-																												taxSummary[key] = new libraryModule.libTaxSummaryObj(taxName, taxLevel.name);
-																											}
-																													
-																										// update the tax amount in the summary
-																										taxSummary[key].taxAmount += taxAmount;
-																												
-																										// now we have done all summarising, we need to generate the output format
-																										var outputArray = null;
-																										outputArray = [];
-					
-																										// sort outputSummary
-																										const sortedSummary = {};
-																								                  
-																										for (key in sortedSummary)
-																											{
-																												delete sortedSummary[key]
-																											}
-																											      
-																										Object.keys(taxSummary).sort().forEach(function(key) {
-																											sortedSummary[key] = taxSummary[key];
+																										log.error({
+																											title: 'Error Returned by Avalara',
+																											details: errors[int3].msg
 																										});
-																											      
-																										// loop through the summaries
-																										for (var key in sortedSummary)
-																											{
-																												// push a new instance of the output summary object onto the output array
-																												outputArray.push(new libraryModule.libOutputSummary(
-																																										taxSummary[key].taxName,
-																																										taxSummary[key].taxLevel,
-																																										taxSummary[key].taxAmount
-																																									)
-																																);
-																											}
+																													
+																										// add the error to the errorMessages string
+																										errorMessages += errors[int3].msg;
+																										errorMessages += '<br>';
+																									}
+																							}
+																						else
+																							{
+																								// get the line number
+																								var lineNumber = items[y].ref;
+																								
+																								// push the line number to the linesToUpdate array
+																								linesToUpdate.push(lineNumber);	
+																											
+																								// get the taxes
+																								var taxes = items[y]['txs'];
 																										
-																										// add the tax amount to the totalTaxes variable
-																										totalTaxes += taxAmount;
+																								// do we have any taxes
+																								if (taxes)
+																									{
+																										// loop through taxes
+																										for (var z = 0; z < taxes.length; z++)
+																											{
+																												// get the tax name, tax category, tax level, tax type and tax amount
+																												var taxName		= 	taxes[z].name;
+																												var taxCategory	=	libraryModule.getTaxCategory(taxCategories, taxes[z].cid);
+																												var taxLevel	=	libraryModule.getTaxLevel(taxLevels, taxes[z].lvl);
+																												var taxType		=	libraryModule.getTaxType(taxTypes, taxes[z].tid);
+																												var taxAmount	= 	parseFloat(taxes[z].tax);
+																														
+																												// build up the key for the summary
+																												// taxName + taxLevel
+																												var key = libraryModule.padding_left(taxName, '0', 6) + 
+																												libraryModule.padding_left(taxLevel.name, '0', 6);
+																														
+																												// does the taxName exist in the tax summary, if not create a new entry
+																												if (!taxSummary[key])
+																													{
+																														taxSummary[key] = new libraryModule.libTaxSummaryObj(taxName, taxLevel.name);
+																													}
+																															
+																												// update the tax amount in the summary
+																												taxSummary[key].taxAmount += taxAmount;
+																														
+																												// now we have done all summarising, we need to generate the output format
+																												var outputArray = null;
+																												outputArray = [];
+							
+																												// sort outputSummary
+																												const sortedSummary = {};
+																										                  
+																												for (key in sortedSummary)
+																													{
+																														delete sortedSummary[key]
+																													}
+																													      
+																												Object.keys(taxSummary).sort().forEach(function(key) {
+																													sortedSummary[key] = taxSummary[key];
+																												});
+																													      
+																												// loop through the summaries
+																												for (var key in sortedSummary)
+																													{
+																														// push a new instance of the output summary object onto the output array
+																														outputArray.push(new libraryModule.libOutputSummary(
+																																												taxSummary[key].taxName,
+																																												taxSummary[key].taxLevel,
+																																												taxSummary[key].taxAmount
+																																											)
+																																		);
+																													}
 																												
-																										// call function to create a new Calculated Taxes record
-																										libraryModule.createCalculatedTaxes(currentRecordID, lineNumber, taxes[z], taxCategory.internalID, taxLevel.internalID, taxType.internalID);
+																												// add the tax amount to the totalTaxes variable
+																												totalTaxes += taxAmount;
+																														
+																												// call function to create a new Calculated Taxes record
+																												libraryModule.createCalculatedTaxes(currentRecordID, lineNumber, taxes[z], taxCategory.internalID, taxLevel.internalID, taxType.internalID);
+																											}
 																									}
 																							}
 																					}
 																			}
-																	}
+																}
+															
 														}
-													
-												}
-											else
-												{	
-													// add the response code and api response to the error messages
-													errorMessages += 'httpResponseCode: ' + taxResult.httpResponseCode;
-													errorMessages += '<br>';
-													errorMessages += 'responseMessage: ' + taxResult.responseMessage;
-												}
-												
-											// call function to update the tax total on the record
-											libraryModule.updateTaxTotal(currentRecordType, currentRecordID, linesToUpdate, errorMessages, outputArray, totalTaxes);	
-												
+													else
+														{	
+															// add the response code and api response to the error messages
+															errorMessages += 'httpResponseCode: ' + taxResult.httpResponseCode;
+															errorMessages += '<br>';
+															errorMessages += 'responseMessage: ' + taxResult.responseMessage;
+														}
+														
+													// call function to update the tax total on the record
+													libraryModule.updateTaxTotal(currentRecordType, currentRecordID, linesToUpdate, errorMessages, outputArray, totalTaxes);	
+											}
 										}
 									}
 								}
-							catch(err)
-								{
-									log.error({
-										title:	'Error calling plugin',
-										details:	err
-									});
-								}
+						catch(err)
+							{
+								log.error({
+									title:	'Error calling plugin',
+									details:	err
+								});
+							}
 					}
 		    }
 	

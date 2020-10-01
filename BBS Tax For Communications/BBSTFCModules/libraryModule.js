@@ -175,6 +175,7 @@ function(record, config, runtime, search, plugin, format)
 			this.taxCustomAddressIdFrom		= '';
 			this.subsidiariesEnabled		= [];
 			this.pCode						= '';
+			this.maxTaxLinesToProcess		= '';
 		}
 	
 	//Generic response from api object

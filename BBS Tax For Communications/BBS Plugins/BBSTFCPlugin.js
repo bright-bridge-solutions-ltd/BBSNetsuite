@@ -328,7 +328,8 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 					      search.createColumn({name: "custrecord_bbstfc_config_custom_type", label: "Custom Address Record Type"}),
 					      search.createColumn({name: "custrecord_bbstfc_custom_source_from", label: "Source From"}),
 					      search.createColumn({name: "custrecord_bbstfc_config_subsidiaries", label: "Subsidiaries"}),
-					      search.createColumn({name: "custrecord_bbstfc_address_p_code", label: "P Code"})
+					     // search.createColumn({name: "custrecord_bbstfc_address_p_code", label: "P Code"}),
+					      search.createColumn({name: "custrecord_bbstfc_config_max_tax", label: "Max Tax Codes To Process"})
 					   ]
 					}));
 				
@@ -356,7 +357,8 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 									break;
 							}
 						
-						config.pCode						= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_address_p_code'});
+						config.maxTaxLinesToProcess			= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_config_max_tax'});
+						//config.pCode						= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_address_p_code'});
 						config.subsidiariesEnabled			= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_config_subsidiaries'}).split(',');
 						config.taxCalculationAddress		= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_address_type'});
 						config.taxCustomAddressRecType		= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_config_custom_type'});
