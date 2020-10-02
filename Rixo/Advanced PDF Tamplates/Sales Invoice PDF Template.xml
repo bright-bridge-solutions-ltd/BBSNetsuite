@@ -12,7 +12,7 @@
     </tr>
     <!--<tr><td>&nbsp;</td></tr>-->
     <tr>
-	<td><span style="font-size:24px;">Order Confirmation</span></td>
+	<td><span style="font-size:24px;">Invoice</span></td>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
 	</tr>
@@ -41,25 +41,31 @@
 	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
 	</tr>
 	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Number</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Number</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
     </tr>
 	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
     </tr>
     <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Customer Reference</b></td><td align="right" style="font-size:10pt">${record.otherrefnum}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Sales Order</b></td><td align="right" style="font-size:10pt">${record.createdfrom.tranid}</td>
     </tr>
     <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Joor Order Number</b></td><td align="right" style="font-size:10pt">${record.custbody_bbs_joor_so_number}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Terms</b></td><td align="right" style="font-size:10pt">${record.terms}</td>
     </tr>
     <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Status</b></td><td align="right" style="font-size:10pt">${record.status}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Notes</b></td><td align="right" style="font-size:10pt">&nbsp;</td>
     </tr>
-    <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Ship With</b></td><td align="right" style="font-size:10pt">${record.custbody_bbs_shipping_method}</td>
+ 	<tr>
+	<td class="address">&nbsp;</td><td rowspan="4" colspan="2" class="address">${record.memo}</td>
     </tr>
-    <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Delivery Window</b></td><td align="right" style="font-size:10pt">${record.custbody_bbs_whole_window_opening_date}<br/>${record.custbody_bbs_whole_window_closing_date}</td>
+  	<tr>
+	<td class="address">&nbsp;</td>
+    </tr>
+   	<tr>
+	<td class="address">&nbsp;</td>
+    </tr>
+  	<tr>
+	<td class="address">&nbsp;</td>
     </tr>
   </table>
         </macro>
@@ -67,14 +73,15 @@
         <macro id="nlfooter">
 
         <table style="width: 100%;">
-          <tr><td>Bank Details for payments in ${record.currency}:</td></tr>
-          <tr><td>Bank Name: ${record.custbody_bbs_bank_account_name}</td></tr>
-          <tr><td>Account Number: ${record.custbody_bbs_bank_account_number}</td></tr>
-          <tr><td>Sort Code: ${record.custbody_bbs_bank_sort_code}</td></tr>
-          <tr><td>IBAN: ${record.custbody_bbs_bank_iban}</td></tr>
-          <tr><td>BIC: ${record.custbody_bbs_bank_bic}</td></tr>
-          <tr><td>Swift Code: ${record.custbody_bbs_bank_swift}</td></tr>
-          <tr><td>&nbsp;</td></tr>
+        <tr><td><b>Due Date: ${record.duedate?string["dd MMM yyyy"]}</b></td></tr>
+        <tr><td>Bank Details for payments in ${record.currency}:</td></tr>
+   		<tr><td>Bank Name: ${record.custbody_bbs_bank_account_name}</td></tr>
+        <tr><td>Account Number: ${record.custbody_bbs_bank_account_number}</td></tr>
+        <tr><td>Sort Code: ${record.custbody_bbs_bank_sort_code}</td></tr>
+        <tr><td>IBAN: ${record.custbody_bbs_bank_iban}</td></tr>
+        <tr><td>BIC: ${record.custbody_bbs_bank_bic}</td></tr>
+        <tr><td>Swift Code: ${record.custbody_bbs_bank_swift}</td></tr>
+        <tr><td>&nbsp;</td></tr>
         </table>
 
        <table style="width: 100%;">
@@ -202,7 +209,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="370px" footer="nlfooter" footer-height="120px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="370px" footer="nlfooter" footer-height="125px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
     
 <#if record.item?has_content>
 
