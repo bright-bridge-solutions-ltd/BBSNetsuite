@@ -166,9 +166,6 @@ function(helloSignLibrary, record, render) {
 		    							// call function to make the API call to send the signature request
 										var sendSignatureRequest = helloSignLibrary.sendSignatureRequest(sendSignatureRequestObj);
 										
-										// call function to create HelloSign recipients records
-		    							helloSignLibrary.createHellosignRecipientRecords(currentRecord.id, sendSignatureRequestObj.signers);
-										
 										// call function to delete the unsigned contract file
 										helloSignLibrary.deleteUnsignedFile(fileID);
 										
@@ -179,6 +176,9 @@ function(helloSignLibrary, record, render) {
 										// check the result of the API call
 										if (sendSignatureRequest != null && sendSignatureRequest.httpResponseCode == '200')
 											{
+												// call function to create HelloSign recipients records
+			    								helloSignLibrary.createHellosignRecipientRecords(currentRecord.id, sendSignatureRequestObj.signers);
+											
 												// get the signature request ID
 												signatureRequestID = sendSignatureRequest.apiResponse.signature_request.signature_request_id;
 											}
