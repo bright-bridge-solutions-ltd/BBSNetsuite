@@ -38,8 +38,10 @@ function(file, record, search, http, xml, format, runtime)
 	        		var tranId	 			= '';
 	        		var xmlString 			= '';
 	        		var itemsArray			= [];
-	        		var shippingCarriers	= getShippingCarriers();
+	        		var shippingCarriers	= getShippingCarriers();	//Get a list of the carriers available
 	        		var manufacturersObject	= {};
+	        		var itemDataArray 		= getItemDataInfo();		//Get all the item information up front so we don't have to look them up for each line
+	        		
 	        		
 	        		//Load the item fulfilment (10GU's)
 	        		//
@@ -69,20 +71,20 @@ function(file, record, search, http, xml, format, runtime)
 	        				
 	        				// get value of the 'Created PO' field from the first item line of lines on the fulfilment
 	        				var dropShipPO = fulfilmentRecord.getSublistValue({
-	        					sublistId: 'item',
-	        					fieldId: 'createdpo',
-	        					line: 0
-	        				});
+													        					sublistId: 	'item',
+													        					fieldId: 	'createdpo',
+													        					line: 		0
+													        					});
 	        				
 	        				// if we have a drop ship PO
 	        				if (dropShipPO)
 	        					{
 	        						// lookup fields on the PO record (1Gu's)
 	        						supplierID = search.lookupFields({
-	        							type: search.Type.PURCHASE_ORDER,
-	        							id: dropShipPO,
-	        							columns: ['entity']
-	        						}).entity[0].value;
+								        							type: 		search.Type.PURCHASE_ORDER,
+								        							id: 		dropShipPO,
+								        							columns: 	['entity']
+								        							}).entity[0].value;
 	        					}
 	        				
 	        				// if we have a customer ID
@@ -117,16 +119,16 @@ function(file, record, search, http, xml, format, runtime)
 					        				if (createdFromType == 'Sales Order')
 					        					{					        			
 							        				transactionRecord = record.load({
-							        					type:		record.Type.SALES_ORDER,
-														id:			createdFromID
-													});
+														        					type:		record.Type.SALES_ORDER,
+																					id:			createdFromID
+																					});
 					        					}
 					        				else if (createdFromType == 'Transfer Order')
 					        					{
 						        					transactionRecord = record.load({
-														type:		record.Type.TRANSFER_ORDER,
-														id:			createdFromID
-													});
+																					type:		record.Type.TRANSFER_ORDER,
+																					id:			createdFromID
+																					});
 					        					}
 					        			}
 					        		catch(err)
@@ -150,29 +152,55 @@ function(file, record, search, http, xml, format, runtime)
 						        			
 						        			if (createdFromType == 'Transfer Order')
 						        				{
+						        					/*
 						        					//Read the location info (1GU's)
 						        					var locationLookup = search.lookupFields({
-						        						type: search.Type.LOCATION,
-						        						id: fulfilmentRecord.getValue({fieldId: 'transferlocation'}),
-						        						columns: ['custrecord_bbs_location_email', 'custrecord_bbs_location_phone']
-						        					});
-						        				
-						        					var customerFullName 		= isNull(fulfilmentRecord.getText({fieldId: 'transferlocation'}),'');
+															        						type: 		search.Type.LOCATION,
+															        						id: 		fulfilmentRecord.getValue({fieldId: 'transferlocation'}),
+															        						columns: 	['custrecord_bbs_location_email', 'custrecord_bbs_location_phone']
+						        															});
+						        					
 						        					var customerEmail 			= locationLookup.custrecord_bbs_location_email;
 						        					var customerPhone 			= locationLookup.custrecord_bbs_location_phone;
 								        			var customerMobile 			= locationLookup.custrecord_bbs_location_phone;
-								        			var customerNumber			= isNull(fulfilmentRecord.getText({fieldId: 'transferlocation'}),'');
+								        			*/
 						        				
+						        					//Read in the location record
+						        					//
+						        					var locationRecord = record.load({
+															        					type:		record.Type.LOCATION,
+																						id:			fulfilmentRecord.getValue({fieldId: 'transferlocation'})
+																						});
+						        					
+						        					var customerFullName 		= isNull(fulfilmentRecord.getText({fieldId: 'transferlocation'}),'');
+
+								        			var customerEmail 			= isNull(locationRecord.getValue({fieldId: 'custrecord_bbs_location_email'}),'');
+						        					var customerPhone 			= isNull(locationRecord.getValue({fieldId: 'custrecord_bbs_location_phone'}),'');
+								        			var customerMobile 			= isNull(locationRecord.getValue({fieldId: 'custrecord_bbs_location_phone'}),'');
+								        			
+								        			var customerNumber			= isNull(fulfilmentRecord.getText({fieldId: 'transferlocation'}),'');						        				
 						        					var salesOrderChannel 		= 'Transfer';
 						        					var salesOrderShopify 		= isNull(transactionRecord.getValue({fieldId: 'tranid'}),'');
 						        					var salesOrderCustRef		= isNull(transactionRecord.getValue({fieldId: 'tranid'}),'');
 						        					var salesOrderTax			= Number(0).toFixed(2);
 								        			var salesOrderDiscount		= Number(0).toFixed(2);
 								        			var salesOrderDiscountCode	= '';
+								        			
+								        			//Additional code to get the billing address, which in this case is the location address
+								        			//
+								        			var salesOrderBillingAdress	= isNull(locationRecord.getSubrecord({fieldId: 'mainaddress'}),'');
+								        			var salesOrderAddr1			= isNull(salesOrderBillingAdress.getValue({fieldId: 'addr1'}),'');
+								        			var salesOrderAddr2			= isNull(salesOrderBillingAdress.getValue({fieldId: 'addr2'}),'');
+								        			var salesOrderAddr3			= isNull(salesOrderBillingAdress.getValue({fieldId: 'addr3'}),'');
+								        			var salesOrderCity			= isNull(salesOrderBillingAdress.getValue({fieldId: 'city'}),'');
+								        			var salesOrderState			= isNull(salesOrderBillingAdress.getValue({fieldId: 'state'}),'');
+								        			var salesOrderZip			= isNull(salesOrderBillingAdress.getValue({fieldId: 'zip'}),'');
+								        			var salesOrderCountry		= isNull(countries_list[salesOrderBillingAdress.getValue({fieldId: 'country'})],'');
+								        			
 						        				}
 						        			else if (createdFromType == 'Sales Order')
 						        				{
-						        					var customerCompanyName			= isNull(customerRecord.getValue({fieldId: 'companyname'}),'');
+						        					var customerCompanyName		= isNull(customerRecord.getValue({fieldId: 'companyname'}),'');
 						        					var customerFirstName 		= isNull(customerRecord.getValue({fieldId: 'firstname'}),'');
 								        			var customerLastName 		= isNull(customerRecord.getValue({fieldId: 'lastname'}),'');
 								        			var customerFullName 		= (customerFirstName + ' ' + customerLastName).trim();
@@ -191,6 +219,18 @@ function(file, record, search, http, xml, format, runtime)
 								        			var salesOrderTax			= Number(transactionRecord.getValue({fieldId: 'taxtotal'})).toFixed(2);
 								        			var salesOrderDiscount		= Math.abs(Number(transactionRecord.getValue({fieldId: 'discounttotal'}))).toFixed(2);
 								        			var salesOrderDiscountCode	= isNull(transactionRecord.getText({fieldId: 'discountitem'}),'');
+								        			
+								        			//Additional code to get the billing address from the sales order
+								        			//
+								        			var salesOrderBillingAdress		= isNull(transactionRecord.getSubrecord({fieldId: 'billingaddress'}),'');
+								        			var salesOrderAddr1				= isNull(salesOrderBillingAdress.getValue({fieldId: 'addr1'}),'');
+								        			var salesOrderAddr2				= isNull(salesOrderBillingAdress.getValue({fieldId: 'addr2'}),'');
+								        			var salesOrderAddr3				= isNull(salesOrderBillingAdress.getValue({fieldId: 'addr3'}),'');
+								        			var salesOrderCity				= isNull(salesOrderBillingAdress.getValue({fieldId: 'city'}),'');
+								        			var salesOrderState				= isNull(salesOrderBillingAdress.getValue({fieldId: 'state'}),'');
+								        			var salesOrderZip				= isNull(salesOrderBillingAdress.getValue({fieldId: 'zip'}),'');
+								        			var salesOrderCountry			= isNull(countries_list[salesOrderBillingAdress.getValue({fieldId: 'country'})],'');
+								        			
 						        				}
 						        			
 						        			var fulfilmentShippingCost		= Number(fulfilmentRecord.getValue({fieldId: 'shippingcost'})).toFixed(2);
@@ -231,6 +271,15 @@ function(file, record, search, http, xml, format, runtime)
 					        				xmlString += '<TaxPaid>' 					+ xml.escape({xmlText: salesOrderTax}) 								+ '</TaxPaid>\n';
 					        				xmlString += '<CreatedDate>' 				+ xml.escape({xmlText: fulfilmentDate}) 							+ '</CreatedDate>\n';
 					        				xmlString += '<ChannelName>' 				+ xml.escape({xmlText: salesOrderChannel}) 							+ '</ChannelName>\n';
+					        				
+					        				xmlString += '<InvoiceAddressCustomerName>'	+ xml.escape({xmlText: customerFullName.substring(0,35)}) 			+ '</InvoiceAddressCustomerName>\n';
+					        				xmlString += '<InvoiceAddressLine1>' 		+ xml.escape({xmlText: salesOrderAddr1.substring(0,35)}) 			+ '</InvoiceAddressLine1>\n';
+					        				xmlString += '<InvoiceAddressLine2>' 		+ xml.escape({xmlText: salesOrderAddr2.substring(0,35)}) 			+ '</InvoiceAddressLine2>\n';
+					        				xmlString += '<InvoiceAddressTownCity>' 	+ xml.escape({xmlText: salesOrderCity.substring(0,35)}) 			+ '</InvoiceAddressTownCity>\n';
+					        				xmlString += '<InvoiceAddressRegion>' 		+ xml.escape({xmlText: salesOrderState.substring(0,35)}) 			+ '</InvoiceAddressRegion>\n';
+					        				xmlString += '<InvoiceAddressPostCode>' 	+ xml.escape({xmlText: salesOrderZip}) 								+ '</InvoiceAddressPostCode>\n';
+					        				xmlString += '<InvoiceAddressCountry>' 		+ xml.escape({xmlText: salesOrderCountry.substring(0,35)}) 				+ '</InvoiceAddressCountry>\n';
+					        			
 					        				xmlString += '<ShippingAddressLine1>' 		+ xml.escape({xmlText: fulfilmentAddr1.substring(0,35)}) 			+ '</ShippingAddressLine1>\n';
 					        				xmlString += '<ShippingAddressLine2>' 		+ xml.escape({xmlText: fulfilmentAddr2.substring(0,35)}) 			+ '</ShippingAddressLine2>\n';
 					        				xmlString += '<ShippingAddressTownCity>' 	+ xml.escape({xmlText: fulfilmentCity.substring(0,35)}) 			+ '</ShippingAddressTownCity>\n';
@@ -261,14 +310,14 @@ function(file, record, search, http, xml, format, runtime)
 						        					var itemQuantity		= Number(fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: items}));
 						        					var itemPackages		= getPackages(fulfilmentRecord, items);
 						        					var itemSoLine			= Number(fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'orderline', line: items}));
-						        					var itemUnitWeight		= getItemWeightInKilos(itemId);
+						        					var itemUnitWeight		= getItemWeightInKilos(itemId, itemDataArray);
 						        					var itemSoRate			= Number(0);
 						        					var itemSoCost			= Number(0);
 						        					var itemSoVat			= Number(0);
 						        					
 						        					//Get additional info from the item record (commodity code, country of manufacture, item group name & prefered supplier address)
 						        					//
-						        					var itemAdditionalDetails = getItemAdditionalDetails(itemId, itemType, countries_list);
+						        					var itemAdditionalDetails = getItemAdditionalDetails(itemId, itemType, countries_list, itemDataArray);
 						        					
 						        					//Save any manufacturers address
 						        					//
@@ -494,23 +543,25 @@ function(file, record, search, http, xml, format, runtime)
 					        					{
 						        					// load the IF record (10GU's)
 					        						var fulfilmentRecord = record.load({
-					        							type: record.Type.ITEM_FULFILLMENT,
-					        							id: recordID
-					        						});
+													        							type: 	record.Type.ITEM_FULFILLMENT,
+													        							id: 	recordID
+													        							});
 					        						
 					        						// set fields on the IF record
 					        						fulfilmentRecord.setValue({
-					        							fieldId: 'shipstatus',
-					        							value: 'C' // C = Shipped
-					        						});
+											        							fieldId: 	'shipstatus',
+											        							value: 		'C' // C = Shipped
+											        							});
 					        						
 					        						fulfilmentRecord.setValue({
-					        							fieldId: 'custbody_bbs_exported_to_shipster',
-					        							value: true
-					        						});
+											        							fieldId: 	'custbody_bbs_exported_to_shipster',
+											        							value: 		true
+											        							});
 					        						
 					        						// save the changes to the IF record (20GU's)
-					        						fulfilmentRecord.save();
+					        						fulfilmentRecord.save({
+					        												ignoreMandatoryFields:	true
+					        												});
 					        					}
 					        				catch(err)
 					        					{
@@ -570,7 +621,7 @@ function(file, record, search, http, xml, format, runtime)
 	    	return itemRecordType;
 	    }
     
-    function getItemAdditionalDetails(_itemId, _itemType, _countries_list)
+    function getItemAdditionalDetails(_itemId, _itemType, _countries_list, _itemDataArray)
     	{
     		var additionalInfoObj 		= null;
     		var itemRecord 				= null;
@@ -585,10 +636,11 @@ function(file, record, search, http, xml, format, runtime)
 			var country 				= '';
 			var displayName				= '';
 			var size					= '';
-				
+			
+			/*
     		try
     			{
-    				//Load th eitem record (5GU's)
+    				//Load the item record (5GU's)
 	    			itemRecord = record.load({
 												type:		getItemRecordType(_itemType),
 												id:			_itemId
@@ -687,14 +739,71 @@ function(file, record, search, http, xml, format, runtime)
     													size,
     													new addressObject(addr1, addr2, city, state, zip, country)
     													); 
+    		
+    		*/
     	
+			try
+				{
+					commodityCode 			= _itemDataArray[_itemId].itemCommodityCode;
+					countryOfManufacture	= _itemDataArray[_itemId].itemManuCountry;
+					groupName				= _itemDataArray[_itemId].item01Cat;
+					displayName				= _itemDataArray[_itemId].itemDisplayName;
+					size					= _itemDataArray[_itemId].item05Size;
+					addr1					= _itemDataArray[_itemId].itemSuppAddr1;
+					addr2					= _itemDataArray[_itemId].itemSuppAddr2;
+					city					= _itemDataArray[_itemId].itemSuppCity;
+					state					= _itemDataArray[_itemId].itemSuppCounty;
+					zip						= _itemDataArray[_itemId].itemSuppPostCode;
+					country					= _itemDataArray[_itemId].itemSuppCountry;
+					
+					if(countryOfManufacture != null && countryOfManufacture != '')
+		    			{
+							countryOfManufacture = _countries_list[countryOfManufacture];
+		    			}
+					
+					if(country != null && country != '')
+		    			{
+							country = _countries_list[country];
+		    			}
+				}
+			catch(err)
+				{
+				
+				}
+			
+			additionalInfoObj = new itemAdditionalInfo(
+														commodityCode, 
+														countryOfManufacture, 
+														groupName,
+														displayName,
+														size,
+														new addressObject(addr1, addr2, city, state, zip, country)
+														); 
     		return additionalInfoObj;
     	}
     
-    function getItemWeightInKilos(_itemId)
+    function getItemWeightInKilos(_itemId, _itemDataArray)
     	{
-    		var weightInKg = 0;
-    	
+    		var weightInKg 		= 0;
+    		var itemWeightUnit 	= null;
+    		var itemWeight		= 0;
+    		
+    		try
+    			{
+    				weightInKg 		= Number(_itemDataArray[_itemId].itemWeight);
+    				itemWeightUnit 	= Number(_itemDataArray[_itemId].itemWeightUnit);
+    			}
+    		catch(err)
+    			{
+    				itemWeight		= 0;
+    				itemWeightUnit 	= null;
+    				
+    				log.error({
+		    			 		title: 'Error Retrieving Item Weight',
+		    			 		details: err
+    			 			});
+    			}
+    		/*
     		//Get the item weight (1GU's)
     		var searchResult = search.lookupFields({
 	    											type:		search.Type.ITEM,
@@ -703,7 +812,7 @@ function(file, record, search, http, xml, format, runtime)
 	    											});
     		
     		var itemWeight 		= Number(searchResult.weight);
-    		var itemWeightUnit 	= null;
+    		
     		
     		try
     			{
@@ -713,6 +822,7 @@ function(file, record, search, http, xml, format, runtime)
     			{
     				itemWeightUnit 	= null;
     			}
+    		*/
     		
     		switch(itemWeightUnit)
     			{
@@ -803,6 +913,150 @@ function(file, record, search, http, xml, format, runtime)
 	    	return shipppingItemObj;
     	}
     
+    function getItemDataInfo()
+    	{
+    		var itemData = {};
+    		    		
+    		var itemSearchObj = getResults(search.create({
+    			   type: "item",
+    			   filters:
+    			   [
+    			   ],
+    			   columns:
+    			   [
+    			      search.createColumn({
+    			         name: "itemid",
+    			         sort: search.Sort.ASC,
+    			         label: "Name"
+    			      }),
+    			      search.createColumn({name: "internalid", label: "Internal ID"}),
+    			      search.createColumn({name: "custitem_commodity_code", label: "Commodity Code"}),
+    			      search.createColumn({name: "countryofmanufacture", label: "Manufacturer Country"}),
+    			      search.createColumn({name: "displayname", label: "Display Name"}),
+    			      search.createColumn({name: "weight", label: "Weight"}),
+    			      search.createColumn({name: "weightunit", label: "Weight Units"}),
+    			      search.createColumn({name: "custitem_bbs_matrix_cat", label: "01-CAT"}),
+    			      search.createColumn({name: "custitem_bbs_matrix_size", label: "05-Size"}),
+    			      search.createColumn({
+    			         name: "entityid",
+    			         join: "preferredVendor",
+    			         label: "Preferred Supplier Name"
+    			      }),
+    			      search.createColumn({
+    			         name: "billaddress1",
+    			         join: "preferredVendor",
+    			         label: "Billing Address 1"
+    			      }),
+    			      search.createColumn({
+    			         name: "billaddress2",
+    			         join: "preferredVendor",
+    			         label: "Billing Address 2"
+    			      }),
+    			      search.createColumn({
+    			         name: "billaddress3",
+    			         join: "preferredVendor",
+    			         label: "Billing Address 3"
+    			      }),
+    			      search.createColumn({
+    			         name: "billcity",
+    			         join: "preferredVendor",
+    			         label: "Billing City"
+    			      }),
+    			      search.createColumn({
+    			         name: "billcountry",
+    			         join: "preferredVendor",
+    			         label: "Billing Country"
+    			      }),
+    			      search.createColumn({
+    			         name: "billzipcode",
+    			         join: "preferredVendor",
+    			         label: "Billing Zip"
+    			      }),
+    			      search.createColumn({
+    			         name: "billstate",
+    			         join: "preferredVendor",
+    			         label: "Billing State/Province"
+    			      }),
+    			      search.createColumn({
+    			         name: "billcountrycode",
+    			         join: "preferredVendor",
+    			         label: "Billing Country Code"
+    			      }),
+    			      search.createColumn({
+    			          name: "shipaddress1",
+    			          join: "preferredVendor",
+    			          label: "Shipping Address 1"
+    			       }),
+    			       search.createColumn({
+    			          name: "shipaddress2",
+    			          join: "preferredVendor",
+    			          label: "Shipping Address 2"
+    			       }),
+    			       search.createColumn({
+    			          name: "shipaddress3",
+    			          join: "preferredVendor",
+    			          label: "Shipping Address 3"
+    			       }),
+    			       search.createColumn({
+    			          name: "shipcity",
+    			          join: "preferredVendor",
+    			          label: "Shipping City"
+    			       }),
+    			       search.createColumn({
+    			          name: "shipcountry",
+    			          join: "preferredVendor",
+    			          label: "Shipping Country"
+    			       }),
+    			       search.createColumn({
+    			          name: "shipcountrycode",
+    			          join: "preferredVendor",
+    			          label: "Shipping Country Code"
+    			       }),
+    			       search.createColumn({
+    			          name: "shipstate",
+    			          join: "preferredVendor",
+    			          label: "Shipping State/Province"
+    			       }),
+    			       search.createColumn({
+    			          name: "shipzip",
+    			          join: "preferredVendor",
+    			          label: "Shipping Zip"
+    			       })
+    			   ]
+    			}));
+    			
+    		if(itemSearchObj != null && itemSearchObj.length > 0)
+    			{
+    				for (var itemLoop = 0; itemLoop < itemSearchObj.length; itemLoop++) 
+	    				{
+	    					var itemName	 		= itemSearchObj[itemLoop].getValue({name:	"itemid"});
+	    					var itemInternalId 		= itemSearchObj[itemLoop].getValue({name:	"internalid"});
+	    					var itemCommodityCode	= itemSearchObj[itemLoop].getValue({name:	"custitem_commodity_code"});
+	    					var itemManuCountry		= itemSearchObj[itemLoop].getValue({name:	"countryofmanufacture"});
+	    					var itemDisplayName		= itemSearchObj[itemLoop].getValue({name:	"displayname"});
+	    					var itemWeight			= itemSearchObj[itemLoop].getValue({name:	"weight"});
+	    					var itemWeightUnit 		= itemSearchObj[itemLoop].getValue({name:	"weightunit"});
+	    					var item01Cat			= itemSearchObj[itemLoop].getText({name:	"custitem_bbs_matrix_cat"});
+	    					var item05Size			= itemSearchObj[itemLoop].getText({name:	"custitem_bbs_matrix_size"});
+	    					var itemSuppName 		= itemSearchObj[itemLoop].getValue({name: 	"entityid",			join: "preferredVendor"});
+	    					var itemSuppAddr1		= itemSearchObj[itemLoop].getValue({name: 	"shipaddress1",		join: "preferredVendor"});
+	    					var itemSuppAddr2 		= itemSearchObj[itemLoop].getValue({name:	"shipaddress2",		join: "preferredVendor"});
+	    					var itemSuppAddr3 		= itemSearchObj[itemLoop].getValue({name:	"shipaddress3",		join: "preferredVendor"});
+	    					var itemSuppCity 		= itemSearchObj[itemLoop].getValue({name: 	"shipcity",			join: "preferredVendor"});
+	    					var itemSuppCountry		= itemSearchObj[itemLoop].getValue({name: 	"shipcountry",		join: "preferredVendor"});
+	    					var itemSuppPostCode	= itemSearchObj[itemLoop].getValue({name: 	"shipzip",			join: "preferredVendor"});
+	    					var itemSuppCounty		= itemSearchObj[itemLoop].getValue({name: 	"shipstate",		join: "preferredVendor"});
+	    					var itemSuppCountryCode = itemSearchObj[itemLoop].getValue({name: 	"shipcountrycode",	join: "preferredVendor"});
+							
+	    					itemData[itemInternalId] = new itemDataInfoObj(itemName,itemInternalId,itemCommodityCode,itemManuCountry,itemDisplayName,itemWeight,itemWeightUnit,item01Cat,item05Size,itemSuppName,itemSuppAddr1,itemSuppAddr2,itemSuppAddr3,itemSuppCity,itemSuppCountry,itemSuppPostCode,itemSuppCounty,itemSuppCountryCode );
+						}
+    			} 
+    		
+    		
+    		return itemData;
+    	}
+    
+ 
     function addressObject(_address1, _address2, _town, _county, _postCode, _country)
     	{
 	    	this.address1				= _address1;
@@ -821,6 +1075,28 @@ function(file, record, search, http, xml, format, runtime)
     		this.displayName			= _displayName;
     		this.size					= _size;
     		this.address				= _address;
+    	}
+    
+    function itemDataInfoObj(_itemName,_itemInternalId,_itemCommodityCode,_itemManuCountry,_itemDisplayName,_itemWeight,_itemWeightUnit,_item01Cat,_item05Size,_itemSuppName,_itemSuppAddr1,_itemSuppAddr2,_itemSuppAddr3,_itemSuppCity,_itemSuppCountry,_itemSuppPostCode,_itemSuppCounty,_itemSuppCountryCode )
+    	{
+	    	this.itemName	 			= _itemName;
+	    	this.itemInternalId 		= _itemInternalId;
+	    	this.itemCommodityCode		= _itemCommodityCode;
+	    	this.itemManuCountry		= _itemManuCountry;
+	    	this.itemDisplayName		= _itemDisplayName;
+	    	this.itemWeight				= _itemWeight;
+	    	this.itemWeightUnit 		= _itemWeightUnit;
+	    	this.item01Cat				= _item01Cat;
+	    	this.item05Size				= _item05Size;
+	    	this.itemSuppName 			= _itemSuppName;
+	    	this.itemSuppAddr1			= _itemSuppAddr1;
+	    	this.itemSuppAddr2 			= _itemSuppAddr2;
+	    	this.itemSuppAddr3 			= _itemSuppAddr3;
+	    	this.itemSuppCity 			= _itemSuppCity;
+	    	this.itemSuppCountry		= _itemSuppCountry;
+	    	this.itemSuppPostCode		= _itemSuppPostCode;
+	    	this.itemSuppCounty			= _itemSuppCounty;
+	    	this.itemSuppCountryCode 	= _itemSuppCountryCode;
     	}
     
     function itemInfo(_name, _description, _quantity, _rate, _cost, _packages, _itemUnitWeight, _vat, _commodityCode, _countryOfManufacture, _groupName)
