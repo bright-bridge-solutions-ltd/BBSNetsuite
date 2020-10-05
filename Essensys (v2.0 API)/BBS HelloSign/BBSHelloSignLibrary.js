@@ -625,13 +625,13 @@ function(search, encode, https, render, file, record, url)
 			// get the recipient's email address
 			var recipientEmail = result.getValue({
 				name: 'custrecord_bbs_hellosign_recipientsemail'
-			});
+			}).toLowerCase();
 			
 			// loop through helloSignRecipients array
 			for (var i = 0; i < helloSignRecipients.length; i++)
 				{
 					// get the email address from the helloSignRecipients array
-					var arrayEmail = helloSignRecipients[i].signer_email_address;
+					var arrayEmail = helloSignRecipients[i].signer_email_address.toLowerCase();
 					
 					// if recipientEmail = arrayEmail
 					if (recipientEmail == arrayEmail)

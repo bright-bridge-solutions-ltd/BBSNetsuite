@@ -15,7 +15,7 @@
       			</tr>
       			<tr>
       				<td colspan="2" style="border-left: 1px solid black;"><b>Supplier Code</b></td>
-      				<td colspan="2" style="border-right: 1px solid black;"><b>: </b></td>
+      				<td colspan="2" style="border-right: 1px solid black;"><b>: <span style="color:#FF0000;">TODO</span></b></td>
       			</tr>
       			<tr>
       				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Date</b></td>
@@ -108,7 +108,7 @@
     				<td align="left" colspan="8">${item.item}</td>
     				<td align="left" colspan="20">${item.description}</td>
     				<td align="right" colspan="4">${item.quantity}</td>
-    				<td align="left" colspan="6" style="padding-left: 20px;"></td>
+    				<td align="left" colspan="6" style="padding-left: 20px;"><b><span style="color:#FF0000;">TODO</span></b></td>
     			</tr>
     	</#list>
   	</table>

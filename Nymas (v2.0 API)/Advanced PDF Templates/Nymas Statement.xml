@@ -19,7 +19,7 @@
       			</tr>
       			<tr>
       				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Account No.</b></td>
-      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: </b></td>
+      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${customer.accountnumber}</b></td>
       			</tr>
       		</table>
         </macro>

@@ -19,11 +19,11 @@
       			</tr>
       			<tr>
       				<td colspan="2" style="border-left: 1px solid black;"><b>Your Reference</b></td>
-      				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.otherrefnum}</b></td>
+      				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.createdfrom.custbody_bbs_cust_po_number}</b></td>
       			</tr>
       			<tr>
       				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Sales Order No.</b></td>
-      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${record.createdfrom?replace('Sales Order #', '')}</b></td>
+      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${record.createdfrom?keep_after('#')}</b></td>
       			</tr>
       		</table>
         </macro>
