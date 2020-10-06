@@ -92,8 +92,13 @@ function(helloSignLibrary, record, render) {
 		    		fieldId: 'custbody_bbs_approval_status'
 		    	});
 		    	
-		    	// if the status has changed from 2 (Finance Approval) to 4 (Approved - Pending Signatures)
-		    	if (oldApprovalStatus == 2 && newApprovalStatus == 4)
+		    	// get the value of the HelloSign Is Complete checkbox
+		    	var helloSignIsComplete = currentRecord.getValue({
+		    		fieldId: 'custbody_bbs_hellosign_is_complete'
+		    	});
+		    	
+		    	// if the status has changed from 2 (Finance Approval) to 4 (Approved - Pending Signatures) AND helloSignIsComplete = false
+		    	if (oldApprovalStatus == 2 && newApprovalStatus == 4 && helloSignIsComplete == false)
 		    		{
 		    			// get the configuration
 	    				var configuration = helloSignLibrary.getConfiguration();
