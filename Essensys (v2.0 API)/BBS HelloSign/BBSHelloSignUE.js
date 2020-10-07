@@ -131,7 +131,7 @@ function(helloSignLibrary, record, render) {
 										sendSignatureRequestObj.allow_decline	= configuration.allowDecline;
 										sendSignatureRequestObj.allow_reassign	= configuration.allowReassign;
 										sendSignatureRequestObj.subject			= mergeResult.subject;
-										sendSignatureRequestObj.message			= mergeResult.body;
+										sendSignatureRequestObj.message			= mergeResult.body.replace(/(<([^>]+)>)/gi, ""); // strip HTML tags
 										
 										// call function to generate the PDF
 										var contractPDF = helloSignLibrary.generatePDF(currentRecord.id, configuration.fileCabinetFolderID);
