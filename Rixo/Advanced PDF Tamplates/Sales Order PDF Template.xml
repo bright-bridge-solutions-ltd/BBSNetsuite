@@ -33,7 +33,7 @@
 	</tr>
           </table>
           
-    <table style="width: 100%;">
+    <table style="width: 100%; margin-top: 10px;">
     <tr>
 	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
 	</tr>
@@ -232,6 +232,9 @@
 	</#list><!-- end items --></table>
 </#if>
 
+<div style="page-break-inside: avoid;">
+  
+
 <hr />
 <table class="total" style="width: 100%;"><tr class="totalrow">
 	<td colspan="4">&nbsp;</td>
@@ -256,6 +259,7 @@
 	<tr>
 	<td>&nbsp;</td>
 	</tr></table>
+</div>
 </body>
 </pdf>
 <pdf src="https://5514691.app.netsuite.com/core/media/media.nl?id=5137&amp;c=5514691&amp;h=7d2a9dfda8143a9f5577&amp;_xt=.pdf" />
