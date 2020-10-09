@@ -184,7 +184,7 @@ function(runtime, search, record, render, file) {
 								
 								shippingAddressSubrecord.setValue({
 									fieldId: 'addressee',
-									value: siteName
+									value: null
 								});
 								
 								shippingAddressSubrecord.setValue({

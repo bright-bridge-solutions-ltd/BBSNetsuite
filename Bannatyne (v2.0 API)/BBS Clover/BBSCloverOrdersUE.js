@@ -56,6 +56,12 @@ function(search, runtime) {
 		    			});
 		    		}
 		    	
+		    	// call function to return the tax schedule from the item record
+		    	var taxSchedule = getTaxSchedule(itemID);
+		    	
+		    	// calculate the tax rate
+		    	var taxRate = calculateTaxRate(taxSchedule);
+		    	
 		    	// set the 'Item Record' field
 		    	currentRecord.setValue({
 		    		fieldId: 'custrecord_bbs_clover_item_record',
@@ -80,32 +86,32 @@ function(search, runtime) {
 				    	// if orderDiscount is greater than or equal to 100%
 				    	if (orderDiscount >= 100)
 				    		{
-					    		// set the 'Line Price After Discount' field to 0
-				    			currentRecord.setValue({
-				    				fieldId: 'custrecord_bbs_clover_line_price_disc',
-				    				value: 0
-				    			});
+					    		// set the linePrice to 0
+				    			linePrice = 0;
 				    		}
 				    	else
 				    		{
 				    			// calculate the discount
 				    			orderDiscount = 1 - (orderDiscount / 100);
 				    			
-				    			// set the 'Line Price After Discount' field
-				    			currentRecord.setValue({
-				    				fieldId: 'custrecord_bbs_clover_line_price_disc',
-				    				value: linePrice * orderDiscount
-				    			});
+				    			// subtract the discount from the line price to calculate the line price after discount
+				    			linePrice = parseFloat(linePrice * orderDiscount);
 				    		}
 		    		}
-		    	else
+		    	
+		    	// if taxRate is not 0
+		    	if (taxRate != 0)
 		    		{
-			    		// set the 'Line Price After Discount' field
-		    			currentRecord.setValue({
-		    				fieldId: 'custrecord_bbs_clover_line_price_disc',
-		    				value: linePrice
-		    			});
+			    		// divide line price by taxRate to calculate net amount
+				    	linePrice = parseFloat(linePrice / taxRate);
 		    		}
+		    	
+		    	// set the 'Line Price After Discount' field
+		    	currentRecord.setValue({
+		    		fieldId: 'custrecord_bbs_clover_line_price_disc',
+		    		value: linePrice
+		    	});
+    		
     		}
 
     }
@@ -163,6 +169,57 @@ function(search, runtime) {
     	return itemID;
    
     }
+    
+    // ======================================================
+    // FUNCTION TO LOOKUP THE TAX SCHEDULE ON THE ITEM RECORD
+    // ======================================================
+    
+    function getTaxSchedule(itemID)
+    	{
+    		// lookup fields on the item record
+    		return search.lookupFields({
+    			type: 'item',
+    			id: itemID,
+    			columns: ['taxschedule']
+    		}).taxschedule[0].value;
+    	}
+    
+    // ==================================
+    // FUNCTION TO CALCULATE THE TAX RATE
+    // ==================================
+    
+    function calculateTaxRate(taxScheduleID)
+    	{
+    		// declare and initialize variables
+    		var taxRate = null;
+    	
+    		// switch the tax rate based on the tax schedule ID
+    		switch(taxScheduleID) {
+    		
+    			case '1': // Std in/ Std out
+    				taxRate = 1.20;
+    				break;
+    				
+    			case '2': // Zero in/ Std out
+    				taxRate = 1.20;
+    				break;
+    			
+    			case '5': // Std in/Red out
+    				taxRate = 1.05;
+    				break;
+    			
+    			case '6': // Zero in/Red out
+    				taxRate = 1.05;
+    				break;
+    				
+    			default: // No Match
+    				taxRate = 0;
+    		}
+    		
+    		// return taxRate to main script function
+    		return taxRate;
+ 
+    	}
 
     return {
         beforeSubmit: beforeSubmit

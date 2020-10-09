@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/url'],
-function(url) {
+define(['N/task', 'N/url'],
+function(task, url) {
     
     /**
      * Function to be executed after page is initialized.
@@ -174,11 +174,24 @@ function(url) {
 			// open the 'Suitelet in a new tab/window
 			window.open(suiteletURL, '_blank');
     	}
+    
+    function createCombinedReports()
+    	{
+    		// schedule map/reduce task
+    		var mapReduceTaskID = task.create({
+	    	    taskType: task.TaskType.MAP_REDUCE,
+	    	    scriptId: 'customscript_bbs_combined_reports_mr',
+	    	    deploymentId: 'customdeploy_bbs_combined_reports_mr'
+	    	}).submit();
+    	
+    		alert(mapReduceTaskID);
+    	}
 
     return {
         pageInit: pageInit,
         emailInvoices: emailInvoices,
-        connectFileSync: connectFileSync
+        connectFileSync: connectFileSync,
+        createCombinedReports: createCombinedReports
     };
     
 });

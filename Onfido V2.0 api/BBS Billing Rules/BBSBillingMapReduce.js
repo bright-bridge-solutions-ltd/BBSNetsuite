@@ -879,7 +879,7 @@ function(runtime, search, record, format, task) {
 			var creditLineAmount = 0;
 			var amtToBill;
 	
-			// set the billingType variable to QUR
+			// set the billingType variable to BUR
 			billingType = 'BUR';
 			
 			// load the sales order record
@@ -1103,20 +1103,8 @@ function(runtime, search, record, format, task) {
 			// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
 			var deferredRevAmt = calculateDeferredRev(contractRecord);
 			
-			// check if this is the beginning of a start
-			if (halfStart == true)
-				{
-					// set the value of the calculatedDeferredRevenue variable
-					calculatedDeferredRevenue = (deferredRevAmt + lastPrepaymentAmount - thisMonthUsage);
-				}
-			else // this is NOT the beginning of a half
-				{
-					// set the value of the calculatedDeferredRevenue variable
-					calculatedDeferredRevenue = (deferredRevAmt - thisMonthUsage);
-				}
-			
-			// use parseFloat to convert calculatedDeferredRevenue to a floating point number
-			calculatedDeferredRevenue = parseFloat(calculatedDeferredRevenue);
+			// set the value of the calculatedDeferredRevenue variable
+			calculatedDeferredRevenue = parseFloat(deferredRevAmt - thisMonthUsage);
 			
 			log.audit({
 				title: 'BUR Check',
@@ -1257,51 +1245,21 @@ function(runtime, search, record, format, task) {
 					// check if calculatedDeferredRevenue is less than 0 and thisMonthUsage is greater than 0
 					if (calculatedDeferredRevenue < 0 && thisMonthUsage > 0)
 						{
-							// check if halfStart is true
-							if (halfStart == true)
-								{
-									// check if deferredRevAmt plus lastPrepaymentAmount is greater than 0
-									if ((deferredRevAmt + lastPrepaymentAmount) > 0)
-										{
-											// set the amtToBill variable to be the calculatedDeferredRevenue multiplied by -1 to create a positive number
-											amtToBill = parseFloat(calculatedDeferredRevenue * -1);
-											
-											// check if soSubtotal minus amtToBill is greater than 0
-								    		if ((soSubtotal - amtToBill) > 0)
-								    			{
-									    			// calculate the value of the credit line that needs adding
-								    				var creditLineAmt = parseFloat(soSubtotal - amtToBill);
-								    			
-								    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, minimumUsage and contractRecord
-								    				addCreditLine(soRecord, billingType, creditLineAmt, contractRecord);
-								    			}
-							    			
-							    			// call function to transform the sales order to an invoice. Pass in recordID
-								    		createInvoice(recordID);
-										}
-										
-									// call function to transform the sales order to an invoice. Pass in recordID
-	    	    		    		createInvoice(recordID);
-	    	    		    	}
-	    	    		    // halfStart is false
-	    	    		    else
-	    	    		    	{
-	    	    		    		// set the amtToBill variable to be the calculatedDeferredRevenue multiplied by -1 to create a positive number
-									amtToBill = parseFloat(calculatedDeferredRevenue * -1);
+							// set the amtToBill variable to be the calculatedDeferredRevenue multiplied by -1 to create a positive number
+							amtToBill = parseFloat(calculatedDeferredRevenue * -1);
 								
-									// check if soSubtotal minus amtToBill is greater than 0
-						    		if ((soSubtotal - amtToBill) > 0)
-						    			{
-							    			// calculate the value of the credit line that needs adding
-						    				var creditLineAmt = parseFloat(soSubtotal - amtToBill);
+							// check if soSubtotal minus amtToBill is greater than 0
+						    if ((soSubtotal - amtToBill) > 0)
+						    	{
+							    	// calculate the value of the credit line that needs adding
+						    		var creditLineAmt = parseFloat(soSubtotal - amtToBill);
 						    			
-						    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, minimumUsage and contractRecord
-						    				addCreditLine(soRecord, billingType, creditLineAmt, contractRecord);
-						    			}
+						    		// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, minimumUsage and contractRecord
+						    		addCreditLine(soRecord, billingType, creditLineAmt, contractRecord);
+						    	}
 					    			
-					    			// call function to transform the sales order to an invoice. Pass in recordID
-						    		createInvoice(recordID);
-	    	    		    	}
+					    	// call function to transform the sales order to an invoice. Pass in recordID
+						    createInvoice(recordID);
 						}
 					
 					// check if deferredRevAmt is greater than 0
@@ -1840,20 +1798,8 @@ function(runtime, search, record, format, task) {
 			// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
 			var deferredRevAmt = calculateDeferredRev(contractRecord);
 			
-			// check if this is the beginning of a quarter
-			if (quarterStart == true)
-				{
-					// set the value of the calculatedDeferredRevenue variable
-					calculatedDeferredRevenue = (deferredRevAmt + lastPrepaymentAmount - thisMonthUsage);
-				}
-			else // this is NOT the beginning of a quarter
-				{
-					// set the value of the calculatedDeferredRevenue variable
-					calculatedDeferredRevenue = (deferredRevAmt - thisMonthUsage);
-				}
-			
-			// use parseFloat to convert calculatedDeferredRevenue to a floating point number
-			calculatedDeferredRevenue = parseFloat(calculatedDeferredRevenue);
+			// set the value of the calculatedDeferredRevenue variable
+			calculatedDeferredRevenue = parseFloat(deferredRevAmt - thisMonthUsage);
 			
 			log.audit({
     			title: 'QUR Check',
@@ -2100,51 +2046,21 @@ function(runtime, search, record, format, task) {
 					// check if calculatedDeferredRevenue is less than 0 and thisMonthUsage is greater than 0
 					if (calculatedDeferredRevenue < 0 && thisMonthUsage > 0)
 						{
-							// check if quarterStart is true
-							if (quarterStart == true)
-								{
-									// check if deferredRevAmt plus lastPrepaymentAmount is greater than 0
-									if ((deferredRevAmt + lastPrepaymentAmount) > 0)
-										{
-											// set the amtToBill variable to be the calculatedDeferredRevenue multiplied by -1 to create a positive number
-											amtToBill = parseFloat(calculatedDeferredRevenue * -1);
-											
-											// check if soSubtotal minus amtToBill is greater than 0
-								    		if ((soSubtotal - amtToBill) > 0)
-								    			{
-									    			// calculate the value of the credit line that needs adding
-								    				var creditLineAmt = parseFloat(soSubtotal - amtToBill);
-								    			
-								    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, minimumUsage and contractRecord
-								    				addCreditLine(soRecord, billingType, creditLineAmt, contractRecord);
-								    			}
-							    			
-							    			// call function to transform the sales order to an invoice. Pass in recordID
-								    		createInvoice(recordID);
-										}
-										
-									// call function to transform the sales order to an invoice. Pass in recordID
-	    	    		    		createInvoice(recordID);
-	    	    		    	}
-	    	    		    // quarterStart is false
-	    	    		    else
-	    	    		    	{
-	    	    		    		// set the amtToBill variable to be the calculatedDeferredRevenue multiplied by -1 to create a positive number
-									amtToBill = parseFloat(calculatedDeferredRevenue * -1);
+							// set the amtToBill variable to be the calculatedDeferredRevenue multiplied by -1 to create a positive number
+							amtToBill = parseFloat(calculatedDeferredRevenue * -1);
 								
-									// check if soSubtotal minus amtToBill is greater than 0
-						    		if ((soSubtotal - amtToBill) > 0)
-						    			{
-							    			// calculate the value of the credit line that needs adding
-						    				var creditLineAmt = parseFloat(soSubtotal - amtToBill);
+							// check if soSubtotal minus amtToBill is greater than 0
+						    if ((soSubtotal - amtToBill) > 0)
+						    	{
+							    	// calculate the value of the credit line that needs adding
+						    		var creditLineAmt = parseFloat(soSubtotal - amtToBill);
 						    			
-						    				// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, minimumUsage and contractRecord
-						    				addCreditLine(soRecord, billingType, creditLineAmt, contractRecord);
-						    			}
+						    		// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, minimumUsage and contractRecord
+						    		addCreditLine(soRecord, billingType, creditLineAmt, contractRecord);
+						    	}
 					    			
-					    			// call function to transform the sales order to an invoice. Pass in recordID
-						    		createInvoice(recordID);
-	    	    		    	}
+					    	// call function to transform the sales order to an invoice. Pass in recordID
+						    createInvoice(recordID);
 						}
 					
 					// check if deferredRevAmt is greater than 0
