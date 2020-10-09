@@ -191,6 +191,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 														                label: 		'Assembly Item Quantity',
 														                container:	'custpage_filters_group'
 													            		});
+								quantityField.defaultValue = 1;
 								
 								
 								//Add a field to filter by sales orders
@@ -518,12 +519,32 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					            
 					            if(assebliesToProcess.length > 0)
 					            	{
+					            		//Explode all of the BOM's
+					            		//
 					            		for (var int3 = 0; int3 < assebliesToProcess.length; int3++) 
 						            		{
 						            			level = Number(1);
 												explodeBom(assebliesToProcess[int3].id, bomList, level, assebliesToProcess[int3].quantity, true, assebliesToProcess[int3].id, assebliesToProcess[int3].quantity, paramMaxBomLevel);
 											}
 					            	
+					            		//Roll up the latest date to the top so we can see when the whole assembly can be made
+					            		//
+					            		if(bomList.length > 0)
+					            			{
+						            			var latestDate = new Date();
+						            		
+							            		for (var int = 1; int < bomList.length; int++) 
+								    				{ 
+								            			if(bomList[int].availDateDate.getTime() > latestDate.getTime())
+								            				{
+								            					latestDate = new Date(bomList[int].availDateDate.getFullYear(), bomList[int].availDateDate.getMonth(), bomList[int].availDateDate.getDate());
+								            				}
+								    				}
+							            		
+							            		bomList[0].availDateDate 	= new Date(latestDate.getFullYear(), latestDate.getMonth(), latestDate.getDate());
+							            		bomList[0].availDate		= format.format({value: latestDate, type: format.Type.DATE});
+					            			}
+					            		
 					            		//Fill out the bom components sublist on the suitelet form
 					    				//
 					    				var linenum = 0;
@@ -906,7 +927,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
     		
 	    	switch(_memberType)
 	    		{
-			    	case 'OthCharge':	//Other charge
+			    	case 'OthCharge':	//Other Charge - no availability as such, but we need to look at the manufacturing routing to get the timing
 			    		
 			    		availData.supplySource 		= '';
 			    		availData.availableDate		= 'Now';
@@ -964,10 +985,24 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								//
 			    				if(!availData.transactionFound)
 			    					{
+			    						//Get the works order lead time (in days) from the item record
+			    						//
+			    						var woLeadTime = Number(search.lookupFields({
+			    																type: 		search.Type.ITEM,
+			    																id: 		_memberItem,
+			    																columns: 	['buildtime']
+			    															}).buildtime);
+			    						
+			    						woLeadTime = (isNaN(woLeadTime) ? Number(0) : woLeadTime);
+			    						
+			    						var availableDate = new Date();
+			    						
+			    						availableDate.setDate(availableDate.getDate() + woLeadTime);
+			    					
 				    					availData.supplySource 		= 'New Works Order';
-			    						availData.availableDate 	= '';
+			    						availData.availableDate 	= format.format({value: availableDate, type: format.Type.DATE});
 			    						availData.transactionFound	= false;
-			    						availData.availableDateDate	= null;
+			    						availData.availableDateDate	= availableDate;
 			    					}
 			    			}
 			    		
@@ -1015,6 +1050,24 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 			    						//No - find a PO if we can
 			    						//
 			    						availData = getPurchaseOrderInfo(_memberItem);
+			    						
+			    						//If no PO is found, then we will return with the fact that a new PO must be created
+										//
+					    				if(!availData.transactionFound)
+					    					{
+					    						//Get the lead time (in days) from the item record
+					    						//
+					    						var itemLeadTime = getItemLeadTime(_memberItem);
+					    						
+					    						var availableDate = new Date();
+					    						
+					    						availableDate.setDate(availableDate.getDate() + itemLeadTime);
+					    					
+						    					availData.supplySource 		= 'New Purchase Order';
+					    						availData.availableDate 	= format.format({value: availableDate, type: format.Type.DATE});
+					    						availData.transactionFound	= false;
+					    						availData.availableDateDate	= availableDate;
+					    					}
 			    					}
 			    			}
 			    			
@@ -1025,6 +1078,18 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 	    	return availData;
 	    }
     
+    function getItemLeadTime(_itemId)
+    	{
+	    	var itemLeadTime = Number(search.lookupFields({
+															type: 		search.Type.ITEM,
+															id: 		_itemId,
+															columns: 	['leadtime']
+														}).leadtime);
+	
+	    	itemLeadTime = (isNaN(itemLeadTime) ? Number(0) : itemLeadTime);
+
+	    	return itemLeadTime;
+    	}
     		
     //Function to find purchase orders for a particular item & return the info about the earliest one
     //
@@ -1072,6 +1137,18 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					var poNumber 	= purchaseorderSearchObj[0].getValue({name: "tranid"});
 					var poDueDate	= purchaseorderSearchObj[0].getValue({name: "duedate"});
 					var poAmountDue	= Number(purchaseorderSearchObj[0].getValue({name: "formulanumeric"}));
+					
+					//If the due date is not on the PO then use the lead time from the item record
+					//
+					if(poDueDate == null || poDueDate == '')
+						{
+							var itemLeadTime = getItemLeadTime(_item);
+							var availableDate = new Date();
+    						
+    						availableDate.setDate(availableDate.getDate() + itemLeadTime);
+    						
+    						poDueDate = format.format({value: availableDate, type: format.Type.DATE});
+						}
 					
 					availData.supplySource 		= 'Purchase Order (' + poNumber + '), ' + 
 												  poAmountDue.toString() + ' due ' + 

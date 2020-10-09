@@ -33,45 +33,40 @@
 	</tr>
           </table>
           
-    <table style="width: 100%;">
+    <table style="width: 100%; margin-top: 10px;">
     <tr>
-	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
+	<td colspan="2" class="addressheader"><b>Shipping Address:</b></td><td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Number</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
 	</tr>
 	<tr>
-	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
+	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
 	</tr>
 	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Number</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
-    </tr>
-	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
-    </tr>
-    <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Sales Order</b></td><td align="right" style="font-size:10pt">${record.createdfrom.tranid}</td>
-    </tr>
-    <tr>
 	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Terms</b></td><td align="right" style="font-size:10pt">${record.terms}</td>
     </tr>
     <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Notes</b></td><td align="right" style="font-size:10pt">&nbsp;</td>
+	<td class="address">&nbsp;</td><td class="address">&nbsp;</td><td class="address">&nbsp;</td>
+    </tr>
+    <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Number</b></td><td align="right" style="font-size:10pt">${record.createdfrom.tranid}</td>
+    </tr>
+    <tr>
+	<td class="address">&nbsp;</td><td class="address">&nbsp;</td><td class="address">&nbsp;</td>
+    </tr>
+    <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Customer Reference</b></td><td align="right" style="font-size:10pt">${record.otherrefnum}</td>
     </tr>
  	<tr>
-	<td class="address">&nbsp;</td><td rowspan="4" colspan="2" class="address">${record.memo}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Joor Order Number</b></td><td align="right" style="font-size:10pt">${record.custbody_bbs_joor_so_number}</td>
     </tr>
-  	<tr>
-	<td class="address">&nbsp;</td>
+    <tr>
+	<td class="address">&nbsp;</td><td class="address">&nbsp;</td><td class="address">&nbsp;</td>
     </tr>
-   	<tr>
-	<td class="address">&nbsp;</td>
-    </tr>
-  	<tr>
-	<td class="address">&nbsp;</td>
-    </tr>
+  	
   </table>
         </macro>
 
         <macro id="nlfooter">
-
+<!--
         <table style="width: 100%;">
         <tr><td><b>Due Date: ${record.duedate?string["dd MMM yyyy"]}</b></td></tr>
         <tr><td>Bank Details for payments in ${record.currency}:</td></tr>
@@ -83,7 +78,7 @@
         <tr><td>Swift Code: ${record.custbody_bbs_bank_swift}</td></tr>
         <tr><td>&nbsp;</td></tr>
         </table>
-
+-->
        <table style="width: 100%;">
          <tr class="messagerow">
               <td align="left" class="message">&nbsp;</td>
@@ -209,7 +204,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="370px" footer="nlfooter" footer-height="125px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="370px" footer="nlfooter" footer-height="25px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
     
 <#if record.item?has_content>
 
@@ -241,6 +236,8 @@
 	</#list><!-- end items --></table>
 </#if>
 
+<div style="page-break-inside: avoid;">
+
 <hr />
 <table class="total" style="width: 100%;"><tr class="totalrow">
 	<td colspan="4">&nbsp;</td>
@@ -251,6 +248,11 @@
 	<td colspan="4">&nbsp;</td>
     <td class="totalcell" align="right"><b>Discount</b></td>
 	<td class="totalcell" align="right">${record.discounttotal}</td>
+	</tr>
+	<tr class="totalrow">
+	<td colspan="4">&nbsp;</td>
+    <td class="totalcell" align="right"><b>Shipping</b></td>
+	<td class="totalcell" align="right">${record.shippingcost}</td>
 	</tr>
     <tr class="totalrow">
 	<td colspan="4">&nbsp;</td>
@@ -264,7 +266,23 @@
 	</tr>
 	<tr>
 	<td>&nbsp;</td>
-	</tr></table>
+	</tr>
+</table>
+
+  <table style="width: 100%; margin-top: 20px;">
+        <tr><td><b>Due Date: ${record.duedate?string["dd MMM yyyy"]}</b></td></tr>
+        <tr><td>Bank Details for payments in ${record.currency}:</td></tr>
+   		<tr><td>Bank Name: ${record.custbody_bbs_bank_account_name}</td></tr>
+        <tr><td>Account Number: ${record.custbody_bbs_bank_account_number}</td></tr>
+        <tr><td>Sort Code: ${record.custbody_bbs_bank_sort_code}</td></tr>
+        <tr><td>IBAN: ${record.custbody_bbs_bank_iban}</td></tr>
+        <tr><td>BIC: ${record.custbody_bbs_bank_bic}</td></tr>
+        <tr><td>Swift Code: ${record.custbody_bbs_bank_swift}</td></tr>
+        <tr><td>&nbsp;</td></tr>
+        </table>
+  
+</div>
+  
 </body>
 </pdf>
 <pdf src="https://5514691.app.netsuite.com/core/media/media.nl?id=5137&amp;c=5514691&amp;h=7d2a9dfda8143a9f5577&amp;_xt=.pdf" />
