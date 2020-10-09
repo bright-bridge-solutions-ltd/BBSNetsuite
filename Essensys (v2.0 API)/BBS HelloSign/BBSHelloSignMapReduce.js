@@ -35,11 +35,6 @@ function(helloSignLibrary, search, record, file) {
     				{
     			name: 'custbody_bbs_hellosign_sig_request_id',
     			operator: search.Operator.ISNOTEMPTY
-    		},
-    				{
-    			name: 'internalid',
-    			operator: search.Operator.ANYOF,
-    			values: [99876]
     		}],
     		
     		columns: [{

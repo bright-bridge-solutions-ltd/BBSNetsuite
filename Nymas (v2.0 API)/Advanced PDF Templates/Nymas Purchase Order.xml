@@ -19,11 +19,11 @@
       			</tr>
       			<tr>
       				<td colspan="2" style="border-left: 1px solid black;"><b>Your Reference</b></td>
-      				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.otherrefnum}</b></td>
+      				<td colspan="2" style="border-right: 1px solid black;"><b>: <span style="color:#FF0000;">TODO</span></b></td>
       			</tr>
       			<tr>
       				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Issue Number</b></td>
-      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: </b></td>
+      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: <span style="color:#FF0000;">TODO</span></b></td>
       			</tr>
       		</table>
         </macro>
@@ -133,9 +133,9 @@ note detailing our Purchase order reference (s) our product code and quantity de
     				<td align="left" colspan="8">${item.item}</td>
     				<td align="left" colspan="10">${item.description}<br/><i>Delivery date to our facility : ${item.expectedreceiptdate}</i></td>
     				<td align="right" colspan="4">${item.quantity}</td>
-    				<td align="left" colspan="4" style="padding-left: 20px;"><span style="color:#FF0000;">Each</span></td>
-    				<td align="right" colspan="4">${item.rate?string["#,##0.00"]}</td>
-    				<td align="right" colspan="4">${item.amount?string["#,##0.00"]}</td>
+    				<td align="left" colspan="4" style="padding-left: 20px;">${item.units}</td>
+    				<td align="right" colspan="4">${record.custbody_bbs_currency_symbol}${item.rate?string["#,##0.00"]}</td>
+    				<td align="right" colspan="4">${record.custbody_bbs_currency_symbol}${item.amount?string["#,##0.00"]}</td>
     			</tr>
     	</#list>
   	</table>
@@ -163,15 +163,15 @@ note detailing our Purchase order reference (s) our product code and quantity de
         			<table style="width: 100%; border: 1px solid black;">
         				<tr>
         					<td colspan="4" style="padding-bottom: 10px;"><b>Order Value</b></td>
-			  				<td colspan="2" align="right" style="padding-bottom: 10px;">${record.subtotal}</td>
+			  				<td colspan="2" align="right" style="padding-bottom: 10px;">${record.custbody_bbs_currency_symbol}${record.subtotal?string["#,##0.00"]}</td>
 			 			</tr>
 				        <tr>
 						   	<td colspan="4" style="padding-bottom: 10px;"><b>Total VAT</b></td>
-						 	<td colspan="2" align="right" style="padding-bottom: 10px;">${record.taxtotal}</td>
+						 	<td colspan="2" align="right" style="padding-bottom: 10px;">${record.custbody_bbs_currency_symbol}${record.taxtotal?string["#,##0.00"]}</td>
 						</tr>
 						<tr>
 						   	<td colspan="4" style="padding-bottom: 10px;"><b>Order Total</b></td>
-						 	<td colspan="2" align="right" style="padding-bottom: 10px;">${record.total}</td>
+						 	<td colspan="2" align="right" style="padding-bottom: 10px;">${record.custbody_bbs_currency_symbol}${record.total?string["#,##0.00"]}</td>
 						</tr>
 					</table>
         		</td>

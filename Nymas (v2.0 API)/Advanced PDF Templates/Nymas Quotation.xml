@@ -18,12 +18,12 @@
       				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.tranid}</b></td>
       			</tr>
       			<tr>
-      				<td colspan="2" style="border-left: 1px solid black;"><b>Your Reference</b></td>
-      				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.otherrefnum}</b></td>
+      				<td colspan="2" style="border-left: 1px solid black;"><b>Project Reference</b></td>
+      				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.title}</b></td>
       			</tr>
       			<tr>
       				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Account No.</b></td>
-      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: </b></td>
+      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${record.entity.accountnumber}</b></td>
       			</tr>
       		</table>
         </macro>
@@ -138,9 +138,9 @@
     				<td align="left" colspan="8">${item.item}</td>
     				<td align="left" colspan="10">${item.description}</td>
     				<td align="right" colspan="4">${item.quantity}</td>
-    				<td align="left" colspan="4" style="padding-left: 20px;"><span style="color:#FF0000;">Each</span></td>
-    				<td align="right" colspan="4">${item.rate?string["#,##0.00"]}</td>
-    				<td align="right" colspan="4">${item.amount?string["#,##0.00"]}</td>
+    				<td align="left" colspan="4" style="padding-left: 20px;">${item.units}</td>
+    				<td align="right" colspan="4">${record.custbody_bbs_currency_symbol}${item.rate?string["#,##0.00"]}</td>
+    				<td align="right" colspan="4">${record.custbody_bbs_currency_symbol}${item.amount?string["#,##0.00"]}</td>
     			</tr>
     	</#list>
     	<#if record.shippingcost gt 0> <!-- If we have a delivery charge -->
@@ -149,8 +149,8 @@
     			<td align="left" colspan="10">Delivery To Site Charge<br/><i>Despatch Date: ${record.shipdate}</i></td>
     			<td align="right" colspan="4">1</td>
     			<td align="left" colspan="4" style="padding-left: 20px;">&nbsp;</td>
-    			<td align="right" colspan="4">${record.shippingcost?string["#,##0.00"]}</td>
-    			<td align="right" colspan="4">${record.shippingcost?string["#,##0.00"]}</td>
+    			<td align="right" colspan="4">${record.custbody_bbs_currency_symbol}${record.shippingcost?string["#,##0.00"]}</td>
+    			<td align="right" colspan="4">${record.custbody_bbs_currency_symbol}${record.shippingcost?string["#,##0.00"]}</td>
     			<td align="right" colspan="4">ZERO</td>
     		</tr>
     	</#if>
@@ -179,20 +179,20 @@
         			</table>
 				</td>
 			  	<td colspan="4" style="padding-bottom: 10px; border-left: 1px solid black; border-top: 1px solid black;"><b>Value of Goods</b></td>
-			  	<td colspan="2" align="right" style="padding-bottom: 20px; border-right: 1px solid black; border-top: 1px solid black;">${record.subtotal}</td>
+			  	<td colspan="2" align="right" style="padding-bottom: 20px; border-right: 1px solid black; border-top: 1px solid black;">${record.custbody_bbs_currency_symbol}${record.subtotal?string["#,##0.00"]}</td>
 			 </tr>
 	        <tr>
 			   	<td colspan="4" style="padding-bottom: 10px; border-left: 1px solid black;"><b>Total VAT</b></td>
-			 	<td colspan="2" align="right" style="padding-bottom: 20px; border-right: 1px solid black;">${record.taxtotal}</td>
+			 	<td colspan="2" align="right" style="padding-bottom: 20px; border-right: 1px solid black;">${record.custbody_bbs_currency_symbol}${record.taxtotal?string["#,##0.00"]}</td>
 			</tr>
 	        
 	        <tr>
 			    <td colspan="4" style="padding-bottom: 10px; border-left: 1px solid black;"><b>Total Discount</b></td>
-			 	<td colspan="2" align="right" style="padding-bottom: 20px; border-right: 1px solid black;">${record.discounttotal}</td>
+			 	<td colspan="2" align="right" style="padding-bottom: 20px; border-right: 1px solid black;">${record.custbody_bbs_currency_symbol}${record.discounttotal?string["#,##0.00"]}</td>
 			 </tr>
 			<tr>
 			   	<td colspan="4" style="padding-bottom: 10px; border-left: 1px solid black; border-bottom: 1px solid black;"><b>Quotation Total</b></td>
-			 	<td colspan="2" align="right" style="padding-bottom: 20px; border-right: 1px solid black; border-bottom: 1px solid black;">${record.total}</td>
+			 	<td colspan="2" align="right" style="padding-bottom: 20px; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custbody_bbs_currency_symbol}${record.total?string["#,##0.00"]}</td>
 			</tr>
 	 	</table>
     

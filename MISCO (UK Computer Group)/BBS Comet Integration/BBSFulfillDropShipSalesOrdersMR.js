@@ -53,11 +53,13 @@ function(record, runtime, search) {
 																	      "AND", 
 																	      ["mainline","is","T"], 
 																	      "AND", 
-																	      ["status","anyof","SalesOrd:B"], 	//Pending fulfillment
+																	      ["status","anyof","SalesOrd:B"], 	// SalesOrd:B = Pending Fulfillment
 																	      "AND", 
 																	      ["name","anyof",integrationCashSaleCust], 
 																	      "AND", 
-																	      ["trandate","before","today"]
+																	      ["trandate","before","today"],
+																	      "AND",
+																	      ["cseg_bbs_division","anyof","5"] // 5 = Comet
 																	   ],
 																	   columns:
 																	   [

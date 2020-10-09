@@ -625,13 +625,13 @@ function(search, encode, https, render, file, record, url)
 			// get the recipient's email address
 			var recipientEmail = result.getValue({
 				name: 'custrecord_bbs_hellosign_recipientsemail'
-			});
+			}).toLowerCase();
 			
 			// loop through helloSignRecipients array
 			for (var i = 0; i < helloSignRecipients.length; i++)
 				{
 					// get the email address from the helloSignRecipients array
-					var arrayEmail = helloSignRecipients[i].signer_email_address;
+					var arrayEmail = helloSignRecipients[i].signer_email_address.toLowerCase();
 					
 					// if recipientEmail = arrayEmail
 					if (recipientEmail == arrayEmail)
@@ -647,11 +647,24 @@ function(search, encode, https, render, file, record, url)
 								{
 									// get the decline reason
 									var declineReason = helloSignRecipients[i].decline_reason;
+									
+									// set dateSigned to null
+									var dateSigned = null;
 								}
-							else
+							else // recipient has signed
 								{
 									// set decline reason to null
 									var declineReason = null;
+									
+									// get the date signed
+									var dateSigned = helloSignRecipients[i].signed_at;
+									
+									// if we have a signed date
+									if (dateSigned)
+										{
+											// convert epoch to date object
+											dateSigned = new Date(dateSigned * 1000);
+										}
 								}
 							
 							try
@@ -662,7 +675,8 @@ function(search, encode, https, render, file, record, url)
 										id: recipientRecordID,
 										values: {
 											custrecord_bbs_hellosign_recipientstatus: 	recipientStatus,
-											custrecord_bbshellosignrecipientdecline:	declineReason
+											custrecord_bbshellosignrecipientdecline:	declineReason,
+											custrecord_bbs_hellosign_date_signed:		dateSigned
 										}
 									});
 								}

@@ -808,11 +808,6 @@ function(record, config, runtime, search, plugin, format)
 				});
 				
 				calculatedTaxesRecord.setValue({
-					fieldId: 'custrecord_bbstfc_taxes_billable',
-					value: taxObject.bill
-				});
-				
-				calculatedTaxesRecord.setValue({
 					fieldId: 'custrecord_bbstfc_taxes_tax_name',
 					value: taxObject.name
 				});
@@ -856,6 +851,15 @@ function(record, config, runtime, search, plugin, format)
 					fieldId: 'custrecord_bbstfc_taxes_tax_amount',
 					value: taxObject.tax
 				});
+				
+				// do we have the billable flag
+				if (taxObject.bill)
+					{
+						calculatedTaxesRecord.setValue({
+							fieldId: 'custrecord_bbstfc_taxes_billable',
+							value: taxObject.bill
+						});
+					}
 				
 				// do we have the compliance flag
 				if (taxObject.cmpl)

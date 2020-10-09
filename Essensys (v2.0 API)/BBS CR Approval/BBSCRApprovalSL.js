@@ -125,7 +125,9 @@ function(runtime, search, record) {
 	    				}
 	    			
 	    			// save the credit memo record
-	    			creditMemoRecordID = creditMemoRecord.save();
+	    			creditMemoRecordID = creditMemoRecord.save({
+	    				ignoreMandatoryFields: true
+	    			});
 	    			
 	    			log.audit({
 	    				title: 'Credit Memo Record Created',
@@ -198,7 +200,9 @@ function(runtime, search, record) {
 	    	    		}
 	    	    	
 	    	    	// save the RMA record
-	    	    	rmaRecord.save();
+	    	    	rmaRecord.save({
+	    	    		ignoreMandatoryFields: true
+	    	    	});
 	    			
 	    		}
 	    	catch(e)

@@ -386,7 +386,7 @@ function(file, record, render, runtime, search, email)
 						    							{
 						    								log.error({
 						    											title: 'Error Saving PDF To File Cabinet ' + attachmentsFolder,
-						    											details: error
+						    											details: err
 						    											});
 						    								
 						    								fileId = null;
