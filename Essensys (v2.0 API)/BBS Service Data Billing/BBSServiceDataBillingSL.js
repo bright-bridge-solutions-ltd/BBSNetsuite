@@ -94,6 +94,13 @@ function(ui, message, task, url, redirect, runtime) {
    		 			functionName: 'connectFileSync()'
    		 		});
    		 		
+   		 		// add button to the form to call 'Create Combined Reports' Map/Reduce
+   		 		form.addButton({
+   		 			id: 'createcombinedreports',
+   		 			label: 'Create Combined Reports',
+   		 			functionName: 'createCombinedReports()'
+   		 		});
+   		 		
    		 		// write the response to the page
 				context.response.writePage(form);
 			}
