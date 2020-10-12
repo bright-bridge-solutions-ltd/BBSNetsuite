@@ -1413,7 +1413,9 @@ function(record, config, runtime, search, plugin, format)
 				      search.createColumn({name: "custrecord_bbstfc_pmap_county", label: "Source Field Id - County"}),
 				      search.createColumn({name: "custrecord_bbstfc_pmap_city", label: "Source Field Id - City"}),
 				      search.createColumn({name: "custrecord_bbstfc_pmap_zip", label: "Source Field Id - ZipCode"}),
-				      search.createColumn({name: "custrecord_bbstfc_pmap_pcode", label: "Destination Field Id - PCode"})
+				      search.createColumn({name: "custrecord_bbstfc_pmap_pcode", label: "Destination Field Id - PCode"}),
+				      search.createColumn({name: "custrecord_bbstfc_pmap_npan", label: "NPANXX Code"}),
+				      search.createColumn({name: "custrecord_bbstfc_pmap_fips", label: "FIPS Code"}),
 				   ]
 				}));
 				
@@ -1428,6 +1430,8 @@ function(record, config, runtime, search, plugin, format)
 					var sourceCountyCode 	= customrecord_bbstfc_pcode_mapSearchObj[0].getValue({name: "custrecord_bbstfc_pmap_county"});
 					var sourceCityCode 		= customrecord_bbstfc_pcode_mapSearchObj[0].getValue({name: "custrecord_bbstfc_pmap_city"});
 					var sourceZipCode 		= customrecord_bbstfc_pcode_mapSearchObj[0].getValue({name: "custrecord_bbstfc_pmap_zip"});
+					var sourceNpanxxCode 	= customrecord_bbstfc_pcode_mapSearchObj[0].getValue({name: "custrecord_bbstfc_pmap_npan"});
+					var sourceFipsCode 		= customrecord_bbstfc_pcode_mapSearchObj[0].getValue({name: "custrecord_bbstfc_pmap_fips"});
 					var destinationPCode	= customrecord_bbstfc_pcode_mapSearchObj[0].getValue({name: "custrecord_bbstfc_pmap_pcode"});
 					var recordToProcess		= null;
 					var recordUpdated		= false;
@@ -1487,6 +1491,8 @@ function(record, config, runtime, search, plugin, format)
 		    									var currentCountyCode 	= (sourceCountyCode != '' && sourceCountyCode != null ? addressSubRecord.getValue({fieldId: sourceCountyCode}) : '');
 		    									var currentCityCode 	= (sourceCityCode != '' && sourceCityCode != null ? addressSubRecord.getValue({fieldId: sourceCityCode}) : '');
 		    									var currentZipCode 		= (sourceZipCode != '' && sourceZipCode != null ? addressSubRecord.getValue({fieldId: sourceZipCode}) : '');
+		    									var currentNpanxxCode 	= (sourceNpanxxCode != '' && sourceNpanxxCode != null ? addressSubRecord.getValue({fieldId: sourceNpanxxCode}) : '');
+		    									var currentFipsCode 	= (sourceFipsCode != '' && sourceFipsCode != null ? addressSubRecord.getValue({fieldId: sourceFipsCode}) : '');
 		    									var currentPCode 		= (destinationPCode != '' && destinationPCode != null ? addressSubRecord.getValue({fieldId: destinationPCode}) : '');
 		    									
 		    									//Does the PCode have a value & do we have a field to map the pcode to?
@@ -1523,6 +1529,16 @@ function(record, config, runtime, search, plugin, format)
 		    											if(currentZipCode != '' && currentZipCode != null)
 		    												{
 		    													pcodeRequest['ZipCode']	= currentZipCode;
+		    												}
+		    											
+		    											if(currentFipsCode != '' && currentFipsCode != null)
+		    												{
+		    													pcodeRequest['Fips']	= currentFipsCode;
+		    												}
+		    											
+		    											if(currentNpanxxCode != '' && currentNpanxxCode != null)
+		    												{
+		    													pcodeRequest['NpaNxx']	= currentNpanxxCode;
 		    												}
 		    										}	
 		    									
