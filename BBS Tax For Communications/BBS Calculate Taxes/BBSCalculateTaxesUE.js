@@ -102,8 +102,9 @@ function(runtime, record, search, libraryModule, plugin)
 										var subsidiaryPCode				= subsidiaryLookup[1];
 										
 										// call function to return/lookup fields on the site record
-										//var shipToPCode	= libraryModule.getSiteInfo(siteID);
-										var shipToPCode	= libraryModule.libGetDestinationPcode(transactionRecord);
+										// var shipToPCode	= libraryModule.getSiteInfo(siteID);
+										//
+										var addressData	= libraryModule.libGetDestinationPcode(transactionRecord);
 										
 										// call function to return any exemptions for the customer
 										var customerExemptions = libraryModule.getCustomerExemptions(customerID, tranDate);
@@ -225,13 +226,13 @@ function(runtime, record, search, libraryModule, plugin)
 																//
 																taxReqItemObj.ref		=	i;
 																taxReqItemObj.from.pcd	=	subsidiaryPCode;
-																taxReqItemObj.to.pcd	=	shipToPCode;
+																taxReqItemObj.to.pcd	=	addressData.pcode;
 																taxReqItemObj.chg		=	itemRate;
 																taxReqItemObj.line		=	quantity;
 																taxReqItemObj.loc		=	1;
 																taxReqItemObj.min		=	0;
 																taxReqItemObj.sale		=	salesType;
-																taxReqItemObj.incl		=	false;
+																taxReqItemObj.incl		=	addressData.incorporated;
 																taxReqItemObj.proadj	=	0;
 																taxReqItemObj.tran		=	transactionType;
 																taxReqItemObj.serv		=	serviceType;

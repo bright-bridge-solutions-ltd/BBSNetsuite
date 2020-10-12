@@ -222,6 +222,12 @@ function(record, config, runtime, search, plugin, format)
 			this.internalID = internalID;
 		}
 
+	function libAddressLookupObj(pcode, incorporated)
+		{
+			this.pcode			= pcode;
+			this.incorporated	= incorporated;
+		}
+	
 	//=====================================================================
 	//Methods
 	//=====================================================================
@@ -232,7 +238,7 @@ function(record, config, runtime, search, plugin, format)
 	//
 	function getDestinationPcode(_transactionRecord)
 		{
-			var returnedPcode = null;
+			var returnedPcode = new libAddressLookupObj();
 			
 			try
 				{
@@ -288,15 +294,16 @@ function(record, config, runtime, search, plugin, format)
 																															   columns:
 																															   [
 																															      search.createColumn({name: "custrecord_bbstfc_pmap_rec_type", label: "Record Type"}),
-																															      search.createColumn({name: "custrecord_bbstfc_pmap_pcode", label: "Field Id - PCode"})
+																															      search.createColumn({name: "custrecord_bbstfc_pmap_pcode", label: "Field Id - PCode"}),
+																															      search.createColumn({name: "custrecord_bbstfc_pmap_incorporated", label: "Incorporated"})
 																															   ]
 																															}));
 														
 														if(customrecord_bbstfc_pcode_mapSearchObj != null && customrecord_bbstfc_pcode_mapSearchObj.length > 0)
 															{
-																var mappedPcodeField = customrecord_bbstfc_pcode_mapSearchObj[0].getValue({
-																																			name: 'custrecord_bbstfc_pmap_pcode'
-																																			});
+															var mappedPcodeField 		= customrecord_bbstfc_pcode_mapSearchObj[0].getValue({name: 'custrecord_bbstfc_pmap_pcode'});
+															var mappedIncorporatedField = customrecord_bbstfc_pcode_mapSearchObj[0].getValue({name: 'custrecord_bbstfc_pmap_incorporated'});
+															
 																if(mappedPcodeField != null && mappedPcodeField != '')
 																	{
 																		//Get the contents of the pcode field based on the mapping
@@ -307,7 +314,20 @@ function(record, config, runtime, search, plugin, format)
 																													columns: 	mappedPcodeField
 																													});
 																		
-																		returnedPcode = customRecordSearch[mappedPcodeField];
+																		returnedPcode.pcode = customRecordSearch[mappedPcodeField];
+																	}
+																
+																if(mappedIncorporatedField != null && mappedIncorporatedField != '')
+																	{
+																		//Get the contents of the pcode field based on the mapping
+																		//
+																		var customRecordSearch = search.lookupFields({
+																													type: 		customRecordType,
+																													id: 		customRecordId,
+																													columns: 	mappedIncorporatedField
+																													});
+																		
+																		returnedPcode.incorporated = customRecordSearch[mappedIncorporatedField];
 																	}
 															}
 													}
@@ -332,7 +352,7 @@ function(record, config, runtime, search, plugin, format)
 	
 	function getStandardAddress(_transactionRecord, _addressType)
 		{
-			var returnedPcode = null;
+			var returnedPcode = new libAddressLookupObj();
 			
 			try
 				{
@@ -353,21 +373,28 @@ function(record, config, runtime, search, plugin, format)
 								   columns:
 								   [
 								      search.createColumn({name: "custrecord_bbstfc_pmap_rec_type", label: "Record Type"}),
-								      search.createColumn({name: "custrecord_bbstfc_pmap_pcode", label: "Field Id - PCode"})
+								      search.createColumn({name: "custrecord_bbstfc_pmap_pcode", label: "Field Id - PCode"}),
+								      search.createColumn({name: "custrecord_bbstfc_incorporated", label: "Incorporated"})
 								   ]
 								}));
 	
 							if(customrecord_bbstfc_pcode_mapSearchObj != null && customrecord_bbstfc_pcode_mapSearchObj.length > 0)
 								{
-									var mappedPcodeField = customrecord_bbstfc_pcode_mapSearchObj[0].getValue({
-																				name: 'custrecord_bbstfc_pmap_pcode'
-																				});
-									
+									var mappedPcodeField 		= customrecord_bbstfc_pcode_mapSearchObj[0].getValue({name: 'custrecord_bbstfc_pmap_pcode'});
+									var mappedIncorporatedField = customrecord_bbstfc_pcode_mapSearchObj[0].getValue({name: 'custrecord_bbstfc_incorporated'});
+								
 									if(mappedPcodeField != null && mappedPcodeField != '')
 										{
 											//Get the contents of the pcode field based on the mapping
 											//
-											returnedPcode = addressSubrecord.getValue({fieldId: mappedPcodeField});
+											returnedPcode.pcode = addressSubrecord.getValue({fieldId: mappedPcodeField});
+										}
+									
+									if(mappedIncorporatedField != null && mappedIncorporatedField != '')
+										{
+											//Get the contents of the pcode field based on the mapping
+											//
+											returnedPcode.incorporated = addressSubrecord.getValue({fieldId: mappedIncorporatedField});
 										}
 								}
 						}		
