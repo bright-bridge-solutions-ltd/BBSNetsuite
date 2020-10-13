@@ -471,6 +471,80 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 			}
 		
 		
+		//Commit or Uncommit a document
+		//
+		function doCommit(_commitObj)
+			{
+				var headerObj 			= {};
+				var doCommitObj 		= new libraryModule.libGenericResponseObj();
+				var responseBodyObj 	= null;
+				var configurationObj	= null;
+				
+				//Get the current configuration
+				//
+				configurationObj = getConfiguration();
+				
+				if(configurationObj != null)
+					{
+						//Build up the headers for the get request
+						//
+						headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
+						headerObj['Accept']				= '*/*';
+						headerObj['client_id']			= configurationObj.clientId;
+						headerObj['client_profile_id']	= configurationObj.profileId;
+						headerObj['Content-Type']		= 'application/json';
+						
+						//Execute the request
+						//
+						try
+							{
+								var response = https.post({	
+															url:		configurationObj.endpointCommit,
+															headers:	headerObj,
+															body:		JSON.stringify(_commitObj)
+															});
+						
+								//Extract the http response code	
+								//
+								doCommitObj.httpResponseCode = response.code;
+								
+								//Extract the http response body
+								//
+								if(response.body != null && response.body != '')
+									{
+										//Try to parse the response body into a JSON object
+										//
+										try
+											{
+												responseBodyObj = JSON.parse(response.body);
+											}
+										catch(err)
+											{
+												responseBodyObj = null;
+											}
+										
+										//Process the converted JSON object
+										//
+										if(responseBodyObj != null)
+											{
+												doCommitObj.apiResponse 		= responseBodyObj;
+											}
+									}
+							}
+						catch(err)
+							{
+								doCommitObj.responseMessage = err.message;
+							}
+					}
+				else
+					{
+						doCommitObj.responseMessage = 'No valid configuration found';
+					}
+				
+				return doCommitObj;
+			}
+
+		
 		//Get general service info from the api
 		//
 		function getServiceInfo()
@@ -626,7 +700,8 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 	        		getTFCConfiguration:	getConfiguration,
 	        		getTaxType:				getTaxType,
 	        		getTSPairs:				getTSPairs,
-	        		getTaxCalculation:		getTaxCalculation
+	        		getTaxCalculation:		getTaxCalculation,
+	        		doCommit:				doCommit
 	    		};
 	    
 	});

@@ -1665,6 +1665,8 @@ function(record, config, runtime, search, plugin, format)
 		    									var currentCountyCode 	= (sourceCountyCode != '' && sourceCountyCode != null ? addressSubRecord.getValue({fieldId: sourceCountyCode}) : '');
 		    									var currentCityCode 	= (sourceCityCode != '' && sourceCityCode != null ? addressSubRecord.getValue({fieldId: sourceCityCode}) : '');
 		    									var currentZipCode 		= (sourceZipCode != '' && sourceZipCode != null ? addressSubRecord.getValue({fieldId: sourceZipCode}) : '');
+		    									var currentNpanxxCode 	= (sourceNpanxxCode != '' && sourceNpanxxCode != null ? addressSubRecord.getValue({fieldId: sourceNpanxxCode}) : '');
+		    									var currentFipsCode 	= (sourceFipsCode != '' && sourceFipsCode != null ? addressSubRecord.getValue({fieldId: sourceFipsCode}) : '');
 		    									var currentPCode 		= (destinationPCode != '' && destinationPCode != null ? addressSubRecord.getValue({fieldId: destinationPCode}) : '');
 		    									
 		    									//Does the PCode have a value & do we have a field to map the pcode to?
@@ -1701,6 +1703,16 @@ function(record, config, runtime, search, plugin, format)
 		    											if(currentZipCode != '' && currentZipCode != null)
 		    												{
 		    													pcodeRequest['ZipCode']	= currentZipCode;
+		    												}
+		    											
+		    											if(currentFipsCode != '' && currentFipsCode != null)
+		    												{
+		    													pcodeRequest['Fips']	= currentFipsCode;
+		    												}
+	    											
+		    											if(currentNpanxxCode != '' && currentNpanxxCode != null)
+		    												{
+		    													pcodeRequest['NpaNxx']	= currentNpanxxCode;
 		    												}
 		    										}	
 		    									
@@ -1776,6 +1788,8 @@ function(record, config, runtime, search, plugin, format)
 								var currentCountyCode 	= (sourceCountyCode != '' && sourceCountyCode != null ? currentRecord.getValue({fieldId: sourceCountyCode}) : '');
 								var currentCityCode 	= (sourceCityCode != '' && sourceCityCode != null ? currentRecord.getValue({fieldId: sourceCityCode}) : '');
 								var currentZipCode 		= (sourceZipCode != '' && sourceZipCode != null ? currentRecord.getValue({fieldId: sourceZipCode}) : '');
+								var currentNpanxxCode 	= (sourceNpanxxCode != '' && sourceNpanxxCode != null ? currentRecord.getValue({fieldId: sourceNpanxxCode}) : '');
+								var currentFipsCode 	= (sourceFipsCode != '' && sourceFipsCode != null ? currentRecord.getValue({fieldId: sourceFipsCode}) : '');
 								var currentPCode 		= (destinationPCode != '' && destinationPCode != null ? currentRecord.getValue({fieldId: destinationPCode}) : '');
 								
 								//Does the PCode have a value & do we have a field to map the pcode to?
@@ -1812,6 +1826,16 @@ function(record, config, runtime, search, plugin, format)
 										if(currentZipCode != '' && currentZipCode != null)
 											{
 												pcodeRequest['ZipCode']	= currentZipCode;
+											}
+										
+										if(currentFipsCode != '' && currentFipsCode != null)
+											{
+												pcodeRequest['Fips']	= currentFipsCode;
+											}
+									
+										if(currentNpanxxCode != '' && currentNpanxxCode != null)
+											{
+												pcodeRequest['NpaNxx']	= currentNpanxxCode;
 											}
 									}	
 								

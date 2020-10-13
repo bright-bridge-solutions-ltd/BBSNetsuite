@@ -62,15 +62,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 	    			var paramMaxBomLevel		= Number(context.request.parameters['maxbomlevel']);		//Maximum bom explosion level
 		    		
 					var stage 	= (paramStage == null || paramStage == '' || isNaN(paramStage) ? 1 : paramStage);
-					var bomList = new Array();
+					var bomList = {};
 					var lineNo 	= Number(0);
 					var level 	= Number(1);
 					
 	    			//Create a form
 	    			//
-		            var form = serverWidget.createForm({
-					                						title: 	'Trial Kit'
-					            						});
+		            var form = serverWidget.createForm({title: 	'Trial Kit'});
 		            
 		            //Find the client script
 	    			//
@@ -108,8 +106,6 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					stageParamField.updateDisplayType({	displayType: serverWidget.FieldDisplayType.HIDDEN});
 					
 					stageParamField.defaultValue = stage;
-					
-					
 					
 					//Work out what the form layout should look like based on the stage number
 					//
@@ -419,6 +415,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													id:		'custpage_sl_items_supply',
 													label:	'Supply Source',
 													type:	serverWidget.FieldType.TEXT
+												});	
+								
+								subList.addField({
+													id:		'custpage_sl_items_routing',
+													label:	'Additional Routing (Days)',
+													type:	serverWidget.FieldType.TEXT
 												});		
 
 								subList.addField({
@@ -517,6 +519,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 							            	break;
 					            	}
 					            
+					            //See if we have any assemblies to process
+					            //
 					            if(assebliesToProcess.length > 0)
 					            	{
 					            		//Explode all of the BOM's
@@ -524,110 +528,135 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					            		for (var int3 = 0; int3 < assebliesToProcess.length; int3++) 
 						            		{
 						            			level = Number(1);
-												explodeBom(assebliesToProcess[int3].id, bomList, level, assebliesToProcess[int3].quantity, true, assebliesToProcess[int3].id, assebliesToProcess[int3].quantity, paramMaxBomLevel);
+						            			bomList[assebliesToProcess[int3].id] = new Array();
+						            			
+												explodeBom(assebliesToProcess[int3].id, bomList[assebliesToProcess[int3].id], level, assebliesToProcess[int3].quantity, true, assebliesToProcess[int3].id, assebliesToProcess[int3].quantity, paramMaxBomLevel);
 											}
 					            	
 					            		//Roll up the latest date to the top so we can see when the whole assembly can be made
 					            		//
-					            		if(bomList.length > 0)
-					            			{
-						            			var latestDate = new Date();
-						            		
-							            		for (var int = 1; int < bomList.length; int++) 
-								    				{ 
-								            			if(bomList[int].availDateDate.getTime() > latestDate.getTime())
-								            				{
-								            					latestDate = new Date(bomList[int].availDateDate.getFullYear(), bomList[int].availDateDate.getMonth(), bomList[int].availDateDate.getDate());
-								            				}
-								    				}
-							            		
-							            		bomList[0].availDateDate 	= new Date(latestDate.getFullYear(), latestDate.getMonth(), latestDate.getDate());
-							            		bomList[0].availDate		= format.format({value: latestDate, type: format.Type.DATE});
-					            			}
+					            		for ( var bomListKey in bomList) 
+						            		{
+						            			if(bomList[bomListKey].length > 0)
+							            			{
+						            					//Start off with today's date
+						            					//
+								            			var latestDate = new Date();
+								            		
+								            			//Loop through all of the data
+								            			//
+									            		for (var int = 1; int < bomList[bomListKey].length; int++) 
+										    				{ 
+									            				//Is the current date element more in the future that the date we currently have?
+									            				//
+										            			if(bomList[bomListKey][int].availDateDate.getTime() > latestDate.getTime())
+										            				{
+										            					latestDate = new Date(bomList[bomListKey][int].availDateDate.getFullYear(), bomList[bomListKey][int].availDateDate.getMonth(), bomList[bomListKey][int].availDateDate.getDate());
+										            				}
+										    				}
+									            		
+									            		//Set the date in the output object that gets displayed in the sublist
+									            		//
+									            		var finalDate 				= new Date(latestDate.getFullYear(), latestDate.getMonth(), latestDate.getDate());
+									            		finalDate.setDate(finalDate.getDate() + Number(bomList[bomListKey][0].routingDays));
+									            		
+									            		bomList[bomListKey][0].availDateDate 	= finalDate
+									            		bomList[bomListKey][0].availDate		= format.format({value: finalDate, type: format.Type.DATE});
+							            			}
+						            		}
+					            		
 					            		
 					            		//Fill out the bom components sublist on the suitelet form
 					    				//
 					    				var linenum = 0;
 					    				var filler = '…';
 					    				
-					    				for (var int = 0; int < bomList.length; int++) 
-						    				{ 	
-						    					 subList.setSublistValue({
-																		id:		'custpage_sl_items_level',
-																		line:	linenum,
-																		value:	filler.repeat(Number(bomList[int].level)) + Number(bomList[int].level).toString()
-																		});	
-						    					 
-						    					 if(bomList[int].itemText != '' && bomList[int].itemText != null)
-						    						 {
-							    						 subList.setSublistValue({
-																				id:		'custpage_sl_items_item',
+					    				for ( var bomListKey in bomList) 
+						            		{
+							    				for (var int = 0; int < bomList[bomListKey].length; int++) 
+								    				{ 	
+								    					 subList.setSublistValue({
+																				id:		'custpage_sl_items_level',
 																				line:	linenum,
-																				value:	bomList[int].itemText
+																				value:	filler.repeat(Number(bomList[bomListKey][int].level)) + Number(bomList[bomListKey][int].level).toString()
 																				});	
-						    						 }
-						    					 
-						    					 if(bomList[int].itemDesc != '' && bomList[int].itemDesc != null)
-						    						 {
-							    						 subList.setSublistValue({
-																				id:		'custpage_sl_items_description',
-																				line:	linenum,
-																				value:	bomList[int].itemDesc
-																				});	
-							    						 }
-						    					 
-						    					 if(bomList[int].itemType != '' && bomList[int].itemType != null)
-						    						 {
-							    						 subList.setSublistValue({
-																				id:		'custpage_sl_items_type',
-																				line:	linenum,
-																				value:	bomList[int].itemType
-																				});	
-						    						 }
-						    					 
-						    					 if(bomList[int].itemSource != '' && bomList[int].itemSource != null)
-						    						 {
-							    						 subList.setSublistValue({
-																				id:		'custpage_sl_items_source',
-																				line:	linenum,
-																				value:	bomList[int].itemSource
-																				});	
-						    						 }
-						    					 
-						    					 if(bomList[int].itemQty != '' && bomList[int].itemQty != null)
-						    						 {
-							    						 subList.setSublistValue({
-																				id:		'custpage_sl_items_qty',
-																				line:	linenum,
-																				value:	bomList[int].itemQty.toString()
-																				});	
-						    						 }
-						    					 
-						    					 if(bomList[int].supplySource != '' && bomList[int].supplySource != null)
-						    						 {
-							    						 subList.setSublistValue({
-																				id:		'custpage_sl_items_supply',
-																				line:	linenum,
-																				value:	bomList[int].supplySource
-																				});	
-						    						 }
-					    					 
-		    					 
-						    					 if(bomList[int].availDate != '' && bomList[int].availDate != null)
-						    						 {
-							    						 subList.setSublistValue({
-																				id:		'custpage_sl_items_available',
-																				line:	linenum,
-																				value:	bomList[int].availDate
-																				});	
-						    						 }
-				    					 
-	    					 
-	    					 
-						    					linenum++;
-						    				}
+								    					 
+								    					 if(bomList[bomListKey][int].itemText != '' && bomList[bomListKey][int].itemText != null)
+								    						 {
+									    						 subList.setSublistValue({
+																						id:		'custpage_sl_items_item',
+																						line:	linenum,
+																						value:	bomList[bomListKey][int].itemText
+																						});	
+								    						 }
+								    					 
+								    					 if(bomList[bomListKey][int].itemDesc != '' && bomList[bomListKey][int].itemDesc != null)
+								    						 {
+									    						 subList.setSublistValue({
+																						id:		'custpage_sl_items_description',
+																						line:	linenum,
+																						value:	bomList[bomListKey][int].itemDesc
+																						});	
+									    						 }
+								    					 
+								    					 if(bomList[bomListKey][int].itemType != '' && bomList[bomListKey][int].itemType != null)
+								    						 {
+									    						 subList.setSublistValue({
+																						id:		'custpage_sl_items_type',
+																						line:	linenum,
+																						value:	bomList[bomListKey][int].itemType
+																						});	
+								    						 }
+								    					 
+								    					 if(bomList[bomListKey][int].itemSource != '' && bomList[bomListKey][int].itemSource != null)
+								    						 {
+									    						 subList.setSublistValue({
+																						id:		'custpage_sl_items_source',
+																						line:	linenum,
+																						value:	bomList[bomListKey][int].itemSource
+																						});	
+								    						 }
+								    					 
+								    					 if(bomList[bomListKey][int].itemQty != '' && bomList[bomListKey][int].itemQty != null)
+								    						 {
+									    						 subList.setSublistValue({
+																						id:		'custpage_sl_items_qty',
+																						line:	linenum,
+																						value:	bomList[bomListKey][int].itemQty.toString()
+																						});	
+								    						 }
+								    					 
+								    					 if(bomList[bomListKey][int].supplySource != '' && bomList[bomListKey][int].supplySource != null)
+								    						 {
+									    						 subList.setSublistValue({
+																						id:		'custpage_sl_items_supply',
+																						line:	linenum,
+																						value:	bomList[bomListKey][int].supplySource
+																						});	
+								    						 }
+							    					 
+								    					 if(bomList[bomListKey][int].routingDays != '' && bomList[bomListKey][int].routingDays != null)
+								    						 {
+									    						 subList.setSublistValue({
+																						id:		'custpage_sl_items_routing',
+																						line:	linenum,
+																						value:	bomList[bomListKey][int].routingDays
+																						});	
+								    						 }
+								    					 
+								    					 if(bomList[bomListKey][int].availDate != '' && bomList[bomListKey][int].availDate != null)
+								    						 {
+									    						 subList.setSublistValue({
+																						id:		'custpage_sl_items_available',
+																						line:	linenum,
+																						value:	bomList[bomListKey][int].availDate
+																						});	
+								    						 }
+
+								    					linenum++;
+								    				}
+						            		}
 					            	}
-					            
 					            
 								break;
 						}
@@ -639,10 +668,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 		    else 
 		    	{
 		    		var request = context.request;
-		    		
-		            //Post request - so process the returned form
-					//
-					
+
 					//Get the stage of the processing we are at
 					//
 					var stage = Number(request.parameters['custpage_param_stage']);
@@ -733,7 +759,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
     		
     	}
     
-    function expolsionData(_level, _item, _itemText, _itemDesc, _itemUnit, _itemQty, _itemType, _itemSource, _supplySource, _availDate, _availDateDate)
+    function expolsionData(_level, _item, _itemText, _itemDesc, _itemUnit, _itemQty, _itemType, _itemSource, _supplySource, _availDate, _availDateDate, _routingDays)
     	{
     		this.level			= _level;			//Bom explosion level
     		this.item			= _item;			//Item id
@@ -746,38 +772,52 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
     		this.supplySource 	= _supplySource;	//Item supplied from source as text
     		this.availDate		= _availDate;		//Item availability as text
     		this.availDateDate	= _availDateDate;	//Item availability as date object
+    		this.routingDays	= _routingDays;		//Days to add from routing information
+    	}
+    
+    //Function to search for a bom from an assembly
+    //
+    function findBomFromAssembly(_assemblyId)
+    	{
+	    	return bomSearchObj = getResults(search.create({
+												 		   type: "bom",
+												 		   filters:
+												 		   [
+												 		      ["assemblyitem.assembly","anyof",_assemblyId], 
+												 		      "AND", 
+												 		      ["assemblyitem.default","is","T"], 
+												 		      "AND", 
+												 		      ["revision.isinactive","is","F"]
+												 		   ],
+												 		   columns:
+												 		   [
+												 		      search.createColumn({name: "name", label: "Name"}),
+												 		      search.createColumn({name: "revisionname", label: "Revision : Name"}),
+												 		      search.createColumn({name: "internalid",join: "revision",label: "Revision Internal ID"}),
+												 		      search.createColumn({name: "internalid",label: "BOM Internal ID"}),
+												 		      search.createColumn({name: "assembly",join: "assemblyItem",label: "Assembly"})
+												 		   ]
+												 		}));
     	}
     
     //Function to explode BOM
     //
     function explodeBom(topLevelAssemblyId, bomList, level, requiredQty, topLevel, itemId, itemQty, maxBomLevel)
 	    {
+    		var routingDaysToAdd = Number(0);
+    		
     		//Find the bom for the assembly, then find the bom revision which will give us the components
     		//
-    		var bomSearchObj = getResults(search.create({
-										    		   type: "bom",
-										    		   filters:
-										    		   [
-										    		      ["assemblyitem.assembly","anyof",topLevelAssemblyId], 
-										    		      "AND", 
-										    		      ["assemblyitem.default","is","T"], 
-										    		      "AND", 
-										    		      ["revision.isinactive","is","F"]
-										    		   ],
-										    		   columns:
-										    		   [
-										    		      search.createColumn({name: "name", label: "Name"}),
-										    		      search.createColumn({name: "revisionname", label: "Revision : Name"}),
-										    		      search.createColumn({name: "internalid",join: "revision",label: "Internal ID"}),
-										    		      search.createColumn({name: "assembly",join: "assemblyItem",label: "Assembly"})
-										    		   ]
-										    		}));
+    		var bomSearchObj = findBomFromAssembly(topLevelAssemblyId)
     		
     		if(bomSearchObj != null && bomSearchObj.length > 0)
     			{
-	    			var bomRevisionId = bomSearchObj[0].getValue({name: "internalid",join: "revision"});
-	    			var assemblyName = bomSearchObj[0].getText({name: "assembly",join: "assemblyItem"});
+	    			var bomId 				= bomSearchObj[0].getValue({name: "internalid"});
+	    			var bomRevisionId 		= bomSearchObj[0].getValue({name: "internalid",join: "revision"});
+	    			var assemblyName 		= bomSearchObj[0].getText({name: "assembly",join: "assemblyItem"});
 	    			
+	    			routingDaysToAdd 		= getRoutingDays(bomId);
+
     				if(bomRevisionId != null && bomRevisionId != '')
     					{
     						//Find the components on the bom revision record
@@ -885,7 +925,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 			    			    			var topLevelDescription = assemblyName;
 			    			    			var topLevelItemId 		= assemblyName;
 			    			    		
-			    			    			bomList.push(new expolsionData(0,itemId,topLevelItemId,topLevelDescription,'',itemQty,'Assembly','','','', null));
+			    			    			bomList.push(new expolsionData(0,itemId,topLevelItemId,topLevelDescription,'',itemQty,'Assembly','','','', null, routingDaysToAdd));
 			    			    		}
 	    						
 	    						
@@ -903,21 +943,98 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 			    				    		//
 			    				    		var availabilityObj = getItemAvailablity(memberItem, memberType, memberQty);
 			    				    		
-			    				    		//Add this item to the bom list
-			    				    		//
-			    				    		bomList.push(new expolsionData(level,memberItem,memberItemText,memberDesc,memberUnit,memberQty,memberType,memberSource, availabilityObj.supplySource, availabilityObj.availableDate, availabilityObj.availableDateDate));
-		
+			    				    		
 			    				    		//If we have found another assembly, then explode that as well
 			    				    		//
 			    				    		if(memberType == 'Assembly' && level < maxBomLevel)
 			    				    			{
+				    				    			var bomSearchObj = findBomFromAssembly(memberItem)
+				    				        		
+				    				        		if(bomSearchObj != null && bomSearchObj.length > 0)
+				    				        			{
+				    				    	    			var bomId 			= bomSearchObj[0].getValue({name: "internalid"});
+				    				    	    			routingDaysToAdd 	= getRoutingDays(bomId);
+				    				        			}
+				    				    			
+				    				    			//Add this item to the bom list
+					    				    		//
+					    				    		bomList.push(new expolsionData(level,memberItem,memberItemText,memberDesc,memberUnit,memberQty,memberType,memberSource, availabilityObj.supplySource, availabilityObj.availableDate, availabilityObj.availableDateDate, routingDaysToAdd));
+						
 			    				    				explodeBom(memberItem, bomList, level + 1, requiredQty, false, null, null, maxBomLevel);
+			    				    			}
+			    				    		else
+			    				    			{
+				    				    			//Add this item to the bom list
+					    				    		//
+					    				    		bomList.push(new expolsionData(level,memberItem,memberItemText,memberDesc,memberUnit,memberQty,memberType,memberSource, availabilityObj.supplySource, availabilityObj.availableDate, availabilityObj.availableDateDate, Number(0)));
 			    				    			}
 						            	}
 			    				}
     					}
     			}
 	    }
+    
+    function getRoutingDays(_bomId)
+    	{
+    		var routingDays = Number(0);
+    		
+	    	//Find any routing info for this bom
+			//
+			var manufacturingroutingSearchObj = getResults(search.create({
+													    				   type: "manufacturingrouting",
+													    				   filters:
+													    				   [
+													    				      ["billofmaterials","anyof",_bomId]
+													    				   ],
+													    				   columns:
+													    				   [
+													    				      search.createColumn({name: "name",summary: "GROUP",label: "Name"}),
+													    				      search.createColumn({name: "setuptime", summary: "SUM",label: "Setup Time"}),
+													    				      search.createColumn({name: "workcalendar",join: "manufacturingWorkCenter",summary: "GROUP",label: "Work Calendar"})
+													    				   ]
+													    				}));
+			
+			if(manufacturingroutingSearchObj != null && manufacturingroutingSearchObj.length > 0)
+				{
+					//Get the total routing time & the work calendar 
+					//
+					var totalRoutingTime 	= Number(manufacturingroutingSearchObj[0].getValue({name: "setuptime", summary: "SUM"}));
+					var workCalendarId 		= manufacturingroutingSearchObj[0].getValue({name: "workcalendar", join: "manufacturingWorkCenter", summary: "GROUP"});
+					
+					if(workCalendarId != null && workCalendarId != '')
+						{
+							var workcalendarSearchObj = getResults(search.create({
+											    							   type: "workcalendar",
+											    							   filters:
+											    							   [
+											    							      ["internalid","anyof",workCalendarId]
+											    							   ],
+											    							   columns:
+											    							   [
+											    							      search.createColumn({name: "name", label: "Name"}),
+											    							      search.createColumn({name: "comments", label: "Comments"}),
+											    							      search.createColumn({name: "workhoursperday", label: "Work Hours Per Day"}),
+											    							      search.createColumn({name: "sunday", label: "Sunday"}),
+											    							      search.createColumn({name: "monday", label: "Monday"}),
+											    							      search.createColumn({name: "tuesday", label: "Tuesday"}),
+											    							      search.createColumn({name: "wednesday", label: "Wednesday"}),
+											    							      search.createColumn({name: "thursday", label: "Thursday"}),
+											    							      search.createColumn({name: "friday", label: "Friday"}),
+											    							      search.createColumn({name: "saturday", label: "Saturday"})
+											    							   ]
+											    							}));
+							
+							if(workcalendarSearchObj && workcalendarSearchObj.length > 0)
+								{
+									var workHours 	= Number(workcalendarSearchObj[0].getValue({name: "workhoursperday"}));
+									routingDays = Math.ceil(((totalRoutingTime / 60) / workHours));
+								}
+						}
+				}
+			
+			return routingDays;
+    	}
+    
     
     //Function to get availability of item
     //
@@ -930,7 +1047,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 			    	case 'OthCharge':	//Other Charge - no availability as such, but we need to look at the manufacturing routing to get the timing
 			    		
 			    		availData.supplySource 		= '';
-			    		availData.availableDate		= 'Now';
+			    		availData.availableDate		= '';
 			    		availData.transactionFound	= true;
 			    		availData.availableDateDate	= new Date(new Date().toDateString());
 			    		
