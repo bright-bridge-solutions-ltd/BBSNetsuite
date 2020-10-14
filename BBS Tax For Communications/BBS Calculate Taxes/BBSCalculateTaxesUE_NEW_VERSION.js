@@ -101,7 +101,6 @@ function(runtime, record, search, libraryModule, plugin)
 						var createdFrom			=	_transactionRecord.getValue({fieldId: 'createdfrom'});
 						var customerID			=	_transactionRecord.getValue({fieldId: 'entity'});
 						var currency			=	_transactionRecord.getValue({fieldId: 'currency'});
-						var siteID				=	_transactionRecord.getValue({fieldId: 'custbody_bbs_site_name'});
 						var subsidiaryID		=	_transactionRecord.getValue({fieldId: 'subsidiary'});
 						var billToPCode			=	_transactionRecord.getSubrecord({fieldId: 'billingaddress'}).getValue({fieldId: 'custrecord_bbstfc_address_pcode'});
 						var lineCount			=	_transactionRecord.getLineCount({sublistId: 'item'});

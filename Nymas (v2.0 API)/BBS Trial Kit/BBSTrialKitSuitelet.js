@@ -989,7 +989,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													    				   columns:
 													    				   [
 													    				      search.createColumn({name: "name",summary: "GROUP",label: "Name"}),
-													    				      search.createColumn({name: "setuptime", summary: "SUM",label: "Setup Time"}),
+													    				      search.createColumn({name: "runrate", summary: "SUM",label: "Run Rate"}),
 													    				      search.createColumn({name: "workcalendar",join: "manufacturingWorkCenter",summary: "GROUP",label: "Work Calendar"})
 													    				   ]
 													    				}));
@@ -998,7 +998,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 				{
 					//Get the total routing time & the work calendar 
 					//
-					var totalRoutingTime 	= Number(manufacturingroutingSearchObj[0].getValue({name: "setuptime", summary: "SUM"}));
+					var totalRoutingTime 	= Number(manufacturingroutingSearchObj[0].getValue({name: "runrate", summary: "SUM"}));
 					var workCalendarId 		= manufacturingroutingSearchObj[0].getValue({name: "workcalendar", join: "manufacturingWorkCenter", summary: "GROUP"});
 					
 					if(workCalendarId != null && workCalendarId != '')
