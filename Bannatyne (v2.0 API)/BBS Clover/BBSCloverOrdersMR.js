@@ -67,14 +67,19 @@ function(record, runtime, search, task) {
     		
     		filters: [{
     			name: 'isinactive',
-    			operator: 'is',
+    			operator: search.Operator.IS,
     			values: ['F']
     		},
     				{
-    			name: 'custrecord_bbs_order_date',
-    			operator: 'on',
-    			values: ['yesterday']
-    		}],
+    			name: 'custrecord_bbs_clover_order_do_not_proc',
+    			operator: search.Operator.IS,
+    			values: ['F']
+    		},
+    				{
+    	    	name: 'custrecord_bbs_order_date',
+    	    	operator: search.Operator.ON,
+    	    	values: ['yesterday']
+    	    }],
     		
     		columns: [{
     			name: 'custrecord_bbs_clover_location',
@@ -147,20 +152,20 @@ function(record, runtime, search, task) {
     		details: 'Duration: ' + summary.seconds + ' seconds<br>Units Used: ' + summary.usage + '<br>Yields: ' + summary.yields
     	});
     	
-    	// ===========================================================================
-    	// NOW SCHEDULE ADDITIONAL MAP/REDUCE SCRIPT TO CREATE CLOVER PAYMENT JOURNALS
-    	// ===========================================================================
+    	// ===================================================================================
+    	// NOW SCHEDULE ADDITIONAL MAP/REDUCE SCRIPT TO CREATE CLOVER DEFERRED INCOME JOURNALS
+    	// ===================================================================================
     	
     	// submit a map/reduce task
     	var mapReduceTaskID = task.create({
     	    taskType: task.TaskType.MAP_REDUCE,
-    	    scriptId: 'customscript_bbs_clover_payment_journals',
-    	    deploymentId: 'customdeploy_bbs_clover_payment_journals'
+    	    scriptId: 'customscript_bbs_clover_orders_hotels_mr',
+    	    deploymentId: 'customdeploy_bbs_clover_orders_hotels_mr'
     	}).submit();
     	
     	log.audit({
     		title: 'Map/Reduce Script Scheduled',
-    		details: 'BBS Clover Payment Journals Map/Reduce script has been Scheduled.<br>Job ID: ' + mapReduceTaskID
+    		details: 'BBS Clover Orders Hotels Map/Reduce script has been Scheduled.<br>Job ID: ' + mapReduceTaskID
     	});
 
     }
@@ -337,17 +342,27 @@ function(record, runtime, search, task) {
     		
     		filters: [{
     			name: 'isinactive',
-    			operator: 'is',
+    			operator: search.Operator.IS,
+    			values: ['F']
+    		},
+    				{
+    			name: 'custrecord_bbs_clover_order_def_inc',
+    			operator: search.Operator.IS,
+    			values: ['F']
+    		},
+    				{
+    			name: 'custrecord_bbs_clover_order_do_not_proc',
+    			operator: search.Operator.IS,
     			values: ['F']
     		},
     				{
     			name: 'custrecord_bbs_clover_location',
-    			operator: 'anyof',
+    			operator: search.Operator.ANYOF,
     			values: [locationID]
     		},
     				{
     			name: 'custrecord_bbs_order_date',
-    			operator: 'on',
+    			operator: search.Operator.ON,
     			values: ['yesterday']
     		}],
     		

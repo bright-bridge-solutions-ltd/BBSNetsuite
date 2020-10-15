@@ -209,6 +209,12 @@ function(libraryScript, search) {
 								fieldId: 'orderstatus',
 								value: 'B' // B = Pending Fulfilment
 							});
+							
+							// tick the 'System Approved' checkbox
+							currentRecord.setValue({
+								fieldId: 'custbody_bbs_system_approved',
+								value: true
+							});
 				    	}
     		}
 

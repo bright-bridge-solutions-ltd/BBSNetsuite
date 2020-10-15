@@ -14,28 +14,6 @@
  * @returns {Void}
  */
 function clientPageInit(type){
-
-	// get the value of the entity field
-	var supplierID = nlapiGetFieldValue('entity');
-	
-	// if we have a supplier
-	if (supplierID)
-		{
-			// lookup fields on the supplier record
-			var limitedSupplier = nlapiLookupField('vendor', supplierID, 'custentity_bbs_limited_items_supplier');
-			
-			// if limitedSupplier variable returns 'T'
-			if (limitedSupplier == 'T')
-				{
-					// disable the item field
-					nlapiDisableLineItemField('item', 'item', true);
-				}
-			else if (limitedSupplier == 'F') // if limitedSupplier variable equals 'F'
-				{
-					// disable the 'New Item' field
-					nlapiDisableLineItemField('item', 'custcol_bbs_new_purchase_item', true);
-				}
-		}
    
 }
 
@@ -57,30 +35,6 @@ function clientFieldChanged(type, name, linenum){
 		{
 			// set the item field on the current line using the value in the 'New Item' field
 			nlapiSetCurrentLineItemValue('item', 'item', nlapiGetCurrentLineItemValue('item', 'custcol_bbs_new_purchase_item'));
-		}
-	else if (name == 'entity') // if the entity field has been changed
-		{
-			// get the value of the entity field
-			var supplierID = nlapiGetFieldValue('entity');
-			
-			// if we have a supplier
-			if (supplierID)
-				{
-					// lookup fields on the supplier record
-					var limitedSupplier = nlapiLookupField('vendor', supplierID, 'custentity_bbs_limited_items_supplier');
-					
-					// if limitedSupplier variable returns 'T'
-					if (limitedSupplier == 'T')
-						{
-							// disable the item field
-							nlapiDisableLineItemField('item', 'item', true);
-						}
-					else if (limitedSupplier == 'F') // if limitedSupplier variable equals 'F'
-						{
-							// disable the 'New Item' field
-							nlapiDisableLineItemField('item', 'custcol_bbs_new_purchase_item', true);
-						}
-				}
 		}
  
 }

@@ -175,6 +175,7 @@ function(record, config, runtime, search, plugin, format)
 			this.taxCustomAddressIdFrom		= '';
 			this.subsidiariesEnabled		= [];
 			this.pCode						= '';
+			this.incorporated				= '';
 			this.maxTaxLinesToProcess		= '';
 		}
 	
@@ -374,14 +375,14 @@ function(record, config, runtime, search, plugin, format)
 								   [
 								      search.createColumn({name: "custrecord_bbstfc_pmap_rec_type", label: "Record Type"}),
 								      search.createColumn({name: "custrecord_bbstfc_pmap_pcode", label: "Field Id - PCode"}),
-								      search.createColumn({name: "custrecord_bbstfc_incorporated", label: "Incorporated"})
+								      search.createColumn({name: "custrecord_bbstfc_pmap_incorporated", label: "Incorporated"})
 								   ]
 								}));
 	
 							if(customrecord_bbstfc_pcode_mapSearchObj != null && customrecord_bbstfc_pcode_mapSearchObj.length > 0)
 								{
 									var mappedPcodeField 		= customrecord_bbstfc_pcode_mapSearchObj[0].getValue({name: 'custrecord_bbstfc_pmap_pcode'});
-									var mappedIncorporatedField = customrecord_bbstfc_pcode_mapSearchObj[0].getValue({name: 'custrecord_bbstfc_incorporated'});
+									var mappedIncorporatedField = customrecord_bbstfc_pcode_mapSearchObj[0].getValue({name: 'custrecord_bbstfc_pmap_incorporated'});
 								
 									if(mappedPcodeField != null && mappedPcodeField != '')
 										{
@@ -544,6 +545,9 @@ function(record, config, runtime, search, plugin, format)
 			},
 					{
 				name: 'custrecord_bbstfc_ex_p_code'
+			},
+					{
+				name: 'custrecord_bbs_tfc_ex_incorporated'
 			}],
 			
 		}).run().each(function(result){
@@ -582,6 +586,10 @@ function(record, config, runtime, search, plugin, format)
 			
 			var pCode = result.getValue({
 				name: 'custrecord_bbstfc_ex_p_code'
+			});
+			
+			var incorporated = result.getValue({
+				name: 'custrecord_bbs_tfc_ex_incorporated'
 			});
 			
 			// does federal return true
@@ -623,6 +631,7 @@ function(record, config, runtime, search, plugin, format)
 			// fill in the tax exemptions object
 			taxExemptionsObj.frc 		= false;
 			taxExemptionsObj.loc.pcd 	= pCode;
+			taxExemptionsObj.loc.int	= incorporated;
 			taxExemptionsObj.tpe 		= taxType;
 			taxExemptionsObj.cat 		= taxCategory;
 			taxExemptionsObj.dom 		= taxDomain;
@@ -691,6 +700,7 @@ function(record, config, runtime, search, plugin, format)
 		var returnArray 	= new Array();
 		var clientProfileID = null;
 		var pCode 			= null;
+		var incorporated	= null;
 		
 		try
 			{
@@ -710,15 +720,19 @@ function(record, config, runtime, search, plugin, format)
 					fieldId: 'mainaddress'
 				});
 				
-				// get the P Code
+				// get the P Code and incorportated flag
 				pCode = addressSubrecord.getValue({
 					fieldId: 'custrecord_bbstfc_address_pcode'
+				});
+				
+				incorporated = addressSubrecord.getValue({
+					fieldId: 'custrecord_bbstfc_incorporated'
 				});
 			}
 		catch(e) // error because of Non-OneWorld account
 			{
 				log.error({
-					title: 'Error Retrieving Subsdiary Info',
+					title: 'Error Retrieving Subsidiary Info',
 					details: e
 				});
 			}
@@ -726,6 +740,7 @@ function(record, config, runtime, search, plugin, format)
 		// push values to the returnArray
 		returnArray.push(clientProfileID);
 		returnArray.push(pCode);
+		returnArray.push(incorporated);
 		
 		return returnArray;
 		
@@ -1386,7 +1401,7 @@ function(record, config, runtime, search, plugin, format)
 						});
 					}
 				
-				// update the tax amount on the record
+				// update the tax total and total on the record
 				tranRec.setValue({
 					fieldId: 'taxamountoverride',
 					value: taxTotal
