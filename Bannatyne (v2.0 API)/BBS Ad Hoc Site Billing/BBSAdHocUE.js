@@ -488,6 +488,10 @@ function(config, runtime, record, format, search) {
     function createCustomer(adHocSiteRecord, adHocSiteID)
 	    {
 	    	// get field values from the adHocSiteRecord object
+    		var adHocReference = adHocSiteRecord.getValue({
+    			fieldId: 'name'
+    		});
+    	
     		var subsidiary = adHocSiteRecord.getValue({
     			fieldId: 'custrecord_bbs_ad_hoc_site_subsidiary'
     		});
@@ -617,6 +621,11 @@ function(config, runtime, record, format, search) {
     					value: paymentTerms
     				});
     				
+    				customerRecord.setValue({
+    					fieldId: 'accountnumber',
+    					value: adHocReference
+    				});
+    				
     				// add a new line to the address sublist
     				customerRecord.selectNewLine({
     					sublistId: 'addressbook'
@@ -724,6 +733,11 @@ function(config, runtime, record, format, search) {
 	    			bankDetailsRecord.setValue({
 	    				fieldId: 'custrecord_2663_entity_branch_no',
 	    				value: bankAccountSortCode
+	    			});
+	    			
+	    			bankdetailsRecord.setValue({
+	    				fieldId: 'custrecord_2663_entity_payment_desc',
+	    				value: 'Bannatyne ' + adHocReference
 	    			});
 	    			
 	    			// submit the bankDetailsRecord

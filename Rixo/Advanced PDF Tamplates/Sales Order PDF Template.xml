@@ -199,7 +199,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="370px" footer="nlfooter" footer-height="110px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="400px" footer="nlfooter" footer-height="110px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
     
 <#if record.item?has_content>
@@ -245,6 +245,11 @@
 	<td colspan="4">&nbsp;</td>
     <td class="totalcell" align="right"><b>Discount</b></td>
 	<td class="totalcell" align="right">${record.discounttotal}</td>
+	</tr>
+	<tr class="totalrow">
+	<td colspan="4">&nbsp;</td>
+    <td class="totalcell" align="right"><b>Shipping</b></td>
+	<td class="totalcell" align="right">${record.shippingcost}</td>
 	</tr>
     <tr class="totalrow">
 	<td colspan="4">&nbsp;</td>

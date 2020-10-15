@@ -103,6 +103,7 @@ function(runtime, record, search, libraryModule, plugin)
 						var currency			=	_transactionRecord.getValue({fieldId: 'currency'});
 						var subsidiaryID		=	_transactionRecord.getValue({fieldId: 'subsidiary'});
 						var billToPCode			=	_transactionRecord.getSubrecord({fieldId: 'billingaddress'}).getValue({fieldId: 'custrecord_bbstfc_address_pcode'});
+						var billToIncorporated	= 	_transactionRecord.getSubrecord({fieldId: 'billingaddress'}).getValue({fieldId: 'custrecord_bbstfc_incorporated'});
 						var lineCount			=	_transactionRecord.getLineCount({sublistId: 'item'});
 						
 						// check the record is not a standalone transaction
@@ -173,6 +174,7 @@ function(runtime, record, search, libraryModule, plugin)
 						var subsidiaryLookup			= libraryModule.getSubsidiaryInfo(subsidiaryID);
 						var subsidiaryClientProfileID	= subsidiaryLookup[0];
 						var subsidiaryPCode				= subsidiaryLookup[1];
+						var subsidiaryIncorporated		= subsidiaryLookup[2];
 						
 						// call function to return/lookup fields on the address record
 						//
@@ -194,9 +196,10 @@ function(runtime, record, search, libraryModule, plugin)
 						//
 						if (subsidiaryPCode == null || subsidiaryPCode == '')
 							{
-								// get the P Code from the configuration object
+								// get the P Code and incorporated flag from the configuration object
 								//
-								subsidiaryPCode = configuration.pCode;
+								subsidiaryPCode 		= configuration.pCode;
+								subsidiaryIncorporated 	= configuration.incorporated;
 							}
 						
 						//Construct a tax request
@@ -250,6 +253,7 @@ function(runtime, record, search, libraryModule, plugin)
 								//
 								taxReqInvObj.cmmt			=	commitTaxes;
 								taxReqInvObj.bill.pcd		=	billToPCode;
+								taxReqInvObj.bill.int		= 	billToIncorporated;
 								taxReqInvObj.cust			=	customerType;
 								taxReqInvObj.lfln			=	lifeline;
 								taxReqInvObj.date			=	tranDate;
@@ -330,7 +334,9 @@ function(runtime, record, search, libraryModule, plugin)
 												//
 												taxReqItemObj.ref		=	i;
 												taxReqItemObj.from.pcd	=	subsidiaryPCode;
+												taxReqItemObj.from.int	= 	subsidiaryIncorporated;
 												taxReqItemObj.to.pcd	=	addressData.pcode;
+												taxReqItemObj.to.int	=	addressData.incorporated;
 												taxReqItemObj.chg		=	itemRate;
 												taxReqItemObj.line		=	quantity;
 												taxReqItemObj.loc		=	1;
@@ -346,6 +352,7 @@ function(runtime, record, search, libraryModule, plugin)
 												taxReqItemObj.disc		=	discountType;
 												taxReqItemObj.prop		=	0;
 												taxReqItemObj.bill.pcd	=	billToPCode;
+												taxReqItemObj.bill.int	=	billToIncorporated;
 												taxReqItemObj.cust		=	customerType;
 												taxReqItemObj.lfln		=	lifeline;
 												taxReqItemObj.date		=	tranDate;
@@ -610,14 +617,6 @@ function(runtime, record, search, libraryModule, plugin)
 																					}
 																				else
 																					{
-																						// get the line number
-																						//
-																						var lineNumber = items[int5].ref;
-																						
-																						// push the line number to the linesToUpdate array
-																						//
-																						linesToUpdate.push(lineNumber);	
-																									
 																						// get the taxes
 																						//
 																						var taxes = items[int5]['txs'];
@@ -698,6 +697,38 @@ function(runtime, record, search, libraryModule, plugin)
 																			}
 																	}
 															}
+														
+														// get the items
+														//
+														var items = invoices[i]['itms'];
+																
+														// do we have any items
+														//
+														if (items)
+															{
+																// loop through items
+																//
+																for (var int8 = 0; int8 < items.length; int8++)
+																	{
+																		// get the errors
+																		//
+																		var errors = items[int8]['err'];
+																					
+																		// have we got NOT got any errors
+																		//
+																		if (!errors)
+																			{
+																				// get the line number
+																				//
+																				var lineNumber = items[int8].ref;
+																				
+																				// push the line number to the linesToUpdate array
+																				//
+																				linesToUpdate.push(lineNumber);	
+																			}
+																	}
+															}	
+														
 													}
 											}
 										else
