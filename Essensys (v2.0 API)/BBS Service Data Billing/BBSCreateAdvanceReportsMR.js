@@ -71,7 +71,7 @@ function(runtime, search, file, task) {
     				{
     			name: 'formulatext',
     			operator: search.Operator.IS,
-    			values: ['Carr Workplaces'],
+    			values: ['Edison Properties LLC'],
     			formula: '{parent}'
     		}],
 	    	
@@ -135,7 +135,7 @@ function(runtime, search, file, task) {
 			}
 		
 		// specify the file name
-		var fileName = filePrefix + '-' + reportDate + '-' + accountAlias + '-consolidatedreportstenantbreakdown.csv';
+		var fileName = filePrefix + '-' + reportDate + '-' + accountAlias + '_arrears_invoice_reports.csv';
 		
 		// start off the CSV
 		var CSV = '"AccountID","AccountName","InvoiceNumber","DateFrom","DateTo","Product","Quantity","OperatorCost","OperatorTotal","TenantAlias","TenantName","TenantBillingRef","TenantCost","TenantTotal","Margin"\r\n';
@@ -225,81 +225,8 @@ function(runtime, search, file, task) {
 				
 				// add the invoice line details to the CSV
 				CSV += accountAlias + ',' + customerName + ',' + invoiceNumber + ',' + dateFrom + ',' + dateTo + ',' + product + ',' + quantity + ',' + operatorCost + ',' + operatorTotal + ',' + ',' + ',' + ',' + 0 + ',' + 0 + ',' + operatorTotal;
-				CSV += '\r\n';
-				
+				CSV += '\r\n';				
 			}
-		
-		// create search to find Arrears invoice lines to be included in the report
-		var serviceDataSearch = search.create({
-			type: 'customrecord_bbs_service_data',
-			
-			filters: [{
-	    		name: 'parent',
-				join: 'custrecord_bbs_service_data_customer_rec',
-	    		operator: search.Operator.ANYOF,
-	    		values: [customerID]
-	    	},
-	    			{
-	    		name: 'custrecord_bbs_service_data_start_date',
-	    		operator: search.Operator.NOTAFTER,
-	    		values: ['lastmonth'] // lastmonth means end of last month
-	    	},
-	    			{
-	    		name: 'custrecord_bbs_service_data_end_date',
-	    		operator: search.Operator.NOTBEFORE,
-	    		values: ['startoflastmonth']
-	    	}],
-	    	
-	    	columns: [{
-	    		name: 'custrecord_bbs_service_data_site_name',
-	    		summary: 'GROUP',
-	    		sort: search.Sort.ASC
-	    	},
-	    			{
-    			name: 'custrecord_bbs_service_data_tenant_name',
-    			summary: 'GROUP',
-    			sort: search.Sort.ASC
-    		},
-	    			{
-	    		name: 'custrecord_bbs_service_data_tenant_alias',
-	    		summary: 'GROUP'
-	    	},
-	    			{
-    			name: 'formulacurrency',
-    			formula: "{custrecord_bbs_service_data_sales_price} * {custrecord_bbs_service_data_quantity}",
-    			summary: 'SUM'
-    		},
-    				{
-    			name: 'formulacurrency',
-    			formula: "{custrecord_bbs_service_data_op_cost} * {custrecord_bbs_service_data_quantity}",
-    			summary: 'SUM'
-    		},
-    				{
-    			name: 'formuladate',
-    			formula: "CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_start_date} ELSE LAST_DAY(ADD_MONTHS({today},-2))+1 END",
-    			summary: 'GROUP'
-    		},
-    				{
-    			name: 'formuladate',
-    			formula: "CASE WHEN TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_end_date} ELSE LAST_DAY(ADD_MONTHS({today}, -1)) END",
-    			summary: 'GROUP'
-    		},
-    				{
-    			name: 'custrecord_bbs_service_data_billing_ref',
-    			summary: 'GROUP',
-    		},
-    				{
-    			name: 'formulatext',
-    			formula: "TO_CHAR({today},'YYYY')",
-    			summary: 'MAX'
-    		},
-    				{
-    			name: 'formulatext',
-    			formula: "TO_CHAR({today},'MM') - 1",
-    			summary: 'MAX'
-    		}],
-    		
-		});
 		
 		// call function to create the CSV file
 		createCSV(fileName, CSV);

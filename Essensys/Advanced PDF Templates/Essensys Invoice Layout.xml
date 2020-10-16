@@ -191,7 +191,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="260pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="280pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
 <!-- ITEMS TABLE -->
 <#if record.item?has_content>
