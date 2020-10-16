@@ -225,13 +225,27 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				var headerDateString 	= rawDateArray[2] + '/' + rawDateArray[1] + '/' + rawDateArray[0];
 																				var headerDate 			= format.parse({value: headerDateString, type: format.Type.DATE});
 																				
+																				//Find or create a cash sale customer
+																				//
+																				var customerToUse = findOrCreateCustomer(
+																														headerContactEmail, 
+																														integrationCashSaleCust, 
+																														integrationDivision, 
+																														headerContactName, 
+																														headerBillAddress1,
+																														headerBillAddress2,
+																														headerBillCity,
+																														headerBillCounty,
+																														headerBillPostCode
+																														);
+																				
 																				//Create sales order record
 																				//
 																				var salesOrderRecord = record.create({
 																														type: 			record.Type.SALES_ORDER, 
 																													    isDynamic: 		true,
 																													    defaultValues: 	{
-																													        			entity: integrationCashSaleCust	//Cash Sale Customer
+																													        			entity: customerToUse	//integrationCashSaleCust	//Cash Sale Customer
 																													    				} 
 																													});
 																				
@@ -1409,6 +1423,180 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
     			}
 	    }
 
+    //Find cash sale customer by email address
+    //
+    function findOrCreateCustomer(_headerContactEmail, _integrationCashSaleCust, _division, _contactName, _address1, _address2, _city, _county, _postCode)
+    	{
+    		var customerSearchObj 	= null;
+    		var customerId			= _integrationCashSaleCust;	//Default returned customer to be the built in one
+    		
+    		//Try to find the customer by email address
+    		//
+    		try
+    			{
+	    			customerSearchObj = getResults(search.create({
+										    				   type: 		"customer",
+										    				   filters:
+													    				   [
+													    				      ["email","is",_headerContactEmail]
+													    				   ],
+										    				   columns:
+													    				   [
+													    				      search.createColumn({name: "entityid",sort: search.Sort.ASC,label: "Name"})
+													    				   ]
+										    				}));
+    				
+    			}
+    		catch(err)
+    			{
+	    			log.error({
+								title: 		'Error searching for customer by email address',
+								details: 	err
+								});
+	    			
+	    			customerSearchObj = null;
+    			}
+    		
+    		if(customerSearchObj != null && customerSearchObj.length > 0)
+    			{
+    				//If we have found at least one record then take the first one we find
+    				//
+    				customerId = customerSearchObj[0].id;
+    			}
+    		else
+    			{
+    				//Try & create a new customer
+    				//
+    				var createdCustomerId 		= null;
+    				var createdCustomerRecord	= null;
+    				
+    				try
+    					{
+    						createdCustomerRecord = record.create({
+	    															type:		record.Type.CUSTOMER,
+	    															isDynamic:	true
+																	});		
+
+    						createdCustomerRecord.setValue({
+															fieldId:	'isperson',
+															value:		'T'	
+															});	
+
+    						createdCustomerRecord.setValue({
+															fieldId:	'cseg_bbs_division',
+															value:		_division	//Division from config record
+															});	
+
+    						createdCustomerRecord.setValue({
+															fieldId:	'firstname',
+															value:		'CASH SALE'
+															});	
+
+    						createdCustomerRecord.setValue({
+															fieldId:	'lastname',
+															value:		_contactName
+															});	
+
+    						createdCustomerRecord.setValue({
+															fieldId:	'name',
+															value:		'CASH SALE ' + _contactName
+															});	
+
+    						createdCustomerRecord.setValue({
+															fieldId:	'email',
+															value:		_headerContactEmail		
+															});	
+    						
+    						createdCustomerRecord.setValue({
+															fieldId:	'terms',
+															value:		4				//0 Net
+															});	
+    						
+    						createdCustomerRecord.setValue({
+															fieldId:	'category',
+															value:		3				//Prepayment
+															});	
+    						
+    						
+    						// add a new line to the address sublist
+    						createdCustomerRecord.selectNewLine({
+								    	    					sublistId: 'addressbook'
+								    	    					});
+    	    				
+    	    				// select the address subrecord
+    	    				var addressSubrecord = createdCustomerRecord.getCurrentSublistSubrecord({
+																	    	    				    sublistId: 'addressbook',
+																	    	    				    fieldId: 'addressbookaddress'
+																	    	    					});
+    	    				
+    	    				// set fields on the sublist record
+    	    				addressSubrecord.setValue({
+						    	    					fieldId: 	'defaultbilling',
+						    	    					value: 		true
+						    	    				});
+    	    				
+    	    				addressSubrecord.setValue({
+						    	    					fieldId: 	'defaultshipping',
+						    	    					value: 		true
+						    	    				});
+    	    				
+    	    				addressSubrecord.setValue({
+						    	    					fieldId: 	'addr1',
+						    	    					value: 		_address1
+						    	    				});
+    	    				
+    	    				addressSubrecord.setValue({
+						    	    					fieldId: 	'addr2',
+						    	    					value: 		_address2
+						    	    				});
+    	    				
+    	    				addressSubrecord.setValue({
+						    	    					fieldId: 	'city',
+						    	    					value: 		_city
+						    	    				});
+    	    				
+    	    				addressSubrecord.setValue({
+						    	    					fieldId: 	'state',
+						    	    					value: 		_county
+						    	    				});
+    	    				
+    	    				addressSubrecord.setValue({
+						    	    					fieldId: 	'zip',
+						    	    					value: 		_postCode
+						    	    				});
+    	    				
+    	    				createdCustomerRecord.commitLine({
+								    							sublistId: 'addressbook'
+								    						});
+    						
+    						createdCustomerId = createdCustomerRecord.save({
+					    													enableSourcing:			true,
+					    													ignoreMandatoryFields:	true
+					    													});								
+    					}
+    				catch(err)
+    					{
+    						createdCustomerId = null;
+    					
+	    					log.error({
+										title: 		'Error creating new customer',
+										details: 	err
+										});
+    					}
+    			
+    				if(createdCustomerId != null)
+    					{
+    						//If we did create a new customer then pass back the internal id
+    						//
+    						customerId = createdCustomerId;
+    					}
+    			}
+    		
+    		//Return the customer id
+    		//
+    		return customerId;
+    	}
+    
     //Sleep 
     //
     function sleep(milliseconds) 
