@@ -9,9 +9,10 @@ function(record, search) {
 	
 	//Get sum of invoices based on customer and optionally rebate type
 	//
-	function findInvoiceValue(_customerId, _itemRebateTypes, _startDate, _endDate)
+	function findInvoiceValue(_customerIdArray, _itemRebateTypes, _startDate, _endDate)
 		{
 			var invoiceValue = Number(0);
+			
 			var filters = [
 						      ["type","anyof","CustInvc"], 
 						      "AND", 
@@ -25,7 +26,7 @@ function(record, search) {
 						      "AND", 
 						      ["trandate","within",_startDate,_endDate], 
 						      "AND", 
-						      ["name","anyof",_customerId]
+						      ["name","anyof",_customerIdArray]
 						   ];
 			
 			
@@ -34,7 +35,6 @@ function(record, search) {
 					filters.push("AND");
 					filters.push(["item.custitem_bbs_rebate_item_type","anyof",_itemRebateTypes])
 				}
-			
 			
 			var invoiceSearchObj = null;
 			

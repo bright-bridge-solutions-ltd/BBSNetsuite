@@ -3,9 +3,9 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/record', 'N/runtime', 'N/search', './BBSRebateProcessingLibrary', 'N/format'],
+define(['N/record', 'N/runtime', 'N/search', './BBSRebateProcessingLibrary', 'N/format', 'N/task'],
 
-function(record, runtime, search, BBSRebateProcessingLibrary, format)
+function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 {
    
     /**
@@ -18,6 +18,10 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format)
      * @return {Array|Object|Search|RecordRef} inputSummary
      * @since 2015.1
      */
+	
+	//Map reduce script #1 for rebate processing
+	//Calculates the amount of spend for each individual customer rebate record
+	//
     function getInputData() 
 	    {
     		try
@@ -85,14 +89,10 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format)
 
 		    		//Get the total of the invoices
 		    		//
-		    		var invoiceValue			= BBSRebateProcessingLibrary.findInvoiceValue(searchCustomerId, [], searchDateStartString, searchDateEndString);
+		    		var customerArray			= [searchCustomerId];
+		    		var invoiceValue			= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, [], searchDateStartString, searchDateEndString);
 		    		invoiceValue				= parseFloat(invoiceValue);
-		    		
-		    		log.debug({
-						title: 		'searchId',
-						details: 	searchId
-						});
-		    		
+
 		    		//Update the rebate record
 		    		//
 		    		record.submitFields({
@@ -135,7 +135,26 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format)
      */
     function summarize(summary) 
 	    {
-	
+	    	//Submit the next map/reduce job 
+			//
+			
+			try
+				{
+					var mrTask = task.create({
+											taskType:		task.TaskType.MAP_REDUCE,
+											scriptId:		'customscript_bbs_rebate_processing_2',	
+											deploymentid:	null
+											});
+					
+					mrTask.submit();
+				}
+			catch(err)
+				{
+					log.error({
+								title: 		'Error submitting mr 2 script',
+								details: 	err
+								});	
+				}
 	    }
 
     return {
