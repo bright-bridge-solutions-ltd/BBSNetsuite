@@ -1500,20 +1500,22 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 															fieldId:	'cseg_bbs_division',
 															value:		_division	//Division from config record
 															});	
-
+    						
+    						var nameSplit = _contactName.split(' ');
+    						
     						createdCustomerRecord.setValue({
 															fieldId:	'firstname',
-															value:		'CASH SALE'
+															value:		nameSplit[0]
 															});	
 
     						createdCustomerRecord.setValue({
 															fieldId:	'lastname',
-															value:		_contactName
+															value:		nameSplit[nameSplit.length - 1]
 															});	
 
     						createdCustomerRecord.setValue({
 															fieldId:	'name',
-															value:		'CASH SALE ' + _contactName
+															value:		_contactName
 															});	
 
     						if(_headerContactEmail != null && _headerContactEmail != '')
@@ -1548,6 +1550,11 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
     						createdCustomerRecord.setValue({
 															fieldId:	'category',
 															value:		3				//Prepayment
+															});	
+    						
+    						createdCustomerRecord.setValue({
+															fieldId:	'custentity_bbs_postcode_searchable',
+															value:		_postCode		//Searchable post code
 															});	
     						
     						
