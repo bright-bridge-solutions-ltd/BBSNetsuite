@@ -106,46 +106,7 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    		
 		    		//Now find all of the individual rebate records that have this particular group record linked to them
 		    		//
-		    		var individualRebates = BBSRebateProcessingLibrary.getResults(search.create({
-																			    			   type: 		"customrecord_bbs_cust_individ_rebate",
-																			    			   filters:
-																						    			   [
-																						    			      ["isinactive","is","F"], 
-																						    			      "AND", 
-																						    			      ["custrecord_bbs_end_q1_ind","onorafter",searchDateStartString],
-																						    			      "AND", 
-																						    			      ["custrecord_bbs_end_q1_ind","onorbefore",searchDateEndString],
-																						    			      "AND",
-																						    			      ["custrecord_bbs_parent_group_rebate","anyof",searchId]
-																						    			   ],
-																			    			   columns:
-																						    			   [
-																						    			      search.createColumn({name: "name",sort: search.Sort.ASC,  label: "ID"}),
-																						    			      search.createColumn({name: "internalid", label: "Internal Id"}),
-																						    			      search.createColumn({name: "custrecord_bbs_ind_customer", label: "Customer"}),
-																						    			      search.createColumn({name: "custrecord_bbs_end_q1_ind", label: "End of Q1"}),
-																						    			      search.createColumn({name: "custrecord_bbs_end_q2_ind", label: "End of Q2"}),
-																						    			      search.createColumn({name: "custrecord_bbs_end_q3_ind", label: "End of Q3"})
-																						    			   ]
-																			    			}));
-		    		
-		    		//Sum up all of the invoice values for each customer that belongs to the group
-		    		//
-		    		var totalInvoiceValue 	= Number(0);
-		    		var customerArray		= [];
-		    		
-		    		//Gather all of the customer id's into an array
-		    		//
-		    		if(individualRebates != null && individualRebates.length > 0)
-		    			{
-		    				for (var int = 0; int < individualRebates.length; int++) 
-			    				{
-									var individualCustomer = individualRebates[int].getValue({name: "custrecord_bbs_ind_customer"});
-
-									customerArray.push(individualCustomer);
-								}
-		    			}
-		    		
+		    		var customerArray = BBSRebateProcessingLibrary.findGroupMembers(searchDateStartString, searchDateEndString, searchId);
 		    		
 					//Get the total of the invoices
 		    		//

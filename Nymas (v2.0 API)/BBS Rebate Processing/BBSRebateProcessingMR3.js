@@ -108,7 +108,8 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 									    															rebateRecord.getValue({fieldId: 'custrecord_guaranteed_percentage'}),
 									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_pay_frequency'}),				//1=Quarterly 2=Annually 3=Monthly
 									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_marketing_percent'}),
-									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_market_percent_frequency'})		//1=Quarterly 2=Annually 3=Monthly
+									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_market_percent_frequency'}),	//1=Quarterly 2=Annually 3=Monthly
+									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_rebate_item_type'})
 		    																						);
 		    				//Get rebate dates
 		    				//
@@ -121,8 +122,62 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 																									today																			//Today's date (no time component)
 		    																						);
 		    				
-		    				//Main rebate processing
+		    				//Get sundry info from the rebate record
 		    				//
+		    				var rebateBuyingGroup	= rebateRecord.getValue({fieldId: 'custrecord_bbs_buying_group'});
+		    				var rebateGroupCustomer	= rebateRecord.getValue({fieldId: 'custrecord_bbs_customer'});
+		    				
+		    				
+		    				//=====================================================================================
+		    				//Main rebate processing
+		    				//=====================================================================================
+		    				//
+		    				
+		    				//============================================
+		    				//Do we need to process any Guaranteed Rebate?
+		    				//============================================
+		    				//
+		    				var rebateProcessingInfo = BBSRebateProcessingLibrary.checkRebateProcessing(
+		    																							rebateTargetInfo,	//Target info
+		    																							rebateDateInfo,		//Date info
+		    																							'G'					//Guaranteed rebate
+																			    						);
+		    				//Check to see if there is anything to process
+		    				//Object properties are status, startDate, endDate, percentage, item types
+		    				//
+		    				if(rebateProcessingInfo.status)
+		    					{
+		    						//Find a list of all the customers that are under this rebate group
+		    						//
+			    					var startDateString = format.format({value: rebateProcessingInfo.startDate, type: format.Type.DATE});
+			    					var endDateString 	= format.format({value: rebateProcessingInfo.endDate, type: format.Type.DATE});
+		    						
+		    						var customerArray = findGroupMembers(startDateString, endDateString, searchId);
+		    						
+		    						//Now get a value of all the invoices that match the customers
+		    						//
+		    						var invoiceValue = findInvoiceValue(customerArray, rebateTargetInfo.rebateItemTypes, startDateString, endDateString);
+		    						
+		    						//Apply the rebate percentage
+		    						//
+		    						var rebateValue = (invoiceValue / 100.0) * rebateProcessingInfo.percentage;
+		    						
+		    						//Now work out how we apply the rebate
+		    						//
+		    						if(rebateGroupCustomer != null && rebateGroupCustomer != '')
+		    							{
+		    								//Rebate is applied to the group customer
+		    								//
+		    							
+		    							
+		    							}
+		    						
+		    						if(rebateGroupCustomer != null && rebateGroupCustomer != '')
+		    							{
+		    								//Rebate is applied to the customers in the buying group
+		    								//
+		    							}
+		    					}
 		    				
 		    				
 		    				

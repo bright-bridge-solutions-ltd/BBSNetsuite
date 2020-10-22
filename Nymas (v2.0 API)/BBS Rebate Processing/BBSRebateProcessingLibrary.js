@@ -7,6 +7,256 @@ define(['N/record', 'N/search'],
 function(record, search) {
 
 	
+	//See if we need to process the rebate based on percentage, frequency & type
+	//
+	function checkRebateProcessing(_rebateTargetInfo, _rebateDateInfo, _type)
+		{
+			var processingInfo = new rebateProcessingInfoObj(false,'','','');	//Initialise returned info object with a status of false (nothing to process)
+			
+			switch(_type)
+				{
+					case 'G':	//Guaranteed
+						
+						//See if we have a percentage
+						//
+						if(_rebateTargetInfo.rebateGuarenteedPercent != null & _rebateTargetInfo.rebateGuarenteedPercent != '')
+							{
+								//See if we have a frequency
+								//
+								if(_rebateTargetInfo.rebateGuarenteedFreq != null & _rebateTargetInfo.rebateGuarenteedFreq != '')
+									{
+										//Check frequency against today's date
+										//
+										switch(Number(_rebateTargetInfo.rebateGuarenteedFreq))
+											{
+												case 1:	//Quarterly - see if today is the end of any quarter
+													
+													if(_rebateDateInfo.isQ1End() || _rebateDateInfo.isQ2End() || _rebateDateInfo.isQ3End() || _rebateDateInfo.isQ4End())
+														{
+															var startOfQuarter 				= _rebateDateInfo.getStartOfQuarter();					//Work out the start of the quarter
+															var endOfQuarter 				= _rebateDateInfo.today;								//End of quarter will be today
+															processingInfo.status			= true;													//We have data to processs
+															processingInfo.startDate		= startOfQuarter;										//Start of date range to find invoices for
+															processingInfo.endDate			= endOfQuarter;											//End of date range to find invoices for
+															processingInfo.percentage		= Number(_rebateTargetInfo.rebateGuarenteedPercent);	//Percentage rebate to apply
+															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
+														}
+													
+													break;
+													
+												case 2:	//Annually - see if today is the end of the year
+													
+													if(_rebateDateInfo.isEndOfYear())
+														{
+															var startOfYear 				= _rebateDateInfo.startDate;							//Get the start of the year
+															var endOfYear	 				= _rebateDateInfo.today;								//End of year will be today
+															processingInfo.status			= true;													//We have data to processs
+															processingInfo.startDate		= startOfYear;											//Start of date range to find invoices for
+															processingInfo.endDate			= endOfYear;											//End of date range to find invoices for
+															processingInfo.percentage		= Number(_rebateTargetInfo.rebateGuarenteedPercent);	//Percentage rebate to apply
+															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
+														}
+													
+													break;
+													
+												case 3:	//Monthly - see if today is the end of a month
+													
+													if(_rebateDateInfo.isEndOfMonth())
+														{
+															var startOfMonth 				= _rebateDateInfo.getStartOfMonth();					//Get the start of the month
+															var endOfMonth	 				= _rebateDateInfo.today;								//End of month will be today
+															processingInfo.status			= true;													//We have data to processs
+															processingInfo.startDate		= startOfMonth;											//Start of date range to find invoices for
+															processingInfo.endDate			= endOfMonth;											//End of date range to find invoices for
+															processingInfo.percentage		= Number(_rebateTargetInfo.rebateGuarenteedPercent);	//Percentage rebate to apply
+															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
+														}
+													
+													break;
+											}
+									}
+							}
+						
+						break;
+			
+					case 'M':	//Marketing
+						
+						//See if we have a percentage
+						//
+						if(_rebateTargetInfo.rebateMarketingPercent != null & _rebateTargetInfo.rebateMarketingPercent != '')
+							{
+								//See if we have a frequency
+								//
+								if(_rebateTargetInfo.rebateMarketingFreq != null & _rebateTargetInfo.rebateMarketingFreq != '')
+									{
+										//Check frequency against today's date
+										//
+										switch(Number(_rebateTargetInfo.rebateMarketingFreq))
+											{
+												case 1:	//Quarterly - see if today is the end of any quarter
+													
+													if(_rebateDateInfo.isQ1End() || _rebateDateInfo.isQ2End() || _rebateDateInfo.isQ3End() || _rebateDateInfo.isQ4End())
+														{
+															var startOfQuarter 				= _rebateDateInfo.getStartOfQuarter();					//Work out the start of the quarter
+															var endOfQuarter 				= _rebateDateInfo.today;								//End of quarter will be today
+															processingInfo.status			= true;													//We have data to processs
+															processingInfo.startDate		= startOfQuarter;										//Start of date range to find invoices for
+															processingInfo.endDate			= endOfQuarter;											//End of date range to find invoices for
+															processingInfo.percentage		= Number(_rebateTargetInfo.rebateMarketingPercent);		//Percentage rebate to apply
+															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
+														}
+													
+													break;
+													
+												case 2:	//Annually - see if today is the end of the year
+													
+													if(_rebateDateInfo.isEndOfYear())
+														{
+															var startOfYear 				= _rebateDateInfo.startDate;							//Get the start of the year
+															var endOfYear	 				= _rebateDateInfo.today;								//End of year will be today
+															processingInfo.status			= true;													//We have data to processs
+															processingInfo.startDate		= startOfYear;											//Start of date range to find invoices for
+															processingInfo.endDate			= endOfYear;											//End of date range to find invoices for
+															processingInfo.percentage		= Number(_rebateTargetInfo.rebateMarketingPercent);		//Percentage rebate to apply
+															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
+														}
+													
+													break;
+													
+												case 3:	//Monthly - see if today is the end of a month
+													
+													if(_rebateDateInfo.isEndOfMonth())
+														{
+															var startOfMonth 				= _rebateDateInfo.getStartOfMonth();					//Get the start of the month
+															var endOfMonth	 				= _rebateDateInfo.today;								//End of month will be today
+															processingInfo.status			= true;													//We have data to processs
+															processingInfo.startDate		= startOfMonth;											//Start of date range to find invoices for
+															processingInfo.endDate			= endOfMonth;											//End of date range to find invoices for
+															processingInfo.percentage		= Number(_rebateTargetInfo.rebateMarketingPercent);		//Percentage rebate to apply
+															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
+														}
+													
+													break;
+											}
+									}
+							}
+						
+						break;
+						
+					case 'T':	//Targets
+						
+						//See if we have any targets
+						//
+						if(Object.keys(_rebateTargetInfo.rebateTargets).length > 0)
+							{
+								//See if we have a frequency
+								//
+								if(_rebateTargetInfo.rebateTargetFrequency != null & _rebateTargetInfo.rebateTargetFrequency != '')
+									{
+										//Check frequency against today's date
+										//
+										switch(Number(_rebateTargetInfo.rebateTargetFrequency))
+											{
+												case 1:	//Quarterly - see if today is the end of any quarter
+													
+													if(_rebateDateInfo.isQ1End() || _rebateDateInfo.isQ2End() || _rebateDateInfo.isQ3End() || _rebateDateInfo.isQ4End())
+														{
+															var startOfQuarter 				= _rebateDateInfo.getStartOfQuarter();					//Work out the start of the quarter
+															var endOfQuarter 				= _rebateDateInfo.today;								//End of quarter will be today
+															processingInfo.status			= true;													//We have data to processs
+															processingInfo.startDate		= startOfQuarter;										//Start of date range to find invoices for
+															processingInfo.endDate			= endOfQuarter;											//End of date range to find invoices for
+															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
+														}
+													
+													break;
+													
+												case 2:	//Annually - see if today is the end of the year
+													
+													if(_rebateDateInfo.isEndOfYear())
+														{
+															var startOfYear 				= _rebateDateInfo.startDate;							//Get the start of the year
+															var endOfYear	 				= _rebateDateInfo.today;								//End of year will be today
+															processingInfo.status			= true;													//We have data to processs
+															processingInfo.startDate		= startOfYear;											//Start of date range to find invoices for
+															processingInfo.endDate			= endOfYear;											//End of date range to find invoices for
+															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
+														}
+													
+													break;
+													
+												case 3:	//Monthly - see if today is the end of a month
+													
+													if(_rebateDateInfo.isEndOfMonth())
+														{
+															var startOfMonth 				= _rebateDateInfo.getStartOfMonth();					//Get the start of the month
+															var endOfMonth	 				= _rebateDateInfo.today;								//End of month will be today
+															processingInfo.status			= true;													//We have data to processs
+															processingInfo.startDate		= startOfMonth;											//Start of date range to find invoices for
+															processingInfo.endDate			= endOfMonth;											//End of date range to find invoices for
+															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
+														}
+													
+													break;
+											}
+									}
+							}
+						
+						break;
+				}
+		
+			return processingInfo;
+		}
+	
+	
+	//Get the list of all customers that belong to a specific rebate group by finding all of the individual rebate records that are linked to the group record
+	//
+	function findGroupMembers(_startDate, _endDate, _groupId)
+		{
+			//Now find all of the individual rebate records that have this particular group record linked to them
+			//
+			var individualRebates = BBSRebateProcessingLibrary.getResults(search.create({
+																	    			   type: 		"customrecord_bbs_cust_individ_rebate",
+																	    			   filters:
+																				    			   [
+																				    			      ["isinactive","is","F"], 
+																				    			      "AND", 
+																				    			      ["custrecord_bbs_end_q1_ind","onorafter",_startDate],
+																				    			      "AND", 
+																				    			      ["custrecord_bbs_end_q1_ind","onorbefore",_endDate],
+																				    			      "AND",
+																				    			      ["custrecord_bbs_parent_group_rebate","anyof",_groupId]
+																				    			   ],
+																	    			   columns:
+																				    			   [
+																				    			      search.createColumn({name: "name",sort: search.Sort.ASC,  label: "ID"}),
+																				    			      search.createColumn({name: "internalid", label: "Internal Id"}),
+																				    			      search.createColumn({name: "custrecord_bbs_ind_customer", label: "Customer"}),
+																				    			      search.createColumn({name: "custrecord_bbs_end_q1_ind", label: "End of Q1"}),
+																				    			      search.createColumn({name: "custrecord_bbs_end_q2_ind", label: "End of Q2"}),
+																				    			      search.createColumn({name: "custrecord_bbs_end_q3_ind", label: "End of Q3"})
+																				    			   ]
+																	    			}));
+			
+			//Sum up all of the invoice values for each customer that belongs to the group
+			//
+			var customerArray		= [];
+			
+			//Gather all of the customer id's into an array
+			//
+			if(individualRebates != null && individualRebates.length > 0)
+				{
+					for (var int = 0; int < individualRebates.length; int++) 
+	    				{
+							var individualCustomer = individualRebates[int].getValue({name: "custrecord_bbs_ind_customer"});
+	
+							customerArray.push(individualCustomer);
+						}
+				}
+			
+			return customerArray;
+		}
+	
 	//Get sum of invoices based on customer and optionally rebate type
 	//
 	function findInvoiceValue(_customerIdArray, _itemRebateTypes, _startDate, _endDate)
@@ -117,7 +367,16 @@ function(record, search) {
 	    	return results;
 	    }
 
-    function rebateTargetInfoObj(_rebateTargets, _rebateTargetFrequency, _rebateGuarenteedPercent, _rebateGuarenteedFreq, _rebateMarketingPercent, _rebateMarketingFreq)
+    function rebateProcessingInfoObj(_status, _startDate, _endDate, _percentage, _rebateItemTypes)
+		{
+	    	this.status				= _status;
+    		this.startDate 			= _startDate;			
+	    	this.endDate			= _endDate;	
+	    	this.percentage			= _percentage;
+	    	this.rebateItemTypes	= _rebateItemTypes
+		}
+
+    function rebateTargetInfoObj(_rebateTargets, _rebateTargetFrequency, _rebateGuarenteedPercent, _rebateGuarenteedFreq, _rebateMarketingPercent, _rebateMarketingFreq, _rebateItemTypes)
     	{
 	    	this.rebateTargets 				= _rebateTargets;			
 	    	this.rebateTargetFrequency		= _rebateTargetFrequency;	
@@ -125,6 +384,7 @@ function(record, search) {
 	    	this.rebateGuarenteedFreq		= _rebateGuarenteedFreq;	
 	    	this.rebateMarketingPercent		= _rebateMarketingPercent;	
 	    	this.rebateMarketingFreq		= _rebateMarketingFreq;	
+	    	this.rebateItemTypes			= _rebateItemTypes;
     	}
     
     function rebateDateInfoObj(_startDate, _q1EndDate, _q2EndDate, _q3EndDate, _endDate, _today)
@@ -166,16 +426,80 @@ function(record, search) {
     									return new Date(this.today.getFullYear(), this.today.getMonth() + 1, 0).getTime() === this.today.getTime();
     								};
     								
-    		this.startOfMonth	= function()	//Returns the start date of the current month
+    		this.getStartOfMonth = function()	//Returns the start date of the current month
     								{
     									return new Date(this.today.getFullYear(), this.today.getMonth(), 1);
     								};
     								
-    		this.endOfMonth	= function()	//Returns the end date of the current month
+    		this.getEndOfMonth	= function()	//Returns the end date of the current month
     								{
     									return new Date(this.today.getFullYear(), this.today.getMonth() + 1, 0);
     								};
     								
+    		this.getStartOfQuarter	= function()
+    								{
+    									//Is todays date inside the Q1 end date?
+    									//
+    									if(this.today.getTime() <= this.q1EndDate.getTime())
+    										{
+    											//Work out the first day of the quarter end month
+    											//
+    											var startOfLastMonthInQuarter = new Date(this.q1EndDate.getFullYear(), this.q1EndDate.getMonth(), 1);
+    											
+    											//Now subtract 3 months from it to get the start of the first month in the quarter
+    											//
+    											startOfLastMonthInQuarter.setMonth(startOfLastMonthInQuarter.getMonth() - 2);
+    											
+    											return new Date(startOfLastMonthInQuarter.getFullYear(), startOfLastMonthInQuarter.getMonth(), startOfLastMonthInQuarter.getDate());
+    										}
+    			
+    									//Is todays date inside the Q2 end date?
+    									//
+    									if(this.today.getTime() <= this.q2EndDate.getTime())
+    										{
+    											//Work out the first day of the quarter end month
+    											//
+    											var startOfLastMonthInQuarter = new Date(this.q2EndDate.getFullYear(), this.q2EndDate.getMonth(), 1);
+    											
+    											//Now subtract 3 months from it to get the start of the first month in the quarter
+    											//
+    											startOfLastMonthInQuarter.setMonth(startOfLastMonthInQuarter.getMonth() - 2);
+    											
+    											return new Date(startOfLastMonthInQuarter.getFullYear(), startOfLastMonthInQuarter.getMonth(), startOfLastMonthInQuarter.getDate());
+    										}
+    			
+    									//Is todays date inside the Q3 end date?
+    									//
+    									if(this.today.getTime() <= this.q3EndDate.getTime())
+    										{
+    											//Work out the first day of the quarter end month
+    											//
+    											var startOfLastMonthInQuarter = new Date(this.q3EndDate.getFullYear(), this.q3EndDate.getMonth(), 1);
+    											
+    											//Now subtract 3 months from it to get the start of the first month in the quarter
+    											//
+    											startOfLastMonthInQuarter.setMonth(startOfLastMonthInQuarter.getMonth() - 2);
+    											
+    											return new Date(startOfLastMonthInQuarter.getFullYear(), startOfLastMonthInQuarter.getMonth(), startOfLastMonthInQuarter.getDate());
+    										}
+    			
+    									//Is todays date inside the Q4 end date?
+    									//
+    									if(this.today.getTime() <= this.endDate.getTime())
+    										{
+    											//Work out the first day of the quarter end month
+    											//
+    											var startOfLastMonthInQuarter = new Date(this.endDate.getFullYear(), this.endDate.getMonth(), 1);
+    											
+    											//Now subtract 3 months from it to get the start of the first month in the quarter
+    											//
+    											startOfLastMonthInQuarter.setMonth(startOfLastMonthInQuarter.getMonth() - 2);
+    											
+    											return new Date(startOfLastMonthInQuarter.getFullYear(), startOfLastMonthInQuarter.getMonth(), startOfLastMonthInQuarter.getDate());
+    										}
+    			
+    									return returnedDate;
+    								}
 
     	}
     

@@ -55,8 +55,6 @@ function(record, runtime, search) {
 																	      "AND", 
 																	      ["status","anyof","SalesOrd:B"], 	// SalesOrd:B = Pending Fulfillment
 																	      "AND", 
-																	      ["name","anyof",integrationCashSaleCust], 
-																	      "AND", 
 																	      ["trandate","before","today"],
 																	      "AND",
 																	      ["cseg_bbs_division","anyof","5"] // 5 = Comet
