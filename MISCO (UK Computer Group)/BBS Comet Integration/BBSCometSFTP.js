@@ -54,7 +54,8 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 						      search.createColumn({name: "custrecord_bbs_comet_file_extension", 		label: "File Extension"}),
 						      search.createColumn({name: "custrecord_bbs_comet_so_form", 				label: "Sales Order Form"}),
 						      search.createColumn({name: "custrecord_bbs_comet_payment_type", 			label: "Payment Type"}),
-						      search.createColumn({name: "custrecord_bbs_comet_division", 				label: "Division To Be Used For Sales Orders"})
+						      search.createColumn({name: "custrecord_bbs_comet_division", 				label: "Division To Be Used For Sales Orders"}),
+						      search.createColumn({name: "custrecord_bbs_comet_cust_form", 				label: "Customer Form"})
 						   ]
 						}));
 					
@@ -74,6 +75,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 							var integrationEmailRecipients	= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_email_recipients"});
 							var integrationFileExtension	= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_file_extension"});
 							var integrationFormId			= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_so_form"});
+							var integrationCustFormId		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_cust_form"});
 							var integrationPaymentMethod	= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_payment_type"});
 							var integrationDivision			= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_division"});
 							
@@ -199,9 +201,10 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				var rawDateArray 		= output.Order.OrderHeader.OrderDate.substring(0,output.Order.OrderHeader.OrderDate.indexOf('T')).split('-');
 																				var headerOrderNo 		= getDataElement(output, 'output.Order.OrderHeader.ExternalSystemOrderNo');
 																				var headerCoName 		= getDataElement(output, 'output.Order.OrderHeader.CompanyInformation.Name');
-																				var headerContactName 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Contact.Name');
-																				var headerContactPhone 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Contact.Phone');
-																				var headerContactEmail 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Contact.Email');
+																				var headerContactName 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Name');
+																				var headerContactPhone 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Phone');
+																				var headerContactMobile	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Mobile');
+																				var headerContactEmail 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Email');
 																				var headerBillAdressee 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.AddressName');
 																				var headerBillCompany 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.Company');
 																				var headerBillAddress1 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.Address1');
@@ -236,7 +239,10 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																														headerBillAddress2,
 																														headerBillCity,
 																														headerBillCounty,
-																														headerBillPostCode
+																														headerBillPostCode,
+																														integrationCustFormId,
+																														headerContactPhone,
+																														headerContactMobile
 																														);
 																				
 																				//Create sales order record
@@ -692,9 +698,9 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				var rawDateArray 		= output.Order.OrderHeader.OrderDate.substring(0,output.Order.OrderHeader.OrderDate.indexOf('T')).split('-');
 																				var headerOrderNo 		= getDataElement(output, 'output.Order.OrderHeader.ExternalSystemOrderNo');
 																				var headerCoName 		= getDataElement(output, 'output.Order.OrderHeader.CompanyInformation.Name');
-																				var headerContactName 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Contact.Name');
-																				var headerContactPhone 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Contact.Phone');
-																				var headerContactEmail 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Contact.Email');
+																				var headerContactName 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Name');
+																				var headerContactPhone 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Phone');
+																				var headerContactEmail 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Email');
 																				var headerBillAdressee 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.AddressName');
 																				var headerBillCompany 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.Company');
 																				var headerBillAddress1 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.Address1');
@@ -1425,7 +1431,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 
     //Find cash sale customer by email address
     //
-    function findOrCreateCustomer(_headerContactEmail, _integrationCashSaleCust, _division, _contactName, _address1, _address2, _city, _county, _postCode)
+    function findOrCreateCustomer(_headerContactEmail, _integrationCashSaleCust, _division, _contactName, _address1, _address2, _city, _county, _postCode, _customForm, _phone, _mobile)
     	{
     		var customerSearchObj 	= null;
     		var customerId			= _integrationCashSaleCust;	//Default returned customer to be the built in one
@@ -1477,6 +1483,14 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 	    															isDynamic:	true
 																	});		
 
+    						if(_customForm != null && _customForm != '')
+    							{
+		    						createdCustomerRecord.setValue({
+																	fieldId:	'customform',
+																	value:		_customForm
+																	});	
+    							}
+
     						createdCustomerRecord.setValue({
 															fieldId:	'isperson',
 															value:		'T'	
@@ -1486,27 +1500,48 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 															fieldId:	'cseg_bbs_division',
 															value:		_division	//Division from config record
 															});	
-
+    						
+    						var nameSplit = _contactName.split(' ');
+    						
     						createdCustomerRecord.setValue({
 															fieldId:	'firstname',
-															value:		'CASH SALE'
+															value:		nameSplit[0]
 															});	
 
     						createdCustomerRecord.setValue({
 															fieldId:	'lastname',
-															value:		_contactName
+															value:		nameSplit[nameSplit.length - 1]
 															});	
 
     						createdCustomerRecord.setValue({
 															fieldId:	'name',
-															value:		'CASH SALE ' + _contactName
+															value:		_contactName
 															});	
 
-    						createdCustomerRecord.setValue({
-															fieldId:	'email',
-															value:		_headerContactEmail		
-															});	
+    						if(_headerContactEmail != null && _headerContactEmail != '')
+								{
+		    						createdCustomerRecord.setValue({
+																	fieldId:	'email',
+																	value:		_headerContactEmail		
+																	});	
+								}
     						
+    						if(_phone != null && _phone != '')
+								{
+		    						createdCustomerRecord.setValue({
+																	fieldId:	'phone',
+																	value:		_phone		
+																	});	
+								}
+						
+    						if(_mobile != null && _mobile != '')
+								{
+		    						createdCustomerRecord.setValue({
+																	fieldId:	'mobilephone',
+																	value:		_mobile		
+																	});	
+								}
+						
     						createdCustomerRecord.setValue({
 															fieldId:	'terms',
 															value:		4				//0 Net
@@ -1515,6 +1550,11 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
     						createdCustomerRecord.setValue({
 															fieldId:	'category',
 															value:		3				//Prepayment
+															});	
+    						
+    						createdCustomerRecord.setValue({
+															fieldId:	'custentity_bbs_postcode_searchable',
+															value:		_postCode		//Searchable post code
 															});	
     						
     						

@@ -57,6 +57,42 @@ function woShippingRouteAS(type)
 										{
 											nlapiLogExecution('ERROR', 'Unexpecetd error', err.message);
 										}
+									
+									//Find the install date on the works order
+									//
+									var worksOrderInstallDate = newRecord.getFieldValue('custbody_fg_install_date');
+									
+									if(worksOrderInstallDate != null && worksOrderInstallDate != '')
+										{
+											try
+												{
+													var soShipDate 			= nlapiStringToDate(worksOrderInstallDate);
+													var dayToSubstract 		= Number(2);
+
+													while (dayToSubstract > 0)
+														{
+															soShipDate.setDate(soShipDate.getDate() - 1);
+															
+															var day = soShipDate.getDay();
+	
+															if(day != 0 && day != 6)
+																{
+																	dayToSubstract--;
+																}
+														}
+													
+													//soShipDate 				= nlapiAddDays(soShipDate, -2);
+													
+													var soShipDateString 	= nlapiDateToString(soShipDate);
+													
+													nlapiSubmitField('salesorder', createdFrom, 'shipdate', soShipDateString, false);
+														
+												}
+											catch(err)
+												{
+													nlapiLogExecution('ERROR', 'Unexpecetd error', err.message);
+												}
+										}
 								}
 						}			
 				}
