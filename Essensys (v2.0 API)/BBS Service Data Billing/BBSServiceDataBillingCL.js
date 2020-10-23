@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/task', 'N/url'],
-function(task, url) {
+define(['N/url', 'N/https', 'N/ui/message'],
+function(url, https, message) {
     
     /**
      * Function to be executed after page is initialized.
@@ -175,23 +175,52 @@ function(task, url) {
 			window.open(suiteletURL, '_blank');
     	}
     
-    function createCombinedReports()
+    function createAdvanceReports()
     	{
-    		// schedule map/reduce task
-    		var mapReduceTaskID = task.create({
-	    	    taskType: task.TaskType.MAP_REDUCE,
-	    	    scriptId: 'customscript_bbs_combined_reports_mr',
-	    	    deploymentId: 'customdeploy_bbs_combined_reports_mr'
-	    	}).submit();
+	    	// ==========================================================================
+			// CALL BACKEND SUITELET TO SCHEDULE CREATE ADVANCE REPORTS MAP/REDUCE SCRIPT
+			// ==========================================================================
     	
-    		alert(mapReduceTaskID);
+    		// define URL of Suitelet
+			var suiteletURL = url.resolveScript({
+				scriptId: 'customscript_bbs_advance_reports_sl',
+				deploymentId: 'customdeploy_bbs_advance_reports_sl'
+			});
+		
+			// call the Suitelet
+			var response = 	https.get({
+				url: suiteletURL
+			});
+			
+			response = response.body; // get the response body
+			
+			// check if response is true
+			if (response == 'true')
+				{
+					// display a confirmation message
+					message.create({
+						type: message.Type.CONFIRMATION,
+				        title: 'Create Advance Reports Scheduled',
+				        message: 'The process for the creation of advance reports has been scheduled successfully.'
+					}).show();
+				}
+			// check if response is false
+			else if (response == 'false')
+				{
+					// display an error message
+					message.create({
+						type: message.Type.ERROR,
+				        title: 'Error',
+				        message: 'There was an error scheduling the creation of advance reports.<br><br>Please see script logs for further details.'
+					}).show(5000); // show for 5 seconds
+				}
     	}
 
     return {
         pageInit: pageInit,
         emailInvoices: emailInvoices,
         connectFileSync: connectFileSync,
-        createCombinedReports: createCombinedReports
+        createAdvanceReports: createAdvanceReports
     };
     
 });

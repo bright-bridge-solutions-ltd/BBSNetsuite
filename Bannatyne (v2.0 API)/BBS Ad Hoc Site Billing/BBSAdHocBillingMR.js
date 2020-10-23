@@ -302,6 +302,16 @@ function(runtime, search, format, record) {
     					value: 2 // 2 = Ongoing
     				});
     				
+    				invoiceRecord.setValue({
+    					fieldId: 'location',
+    					value: location
+    				});
+    				
+    				invoiceRecord.setValue({
+    					fieldId: 'class',
+    					value: lineOfBusiness
+    				});
+    				
     				/*
     				 * =======================================================================
     				 * ADD A LINE TO THE ITEMS SUBLIST FOR THE ITEM ASSOCIATED TO THE CONTRACT
@@ -340,7 +350,7 @@ function(runtime, search, format, record) {
     				
     				invoiceRecord.setCurrentSublistValue({
     					sublistId: 'item',
-    					fieldId: 'vatcode',
+    					fieldId: 'taxcode',
     					value: vatRate
     				});
     				

@@ -38,9 +38,9 @@ function(record, runtime, search) {
 				   ]
 				}));
 			
-			if(customrecord_bbs_comet_integrationSearchObj != null && customrecord_bbs_comet_integrationSearchObj.length == 1)
+			if(customrecord_bbs_comet_integrationSearchObj.length > 0)
 				{
-					var integrationCashSaleCust		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_cash_sale_cust"});
+					var integrationCashSaleCust	= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_cash_sale_cust"});
 
 		    		//Find purchase orders that need to be received
 		    		//Created before today, pending receipt & created from customer is the cash sale account

@@ -68,7 +68,9 @@ function(runtime, record, email) {
 		    	});
 		    	
 		    	// save the ad hoc site record
-		    	adHocSiteRecord.save();
+		    	adHocSiteRecord.save({
+		    		ignoreMandatoryFields: true
+		    	});
     			
     			log.audit({
     				title: 'Ad Hoc Site Record Updated',
@@ -113,7 +115,7 @@ function(runtime, record, email) {
 	    	        		relatedRecords: {
 	    	        			customRecord: {
 	    	        				id: recordID,
-	    	        				recordType: 406 // 406 = Ad Hoc Site
+	    	        				recordType: 829 // 829 = Ad Hoc Site
 	    	        			}
 	    	        		}
 	    	        	});

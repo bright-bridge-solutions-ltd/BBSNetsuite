@@ -86,18 +86,23 @@
 			margin-top: 20px;
 			margin-bottom: 5px;
 		}
+		span.tabletitle {
+			font-size: 12pt;
+			font-weight: bold;
+		}
 </style>
 </head>
 <body header="nlheader" header-height="150pt" footer="nlfooter" footer-height="40pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
     
-   	<p><b>Items</b></p>
-    
-    <!-- ITEMS TABLE -->
+   	<!-- ITEMS TABLE -->
     <table style="width: 100%;">
     	<#list record.item as item>
     		<#if item_index==0>
 				<thead>
-					<tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
+					<tr>
+	    				<th colspan="16"><span class="tabletitle">Items</span></th>
+	    			</tr>
+					<tr style="margin-top: 10px; border-top: 1px solid black; border-bottom: 1px solid black;">
 						<th align="left" colspan="8">Product</th>
 						<th align="left" colspan="10">Description</th>
 						<th align="right" colspan="4">Quantity</th>
@@ -114,29 +119,30 @@
     	</#list>
     </table>
     
-    <p><b>Assembly Items</b></p>
-    
-    <!-- ASSEMBLY ITEMS TABLE -->
-    <table style="width: 100%;">
-    	<#list record.assemblydetail as assembly>
-    		<#if assembly_index==0>
-				<thead>
-					<tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
-						<th align="left" colspan="8">Product</th>
-						<th align="left" colspan="10">Description</th>
-						<th align="right" colspan="4">Quantity</th>
-						<th align="left" colspan="4" style="padding-left: 20px;">Assembly<br/>Required</th>
-					</tr>
-    			</thead>
-    		</#if>
+    <!-- MANUFACTURER ROUTING STEPS TABLE -->
+    <#if record.custbody_bbs_manufactuer_routing_steps?has_content>
+    	<table style="width: 100%;">
+    		<#list record.custbody_bbs_manufactuer_routing_steps?eval as routingStep>
+    			<#if routingStep_index == 0>
+    				<thead>
+	    				<tr>
+	    					<th colspan="16"><span class="tabletitle">Manufacturer Routing Steps</span></th>
+	    				</tr>
+	    				<tr style="margin-top: 10px; border-top: 1px solid black; border-bottom: 1px solid black;">
+							<th align="left" colspan="6">Operation<br/>Sequence</th>
+							<th align="left" colspan="8">Operation<br/>Name</th>
+							<th align="left" colspan="4">Run<br/>Rate</th>
+						</tr>
+    				</thead>
+    			</#if>
     			<tr>
-    				<td align="left" colspan="8">${assembly.item}</td>
-    				<td align="left" colspan="10">${assembly.description}</td>
-    				<td align="right" colspan="4">${assembly.quantity}</td>
-    				<td align="left" colspan="4" style="padding-left: 20px;">${assembly.issubassembly}</td>
+    				<td align="left" colspan="6">${routingStep.operationSequence}</td>
+    				<td align="left" colspan="8">${routingStep.operationName}</td>
+    				<td align="left" colspan="4">${routingStep.runRate}</td>
     			</tr>
-    	</#list>
-    </table>
+    		</#list>
+    	</table>   
+    </#if>
     
 </body>
 </pdf>

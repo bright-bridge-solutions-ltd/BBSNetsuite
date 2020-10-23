@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/search', 'N/ui/message'],
-function(search, message) {
+define(['N/search', 'N/ui/message', 'N/ui/dialog', 'N/currentRecord'],
+function(search, message, dialog, currentRecord) {
     
     /**
      * Function to be executed after page is initialized.
@@ -173,6 +173,32 @@ function(search, message) {
 				    		}
 		    		}
     		}
+    	else if (scriptContext.sublistId == 'item' && scriptContext.fieldId == 'quantity') // if the quantity has been changed
+    		{
+	    		// get the current record
+		    	var currentRecord = scriptContext.currentRecord;
+		    	
+		    	// get the quantity and available quantity for the current line
+		    	var quantity = currentRecord.getCurrentSublistValue({
+		    		sublistId: 'item',
+		    		fieldId: 'quantity'
+		    	});
+		    	
+		    	var availableQuantity = currentRecord.getCurrentSublistValue({
+		    		sublistId: 'item',
+		    		fieldId: 'quantityavailable'
+		    	});
+		    	
+		    	// if quantity > availableQuantity
+		    	if (quantity > availableQuantity)
+		    		{
+		    			// display an alert to the user
+		    			dialog.alert({
+		    				title: '⚠️ Check Quantity',
+		    				message: 'You have entered a quantity of <b>' + quantity + '</b> but there are only <b>' + availableQuantity + '</b> available.<br><br>Please check the quantity you have entered before continuing.'
+		    			});
+		    		}
+    		}
     }
 
     /**
@@ -212,6 +238,17 @@ function(search, message) {
      * @since 2015.2
      */
     function lineInit(scriptContext) {
+    	
+    	// if a new line has been selected on the item sublist
+    	if (scriptContext.sublistId == 'item')
+    		{
+    			// initialize the expected ship date field on the current line using today's date
+    			scriptContext.currentRecord.setCurrentSublistValue({
+    				sublistId: 'item',
+    				fieldId: 'expectedshipdate',
+    				value: new Date() // today
+    			});
+    		}
 
     }
 
@@ -290,10 +327,53 @@ function(search, message) {
     function saveRecord(scriptContext) {
 
     }
+    
+    // ===============================================================================
+    // CUSTOM FUNCTION TO RESET LINE LEVEL SHIP DATES USING THE HEADER SHIP DATE FIELD
+    // ===============================================================================
+    
+    function resetExpectedShipDates() {
+    	
+    	// get the current record
+    	var currRec = currentRecord.get();
+    	
+    	// get the value of the ship date field
+    	var shipDate = currRec.getValue({
+    		fieldId: 'shipdate'
+    	});
+    	
+    	// get count of item lines
+    	var lineCount = currRec.getLineCount({
+    		sublistId: 'item'
+    	});
+    	
+    	// loop through item lines
+    	for (var i = 0; i < lineCount; i++)
+    		{
+    			// set the expected ship date field on the line
+    			currRec.selectLine({
+    				sublistId: 'item',
+    				line: i
+    			});
+    			
+    			currRec.setCurrentSublistValue({
+    				sublistId: 'item',
+    				fieldId: 'expectedshipdate',
+    				value: shipDate
+    			});
+    			
+    			currRec.commitLine({
+    				sublistId: 'item'
+    			});
+    		}
+    	
+    }
 
     return {
         pageInit: pageInit,
-    	fieldChanged: fieldChanged
+    	fieldChanged: fieldChanged,
+    	lineInit: lineInit,
+    	resetExpectedShipDates: resetExpectedShipDates
     };
     
 });
