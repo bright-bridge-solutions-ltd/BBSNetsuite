@@ -7,11 +7,102 @@ define(['N/record', 'N/search'],
 function(record, search) {
 
 	
+	//Process the rebate for the group customer 
+	//Create a credit memo or an accrual
+	//
+	function createCustomerRebateOrAccrual(_rebateGroupCustomer, _rebateValue, _rebateProcessingInfo, _rebateRecordId)
+		{
+			//Process based on frequency
+			//
+			switch(_rebateProcessingInfo.frequency)
+				{
+					case 1:		//Quarterly
+						
+						break;
+						
+					case 2:		//Annually
+									
+						break;
+									
+					case 3:		//Monthly
+						
+						//Create the credit memo for the group customer
+						//
+						try
+							{
+								var creditRecord = record.create({
+																type:			record.Type.CREDIT_MEMO,
+																isDynamic:		true,
+																defaultValues:	{
+																				entity:	_rebateGroupCustomer
+																				}
+																});		
+								
+								creditRecord.setValue({
+														fieldId:		'location',
+														value:			1				//Nymas Warehouse		
+													});	
+								
+								
+								creditRecord.selectNewLine({
+										    				sublistId: 'item'
+										    				});
+								
+								
+								
+								creditRecord.setCurrentSublistValue({
+												    				sublistId: 	'item',
+												    				fieldId: 	'item',
+												    				value: 		itemId
+												    				});
+
+								creditRecord.setCurrentSublistValue({
+												    				sublistId: 	'item',
+												    				fieldId: 	'quantity',
+												    				value: 		1
+												    				});
+
+								creditRecord.setCurrentSublistValue({
+												    				sublistId: 	'item',
+												    				fieldId: 	'rate',
+												    				value: 		rebateValue
+												    				});
+
+								creditRecord.setCurrentSublistValue({
+												    				sublistId: 	'item',
+												    				fieldId: 	'amount',
+												    				value: 		rebateValue
+												    				});
+								
+								creditRecord.commitLine({
+														sublistId: 	'item'
+														});
+								
+								creditRecord.save({
+													ignoreMandatoryFields:	true
+												});	
+				
+								
+							}
+						catch(err)
+							{
+								log.error({
+											title: 		'Error creating credit memo for customer id ' + _rebateGroupCustomer + ' on rebate id ' + _rebateRecordId,
+											details: 	err
+											});
+							}
+						
+						
+						break;
+
+				}
+		}
+	
 	//See if we need to process the rebate based on percentage, frequency & type
 	//
 	function checkRebateProcessing(_rebateTargetInfo, _rebateDateInfo, _type)
 		{
-			var processingInfo = new rebateProcessingInfoObj(false,'','','');	//Initialise returned info object with a status of false (nothing to process)
+			var processingInfo = new rebateProcessingInfoObj(false,'','','','','');	//Initialise returned info object with a status of false (nothing to process)
 			
 			switch(_type)
 				{
@@ -40,6 +131,7 @@ function(record, search) {
 															processingInfo.endDate			= endOfQuarter;											//End of date range to find invoices for
 															processingInfo.percentage		= Number(_rebateTargetInfo.rebateGuarenteedPercent);	//Percentage rebate to apply
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
+															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
 														}
 													
 													break;
@@ -55,6 +147,7 @@ function(record, search) {
 															processingInfo.endDate			= endOfYear;											//End of date range to find invoices for
 															processingInfo.percentage		= Number(_rebateTargetInfo.rebateGuarenteedPercent);	//Percentage rebate to apply
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
+															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
 														}
 													
 													break;
@@ -70,6 +163,7 @@ function(record, search) {
 															processingInfo.endDate			= endOfMonth;											//End of date range to find invoices for
 															processingInfo.percentage		= Number(_rebateTargetInfo.rebateGuarenteedPercent);	//Percentage rebate to apply
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
+															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
 														}
 													
 													break;
@@ -104,6 +198,7 @@ function(record, search) {
 															processingInfo.endDate			= endOfQuarter;											//End of date range to find invoices for
 															processingInfo.percentage		= Number(_rebateTargetInfo.rebateMarketingPercent);		//Percentage rebate to apply
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
+															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
 														}
 													
 													break;
@@ -119,6 +214,7 @@ function(record, search) {
 															processingInfo.endDate			= endOfYear;											//End of date range to find invoices for
 															processingInfo.percentage		= Number(_rebateTargetInfo.rebateMarketingPercent);		//Percentage rebate to apply
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
+															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
 														}
 													
 													break;
@@ -134,6 +230,7 @@ function(record, search) {
 															processingInfo.endDate			= endOfMonth;											//End of date range to find invoices for
 															processingInfo.percentage		= Number(_rebateTargetInfo.rebateMarketingPercent);		//Percentage rebate to apply
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
+															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
 														}
 													
 													break;
@@ -167,6 +264,7 @@ function(record, search) {
 															processingInfo.startDate		= startOfQuarter;										//Start of date range to find invoices for
 															processingInfo.endDate			= endOfQuarter;											//End of date range to find invoices for
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
+															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
 														}
 													
 													break;
@@ -181,6 +279,7 @@ function(record, search) {
 															processingInfo.startDate		= startOfYear;											//Start of date range to find invoices for
 															processingInfo.endDate			= endOfYear;											//End of date range to find invoices for
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
+															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
 														}
 													
 													break;
@@ -195,6 +294,7 @@ function(record, search) {
 															processingInfo.startDate		= startOfMonth;											//Start of date range to find invoices for
 															processingInfo.endDate			= endOfMonth;											//End of date range to find invoices for
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
+															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
 														}
 													
 													break;
@@ -226,6 +326,57 @@ function(record, search) {
 																				    			      ["custrecord_bbs_end_q1_ind","onorbefore",_endDate],
 																				    			      "AND",
 																				    			      ["custrecord_bbs_parent_group_rebate","anyof",_groupId]
+																				    			   ],
+																	    			   columns:
+																				    			   [
+																				    			      search.createColumn({name: "name",sort: search.Sort.ASC,  label: "ID"}),
+																				    			      search.createColumn({name: "internalid", label: "Internal Id"}),
+																				    			      search.createColumn({name: "custrecord_bbs_ind_customer", label: "Customer"}),
+																				    			      search.createColumn({name: "custrecord_bbs_end_q1_ind", label: "End of Q1"}),
+																				    			      search.createColumn({name: "custrecord_bbs_end_q2_ind", label: "End of Q2"}),
+																				    			      search.createColumn({name: "custrecord_bbs_end_q3_ind", label: "End of Q3"})
+																				    			   ]
+																	    			}));
+			
+			//Sum up all of the invoice values for each customer that belongs to the group
+			//
+			var customerArray		= [];
+			
+			//Gather all of the customer id's into an array
+			//
+			if(individualRebates != null && individualRebates.length > 0)
+				{
+					for (var int = 0; int < individualRebates.length; int++) 
+	    				{
+							var individualCustomer = individualRebates[int].getValue({name: "custrecord_bbs_ind_customer"});
+	
+							customerArray.push(individualCustomer);
+						}
+				}
+			
+			return customerArray;
+		}
+	
+	//Get the list of all customers that belong to a specific rebate group by finding all of the individual rebate records that are linked to the group record
+	//Also taking into account whether or not they have been flagged as having left the buying group
+	//
+	function findCurrentGroupMembers(_startDate, _endDate, _groupId)
+		{
+			//Now find all of the individual rebate records that have this particular group record linked to them
+			//
+			var individualRebates = BBSRebateProcessingLibrary.getResults(search.create({
+																	    			   type: 		"customrecord_bbs_cust_individ_rebate",
+																	    			   filters:
+																				    			   [
+																				    			      ["isinactive","is","F"], 
+																				    			      "AND", 
+																				    			      ["custrecord_bbs_end_q1_ind","onorafter",_startDate],
+																				    			      "AND", 
+																				    			      ["custrecord_bbs_end_q1_ind","onorbefore",_endDate],
+																				    			      "AND",
+																				    			      ["custrecord_bbs_parent_group_rebate","anyof",_groupId],
+																				    			      "AND"
+																				    			      ["custrecord_bbs_left_buying_group","is","F"]
 																				    			   ],
 																	    			   columns:
 																				    			   [
@@ -318,6 +469,74 @@ function(record, search) {
 			return invoiceValue;
 		}
 	
+	//Get sum of invoices based grouped by customer and optionally rebate type
+	//
+	function findInvoiceValueByCustomer(_customerIdArray, _itemRebateTypes, _startDate, _endDate)
+		{
+			var invoiceValues = {};
+			
+			var filters = [
+						      ["type","anyof","CustInvc"], 
+						      "AND", 
+						      ["mainline","is","F"], 
+						      "AND", 
+						      ["shipping","is","F"], 
+						      "AND", 
+						      ["cogs","is","F"], 
+						      "AND", 
+						      ["taxline","is","F"], 
+						      "AND", 
+						      ["trandate","within",_startDate,_endDate], 
+						      "AND", 
+						      ["name","anyof",_customerIdArray]
+						   ];
+			
+			
+			if(_itemRebateTypes != null && _itemRebateTypes.length > 0)
+				{
+					filters.push("AND");
+					filters.push(["item.custitem_bbs_rebate_item_type","anyof",_itemRebateTypes])
+				}
+			
+			var invoiceSearchObj = null;
+			
+			try
+				{
+					invoiceSearchObj = getResults(search.create({
+															   type: 	"invoice",
+															   filters:	filters,	
+															   columns:
+																	   [
+																	      search.createColumn({name: "entity",summary: "GROUP",label: "Name"}),
+																	      search.createColumn({name: "amount",summary: "SUM",label: "Amount"})
+																	   ]
+															}));
+					
+				}
+			catch(err)
+				{
+					invoiceSearchObj = null;
+				
+					log.error({
+								title: 		'Error searching for invoices',
+								details: 	err
+								});
+				}
+			
+			if(invoiceSearchObj != null && invoiceSearchObj.length > 0)
+				{
+					for (var int = 0; int < invoiceSearchObj.length; int++) 
+						{	
+							var invoiceValue 				= Number(invoiceSearchObj[0].getValue({name: "amount",summary: "SUM"}));
+							var invoiceCustomer				= invoiceSearchObj[0].getValue({name: "entity",summary: "GROUP"});
+							invoiceValues[invoiceCustomer]	= invoiceValue;
+						}
+				}
+			
+			return invoiceValues;
+		}
+	
+	
 	function getGroupRebateTargets(_rebateRecord)
 		{
 			var rebateTargets = {};
@@ -367,13 +586,14 @@ function(record, search) {
 	    	return results;
 	    }
 
-    function rebateProcessingInfoObj(_status, _startDate, _endDate, _percentage, _rebateItemTypes)
+    function rebateProcessingInfoObj(_status, _startDate, _endDate, _percentage, _rebateItemTypes, _frequency)
 		{
 	    	this.status				= _status;
     		this.startDate 			= _startDate;			
 	    	this.endDate			= _endDate;	
 	    	this.percentage			= _percentage;
-	    	this.rebateItemTypes	= _rebateItemTypes
+	    	this.rebateItemTypes	= _rebateItemTypes;
+	    	this.frequency			= _frequency;
 		}
 
     function rebateTargetInfoObj(_rebateTargets, _rebateTargetFrequency, _rebateGuarenteedPercent, _rebateGuarenteedFreq, _rebateMarketingPercent, _rebateMarketingFreq, _rebateItemTypes)

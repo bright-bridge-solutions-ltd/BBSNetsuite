@@ -30,7 +30,9 @@ function(record, runtime, search) {
 			var customrecord_bbs_comet_integrationSearchObj = getResults(search.create({
 				   type: 	"customrecord_bbs_comet_integration",
 				   filters:	[
-				           	 	["isinactive","is","F"]
+				           	 	["isinactive","is","F"],
+				           	 	"AND",
+				           	 	["custrecord_bbs_comet_integration_type","anyof",1]	//Orders B2C
 				           	 ],
 				   columns:
 				   [

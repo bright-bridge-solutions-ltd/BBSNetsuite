@@ -142,23 +142,34 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    																							rebateDateInfo,		//Date info
 		    																							'G'					//Guaranteed rebate
 																			    						);
+		    				
 		    				//Check to see if there is anything to process
-		    				//Object properties are status, startDate, endDate, percentage, item types
+		    				//Object properties are status, startDate, endDate, percentage, item types, frequency
 		    				//
 		    				if(rebateProcessingInfo.status)
 		    					{
-		    						//Find a list of all the customers that are under this rebate group
+		    						//Convert the date ranges to strings for the searches
 		    						//
 			    					var startDateString = format.format({value: rebateProcessingInfo.startDate, type: format.Type.DATE});
 			    					var endDateString 	= format.format({value: rebateProcessingInfo.endDate, type: format.Type.DATE});
 		    						
-		    						var customerArray = findGroupMembers(startDateString, endDateString, searchId);
+			    					//Find all the customers that are linked to this rebate group
+			    					//
+		    						var customerArray 			= BBSRebateProcessingLibrary.findGroupMembers(startDateString, endDateString, searchId);
+		    						
+		    						//Find all the customers that are linked to this rebate group, that have not been flagged as having left the buying group
+			    					//
+		    						var currentCustomerArray 	= BBSRebateProcessingLibrary.findCurrentGroupMembers(startDateString, endDateString, searchId);
 		    						
 		    						//Now get a value of all the invoices that match the customers
 		    						//
-		    						var invoiceValue = findInvoiceValue(customerArray, rebateTargetInfo.rebateItemTypes, startDateString, endDateString);
+		    						var invoiceValue 	= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, rebateTargetInfo.rebateItemTypes, startDateString, endDateString);
 		    						
-		    						//Apply the rebate percentage
+		    						//Now get the breakdown of invoice values by customer, but only for the customers that are still in the buying group
+		    						//
+		    						var invoiceValueByCustomer = BBSRebateProcessingLibrary.findInvoiceValueByCustomer(currentCustomerArray, rebateTargetInfo.rebateItemTypes, startDateString, endDateString);
+		    						
+		    						//Calculate the rebate value
 		    						//
 		    						var rebateValue = (invoiceValue / 100.0) * rebateProcessingInfo.percentage;
 		    						
@@ -166,18 +177,110 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    						//
 		    						if(rebateGroupCustomer != null && rebateGroupCustomer != '')
 		    							{
-		    								//Rebate is applied to the group customer
+		    								//Rebate/Accrual is applied to the group customer
 		    								//
-		    							
-		    							
+			    							BBSRebateProcessingLibrary.createCustomerRebateOrAccrual(
+					    																			rebateGroupCustomer,		//Group customer
+					    																			rebateValue,				//Value of rebate
+					    																			rebateProcessingInfo,		//Rebate processing info object
+					    																			searchId					//Id of rebate record
+					    																			);
 		    							}
 		    						
 		    						if(rebateGroupCustomer != null && rebateGroupCustomer != '')
 		    							{
-		    								//Rebate is applied to the customers in the buying group
+		    								//Rebate/Accrual is applied to the customers in the buying group
 		    								//
+			    							BBSRebateProcessingLibrary.createBuyingGroupRebateOrAccrual(
+			    																						currentCustomerArray,		//List of customers that are still in the buying group
+																										rebateValue,				//Value of rebate
+																										rebateProcessingInfo,		//Rebate processing info object
+						    																			searchId					//Id of rebate record
+																										);
 		    							}
 		    					}
+		    				
+		    				
+		    				//============================================
+		    				//Do we need to process any Marketing Rebate?
+		    				//============================================
+		    				//
+		    				var rebateProcessingInfo = BBSRebateProcessingLibrary.checkRebateProcessing(
+		    																							rebateTargetInfo,	//Target info
+		    																							rebateDateInfo,		//Date info
+		    																							'M'					//Marketing rebate
+																			    						);
+		    				
+		    				//Check to see if there is anything to process
+		    				//Object properties are status, startDate, endDate, percentage, item types, frequency
+		    				//
+		    				if(rebateProcessingInfo.status)
+		    					{
+		    						//Convert the date ranges to strings for the searches
+		    						//
+			    					var startDateString = format.format({value: rebateProcessingInfo.startDate, type: format.Type.DATE});
+			    					var endDateString 	= format.format({value: rebateProcessingInfo.endDate, type: format.Type.DATE});
+		    						
+			    					//Find all the customers that are linked to this rebate group
+			    					//
+		    						var customerArray 			= BBSRebateProcessingLibrary.findGroupMembers(startDateString, endDateString, searchId);
+		    						
+		    						//Find all the customers that are linked to this rebate group, that have not been flagged as having left the buying group
+			    					//
+		    						var currentCustomerArray 	= BBSRebateProcessingLibrary.findCurrentGroupMembers(startDateString, endDateString, searchId);
+		    						
+		    						//Now get a value of all the invoices that match the customers
+		    						//
+		    						var invoiceValue 	= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, rebateTargetInfo.rebateItemTypes, startDateString, endDateString);
+		    						
+		    						//Now get the breakdown of invoice values by customer, but only for the customers that are still in the buying group
+		    						//
+		    						var invoiceValueByCustomer = BBSRebateProcessingLibrary.findInvoiceValueByCustomer(currentCustomerArray, rebateTargetInfo.rebateItemTypes, startDateString, endDateString);
+		    						
+		    						//Calculate the rebate value
+		    						//
+		    						var rebateValue = (invoiceValue / 100.0) * rebateProcessingInfo.percentage;
+		    						
+		    						//Now work out how we apply the rebate
+		    						//
+		    						if(rebateGroupCustomer != null && rebateGroupCustomer != '')
+		    							{
+		    								//Rebate/Accrual is applied to the group customer
+		    								//
+			    							BBSRebateProcessingLibrary.createCustomerRebateOrAccrual(
+					    																			rebateGroupCustomer,		//Group customer
+					    																			rebateValue,				//Value of rebate
+					    																			rebateProcessingInfo,		//Rebate processing info object
+					    																			searchId					//Id of rebate record
+					    																			);
+		    							}
+		    						
+		    						if(rebateGroupCustomer != null && rebateGroupCustomer != '')
+		    							{
+		    								//Rebate/Accrual is applied to the customers in the buying group
+		    								//
+			    							BBSRebateProcessingLibrary.createBuyingGroupRebateOrAccrual(
+			    																						currentCustomerArray,		//List of customers that are still in the buying group
+																										rebateValue,				//Value of rebate
+																										rebateProcessingInfo,		//Rebate processing info object
+						    																			searchId					//Id of rebate record
+																										);
+		    							}
+		    					}
+		    				
+		    				//============================================
+		    				//Do we need to process any Target Rebate?
+		    				//============================================
+		    				//
+		    				
+		    				
+		    				
+		    				
+		    				
+		    				
+		    				
+		    				
+		    				
 		    				
 		    				
 		    				
