@@ -54,6 +54,8 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 																		    			      search.createColumn({name: "custrecord_bbs_end_q1", label: "End of Q1"}),
 																		    			      search.createColumn({name: "custrecord_bbs_end_q2", label: "End of Q2"}),
 																		    			      search.createColumn({name: "custrecord_bbs_end_q3", label: "End of Q3"}),
+																		    			      search.createColumn({name: "custrecord_bbs_start_date", label: "Start Date"}),
+																		    			      search.createColumn({name: "custrecord_bbs_end_date", label: "End Date"}),
 																		    			      search.createColumn({name: "custrecord_bbs_rebate_item_type", label: "Rebate Item Types"})
 																		    			   ]
 															    			}));
@@ -84,15 +86,9 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    		//Rehydrate the search result & get values
 		    		//
 		    		var searchResult 			= JSON.parse(context.value);
-		    		//var searchCustomer			= searchResult.values['custrecord_bbs_customer'];
-		    		//var searchCustomerId		= searchCustomer[0].value;
+		    		var searchDateStartString	= searchResult.values['custrecord_bbs_start_date'];
+		    		var searchDateEndString		= searchResult.values['custrecord_bbs_end_date'];
 		    		var searchId	 			= searchResult.values['internalid'][0].value;
-		    		var searchDateString 		= searchResult.values['custrecord_bbs_end_q1'];
-		    		var searchDate				= format.parse({type: format.Type.DATE, value: searchDateString});
-		    		var searchDateStart			= new Date(searchDate.getFullYear(), 0, 1);
-		    		var searchDateEnd			= new Date(searchDate.getFullYear(), 11, 31);
-		    		var searchDateStartString	= format.format({value: searchDateStart, type: format.Type.DATE});
-		    		var searchDateEndString		= format.format({value: searchDateEnd, type: format.Type.DATE});
 		    		var searchItemTypes			= searchResult.values['custrecord_bbs_rebate_item_type'];
 		    		var itemTypesArray 			= [];
 		    		

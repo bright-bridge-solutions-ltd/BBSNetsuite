@@ -55,7 +55,8 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 						      search.createColumn({name: "custrecord_bbs_comet_so_form", 				label: "Sales Order Form"}),
 						      search.createColumn({name: "custrecord_bbs_comet_payment_type", 			label: "Payment Type"}),
 						      search.createColumn({name: "custrecord_bbs_comet_division", 				label: "Division To Be Used For Sales Orders"}),
-						      search.createColumn({name: "custrecord_bbs_comet_cust_form", 				label: "Customer Form"})
+						      search.createColumn({name: "custrecord_bbs_comet_cust_form", 				label: "Customer Form"}),
+						      search.createColumn({name: "custrecord_bbs_comet_del_charge_item",		label: "Delivery Item"})
 						   ]
 						}));
 					
@@ -78,6 +79,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 							var integrationCustFormId		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_cust_form"});
 							var integrationPaymentMethod	= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_payment_type"});
 							var integrationDivision			= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_division"});
+							var integrationDelCharge		= customrecord_bbs_comet_integrationSearchObj[0].getValue({name: "custrecord_bbs_comet_del_charge_item"});
 							
 							//Create a connection
 							//
@@ -550,6 +552,47 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																								emailMessage += 'Unable to add product with code ' + lineProduct + ' for order # '+ headerOrderNo + '\n\n';
 																							}
 																					}
+																				
+																				//Attempt to add the shipping cost as a line item
+																				//
+																				if(headerShipTotal != null && headerShipTotal != '')
+																					{
+																						if(integrationDelCharge != null && integrationDelCharge != '')
+																							{	
+																								salesOrderRecord.selectNewLine({
+																											    				sublistId: 'item'
+																											    				});
+																	
+																								salesOrderRecord.setCurrentSublistValue({
+																													    				sublistId: 	'item',
+																													    				fieldId: 	'item',
+																													    				value: 		integrationDelCharge
+																													    				});
+															
+																								salesOrderRecord.setCurrentSublistValue({
+																													    				sublistId: 	'item',
+																													    				fieldId: 	'quantity',
+																													    				value: 		1
+																													    				});
+																								
+																								salesOrderRecord.setCurrentSublistValue({
+																													    				sublistId: 	'item',
+																													    				fieldId: 	'rate',
+																													    				value: 		headerShipTotal
+																													    				});
+															
+																								salesOrderRecord.setCurrentSublistValue({
+																													    				sublistId: 	'item',
+																													    				fieldId: 	'amount',
+																													    				value: 		headerShipTotal
+																													    				});
+																								
+																								salesOrderRecord.commitLine({
+																															sublistId: 	'item'
+																															});
+																							}
+																					}
+																				
 																				
 																				//Save the sales order
 																				//

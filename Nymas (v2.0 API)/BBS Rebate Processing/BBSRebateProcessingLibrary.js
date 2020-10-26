@@ -6,103 +6,408 @@ define(['N/record', 'N/search'],
  */
 function(record, search) {
 
+	//
+	//=========================================================================
+	//Functions
+	//=========================================================================
+	//
+	
+	//Process to create a rebate for each customer in the buying group
+	//
+	function createBuyingGroupRebateOrAccrual(_currentCustomerArray, _rebateValue, _rebateProcessingInfo, _rebateRecordId, _invoiceValueByCustomer)
+		{
+			if(Number(_rebateValue) > 0)
+				{
+					//Work out what field to use for the accrual value
+					//
+					var accuraField = '';
+					
+					switch(_rebateProcessingInfo.rebateType)
+						{
+							case 'G':	//Guaranteed
+								
+								accuraField = 'custrecord_bbs_accrual_guaranteed';
+								break;
+								
+							case 'M': 	//Marketing
+								
+								accuraField = 'custrecord_bbs_acc_value_marketing';
+								break;
+								
+							case 'T':	//Target
+								
+								accuraField = 'custrecord_bbs_accrual_targeted';
+								break;
+						}
+				
+					//Process based on frequency
+					//
+					switch(_rebateProcessingInfo.frequency)
+						{
+							case 1:		//Quarterly
+								
+								switch(_rebateProcessingInfo.rebateOrAccrual)
+									{
+										case 'R':	//Rebate
+											
+											var totalInvoiceValue = Number(0);
+											
+											for ( var customer in _invoiceValueByCustomer) 
+												{
+													totalInvoiceValue += Number(_invoiceValueByCustomer[customer]);
+												}
+											
+											//Loop through each customer & work out the apportionment of the rebate due
+											//
+											for ( var customer in _invoiceValueByCustomer) 
+												{
+													var customerInvoiceValue 	= Number(_invoiceValueByCustomer[customer]);
+													var rebateUnitValue 		= Number(_rebateValue) / Number(totalInvoiceValue);
+													var customerRebate			= Number(customerInvoiceValue) * Number(rebateUnitValue);
+													
+													createCreditMemo(customer, customerRebate, 'Buying group rebate - quarterly');
+												}
+											
+											//Reset the accrual value
+											//
+											var fieldsAndValues = {};
+											fieldsAndValues[accuraField] = 0;
+											
+											record.submitFields({
+								    							type:		'customrecord_bbs_cust_group_rebate',
+								    							id:			_rebateRecordId,
+								    							values:		fieldsAndValues,
+								    							options:	{
+								    										ignoreMandatoryFields: 	true
+								    										}
+								    							});
+											
+											break;
+											
+										case 'A':	//Accrual
+											
+											//Update the accrual value
+											//
+											var fieldsAndValues = {};
+											fieldsAndValues[accuraField] = _rebateValue;
+											
+											record.submitFields({
+								    							type:		'customrecord_bbs_cust_group_rebate',
+								    							id:			_rebateRecordId,
+								    							values:		fieldsAndValues,
+								    							options:	{
+								    										ignoreMandatoryFields: 	true
+								    										}
+								    							});
+											
+											break;
+									}
+								
+								break;
+								
+							case 2:		//Annually
+								
+								switch(_rebateProcessingInfo.rebateOrAccrual)
+									{
+										case 'R':	//Rebate
+											
+											var totalInvoiceValue = Number(0);
+											
+											for ( var customer in _invoiceValueByCustomer) 
+												{
+													totalInvoiceValue += Number(_invoiceValueByCustomer[customer]);
+												}
+											
+											//Loop through each customer & work out the apportionment of the rebate due
+											//
+											for ( var customer in _invoiceValueByCustomer) 
+												{
+													var customerInvoiceValue 	= Number(_invoiceValueByCustomer[customer]);
+													var rebateUnitValue 		= Number(_rebateValue) / Number(totalInvoiceValue);
+													var customerRebate			= Number(customerInvoiceValue) * Number(rebateUnitValue);
+													
+													createCreditMemo(customer, customerRebate, 'Buying group rebate - annualy');
+												}
+											
+											//Reset the accrual value
+											//
+											var fieldsAndValues = {};
+											fieldsAndValues[accuraField] = 0;
+											
+											record.submitFields({
+								    							type:		'customrecord_bbs_cust_group_rebate',
+								    							id:			_rebateRecordId,
+								    							values:		fieldsAndValues,
+								    							options:	{
+								    										ignoreMandatoryFields: 	true
+								    										}
+								    							});
+											
+											break;
+											
+										case 'A':	//Accrual
+											
+											//Update the accrual value
+											//
+											var fieldsAndValues = {};
+											fieldsAndValues[accuraField] = _rebateValue;
+											
+											record.submitFields({
+								    							type:		'customrecord_bbs_cust_group_rebate',
+								    							id:			_rebateRecordId,
+								    							values:		fieldsAndValues,
+								    							options:	{
+								    										ignoreMandatoryFields: 	true
+								    										}
+								    							});
+											
+											break;
+									}			
+								break;
+											
+							case 3:		//Monthly
+								
+								//Work out the total invoice value to work with by adding up the invoice values per customer
+								//
+								var totalInvoiceValue = Number(0);
+								
+								for ( var customer in _invoiceValueByCustomer) 
+									{
+										totalInvoiceValue += Number(_invoiceValueByCustomer[customer]);
+									}
+								
+								//Loop through each customer & work out the apportionment of the rebate due
+								//
+								for ( var customer in _invoiceValueByCustomer) 
+									{
+										var customerInvoiceValue 	= Number(_invoiceValueByCustomer[customer]);
+										var rebateUnitValue 		= Number(_rebateValue) / Number(totalInvoiceValue);
+										var customerRebate			= Number(customerInvoiceValue) * Number(rebateUnitValue);
+										
+										createCreditMemo(customer, customerRebate, 'Buying group rebate - monthly');
+									}
+								
+								break;
+						}
+				}
+		}
 	
 	//Process the rebate for the group customer 
 	//Create a credit memo or an accrual
 	//
 	function createCustomerRebateOrAccrual(_rebateGroupCustomer, _rebateValue, _rebateProcessingInfo, _rebateRecordId)
 		{
-			//Process based on frequency
-			//
-			switch(_rebateProcessingInfo.frequency)
+			if(Number(_rebateValue) > 0)
 				{
-					case 1:		//Quarterly
-						
-						break;
-						
-					case 2:		//Annually
-									
-						break;
-									
-					case 3:		//Monthly
-						
-						//Create the credit memo for the group customer
-						//
-						try
-							{
-								var creditRecord = record.create({
-																type:			record.Type.CREDIT_MEMO,
-																isDynamic:		true,
-																defaultValues:	{
-																				entity:	_rebateGroupCustomer
-																				}
-																});		
+					//Work out what field to use for the accrual value
+					//
+					var accuraField = '';
+					
+					switch(_rebateProcessingInfo.rebateType)
+						{
+							case 'G':	//Guaranteed
 								
-								creditRecord.setValue({
-														fieldId:		'location',
-														value:			1				//Nymas Warehouse		
-													});	
+								accuraField = 'custrecord_bbs_accrual_guaranteed';
+								break;
 								
+							case 'M': 	//Marketing
 								
-								creditRecord.selectNewLine({
-										    				sublistId: 'item'
-										    				});
+								accuraField = 'custrecord_bbs_acc_value_marketing';
+								break;
 								
+							case 'T':	//Target
 								
+								accuraField = 'custrecord_bbs_accrual_targeted';
+								break;
+						}
+					
+					//Process based on frequency
+					//
+					switch(_rebateProcessingInfo.frequency)
+						{
+							case 1:		//Quarterly
 								
-								creditRecord.setCurrentSublistValue({
-												    				sublistId: 	'item',
-												    				fieldId: 	'item',
-												    				value: 		itemId
-												    				});
+								switch(_rebateProcessingInfo.rebateOrAccrual)
+									{
+										case 'R':	//Rebate
+											
+											//Create the credit memo for the group customer
+											//
+											createCreditMemo(_rebateGroupCustomer, rebateValue, 'Group customer rebate - quarterly');
+											
+											//Reset the accrual value
+											//
+											var fieldsAndValues = {};
+											fieldsAndValues[accuraField] = 0;
+											
+											record.submitFields({
+								    							type:		'customrecord_bbs_cust_group_rebate',
+								    							id:			_rebateRecordId,
+								    							values:		fieldsAndValues,
+								    							options:	{
+								    										ignoreMandatoryFields: 	true
+								    										}
+								    							});
+											
+											break;
+											
+										case 'A':	//Accrual
+											
+											//Update the accrual value
+											//
+											var fieldsAndValues = {};
+											fieldsAndValues[accuraField] = _rebateValue;
+											
+											record.submitFields({
+								    							type:		'customrecord_bbs_cust_group_rebate',
+								    							id:			_rebateRecordId,
+								    							values:		fieldsAndValues,
+								    							options:	{
+								    										ignoreMandatoryFields: 	true
+								    										}
+								    							});
+											
+											break;
+									}
+								
+								break;
+								
+							case 2:		//Annually
+								
+								switch(_rebateProcessingInfo.rebateOrAccrual)
+									{
+										case 'R':	//Rebate
+											
+											//Create the credit memo for the group customer
+											//
+											createCreditMemo(_rebateGroupCustomer, rebateValue, 'Group customer rebate - annual');
+											
+											//Reset the accrual value
+											//
+											var fieldsAndValues = {};
+											fieldsAndValues[accuraField] = 0;
+											
+											record.submitFields({
+								    							type:		'customrecord_bbs_cust_group_rebate',
+								    							id:			_rebateRecordId,
+								    							values:		fieldsAndValues,
+								    							options:	{
+								    										ignoreMandatoryFields: 	true
+								    										}
+								    							});
+											
+											break;
+											
+										case 'A':	//Accrual
+											
+											//Update the accrual value
+											//
+											var fieldsAndValues = {};
+											fieldsAndValues[accuraField] = _rebateValue;
+											
+											record.submitFields({
+								    							type:		'customrecord_bbs_cust_group_rebate',
+								    							id:			_rebateRecordId,
+								    							values:		fieldsAndValues,
+								    							options:	{
+								    										ignoreMandatoryFields: 	true
+								    										}
+								    							});
+											
+											break;
+									}
+								
+								break;
+											
+							case 3:		//Monthly
+								
+								//Create the credit memo for the group customer
+								//
+								createCreditMemo(_rebateGroupCustomer, rebateValue, 'Group customer rebate - monthly');
+								
+								break;
+		
+						}
+				}
+		}
+	
+	//Create a credit memo record
+	//
+	function createCreditMemo(_customer, _value, _memo)
+		{
+			try
+				{
+					var creditRecord = record.create({
+													type:			record.Type.CREDIT_MEMO,
+													isDynamic:		true,
+													defaultValues:	{
+																	entity:	_customer
+																	}
+													});		
+					
+					creditRecord.setValue({
+											fieldId:		'location',
+											value:			1				//Nymas Warehouse		
+											});	
+					
+					creditRecord.setValue({
+											fieldId:		'memo',
+											value:			_memo	
+											});	
 
-								creditRecord.setCurrentSublistValue({
-												    				sublistId: 	'item',
-												    				fieldId: 	'quantity',
-												    				value: 		1
-												    				});
 
-								creditRecord.setCurrentSublistValue({
-												    				sublistId: 	'item',
-												    				fieldId: 	'rate',
-												    				value: 		rebateValue
-												    				});
-
-								creditRecord.setCurrentSublistValue({
-												    				sublistId: 	'item',
-												    				fieldId: 	'amount',
-												    				value: 		rebateValue
-												    				});
-								
-								creditRecord.commitLine({
-														sublistId: 	'item'
-														});
-								
-								creditRecord.save({
-													ignoreMandatoryFields:	true
-												});	
-				
-								
-							}
-						catch(err)
-							{
-								log.error({
-											title: 		'Error creating credit memo for customer id ' + _rebateGroupCustomer + ' on rebate id ' + _rebateRecordId,
-											details: 	err
+					creditRecord.selectNewLine({
+							    				sublistId: 'item'
+							    				});
+					
+					
+					
+					creditRecord.setCurrentSublistValue({
+									    				sublistId: 	'item',
+									    				fieldId: 	'item',
+									    				value: 		14824			//TODO - need to get this from a parameter??
+									    				});
+		
+					creditRecord.setCurrentSublistValue({
+									    				sublistId: 	'item',
+									    				fieldId: 	'quantity',
+									    				value: 		1
+									    				});
+		
+					creditRecord.setCurrentSublistValue({
+									    				sublistId: 	'item',
+									    				fieldId: 	'rate',
+									    				value: 		_value
+									    				});
+		
+					creditRecord.setCurrentSublistValue({
+									    				sublistId: 	'item',
+									    				fieldId: 	'amount',
+									    				value: 		_value
+									    				});
+					
+					creditRecord.commitLine({
+											sublistId: 	'item'
 											});
-							}
-						
-						
-						break;
-
+					
+					creditRecord.save({
+										ignoreMandatoryFields:	true
+									});	
+				}
+			catch(err)
+				{
+					log.error({
+								title: 		'Error creating credit memo for customer id ' + _rebateGroupCustomer + ' on rebate id ' + _rebateRecordId,
+								details: 	err
+								});
 				}
 		}
 	
 	//See if we need to process the rebate based on percentage, frequency & type
 	//
-	function checkRebateProcessing(_rebateTargetInfo, _rebateDateInfo, _type)
+	function checkRebateProcessing(_rebateTargetInfo, _rebateDateInfo, _type, _rebateRecordId)
 		{
-			var processingInfo = new rebateProcessingInfoObj(false,'','','','','');	//Initialise returned info object with a status of false (nothing to process)
+			var processingInfo = new rebateProcessingInfoObj(false,'','','','','','', _type);	//Initialise returned info object with a status of false (nothing to process)
 			
 			switch(_type)
 				{
@@ -120,9 +425,9 @@ function(record, search) {
 										//
 										switch(Number(_rebateTargetInfo.rebateGuarenteedFreq))
 											{
-												case 1:	//Quarterly - see if today is the end of any quarter
+												case 1:	//Quarterly - see if today is the end of any quarter or today is the end of a month as we will accrue on a monthly basis
 													
-													if(_rebateDateInfo.isQ1End() || _rebateDateInfo.isQ2End() || _rebateDateInfo.isQ3End() || _rebateDateInfo.isQ4End())
+													if(_rebateDateInfo.isQ1End() || _rebateDateInfo.isQ2End() || _rebateDateInfo.isQ3End() || _rebateDateInfo.isQ4End() || _rebateDateInfo.isEndOfMonth())
 														{
 															var startOfQuarter 				= _rebateDateInfo.getStartOfQuarter();					//Work out the start of the quarter
 															var endOfQuarter 				= _rebateDateInfo.today;								//End of quarter will be today
@@ -132,13 +437,17 @@ function(record, search) {
 															processingInfo.percentage		= Number(_rebateTargetInfo.rebateGuarenteedPercent);	//Percentage rebate to apply
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
 															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
+															processingInfo.rebateOrAccrual	= (	_rebateDateInfo.isQ1End() || 
+																								_rebateDateInfo.isQ2End() || 
+																								_rebateDateInfo.isQ3End() || 
+																								_rebateDateInfo.isQ4End() ? 'R' : 'A');				//Say if we need to create a rebate or an accrual
 														}
 													
 													break;
 													
-												case 2:	//Annually - see if today is the end of the year
+												case 2:	//Annually - see if today is the end of the year or today is the end of a month as we will accrue on a monthly basis
 													
-													if(_rebateDateInfo.isEndOfYear())
+													if(_rebateDateInfo.isEndOfYear() || _rebateDateInfo.isEndOfMonth())
 														{
 															var startOfYear 				= _rebateDateInfo.startDate;							//Get the start of the year
 															var endOfYear	 				= _rebateDateInfo.today;								//End of year will be today
@@ -148,6 +457,7 @@ function(record, search) {
 															processingInfo.percentage		= Number(_rebateTargetInfo.rebateGuarenteedPercent);	//Percentage rebate to apply
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
 															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
+															processingInfo.rebateOrAccrual	= (_rebateDateInfo.isEndOfYear() ? 'R' : 'A');			//Say if we need to create a rebate or an accrual
 														}
 													
 													break;
@@ -164,6 +474,7 @@ function(record, search) {
 															processingInfo.percentage		= Number(_rebateTargetInfo.rebateGuarenteedPercent);	//Percentage rebate to apply
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
 															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
+															processingInfo.rebateOrAccrual	= 'R';													//Always rebate for monthly
 														}
 													
 													break;
@@ -187,9 +498,9 @@ function(record, search) {
 										//
 										switch(Number(_rebateTargetInfo.rebateMarketingFreq))
 											{
-												case 1:	//Quarterly - see if today is the end of any quarter
+												case 1:	//Quarterly - see if today is the end of any quarter or today is the end of a month as we will accrue on a monthly basis
 													
-													if(_rebateDateInfo.isQ1End() || _rebateDateInfo.isQ2End() || _rebateDateInfo.isQ3End() || _rebateDateInfo.isQ4End())
+													if(_rebateDateInfo.isQ1End() || _rebateDateInfo.isQ2End() || _rebateDateInfo.isQ3End() || _rebateDateInfo.isQ4End() || _rebateDateInfo.isEndOfMonth())
 														{
 															var startOfQuarter 				= _rebateDateInfo.getStartOfQuarter();					//Work out the start of the quarter
 															var endOfQuarter 				= _rebateDateInfo.today;								//End of quarter will be today
@@ -199,13 +510,17 @@ function(record, search) {
 															processingInfo.percentage		= Number(_rebateTargetInfo.rebateMarketingPercent);		//Percentage rebate to apply
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
 															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
+															processingInfo.rebateOrAccrual	= (	_rebateDateInfo.isQ1End() || 
+																								_rebateDateInfo.isQ2End() || 
+																								_rebateDateInfo.isQ3End() || 
+																								_rebateDateInfo.isQ4End() ? 'R' : 'A');				//Say if we need to create a rebate or an accrual
 														}
 													
 													break;
 													
-												case 2:	//Annually - see if today is the end of the year
+												case 2:	//Annually - see if today is the end of the year or today is the end of a month as we will accrue on a monthly basis
 													
-													if(_rebateDateInfo.isEndOfYear())
+													if(_rebateDateInfo.isEndOfYear() || _rebateDateInfo.isEndOfMonth())
 														{
 															var startOfYear 				= _rebateDateInfo.startDate;							//Get the start of the year
 															var endOfYear	 				= _rebateDateInfo.today;								//End of year will be today
@@ -215,6 +530,7 @@ function(record, search) {
 															processingInfo.percentage		= Number(_rebateTargetInfo.rebateMarketingPercent);		//Percentage rebate to apply
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
 															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
+															processingInfo.rebateOrAccrual	= (_rebateDateInfo.isEndOfYear() ? 'R' : 'A');			//Say if we need to create a rebate or an accrual
 														}
 													
 													break;
@@ -231,6 +547,7 @@ function(record, search) {
 															processingInfo.percentage		= Number(_rebateTargetInfo.rebateMarketingPercent);		//Percentage rebate to apply
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
 															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
+															processingInfo.rebateOrAccrual	= 'R';													//Always rebate for monthly
 														}
 													
 													break;
@@ -254,9 +571,9 @@ function(record, search) {
 										//
 										switch(Number(_rebateTargetInfo.rebateTargetFrequency))
 											{
-												case 1:	//Quarterly - see if today is the end of any quarter
+												case 1:	//Quarterly - see if today is the end of any quarter or today is the end of a month as we will accrue on a monthly basis
 													
-													if(_rebateDateInfo.isQ1End() || _rebateDateInfo.isQ2End() || _rebateDateInfo.isQ3End() || _rebateDateInfo.isQ4End())
+													if(_rebateDateInfo.isQ1End() || _rebateDateInfo.isQ2End() || _rebateDateInfo.isQ3End() || _rebateDateInfo.isQ4End() || _rebateDateInfo.isEndOfMonth())
 														{
 															var startOfQuarter 				= _rebateDateInfo.getStartOfQuarter();					//Work out the start of the quarter
 															var endOfQuarter 				= _rebateDateInfo.today;								//End of quarter will be today
@@ -264,14 +581,18 @@ function(record, search) {
 															processingInfo.startDate		= startOfQuarter;										//Start of date range to find invoices for
 															processingInfo.endDate			= endOfQuarter;											//End of date range to find invoices for
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
-															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
+															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateTargetFrequency)		//Return the frequency used
+															processingInfo.rebateOrAccrual	= (	_rebateDateInfo.isQ1End() || 
+																								_rebateDateInfo.isQ2End() || 
+																								_rebateDateInfo.isQ3End() || 
+																								_rebateDateInfo.isQ4End() ? 'R' : 'A');				//Say if we need to create a rebate or an accrual
 														}
 													
 													break;
 													
-												case 2:	//Annually - see if today is the end of the year
+												case 2:	//Annually - see if today is the end of the year or today is the end of a month as we will accrue on a monthly basis
 													
-													if(_rebateDateInfo.isEndOfYear())
+													if(_rebateDateInfo.isEndOfYear() || _rebateDateInfo.isEndOfMonth())
 														{
 															var startOfYear 				= _rebateDateInfo.startDate;							//Get the start of the year
 															var endOfYear	 				= _rebateDateInfo.today;								//End of year will be today
@@ -279,7 +600,8 @@ function(record, search) {
 															processingInfo.startDate		= startOfYear;											//Start of date range to find invoices for
 															processingInfo.endDate			= endOfYear;											//End of date range to find invoices for
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
-															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
+															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateTargetFrequency)		//Return the frequency used
+															processingInfo.rebateOrAccrual	= (_rebateDateInfo.isEndOfYear() ? 'R' : 'A');			//Say if we need to create a rebate or an accrual
 														}
 													
 													break;
@@ -294,7 +616,41 @@ function(record, search) {
 															processingInfo.startDate		= startOfMonth;											//Start of date range to find invoices for
 															processingInfo.endDate			= endOfMonth;											//End of date range to find invoices for
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateItemTypes						//Item types
-															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
+															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateTargetFrequency)		//Return the frequency used
+															processingInfo.rebateOrAccrual	= 'R';													//Always rebate for monthly
+															
+															//Convert the date ranges to strings for the searches
+								    						//
+									    					var startDateString = format.format({value: startOfMonth, type: format.Type.DATE});
+									    					var endDateString 	= format.format({value: endOfMonth, type: format.Type.DATE});
+
+															//Find all the customers that are linked to this rebate group
+									    					//
+								    						var customerArray 	= findGroupMembers(startDateString, endDateString, _rebateRecordId);
+								    						
+								    						//Now get a value of all the invoices that match the customers
+								    						//
+								    						var invoiceValue 	= findInvoiceValue(customerArray, _rebateTargetInfo.rebateItemTypes, startDateString, endDateString);
+								    						
+															
+															//Loop through the target values to find out which one is valid
+															//Rebate targets are in ascending value, so keep going until we overshoot
+								    						//
+															var tempRebatePercent = Number(0);
+															
+															for ( var targetValue in _rebateTargetInfo.rebateTargets) 
+																{
+																	if(Number(invoiceValue) >= Number(targetValue))
+																		{
+																			tempRebatePercent = Number(_rebateTargetInfo.rebateTargets[targetValue]);
+																		}
+																	else
+																		{
+																			break;
+																		}
+																}
+															
+															processingInfo.percentage = Number(tempRebatePercent);		//Percentage rebate to apply
 														}
 													
 													break;
@@ -315,15 +671,15 @@ function(record, search) {
 		{
 			//Now find all of the individual rebate records that have this particular group record linked to them
 			//
-			var individualRebates = BBSRebateProcessingLibrary.getResults(search.create({
+			var individualRebates = getResults(search.create({
 																	    			   type: 		"customrecord_bbs_cust_individ_rebate",
 																	    			   filters:
 																				    			   [
 																				    			      ["isinactive","is","F"], 
-																				    			      "AND", 
-																				    			      ["custrecord_bbs_end_q1_ind","onorafter",_startDate],
-																				    			      "AND", 
-																				    			      ["custrecord_bbs_end_q1_ind","onorbefore",_endDate],
+																				    			//      "AND", 
+																				    			//      ["custrecord_bbs_end_q1_ind","onorafter",_startDate],
+																				    			//      "AND", 
+																				    			//      ["custrecord_bbs_end_q1_ind","onorbefore",_endDate],
 																				    			      "AND",
 																				    			      ["custrecord_bbs_parent_group_rebate","anyof",_groupId]
 																				    			   ],
@@ -338,12 +694,11 @@ function(record, search) {
 																				    			   ]
 																	    			}));
 			
-			//Sum up all of the invoice values for each customer that belongs to the group
-			//
-			var customerArray		= [];
 			
 			//Gather all of the customer id's into an array
 			//
+			var customerArray		= [];
+			
 			if(individualRebates != null && individualRebates.length > 0)
 				{
 					for (var int = 0; int < individualRebates.length; int++) 
@@ -364,18 +719,18 @@ function(record, search) {
 		{
 			//Now find all of the individual rebate records that have this particular group record linked to them
 			//
-			var individualRebates = BBSRebateProcessingLibrary.getResults(search.create({
+			var individualRebates = getResults(search.create({
 																	    			   type: 		"customrecord_bbs_cust_individ_rebate",
 																	    			   filters:
 																				    			   [
 																				    			      ["isinactive","is","F"], 
-																				    			      "AND", 
-																				    			      ["custrecord_bbs_end_q1_ind","onorafter",_startDate],
-																				    			      "AND", 
-																				    			      ["custrecord_bbs_end_q1_ind","onorbefore",_endDate],
+																				    			//      "AND", 
+																				    			//      ["custrecord_bbs_end_q1_ind","onorafter",_startDate],
+																				    			//      "AND", 
+																				    			//      ["custrecord_bbs_end_q1_ind","onorbefore",_endDate],
 																				    			      "AND",
 																				    			      ["custrecord_bbs_parent_group_rebate","anyof",_groupId],
-																				    			      "AND"
+																				    			      "AND",
 																				    			      ["custrecord_bbs_left_buying_group","is","F"]
 																				    			   ],
 																	    			   columns:
@@ -389,12 +744,10 @@ function(record, search) {
 																				    			   ]
 																	    			}));
 			
-			//Sum up all of the invoice values for each customer that belongs to the group
+			//Gather all of the customer id's into an array
 			//
 			var customerArray		= [];
 			
-			//Gather all of the customer id's into an array
-			//
 			if(individualRebates != null && individualRebates.length > 0)
 				{
 					for (var int = 0; int < individualRebates.length; int++) 
@@ -469,7 +822,7 @@ function(record, search) {
 			return invoiceValue;
 		}
 	
-	//Get sum of invoices based grouped by customer and optionally rebate type
+	//Get sum of invoices grouped by customer
 	//
 	function findInvoiceValueByCustomer(_customerIdArray, _itemRebateTypes, _startDate, _endDate)
 		{
@@ -536,7 +889,8 @@ function(record, search) {
 			return invoiceValues;
 		}
 	
-	
+	//Get all of the valid rebate target values & percentages
+	//
 	function getGroupRebateTargets(_rebateRecord)
 		{
 			var rebateTargets = {};
@@ -557,7 +911,7 @@ function(record, search) {
 						}
 				}
 			
-			//Now sort into order
+			//Now sort into ascending order
 			//
 			const orderedTargets = {};
 			Object.keys(rebateTargets).sort().forEach(function(key) {
@@ -586,7 +940,17 @@ function(record, search) {
 	    	return results;
 	    }
 
-    function rebateProcessingInfoObj(_status, _startDate, _endDate, _percentage, _rebateItemTypes, _frequency)
+    
+    
+    //
+	//=========================================================================
+	//Objects
+	//=========================================================================
+	//
+	
+    
+    
+    function rebateProcessingInfoObj(_status, _startDate, _endDate, _percentage, _rebateItemTypes, _frequency, _rebateOrAccrual, _rebateType)
 		{
 	    	this.status				= _status;
     		this.startDate 			= _startDate;			
@@ -594,6 +958,8 @@ function(record, search) {
 	    	this.percentage			= _percentage;
 	    	this.rebateItemTypes	= _rebateItemTypes;
 	    	this.frequency			= _frequency;
+	    	this.rebateOrAccrual	= _rebateOrAccrual;
+	    	this.rebateType			= _rebateType;
 		}
 
     function rebateTargetInfoObj(_rebateTargets, _rebateTargetFrequency, _rebateGuarenteedPercent, _rebateGuarenteedFreq, _rebateMarketingPercent, _rebateMarketingFreq, _rebateItemTypes)
@@ -724,10 +1090,16 @@ function(record, search) {
     	}
     
 	return 	{
-			getResults:				getResults,
-			findInvoiceValue:		findInvoiceValue,
-			getGroupRebateTargets:	getGroupRebateTargets,
-			rebateTargetInfoObj:	rebateTargetInfoObj,
-			rebateDateInfoObj:		rebateDateInfoObj
+			getResults:							getResults,
+			findInvoiceValue:					findInvoiceValue,
+			getGroupRebateTargets:				getGroupRebateTargets,
+			rebateTargetInfoObj:				rebateTargetInfoObj,
+			rebateDateInfoObj:					rebateDateInfoObj,
+			createBuyingGroupRebateOrAccrual:	createBuyingGroupRebateOrAccrual,
+			createCustomerRebateOrAccrual:		createCustomerRebateOrAccrual,
+			checkRebateProcessing:				checkRebateProcessing,
+			findGroupMembers:					findGroupMembers,
+			findCurrentGroupMembers:			findCurrentGroupMembers,
+			findInvoiceValueByCustomer:			findInvoiceValueByCustomer
 			};	
 });

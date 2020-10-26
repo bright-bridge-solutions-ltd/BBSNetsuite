@@ -80,13 +80,45 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    		var searchCustomer			= searchResult.values['custrecord_bbs_ind_customer'];
 		    		var searchCustomerId		= searchCustomer[0].value;
 		    		var searchId	 			= searchResult.values['internalid'][0].value;
-		    		var searchDateString 		= searchResult.values['custrecord_bbs_end_q1_ind'];
-		    		var searchDate				= format.parse({type: format.Type.DATE, value: searchDateString});
-		    		var searchDateStart			= new Date(searchDate.getFullYear(), 0, 1);
-		    		var searchDateEnd			= new Date(searchDate.getFullYear(), 11, 31);
-		    		var searchDateStartString	= format.format({value: searchDateStart, type: format.Type.DATE});
-		    		var searchDateEndString		= format.format({value: searchDateEnd, type: format.Type.DATE});
-
+		    		
+		    		//Get the end of the first quarter
+		    		//
+		    		var q1EndDate				= format.parse({type: format.Type.DATE, value: searchResult.values['custrecord_bbs_end_q1_ind']});
+		    		
+		    		//Work out the first day of the quarter end month
+					//
+					var startOfLastMonthInQuarter = new Date(q1EndDate.getFullYear(), q1EndDate.getMonth(), 1);
+					
+					//Now subtract 3 months from it to get the start of the first month in the quarter
+					//
+					startOfLastMonthInQuarter.setMonth(startOfLastMonthInQuarter.getMonth() - 2);
+					
+					//Now construct the start date as a string
+					//
+					var searchDateStartString	= format.format({value: startOfLastMonthInQuarter, type: format.Type.DATE});
+		    		
+					//Get the end of the third quarter
+					//
+					var q3EndDate				= format.parse({type: format.Type.DATE, value: searchResult.values['custrecord_bbs_end_q3_ind']});
+		    		
+					//Add one day to this date to get the start of the fourth quarter
+					//
+					var q4StartDate				= new Date(q3EndDate.getFullYear(), q3EndDate.getMonth(), q3EndDate.getDate());
+					q4StartDate.setDate(q4StartDate.getDate() + 1);
+					
+					//Now add two months to get us into the last month of the quarter
+					//
+					q4StartDate.setMonth(q4StartDate.getMonth() + 2);
+					
+					//Now move to the last day of this month
+					//
+					var q4EndDate = new Date(q4StartDate.getFullYear(), q4StartDate.getMonth() + 1, 0)
+					
+					//Now construct the end date as a string
+					//
+					var searchDateEndString	= format.format({value: q4EndDate, type: format.Type.DATE});
+		    		
+					
 		    		//Get the total of the invoices
 		    		//
 		    		var customerArray			= [searchCustomerId];
