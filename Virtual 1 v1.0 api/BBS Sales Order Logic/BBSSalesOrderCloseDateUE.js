@@ -20,8 +20,7 @@
  */
 function salesOrderCloseDateAS(type)
 {
-	//Only interested in edit mode
-	//
+
 	if(type == 'edit')
 		{
 			//Get old & new records
@@ -39,6 +38,27 @@ function salesOrderCloseDateAS(type)
 			//
 			if(newBillingEndDate != oldBillingEndDate)
 				{
+					processBillingEndDate(newRecord, salesOrderId);
+				}
+		}	
+	
+	if(type == 'create')
+		{
+			var newRecord 			= nlapiGetNewRecord();
+			var newBillingEndDate 	= newRecord.getFieldValue('custbody_bbs_billing_end_date');
+			var salesOrderId 		= newRecord.getId();
+			
+			//Has the date changed?
+			//
+			if(newBillingEndDate != null && newBillingEndDate != '')
+				{
+					processBillingEndDate(newRecord, salesOrderId);
+				}
+		}	
+}		
+			
+function processBillingEndDate(newRecord, salesOrderId)
+	{
 					var billingEndDateString = newRecord.getFieldValue('custbody_bbs_billing_end_date');
 					
 					if(billingEndDateString != null && billingEndDateString != '')
@@ -181,8 +201,6 @@ function salesOrderCloseDateAS(type)
 						{
 							nlapiSubmitField('salesorder', salesOrderId, 'custbody_bbs_sales_order_close_date', null, false);
 						}
-				}
-		}
 }
 
 

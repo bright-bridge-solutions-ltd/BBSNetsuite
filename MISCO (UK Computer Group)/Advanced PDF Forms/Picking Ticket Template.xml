@@ -7,11 +7,7 @@
         <macro id="nlheader">
 
             <table class="header" style="width: 100%;">
-              	<#if record.custbody3?string("yes", "no")=="yes">
-              	<tr>
-					<td colspan="6" align="center" style="font-size:16pt; font-weight: bold; padding-bottom: 20px;">URGENT</td>
-			  	</tr>
-          		</#if>
+              	
 				<tr>
 					<td align="left" style="padding-bottom: 10px;">Order #<br/>${record.tranid}</td>
                   	<td align="left" style="padding-bottom: 10px;" colspan="2"><barcode codetype="code128" showtext="false" value="${record.tranid}"/></td>

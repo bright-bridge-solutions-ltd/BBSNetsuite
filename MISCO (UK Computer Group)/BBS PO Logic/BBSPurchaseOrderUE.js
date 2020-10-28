@@ -77,8 +77,8 @@ function(record, search, runtime) {
 				    		columns: ['custentity_bbs_supplier_del_charge']
 				    	}).custentity_bbs_supplier_del_charge;
 		    	
-				    	// if the delivery charge is greater than 0
-				    	if (suppDelCharge > 0)
+				    	// if the delivery charge is greater than 0 & the division is Comet
+				    	if (suppDelCharge > 0 && salesOrderDivision == 5)
 				    		{
 				    			// retrieve script parameters
 				    			var suppDelChargeItem = runtime.getCurrentScript().getParameter({

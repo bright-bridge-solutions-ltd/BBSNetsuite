@@ -506,6 +506,31 @@ function processFullyBilledOrders(_processingDate)
 									nlapiSubmitField('salesorder', salesOrderId, 'externalid', 'so_' + salesPeReference + '_' + salesOrderId, false);
 									//oldSalesOrder.setFieldValue('externalid', null);
 								
+									//Reset the revrec start & end dates on the new sales order
+									//
+									var lines = newSalesOrder.getLineItemCount('item');
+									
+									for (var int2 = 1; int2 <= lines; int2++) 
+										{
+											var revRecStart = newSalesOrder.getLineItemValue('item', 'custcol_bbs_revenue_rec_start_date', int2);
+											var revRecEnd 	= newSalesOrder.getLineItemValue('item', 'custcol_bbs_revenue_rec_end_date', int2);
+											
+											if(revRecStart != null && revRecStart != '')
+												{
+													var tempDate = nlapiStringToDate(revRecStart);
+													var tempDate2 = new Date(tempDate.getFullYear() + 1, tempDate.getMonth(), tempDate.getDate());
+													newSalesOrder.setLineItemValue('item', 'custcol_bbs_revenue_rec_start_date', int2, nlapiDateToString(tempDate2));
+												}
+											
+											if(revRecEnd != null && revRecEnd != '')
+												{
+													var tempDate = nlapiStringToDate(revRecEnd);
+													var tempDate2 = new Date(tempDate.getFullYear() + 1, tempDate.getMonth(), tempDate.getDate());
+													newSalesOrder.setLineItemValue('item', 'custcol_bbs_revenue_rec_send_date', int2, nlapiDateToString(tempDate2));
+												}
+										}
+									
+									
 									//Loop through the lines on the old sales order to see if there are any billing schedules to copy across
 									//
 									var lines = oldSalesOrder.getLineItemCount('item');
@@ -562,6 +587,9 @@ function processFullyBilledOrders(_processingDate)
 											//
 											oldSalesOrder.setFieldValue('custbody_bbs_next_sales_order', newSalesOrderId);
 											
+											//Update the field to set the order to be locked by workflow
+											//
+											oldSalesOrder.setFieldValue('custbody_bbs_lock_sales_order', 'T');
 											
 											//Try to save the old sales order
 											//
@@ -667,6 +695,11 @@ function processBillingEndDates(_processingDate)
 							var soBillingType = oldSalesOrder.getFieldValue('class');
 							var soPEReference = oldSalesOrder.getFieldValue('custbody_bbs_pe_reference');
 							var soCloseDate = oldSalesOrder.getFieldValue('custbody_bbs_sales_order_close_date');
+							
+							
+							//Update the field to set the order to be locked by workflow
+							//
+							oldSalesOrder.setFieldValue('custbody_bbs_lock_sales_order', 'T');
 							
 							//Try to save the old sales order, update the end date on the revenue arrangement & update the associated PO
 							//
