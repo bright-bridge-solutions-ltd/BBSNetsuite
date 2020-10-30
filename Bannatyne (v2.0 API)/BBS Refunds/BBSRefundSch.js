@@ -169,8 +169,12 @@ function(runtime, record, search) {
     							name: 'custrecord_refund_business_area'
     						});
     						
+    						var annualMembership = convertToNonBoolean(result.getValue({
+    							name: 'custrecord_refund_annual_mem'
+    						}));
+    						
     						// call function to return the GL mapping
-    						var glMapping = getGLMapping(businessArea);
+    						var glMapping = getGLMapping(businessArea, annualMembership);
     						
     						// set fields on the new journal
     						journalRec.selectNewLine({
@@ -346,13 +350,16 @@ function(runtime, record, search) {
     		},
     				{
     			name: 'custrecord_refund_business_area'
+    		},
+    				{
+    			name: 'custrecord_refund_annual_mem'
     		}],
     		
     	});
     	
     }
     
-    function getGLMapping(businessArea) {
+    function getGLMapping(businessArea, annualMembership) {
     	
     	// declare and initialize variables
     	var glAccount		= null;
@@ -372,6 +379,11 @@ function(runtime, record, search) {
     			name: 'custrecord_bbs_refund_jnl_gl_map_busarea',
     			operator: search.Operator.ANYOF,
     			values: [businessArea]
+    		},
+    				{
+    			name: 'custrecord_bbs_ref_jnl_gl_map_pro_rata',
+    			operator: search.Operator.IS,
+    			values: [annualMembership]
     		}],
     		
     		columns: [{
@@ -422,11 +434,17 @@ function(runtime, record, search) {
     	var subsidiaryLookup = search.lookupFields({
     		type: search.Type.SUBSIDIARY,
     		id: subsidiaryID,
-    		columns: ['custrecord_bbs_bank_gl_account', 'custrecord_bbs_default_department', 'custrecord_bbs_default_line_of_business', 'custrecord_bbs_default_location']
+    		columns: ['custrecord_bbs_bank_gl_account', 'custrecord_bbs_intercompany_gl_account', 'custrecord_bbs_default_department', 'custrecord_bbs_default_line_of_business', 'custrecord_bbs_default_location']
     	});
     	
-    	// if we have a bank GL account selected on the subsidiary
-    	if (subsidiaryLookup.custrecord_bbs_bank_gl_account.length > 0)
+    	
+    	// if we have an intercompany GL account selected on the subsidiary
+    	if (subsidiaryLookup.custrecord_bbs_intercompany_gl_account.length > 0)
+    		{
+    			// get the internal ID of the intercompany GL account
+    			bankAccount = subsidiaryLookup.custrecord_bbs_intercompany_gl_account[0].value;
+    		}
+    	else
     		{
     			// get the internal ID of the GL bank account
     			bankAccount = subsidiaryLookup.custrecord_bbs_bank_gl_account[0].value;
@@ -459,6 +477,19 @@ function(runtime, record, search) {
     		lineofbusiness:	lineOfBusiness,
     		location:		location
     	}
+    	
+    }
+    
+    function convertToNonBoolean(inputValue) {
+    	
+    	if (inputValue == true)
+    		{
+    			return 'T';
+    		}
+    	else if (inputValue == false)
+    		{
+    			return 'F';
+    		}
     	
     }
 

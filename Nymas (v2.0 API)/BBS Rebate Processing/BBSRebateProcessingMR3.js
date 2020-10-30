@@ -20,13 +20,13 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
      */
 	
 	//Map reduce script #3 for rebate processing
-	//Calculates the rebate for each group customer rebate record
+	//Calculates the rebates for each individual customer rebate record
 	//
     function getInputData() 
 	    {
     		try
     			{
-		    		//Search for all group rebate records that are active for this year
+		    		//Search for all individual rebate records that are active for this year
 		    		//
 		    		var today 				= new Date();
 		    		var startOfYear			= new Date(today.getFullYear(), 0, 1);
@@ -34,33 +34,26 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    		var startOfYearString	= format.format({value: startOfYear, type: format.Type.DATE});
 		    		var endOfYearString		= format.format({value: endOfYear, type: format.Type.DATE});
 		    		
-		    		var searchResults =	BBSRebateProcessingLibrary.getResults(search.create({
-															    			   type: 		"customrecord_bbs_cust_group_rebate",
+		    		return	BBSRebateProcessingLibrary.getResults(search.create({
+															    			   type: 		"customrecord_bbs_cust_individ_rebate",
 															    			   filters:
 																		    			   [
 																		    			      ["isinactive","is","F"], 
 																		    			      "AND", 
-																		    			      ["custrecord_bbs_end_q1","onorafter",startOfYearString],
+																		    			      ["custrecord_bbs_end_q1_ind","onorafter",startOfYearString],
 																		    			      "AND", 
-																		    			      ["custrecord_bbs_end_q1","onorbefore",endOfYearString],
-																		    			      "AND",
-																		    			      ["custrecord_bbs_status","anyof","1"]		//Status = In Progress
+																		    			      ["custrecord_bbs_end_q1_ind","onorbefore",endOfYearString]
 																		    			   ],
 															    			   columns:
 																		    			   [
 																		    			      search.createColumn({name: "name",sort: search.Sort.ASC,  label: "ID"}),
 																		    			      search.createColumn({name: "internalid", label: "Internal Id"}),
-																		    			      search.createColumn({name: "custrecord_bbs_customer", label: "Customer"}),
-																		    			      search.createColumn({name: "custrecord_bbs_end_q1", label: "End of Q1"}),
-																		    			      search.createColumn({name: "custrecord_bbs_end_q2", label: "End of Q2"}),
-																		    			      search.createColumn({name: "custrecord_bbs_end_q3", label: "End of Q3"}),
-																		    			      search.createColumn({name: "custrecord_bbs_rebate_item_type", label: "Rebate Item Types"})
+																		    			      search.createColumn({name: "custrecord_bbs_ind_customer", label: "Customer"}),
+																		    			      search.createColumn({name: "custrecord_bbs_end_q1_ind", label: "End of Q1"}),
+																		    			      search.createColumn({name: "custrecord_bbs_end_q2_ind", label: "End of Q2"}),
+																		    			      search.createColumn({name: "custrecord_bbs_end_q3_ind", label: "End of Q3"})
 																		    			   ]
 															    			}));
-		    		
-		    		//log.debug({title: 'search results for group rebates', details: searchResults});
-		    		
-		    		return searchResults;
     			}
     		catch(err)
     			{
@@ -84,207 +77,66 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    		//Rehydrate the search result & get values
 		    		//
 		    		var searchResult 			= JSON.parse(context.value);
-		    		var searchId	 			= searchResult.values['internalid'][0].value;	//Internal id of group rebate record
-		    		var now						= new Date();
-		    		var today					= new Date(now.getFullYear(), now.getMonth(), now.getDate());
+		    		var searchCustomer			= searchResult.values['custrecord_bbs_ind_customer'];
+		    		var searchCustomerId		= searchCustomer[0].value;
+		    		var searchId	 			= searchResult.values['internalid'][0].value;
 		    		
-		    		//Load the rebate record
+		    		//Get the end of the first quarter
 		    		//
-		    		var rebateRecord = record.load({
-		    										type:		"customrecord_bbs_cust_group_rebate",
-		    										id:			searchId,
-		    										isDynamic:	false
-		    										});
+		    		var q1EndDate				= format.parse({type: format.Type.DATE, value: searchResult.values['custrecord_bbs_end_q1_ind']});
 		    		
-		    		//Record loaded ok?
+		    		//Work out the first day of the quarter end month
+					//
+					var startOfLastMonthInQuarter = new Date(q1EndDate.getFullYear(), q1EndDate.getMonth(), 1);
+					
+					//Now subtract 3 months from it to get the start of the first month in the quarter
+					//
+					startOfLastMonthInQuarter.setMonth(startOfLastMonthInQuarter.getMonth() - 2);
+					
+					//Now construct the start date as a string
+					//
+					var searchDateStartString	= format.format({value: startOfLastMonthInQuarter, type: format.Type.DATE});
+		    		
+					//Get the end of the third quarter
+					//
+					var q3EndDate				= format.parse({type: format.Type.DATE, value: searchResult.values['custrecord_bbs_end_q3_ind']});
+		    		
+					//Add one day to this date to get the start of the fourth quarter
+					//
+					var q4StartDate				= new Date(q3EndDate.getFullYear(), q3EndDate.getMonth(), q3EndDate.getDate());
+					q4StartDate.setDate(q4StartDate.getDate() + 1);
+					
+					//Now add two months to get us into the last month of the quarter
+					//
+					q4StartDate.setMonth(q4StartDate.getMonth() + 2);
+					
+					//Now move to the last day of this month
+					//
+					var q4EndDate = new Date(q4StartDate.getFullYear(), q4StartDate.getMonth() + 1, 0)
+					
+					//Now construct the end date as a string
+					//
+					var searchDateEndString	= format.format({value: q4EndDate, type: format.Type.DATE});
+		    		
+					
+		    		//Get the total of the invoices
 		    		//
-		    		if(rebateRecord != null)
-		    			{
-		    				//Get rebate targets & values
-		    				//
-		    				var rebateTargetInfo = new BBSRebateProcessingLibrary.rebateTargetInfoObj(
-									    															BBSRebateProcessingLibrary.getGroupRebateTargets(rebateRecord),					//Key=Target Amount, Value=Rebate Percentage
-									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_target_frequency'}), 			//1=Quarterly 2=Annually 3=Monthly
-									    															rebateRecord.getValue({fieldId: 'custrecord_guaranteed_percentage'}),
-									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_pay_frequency'}),				//1=Quarterly 2=Annually 3=Monthly
-									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_marketing_percent'}),
-									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_market_percent_frequency'}),	//1=Quarterly 2=Annually 3=Monthly
-									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_rebate_item_type'})
-		    																						);
-		    				//Get rebate dates
-		    				//
-		    				var rebateDateInfo	= new BBSRebateProcessingLibrary.rebateDateInfoObj(
-																		    						rebateRecord.getValue({fieldId: 'custrecord_bbs_start_date'}), 					//Start date		
-																									rebateRecord.getValue({fieldId: 'custrecord_bbs_end_q1'}),						//End of Q1
-																									rebateRecord.getValue({fieldId: 'custrecord_bbs_end_q2'}),						//End of Q2
-																									rebateRecord.getValue({fieldId: 'custrecord_bbs_end_q3'}),						//End of Q3		
-																									rebateRecord.getValue({fieldId: 'custrecord_bbs_end_date'}),					//End date / End of Q4
-																									today																			//Today's date (no time component)
-		    																						);
-		    				
-		    				//Get sundry info from the rebate record
-		    				//
-		    				var rebateBuyingGroup	= rebateRecord.getValue({fieldId: 'custrecord_bbs_buying_group'});
-		    				var rebateGroupCustomer	= rebateRecord.getValue({fieldId: 'custrecord_bbs_customer'});
-		    				
-		    				
-		    				//=====================================================================================
-		    				//Main rebate processing
-		    				//=====================================================================================
-		    				//
-		    				
-		    				//============================================
-		    				//Do we need to process any Guaranteed Rebate?
-		    				//============================================
-		    				//
-		    				var rebateProcessingInfo = BBSRebateProcessingLibrary.checkRebateProcessing(
-		    																							rebateTargetInfo,	//Target info
-		    																							rebateDateInfo,		//Date info
-		    																							'G'					//Guaranteed rebate
-																			    						);
-		    				
-		    				//Check to see if there is anything to process
-		    				//Object properties are status, startDate, endDate, percentage, item types, frequency
-		    				//
-		    				if(rebateProcessingInfo.status)
-		    					{
-		    						//Convert the date ranges to strings for the searches
-		    						//
-			    					var startDateString = format.format({value: rebateProcessingInfo.startDate, type: format.Type.DATE});
-			    					var endDateString 	= format.format({value: rebateProcessingInfo.endDate, type: format.Type.DATE});
-		    						
-			    					//Find all the customers that are linked to this rebate group
-			    					//
-		    						var customerArray 			= BBSRebateProcessingLibrary.findGroupMembers(startDateString, endDateString, searchId);
-		    						
-		    						//Find all the customers that are linked to this rebate group, that have not been flagged as having left the buying group
-			    					//
-		    						var currentCustomerArray 	= BBSRebateProcessingLibrary.findCurrentGroupMembers(startDateString, endDateString, searchId);
-		    						
-		    						//Now get a value of all the invoices that match the customers
-		    						//
-		    						var invoiceValue 	= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, rebateTargetInfo.rebateItemTypes, startDateString, endDateString);
-		    						
-		    						//Now get the breakdown of invoice values by customer, but only for the customers that are still in the buying group
-		    						//
-		    						var invoiceValueByCustomer = BBSRebateProcessingLibrary.findInvoiceValueByCustomer(currentCustomerArray, rebateTargetInfo.rebateItemTypes, startDateString, endDateString);
-		    						
-		    						//Calculate the rebate value
-		    						//
-		    						var rebateValue = (invoiceValue / 100.0) * rebateProcessingInfo.percentage;
-		    						
-		    						//Now work out how we apply the rebate
-		    						//
-		    						if(rebateGroupCustomer != null && rebateGroupCustomer != '')
-		    							{
-		    								//Rebate/Accrual is applied to the group customer
-		    								//
-			    							BBSRebateProcessingLibrary.createCustomerRebateOrAccrual(
-					    																			rebateGroupCustomer,		//Group customer
-					    																			rebateValue,				//Value of rebate
-					    																			rebateProcessingInfo,		//Rebate processing info object
-					    																			searchId					//Id of rebate record
-					    																			);
-		    							}
-		    						
-		    						if(rebateGroupCustomer != null && rebateGroupCustomer != '')
-		    							{
-		    								//Rebate/Accrual is applied to the customers in the buying group
-		    								//
-			    							BBSRebateProcessingLibrary.createBuyingGroupRebateOrAccrual(
-			    																						currentCustomerArray,		//List of customers that are still in the buying group
-																										rebateValue,				//Value of rebate
-																										rebateProcessingInfo,		//Rebate processing info object
-						    																			searchId					//Id of rebate record
-																										);
-		    							}
-		    					}
-		    				
-		    				
-		    				//============================================
-		    				//Do we need to process any Marketing Rebate?
-		    				//============================================
-		    				//
-		    				var rebateProcessingInfo = BBSRebateProcessingLibrary.checkRebateProcessing(
-		    																							rebateTargetInfo,	//Target info
-		    																							rebateDateInfo,		//Date info
-		    																							'M'					//Marketing rebate
-																			    						);
-		    				
-		    				//Check to see if there is anything to process
-		    				//Object properties are status, startDate, endDate, percentage, item types, frequency
-		    				//
-		    				if(rebateProcessingInfo.status)
-		    					{
-		    						//Convert the date ranges to strings for the searches
-		    						//
-			    					var startDateString = format.format({value: rebateProcessingInfo.startDate, type: format.Type.DATE});
-			    					var endDateString 	= format.format({value: rebateProcessingInfo.endDate, type: format.Type.DATE});
-		    						
-			    					//Find all the customers that are linked to this rebate group
-			    					//
-		    						var customerArray 			= BBSRebateProcessingLibrary.findGroupMembers(startDateString, endDateString, searchId);
-		    						
-		    						//Find all the customers that are linked to this rebate group, that have not been flagged as having left the buying group
-			    					//
-		    						var currentCustomerArray 	= BBSRebateProcessingLibrary.findCurrentGroupMembers(startDateString, endDateString, searchId);
-		    						
-		    						//Now get a value of all the invoices that match the customers
-		    						//
-		    						var invoiceValue 	= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, rebateTargetInfo.rebateItemTypes, startDateString, endDateString);
-		    						
-		    						//Now get the breakdown of invoice values by customer, but only for the customers that are still in the buying group
-		    						//
-		    						var invoiceValueByCustomer = BBSRebateProcessingLibrary.findInvoiceValueByCustomer(currentCustomerArray, rebateTargetInfo.rebateItemTypes, startDateString, endDateString);
-		    						
-		    						//Calculate the rebate value
-		    						//
-		    						var rebateValue = (invoiceValue / 100.0) * rebateProcessingInfo.percentage;
-		    						
-		    						//Now work out how we apply the rebate
-		    						//
-		    						if(rebateGroupCustomer != null && rebateGroupCustomer != '')
-		    							{
-		    								//Rebate/Accrual is applied to the group customer
-		    								//
-			    							BBSRebateProcessingLibrary.createCustomerRebateOrAccrual(
-					    																			rebateGroupCustomer,		//Group customer
-					    																			rebateValue,				//Value of rebate
-					    																			rebateProcessingInfo,		//Rebate processing info object
-					    																			searchId					//Id of rebate record
-					    																			);
-		    							}
-		    						
-		    						if(rebateGroupCustomer != null && rebateGroupCustomer != '')
-		    							{
-		    								//Rebate/Accrual is applied to the customers in the buying group
-		    								//
-			    							BBSRebateProcessingLibrary.createBuyingGroupRebateOrAccrual(
-			    																						currentCustomerArray,		//List of customers that are still in the buying group
-																										rebateValue,				//Value of rebate
-																										rebateProcessingInfo,		//Rebate processing info object
-						    																			searchId					//Id of rebate record
-																										);
-		    							}
-		    					}
-		    				
-		    				//============================================
-		    				//Do we need to process any Target Rebate?
-		    				//============================================
-		    				//
-		    				
-		    				
-		    				
-		    				
-		    				
-		    				
-		    				
-		    				
-		    				
-		    				
-		    				
-		    				
-		    			}
+		    		var customerArray			= [searchCustomerId];
+		    		var invoiceValue			= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, [], searchDateStartString, searchDateEndString);
+		    		invoiceValue				= parseFloat(invoiceValue);
+
+		    		//Update the rebate record
+		    		//
+		    		record.submitFields({
+		    							type:		'customrecord_bbs_cust_individ_rebate',
+		    							id:			searchId,
+		    							values:		{
+		    										custrecord_bbs_actual_sales_value_ind: 	invoiceValue
+		    										},
+		    							options:	{
+		    										ignoreMandatoryFields: 	true
+		    										}
+		    							});
     			}
     		catch(err)
 				{
@@ -317,13 +169,12 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 	    {
 	    	//Submit the next map/reduce job 
 			//
-    	
-			/*
+			
 			try
 				{
 					var mrTask = task.create({
 											taskType:		task.TaskType.MAP_REDUCE,
-											scriptId:		'customscript_bbs_rebate_processing_3',	
+											scriptId:		'customscript_bbs_rebate_processing_2',	
 											deploymentid:	null
 											});
 					
@@ -332,11 +183,10 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 			catch(err)
 				{
 					log.error({
-								title: 		'Error submitting mr 3 script',
+								title: 		'Error submitting mr 2 script',
 								details: 	err
 								});	
 				}
-			*/
 	    }
 
     return {

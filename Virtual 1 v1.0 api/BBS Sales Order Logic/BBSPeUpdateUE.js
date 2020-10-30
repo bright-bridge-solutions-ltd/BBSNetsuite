@@ -33,8 +33,14 @@ function peUpdateAS(type)
 				{
 					if(soStatus != 'Billed' && soStatus != 'Closed')
 						{
-							nlapiSubmitField('salesorder', salesOrderId, 'externalid', 'so_' + newPeNumber, false);
-						
+							try
+								{
+									nlapiSubmitField('salesorder', salesOrderId, 'externalid', 'so_' + newPeNumber, false);
+								}
+							catch(err)
+								{
+									nlapiLogExecution('ERROR', 'Error updating externalid on sales order id = ' + salesOrderId + ' old PE = ' + oldPeNumber + ' new PE = ' + newPeNumber + ' external id = so_' + newPeNumber, details)
+								}
 						}
 				}
 		}

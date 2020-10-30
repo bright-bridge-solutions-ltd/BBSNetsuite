@@ -44,12 +44,6 @@ function(runtime, search, file, email, task) {
     			name: 'isinactive',
     			operator: search.Operator.IS,
     			values: ['F']
-    		},
-    				{
-    			name: 'formulatext',
-    			operator: search.Operator.IS,
-    			values: ['Carr Workplaces'],
-    			formula: '{parent}'
     		}],
 	    	
 	    	columns: [{
@@ -112,7 +106,7 @@ function(runtime, search, file, email, task) {
 			}
 		
 		// specify the file name
-		var fileName = filePrefix + '-' + reportDate + '-' + accountAlias + '_advance_invoice_reports.csv';
+		var fileName = filePrefix + '-' + reportDate + '-' + accountAlias + '_advance_invoice_report.csv';
 		
 		// start off the CSV
 		var CSV = '"AccountID","AccountName","InvoiceNumber","DateFrom","DateTo","Product","Quantity","OperatorCost","OperatorTotal","TenantAlias","TenantName","TenantBillingRef","TenantCost","TenantTotal","Margin"\r\n';
