@@ -2,12 +2,12 @@
  * @NApiVersion 2.x
  * @NModuleScope Public
  */
-define(['N/record', 'N/config', 'N/runtime', 'N/search', 'N/plugin', 'N/format'],
+define(['N/record', 'N/config', 'N/runtime', 'N/search', 'N/plugin', 'N/format', './oauth', './secret', 'N/xml', 'N/https'],
 /**
  * @param {record} record
  * @param {search} search
  */
-function(record, config, runtime, search, plugin, format) 
+function(record, config, runtime, search, plugin, format, oauth, secret, xml, https) 
 {
 
 	//=====================================================================
@@ -233,6 +233,135 @@ function(record, config, runtime, search, plugin, format)
 	//Methods
 	//=====================================================================
 	//
+	
+	function doLicenceCheck()
+		{
+			var configRecord 	= null;
+			var PRODUCT_NAME	= 'AFC';	//Avalara For Communications
+			var LICENCE_MODE	= 'C';		//Count mode - no actual licence check
+			var licenceResponse	= {};
+			
+			try
+				{
+					configRecord = config.load({
+											type: config.Type.COMPANY_INFORMATION
+											});
+				}
+			catch(err)
+				{
+					configRecord = null;
+				}
+			
+			if(configRecord != null)
+				{
+					var companyId 	= configRecord.getValue({fieldId: 'companyid'});
+					var companyName = configRecord.getValue({fieldId: 'legalname'});
+	
+					var licenceCheckResponse 	= validateLicence(companyId, companyName, PRODUCT_NAME, LICENCE_MODE);
+					
+					//If the http response code is 200  the return the result of the call
+					//
+					if(licenceCheckResponse.httpResponseCode == '200')
+						{	
+							licenceResponse['status'] 	= licenceCheckResponse.apiResponse.status;
+							licenceResponse['message'] 	= licenceCheckResponse.apiResponse.message;
+							
+							return licenceResponse;
+						}
+					
+					//If the http response code is anything other than 200 we are ok
+					//This is done to prevent the licence check from working if our end point is unavailable
+					//
+					if(licenceCheckResponse.httpResponseCode != '200')
+						{
+							licenceResponse['status'] 	= 'OK';
+							licenceResponse['message'] 	= '';
+							
+							return licenceResponse;
+						}
+					
+				}
+			else
+				{
+					//Can't find the config record, so we will have to say everything is ok
+					//
+					licenceResponse['status'] 	= 'OK';
+					licenceResponse['message'] 	= '';
+					
+					return licenceResponse;
+				}
+		}
+	
+	//
+	//Licence helper function
+	//
+	function validateLicence(_account, _name, _product, _mode)
+		{
+			var response		= null;
+			var responseBodyObj	= null;
+			var licenceResponse	= new licenceResponseObj();
+			var fullUrl			= secret.url + '&account=' + xml.escape({xmlText: _account}) + '&name=' + xml.escape({xmlText: _name}) + '&product=' + xml.escape({xmlText: _product}) + '&mode=' + _mode;
+			var headers 		= oauth.getHeaders({
+											        url: 			fullUrl,
+											        method: 		secret.method,
+											        tokenKey: 		secret.token.public,
+											        tokenSecret: 	secret.token.secret   
+											        });
+		
+		    headers['Content-Type'] = 'application/json';
+		
+		    try
+		    	{
+		    		response = https.get({
+										        url: 		fullUrl,
+										        headers: 	headers
+										    	});
+				    
+				    
+				    //Extract the http response code	
+					//
+				    licenceResponse.httpResponseCode = response.code;
+					
+					//Extract the http response body
+					//
+					if(response.body != null && response.body != '')
+						{
+							//Try to parse the response body into a JSON object
+							//
+							try
+								{
+									responseBodyObj = JSON.parse(response.body);
+								}
+							catch(err)
+								{
+									responseBodyObj = null;
+								}
+							
+							//Process the converted JSON object
+							//
+							if(responseBodyObj != null)
+								{
+									licenceResponse.apiResponse 		= responseBodyObj;
+								}
+						}
+				}
+			catch(err)
+				{
+					licenceResponse.responseMessage = err.message;
+				}
+
+		    return licenceResponse
+		}
+	
+	//
+	//Licence Objects
+	//
+	function licenceResponseObj()
+		{
+			this.httpResponseCode	= '';
+			this.responseMessage 	= '';
+			this.apiResponse		= {};
+		}
 	
 	//Gets the destination pcode based on the configuration record.
 	//The pcode can be got from the billing address, shipping address or a custom record so long as there is a link to it from the tranbsaction record
@@ -1975,7 +2104,8 @@ function(record, config, runtime, search, plugin, format)
     		libInvoicesObj:					libInvoicesObj,
 			libTaxSummaryObj:				libTaxSummaryObj,
 			libOutputSummary:				libOutputSummary,
-			padding_left:					padding_left
+			padding_left:					padding_left,
+			doLicenceCheck:					doLicenceCheck
     		};
     
 });
