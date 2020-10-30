@@ -38,13 +38,21 @@
            			<td colspan="6"><span class="subtitle">Cost Centre/Location:</span></td>
            		</tr>
            		<tr style="margin-bottom: 5px;">
-           			<td colspan="6" rowspan="5"><span class="address">${record.shipaddress}</span></td>
+           			<td colspan="6" rowspan="8"><span class="address">${record.shipaddress}</span></td>
            			<td colspan="2"><span class="subtitle">DATE:</span></td>
            			<td colspan="2"><span class="address">${record.trandate}</span></td>
            		</tr>
            		<tr style="margin-bottom: 5px;">
            			<td colspan="2"><span class="subtitle">CREDIT NOTE NO:</span></td>
            			<td colspan="2"><span class="address">${record.tranid}</span></td>
+           		</tr>
+           		<tr style="margin-bottom: 5px;">
+           			<td colspan="2"><span class="subtitle">INVOICE NO:</span></td>
+           			<td colspan="2"><span class="address"><#if record.createdfrom.type == "Invoice">${record.createdfrom?keep_after('#')}<#elseif record.createdfrom.type == "Credit Note Request">${record.createdfrom.createdfrom?keep_after('#')}</#if></span></td>
+           		</tr>
+           		<tr style="margin-bottom: 5px;">
+           			<td colspan="2"><span class="subtitle">EXT INVOICE NO:</span></td>
+           			<td colspan="2"><span class="address">${record.custbody_bbs_ext_inv_no}</span></td>
            		</tr>
            		<tr style="margin-bottom: 5px;">
            			<td colspan="2"><span class="subtitle">CUSTOMER REF:</span></td>
@@ -60,6 +68,10 @@
            		<tr style="margin-bottom: 5px;">
            			<td colspan="2"><span class="subtitle">BILLING REF:</span></td>
            			<td colspan="2"><span class="address">${record.memo}</span></td>
+           		</tr>
+           		<tr style="margin-bottom: 5px;">
+           			<td colspan="2"><span class="subtitle">CURRENCY</span></td>
+           			<td colspan="2"><span class="address">${record.currency}</span></td>
            		</tr>
            	</table>
         </macro>
@@ -178,10 +190,10 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="220pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="285pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
 <#if record.item?has_content>
-	<table class="itemtable" style="width: 100%; margin-top: 10px; border-top: 2px solid black; border-bottom: 2px solid black; border-left: 2px solid black; border-right: 2px solid black;"><!-- start items -->
+	<table class="itemtable" style="width: 100%; margin-top: 10px; border-top: 2px solid black; border-bottom: 2px solid black; border-right: 2px solid black;"><!-- start items -->
 		<#list record.item as item>
 			<#if item_index == 0>
 				<thead>
@@ -197,9 +209,9 @@
 			<tr>
 				<td colspan="10" line-height="150%" style="border-left: 2px solid black;">${item.description}</td>
 				<td colspan="8" style="border-left: 2px solid black;">${item.custcol_bbs_date_from} to ${item.custcol_bbs_date_to}</td>
-				<td align="right" colspan="4" style="border-left: 2px solid black;">${item.quantity}</td>
-				<td align="right" colspan="4" style="border-left: 2px solid black;">-${item.rate}</td>
-				<td align="right" colspan="4" style="border-left: 2px solid black;">-${item.amount}</td>
+				<td align="right" colspan="4" style="border-left: 2px solid black;">${item.quantity?string["0"]}</td>
+				<td align="right" colspan="4" style="border-left: 2px solid black;">-${currencySymbol}${item.rate}</td>
+				<td align="right" colspan="4" style="border-left: 2px solid black;">-${currencySymbol}${item.amount}</td>
 			</tr>
 		</#list>
 	</table>
@@ -216,7 +228,7 @@
 		<tr>
 			<td colspan="10">&nbsp;</td>
 			<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>20% Standard Vat Rate</b></td>
-			<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">-${record.taxtotal}</td>
+			<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">-${currencySymbol}${record.taxtotal}</td>
 		</tr>
 	<#elseif subsidiary.id == "3"><!-- US -->
 		<#if record.custbody_bbs_tfc_tax_summ_json?has_content>
@@ -232,7 +244,7 @@
 							<#else>
 								<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>${taxes.taxName}</b></td>
 							</#if>
-							<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">-${currencySymbol}${taxes.taxAmount}</td>
+							<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">-${currencySymbol}${taxes.taxAmount * -1}</td>
 						</tr>
 					</#if>
 				</#list>
@@ -241,18 +253,18 @@
 		<tr>
 			<td colspan="10">&nbsp;</td>
 			<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>GST/HST</b></td>
-			<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">-${record.taxtotal}</td>
+			<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">-${currencySymbol}${record.taxtotal}</td>
 		</tr>
 		<tr>
 			<td colspan="10">&nbsp;</td>
 			<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>PST</b></td>
-			<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">-${record.tax2total}</td>
+			<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">-${currencySymbol}${record.tax2total}</td>
 		</tr>
 	</#if>
 	<tr>
 		<td colspan="10">&nbsp;</td>
 		<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3"><b>TOTAL CREDIT</b></td>
-		<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">-${record.total}</td>
+		<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">-${currencySymbol}${record.total}</td>
 	</tr>
 </table>
 

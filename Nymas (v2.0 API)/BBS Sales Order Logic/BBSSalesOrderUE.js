@@ -16,6 +16,29 @@ function(search, record) {
      * @Since 2015.2
      */
     function beforeLoad(scriptContext) {
+    	
+    	// check the record is being created or edited
+    	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
+    		{
+    			// get the item sublist
+    			var itemSublist = scriptContext.form.getSublist({
+    				id: 'item'
+    			});
+    			
+    			// if we have been able to get the item sublist
+    			if (itemSublist)
+    				{
+    					// set client script to run on the form
+    					scriptContext.form.clientScriptFileId = 12220;
+    				
+    					// add a button to the item sublist
+    					itemSublist.addButton({
+    						id: 'custpage_resetexpectedshipdates',
+    						label: 'Reset Expected Ship Dates',
+    						functionName: 'resetExpectedShipDates()'
+    					});
+    				}
+    		}
 
     }
 

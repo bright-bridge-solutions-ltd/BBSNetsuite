@@ -47,23 +47,27 @@
 	<td colspan="2" rowspan="7" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
 	</tr>
 	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Purchase Order No.</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
+	<td class="address">&nbsp;</td><td align="left" style="font-size:10pt"><b>Purchase Order No.</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
     </tr>
 	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Purchase Order Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+	<td class="address">&nbsp;</td><td align="left" style="font-size:10pt"><b>Purchase Order Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
     </tr>
-        <tr>
-        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No.</b></td><td align="right" style="font-size:10pt">${record.entity.entityid}</td>
-        </tr>
-        <tr>
-        <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Reference</b></td><td align="right" style="font-size:10pt">${record.otherrefnum}</td>
-        </tr>
-        <tr>
-        <td class="address">&nbsp;</td><td class="address">&nbsp;</td>
-        </tr>
-		<tr>
-        <td class="address">&nbsp;</td><td class="address">&nbsp;</td>
-        </tr>
+    <tr>
+    <td class="address">&nbsp;</td><td align="left" style="font-size:10pt"><b>Account No.</b></td><td align="right" style="font-size:10pt">${record.entity.entityid}</td>
+    </tr>
+    <tr>
+    <#if record.createdfrom?has_content>
+    	<td class="address">&nbsp;</td><td align="left" style="font-size:10pt"><b>Sales Order No.</b></td><td align="right" style="font-size:10pt">${record.createdfrom?keep_after('#')}</td>
+    <#else>
+    	<td class="address">&nbsp;</td><td class="address">&nbsp;</td>
+    </#if>
+    </tr>
+    <tr>
+    <td class="address">&nbsp;</td><td class="address">&nbsp;</td>
+    </tr>
+    <tr>
+    <td class="address">&nbsp;</td><td class="address">&nbsp;</td>
+    </tr>
 
 
     

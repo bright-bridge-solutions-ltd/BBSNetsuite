@@ -1587,6 +1587,7 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 				      search.createColumn({name: "custrecord_bbstfc_pmap_pcode", label: "Destination Field Id - PCode"}),
 				      search.createColumn({name: "custrecord_bbstfc_pmap_npan", label: "NPANXX Code"}),
 				      search.createColumn({name: "custrecord_bbstfc_pmap_fips", label: "FIPS Code"}),
+				      search.createColumn({name: "custrecord_bbstfc_pmap_incorporated", label: "Incorporated"})
 				   ]
 				}));
 				
@@ -1604,6 +1605,7 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 					var sourceNpanxxCode 	= customrecord_bbstfc_pcode_mapSearchObj[0].getValue({name: "custrecord_bbstfc_pmap_npan"});
 					var sourceFipsCode 		= customrecord_bbstfc_pcode_mapSearchObj[0].getValue({name: "custrecord_bbstfc_pmap_fips"});
 					var destinationPCode	= customrecord_bbstfc_pcode_mapSearchObj[0].getValue({name: "custrecord_bbstfc_pmap_pcode"});
+					var incorporated		= customrecord_bbstfc_pcode_mapSearchObj[0].getValue({name: "custrecord_bbstfc_pmap_incorporated"});
 					var recordToProcess		= null;
 					var recordUpdated		= false;
 					
@@ -1737,6 +1739,12 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 					    																					fieldId: 	destinationPCode, 
 					    																					value: 		pcode
 					    																				});
+					    														
+					    														// set incorporated flag to true
+					    														addressSubRecord.setValue({
+																					fieldId: 	incorporated, 
+																					value: 		true
+																				});
 					    														
 					    														recordUpdated = true;
 					    													}
@@ -1885,6 +1893,12 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 					    																					value: 		pcode
 					    																				});
 					    														
+					    														// set incorporated flag to true
+					    														addressSubRecord.setValue({
+																					fieldId: 	incorporated, 
+																					value: 		true
+																				});
+					    														
 					    														recordUpdated = true;
 					    													}
 					    											}
@@ -2007,6 +2021,7 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 	    														//
 	    														var valuesObj = {};
 	    														valuesObj[destinationPCode] = pcode;
+	    														valuesObj[incorporated] = true; // set incorporated flag to true
 	    														
 	    														record.submitFields({
 							    													type:		currentRecordType,

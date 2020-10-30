@@ -67,34 +67,39 @@ function(runtime, search, record, format, render, file, task) {
 
     		filters: [{
     			name: 'isinactive',
-    			operator: 'is',
+    			operator: search.Operator.IS,
     			values: ['F']
     		},
     				{
     			name: 'subsidiary',
     			join: 'custrecord_bbs_service_data_customer_rec',
-    			operator: 'anyof',
+    			operator: search.Operator.ANYOF,
     			values: [subsidiary]
     		},
     				{
     			name: 'custrecord_bbs_service_data_site_record',
-    			operator: 'noneof',
+    			operator: search.Operator.NONEOF,
     			values: ['@NONE@']
     		},
     				{
     			name: 'custrecord_bbs_service_data_product_rec',
-    			operator: 'noneof',
+    			operator: search.Operator.NONEOF,
     			values: ['@NONE@']
     		},
     				{
     			name: 'custrecord_bbs_service_data_start_date',
-    			operator: 'notafter',
+    			operator: search.Operator.NOTAFTER,
     			values: ['lastmonth'] // lastmonth means end of last month
     		},
     				{
     			name: 'custrecord_bbs_service_data_end_date',
-    			operator: 'notbefore',
+    			operator: search.Operator.NOTBEFORE,
     			values: ['startoflastmonth']
+    		},
+    				{
+    			name: 'custrecord_bbs_service_data_op_cost',
+    			operator: search.Operator.GREATERTHAN,
+    			values: [0]
     		}],
     		
     		columns: [{
@@ -226,33 +231,38 @@ function(runtime, search, record, format, render, file, task) {
 					
 					filters: [{
 						name: 'isinactive',
-						operator: 'is',
+						operator: search.Operator.IS,
 						values: ['F']
 					},
 							{
 						name: 'custrecord_bbs_service_data_site_record',
-						operator: 'anyof',
+						operator: search.Operator.ANYOF,
 						values: [siteID]
 					},
 							{
 		    			name: 'custrecord_bbs_service_data_customer_rec',
-		    			operator: 'noneof',
+		    			operator: search.Operator.NONEOF,
 		    			values: ['@NONE@']
 		    		},
 		    				{
 		    			name: 'custrecord_bbs_service_data_product_rec',
-		    			operator: 'noneof',
+		    			operator: search.Operator.NONEOF,
 		    			values: ['@NONE@']
 		    		},
 							{
 		    			name: 'custrecord_bbs_service_data_start_date',
-		    			operator: 'notafter',
+		    			operator: search.Operator.NOTAFTER,
 		    			values: ['lastmonth'] // lastmonth means end of last month
 		    		},
 		    				{
 		    			name: 'custrecord_bbs_service_data_end_date',
-		    			operator: 'notbefore',
+		    			operator: search.Operator.NOTBEFORE,
 		    			values: ['startoflastmonth']
+		    		},
+		    				{
+		    			name: 'custrecord_bbs_service_data_op_cost',
+		    			operator: search.Operator.GREATERTHAN,
+		    			values: [0]
 		    		}],
 					
 				});

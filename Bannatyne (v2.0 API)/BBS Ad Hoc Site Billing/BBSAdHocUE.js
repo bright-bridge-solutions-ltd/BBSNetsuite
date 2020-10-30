@@ -401,8 +401,8 @@ function(config, runtime, record, format, search) {
 	    						// get the day from the terminationDate object
 	    						var endDay = terminationDate.getDate();
 	    						
-	    						// call function to calculate number of days in the end date's month
-			    				var daysInMonth = getDaysInMonth(endDay.getMonth(), endDay.getFullYear());
+	    						// call function to calculate number of days in the termination date's month
+			    				var daysInMonth = getDaysInMonth(terminationDate.getMonth(), terminationDate.getFullYear());
 			    						
 			    				// divide monthlyAmount by daysInMonth to calculate dailyAmount
 			    				var dailyAmount = (monthlyAmount / daysInMonth);

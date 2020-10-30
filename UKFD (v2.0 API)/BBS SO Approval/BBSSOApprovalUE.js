@@ -32,7 +32,7 @@ function(libraryScript, search) {
     			if (orderStatus == 'Pending Approval')
     				{
     					// set client script to run on the form
-    					scriptContext.form.clientScriptFileId = 9138924;
+    					scriptContext.form.clientScriptFileId = 9539881;
     					
     					// add button to the form
 			    		scriptContext.form.addButton({
@@ -56,8 +56,8 @@ function(libraryScript, search) {
      */
     function beforeSubmit(scriptContext) {
     	
-    	// check the record is being created
-    	if (scriptContext.type == scriptContext.UserEventType.EDIT)
+    	// check the record is being created or edited
+    	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
     		{
 		    	// declare and initialize variables
 		    	var paymentApproval 		= false;
@@ -165,11 +165,11 @@ function(libraryScript, search) {
 								    	});
 								    					
 								    	// if avsStreet/avsZip/csc = true and decision = ACCEPT
-								    	if (paymentResults.avsStreet == true && paymentResults.avsZip == true && paymentResults.csc == true && paymentResults.decision == 'ACCEPT')
+								    	/*if (paymentResults.avsStreet == true && paymentResults.avsZip == true && paymentResults.csc == true && paymentResults.decision == 'ACCEPT')
 								    		{
 								    			// set paymentApproval to true
 								    			paymentApproval = true;
-								    		}
+								    		}*/
 							    	}
 							}
 				    }

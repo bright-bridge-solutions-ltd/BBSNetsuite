@@ -192,7 +192,7 @@ function(ui, search, file, runtime, task) {
 	    					var recordID 		= result.id;
 	    					var refundDate		= result.getValue({name: 'custrecord_refund_request_date'});
 	    					var customerName	= result.getValue({name: 'custrecord_refund_customer_name'});
-	    					var refundReason	= result.getText({name: 'custrecord_refund_reason'});
+	    					var refundReason	= result.getValue({name: 'formulatext'});
 	    					var refundAmount	= result.getValue({name: 'custrecord_refund_amount'});
 	    					var location		= result.getText({name: 'custrecord_refund_location'});
 	    					var accountName		= result.getValue({name: 'custrecord_refund_bank_acc_name'});
@@ -562,7 +562,8 @@ function(ui, search, file, runtime, task) {
 				name: 'custrecord_refund_customer_name'
 			},
 					{
-				name: 'custrecord_refund_reason'
+				name: 'formulatext',
+				formula: "CASE WHEN {custrecord_refund_business_area} = 'Memberships' THEN {custrecord_refund_reason} ELSE CASE WHEN {custrecord_refund_business_area} = 'Spa' THEN {custrecord_refund_reason_spa} ELSE CASE WHEN {custrecord_refund_business_area} = 'Hotels' THEN {custrecord_refund_reason_hotels} ELSE CASE WHEN {custrecord_refund_business_area} = 'Events' THEN {custrecord_refund_reason_events} END END END END"
 			},
 					{
 				name: 'custrecord_refund_amount'

@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/url', 'N/https', 'N/ui/message'],
-function(url, https, message) {
+define(['N/runtime', 'N/search'],
+function(runtime, search) {
     
     /**
      * Function to be executed after page is initialized.
@@ -16,6 +16,94 @@ function(url, https, message) {
      * @since 2015.2
      */
     function pageInit(scriptContext) {
+    	
+    	// check the record is being created
+    	if (scriptContext.mode == 'create')
+    		{
+		    	// get the parameters from the URL
+		    	var params 				= new URLSearchParams(location.search);
+		    	var collection			= params.get('collection');
+		    	var collectionFee		= params.get('collectionfee');
+		    	var returnAuthorisation	= params.get('returnauthorisation');
+		    	var locationID			= params.get('location');
+		    	
+		    	// if the collection parameter returns true
+		    	if (collection == 'true')
+		    		{
+		    			// retrieve script parameters
+		    			var currentScript = runtime.getCurrentScript();
+		    		
+		    			var collectionItem = currentScript.getParameter({
+		    				name: 'custscript_bbs_collection_fee_item'
+		    			});
+		    			
+		    			var taxCode = currentScript.getParameter({
+		    				name: 'custscript_bbs_collection_fee_tax_code'
+		    			});
+		    			
+		    			// lookup fields on the collection item record
+		    			var productCategory = search.lookupFields({
+		    				type: search.Type.OTHER_CHARGE_ITEM,
+		    				id: collectionItem,
+		    				columns: ['custitem_product_category']
+		    			}).custitem_product_category[0].value;
+		    		
+		    			// get the current record
+		    			var currentRecord = scriptContext.currentRecord;
+		    			
+		    			// add a new line to the item sublist
+		    			currentRecord.selectLine({
+		    				sublistId: 'item',
+		    				line: 0
+		    			});
+		    			
+		    			currentRecord.setCurrentSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'item',
+		    				value: collectionItem
+		    			});
+		    			
+		    			currentRecord.setCurrentSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'quantity',
+		    				value: 1
+		    			});
+		    			
+		    			currentRecord.setCurrentSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'rate',
+		    				value: collectionFee
+		    			});
+		    			
+		    			currentRecord.setCurrentSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'taxcode',
+		    				value: taxCode
+		    			});
+		    			
+		    			currentRecord.setCurrentSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'location',
+		    				value: locationID
+		    			});
+		    			
+		    			currentRecord.setCurrentSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'custcol_product_category',
+		    				value: productCategory
+		    			});
+
+		    			currentRecord.commitLine({
+		    				sublistId: 'item'
+		    			});
+		    			
+		    			// set the linked RA field
+		    			currentRecord.setValue({
+		    				fieldId: 'custbody_bbs_linked_ra',
+		    				value: returnAuthorisation
+		    			});
+		    		}
+    		}
 
     }
 
@@ -148,79 +236,12 @@ function(url, https, message) {
      * @since 2015.2
      */
     function saveRecord(scriptContext) {
+    	
 
     }
-    
-    function emailInvoices()
-    	{
-	    	// get the URL of the Suitelet
-			var suiteletURL = url.resolveScript({
-				scriptId: 'customscript_bbs_email_invoice_sl',
-				deploymentId: 'customdeploy_bbs_email_invoice_sl'
-			});
-			
-			// open the 'Suitelet in a new tab/window
-    		window.open(suiteletURL, '_blank');
-    	}
-    
-    function connectFileSync()
-    	{
-	    	// get the URL of the Suitelet
-			var suiteletURL = url.resolveScript({
-				scriptId: 'customscript_bbs_connect_file_sync_sl',
-				deploymentId: 'customdeploy_bbs_connect_file_sync_sl'
-			});
-			
-			// open the 'Suitelet in a new tab/window
-			window.open(suiteletURL, '_blank');
-    	}
-    
-    function createAdvanceReports()
-    	{
-	    	// ==========================================================================
-			// CALL BACKEND SUITELET TO SCHEDULE CREATE ADVANCE REPORTS MAP/REDUCE SCRIPT
-			// ==========================================================================
-    	
-    		// define URL of Suitelet
-			var suiteletURL = url.resolveScript({
-				scriptId: 'customscript_bbs_advance_reports_sl',
-				deploymentId: 'customdeploy_bbs_advance_reports_sl'
-			});
-		
-			// call the Suitelet
-			var response = 	https.get({
-				url: suiteletURL
-			});
-			
-			response = response.body; // get the response body
-			
-			// check if response is true
-			if (response == 'true')
-				{
-					// display a confirmation message
-					message.create({
-						type: message.Type.CONFIRMATION,
-				        title: 'Create Advance Reports Scheduled',
-				        message: 'The process for the creation of advance reports has been scheduled successfully.'
-					}).show();
-				}
-			// check if response is false
-			else if (response == 'false')
-				{
-					// display an error message
-					message.create({
-						type: message.Type.ERROR,
-				        title: 'Error',
-				        message: 'There was an error scheduling the creation of advance reports.<br><br>Please see script logs for further details.'
-					}).show(5000); // show for 5 seconds
-				}
-    	}
 
     return {
-        pageInit: pageInit,
-        emailInvoices: emailInvoices,
-        connectFileSync: connectFileSync,
-        createAdvanceReports: createAdvanceReports
+        pageInit: pageInit
     };
     
 });

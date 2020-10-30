@@ -26,9 +26,11 @@ function(runtime, record, search) {
     		name: 'custscript_bbs_refund_requests_array'
     	});
     	
-    	var refundType = currentScript.getParameter({
-    		name: 'custscript_bbs_refund_type'
-    	});
+    	var refundType = parseInt(
+    			currentScript.getParameter({
+    				name: 'custscript_bbs_refund_type'
+    			})
+    	);
     	
     	var subsidiary = currentScript.getParameter({
     		name: 'custscript_bbs_subsidiary'
@@ -40,6 +42,14 @@ function(runtime, record, search) {
     	
     	var vatCode = currentScript.getParameter({
     		name: 'custscript_bbs_vat_code'
+    	});
+    	
+    	var customForm = currentScript.getParameter({
+    		name: 'custscript_bbs_refund_journal_form_id'
+    	});
+    	
+    	var loylapAccount = currentScript.getParameter({
+    		name: 'custscript_bbs_loylap_deferred_account'
     	});
     	
     	// call function to return the refund requests to be processed
@@ -81,9 +91,30 @@ function(runtime, record, search) {
     				}
     		}
     	
+    	// lookup fields on the subsidiary record
+		var subsidiaryInfo = getSubsidiaryInfo(subsidiary);
+    	
+    	// declare and initialize variables
+    	var creditGLAccount = null;
+    	
     	// if the refund type is NOT 3 (SagePay)
     	if (refundType != 3)
     		{
+    			// switch the refund type
+    			switch(refundType) {
+    				
+    				case 1:
+    					refundType = 'Bank payment';
+    					creditGLAccount = subsidiaryInfo.bankaccount;
+    					break;
+    				
+    				case 2:
+    					refundType = 'Giftcard (Loylap)';
+    					creditGLAccount = loylapAccount;
+    					break;
+    				
+    			}
+    		
     			/*
     			 * now we have marked the records as processed, we need to create a journal
     			 */
@@ -93,7 +124,10 @@ function(runtime, record, search) {
     					// create a new journal record
     					var journalRec = record.create({
     						type: record.Type.JOURNAL_ENTRY,
-    						isDynamic: true
+    						isDynamic: true,
+    						defaultValues: {
+    							customform: customForm
+    						}
     					});
     					
     					// set header fields on the journal
@@ -104,7 +138,7 @@ function(runtime, record, search) {
     					
     					journalRec.setValue({
     						fieldId: 'memo',
-    						value: 'Refunds'
+    						value: 'Refund - ' + refundType
     					});
     					
     					journalRec.setValue({
@@ -135,8 +169,12 @@ function(runtime, record, search) {
     							name: 'custrecord_refund_business_area'
     						});
     						
+    						var annualMembership = convertToNonBoolean(result.getValue({
+    							name: 'custrecord_refund_annual_mem'
+    						}));
+    						
     						// call function to return the GL mapping
-    						var glMapping = getGLMapping(businessArea);
+    						var glMapping = getGLMapping(businessArea, annualMembership);
     						
     						// set fields on the new journal
     						journalRec.selectNewLine({
@@ -209,9 +247,6 @@ function(runtime, record, search) {
     						
     					});
     					
-    					// lookup fields on the subsidiary record
-    					var subsidiaryInfo = getSubsidiaryInfo(subsidiary);
-    					
     					// add a line to credit balances from the relevant account
     					journalRec.selectNewLine({
 							sublistId: 'line'
@@ -220,7 +255,7 @@ function(runtime, record, search) {
 						journalRec.setCurrentSublistValue({
 							sublistId: 'line',
 							fieldId: 'account',
-							value: subsidiaryInfo.bankaccount
+							value: creditGLAccount
 						});
 						
 						journalRec.setCurrentSublistValue({
@@ -232,7 +267,7 @@ function(runtime, record, search) {
 						journalRec.setCurrentSublistValue({
 							sublistId: 'line',
 							fieldId: 'memo',
-							value: 'Refunds'
+							value: 'Refund - ' + refundType
 						});
 						
 						journalRec.setCurrentSublistValue({
@@ -315,13 +350,16 @@ function(runtime, record, search) {
     		},
     				{
     			name: 'custrecord_refund_business_area'
+    		},
+    				{
+    			name: 'custrecord_refund_annual_mem'
     		}],
     		
     	});
     	
     }
     
-    function getGLMapping(businessArea) {
+    function getGLMapping(businessArea, annualMembership) {
     	
     	// declare and initialize variables
     	var glAccount		= null;
@@ -341,6 +379,11 @@ function(runtime, record, search) {
     			name: 'custrecord_bbs_refund_jnl_gl_map_busarea',
     			operator: search.Operator.ANYOF,
     			values: [businessArea]
+    		},
+    				{
+    			name: 'custrecord_bbs_ref_jnl_gl_map_pro_rata',
+    			operator: search.Operator.IS,
+    			values: [annualMembership]
     		}],
     		
     		columns: [{
@@ -391,11 +434,17 @@ function(runtime, record, search) {
     	var subsidiaryLookup = search.lookupFields({
     		type: search.Type.SUBSIDIARY,
     		id: subsidiaryID,
-    		columns: ['custrecord_bbs_bank_gl_account', 'custrecord_bbs_default_department', 'custrecord_bbs_default_line_of_business', 'custrecord_bbs_default_location']
+    		columns: ['custrecord_bbs_bank_gl_account', 'custrecord_bbs_intercompany_gl_account', 'custrecord_bbs_default_department', 'custrecord_bbs_default_line_of_business', 'custrecord_bbs_default_location']
     	});
     	
-    	// if we have a bank GL account selected on the subsidiary
-    	if (subsidiaryLookup.custrecord_bbs_bank_gl_account.length > 0)
+    	
+    	// if we have an intercompany GL account selected on the subsidiary
+    	if (subsidiaryLookup.custrecord_bbs_intercompany_gl_account.length > 0)
+    		{
+    			// get the internal ID of the intercompany GL account
+    			bankAccount = subsidiaryLookup.custrecord_bbs_intercompany_gl_account[0].value;
+    		}
+    	else
     		{
     			// get the internal ID of the GL bank account
     			bankAccount = subsidiaryLookup.custrecord_bbs_bank_gl_account[0].value;
@@ -428,6 +477,19 @@ function(runtime, record, search) {
     		lineofbusiness:	lineOfBusiness,
     		location:		location
     	}
+    	
+    }
+    
+    function convertToNonBoolean(inputValue) {
+    	
+    	if (inputValue == true)
+    		{
+    			return 'T';
+    		}
+    	else if (inputValue == false)
+    		{
+    			return 'F';
+    		}
     	
     }
 

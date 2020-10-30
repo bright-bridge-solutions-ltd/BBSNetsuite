@@ -43,7 +43,7 @@ function(runtime, search, format, record) {
     			name: 'custrecord_bbs_ad_hoc_site_monthly_amt'
     		},
     				{
-    			name: 'custrecord_bbs_ad_hoc_site_gym_spa'
+    			name: 'custrecord_bbs_ad_hoc_site_line_business'
     		},
     				{
     			name: 'custrecord_bbs_ad_hoc_site_location'
@@ -147,7 +147,7 @@ function(runtime, search, format, record) {
 		var customer = searchResult.values["custrecord_bbs_ad_hoc_site_customer"].value;
 			
 		// get the line of business from the search results
-		var lineOfBusiness = searchResult.values["custrecord_bbs_ad_hoc_site_gym_spa"].value;
+		var lineOfBusiness = searchResult.values["custrecord_bbs_ad_hoc_site_line_business"].value;
 		
 		// get the location from the search results
 		var location = searchResult.values["custrecord_bbs_ad_hoc_site_location"].value;
@@ -302,6 +302,16 @@ function(runtime, search, format, record) {
     					value: 2 // 2 = Ongoing
     				});
     				
+    				invoiceRecord.setValue({
+    					fieldId: 'location',
+    					value: location
+    				});
+    				
+    				invoiceRecord.setValue({
+    					fieldId: 'class',
+    					value: lineOfBusiness
+    				});
+    				
     				/*
     				 * =======================================================================
     				 * ADD A LINE TO THE ITEMS SUBLIST FOR THE ITEM ASSOCIATED TO THE CONTRACT
@@ -340,7 +350,7 @@ function(runtime, search, format, record) {
     				
     				invoiceRecord.setCurrentSublistValue({
     					sublistId: 'item',
-    					fieldId: 'vatcode',
+    					fieldId: 'taxcode',
     					value: vatRate
     				});
     				
