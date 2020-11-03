@@ -59,7 +59,7 @@ function()
 	
 	//Object to hold the request to create a shipment
 	//
-	function _processShipmentRequest(_configuration, _shippingItemInfo, _shippingReference, _address, _contact, _shippingDate, _weight, _packageCount, _isSaturday)
+	function _processShipmentRequest(_configuration, _shippingItemInfo, _shippingReference, _address, _contact, _shippingDate, _weight, _packageCount, _isSaturday, _senderAddress, _senderContactInfo)
 		{
 			this.configuration		= _configuration;		//Configuration object
 			this.shippingItemInfo	= _shippingItemInfo;	//Shipping info object
@@ -70,6 +70,8 @@ function()
 			this.address			= _address;				//Address object
 			this.contact			= _contact;				//Contact object
 			this.isSaturday			= _isSaturday;
+			this.senderAddress		= _senderAddress;		//Address object
+			this.senderContact		= _senderContactInfo;	//Contact object
 		}
 	
 	
@@ -168,10 +170,12 @@ function()
 			this.countryCode	= _countryCode;
 		}
 	
-	function _contactObject(_mobileNumber, _emailaddress)
+	function _contactObject(_mobileNumber, _emailaddress, _vatNo, _eori)
 		{
 			this.mobileNumber 	= _mobileNumber;
 			this.emailAddress	= _emailaddress;
+			this.vatNo			= _vatNo;
+			this.eori			= _eori;
 		}
 	
 	function _packageObject(_sequence, _packageNumber, _labelImage, _labelType)

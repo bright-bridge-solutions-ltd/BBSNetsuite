@@ -1,12 +1,213 @@
-define(['N/record', 'N/search', 'N/xml', 
-        './BBSObjects'
+define(['N/record', 'N/search', 'N/xml', 'N/config', 'N/https',
+        './BBSObjects',
+        './secret',
+        './oauth',
+        './cryptojs'
         ],
-function(record, search, xml, BBSObjects) 
+function(record, search, xml, config, https, BBSObjects, secret, oauth, cryptojs) 
 {
 	//=========================================================================
 	//Main functions
 	//=========================================================================
 	//
+	
+	function _doLicenceCheck(_product)
+		{
+			var configRecord 	= null;
+			var PRODUCT_NAME	= _product
+			var LICENCE_MODE	= 'L';		//Licenced mode 
+			var licenceResponse	= {};
+			
+			try
+				{
+					configRecord = config.load({
+											type: config.Type.COMPANY_INFORMATION
+											});
+				}
+			catch(err)
+				{
+					configRecord = null;
+				}
+			
+			if(configRecord != null)
+				{
+					var companyId 	= configRecord.getValue({fieldId: 'companyid'});
+					var companyName = configRecord.getValue({fieldId: 'legalname'});
+	
+					var licenceCheckResponse 	= _validateLicence(companyId, companyName, PRODUCT_NAME, LICENCE_MODE);
+					
+					//If the http response code is 200  the return the result of the call
+					//
+					if(licenceCheckResponse.httpResponseCode == '200')
+						{	
+							licenceResponse['status'] 	= licenceCheckResponse.apiResponse.status;
+							licenceResponse['message'] 	= licenceCheckResponse.apiResponse.message;
+							
+							return licenceResponse;
+						}
+					
+					//If the http response code is anything other than 200 we are ok
+					//This is done to prevent the licence check from working if our end point is unavailable
+					//
+					if(licenceCheckResponse.httpResponseCode != '200')
+						{
+							licenceResponse['status'] 	= 'OK';
+							licenceResponse['message'] 	= '';
+							
+							return licenceResponse;
+						}
+					
+				}
+			else
+				{
+					//Can't find the config record, so we will have to say everything is ok
+					//
+					licenceResponse['status'] 	= 'OK';
+					licenceResponse['message'] 	= '';
+					
+					return licenceResponse;
+				}
+		}
+
+	//
+	//Licence helper function
+	//
+	function _validateLicence(_account, _name, _product, _mode)
+		{
+			var response		= null;
+			var responseBodyObj	= null;
+			var licenceResponse	= new licenceResponseObj();
+			var fullUrl			= secret.url + '&account=' + xml.escape({xmlText: _account}) + '&name=' + xml.escape({xmlText: _name}) + '&product=' + xml.escape({xmlText: _product}) + '&mode=' + _mode;
+			var headers 		= oauth.getHeaders({
+											        url: 			fullUrl,
+											        method: 		secret.method,
+											        tokenKey: 		secret.token.public,
+											        tokenSecret: 	secret.token.secret   
+											        });
+		
+		    headers['Content-Type'] = 'application/json';
+		
+		    try
+		    	{
+		    		response = https.get({
+										        url: 		fullUrl,
+										        headers: 	headers
+										    	});
+				    
+				    
+				    //Extract the http response code	
+					//
+				    licenceResponse.httpResponseCode = response.code;
+					
+					//Extract the http response body
+					//
+					if(response.body != null && response.body != '')
+						{
+							//Try to parse the response body into a JSON object
+							//
+							try
+								{
+									responseBodyObj = JSON.parse(response.body);
+								}
+							catch(err)
+								{
+									responseBodyObj = null;
+								}
+							
+							//Process the converted JSON object
+							//
+							if(responseBodyObj != null)
+								{
+									licenceResponse.apiResponse 		= responseBodyObj;
+								}
+						}
+				}
+			catch(err)
+				{
+					licenceResponse.responseMessage = err.message;
+				}
+	
+		    return licenceResponse
+		}
+
+	//
+	//Licence Objects
+	//
+	function licenceResponseObj()
+		{
+			this.httpResponseCode	= '';
+			this.responseMessage 	= '';
+			this.apiResponse		= {};
+		}
+
+	
+	//Function to get the subsidiary address or the company address if no subsidiary
+	//
+	function _getSenderAddress(_subsidiaryId)
+		{
+			var senderAddressObj = null;
+			
+			try
+				{
+					// load the subsidiary record
+					var subsidiaryRecord = record.load({
+														type: 	record.Type.SUBSIDIARY,
+														id: 	_subsidiaryId
+													});
+					
+					
+					// get the address subrecord
+					var addressSubrecord = subsidiaryRecord.getSubrecord({
+																		fieldId: 'mainaddress'
+																		});
+					
+					
+					var addresse = addressSubrecord.getValue({
+																		fieldId: 'addressee'
+																	});
+					
+					var addressLine1 = addressSubrecord.getValue({
+																			fieldId: 'addr1'
+																		});
+					
+					var addressLine2 = addressSubrecord.getValue({
+																			fieldId: 'addr2'
+																		});
+					
+					var city = addressSubrecord.getValue({
+																	fieldId: 'city'
+																});
+					
+					var county = addressSubrecord.getValue({
+																	fieldId: 'state'
+																	});
+					
+					var postcode = addressSubrecord.getValue({
+																		fieldId: 'zip'
+																	});
+					
+					var country = addressSubrecord.getValue({
+																	fieldId: 'country'
+																});
+					
+					// create an address object
+					//
+					senderAddressObj = new BBSObjects.addressObject(addresse, addressLine1, addressLine2, city, county, postcode, country);
+					
+					
+					
+				}
+			catch(err) // error because of Non-OneWorld account
+				{
+					//Will need to read the comapny config record here to get the correct data
+					//
+					//TODO
+					//
+				}
+			
+			return senderAddressObj;
+		}
+	
 	
 	
 	//Function to get the configuration info from the config record id
@@ -178,23 +379,55 @@ function(record, search, xml, BBSObjects)
 		{
 			// lookup fields on the customer record
 			var customerLookup = search.lookupFields({
-				type: search.Type.CUSTOMER,
-				id: _customerID,
-				columns: ['email', 'phone']
-			});
+													type: 		search.Type.CUSTOMER,
+													id: 		_customerID,
+													columns: 	['email', 'phone','vatregnumber','custentity_bbs_ci_eori']
+													});
 			
 			// return values from the customerLookup object
-			var customerEmail = customerLookup.email;
-			var customerPhone = customerLookup.phone;
+			var customerEmail 	= customerLookup.email;
+			var customerPhone 	= customerLookup.phone;
+			var customerVat 	= customerLookup.vatregnumber;
+			var customerEori 	= customerLookup.custentity_bbs_ci_eori;
 			
 			// create a contact object
-			var contactInfo = new BBSObjects.contactObject(customerPhone, customerEmail);
+			var contactInfo = new BBSObjects.contactObject(customerPhone, customerEmail, customerVat, customerEori);
 			
 			// return the contact object
 			return contactInfo;
 		}
 	
 	
+	function _findSubsidiaryContactDetails(_subsidiaryId)
+		{
+			var contactInfo =  new BBSObjects.contactObject('', '', '', '');
+			
+			try
+				{
+					// load the subsidiary record
+					var subsidiaryRecord = record.load({
+														type: 	record.Type.SUBSIDIARY,
+														id: 	_subsidiaryId
+													});
+					
+					var subsidiaryEmail 	= subsidiaryRecord.getValue({fieldId: 'email'});
+					var subsidiaryPhone 	= subsidiaryRecord.getValue({fieldId: 'custrecord_bbs_ci_phone'});
+					var subsidiaryVat 		= subsidiaryRecord.getValue({fieldId: 'federalidnumber'});
+					var subsidiaryEori 		= subsidiaryRecord.getValue({fieldId: 'custrecord_bbs_ci_eori'});
+					
+					// create a contact object
+					contactInfo = new BBSObjects.contactObject(subsidiaryPhone, subsidiaryEmail, subsidiaryVat, subsidiaryEori);
+					
+				}
+			catch(err)
+				{
+				
+				}
+			
+			// return the contact object
+			return contactInfo;
+		}
+
 	//Function to replace a null value with a specific value
 	//
 	function _isNull(_string, _replacer)
@@ -379,13 +612,16 @@ function(record, search, xml, BBSObjects)
 	//=========================================================================
 	//
    return 	{
-	    		getConfig:				_getConfig,
-	    		lookupShippingItem:		_lookupShippingItem,
-	    		isNullOrEmpty:			_isNullOrEmpty,
-	    		isNull:					_isNull,
-	    		xml2Json:				_xmlToJson,
-	    		json2xml:				_json2xml,
-	    		findContactDetails:		_findContactDetails
+	    		getConfig:						_getConfig,
+	    		lookupShippingItem:				_lookupShippingItem,
+	    		isNullOrEmpty:					_isNullOrEmpty,
+	    		isNull:							_isNull,
+	    		xml2Json:						_xmlToJson,
+	    		json2xml:						_json2xml,
+	    		findContactDetails:				_findContactDetails,
+	    		getSenderAddress:				_getSenderAddress,
+	    		findSubsidiaryContactDetails:	_findSubsidiaryContactDetails,
+	    		doLicenceCheck:					_doLicenceCheck
     		};
     
 });

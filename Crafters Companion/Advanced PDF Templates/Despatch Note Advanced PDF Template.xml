@@ -1,0 +1,171 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    
+    <macrolist>
+    	<macro id="nlheader">
+            <table style="width: 100%; margin-left:225px; margin-top: 0px;">
+				<tr>
+					<td><img rotate="270" src="${record.custbody_bbs_ci_label_image}" style="width: 250px; height: 375px;"/></td>
+				</tr>
+			</table>
+        </macro>
+        <macro id="nlfooter">
+        <table style="width: 100%;">
+    	<tr>
+			<td align="center" style="font-size:8pt">If you have any queries, please email us on <b>customerservices@crafterscompanion.co.uk</b> or call <b>01388 663251</b></td>
+		</tr>
+		<tr>
+			<td align="center" style="font-size:8pt">If you need to return an item to us, please use the address below, T+Cs can be found at www.crafterscompanion.co.uk</td>
+		</tr>
+		<tr>
+			<td align="center" style="font-size:8pt">Crafter's Companion, Unit 1, Horndale Avenue, Aycliffe Business Park, Newton Aycliffe, DL5 6DR</td>
+		</tr>
+		<tr>
+			<td align="center" style="font-size:8pt">Registered company number 5734881 England. VAT registration number 865814981, VAT is included in pricing where applicable</td>
+		</tr>
+
+          </table>
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 9pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #e3e3e3;
+            color: #333333;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { align:left }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            font-weight: bold;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        div.returnform {
+            width: 100%;
+            /* To ensure minimal height of return form */
+            height: 200pt;
+            page-break-inside: avoid;
+            page-break-after: avoid;
+        }
+        hr {
+            border-top: 1px solid;
+            width: 100%;
+            color: #333333;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="350pt" footer="nlfooter" footer-height="60pt" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">
+    
+    <table style="width: 100%;">
+    	<tr>
+			<td rowspan="5"><img src="https://1706292.app.netsuite.com/core/media/media.nl?id=30210&amp;c=1706292&amp;h=zxpdvc3yiLsww32hUgydG0Xzfotjjy_P6UHYpiyXgenSAPJj" style="width: 120px; height: 63px;"/></td>
+          	<td colspan="3" style="font-size:12pt">${record.createdfrom.tranid} / ${record.entity}</td>
+		</tr>
+		<tr>
+			<td colspan="3" style="font-size:6pt"><b>Order Date:</b> ${record.createdfrom.trandate} <b>Delivery Method:</b> ${record.shipmethod}</td>
+		</tr>
+		<tr>
+			<td colspan="3" style="font-size:6pt"><b>Delivery Address:</b> ${record.shipaddress?replace("<br />"," ")}</td>
+		</tr>
+		<tr>
+			<td colspan="3" style="font-size:6pt">For details of your current loyalty band and the number of loyalty points you have on your account, please login at</td>
+		</tr>
+		<tr>
+			<td colspan="3" style="font-size:6pt">www.crafterscompanion.co.uk and visit "My Account"</td>
+		</tr>
+		
+	</table>
+	
+	<#if record.item?has_content>
+		<table style="width: 100%; margin-top: 10px;">
+			<tr>
+				<td colspan="2" align="center" style="border-bottom: 1px solid grey;">Qty</td>
+				<td colspan="6" style="border-bottom: 1px solid grey;">Item Name</td>
+				<td colspan="4" style="border-bottom: 1px solid grey;">SKU</td>
+				<td colspan="2" align="center" style="border-bottom: 1px solid grey;"><b>Quantity</b></td>
+			</tr>
+			<#list record.item as item>
+				<tr>
+					<td colspan="2" align="center" >${item.quantity}</td>
+					<td colspan="6" >${item.description}</td>
+					<td colspan="4" >${item.item}</td>
+					<td colspan="2" align="center" >${item.quantity}</td>
+				</tr>
+			</#list>
+		</table>
+	</#if>
+	
+
+
+</body>
+</pdf>
