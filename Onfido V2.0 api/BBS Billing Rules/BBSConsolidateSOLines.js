@@ -106,11 +106,15 @@ function(runtime, search, record, format) {
     	    			summary: 'GROUP'
     	    		});
     	    		
-    	    		// format searchDate as a date object
-					searchDate = format.parse({
-						type: format.Type.DATE,
-						value: searchDate
-					});
+    	    		// do we have a search date
+    	    		if (searchDate)
+    	    			{
+		    	    		// format searchDate as a date object
+							searchDate = format.parse({
+								type: format.Type.DATE,
+								value: searchDate
+							});
+    	    			}
     	    		
     	    		var rate = result.getValue({
     	    			name: 'fxrate',
@@ -274,7 +278,8 @@ function(runtime, search, record, format) {
     					{
     				name: 'formuladate',
     				summary: 'GROUP',
-    				formula: 'LAST_DAY({custcol_bbs_so_search_date})'
+    				formula: 'LAST_DAY({custcol_bbs_so_search_date})',
+    				sort: search.Sort.ASC
     			},
     					{
     				name: 'fxrate',

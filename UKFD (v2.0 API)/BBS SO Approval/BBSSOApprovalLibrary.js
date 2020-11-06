@@ -2,12 +2,12 @@
  * @NApiVersion 2.x
  * @NModuleScope Public
  */
-define(['N/search'],
+define(['N/search', 'N/record', 'N/url', 'N/https'],
 /**
  * @param {record} record
  * @param {search} search
  */
-function(search)  {
+function(search, record, url, https)  {
 
     // ==========================================
     // FUNCTION TO CHECK UNIVERSAL BUSINESS RULES
@@ -414,6 +414,78 @@ function(search)  {
     	
     }
     
+    // ====================================================
+    // FUNCTION TO TRANSFORM THE SALES ORDER TO A CASH SALE
+    // ====================================================
+    
+    function transformToCashSale(salesOrderID) {
+    	
+    	// declare and initialize variables
+    	var cashSaleID = null;
+    	
+    	try
+    		{
+    			// convert the sales order to a cash sale
+    			cashSaleID = record.transform({
+    				fromId: 	salesOrderID,
+					fromType: 	record.Type.SALES_ORDER,
+					toType:		record.Type.CASH_SALE
+    			}).save({
+    				ignoreMandatoryFields: true
+    			});
+    		}
+    	catch(e)
+    		{
+    			log.error({
+    				title: 'Error Transforming Sales Order ' + salesOrderID + ' to a Cash Sale',
+    				details: e
+    			});
+    		}
+    	
+    	return cashSaleID;
+    	
+    }
+    
+    // ============================
+    // FUNCTION TO SEND EKOMI EMAIL
+    // ============================
+    
+    function sendEkomiFeedbackEmail(cashSaleID) {
+    	
+    	try
+    		{
+    			// declare and initialize variables
+    			var suiteletURL = 'https://';
+    		
+    			// get the company URL
+    			suiteletURL += url.resolveDomain({
+    			    hostType: url.HostType.APPLICATION,
+    			});
+    		
+    			// get the URL of the send Ekomi Suitelet
+    			suiteletURL += url.resolveScript({
+    			    scriptId: 'customscript_ekomi_send_review',
+    			    deploymentId: 'customdeploy_ekomi_send_review',
+    			    params: {
+    			    	'cs_id': cashSaleID
+    			    }
+    			});
+    			
+    			// call the Suitelet
+    			https.get({
+					url: suiteletURL
+				});
+    		}
+    	catch(e)
+    		{
+    			log.error({
+    				title: 'Error Calling Suitelet',
+    				details: e
+    			});
+    		}
+    	
+    }
+    
     // ======================================
     // FUNCTION TO CONVERT TO A BOOLEAN VALUE
     // ======================================
@@ -447,6 +519,8 @@ function(search)  {
     	getPaymentResponseDetails:		getPaymentResponseDetails,
     	checkStockLevels:				checkStockLevels,
     	getOnHandQuantity:				getOnHandQuantity,
+    	transformToCashSale:			transformToCashSale,
+    	sendEkomiFeedbackEmail:			sendEkomiFeedbackEmail,
     	convertToBoolean:				convertToBoolean
     };
     

@@ -30,6 +30,10 @@ function(runtime, search, record, format, render, file, task) {
 		name: 'custscript_bbs_service_data_billing_user'
 	});
 	
+	savedSearchID = currentScript.getParameter({
+		name: 'custscript_bbs_service_data_bill_search'
+	});
+	
 	// if subsidiary is 2 (UK)
 	if (subsidiary == 2)
 		{
@@ -61,73 +65,24 @@ function(runtime, search, record, format, render, file, task) {
      */
     function getInputData() {
     	
-    	// create search to find service data customers to be processed
-    	return search.create({
+    	// load search to find service data customers to be processed
+    	var serviceDataSearch = search.load({
     		type: 'customrecord_bbs_service_data',
-
-    		filters: [{
-    			name: 'isinactive',
-    			operator: search.Operator.IS,
-    			values: ['F']
-    		},
-    				{
-    			name: 'subsidiary',
-    			join: 'custrecord_bbs_service_data_customer_rec',
-    			operator: search.Operator.ANYOF,
-    			values: [subsidiary]
-    		},
-    				{
-    			name: 'custrecord_bbs_service_data_site_record',
-    			operator: search.Operator.NONEOF,
-    			values: ['@NONE@']
-    		},
-    				{
-    			name: 'custrecord_bbs_service_data_product_rec',
-    			operator: search.Operator.NONEOF,
-    			values: ['@NONE@']
-    		},
-    				{
-    			name: 'custrecord_bbs_service_data_start_date',
-    			operator: search.Operator.NOTAFTER,
-    			values: ['lastmonth'] // lastmonth means end of last month
-    		},
-    				{
-    			name: 'custrecord_bbs_service_data_end_date',
-    			operator: search.Operator.NOTBEFORE,
-    			values: ['startoflastmonth']
-    		},
-    				{
-    			name: 'custrecord_bbs_service_data_op_cost',
-    			operator: search.Operator.GREATERTHAN,
-    			values: [0]
-    		}],
-    		
-    		columns: [{
-    			name: 'custrecord_bbs_service_data_site_record',
-    			summary: 'GROUP',
-    			sort: search.Sort.ASC
-    		},
-    				{
-    			name: 'internalid',
-    			join: 'custrecord_bbs_service_data_customer_rec',
-    			summary: 'MAX'
-    		},
-    				{
-    			name: 'internalid',
-    			join: 'custrecord_bbs_service_data_location',
-    			summary: 'MAX'
-    		},
-    				{
-    			name: 'custrecord_bbs_service_data_site_alias',
-    			summary: 'MAX'
-    		},
-    				{
-    			name: 'formulatext',
-    			summary: 'MAX',
-    			formula: "REPLACE(NS_CONCAT({internalid}), ',','|')"
-    		}],
-
+    		id: savedSearchID
     	});
+
+    	// add a new search filter using .push() method
+    	serviceDataSearch.filters.push(
+							search.createFilter({
+								name: 'subsidiary',
+								join: 'custrecord_bbs_service_data_customer_rec',
+								operator: search.Operator.ANYOF,
+								values: [subsidiary]
+							})
+						);
+		
+		// return the saved search object
+		return serviceDataSearch;
 
     }
 
@@ -146,8 +101,8 @@ function(runtime, search, record, format, render, file, task) {
     	var siteID = searchResult.values['GROUP(custrecord_bbs_service_data_site_record)'].value;
     	var siteName = searchResult.values['GROUP(custrecord_bbs_service_data_site_record)'].text;
     	var siteAlias = searchResult.values['MAX(custrecord_bbs_service_data_site_alias)'];
-    	var customerID = searchResult.values['MAX(internalid.custrecord_bbs_service_data_customer_rec)'];
-    	var locationID = searchResult.values['MAX(internalid.custrecord_bbs_service_data_location)'];  	
+    	var customerID = searchResult.values['MAX(internalid.CUSTRECORD_BBS_SERVICE_DATA_CUSTOMER_REC)'];
+    	var locationID = searchResult.values['MAX(internalid.CUSTRECORD_BBS_SERVICE_DATA_LOCATION)'];  	
     	var serviceDataRecords = searchResult.values['MAX(formulatext)'];
     	serviceDataRecords = serviceDataRecords.split('|'); // split on '|' as needs to be an array to set multi-select field
     	

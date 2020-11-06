@@ -343,6 +343,25 @@
 
 <hr/><!-- Horizontal Line -->
 
+<#if subsidiary.id == '3' || subsidiary.id == '5'> <!-- If subsidiary is 3 (US) or 5 (Canada) -->
+	
+	<table style="width:100%">
+		<thead>
+			<tr>
+				<th style="border-left: 2px solid black; border-top: 2px solid black;">Lockbox postal address:</th>
+				<th style="border-left: 2px solid black; border-right: 2px solid black; border-top: 2px solid black;">Lockbox address for overnight courier deliveries:</th>
+			</tr>
+		</thead>
+		<tr>
+			<td style="border-left: 2px solid black; border-bottom: 2px solid black;">essensys Inc.<br/>PO Box 787435<br/>Philadelphia<br/>PA 19178-7435</td>
+			<td style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">Lockbox #787435<br/>essensys Inc.<br/>MAC Y1372-0445<br/>401 Market Street<br/>Philadelphia<br/>PA 19106</td>
+		</tr>
+	</table>
+	
+	<hr/><!-- Horizontal Line -->
+	
+</#if>
+
 <!-- Check we have a customer VAT number and the country is not UK-->
 <#if record.vatregnum?has_content && record.billaddress?contains("United Kingdom")>
 	<table style="width: 100%;">

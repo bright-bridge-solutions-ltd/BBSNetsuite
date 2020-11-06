@@ -173,12 +173,22 @@ function(runtime, search) {
     
     function getSiteDetails(siteID) {
     	
+    	// declare and initialize variables
+    	var state = null;
+    	
     	// lookup fields on the site record
     	var siteLookup = search.lookupFields({
 			type: 'customrecord_bbs_site',
 			id: siteID,
 			columns: ['name', 'custrecord_site_name', 'custrecord_bbs_site_address_1', 'custrecord_bbs_site_address_2', 'custrecord_bbs_site_address_3', 'custrecord_bbs_site_address_city', 'custrecord_bbs_site_address_state', 'custrecord_bbs_site_address_zip']
 		});
+    	
+    	// check if we have a state on the site
+    	if (siteLookup.custrecord_bbs_site_address_state.length > 0)
+    		{
+    			// get the state from the site lookup
+    			state = siteLookup.custrecord_bbs_site_address_state[0].text;
+    		}
     	
     	return {
     		site:			siteLookup.name,
@@ -187,7 +197,7 @@ function(runtime, search) {
     		address2:		siteLookup.custrecord_bbs_site_address_2,
     		address3:		siteLookup.custrecord_bbs_site_address_3,
     		city:			siteLookup.custrecord_bbs_site_address_city,
-    		state:			siteLookup.custrecord_bbs_site_address_state[0].text,
+    		state:			state,
     		zip:			siteLookup.custrecord_bbs_site_address_zip
     	}
     	
