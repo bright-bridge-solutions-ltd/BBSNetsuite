@@ -59,6 +59,7 @@ function(BBSConsolidatedPickingListLibrary)
     			{
 		    		var lines 		= scriptContext.currentRecord.getLineCount({sublistId: 'custpage_sublist_orders'});
 		    		var tickedLines	= false;
+		    		var tickedCount	= Number(0);
 		    		
 		    		for (var int = 0; int < lines; int++) 
 			    		{
@@ -71,7 +72,7 @@ function(BBSConsolidatedPickingListLibrary)
 							if(ticked)
 								{
 									tickedLines = true;
-									break;
+									tickedCount++;
 								}
 						}
 		    		
@@ -79,6 +80,13 @@ function(BBSConsolidatedPickingListLibrary)
 		    			{
 			    			Ext.Msg.minWidth = 100;
 							Ext.Msg.alert('❗Alert', 'Please select one or more lines in order to be able to continue', Ext.emptyFn);
+		    			}
+		    		
+		    		if(tickedCount > 50)
+		    			{
+		    				tickedLines	= false;
+			    			Ext.Msg.minWidth = 150;
+							Ext.Msg.alert('❗Alert', 'Please only select a maximum of 50 sales orders at any one time. Current count = ' + tickedCount.toString(), Ext.emptyFn);
 		    			}
 		    		
 		    		return tickedLines;

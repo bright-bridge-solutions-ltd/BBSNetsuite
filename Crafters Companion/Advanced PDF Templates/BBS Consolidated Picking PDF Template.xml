@@ -1,0 +1,176 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<macrolist>
+		<macro id="nlheader">
+            <table class="header" style="width: 100%;">
+    			<tr>
+					<td align="right">&nbsp;</td>
+					<td align="right">&nbsp;</td>
+					<td align="right"><img src="https://4496009-sb1.app.netsuite.com/core/media/media.nl?id=4771&amp;c=4496009_SB1&amp;h=6ed421a0cb6c9235cdc5" style="float: right; width:250px; height:75px;" /></td>
+    			</tr>
+              	<tr>
+					<td align="right">&nbsp;</td>
+					<td align="right">&nbsp;</td>
+					<td align="right">&nbsp;</td>
+    			</tr>
+    			<tr>
+					<td colspan="2"><span style="font-size:24px;">Consolidated Picking Ticket</span></td>
+					<td align="right" style="font-size:24px;">${record.name}</td>
+				</tr>
+          	</table>
+          
+    		<table class="header" style="width: 100%; margin-top: 20px;">
+				<tr>
+    				<td align="left" rowspan="8"><span class="nameandaddress">${companyInformation.addressText}</span></td>
+				</tr>
+          	</table>
+        </macro>
+
+        <macro id="nlfooter">
+			<table class="footer" style="width: 100%;">
+          		<tr>
+                  	<td align="left">Printed : ${.now?datetime?string["EEE dd MMM yyyy HH:mm"]}</td>
+					<td align="right"><pagenumber/> of <totalpages/></td>
+				</tr>
+        	</table>
+        </macro>
+    </macrolist>
+
+    <style type="text/css">table {
+            <!--font-family: sans-serif;-->
+      		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            <!--background-color: #e3e3e3;-->
+            border-bottom: 1px solid black;
+    		border-collapse: collapse;
+            <!--color: #333333;-->
+        }
+        td {
+            padding: 0px;
+            vertical-align: top;
+            font-size:10px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 6pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      table.message{
+        border: 1px solid #dddddd;
+      }
+        tr.totalrow {
+            <!--background-color: #e3e3e3;-->
+            line-height: 200%;
+        }
+      tr.messagerow{
+        font-size: 6pt;
+      }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 10pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+          font-size: 10pt;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalcell {
+          border-bottom: 1px solid black;
+    		border-collapse: collapse;
+        }
+      td.message{
+        font-size: 8pt;
+      }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="250px" footer="nlfooter" footer-height="5px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+<#if record.custrecord_bbs_consolidated_picking_json?length gt 0>
+  
+	<#assign summary_info = record.custrecord_bbs_consolidated_picking_json?eval>
+
+    <table class="itemtable" style="width: 100%;">
+
+	<#list summary_info as info>
+		<#if info_index==0>
+			<thead>
+				<tr>
+					<th align="left" colspan="4">Product Code</th>
+					<th align="left" colspan="10">Description</th>
+					<th align="right" colspan="2">Quantity</th>
+					<th align="right" colspan="2">Committed</th>
+				</tr>
+			</thead>
+		</#if>
+
+      	<tr style="line-height: 200%;">
+			<td align="left" colspan="4">${info.itemName}</td>
+		    <td align="left" colspan="10">${info.itemDesc}</td>
+		    <td align="right" colspan="2">${info.quantity}</td>
+		    <td align="right" colspan="2">${info.committed}</td>
+	
+		</tr>
+	</#list>
+  	</table>
+<#else>
+No Data To Display
+</#if>
+
+
+
+</body>
+</pdf>

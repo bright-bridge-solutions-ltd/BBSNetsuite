@@ -3,7 +3,7 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/search', 'N/task', 'N/ui/serverWidget', 'N/ui/dialog', 'N/ui/message','N/format', 'N/http','N/record', './BBSConsolidatedPickingListLibrary'],
+define(['N/runtime', 'N/search', 'N/task', 'N/ui/serverWidget', 'N/ui/dialog', 'N/ui/message','N/format', 'N/http','N/record', './BBSConsolidatedPickingListLibrary', 'N/render', 'N/xml'],
 /**
  * @param {runtime} runtime
  * @param {search} search
@@ -12,7 +12,7 @@ define(['N/runtime', 'N/search', 'N/task', 'N/ui/serverWidget', 'N/ui/dialog', '
  * @param {dialog} dialog
  * @param {message} message
  */
-function(runtime, search, task, serverWidget, dialog, message, format, http, record, BBSConsolidatedPickingListLibrary) 
+function(runtime, search, task, serverWidget, dialog, message, format, http, record, BBSConsolidatedPickingListLibrary, render, xml) 
 {
    
     /**
@@ -137,7 +137,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								var selectTierField = form.addField({
 													                id: 		'custpage_entry_select_tier',
 													                type: 		serverWidget.FieldType.SELECT,
-													                label: 		'Select Tier',
+													                label: 		'Customer Tier',
 													                source:		'customlist_ns_tiercustlist',
 													                container:	'custpage_filters_group'
 												            		});
@@ -167,7 +167,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								var selectTierField = form.addField({
 													                id: 		'custpage_entry_select_tier',
 													                type: 		serverWidget.FieldType.TEXT,
-													                label: 		'Select Type',
+													                label: 		'Customer Tier',
 													                container:	'custpage_filters_group'
 												            		});
 								selectTierField.defaultValue 	= paramSelectTier;
@@ -436,6 +436,11 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								
 							case 2:
 								
+								//Delete the session data
+								//
+								BBSConsolidatedPickingListLibrary.libClearSessionData(session);
+								
+								
 								//Find all the sales orders that have been selected & put their id's into an array
 								//
 								var sublistLineCount = request.getLineCount({group: 'custpage_sublist_orders'});
@@ -449,7 +454,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 															    			    line: 	int
 															    			});
 						    			
-						    			if(ticked)
+						    			if(ticked== 'T')
 						    				{
 							    				var ticked = request.getSublistValue({
 																	    			    group: 	'custpage_sublist_orders',
@@ -471,59 +476,180 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								//
 								if(salesOrdersArray.length > 0)
 									{
+										var consolPickingRecord 	= null;
+										var consolPickingRecordId 	= null;
+										
 										//Create a new consolidated picking note record to assign to the sales orders
 										//
-									
-									
-										//Update the sales orders with the new record
-										//
-									
-							
-										//Get all the relevant order lines from the selected sales orders
-										//
-										var salesorderSearchObj = getResults(search.create({
-																			   type: 		"salesorder",
-																			   filters:
-																						   [
-																						      ["type","anyof","SalesOrd"], 
-																						      "AND", 
-																						      ["mainline","is","F"], 
-																						      "AND", 
-																						      ["taxline","is","F"], 
-																						      "AND", 
-																						      ["cogs","is","F"], 
-																						      "AND", 
-																						      ["shipping","is","F"], 
-																						      "AND", 
-																						      ["quantitycommitted","greaterthan","0"], 
-																						      "AND", 
-																						      ["internalid","anyof",salesOrdersArray]
-																						   ],
-																			   columns:
-																						   [
-																						      search.createColumn({name: "item",summary: "GROUP",sort: search.Sort.ASC,label: "Item"}),
-																						      search.createColumn({name: "quantity",summary: "SUM",label: "Quantity"}),
-																						      search.createColumn({name: "quantitycommitted",summary: "SUM",label: "Quantity Committed"}),
-																						      search.createColumn({name: "amount",summary: "SUM",label: "Amount"})
-																						   ]
-																			}));
-											
-										//Have we got any results
-										//
-										if(salesorderSearchObj != null && salesorderSearchObj.length > 0)
+										try
 											{
-												for (var int2 = 0; int2 < salesorderSearchObj.length; int2++) 
-										    		{
-														
-										    		}
+												consolPickingRecord = record.create({
+																					type:		'customrecord_bbs_consolidated_picking',
+																					isDynamic:	true
+																					});
+												
+												
 											}
-									
+										catch(err)
+											{
+												consolPickingRecord 	= null;
+												
+												log.error({
+															title:		'Error creating/saving new consolidated picking record',
+															details:	err
+														});
+											}
+										
+										//Have we created a new consolidated picking note record
+										//
+										if(consolPickingRecord != null)
+											{
+												//Get all the relevant order lines from the selected sales orders
+												//
+												var salesorderSearchObj = getResults(search.create({
+																								   type: 		"salesorder",
+																								   filters:
+																											   [
+																											      ["type","anyof","SalesOrd"], 
+																											      "AND", 
+																											      ["mainline","is","F"], 
+																											      "AND", 
+																											      ["taxline","is","F"], 
+																											      "AND", 
+																											      ["cogs","is","F"], 
+																											      "AND", 
+																											      ["shipping","is","F"], 
+																											      "AND", 
+																											      ["quantitycommitted","greaterthan","0"], 
+																											      "AND", 
+																											      ["internalid","anyof",salesOrdersArray]
+																											   ],
+																								   columns:
+																											   [
+																											      search.createColumn({name: "item",summary: "GROUP",sort: search.Sort.ASC,label: "Item"}),
+																											      search.createColumn({name: "salesdescription",join: "item",summary: "GROUP",label: "Description"}),
+																											      search.createColumn({name: "quantity",summary: "SUM",label: "Quantity"}),
+																											      search.createColumn({name: "quantitycommitted",summary: "SUM",label: "Quantity Committed"}),
+																											      search.createColumn({name: "amount",summary: "SUM",label: "Amount"})
+																											   ]
+																								}));
+												
+												//Have we got any results
+												//
+												var resultsArray = [];
+												
+												if(salesorderSearchObj != null && salesorderSearchObj.length > 0)
+													{
+														for (var int2 = 0; int2 < salesorderSearchObj.length; int2++) 
+												    		{
+																var searchItemId 		= salesorderSearchObj[int2].getValue({name: "item",summary: "GROUP"});
+																var searchItemName 		= salesorderSearchObj[int2].getText({name: "item",summary: "GROUP"});
+																var searchItemDesc 		= salesorderSearchObj[int2].getValue({name: "salesdescription",join: "item",summary: "GROUP"});
+																var searchItemCommitted	= Number(salesorderSearchObj[int2].getValue({name: "quantitycommitted",summary: "SUM"}));
+																var searchItemQuantity	= Number(salesorderSearchObj[int2].getValue({name: "quantity",summary: "SUM"}));
+																
+																var itemInfoObj 		= new itemInfo(searchItemId, searchItemName, searchItemDesc, searchItemCommitted, searchItemQuantity);
+																
+																resultsArray.push(itemInfoObj);
+												    		}
+													}
+										
+												//Convert the item array into a JSON string
+												//
+												var jsonString 	= JSON.stringify(resultsArray);
+												var today		= new Date();
+												
+												consolPickingRecord.setValue({
+																			fieldId:	'custrecord_bbs_consolidated_picking_json',
+																			value:		jsonString
+																			});	
+												
+												
+						
+												//Save the consolidated invoicing record
+												//
+												consolPickingRecordId = consolPickingRecord.save({ignoreMandatoryFields: true});
+												
+												//Update the sales orders with the link to the consolidated picking note
+												//
+												for (var int2 = 0; int2 < salesOrdersArray.length; int2++) 
+										    		{
+														try
+															{
+																record.submitFields({
+																					type:		record.Type.SALES_ORDER,
+																					id:			salesOrdersArray[int2],
+																					values:		{
+																								custbody_bbs_consol_pick_list:	consolPickingRecordId
+																								},
+																					options:	{
+																								ignoreMandatoryFields:	true
+																								}
+																});
+															}
+														catch(err)
+															{
+																log.error({
+																			title:		'Error updating sales order with consolidated picking list id = ' + salesOrdersArray[int2],
+																			details:	err
+																		});
+															}
+														
+														//Check governance limits
+														//
+														var remainingUsage = runtime.getCurrentScript().getRemainingUsage();
+														
+														if(remainingUsage < 20)
+															{
+																break;
+															}
+										    		}
+												
+												//
+												//Now generate the output document
+												//
+												
+												//Get the template id
+												//
+												var templateId = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_consol_template'});
+									    		
+												//Create template renderer
+												//
+										    	var renderer = render.create();
+										    	
+										    	//Add record to renderer
+										    	//
+										    	renderer.addRecord('record', record.load({type: 'customrecord_bbs_consolidated_picking', id: consolPickingRecordId}));
+										    	
+										    	//Set the template
+										    	//
+										    	renderer.setTemplateById(templateId);
+										    	
+										    	//Return the pdf file to the client
+										    	//
+										    	context.response.writeFile({
+										    								file:		renderer.renderAsPdf(),
+										    								isInline:	true
+										    								});
+										    	
+											}
 									}
 								
 								break;
 						}
 		        }
 	    }
+    
+    //Item info object
+    //
+    function itemInfo(_itemId, _itemName, _itemDesc, _committed, _quantity)
+    	{
+    		this.itemId		= _itemId;
+    		this.itemName	= _itemName;
+    		this.itemDesc	= _itemDesc;
+    		this.committed	= _committed;
+    		this.quantity	= _quantity;
+    	}
     
     //Page through results set from search
     //
