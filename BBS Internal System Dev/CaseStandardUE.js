@@ -45,10 +45,12 @@ function userEventBeforeLoad(type, form, request)
 							
 							var atRiskMsg = custRecord.getFieldValue('custentity_bbs_customer_at_risk_msg');
 							var noSupportMsg = custRecord.getFieldValue('custentity_bbs_customer_no_support_msg');
+							var prepaidMsg = custRecord.getFieldValue('custentity_bbs_support_hours_msg');
 							
 							var atRiskMessage = 'Customer Is At Risk! ' + ((atRiskMsg == null) ? '' : atRiskMsg);
 							var noSupportMessage = 'Customer Support Contract Has Ended! ' + ((noSupportMsg == null) ? '' : noSupportMsg);
-							var prePaidMessage = 'Customer Has Pre-Paid Hours Support - Please Account For Time Spent On Your Timesheet';
+							
+							var prePaidMessage = (prepaidMsg != null && prepaidMsg != '' ? prepaidMsg : 'Customer Has Pre-Paid Hours Support - Please Account For Time Spent On Your Timesheet');
 							var noBespokeMessage = 'Customer Does Not Have Support For Bespoke - Please Verify Subject Of Support Case';
 							
 							
