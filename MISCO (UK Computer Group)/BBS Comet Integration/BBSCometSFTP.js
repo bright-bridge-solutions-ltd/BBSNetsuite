@@ -927,7 +927,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																												
 																												//Find the supplier
 																												//
-																												var supplierId = findSupplier(lineSupplier, supplierSuffixParam);
+																												var supplierId = findSupplier(lineSupplier, '');
 																												
 																												if(supplierId != null && supplierId != '')
 																													{
@@ -989,7 +989,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																									{
 																										//Find the supplier
 																										//
-																										var supplierId = findSupplier(lineSupplier, supplierSuffixParam);
+																										var supplierId = findSupplier(lineSupplier, '');
 																									
 																										//Only add the line if we have found the supplier
 																										//
@@ -1760,6 +1760,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
     		var supplierId = null;
     		//var supplerSearch = (_supplier == 'Ingram Micro' ? _supplier : _supplier + ' ' + _supplierSuffixParam);
     		var supplerSearch = _supplier + ' ' + _supplierSuffixParam;
+    		supplerSearch = supplerSearch.trim();
     		
 	    	var vendorSearchObj = getResults(search.create({
 				   type: 	"vendor",
