@@ -1044,7 +1044,7 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 			    										{
 				    										//Define email subject
 					    									//
-					    									var emailSubject = 'Cancel Shipment Request - ' + cancelShipmentResponse['status'];
+					    									var emailSubject = 'Cancel Shipment Request - Processed Ok';
 					    									
 					    									//Define email body
 					    									//

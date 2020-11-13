@@ -57,7 +57,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 	    			var paramStage 				= Number(context.request.parameters['stage']);		//The stage the suitelet is in
 	    			var paramSelectTier			= context.request.parameters['tier'];				//The selected tier
 	    			var paramSelectTierText		= context.request.parameters['tiertext'];			//The selected tier as text
-	    			var paramSession			= context.request.parameters['session'];			//The sessionb id
+	    			var paramSession			= context.request.parameters['session'];			//The session id
+	    			var paramMaxRecords			= context.request.parameters['maxrecs'];			//The max number of records to return
 	    			
 					var stage 					= (paramStage == null || paramStage == '' || isNaN(paramStage) ? 1 : paramStage);
 					
@@ -144,6 +145,16 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								
 								//selectTierField.isMandatory = true;
 								
+								//Add a field for the max record count
+								//
+								var selectMaxRecs = form.addField({
+													                id: 		'custpage_entry_select_max_rec',
+													                type: 		serverWidget.FieldType.INTEGER,
+													                label: 		'Maximum Records To Return',
+													                container:	'custpage_filters_group'
+												            		});
+								selectMaxRecs.defaultValue 	= 50;
+								
 								
 								//Add a submit button
 					            //
@@ -184,6 +195,17 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													            		});
 								selectTierTxtField.defaultValue 	= paramSelectTierText;
 								selectTierTxtField.updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});
+								
+								//Add a field to display the max records
+								//
+								var selectMaxRecordsField = form.addField({
+														                id: 		'custpage_entry_select_max_rec',
+														                type: 		serverWidget.FieldType.INTEGER,
+														                label: 		'Maximum Records To Return',
+														                container:	'custpage_filters_group'
+													            		});
+								selectMaxRecordsField.defaultValue 	= paramMaxRecords;
+								selectMaxRecordsField.updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});
 								
 								
 								//Add a subtab
@@ -311,7 +333,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								            	   [
 								            	      search.createColumn({name: "internalid", label: "Internal Id"}),
 								            	      search.createColumn({name: "tranid", label: "Document Number"}),
-								            	      search.createColumn({name: "trandate", label: "Date"}),
+								            	      search.createColumn({name: "trandate", sort: search.Sort.ASC, label: "Date"}),
 								            	      search.createColumn({name: "entity", label: "Name"}),
 								            	      search.createColumn({name: "custentity_ns_tiercust", join: "customer", label: "Customer Tier"}),
 								            	      search.createColumn({name: "amount", label: "Amount"}),
@@ -323,7 +345,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					            	{
 					            		var customers = {};
 					            		
-					            		for (var int = 0; int < salesorderSearchObj.length; int++) 
+					            		for (var int = 0; int < (paramMaxRecords != null && paramMaxRecords != '' ? paramMaxRecords : salesorderSearchObj.length); int++) 
 						            		{
 						            			subList.setSublistValue({
 																		id:		'custpage_sl_order_id',
@@ -413,7 +435,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								//
 								var tier 					= request.parameters['custpage_entry_select_tier'];
 								var tierText				= request.parameters['inpt_custpage_entry_select_tier'];
-								         					                     
+								var maxRecs					= request.parameters['custpage_entry_select_max_rec'];
+								
 								//Increment the stage
 								//
 								stage++;
@@ -428,7 +451,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																			stage: 			stage,
 																			tier:			tier,
 																			tiertext:		tierText,
-																			session:		session
+																			session:		session,
+																			maxrecs:		maxRecs
 																		}
 														});
 								

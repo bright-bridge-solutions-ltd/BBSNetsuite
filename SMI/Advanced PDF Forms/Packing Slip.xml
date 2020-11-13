@@ -16,7 +16,7 @@
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
-	<td colspan="2" align="left"><img src="${logoInfo}" style="float: right; width:175px; height:75px;" /></td>
+	<td colspan="2" align="left"><#if salesorder.entity.custentity_bbs_tier == 'SureSan Distributor'><img src="https://4769170-sb1.app.netsuite.com/core/media/media.nl?id=1817906&amp;c=4769170_SB1&amp;h=a72b6ddfea2b0d2bc5cf" style="float: right; width:175px; height:85px;" /><#else><img src="${logoInfo}" style="float: right; width:175px; height:75px;" /></#if></td>
     </tr>
     <!--<tr><td>&nbsp;</td></tr>-->
     <tr>
@@ -37,9 +37,61 @@
         <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"></span><br /><span class="nameandaddress" style="font-size:10pt"></span></td>
 	<td align="right" style="font-size:10pt"></td>
       
-    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${companyInformation.addressText}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+    <td colspan="2" align="left" rowspan="8">
+	<#if salesorder.entity.custentity_bbs_tier == 'SureSan Distributor'>
+			SureSan<br/>
+			Corporate House<br/>
+			Kings Road Industrial Estate<br/>
+			Haslemere, Surrey, England, GU27 2QH<br/>
+			United Kingdom<br/>
+	<#else>
+		<span class="nameandaddress">${companyInformation.addressText}</span>
+	</#if>
+	
+	<br/>VAT No. <#if salesorder.entity.custentity_bbs_tier == 'SureSan Distributor'>GB 217 1244 96<#else>${vatInfo}</#if>
+	<br /><br/><b>Email:</b> <#if salesorder.entity.custentity_bbs_tier == 'SureSan Distributor'>sales@suresan.com<#else>${emailInfo}</#if><br />
+	<b>Tel:</b><#if salesorder.entity.custentity_bbs_tier == 'SureSan Distributor'>03330 065820<#else> ${telInfo}</#if></td>
 	</tr>
           </table>
+          <table style="width: 100%;">
+    <tr>
+	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
+	</tr>
+	<tr>
+	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
+	</tr>
+	<tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>${record.tranid@label}</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
+    </tr>
+	
+  <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Ship Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No</b></td><td align="right" style="font-size:9pt">${salesorder.entity.custentity_bbs_legacy_accnumber}</td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Placed By</b></td><td align="right" style="font-size:9pt">${salesorder.custbody_bbs_opportunity_contact.entityid}</td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Sales Order No</b></td><td align="right" style="font-size:9pt">${salesorder.tranid}</td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>PO</b></td><td align="right" style="font-size:9pt">${salesorder.otherrefnum}</td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Web Order Ref</b></td><td align="right" style="font-size:9pt">${salesorder.custbody_bbs_weborderref_so}</td>
+    </tr>
+      <tr>
+	<td colspan="3" class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Package Count</b></td><td align="right" style="font-size:9pt">${record.custbody_package_count}</td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td></td><td></td>
+    </tr>
+      <tr>
+	<td>FAO: ${salesorder.custbody_bbs_fao_salesorder}</td>
+    </tr>
+  </table>
         </macro>
 
         <macro id="nlfooter">
@@ -166,47 +218,16 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="26%" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="40%" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
-    <table style="width: 100%;">
-    <tr>
-	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
-	</tr>
-	<tr>
-	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
-	</tr>
-	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>${record.tranid@label}</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
-    </tr>
-	
-  <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Ship Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No</b></td><td align="right" style="font-size:9pt">${salesorder.entity.custentity_bbs_legacy_accnumber}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Placed By</b></td><td align="right" style="font-size:9pt">${salesorder.custbody_bbs_opportunity_contact.entityid}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Sales Order No</b></td><td align="right" style="font-size:9pt">${salesorder.tranid}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>PO</b></td><td align="right" style="font-size:9pt">${salesorder.otherrefnum}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Web Order Ref</b></td><td align="right" style="font-size:9pt">${salesorder.custbody_bbs_weborderref_so}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
-    </tr>
-      <tr>
-	<td>FAO: ${salesorder.custbody_bbs_fao_salesorder}</td>
-    </tr>
-  </table>
+ <#assign packages=0>
+ <#if record.package?has_content> 
+   <#list record.package as package>
+     <#assign packages = packages + 1>
+   </#list>
+ </#if>
+   
+    
   
 <p/>
     
@@ -249,6 +270,7 @@
             		</#if>
           		</#list>
                 <#if (salesorder.entity.custentity_bbs_legacy_accnumber == "CHER001" && shipped gt 0) || salesorder.entity.custentity_bbs_legacy_accnumber != "CHER001">
+                  <#if tranline.custcol_bbs_contact_sales_lines?length == 0 || (tranline.custcol_bbs_contact_sales_lines?length gt 0 && shipped gt 0)>
                   <tr>
                       <#if tranline.custcol_bbs_contact_sales_lines?length gt 0>
                           <td colspan="13" style="margin-top: 5px;"><b>${tranline.custcol_bbs_sku}</b><br/>${tranline.description}<br/>Manpack Name: ${tranline.custcol_bbs_contact_sales_lines?keep_after(":")}</td>
@@ -263,6 +285,7 @@
                           <td align="right" colspan="2" style="margin-top: 5px;">${shipped}</td>
                       </#if>
                   </tr>
+                 </#if>
                 </#if>
 			</#list><!-- end sales order items -->
 		<#elseif record.showAddlItemsPackSlip == 'UNFULFILLED'>

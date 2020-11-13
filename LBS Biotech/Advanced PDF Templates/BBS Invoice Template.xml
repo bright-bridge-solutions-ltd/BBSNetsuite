@@ -1,0 +1,238 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+    <macrolist>
+		<macro id="nlheader">
+		    <table class="header" style="width: 100%;">
+			    <tr>
+					<td>&nbsp;</td>
+					<td align="right">&nbsp;</td>
+					<td align="right">&nbsp;</td>
+					<td align="right" rowspan="8"><img src="https://4057215.app.netsuite.com/core/media/media.nl?id=67149&amp;c=4057215&amp;h=9a222a13e18c799effb1" style="float: right; width:295px; height:108px;" /></td>
+				</tr>
+				<tr>
+					<td rowspan="5" colspan="2"><span style="font-size:18px;">LBS (Serving Biotechnology) Ltd</span><br/><span style="font-size:12px;">${companyInformation.addressText}<br/>+44 (0)129 3827940<br/>W: ibs-biotech.com/admin@lbs-biotech.com<br/>VAT No. GB 425294550</span></td>
+					<td align="right">&nbsp;</td>
+				</tr>
+				<tr><td align="left">&nbsp;</td></tr>
+				<tr><td align="left">&nbsp;</td></tr>
+				<tr><td align="left">&nbsp;</td></tr>
+				<tr><td align="left">&nbsp;</td></tr>
+			</table>
+          
+		    <table style="width: 100%; margin-top: 10px;">
+				<tr>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+				    <td align="left">&nbsp;</td>
+					<td align="left" colspan="2" style="font-size:18px;"><b>Invoice</b></td>
+				</tr>
+			    <tr style="margin-top: 10px;">
+					<td align="left"><b>A/C No.</b></td>
+					<td align="left">&nbsp;</td>
+				    <td align="left">&nbsp;</td>
+					<td align="left"><b>Date</b></td>
+					<td align="right">${record.trandate}</td>
+				</tr> 
+			    <tr>
+					<td align="left" colspan="2">${record.entity}</td>
+				    <td align="left">&nbsp;</td>
+					<td align="left"><b>Invoice #</b></td>
+					<td align="right">${record.tranid}</td>
+				</tr> 
+			    <tr>
+					<td align="left"><b>Client</b></td>
+					<td align="left">&nbsp;</td>
+				    <td align="left">&nbsp;</td>
+					<td align="left"><b>Terms</b></td>
+					<td align="right">${record.entity.terms}</td>
+				</tr> 
+			    <tr>
+					<td align="left" rowspan="3" colspan="2">${record.billaddress}</td>
+				    <td align="left">&nbsp;</td>
+					<td align="left"><b>Due Date</b></td>
+					<td align="right">${record.trandate}</td>
+				</tr> 
+			    <tr>
+					<td align="left">&nbsp;</td>
+					<td align="left"><b>PO #</b></td>
+					<td align="right">${record.otherrefnum}</td>
+				</tr> 
+			    <tr>
+					<td align="left">&nbsp;</td>
+					<td align="left"><b>Created From</b></td>
+					<td align="right">${record.createdfrom}</td>
+				</tr> 
+		    </table>
+   		</macro>
+
+	    <macro id="nlfooter">
+	    	<table style="width: 100%;">
+	    		<tr>
+					<td align="left" colspan="2"><b>Bank Details</b></td>
+				    <td align="left">&nbsp;</td>
+					<td align="left" colspan="2"><b>Ship To</b></td>
+				</tr> 
+				<tr>
+					<td align="left" colspan="2">Sort Code: 56-00-46</td>
+				    <td align="left">&nbsp;</td>
+					<td align="left" rowspan="6" colspan="2">${record.shipaddress}</td>
+				</tr> 
+				<tr>
+					<td align="left" colspan="2">Acc No: 01414542</td>
+				    <td align="left">&nbsp;</td>
+				</tr>
+				<tr>
+					<td align="left" colspan="2">IBAN: GB19NWBK56004601414542</td>
+				    <td align="left">&nbsp;</td>
+				</tr>
+				<tr>
+					<td align="left" colspan="2">BIC (SWIFT): NWBK GB 2L</td>
+				    <td align="left">&nbsp;</td>
+				</tr>
+				<tr>
+					<td align="left" colspan="2"><b>Cheques should be made payable to:</b></td>
+				    <td align="left">&nbsp;</td>
+				</tr>
+				<tr>
+					<td align="left" colspan="3">LBS (Serving Biothechnology) Ltd PO Box 431 RH16 0UW</td>
+				</tr>
+	    	</table>
+	    	
+		    <table style="width: 100%;">
+			    <tr>
+				    <td align="left" rowspan="3"><img src="https://4057215.app.netsuite.com/core/media/media.nl?id=67150&amp;c=4057215&amp;h=d23c3ddfada0340be8da" style="float: left; width:110px; height:75px;" /></td>
+			    </tr>
+			    <tr>
+					<td align="left" colspan="3">All sales subject to the comapny's general conditions of sale</td>
+			    </tr>
+			    <tr>
+					<td align="left" colspan="3">Credit administration charge may be deducted if paid by due date</td>
+			    </tr>
+		    </table>
+	    </macro>
+    </macrolist>
+      
+    <style type="text/css">* {
+		font-family: NotoSans, sans-serif;
+		}
+		table {
+			font-size: 9pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #e3e3e3;
+            color: #333333;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { align:left }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            font-weight: bold;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        div.returnform {
+            width: 100%;
+            /* To ensure minimal height of return form */
+            height: 200pt;
+            page-break-inside: avoid;
+            page-break-after: avoid;
+        }
+        hr {
+            border-top: 1px dashed #d3d3d3;
+            width: 100%;
+            color: #ffffff;
+            background-color: #ffffff;
+            height: 1px;
+        }
+</style>
+</head>
+      
+<body header="nlheader" header-height="300px" footer="nlfooter" footer-height="200px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+	<#if record.item?has_content>
+		<table class="itemtable" style="width: 100%; margin-top: 10px;">
+			<#list record.item as item>
+				<#if item_index==0>
+					<thead>
+						<tr>
+							<th colspan="10"><br/>Item Code / Description</th>
+						    <th align="right" colspan="5">Batch Number</th>
+							<th align="right" colspan="3">Qty</th>
+							<th align="right" colspan="4">Units</th>
+							<th align="right" colspan="4">Rate</th>
+							<th align="right" colspan="4">Amount</th>
+						</tr>
+					</thead>
+				</#if>
+				<tr>
+					<td colspan="10"><b>${item.item}</b><br/>Commodity Code: ${item.custcol_bbs_item_commodity}</td>
+				   	<td align="right"  colspan="5">${item.custcol_serial_numbers}</td>
+					<td align="right"  colspan="3" line-height="150%">${item.quantity}</td>
+					<td align="right"  colspan="4">${item.units}</td>
+					<td align="right"  colspan="4">${item.rate}</td>
+					<td align="right"  colspan="4">${item.amount}</td>
+				</tr>
+			</#list>
+		</table>
+		<hr />
+	</#if>
+	
+	<table class="total" style="width: 100%; margin-top: 10px;">
+		<tr>
+			<td colspan="4">&nbsp;</td>
+			<td align="right"><b>${record.subtotal@label}</b></td>
+			<td align="right">${record.subtotal}</td>
+		</tr>
+		<tr>
+			<td colspan="4">&nbsp;</td>
+			<td align="right"><b>${record.taxtotal@label} (${record.taxrate}%)</b></td>
+			<td align="right">${record.taxtotal}</td>
+		</tr>
+			<tr class="totalrow">
+			<td background-color="#ffffff" colspan="4">&nbsp;</td>
+			<td align="right"><b>${record.total@label}</b></td>
+			<td align="right">${record.total}</td>
+		</tr>
+	</table>  
+</body>
+</pdf>

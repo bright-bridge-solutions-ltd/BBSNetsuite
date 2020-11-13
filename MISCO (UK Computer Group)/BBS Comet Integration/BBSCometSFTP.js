@@ -1761,7 +1761,11 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
     		//var supplerSearch = (_supplier == 'Ingram Micro' ? _supplier : _supplier + ' ' + _supplierSuffixParam);
     		var supplerSearch = _supplier + ' ' + _supplierSuffixParam;
     		supplerSearch = supplerSearch.trim();
+<<<<<<< HEAD
           
+=======
+    		
+>>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite
 	    	var vendorSearchObj = getResults(search.create({
 				   type: 	"vendor",
 				   filters:
