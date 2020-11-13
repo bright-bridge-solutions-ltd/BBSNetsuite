@@ -27,11 +27,6 @@ function(ui, search, task, format, url, redirect, message) {
     			var dateTo = context.request.parameters.dateto;
     			var invoiceType = context.request.parameters.invoicetype;
     			
-    			log.debug({
-    				title: 'Script Check',
-    				details: dateFrom + '<br>' + dateTo
-    			});
-    			
     			// create form
 				var form = ui.createForm({
 	                title: 'Email Service Data Invoices',
@@ -433,12 +428,7 @@ function(ui, search, task, format, url, redirect, message) {
     				name: 'subsidiary',
     				operator: 'anyof',
     				values: [subsidiary]
-    			},
-						{
-					name: 'amount',
-					operator: 'greaterthan',
-					values: [0]
-				}],
+    			}],
     			
     			columns: [{
     				name: 'tranid'
@@ -448,7 +438,7 @@ function(ui, search, task, format, url, redirect, message) {
     			},
     					{
     				name: 'formulatext',
-    				formula: "CONCAT({customermain.custentity_bbs_cust_trans_email},CONCAT('<br>', {customermain.custentity_bbs_cust_trans_cc}))"
+    				formula: "CONCAT({customermain.custentity_bbs_cust_trans_email},CONCAT('<br>',CONCAT({customermain.custentity_bbs_cust_trans_cc},CONCAT('<br>', {customermain.custentity_bbs_cust_trans_cc_2}))))"
     			},
     					{
     				name: 'fxamount'

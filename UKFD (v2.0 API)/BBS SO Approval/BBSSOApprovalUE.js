@@ -193,7 +193,7 @@ function(libraryScript, search, record) {
 										    	});
 										    					
 										    	// if avsStreet/avsZip/csc = true and decision = ACCEPT
-										    	if (paymentResults.avsStreet == true && paymentResults.avsZip == true && paymentResults.csc == true && paymentResults.decision == 'ACCEPT')
+										    	if (/*paymentResults.avsStreet == true && paymentResults.avsZip == true && paymentResults.csc == true &&*/ paymentResults.decision == 'ACCEPT')
 										    		{
 										    			// set paymentApproval to true
 										    			paymentApproval = true;
@@ -230,7 +230,7 @@ function(libraryScript, search, record) {
 						   });
 						    	
 						   // if all checks have passed
-						   if (paymentApproval == true && passedBusinessRules == true && allItemsInStock == true)
+						   if (paymentApproval == true && passedBusinessRules == true)
 						    	{
 							    	// set the order status to Pending Fulfilment
 									currentRecord.setValue({
@@ -257,7 +257,7 @@ function(libraryScript, search, record) {
 						   });
 						   
 						   // if all checks have been passed
-						   if (paymentApproval == true && passedBusinessRules == true && allItemsInStock == true)
+						   /*if (paymentApproval == true && passedBusinessRules == true)
 							   {
 								   	// call function to transform the sales order into a cash sale
 									var cashSaleID = libraryScript.transformToCashSale(currentRecordID);
@@ -268,7 +268,7 @@ function(libraryScript, search, record) {
 											// call function to send Ekomi email
 											libraryScript.sendEkomiFeedbackEmail(cashSaleID);
 										}
-							   }
+							   }*/
     				}
     		}
     	

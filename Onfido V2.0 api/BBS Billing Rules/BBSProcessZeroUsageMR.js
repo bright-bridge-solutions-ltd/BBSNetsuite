@@ -131,6 +131,16 @@ function(runtime, search, record, task) {
     			// call function to create a zero value sales order. Pass contractRecordID, customer and currency
     			createSalesOrder(contractRecordID, customer, currency);
     		}
+    	
+    	// call function to check if the contract has any products
+    	var numberOfProducts = searchContractProducts(contractRecordID);
+    	
+    	// if we DO NOT have any products on the contract
+    	if (numberOfProducts == 0)
+    		{
+    			// call function to create a product on the contract. Pass contractRecordID
+    			createContractProduct(contractRecordID);
+    		}
     }
     
     // ======================================
@@ -176,6 +186,45 @@ function(runtime, search, record, task) {
 		// return openSalesOrder variable to main script function
 		return openSalesOrder;
 	
+    }
+    
+    // =============================================
+    // FUNCTION TO CHECK NUMBER OF CONTRACT PRODUCTS
+    // =============================================
+    
+    function searchContractProducts(contractRecordID) {
+    	
+    	// declare and initialize variables
+    	var numberOfProducts = 0;
+    	
+    	// run search to check how many products exist on the contract
+    	search.create({
+    		type: 'customrecord_bbs_contract_product',
+    		
+    		filters: [{
+    			name: 'custrecord_contract_product_parent',
+    			operator: search.Operator.ANYOF,
+    			values: [contractRecordID]
+    		}],
+    		
+    		columns: [{
+    			name: 'internalid',
+    			summary: search.Summary.COUNT
+    		}],
+    	
+    	}).run().each(function(result){
+    		
+    		// get the number of products from the search
+    		numberOfProducts = result.getValue({
+    			name: 'internalid',
+    			summary: search.Summary.COUNT
+    		});
+    		
+    	});
+    	
+    	// return numberOfProducts variable to main script function
+    	return numberOfProducts;
+    	
     }
     
     // ================================
@@ -284,6 +333,46 @@ function(runtime, search, record, task) {
 				});
 			}
 	}
+    
+    // ===================================================
+    // FUNCTION TO CREATE A PRODUCT ON THE CONTRACT RECORD
+    // ===================================================
+    
+    function createContractProduct(contractRecordID) {
+    	
+    	try
+    		{
+    			// create a new contract item
+    			var newContractItem = record.create({
+    				type: 'customrecord_bbs_contract_product'
+    			});
+    			
+    			newContractItem.setValue({
+    				fieldId: 'custrecord_contract_product_parent',
+    				value: contractRecordID
+    			});
+    			
+    			newContractItem.setValue({
+    				fieldId: 'custrecord_contract_product_product',
+    				value: adjustmentItem
+    			});
+    			
+    			var newContractItemID = newContractItem.save();
+    			
+    			log.audit({
+    				title: 'Contract Item Created',
+    				details: 'Item ID: ' + newContractItemID + '<br>Contract ID: ' + contractRecordID
+    			});
+    		}
+    	catch(e)
+    		{
+    			log.error({
+    				title: 'Error Creating Contract Item',
+    				details: 'Contract ID: ' + contractRecordID + '<br>Error: ' + e
+     			});
+    		}
+    	
+    }
     
     /**
      * Executes when the summarize entry point is triggered and applies to the result set.

@@ -2782,7 +2782,9 @@ function(runtime, search, record, format, task) {
 								}
 							
 							// save the journal record
-							var journalID = journalRecord.save();
+							var journalID = journalRecord.save({
+								ignoreMandatoryFields: true
+							});
 							
 							log.audit({
 								title: 'Management Fee Journal Created',

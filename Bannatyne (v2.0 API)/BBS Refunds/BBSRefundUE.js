@@ -38,7 +38,7 @@ function(runtime) {
     			var userID = runtime.getCurrentUser().id;
     			
     			/*
-    			 * is approvalStatus is 1 (Pending Approval) AND userRole is one of the following:
+    			 * is approvalStatus is 1 (Pending Approval) AND userRole is one of the following OR userID is 541 (Paul Farrow)
     			 * 
     			 * 3 	(Administrator)
     			 * 1062	(TBG - Central Regional Managers)
@@ -62,13 +62,13 @@ function(runtime) {
     			 * 1025	(TBG - Management Accountant)
     			 */
     			
-    			if ((approvalStatus == 1 && (userRole == 3 || userRole == 1062 || userRole == 1091 || userRole == 1060 || userRole == 1088 || userRole == 1076 || userRole == 1025 || userRole == 1072 || userRole == 1068 || userRole == 1036 || userRole == 1064 || userRole == 1071)) || (approvalStatus == 2 && (userRole == 3 || userRole == 1091 || userRole == 1025 || userID == 541)))
+    			if ((approvalStatus == 1 && (userRole == 3 || userRole == 1062 || userRole == 1091 || userRole == 1060 || userRole == 1088 || userRole == 1076 || userRole == 1025 || userRole == 1072 || userRole == 1068 || userRole == 1036 || userRole == 1064 || userRole == 1071 || userID == 541)) || (approvalStatus == 2 && (userRole == 3 || userRole == 1091 || userRole == 1025 || userID == 541)))
     				{
     					// get the ID of the record
     					var recordID = currentRecord.id;
     				
     					// set client script to run on the form
-    					scriptContext.form.clientScriptFileId = 414960;
+    					scriptContext.form.clientScriptFileId = 867283;
     					
     					// add button to the form
 			    		scriptContext.form.addButton({
