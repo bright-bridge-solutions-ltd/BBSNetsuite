@@ -18,91 +18,65 @@ function(search, record, url, https)  {
     	// declare and initialize variables
     	var passedRules = true;
     	
-    	// get the customer ID from the currentRecord object
-    	var customerID = currentRecord.getValue({
-    		fieldId: 'entity'
+    	// get item count
+    	var itemCount = currentRecord.getLineCount({
+    		sublistId: 'item'
     	});
-    	
-    	// call function to get the customer's name from the customer record
-    	var customerName = getCustomerName(customerID);
-    	
-    	// if the customerName is 'Guest Shopper'
-    	if (customerName == 'Guest Shopper')
-    		{
-    			// set passedRules variable to false
-    			passedRules = false;
-    		}
-    	else
-    		{
-	    		// get item count
-    			var itemCount = currentRecord.getLineCount({
-    				sublistId: 'item'
-    			});
     			
-    			// loop through item lines
-    			for (var i = 0; i < itemCount; i++)
+    	// loop through item lines
+    	for (var i = 0; i < itemCount; i++)
+    		{
+    			// get the item name
+    			var itemName = currentRecord.getSublistText({
+    				sublistId: 'item',
+    				fieldId: 'item',
+    				line: i
+    			});
+    					
+    			// if the itemName contains 'VIN'
+    			if (itemName.indexOf('VIN') > -1)
     				{
-    					// get the internal ID of the item
-    					var itemID = currentRecord.getSublistValue({
-    						sublistId: 'item',
-    						fieldId: 'item',
-    						line: i
-    					});
-    					
-    					// call function to get the item name from the item record
-    					var itemName = getItemName(itemID);
-    					
-    					// if the itemName contains 'VIN'
-    					if (itemName.indexOf('VIN') > -1)
+    					// loop through the items again
+    					for (var x = 0; x < itemCount; x++)
     						{
-    							// loop through the items again
-    							for (var x = 0; x < itemCount; x++)
-    								{
-    									// get the internal ID of the item
-	    								var itemID = currentRecord.getSublistValue({
-	    		    						sublistId: 'item',
-	    		    						fieldId: 'item',
-	    		    						line: x
-	    		    					});
+    							// get the item name
+	    						var itemName = currentRecord.getSublistText({
+	    		    				sublistId: 'item',
+	    		    				fieldId: 'item',
+	    		    				line: x
+	    		    			});
 	    								
-	    								// call function to get the item name from the item record
-	    		    					var itemName = getItemName(itemID);
-	    								
-	    								// if part code matches to one of these products
-	    								if (itemName == 'ACC-UN-NO-008' || itemName == 'ACC-UN-NO-005' || itemName == 'ACC-UN-NO-004' || itemName == 'ACC-UN-NO-002' || itemName == 'ACC-UN-FB-55' || itemName == 'ACC-UN-FF-001' || itemName.indexOf('S-VIN') > -1 || itemName.indexOf('S-SOL') > -1)
-	    									{
-	    										// set passedRules variable to false
-	    										passedRules = false;
+	    						// if part code matches to one of these products
+	    						if (itemName == 'ACC-UN-NO-008' || itemName == 'ACC-UN-NO-005' || itemName == 'ACC-UN-NO-004' || itemName == 'ACC-UN-NO-002' || itemName == 'ACC-UN-FB-55' || itemName == 'ACC-UN-FF-001' || itemName.indexOf('S-VIN') > -1 || itemName.indexOf('S-SOL') > -1)
+	    							{
+	    								// set passedRules variable to false
+	    								passedRules = false;
 	    										
-	    										// break the loop
-	    										break;
-	    									}
-    								}
+	    								// break the loop
+	    								break;
+	    							}
     						}
-    					else if (itemName.indexOf('SOL') > -1) // if the itemName contain 'SOL'
+    				}
+    			else if (itemName.indexOf('SOL') > -1) // if the itemName contain 'SOL'
+    				{
+    					// loop through the items again
+    					for (var x = 0; x < itemCount; x++)
     						{
-    							// loop through the items again
-    							for (var x = 0; x < itemCount; x++)
+    							// get the item name
+    							var itemID = currentRecord.getSublistText({
+    								sublistId: 'item',
+    								fieldId: 'item',
+    								line: x
+    							});
+    									
+    							// if part code matches to one of these products
+    							if (itemName == 'ACC-UN-NO-008' || itemName == 'ACC-UN-NO-005' || itemName == 'ACC-UN-NO-004' || itemName == 'ACC-UN-NO-002' || itemName == 'ACC-UN-FB-55' || itemName == 'ACC-UN-LC-03' || itemName.indexOf('S-VIN') > -1 || itemName.indexOf('S-SOL') > -1)
     								{
-    									// get the internal ID of the item
-    									var itemID = currentRecord.getSublistValue({
-    										sublistId: 'item',
-    										fieldId: 'item',
-    										line: x
-    									});
-    									
-    									// call function to get the item name from the item record
-    			    					var itemName = getItemName(itemID);
-    									
-    									// if part code matches to one of these products
-    									if (itemName == 'ACC-UN-NO-008' || itemName == 'ACC-UN-NO-005' || itemName == 'ACC-UN-NO-004' || itemName == 'ACC-UN-NO-002' || itemName == 'ACC-UN-FB-55' || itemName == 'ACC-UN-LC-03' || itemName.indexOf('S-VIN') > -1 || itemName.indexOf('S-SOL') > -1)
-    										{
-	    										// set passedRules variable to false
-	    										passedRules = false;
+	    								// set passedRules variable to false
+	    								passedRules = false;
 	    										
-	    										// break the loop
-	    										break;
-    										}
+	    								// break the loop
+	    								break;
     								}
     						}
     				}
@@ -380,37 +354,6 @@ function(search, record, url, https)  {
     	
     	// return onHandQuantity to main script function
     	return onHandQuantity;
-    	
-    }
-    
-    // ================================================
-    // FUNCTION TO LOOKUP FIELDS ON THE CUSTOMER RECORD
-    // ================================================
-    
-    function getCustomerName(customerID) {
-    		
-    	// lookup fields on the customer record
-    	var customerSearch = search.lookupFields({
-    		type: search.Type.CUSTOMER,
-    		id: customerID,
-    		columns: ['firstname', 'lastname']
-    	});
-    		
-    	return customerSearch.firstname + ' ' + customerSearch.lastname;
-    }
-    
-    // ============================================
-    // FUNCTION TO LOOKUP FIELDS ON THE ITEM RECORD
-    // ============================================
-    
-    function getItemName(itemID) {
-    	
-    	// get the item name from the item record
-    	return search.lookupFields({
-    		type: 'item',
-    		id: itemID,
-    		columns: ['itemid']
-    	}).itemid;
     	
     }
     

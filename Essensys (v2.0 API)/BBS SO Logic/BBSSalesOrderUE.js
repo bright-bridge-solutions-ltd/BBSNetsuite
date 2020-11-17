@@ -71,86 +71,121 @@ function(runtime, search) {
      */
     function beforeSubmit(scriptContext) {
     	
-    	// declare and initialize variables
-    	var premisesSummary = {};
-    	
-    	// get the current record
-    	var currentRecord = scriptContext.newRecord;
-    	
-    	// get count of item lines
-    	var itemCount = currentRecord.getLineCount({
-    		sublistId: 'item'
-    	});
-    	
-    	// loop through items
-    	for (var i = 0; i < itemCount; i++)
+    	// check the record is being created or edited
+    	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
     		{
-    			// get the site from the line
-    			var siteID = currentRecord.getSublistValue({
-    				sublistId: 'item',
-    				fieldId: 'custcol_bbs_site',
-    				line: i
-    			});
-    			
-    			// if we have a site
-    			if (siteID)
-    				{
-	    				// does the site exist in the premises summary, if not create a new entry
-						if (!premisesSummary[siteID])
-							{
-								// call function to lookup fields on the site record
-								var siteLookup = getSiteDetails(siteID);
-							
-								premisesSummary[siteID] = new libSiteObj(
-									siteLookup.site,
-									siteLookup.name,
-									siteLookup.address1,
-									siteLookup.address2,
-									siteLookup.address3,
-									siteLookup.city,
-									siteLookup.state,
-									siteLookup.zip
-								);
-							}
-						
-						// now we have done all summarising, we need to generate the output format
-						var outputArray = new Array;
-
-						const sortedSummary = {};
-				                  
-						for (siteID in sortedSummary)
-							{
-								delete sortedSummary[siteID]
-							}
-							      
-						Object.keys(premisesSummary).sort().forEach(function(siteID) {
-							sortedSummary[siteID] = premisesSummary[siteID];
-						});
-							      
-						// loop through the summaries
-						for (var siteID in sortedSummary)
-							{
-								// push a new instance of the output summary object onto the output array
-								outputArray.push(new libSiteObj(
-																	premisesSummary[siteID].site,
-																	premisesSummary[siteID].name,
-																	premisesSummary[siteID].address1,
-																	premisesSummary[siteID].address2,
-																	premisesSummary[siteID].address3,
-																	premisesSummary[siteID].city,
-																	premisesSummary[siteID].state,
-																	premisesSummary[siteID].zip
-																)
-								);
-							}
-    				}
+		    	// declare and initialize variables
+		    	var premisesSummary = {};
+		    	var recurringItems = 0;
+		    	var setupItems = 0;
+		    	
+		    	// get the current record
+		    	var currentRecord = scriptContext.newRecord;
+		    	
+		    	// get count of item lines
+		    	var itemCount = currentRecord.getLineCount({
+		    		sublistId: 'item'
+		    	});
+		    	
+		    	// loop through items
+		    	for (var i = 0; i < itemCount; i++)
+		    		{
+		    			// get the site from the line
+		    			var siteID = currentRecord.getSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'custcol_bbs_site',
+		    				line: i
+		    			});
+		    			
+		    			// if we have a site
+		    			if (siteID)
+		    				{
+			    				// does the site exist in the premises summary, if not create a new entry
+								if (!premisesSummary[siteID])
+									{
+										// call function to lookup fields on the site record
+										var siteLookup = getSiteDetails(siteID);
+									
+										premisesSummary[siteID] = new libSiteObj(
+											siteLookup.site,
+											siteLookup.name,
+											siteLookup.address1,
+											siteLookup.address2,
+											siteLookup.address3,
+											siteLookup.city,
+											siteLookup.state,
+											siteLookup.zip
+										);
+									}
+								
+								// now we have done all summarising, we need to generate the output format
+								var outputArray = new Array;
+		
+								const sortedSummary = {};
+						                  
+								for (siteID in sortedSummary)
+									{
+										delete sortedSummary[siteID]
+									}
+									      
+								Object.keys(premisesSummary).sort().forEach(function(siteID) {
+									sortedSummary[siteID] = premisesSummary[siteID];
+								});
+									      
+								// loop through the summaries
+								for (var siteID in sortedSummary)
+									{
+										// push a new instance of the output summary object onto the output array
+										outputArray.push(new libSiteObj(
+																			premisesSummary[siteID].site,
+																			premisesSummary[siteID].name,
+																			premisesSummary[siteID].address1,
+																			premisesSummary[siteID].address2,
+																			premisesSummary[siteID].address3,
+																			premisesSummary[siteID].city,
+																			premisesSummary[siteID].state,
+																			premisesSummary[siteID].zip
+																		)
+										);
+									}
+		    				}
+		    			
+		    			// get the value of the setup fee checkbox for the line
+		    			var setupFee = currentRecord.getSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'custcol_bbs_setup_fee',
+		    				line: i
+		    			});
+		    			
+		    			// if this is a setup fee item
+		    			if (setupFee == true)
+		    				{
+		    					// increase the setupItems variable
+		    					setupItems++;
+		    				}
+		    			else
+		    				{
+		    					// increase the recurringItems variable
+		    					recurringItems++;
+		    				}
+		    		}
+		    	
+		    	// update fields on the record
+		    	currentRecord.setValue({
+		    		fieldId: 'custbody_bbs_premises_json',
+		    		value: JSON.stringify(outputArray)
+		    	});
+		    	
+		    	currentRecord.setValue({
+		    		fieldId: 'custbody_bbs_number_of_recurring_items',
+		    		value: recurringItems
+		    	});
+		    	
+		    	currentRecord.setValue({
+		    		fieldId: 'custbody_bbs_number_of_setup_items',
+		    		value: setupItems
+		    	});
     		}
-    	
-    	// set the premises JSON field on the record
-    	currentRecord.setValue({
-    		fieldId: 'custbody_bbs_premises_json',
-    		value: JSON.stringify(outputArray)
-    	});
 
     }
 

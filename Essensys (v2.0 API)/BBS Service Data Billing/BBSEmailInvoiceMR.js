@@ -27,18 +27,12 @@ function(runtime, search, email, render, record) {
 			emailSender = currentScript.getParameter({
 				name: 'custscript_bbs_ar_uk_email_sender'
 			});
-			
-			// set commit taxes to false
-			commitTaxes = false;
 		}
 	else if (subsidiary == 3) // if subsidiary is 3 (US)
 		{
 			emailSender = currentScript.getParameter({
 				name: 'custscript_bbs_ar_us_email_sender'
 			});
-			
-			// set commit taxes to true
-			commitTaxes = true;
 		}
 	
 	/**
@@ -87,9 +81,10 @@ function(runtime, search, email, render, record) {
     	var customerEmailAddresses = getCustomerEmail(invoiceID);
     	var customerEmail1 = customerEmailAddresses.email1;
     	var customerEmail2 = customerEmailAddresses.email2;
+    	var customerEmail3 = customerEmailAddresses.email3;
     	
-    	// call function to send the email. Pass invoiceID, customerEmail1 and customerEmail2
-    	var emailSent = sendEmail(invoiceID, customerEmail1, customerEmail2);
+    	// call function to send the email. Pass invoiceID, customerEmail1, customerEmail2 and customerEmail3
+    	var emailSent = sendEmail(invoiceID, customerEmail1, customerEmail2, customerEmail3);
     	
     	// check emailSent returns true
     	if (emailSent == true)
@@ -141,17 +136,18 @@ function(runtime, search, email, render, record) {
     		var customerLookup = search.lookupFields({
     			type: search.Type.CUSTOMER,
     			id: customerID,
-    			columns: ['custentity_bbs_cust_trans_email', 'custentity_bbs_cust_trans_cc']
+    			columns: ['custentity_bbs_cust_trans_email', 'custentity_bbs_cust_trans_cc', 'custentity_bbs_cust_trans_cc_2']
     		});
     		
     		return {
     			email1: customerLookup.custentity_bbs_cust_trans_email,
-    			email2: customerLookup.custentity_bbs_cust_trans_cc
+    			email2: customerLookup.custentity_bbs_cust_trans_cc,
+    			email3:	customerLookup.custentity_bbs_cust_trans_cc_2
     		};
 
     	}
     
-    function sendEmail(invoiceID, customerEmail1, customerEmail2)
+    function sendEmail(invoiceID, customerEmail1, customerEmail2, customerEmail3)
     	{
     		// check that we have an email address
     		if (customerEmail1)
@@ -175,8 +171,38 @@ function(runtime, search, email, render, record) {
 							    inCustLocale: true
 							});
 		    			
-							// check if we have a CC email address
-							if (customerEmail2)
+							// check if we have 2 CC email addresses
+							if (customerEmail2 && customerEmail3)
+								{
+									// send an email to the customer
+				    				email.send({
+				    					author: emailSender,
+				    					recipients: customerEmail1,
+				    					cc: [customerEmail2, customerEmail3],
+				    					subject: emailSubject,
+				    					body: emailBody,
+				    					attachments: [invoicePDF],
+				    					relatedRecords: {
+				    						transactionId: invoiceID
+				    					}
+				    				});
+								}
+							else if (customerEmail3 && !customerEmail2) // if we only have one CC email address
+								{
+									// send an email to the customer
+				    				email.send({
+				    					author: emailSender,
+				    					recipients: customerEmail1,
+				    					cc: [customerEmail3],
+				    					subject: emailSubject,
+				    					body: emailBody,
+				    					attachments: [invoicePDF],
+				    					relatedRecords: {
+				    						transactionId: invoiceID
+				    					}
+				    				});
+								}
+							else if (!customerEmail3 && customerEmail2) // if we only have one CC email address
 								{
 									// send an email to the customer
 				    				email.send({
@@ -191,7 +217,7 @@ function(runtime, search, email, render, record) {
 				    					}
 				    				});
 								}
-							else
+							else if (customerEmail1) // if we just have one email address
 								{
 									// send an email to the customer
 				    				email.send({
@@ -240,7 +266,6 @@ function(runtime, search, email, render, record) {
 	    				type: record.Type.INVOICE,
 	    				id: invoiceID,
 	    				values: {
-	    					custbody_bbs_tfc_commit_taxes: commitTaxes,
 	    					custbody_bbs_email_sent: true,
 	    					custbody_bbs_date_email_sent: new Date() // today's date
 	    				}

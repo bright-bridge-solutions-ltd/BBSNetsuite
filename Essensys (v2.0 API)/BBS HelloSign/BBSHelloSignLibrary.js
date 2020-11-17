@@ -722,6 +722,47 @@ function(search, encode, https, render, file, record, url)
 		
 	}
 	
+	function getNextSigner(salesOrderID) {
+		
+		// declare and initialize variables
+		var nextSigner = null;
+		
+		// run search to find the next signer
+		search.create({
+			type: 'customrecord_bbs_hellosign_recipients',
+			
+			filters: [{
+				name: 'custrecord_bbs_hellosign_recipients_so',
+				operator: search.Operator.ANYOF,
+				values: [salesOrderID]
+			},
+					{
+				name: 'custrecord_bbs_hellosign_recipientstatus',
+				operator: search.Operator.IS,
+				values: ['awaiting_signature']
+			}],
+			
+			columns: [{
+				name: 'custrecord_bbs_hellosign_recipientsorder',
+				sort: search.Sort.ASC
+			},
+					{
+				name: 'custrecord_bbs_hellosign_recipientsemail'
+			}],	
+			
+		}).run().each(function(result){
+			
+			// get the next signer's email address
+			nextSigner = result.getValue({
+				name: 'custrecord_bbs_hellosign_recipientsemail'
+			});
+			
+		});
+		
+		// return nextSigner to main script function
+		return nextSigner;
+		
+	}
 
 	//Left padding s with c to a total of n chars
 	//
@@ -760,6 +801,7 @@ function(search, encode, https, render, file, record, url)
     	closeSalesOrder:					closeSalesOrder,
     	createHellosignRecipientRecords:	createHellosignRecipientRecords,
     	updateHellosignRecipientRecords:	updateHellosignRecipientRecords,
+    	getNextSigner:						getNextSigner,
     	padding_left:						padding_left
     };
     

@@ -31,14 +31,6 @@ function(runtime, search, record, task) {
 		name: 'custscript_bbs_billing_type_select_text'
 	});
 	
-	subsidiary = currentScript.getParameter({
-		name: 'custscript_bbs_subsidiary_select'
-	});
-	
-	subsidiaryText = currentScript.getParameter({
-		name: 'custscript_bbs_subsidiary_select_text'
-	});
-	
 	initiatingUser = currentScript.getParameter({
 		name: 'custscript_bbs_billing_email_emp_alert'
 	});
@@ -47,8 +39,7 @@ function(runtime, search, record, task) {
 	processDate = new Date();
 	processDate.setDate(0); // set date to be the last day of the previous month
 	
-	processDate = new Date(processDate.getFullYear(), processDate.getMonth(), processDate.getDate());
-	
+	processDate = new Date(processDate.getFullYear(), processDate.getMonth(), processDate.getDate());	
    
     /**
      * Marks the beginning of the Map/Reduce process and generates input data.
@@ -90,11 +81,6 @@ function(runtime, search, record, task) {
     			name: 'custrecord_bbs_contract_billing_type',
     			operator: 'anyof',
     			values: [billingType]
-    		},
-    				{
-    			name: 'custrecord_bbs_contract_subsidiary',
-    			operator: 'anyof',
-    			values: [subsidiary]
     		}],
     		
     		columns: [{
@@ -102,6 +88,9 @@ function(runtime, search, record, task) {
     		},
     				{
     			name: 'custrecord_bbs_contract_currency'
+    		},
+    				{
+    			name: 'custrecord_bbs_contract_subsidiary'
     		}],
 
     	});
@@ -121,6 +110,7 @@ function(runtime, search, record, task) {
     	var contractRecordID 	= 	searchResult.id;
     	var customer			=	searchResult.values['custrecord_bbs_contract_customer'].value;
     	var currency			=	searchResult.values['custrecord_bbs_contract_currency'].value;
+    	var subsidiary			=	searchResult.values['custrecord_bbs_contract_subsidiary'].value;
     	
     	// call function to check for open sales orders for this contract
     	var openSalesOrder = searchSalesOrders(contractRecordID);
@@ -128,8 +118,18 @@ function(runtime, search, record, task) {
     	// check if we DO NOT have an open sales order
     	if (openSalesOrder == false)
     		{
-    			// call function to create a zero value sales order. Pass contractRecordID, customer and currency
-    			createSalesOrder(contractRecordID, customer, currency);
+    			// call function to create a zero value sales order. Pass contractRecordID, customer, currency and subsidiary
+    			createSalesOrder(contractRecordID, customer, currency, subsidiary);
+    		}
+    	
+    	// call function to check if the contract has any products
+    	var numberOfProducts = searchContractProducts(contractRecordID);
+    	
+    	// if we DO NOT have any products on the contract
+    	if (numberOfProducts == 0)
+    		{
+    			// call function to create a product on the contract. Pass contractRecordID
+    			createContractProduct(contractRecordID);
     		}
     }
     
@@ -178,11 +178,50 @@ function(runtime, search, record, task) {
 	
     }
     
+    // =============================================
+    // FUNCTION TO CHECK NUMBER OF CONTRACT PRODUCTS
+    // =============================================
+    
+    function searchContractProducts(contractRecordID) {
+    	
+    	// declare and initialize variables
+    	var numberOfProducts = 0;
+    	
+    	// run search to check how many products exist on the contract
+    	search.create({
+    		type: 'customrecord_bbs_contract_product',
+    		
+    		filters: [{
+    			name: 'custrecord_contract_product_parent',
+    			operator: search.Operator.ANYOF,
+    			values: [contractRecordID]
+    		}],
+    		
+    		columns: [{
+    			name: 'internalid',
+    			summary: search.Summary.COUNT
+    		}],
+    	
+    	}).run().each(function(result){
+    		
+    		// get the number of products from the search
+    		numberOfProducts = result.getValue({
+    			name: 'internalid',
+    			summary: search.Summary.COUNT
+    		});
+    		
+    	});
+    	
+    	// return numberOfProducts variable to main script function
+    	return numberOfProducts;
+    	
+    }
+    
     // ================================
     // FUNCTION TO CREATE A SALES ORDER
     // ================================
     
-    function createSalesOrder(contractRecordID, customer, currency) {
+    function createSalesOrder(contractRecordID, customer, currency, subsidiary) {
 	    	
     	// build up the external ID for the sales order
     	var externalID 	= 'so_';
@@ -212,6 +251,11 @@ function(runtime, search, record, task) {
 				soRecord.setValue({
     				fieldId: 'trandate',
     				value: processDate
+    			});
+				
+				soRecord.setValue({
+    				fieldId: 'subsidiary',
+    				value: subsidiary
     			});
     				
     			soRecord.setValue({
@@ -285,6 +329,46 @@ function(runtime, search, record, task) {
 			}
 	}
     
+    // ===================================================
+    // FUNCTION TO CREATE A PRODUCT ON THE CONTRACT RECORD
+    // ===================================================
+    
+    function createContractProduct(contractRecordID) {
+    	
+    	try
+    		{
+    			// create a new contract item
+    			var newContractItem = record.create({
+    				type: 'customrecord_bbs_contract_product'
+    			});
+    			
+    			newContractItem.setValue({
+    				fieldId: 'custrecord_contract_product_parent',
+    				value: contractRecordID
+    			});
+    			
+    			newContractItem.setValue({
+    				fieldId: 'custrecord_contract_product_product',
+    				value: adjustmentItem
+    			});
+    			
+    			var newContractItemID = newContractItem.save();
+    			
+    			log.audit({
+    				title: 'Contract Item Created',
+    				details: 'Item ID: ' + newContractItemID + '<br>Contract ID: ' + contractRecordID
+    			});
+    		}
+    	catch(e)
+    		{
+    			log.error({
+    				title: 'Error Creating Contract Item',
+    				details: 'Contract ID: ' + contractRecordID + '<br>Error: ' + e
+     			});
+    		}
+    	
+    }
+    
     /**
      * Executes when the summarize entry point is triggered and applies to the result set.
      *
@@ -305,8 +389,6 @@ function(runtime, search, record, task) {
     	    params: {
     	    	custscript_bbs_billing_type_select: billingType,
     	    	custscript_bbs_billing_type_select_text: billingTypeText,
-    	    	custscript_bbs_subsidiary_select: subsidiary,
-    	    	custscript_bbs_subsidiary_select_text: subsidiaryText,
     	    	custscript_bbs_billing_email_emp_alert: initiatingUser
     	    }
     	});

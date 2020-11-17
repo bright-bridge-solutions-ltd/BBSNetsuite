@@ -77,7 +77,7 @@ function(runtime, search, file, email, task) {
     	// set the date of the report
     	var reportDate = new Date();
     	reportDate = new Date(reportDate.getFullYear(), reportDate.getMonth(), 0); // set date to be the 1st day of the previous month
-    	reportDate = reportDate.format('ymd'); // format the report date in the following format YYYY-MM-DD
+    	reportDate = reportDate.format('ymd'); // format the report date in the following format YY-MM-DD
     	
     	// retrieve search results
     	var searchResult = JSON.parse(context.value);
@@ -106,7 +106,7 @@ function(runtime, search, file, email, task) {
 			}
 		
 		// specify the file name
-		var fileName = filePrefix + '-' + reportDate + '-' + accountAlias + '_advance_invoice_report.csv';
+		var fileName = filePrefix + '-' + reportDate + '-' + accountAlias + '-advance_invoice_report.csv';
 		
 		// start off the CSV
 		var CSV = '"AccountID","AccountName","InvoiceNumber","DateFrom","DateTo","Product","Quantity","OperatorCost","OperatorTotal","TenantAlias","TenantName","TenantBillingRef","TenantCost","TenantTotal","Margin"\r\n';

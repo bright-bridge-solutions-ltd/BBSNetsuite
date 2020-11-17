@@ -69,25 +69,17 @@ function(runtime, search, record) {
     	var contractRecordLookup = search.lookupFields({
     		type: 'customrecord_bbs_contract',
     		id: contractRecord,
-    		columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_currency', 'custrecord_bbs_contract_setup_fee_amount', 'custrecord_bbs_contract_mgmt_fee_amt', 'custrecord_bbs_contract_term']
+    		columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_currency', 'custrecord_bbs_contract_subsidiary', 'custrecord_bbs_contract_location', 'custrecord_bbs_contract_setup_fee_amount', 'custrecord_bbs_contract_mgmt_fee_amt', 'custrecord_bbs_contract_term']
     	});
     	
     	// get the customer from the contractRecordLookup object
 	    var customer = contractRecordLookup.custrecord_bbs_contract_customer[0].value;
 	    var currency = contractRecordLookup.custrecord_bbs_contract_currency[0].value;
+	    var subsidiary = contractRecordLookup.custrecord_bbs_contract_subsidiary[0].value;
+	    var location = contractRecordLookup.custrecord_bbs_contract_location[0].value;
     	var setupFeeAmount = contractRecordLookup.custrecord_bbs_contract_setup_fee_amount;
     	var mgmtFeeAmount = contractRecordLookup.custrecord_bbs_contract_mgmt_fee_amt;
     	var contractTerm = contractRecordLookup.custrecord_bbs_contract_term;
-	    
-	    // lookup fields on the customer record
-		var customerLookup = search.lookupFields({
-			type: search.Type.CUSTOMER,
-			id: customer,
-			columns: ['custentity_bbs_location']
-		});
-		
-		// retrieve values from the customerLookup
-		var location = customerLookup.custentity_bbs_location[0].value;
 		
     	// use parseFoat to convert setupFeeAmount to a floating point number
     	setupFeeAmount = parseFloat(setupFeeAmount);
@@ -98,22 +90,22 @@ function(runtime, search, record) {
     	// check if the setupFeeInvoice variable returns true
     	if (setupFeeInvoice == true)
     		{
-    			// call function to create setup fee invoice. Pass customer, contractRecord, location, currency and setupFeeAmount
-    			createSetupFeeInvoice(customer, contractRecord, location, currency, setupFeeAmount);
+    			// call function to create setup fee invoice. Pass customer, contractRecord, location, currency, subsidiary and setupFeeAmount
+    			createSetupFeeInvoice(customer, contractRecord, location, currency, subsidiary, setupFeeAmount);
     		}
     	
     	// check if the mgmtFeeInvoice variable returns true
     	if (mgmtFeeInvoice == true)
     		{
-    			// call function to create management fee invoice. Pass customer, contractRecord, location, currency and mgmtFeeAmount
-    			createMgmtFeeInvoice(customer, contractRecord, location, currency, mgmtFeeAmount);
+    			// call function to create management fee invoice. Pass customer, contractRecord, location, currency, subsidiary and mgmtFeeAmount
+    			createMgmtFeeInvoice(customer, contractRecord, location, currency, subsidiary, mgmtFeeAmount);
     		}
     	
     	// check if the prepaumentInvoice variable returns true
     	if (prepaymentInvoice == true)
     		{
-    			// call function to create a prepayment invoice. Pass customer, contractRecord, location and currency
-    			createPrepaymentInvoice(customer, contractRecord, location, currency);
+    			// call function to create a prepayment invoice. Pass customer, contractRecord, location, currency and subsidiary
+    			createPrepaymentInvoice(customer, contractRecord, location, currency, subsidiary);
     		}
 
     }
@@ -122,7 +114,7 @@ function(runtime, search, record) {
     // FUNCTION TO CREATE A SETUP FEE INVOICE
     // ======================================
     
-    function createSetupFeeInvoice(customer, contractRecord, location, currency, setupFeeAmount)
+    function createSetupFeeInvoice(customer, contractRecord, location, currency, subsidiary, setupFeeAmount)
 	    {
 	    	try
 				{
@@ -138,6 +130,11 @@ function(runtime, search, record) {
 					});
 				
 					// set header fields on the invoice
+					invoice.setValue({
+						fieldId: 'subsidiary',
+						value: subsidiary
+					});
+					
 					invoice.setValue({
 						fieldId: 'account',
 						value: trcsAcc
@@ -237,7 +234,7 @@ function(runtime, search, record) {
     // FUNCTION TO CREATE A MANAGEMENT FEE INVOICE
     // ===========================================
     
-    function createMgmtFeeInvoice(customer, contractRecord, location, currency, mgmtFeeAmount)
+    function createMgmtFeeInvoice(customer, contractRecord, location, currency, subsidiary, mgmtFeeAmount)
 	    {
 	    	try
 				{
@@ -253,6 +250,11 @@ function(runtime, search, record) {
 					});
 				
 					// set header fields on the invoice
+					invoice.setValue({
+						fieldId: 'subsidiary',
+						value: subsidiary
+					});
+					
 					invoice.setValue({
 						fieldId: 'account',
 						value: trpAcc
@@ -352,7 +354,7 @@ function(runtime, search, record) {
     // FUNCTION TO CREATE INITIAL PREPAYMENT INVOICE
     // =============================================
     
-    function createPrepaymentInvoice(customer, contractRecord, location, currency)
+    function createPrepaymentInvoice(customer, contractRecord, location, currency, subsidiary)
     	{
 	    	try
 				{
@@ -368,6 +370,11 @@ function(runtime, search, record) {
 					});
 				
 					// set header fields on the invoice record
+					invoice.setValue({
+						fieldId: 'subsidiary',
+						value: subsidiary
+					});
+					
 					invoice.setValue({
 						fieldId: 'account',
 						value: trpAcc

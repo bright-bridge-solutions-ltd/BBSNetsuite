@@ -78,6 +78,7 @@ function(helloSignLibrary, search, record, file) {
 				var isDeclined		=	false;
 				var errorMessages	=	null;
 				var fileName		= 	null;
+				var nextSigner		=	null;
 			
 				try
 					{
@@ -157,6 +158,9 @@ function(helloSignLibrary, search, record, file) {
 								// add the API response to the error messages
 								errorMessages = getSignatureRequest.apiResponse.error.error_msg;
 							}
+						
+						// call function to get the email address of the next signer
+						nextSigner = helloSignLibrary.getNextSigner(recordID);
 								
 						// update fields on the sales order
 						record.submitFields({
@@ -165,7 +169,8 @@ function(helloSignLibrary, search, record, file) {
 							values: {
 								custbody_bbs_hellosign_is_complete:isComplete,
 								custbody_bbs_hellosign_is_declined:isDeclined,
-								custbody_bbs_hellosign_errors: errorMessages
+								custbody_bbs_hellosign_errors: errorMessages,
+								custbody_bbs_hellosign_next_signer: nextSigner
 							}
 						});
 								

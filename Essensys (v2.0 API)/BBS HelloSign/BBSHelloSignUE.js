@@ -61,6 +61,11 @@ function(helloSignLibrary, record, render) {
     				fieldId: 'custbody_bbs_hellosign_is_cancelled',
     				value: false
     			});
+    			
+    			currentRecord.setValue({
+    				fieldId: 'custbody_bbs_hellosign_next_signer',
+    				value: null
+    			});
     		}
 
     }
@@ -108,7 +113,8 @@ function(helloSignLibrary, record, render) {
 	    					{
 	    						try
 		    						{
-		    							// reload the current record
+	    							
+	    								// reload the current record
 		    							currentRecord = record.load({
 		    								type: record.Type.SALES_ORDER,
 		    								id: currentRecord.id
@@ -202,7 +208,8 @@ function(helloSignLibrary, record, render) {
 														custbody_bbs_hellosign_sig_request_id:	signatureRequestID,
 														custbody_bbs_hellosign_errors:			errorMessages,
 														custbody_bbs_hellosign_is_complete:		false,
-														custbody_bbs_hellosign_is_declined:		false
+														custbody_bbs_hellosign_is_declined:		false,
+														custbody_bbs_hellosign_next_signer:		helloSignSigners.primaryEmail
 													}
 												});
 											}
@@ -266,7 +273,8 @@ function(helloSignLibrary, record, render) {
 											id: scriptContext.newRecord.id,
 											values: {
 												custbody_bbs_hellosign_errors:			errorMessages,
-												custbody_bbs_hellosign_is_cancelled:	isCancelled
+												custbody_bbs_hellosign_is_cancelled:	isCancelled,
+												custbody_bbs_hellosign_next_signer:		null
 											}
 										});
 									}

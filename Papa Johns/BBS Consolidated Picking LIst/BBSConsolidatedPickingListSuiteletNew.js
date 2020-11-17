@@ -162,7 +162,7 @@ function consolidatedPickingSuitelet(request, response)
 						   new nlobjSearchColumn("custitem_pj_binlocation","item","GROUP").setSort(false), 
 						   new nlobjSearchColumn("item",null,"GROUP").setSort(false), 
 						   new nlobjSearchColumn("displayname","item","GROUP"), 
-						   new nlobjSearchColumn("quantity",null,"SUM"), 
+						   new nlobjSearchColumn("quantityuom",null,"SUM"), 
 						   new nlobjSearchColumn("quantitycommitted",null,"SUM"), 
 						   new nlobjSearchColumn("quantityshiprecv",null,"SUM"), 
 						   new nlobjSearchColumn("custitem_pj_grossweight","item","MIN"),
@@ -294,7 +294,7 @@ function consolidatedPickingSuitelet(request, response)
 							var binLoc = salesorderSearch[int3].getValue("custitem_pj_binlocation","item","GROUP");
 							var productCode = salesorderSearch[int3].getText("item",null,"GROUP");
 							var productDecsription = salesorderSearch[int3].getValue("displayname","item","GROUP");
-							var qty = Number(salesorderSearch[int3].getValue("quantity",null,"SUM"))
+							var qty = Number(salesorderSearch[int3].getValue("quantityuom",null,"SUM"));
 							var qtyFulfilled = Number(salesorderSearch[int3].getValue("quantityshiprecv",null,"SUM"))
 							var palletQty = Number(salesorderSearch[int3].getValue("custitem_palletequiv","item","MIN"));
 							var gross = Number(salesorderSearch[int3].getValue("custitem_pj_grossweight","item","MIN"));

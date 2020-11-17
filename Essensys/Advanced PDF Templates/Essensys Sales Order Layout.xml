@@ -4,7 +4,7 @@
 <pdf>
 <head>
 	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
-	<#setting number_format="0.00">
+	<#setting number_format=",##0.00">
 	<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
 	<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
 	
@@ -209,7 +209,7 @@
 <pdf>
 <head>
 	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
-	<#setting number_format="0.00">
+	<#setting number_format=",##0.00">
 	<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
 	<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
 	
@@ -340,7 +340,7 @@
 </head>
 <body header="nlheader" header-height="10pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
-<p>1. The <b>Premises</b> means the following building:</p>
+<p>The <b>Premises</b> means the following building:</p>
 
 <#if record.custbody_bbs_premises_json?length gt 0> 
 	<#assign premises_summary = record.custbody_bbs_premises_json?eval>
@@ -374,7 +374,7 @@
 
 <#if record.custbody_bbs_order_type != 'Equipment'>
 
-	<p style="margin-top: 30px;">2. <b>Term</b></p>
+	<p style="margin-top: 30px;"><b>Term</b></p>
 
 	<table style="width: 100%;">
 		<tr>
@@ -385,14 +385,14 @@
 
 </#if>
 
-<p style="margin-top: 30px;"><#if record.custbody_bbs_order_type != 'Equipment'>3.<#else>2.</#if> <b>Payment Terms</b></p>
+<p style="margin-top: 30px;"><b>Payment Terms</b></p>
 
 <p style="margin-bottom: 30px;">50% of STEP Activation Fees are invoiced upon signature of this Services Order and require payment within seven days. The remaining 50% is invoiced upon completion of the project and is required within seven days. Monthly fees require payment within 30 days of invoice.</p>
 
 
 <#if record.custbody_bbs_order_type != 'Equipment'>
 
-	<p>4. <b>Fees: Subscription Services - Fixed Recurring</b></p>
+	<p><b>Fees: Subscription Services - Fixed Recurring</b></p>
 	
 	<p>essensys Connect Fixed Recurring Fees are invoiced Monthly in Advance. First invoice is at Commencement Date.</p>
 	
@@ -416,7 +416,7 @@
 		</table>
 	</#if>
 	
-	<p>5. <b>Fees: essensys STEP Software Fee – Monthly Variable</b></p>
+	<p><b>Fees: essensys STEP Software Fee – Monthly Variable</b></p>
 	
 	<p>essensys STEP Software Fees are invoiced monthly in arrears based on the Active Area at a rate of one twelfth of the Annual Fee below subject to a minimum charge of $412.50 per month ($4,950 per annum).</p>
 	
@@ -442,7 +442,7 @@
 <pdf>
 <head>
 	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
-	<#setting number_format="0.00">
+	<#setting number_format=",##0.00">
 	<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
 	<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
 	
@@ -597,7 +597,7 @@
 	</tr>
 </table>-->
 
-<p><#if record.custbody_bbs_order_type != 'Equipment'>6.<#else>3.</#if> <b>Fees: Marketplace Items - Monthly Variable</b></p>
+<p><b>Fees: Marketplace Items - Monthly Variable</b></p>
 
 <p>essensys STEP Marketplace Services are invoiced Monthly in Arrears based on consumption as set out below:</p>
 
@@ -661,7 +661,7 @@
 	</tr>
 </table>
 
-<p><#if record.custbody_bbs_order_type != 'Equipment'>7.<#else>4.</#if> <b>Fees: essensys STEP Activation</b></p>
+<p><b>Fees: essensys STEP Activation</b></p>
 
 <p><b>Activation fees</b> are charged for equipment and services to enable part of the Premises to become an Active Area and are invoiced:</p>
 
@@ -698,7 +698,7 @@
 <pdf>
 <head>
 	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
-	<#setting number_format="0.00">
+	<#setting number_format=",##0.00">
 	<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
 	<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
 	
@@ -831,7 +831,7 @@
 </head>
 <body header="nlheader" header-height="10pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
-<p><#if record.custbody_bbs_order_type != 'Equipment'>8.<#else>5.</#if> <b>Agreement</b></p>
+<p><b>Agreement</b></p>
 
 <table style="width: 100%;">
 	<tr>
@@ -857,7 +857,7 @@
 <pdf>
 <head>
 	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
-	<#setting number_format="0.00">
+	<#setting number_format=",##0.00">
 	<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
 	<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
 	
@@ -1008,7 +1008,7 @@
 </head>
 <body header="nlheader" header-height="275pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
-<p>1. The <b>Premises</b> means the following building, or part of a building</p>
+<p>The <b>Premises</b> means the following building, or part of a building</p>
 
 <#if record.custbody_bbs_premises_json?length gt 0> 
 	<#assign premises_summary = record.custbody_bbs_premises_json?eval>
@@ -1042,7 +1042,7 @@
 
 <#if record.custbody_bbs_order_type != 'Equipment'>
 
-	<p style="margin-top: 30px;">2. <b>Term</b></p>
+	<p style="margin-top: 30px;"><b>Term</b></p>
 	
 	<table style="width: 100%;">
 		<tr>
@@ -1061,7 +1061,7 @@
 
 </#if>
 
-<p style="margin-top: 30px;"><#if record.custbody_bbs_order_type != 'Equipment'>3.<#else>2.</#if> <b>Payment Terms</b></p>
+<p style="margin-top: 30px;"><b>Payment Terms</b></p>
 
 <p>50% of Connect Set Up Fees are invoiced upon signature of this Service Order and require payment within seven days. The remaining 50% is invoiced upon completion of the project and is required within seven days. Monthly fees require payment within 30 days of invoice.</p>
 
@@ -1070,7 +1070,7 @@
 <pdf>
 <head>
 	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
-	<#setting number_format="0.00">
+	<#setting number_format=",##0.00">
 	<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
 	<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
 	
@@ -1203,7 +1203,7 @@
 
 <#if record.custbody_bbs_order_type != 'Equipment'>
 
-	<p>4. <b>Fees: Subscription Services - Fixed Recurring</b></p>
+	<p><b>Fees: Subscription Services - Fixed Recurring</b></p>
 	
 	<p>Connect and Operate Fixed Recurring Fees are invoiced Monthly in Advance. First invoice is at Commencement Date.</p>
 	
@@ -1220,7 +1220,7 @@
 	        	<#if item.custcol_bbs_setup_fee == false> <!-- Only print items where the setup fee checkbox is NOT ticked -->
 					<tr>
 						<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.description}</td>
-						<td colspan="5" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${item.rate}</td>
+						<td colspan="5" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${item.custcol_bbs_recurring_monthly_fee}</td>
 					</tr>
 				</#if>
 			</#list>
@@ -1231,142 +1231,150 @@
 	
 	<p>The Connect SLA is available at <a href="https://essensys.tech/connect-sla">https://essensys.tech/connect-sla</a></p>
 	
-	<p style="margin-top: 30px;">5. <b>Fees: Connect On-Demand Marketplace Services - Monthly Variable Recurring</b></p>
+	<#if record.custbody_bbs_order_type != 'Operate'>
 	
-	<p>Connect Variable Recurring Fees are invoiced Monthly in Arrears based on Services provisioned in the Connect Software as set out below.</p>
-	
-	<table style="width: 100%; margin-bottom: 30px;">
-		<thead>
-			<tr>
-				<th colspan="12" align="left" style="border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Connect Growth Edition On-Demand Marketplace Description</th>
-				<th colspan="4" align="center" style="border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Unit</th>
-				<th colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Fee Per Month</th>
-			</tr>
-		</thead>
-		<tr>
-			<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Additional per Mb/s above ZMbps allocated Internet</b></td>
-			<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">Mbps</td>
-			<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
-		</tr>
-		<tr>
-			<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Voice User – Premium</b> (with Local, Geographic and Mobile Call Discount)</td>
-			<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">User</td>
-			<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
-		</tr>
-		<tr>
-			<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Analogue Line</b> (with Local, Geographic and Mobile Call Discount)</td>
-			<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">Number</td>
-			<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
-		</tr>
-		<tr>
-			<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Fax to Email</b> (inbound only)</td>
-			<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">Number</td>
-			<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
-		</tr>
-		<tr>
-			<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Voice User - Virtual</b></td>
-			<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">Number</td>
-			<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
-		</tr>
-		<tr>
-			<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Softphone</b> (standalone requires voice user)</td>
-			<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">User</td>
-			<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
-		</tr>
-		<tr>
-			<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Voice Call Charges</b></td>
-			<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">Minutes</td>
-			<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
-		</tr>
-		<tr>
-			<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Call Recording</b></td>
-			<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">User</td>
-			<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
-		</tr>
-		<tr>
-			<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Auto Attendant Single Level</b></td>
-			<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">IVR</td>
-			<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
-		</tr>
-		<tr>
-			<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Auto Attendant Multiple Levels</b></td>
-			<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">IVR</td>
-			<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
-		</tr>
-		<tr>
-			<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Public IP Address</b> (Single publicly routable RIPE address)</td>
-			<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">IP Address</td>
-			<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
-		</tr>
-		<tr>
-			<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Public IP Address</b> (5 publicly routable RIPE Address)</td>
-			<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">5 IP Address</td>
-			<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
-		</tr>
-		<tr>
-			<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Custom Music on Hold</b></td>
-			<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">Music File</td>
-			<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
-		</tr>
-		<tr>
-			<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Conference Call Account</b></td>
-			<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">Account</td>
-			<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
-		</tr>
-		<tr>
-			<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Evo Operator Console</b> (not provisioned in Connect Software)</td>
-			<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">Premises</td>
-			<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
-		</tr>
-	</table>
-
-</#if>
-
-<p><#if record.custbody_bbs_order_type != 'Equipment'>6.<#else>3.</#if> <b>Fees: ${record.class} Setup Services</b></p>
-
-<p>Setup service fees are invoiced:</p>
-
-<p>1. 50% upon Service Order Agreement<br/>2. 50% upon Commencement Date</p>
-
-<p>Risks in hardware pass to Customer on dispatch. Title for these items will pass to Customer on the latter of:</p>
-
-<p>(1) Installation thereof and<br/>(2)	Receipt of all payments due in respect thereof by Company</p>
-
-<#if record.item?has_content>
-<#assign onBoardingTotal = 0> 		<!-- Define the onBoardingTotal variable -->
-	<table style="width:100%; margin-bottom: 30px;">
-		<thead>
-			<tr>
-				<th colspan="4" align="center" style="border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Quantity</th>
-				<th colspan="12" align="center" style="border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Item</th>
-				<th colspan="4" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Fee per Month</th>
-			</tr>
-		</thead>
-		<!-- start items -->
-        <#list record.item as item>
-        	<#if item.custcol_bbs_setup_fee == true> <!-- Only print items where the setup fee checkbox is ticked -->
+		<p style="margin-top: 30px;"><b>Fees: Connect On-Demand Marketplace Services - Monthly Variable Recurring</b></p>
+		
+		<p>Connect Variable Recurring Fees are invoiced Monthly in Arrears based on Services provisioned in the Connect Software as set out below.</p>
+		
+		<table style="width: 100%; margin-bottom: 30px;">
+			<thead>
 				<tr>
-					<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.quantity?string.number}</td>
-					<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.description}</td>
-					<td colspan="4" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${item.amount}</td>
+					<th colspan="12" align="left" style="border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Connect Growth Edition On-Demand Marketplace Description</th>
+					<th colspan="4" align="center" style="border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Unit</th>
+					<th colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Fee Per Month</th>
 				</tr>
-				<#assign onBoardingTotal += item.amount> <!-- Add the amount to the onBoardingTotal variable -->
-			</#if>
-		</#list>
-		<tr>
-			<td colspan="16" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Total Onboarding</b></td>
-			<td colspan="4" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${onBoardingTotal}</td>
-		</tr>
-		<#if record.custbody_bbs_order_type == 'Equipment'>
+			</thead>
 			<tr>
-				<td colspan="16" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Estimated Taxes</b></td>
-				<td colspan="4" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${record.taxtotal}</td>
+				<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Additional per Mb/s above ZMbps allocated Internet</b></td>
+				<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">Mbps</td>
+				<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
 			</tr>
-		</#if>
-	</table>
+			<tr>
+				<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Voice User – Premium</b> (with Local, Geographic and Mobile Call Discount)</td>
+				<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">User</td>
+				<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
+			</tr>
+			<tr>
+				<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Analogue Line</b> (with Local, Geographic and Mobile Call Discount)</td>
+				<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">Number</td>
+				<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
+			</tr>
+			<tr>
+				<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Fax to Email</b> (inbound only)</td>
+				<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">Number</td>
+				<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
+			</tr>
+			<tr>
+				<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Voice User - Virtual</b></td>
+				<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">Number</td>
+				<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
+			</tr>
+			<tr>
+				<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Softphone</b> (standalone requires voice user)</td>
+				<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">User</td>
+				<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
+			</tr>
+			<tr>
+				<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Voice Call Charges</b></td>
+				<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">Minutes</td>
+				<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
+			</tr>
+			<tr>
+				<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Call Recording</b></td>
+				<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">User</td>
+				<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
+			</tr>
+			<tr>
+				<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Auto Attendant Single Level</b></td>
+				<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">IVR</td>
+				<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
+			</tr>
+			<tr>
+				<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Auto Attendant Multiple Levels</b></td>
+				<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">IVR</td>
+				<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
+			</tr>
+			<tr>
+				<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Public IP Address</b> (Single publicly routable RIPE address)</td>
+				<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">IP Address</td>
+				<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
+			</tr>
+			<tr>
+				<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Public IP Address</b> (5 publicly routable RIPE Address)</td>
+				<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">5 IP Address</td>
+				<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
+			</tr>
+			<tr>
+				<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Custom Music on Hold</b></td>
+				<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">Music File</td>
+				<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
+			</tr>
+			<tr>
+				<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Conference Call Account</b></td>
+				<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">Account</td>
+				<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
+			</tr>
+			<tr>
+				<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Evo Operator Console</b> (not provisioned in Connect Software)</td>
+				<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">Premises</td>
+				<td colspan="6" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">(Prices change by edition)</td>	
+			</tr>
+		</table>
+		
+	</#if>
+
 </#if>
 
-<p><#if record.custbody_bbs_order_type != 'Equipment'>7.<#else>4.</#if> <b>Special Terms</b></p>
+<#if record.custbody_bbs_number_of_setup_items gt 0>
+
+	<p><b>Fees: ${record.class} Setup Services</b></p>
+	
+	<p>Setup service fees are invoiced:</p>
+	
+	<p>1. 50% upon Service Order Agreement<br/>2. 50% upon Commencement Date</p>
+	
+	<p>Risks in hardware pass to Customer on dispatch. Title for these items will pass to Customer on the latter of:</p>
+	
+	<p>(1) Installation thereof and<br/>(2)	Receipt of all payments due in respect thereof by Company</p>
+	
+	<#if record.item?has_content>
+	<#assign onBoardingTotal = 0> 		<!-- Define the onBoardingTotal variable -->
+		<table style="width:100%; margin-bottom: 30px;">
+			<thead>
+				<tr>
+					<th colspan="4" align="center" style="border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Quantity</th>
+					<th colspan="12" align="center" style="border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Item</th>
+					<th colspan="4" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;"><#if record.custbody_bbs_order_type != 'Equipment'>Fee per Month<#else>Amount</#if></th>
+				</tr>
+			</thead>
+			<!-- start items -->
+	        <#list record.item as item>
+	        	<#if item.custcol_bbs_setup_fee == true> <!-- Only print items where the setup fee checkbox is ticked -->
+					<tr>
+						<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.quantity?string.number}</td>
+						<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.description}</td>
+						<td colspan="4" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"></td>
+					</tr>
+					<#assign onBoardingTotal += item.amount> <!-- Add the amount to the onBoardingTotal variable -->
+				</#if>
+			</#list>
+			<tr>
+				<td colspan="16" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Total Onboarding</b></td>
+				<td colspan="4" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${onBoardingTotal}</td>
+			</tr>
+			<#if record.custbody_bbs_order_type == 'Equipment' && subsidiary.id != "2"> <!-- Subsidiary is NOT essensys UK -->
+				<tr>
+					<td colspan="16" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Estimated Taxes</b></td>
+					<td colspan="4" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${record.taxtotal}</td>
+				</tr>
+			</#if>
+		</table>
+	</#if>
+	
+</#if>
+
+<p><b>Special Terms</b></p>
 
 <table style="width: 100%;">
 	<tr>
@@ -1374,7 +1382,7 @@
 	</tr>
 </table>
 
-<p style="margin-top: 30px;"><#if record.custbody_bbs_order_type != 'Equipment'>8.<#else>5.</#if> <b>Agreement</b></p>
+<p style="margin-top: 30px;"><b>Agreement</b></p>
 
 <table style="width: 100%;">
 	<tr>
@@ -1397,12 +1405,12 @@
 </body>
 </pdf>
 
-<#if record.custbody_bbs_order_type != 'Equipment'>
+<#if record.custbody_bbs_order_type != 'Equipment' && record.custbody_bbs_order_type != 'Operate' && subsidiary.id == "2"> <!-- 2 = essensys (UK) Ltd -->
 
 	<pdf>
 	<head>
 		<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
-		<#setting number_format="0.00">
+		<#setting number_format=",##0.00">
 		<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
 		<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
 		
