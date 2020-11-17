@@ -33,6 +33,8 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 	//
 	function pcProcessShipments(_processShipmentRequest)
 		{
+			debugger;
+			
 			var headerObj 				= {};
 			var responseStatus			= '';
 			var responseBodyObj			= {};
@@ -317,11 +319,33 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			this.Shipment.Height 			= '1';
 			this.Shipment.DimUnit 			= 'cm';
 			this.Shipment.Value 			= '';
-			this.Shipment.Currency 			= '';
+			this.Shipment.Currency 			= 'GBP';
 			this.Shipment.CustomsDuty 		= 'DDU';
 			this.Shipment.Description 		= 'Goods';
 			this.Shipment.DeclarationType 	= 'SaleOfGoods';
 
+			if(shippingRequestData.itemDetails != null && shippingRequestData.itemDetails.length > 0)
+				{
+					this.Shipment.Products 	= [];
+					var totalValue			= Number(0);
+					
+					for (var int = 0; int < shippingRequestData.itemDetails.length; int++) 
+						{
+							var itemObj 			= {};
+							itemObj.Description 	= shippingRequestData.itemDetails[int].itemDesc;
+							itemObj.Sku 			= shippingRequestData.itemDetails[int].itemText;
+							itemObj.HsCode 			= shippingRequestData.itemDetails[int].itemCommodity;
+							itemObj.OriginCountry 	= shippingRequestData.itemDetails[int].itemCountry;
+							itemObj.PurchaseUrl	 	= '';
+							itemObj.Quantity 		= shippingRequestData.itemDetails[int].itemQty;
+							itemObj.Value 			= shippingRequestData.itemDetails[int].itemValue;
+							totalValue			   += Number(shippingRequestData.itemDetails[int].itemValue);
+							
+							this.Shipment.Products.push(itemObj);
+						}
+					
+					this.Shipment.Value 			= totalValue;
+				}
 		}
 	
 	

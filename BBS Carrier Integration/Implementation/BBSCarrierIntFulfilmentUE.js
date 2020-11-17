@@ -269,21 +269,15 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
     function carrierIntFulfilmentAS(scriptContext) 
 	    {
     		// retrieve script parameters
-    		var currentScript = runtime.getCurrentScript();
-    	
-	    	var fileCabinetFolder = currentScript.getParameter({
-	        	name: 'custscript_bbs_carrier_int_folder_id'
-	        });
-	    	
-	    	var emailSender = currentScript.getParameter({
-	    		name: 'custscript_bbs_shipment_delete_sender'
-	    	});
-    	
+    		var currentScript 		= runtime.getCurrentScript();
+	    	var fileCabinetFolder 	= currentScript.getParameter({name: 'custscript_bbs_carrier_int_folder_id'});
+	    	var emailSender 		= currentScript.getParameter({name: 'custscript_bbs_shipment_delete_sender'});
     		var type 				= scriptContext.type;
     		var newRecord 			= scriptContext.newRecord;
     		var integrationDetails 	= null;
     		var shippingCarrierInfo = null;
-
+    		var itemLineInfo 		= [];
+    		
     		switch(type)
     			{
 	    			case 'create':	
@@ -327,26 +321,41 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 										    									isDynamic: 	true
 										    									});
 	    								
+	    								
 	    								// get the required information from the item fulfilment record to build up the label
-	    								var shipmentReference = itemFulfillmentRecord.getValue({
-	    									fieldId: 'tranid'
-	    								});
+	    								var shipmentReference 	= itemFulfillmentRecord.getValue({fieldId: 'tranid'});
+	    								var weight 				= itemFulfillmentRecord.getValue({fieldId: 'custbody_bbs_total_weight'});
+	    								var transactionDate 	= itemFulfillmentRecord.getValue({fieldId: 'trandate'});
+	    								var totalWeight 		= itemFulfillmentRecord.getValue({fieldId: 'custbody_bbs_total_weight'});
+	    								var packageCount 		= itemFulfillmentRecord.getValue({fieldId: 'custbody_bbs_number_of_packages'});
+	    								var createdFrom 		= itemFulfillmentRecord.getValue({fieldId: 'createdfrom'});
 	    								
-	    								var weight = itemFulfillmentRecord.getValue({
-	    									fieldId: 'custbody_bbs_total_weight'
-	    								});
 	    								
-	    								var transactionDate = itemFulfillmentRecord.getValue({
-	    									fieldId: 'trandate'
-	    								});
+	    								//Load the related sales order
+	    								//
+	    								var salesOrderRecord = null;
 	    								
-	    								var totalWeight = itemFulfillmentRecord.getValue({
-	    									fieldId: 'custbody_bbs_total_weight'
-	    								});
+	    								if(createdFrom != null && createdFrom != '')
+	    									{
+			    								try
+			    									{
+				    									var salesOrderRecord = record.load({
+													    									type: 		record.Type.SALES_ORDER,
+													    									id: 		createdFrom,
+													    									isDynamic: 	false
+													    									});
+			    									}
+			    								catch(err)
+			    									{
+			    										salesOrderRecord = null;
+			    									}
+			    								
+			    								if(salesOrderRecord != null)
+			    									{
+			    										itemLineInfo = getItemLineInfo(itemFulfillmentRecord, salesOrderRecord);
+			    									}
 	    								
-	    								var packageCount = itemFulfillmentRecord.getValue({
-	    									fieldId: 'custbody_bbs_number_of_packages'
-	    								});
+	    									}
 	    								
 	    								// check if totalWeight and packageCount are empty
 	    								if (totalWeight == '' && packageCount == '')
@@ -474,7 +483,7 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    								
 	    								//Build up the process shipments request object
 	    								//
-	    								var processShipmentsRequest = new BBSObjects.processShipmentRequest(integrationDetails, shippingCarrierInfo, shipmentReference, shippingAddress, contactInfo, despatchDate, totalWeight, packageCount, isSaturday, senderAddress, subsidiaryContactInfo);
+	    								var processShipmentsRequest = new BBSObjects.processShipmentRequest(integrationDetails, shippingCarrierInfo, shipmentReference, shippingAddress, contactInfo, despatchDate, totalWeight, packageCount, isSaturday, senderAddress, subsidiaryContactInfo, itemLineInfo);
 	    								
 	    								//
 							    		//LICENCE CHECK
@@ -1115,6 +1124,93 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    				break;
     			}
 	    }
+    
+    function getItemLineInfo(_itemFulfillmentRecord, _salesOrderRecord)
+    	{
+    		var itemInfoArray 		= [];
+    		var fulfilmentLines 	= _itemFulfillmentRecord.getLineCount({sublistId: 'item'});
+    		var salesOrdersLines 	= _salesOrderRecord.getLineCount({sublistId: 'item'});
+    		
+    		//Loop through the lines on the fulfilment
+    		//
+    		for (var ifLine = 0; ifLine < fulfilmentLines; ifLine++) 
+	    		{
+					var ifItemId = _itemFulfillmentRecord.getSublistValue({
+																			sublistId: 	'item',
+																			fieldId: 	'item',
+																			line: 		ifLine
+																			});
+					
+					var ifItemDesc = _itemFulfillmentRecord.getSublistValue({
+																			sublistId: 	'item',
+																			fieldId: 	'description',
+																			line: 		ifLine
+																			});
+
+					var ifItemQty = Number(_itemFulfillmentRecord.getSublistValue({
+																			sublistId: 	'item',
+																			fieldId: 	'quantity',
+																			line: 		ifLine
+																			}));
+					
+					var ifItemOrderLine = _itemFulfillmentRecord.getSublistValue({
+																					sublistId: 	'item',
+																					fieldId: 	'orderline',
+																					line: 		ifLine
+																					});
+
+					//Get the rate from the corresponding sales order line
+					//
+					var soItemRate = Number(0);
+					var soItemText = '';
+					
+					for (var soLine = 0; soLine < salesOrdersLines; soLine++) 
+						{
+							var soLineNo = _salesOrderRecord.getSublistValue({
+																				sublistId: 	'item',
+																				fieldId: 	'line',
+																				line: 		soLine
+																				});
+							
+							if(soLineNo == ifItemOrderLine)
+								{
+									soItemRate = Number(_salesOrderRecord.getSublistValue({
+																							sublistId: 	'item',
+																							fieldId: 	'rate',
+																							line: 		soLine
+																							}));
+									
+									soItemText = _salesOrderRecord.getSublistText({
+																							sublistId: 	'item',
+																							fieldId: 	'item',
+																							line: 		soLine
+																							});
+
+
+									
+									break;
+								}
+						}
+					
+					
+					//Get data from the item record
+					//
+					var itemData = search.lookupFields({
+														type:		search.Type.ITEM,
+														id:			ifItemId,
+														columns:	['countryofmanufacture', 'custitem_commodity_code']		
+														});
+					
+					var itemCountry 		= itemData.countryofmanufacture;
+					var itemCommodityCode	= itemData.custitem_commodity_code;
+					
+					itemInfoArray.push(new BBSObjects.itemInfoObj(soItemText, ifItemDesc, itemCommodityCode, itemCountry, ifItemQty, (ifItemQty * soItemRate)));
+				}
+    		
+    		return itemInfoArray;
+    	}
+    
+    
     
     // ===============================
     // FUNCTION TO GET THE COMPANY URL

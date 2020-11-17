@@ -139,7 +139,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													                id: 		'custpage_entry_select_tier',
 													                type: 		serverWidget.FieldType.SELECT,
 													                label: 		'Customer Tier',
-													                source:		'customlist_ns_tiercustlist',
+													                //source:		'customlist_ns_tiercustlist',
+													                source:		'customlist_group_id',
 													                container:	'custpage_filters_group'
 												            		});
 								
@@ -305,7 +306,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					            if(paramSelectTier != null && paramSelectTier != '')
 					            	{
 					            		filters.push("AND");
-					            		filters.push(["customer.custentity_ns_tiercust","anyof",paramSelectTier]);
+					            		//filters.push(["customer.custentity_ns_tiercust","anyof",paramSelectTier]);
+					            		filters.push(["custbodycustbody_customer_group","anyof",paramSelectTier]);
 					            	}
 					            
 					            var sessionData 	= BBSConsolidatedPickingListLibrary.libGetSessionData(paramSession);
@@ -335,7 +337,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								            	      search.createColumn({name: "tranid", label: "Document Number"}),
 								            	      search.createColumn({name: "trandate", sort: search.Sort.ASC, label: "Date"}),
 								            	      search.createColumn({name: "entity", label: "Name"}),
-								            	      search.createColumn({name: "custentity_ns_tiercust", join: "customer", label: "Customer Tier"}),
+								            	    //  search.createColumn({name: "custentity_ns_tiercust", join: "customer", label: "Customer Tier"}),
+								            	      search.createColumn({name: "custbodycustbody_customer_group", label: "Customer Tier"}),
 								            	      search.createColumn({name: "amount", label: "Amount"}),
 								            	      search.createColumn({name: "locationnohierarchy", label: "Location (no hierarchy)"})
 								            	   ]
@@ -345,7 +348,11 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					            	{
 					            		var customers = {};
 					            		
-					            		for (var int = 0; int < (paramMaxRecords != null && paramMaxRecords != '' ? paramMaxRecords : salesorderSearchObj.length); int++) 
+					            		var maxSearch = salesorderSearchObj.length;
+					            		maxSearch = (paramMaxRecords != null && paramMaxRecords != '' && paramMaxRecords != '0'  && Number(paramMaxRecords) <= salesorderSearchObj.length ? paramMaxRecords : maxSearch);
+					            			
+					            		
+					            		for (var int = 0; int < maxSearch; int++) 
 						            		{
 						            			subList.setSublistValue({
 																		id:		'custpage_sl_order_id',
@@ -375,7 +382,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 						            			subList.setSublistValue({
 																		id:		'custpage_sl_tier',
 																		line:	int,
-																		value:	isNullorBlank(salesorderSearchObj[int].getText({name: "custentity_ns_tiercust", join: "customer"}), ' ')
+																	//	value:	isNullorBlank(salesorderSearchObj[int].getText({name: "custentity_ns_tiercust", join: "customer"}), ' ')
+																		value:	isNullorBlank(salesorderSearchObj[int].getText({name: "custbodycustbody_customer_group"}), ' ')
 																		});	
 
 						            			subList.setSublistValue({

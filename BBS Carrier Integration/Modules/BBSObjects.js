@@ -59,7 +59,7 @@ function()
 	
 	//Object to hold the request to create a shipment
 	//
-	function _processShipmentRequest(_configuration, _shippingItemInfo, _shippingReference, _address, _contact, _shippingDate, _weight, _packageCount, _isSaturday, _senderAddress, _senderContactInfo)
+	function _processShipmentRequest(_configuration, _shippingItemInfo, _shippingReference, _address, _contact, _shippingDate, _weight, _packageCount, _isSaturday, _senderAddress, _senderContactInfo, _itemDetails)
 		{
 			this.configuration		= _configuration;		//Configuration object
 			this.shippingItemInfo	= _shippingItemInfo;	//Shipping info object
@@ -72,6 +72,7 @@ function()
 			this.isSaturday			= _isSaturday;
 			this.senderAddress		= _senderAddress;		//Address object
 			this.senderContact		= _senderContactInfo;	//Contact object
+			this.itemDetails		= _itemDetails;			//Array of item details
 		}
 	
 	
@@ -140,7 +141,18 @@ function()
 		}
 
 	
-	
+	//Object to hold the item b ased info
+	//
+	function _itemInfoObj(_itemText, _itemDesc, _itemCommodity, _itemCountry, _itemQty, _itemValue)
+		{
+			this.itemText		= _itemText;
+			this.itemDesc		= _itemDesc;
+			this.itemCommodity	= _itemCommodity;
+			this.itemCountry	= _itemCountry;
+			this.itemQty		= _itemQty;
+			this.itemValue		= _itemValue;
+		}
+
 	//=========================================================================
 	//Lower level objects
 	//=========================================================================
@@ -201,7 +213,8 @@ function()
         		processShipmentRequest:		_processShipmentRequest,
         		processShipmentResponse:	_processShipmentResponse,
         		addressObject:				_addressObject,
-        		contactObject:				_contactObject
+        		contactObject:				_contactObject,
+        		itemInfoObj:				_itemInfoObj
     		};
     
 });
