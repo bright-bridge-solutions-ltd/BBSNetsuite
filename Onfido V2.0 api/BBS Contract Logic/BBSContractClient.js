@@ -249,16 +249,6 @@ function(search, format, message, dialog) {
     	// get the ID of the current record
     	var currentRecordID = currentRecord.id;
     	
-    	// get the internal ID of the customer
-    	var customerID = currentRecord.getValue({
-    		fieldId: 'custrecord_bbs_contract_customer'
-    	});
-    	
-    	// get the text value of the customer field
-		var customerText = currentRecord.getText({
-			fieldId: 'custrecord_bbs_contract_customer'
-		});
-    	
     	// get the start date of the contract
     	var startDate = currentRecord.getValue({
     		fieldId: 'custrecord_bbs_contract_start_date'
@@ -280,171 +270,91 @@ function(search, format, message, dialog) {
     		type: format.Type.DATE,
     		value: endDate
     	});
-    	
-    	// create search to find active contracts for this customer between the selected dates
+
+    	// get the value of the 'Client Service Usage Identifier' field
+    	var clientServiceUsageIdentifier = currentRecord.getValue({
+    		fieldId: 'custrecord_bbs_contract_sales_force_id'
+    	});
+    		
+    	// create search to find active contracts where the Client Service Usage Identifier has been used previously
     	var contractRecordSearch = search.create({
     		type: 'customrecord_bbs_contract',
     		
     		columns: [{
     			name: 'internalid'
-    		}],
-    		
-    		filters: [{
-    			name: 'custrecord_bbs_contract_customer',
-    			operator: 'anyof',
-    			values: [customerID]
-    		},
-    				{
-    			name: 'isinactive',
-    			operator: 'is',
-    			values: ['F']
-    		},
-    				{
-    			name: 'custrecord_bbs_contract_start_date',
-    			operator: 'notafter',
-    			values: [endDate]
-    		},
-    				{
-    			name: 'custrecord_bbs_contract_end_date',
-    			operator: 'onorafter',
-    			values: [startDate]
-    		},
-    				{
-    			name: 'custrecord_bbs_contract_early_end_date',
-    			operator: 'notbefore',
-    			values: [startDate]
-    		}],
+    	    }],
+    	    		
+    	    filters: [{
+    	    	name: 'custrecord_bbs_contract_sales_force_id',
+    	    	operator: 'is',
+    	    	values: [clientServiceUsageIdentifier]
+    	    },
+    	    		{
+    	    	name: 'isinactive',
+    	    	operator: 'is',
+    	    	values: ['F']
+    	    },
+    	    		{
+    	    	name: 'custrecord_bbs_contract_start_date',
+    	    	operator: 'notafter',
+    	    	values: [endDate]
+    	    },
+    	    		{
+    	    	name: 'custrecord_bbs_contract_end_date',
+    	    	operator: 'onorafter',
+    	    	values: [startDate]
+    	    },
+    	    		{
+    	    	name: 'custrecord_bbs_contract_early_end_date',
+    	    	operator: 'notbefore',
+    	    	values: [startDate]
+    	    }],
     	});
     	
     	// check we have a current record ID
     	if (currentRecordID)
     		{
-	    		// get the current search filters
-				var searchFilters = contractRecordSearch.filters;
-				
-				// create new filter
-				var newSearchFilter = search.createFilter({
-					name: 'internalid',
-					operator: 'noneof',
-					values: [currentRecordID]
-	    		});
-	
-				// add the filter using .push() method
-				searchFilters.push(newSearchFilter);
-    		}
+    			// get the current search filters
+    			var searchFilters = contractRecordSearch.filters;
+    			
+    			// create new filter
+    			var newSearchFilter = search.createFilter({
+    				name: 'internalid',
+    				operator: 'noneof',
+    				values: [currentRecordID]
+    		    });
+    		
+    			// add the filter using .push() method
+    			searchFilters.push(newSearchFilter);
+    	    }
     	
     	// run search and process results
     	contractRecordSearch.run().each(function(result) {
-    		
+    	    		
     		// increase the contracts variable
     		contracts++;
-    		
+    	
     	});
     	
     	// check if the contracts variable is greater than 0
     	if (contracts > 0)
     		{
     			// display an alert to the user
-        		message.create({
-                    title: 'Error', 
-                    message: 'There is already an existing contract record for <b>' + customerText + '</b> which runs between the selected dates.<br><br>Please amend your dates and try again.',
-                    type: message.Type.ERROR,
-                    duration: 5000 // show message for 5000 milliseconds/5 seconds
-                }).show(); // show message
-                
-        		// do not allow the record to be submitted
+    			message.create({
+    				title: 'Error',
+    				message: 'The Client Service Usage Identifier <b>' + clientServiceUsageIdentifier + '</b> has been used previously.<br><br>Please enter a unique Client Service Usage Identifier and try again.',
+    	            type: message.Type.ERROR,
+    	            duration: 5000 // show message for 5000 milliseconds/5 seconds
+    			}).show(); // show message
+    	                
+    			// do not allow the record to be submitted
     			return false;
     		}
-    	else // contracts variable is 0
+    	else
     		{
-    			// get the value of the 'Sales Force Account ID' field
-    			var salesForceAccID = currentRecord.getValue({
-    				fieldId: 'custrecord_bbs_contract_sales_force_id'
-    			});
-    			
-    			// reset contracts variable to 0
-    			contracts = 0;
-    		
-    			// create search to find active contracts where the sales force account ID has been used
-    	    	var contractRecordSearch = search.create({
-    	    		type: 'customrecord_bbs_contract',
-    	    		
-    	    		columns: [{
-    	    			name: 'internalid'
-    	    		}],
-    	    		
-    	    		filters: [{
-    	    			name: 'custrecord_bbs_contract_sales_force_id',
-    	    			operator: 'is',
-    	    			values: [salesForceAccID]
-    	    		},
-    	    				{
-    	    			name: 'isinactive',
-    	    			operator: 'is',
-    	    			values: ['F']
-    	    		},
-    	    				{
-    	    			name: 'custrecord_bbs_contract_start_date',
-    	    			operator: 'notafter',
-    	    			values: [endDate]
-    	    		},
-    	    				{
-    	    			name: 'custrecord_bbs_contract_end_date',
-    	    			operator: 'onorafter',
-    	    			values: [startDate]
-    	    		},
-    	    				{
-    	    			name: 'custrecord_bbs_contract_early_end_date',
-    	    			operator: 'notbefore',
-    	    			values: [startDate]
-    	    		}],
-    	    	});
-    	    	
-    	    	// check we have a current record ID
-    	    	if (currentRecordID)
-    	    		{
-    		    		// get the current search filters
-    					var searchFilters = contractRecordSearch.filters;
-    					
-    					// create new filter
-    					var newSearchFilter = search.createFilter({
-    						name: 'internalid',
-    						operator: 'noneof',
-    						values: [currentRecordID]
-    		    		});
-    		
-    					// add the filter using .push() method
-    					searchFilters.push(newSearchFilter);
-    	    		}
-    	    	
-    	    	// run search and process results
-    	    	contractRecordSearch.run().each(function(result) {
-    	    		
-    	    		// increase the contracts variable
-    	    		contracts++;
-    	    		
-    	    	});
-    	    	
-    	    	// check if the contracts variable is greater than 0
-    	    	if (contracts > 0)
-    	    		{
-    	    			// display an alert to the user
-    	        		message.create({
-    	                    title: 'Error', 
-    	                    message: 'The Sales Force Account ID <b>' + salesForceAccID + '</b> has been used previously.<br><br>Please enter a unique Sales Force Account ID and try again.',
-    	                    type: message.Type.ERROR,
-    	                    duration: 5000 // show message for 5000 milliseconds/5 seconds
-    	                }).show(); // show message
-    	                
-    	        		// do not allow the record to be submitted
-    	    			return false;
-    	    		}
-    	    	else
-    	    		{
-	    	    		// allow the record to be submitted
-	        			return true;
-    	    		}
-    		}
+    			// allow the record to be submitted
+	        	return true;
+	        }
     }
 
     return {

@@ -31,14 +31,6 @@ function(runtime, search, record, task) {
 		name: 'custscript_bbs_billing_type_select_text'
 	});
 	
-	subsidiary = currentScript.getParameter({
-		name: 'custscript_bbs_subsidiary_select'
-	});
-	
-	subsidiaryText = currentScript.getParameter({
-		name: 'custscript_bbs_subsidiary_select_text'
-	});
-	
 	initiatingUser = currentScript.getParameter({
 		name: 'custscript_bbs_billing_email_emp_alert'
 	});
@@ -47,8 +39,7 @@ function(runtime, search, record, task) {
 	processDate = new Date();
 	processDate.setDate(0); // set date to be the last day of the previous month
 	
-	processDate = new Date(processDate.getFullYear(), processDate.getMonth(), processDate.getDate());
-	
+	processDate = new Date(processDate.getFullYear(), processDate.getMonth(), processDate.getDate());	
    
     /**
      * Marks the beginning of the Map/Reduce process and generates input data.
@@ -90,11 +81,6 @@ function(runtime, search, record, task) {
     			name: 'custrecord_bbs_contract_billing_type',
     			operator: 'anyof',
     			values: [billingType]
-    		},
-    				{
-    			name: 'custrecord_bbs_contract_subsidiary',
-    			operator: 'anyof',
-    			values: [subsidiary]
     		}],
     		
     		columns: [{
@@ -102,6 +88,9 @@ function(runtime, search, record, task) {
     		},
     				{
     			name: 'custrecord_bbs_contract_currency'
+    		},
+    				{
+    			name: 'custrecord_bbs_contract_subsidiary'
     		}],
 
     	});
@@ -121,6 +110,7 @@ function(runtime, search, record, task) {
     	var contractRecordID 	= 	searchResult.id;
     	var customer			=	searchResult.values['custrecord_bbs_contract_customer'].value;
     	var currency			=	searchResult.values['custrecord_bbs_contract_currency'].value;
+    	var subsidiary			=	searchResult.values['custrecord_bbs_contract_subsidiary'].value;
     	
     	// call function to check for open sales orders for this contract
     	var openSalesOrder = searchSalesOrders(contractRecordID);
@@ -128,8 +118,8 @@ function(runtime, search, record, task) {
     	// check if we DO NOT have an open sales order
     	if (openSalesOrder == false)
     		{
-    			// call function to create a zero value sales order. Pass contractRecordID, customer and currency
-    			createSalesOrder(contractRecordID, customer, currency);
+    			// call function to create a zero value sales order. Pass contractRecordID, customer, currency and subsidiary
+    			createSalesOrder(contractRecordID, customer, currency, subsidiary);
     		}
     	
     	// call function to check if the contract has any products
@@ -231,7 +221,7 @@ function(runtime, search, record, task) {
     // FUNCTION TO CREATE A SALES ORDER
     // ================================
     
-    function createSalesOrder(contractRecordID, customer, currency) {
+    function createSalesOrder(contractRecordID, customer, currency, subsidiary) {
 	    	
     	// build up the external ID for the sales order
     	var externalID 	= 'so_';
@@ -261,6 +251,11 @@ function(runtime, search, record, task) {
 				soRecord.setValue({
     				fieldId: 'trandate',
     				value: processDate
+    			});
+				
+				soRecord.setValue({
+    				fieldId: 'subsidiary',
+    				value: subsidiary
     			});
     				
     			soRecord.setValue({
@@ -394,8 +389,6 @@ function(runtime, search, record, task) {
     	    params: {
     	    	custscript_bbs_billing_type_select: billingType,
     	    	custscript_bbs_billing_type_select_text: billingTypeText,
-    	    	custscript_bbs_subsidiary_select: subsidiary,
-    	    	custscript_bbs_subsidiary_select_text: subsidiaryText,
     	    	custscript_bbs_billing_email_emp_alert: initiatingUser
     	    }
     	});

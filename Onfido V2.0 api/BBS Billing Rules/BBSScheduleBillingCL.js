@@ -110,18 +110,8 @@ function(message, url, https, search, format, record) {
     		fieldId: 'billingtypeselect'
     	});
     	
-    	// get the value of the subsidiary field from the currentRecord object
-    	var subsidiary = currentRecord.getValue({
-    		fieldId: 'subsidiaryselect'
-    	});
-    	
-    	// get the text value of the subsidiary field from the currentRecord object
-    	var subsidiaryText = currentRecord.getText({
-    		fieldId: 'subsidiaryselect'
-    	});
-    	
-    	// call function to find open sales orders for this billing type where the usage updated checkbox is NOT ticked. Pass billingType and subsidiary variables
-		var salesOrders = searchSalesOrders(billingType, subsidiary);
+    	// call function to find open sales orders for this billing type where the usage updated checkbox is NOT ticked. Pass billingType variables
+		var salesOrders = searchSalesOrders(billingType);
 		
 		// check if the salesOrders variable is greater than 0
 		if (salesOrders > 0)
@@ -130,7 +120,7 @@ function(message, url, https, search, format, record) {
 				message.create({
 					type: message.Type.ERROR,
 					title: 'Error',
-					message: 'The billing process for ' + billingTypeText + ' cannot be scheduled as there are open sales orders for the ' + subsidiaryText + ' subsidiary where the usage on the contract record has not been updated.<br><br><a href="https://5554661.app.netsuite.com/app/common/search/searchresults.nl?searchtype=Transaction&Transaction_SUBSIDIARY=' + subsidiary + '&BDY_CUSTRECORD_BBS_CONTRACT_BILLING_TYPE=' + billingType + '&style=NORMAL&report=&grid=&searchid=883">Click Here</a> to view details of these orders (this will open in a new tab/window)'
+					message: 'The billing process for ' + billingTypeText + ' cannot be scheduled as there are open sales orders where the usage on the contract record has not been updated.<br><br><a href="https://5554661-sb1.app.netsuite.com/app/common/search/searchresults.nl?searchtype=Transaction&BDY_CUSTRECORD_BBS_CONTRACT_BILLING_TYPE=' + billingType + '&style=NORMAL&report=&grid=&searchid=883" target="_blank">Click Here</a> to view details of these orders (this will open in a new tab/window)'
 				}).show();
 						
 				// prevent the Suitelet from being submitted
@@ -138,8 +128,8 @@ function(message, url, https, search, format, record) {
 		   }
 		else
 			{
-				// call function to check if the billing run has already been ran this month. Pass billingType and subsidiary
-		    	var billingAlreadyRan = searchBillingRun(billingType, subsidiary);
+				// call function to check if the billing run has already been ran this month. Pass billingType
+		    	var billingAlreadyRan = searchBillingRun(billingType);
 		    	
 		    	// check if billingAlreadyRan is true
 		    	if (billingAlreadyRan == true)
@@ -148,7 +138,7 @@ function(message, url, https, search, format, record) {
 			    		message.create({
 							type: message.Type.ERROR,
 					        title: 'Error',
-					        message: 'The ' + billingTypeText + ' billing run for the ' + subsidiaryText + ' subsidiary cannot be scheduled as it has already been run this month.'
+					        message: 'The ' + billingTypeText + ' billing run cannot be scheduled as it has already been run this month.'
 						}).show();
 			    		
 			    		// prevent the Suitelet from being submitted
@@ -166,7 +156,7 @@ function(message, url, https, search, format, record) {
     // HELPER FUNCTIONS
     // ================
     
-    function searchBillingRun(billingType, subsidiary)
+    function searchBillingRun(billingType)
     	{
     		// declare and initialize variables
     		var billingRunRecordID = null;
@@ -184,7 +174,7 @@ function(message, url, https, search, format, record) {
     					{
     				name: 'custrecord_bbs_billing_run_subsidiary',
     				operator: 'anyof',
-    				values: [subsidiary]
+    				values: ['@NONE@']
     			}],
     			
     			columns: [{
@@ -239,8 +229,8 @@ function(message, url, https, search, format, record) {
     			}
     		else // lastRunDate is null
     			{
-    				// call function to create a new BBS Billing Run record. Pass billingType and subsidiary
-    				createBillingRunRecord(billingType, subsidiary);
+    				// call function to create a new BBS Billing Run record. Pass billingType
+    				createBillingRunRecord(billingType);
     				
     				return false;
     			}
@@ -274,7 +264,7 @@ function(message, url, https, search, format, record) {
     			}
     	}
 
-    function createBillingRunRecord(billingType, subsidiary)
+    function createBillingRunRecord(billingType)
     	{
     		try
     			{
@@ -290,11 +280,6 @@ function(message, url, https, search, format, record) {
     				});
     				
     				billingRunRecord.setValue({
-    					fieldId: 'custrecord_bbs_billing_run_subsidiary',
-    					value: subsidiary
-    				});
-    				
-    				billingRunRecord.setValue({
     					fieldId: 'custrecord_bbs_billing_run_last_run_date',
     					value: new Date() // today
     				});
@@ -304,7 +289,7 @@ function(message, url, https, search, format, record) {
     				
     				log.audit({
     					title: 'BBS Billing Run Record Created',
-    					details: 'Record ID: ' + billingRunRecordID + '<br>Billing Type: ' + billingType + '<br>Subsidiary: ' + subsidiary
+    					details: 'Record ID: ' + billingRunRecordID + '<br>Billing Type: ' + billingType
     				});    				
     			}
     		catch(e)
@@ -316,7 +301,7 @@ function(message, url, https, search, format, record) {
     			}
     	}
     
-    function searchSalesOrders(billingType, subsidiary)
+    function searchSalesOrders(billingType)
     	{
     		// declare and initialize variables
     		var salesOrders = 0;
@@ -346,11 +331,6 @@ function(message, url, https, search, format, record) {
 	    			join: 'custbody_bbs_contract_record',
 	    			operator: 'is',
 	    			values: ['F']
-	    		},
-	    				{
-	    			name: 'subsidiary',
-	    			operator: 'anyof',
-	    			values: [subsidiary]
 	    		},
 	    				{
 	    			name: 'custcol_bbs_usage_updated',

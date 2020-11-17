@@ -42,6 +42,7 @@ function(runtime, search, record) {
     	var contractRecord;
     	var customer;
     	var location;
+    	var subsidiary;
     	var invoiceAmt;
     	var invoiceItem;
     	var invoiceID;
@@ -57,8 +58,10 @@ function(runtime, search, record) {
     			name: 'custrecord_bbs_contract_customer'
     		},
     				{
-    			name: 'custentity_bbs_location',
-    			join: 'custrecord_bbs_contract_customer'
+    			name: 'custrecord_bbs_contract_location'
+    		},
+    				{
+    			name: 'custrecord_bbs_contract_subsidiary'
     		},
     				{
     			name: 'custrecord_bbs_contract_currency'
@@ -113,13 +116,17 @@ function(runtime, search, record) {
 		    
 		    // get the customer's location from the search results
 		    location = result.getValue({
-		    	name: 'custentity_bbs_location',
-		    	join: 'custrecord_bbs_contract_customer'
+		    	name: 'custrecord_bbs_contract_location'
 		    });
 		    
 		    // get the currency from the search results
 		    currency = result.getValue({
 		    	name: 'custrecord_bbs_contract_currency'
+		    });
+		    
+		    // get the subsidiary from the search results
+		    subsidiary = result.getValue({
+		    	name: 'custrecord_bbs_contract_subsidiary'
 		    });
 		    
 		    // get the billing type from the search results
@@ -175,7 +182,12 @@ function(runtime, search, record) {
 					});
 	    			
 	    			// set header fields on the invoice record
-	    			invoice.setValue({
+					invoice.setValue({
+	    				fieldId: 'subsidiary',
+	    				value: subsidiary
+	    			});
+					
+					invoice.setValue({
 	    				fieldId: 'account',
 	    				value: trpAcc
 	    			});

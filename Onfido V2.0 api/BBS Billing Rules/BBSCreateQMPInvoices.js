@@ -35,6 +35,7 @@ function(runtime, config, search, record) {
     	var customerLookup;
     	var currency;
     	var location;
+    	var subsidiary;
     	var qmpAmt;
     	var contractQuarter;
     	var qtr2InvBilled;
@@ -80,6 +81,11 @@ function(runtime, config, search, record) {
     				{
     			name: 'internalid',
     			join: 'custrecord_bbs_contract_currency',
+    			summary: 'MAX'
+    		},
+    		{
+    			name: 'internalid',
+    			join: 'custrecord_bbs_contract_subsidiary',
     			summary: 'MAX'
     		},
     				{
@@ -145,6 +151,13 @@ function(runtime, config, search, record) {
     			join: 'custrecord_bbs_contract_currency',
     			summary: 'MAX'
     		});
+    		
+    		// get the subsidiary from the search results
+		    subsidiary = result.getValue({
+    			name: 'internalid',
+    			join: 'custrecord_bbs_contract_subsidiary',
+    			summary: 'MAX'
+    		});
 		    
 		    // get the minimum quarterly usage from the search results
 		    qmpAmt = result.getValue({
@@ -182,8 +195,8 @@ function(runtime, config, search, record) {
 		    		// check if qtr2InvBilled returns false
 		    		if (qtr2InvBilled == false)
 		    			{
-		    				// call function to create QMP invoice. Pass contractRecord, customer, location, currency and qmpAmt
-		    				createInvoice(contractRecord, customer, location, currency, qmpAmt);
+		    				// call function to create QMP invoice. Pass contractRecord, customer, location, currency, subsidiary and qmpAmt
+		    				createInvoice(contractRecord, customer, location, currency, subsidiary, qmpAmt);
 		    			}
 		    		else if (qtr2InvBilled == true) // if qtr2InvBilled returns true
 		    			{
@@ -199,8 +212,8 @@ function(runtime, config, search, record) {
 			    	// check if qtr3InvBilled returns false
 		    		if (qtr3InvBilled == false)
 		    			{
-		    				// call function to create QMP invoice. Pass contractRecord, customer, location, currency and qmpAmt
-		    				createInvoice(contractRecord, customer, location, currency, qmpAmt);
+		    				// call function to create QMP invoice. Pass contractRecord, customer, location, currency, subsidiary and qmpAmt
+		    				createInvoice(contractRecord, customer, location, currency, subsidiary, qmpAmt);
 		    			}
 		    		else if (qtr3InvBilled == true) // if qtr3InvBilled returns true
 		    			{
@@ -216,8 +229,8 @@ function(runtime, config, search, record) {
 			    	// check if qtr4InvBilled returns false
 		    		if (qtr4InvBilled == false)
 		    			{
-		    				// call function to create QMP invoice. Pass contractRecord, customer, location, currency and qmpAmt
-		    				createInvoice(contractRecord, customer, location, currency, qmpAmt);
+		    				// call function to create QMP invoice. Pass contractRecord, customer, location, currency, subsidiary and qmpAmt
+		    				createInvoice(contractRecord, customer, location, currency, subsidiary, qmpAmt);
 		    			}
 		    		else if (qtr4InvBilled == true) // if qtr4InvBilled returns true
 		    			{
@@ -242,7 +255,7 @@ function(runtime, config, search, record) {
     // FUNCTION TO CREATE THE QMP INVOICE
     // ==================================
     
-    function createInvoice(contractRecord, customer, location, currency, amount)
+    function createInvoice(contractRecord, customer, location, currency, subsidiary, amount)
     	{
 	    	try
 				{
@@ -255,6 +268,11 @@ function(runtime, config, search, record) {
 					});
 					
 					// set header fields on the invoice record
+					invoice.setValue({
+						fieldId: 'subsidiary',
+						value: subsidiary
+					});
+					
 					invoice.setValue({
 						fieldId: 'account',
 						value: trpAcc
