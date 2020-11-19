@@ -364,7 +364,7 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 		}
 	
 	//Gets the destination pcode based on the configuration record.
-	//The pcode can be got from the billing address, shipping address or a custom record so long as there is a link to it from the tranbsaction record
+	//The pcode can be got from the billing address, shipping address or a custom record so long as there is a link to it from the transaction record
 	//
 	function getDestinationPcode(_transactionRecord)
 		{
@@ -403,15 +403,16 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 											case 3:		//Custom
 												
 												var customRecordType = configObject.taxCustomAddressRecType;
-												var customSourcField = configObject.taxCustomAddressIdFrom;
+												var customSourceField = configObject.taxCustomAddressIdFrom;
 												
 												//Get the value of the custom record source field from the current transaction record
 												//
 												var customRecordId = _transactionRecord.getValue({
-																								fieldId: customSourcField
+																								fieldId: customSourceField
 																								});
 												
-												if(customRecordId != null && customRecordId != '')
+												// if we have a custom record ID
+												if(customRecordId)
 													{
 														//Get the mapping record for this record type
 														//
@@ -460,6 +461,11 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 																		returnedPcode.incorporated = customRecordSearch[mappedIncorporatedField];
 																	}
 															}
+													}
+												else
+													{
+														// get the shipping address from the transaction
+														returnedPcode = getStandardAddress(_transactionRecord, 'shippingaddress');
 													}
 												
 												break;	

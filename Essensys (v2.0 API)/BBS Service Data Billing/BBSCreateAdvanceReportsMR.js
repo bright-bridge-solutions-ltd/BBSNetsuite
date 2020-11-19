@@ -76,7 +76,7 @@ function(runtime, search, file, email, task) {
     	
     	// set the date of the report
     	var reportDate = new Date();
-    	reportDate = new Date(reportDate.getFullYear(), reportDate.getMonth(), 0); // set date to be the 1st day of the previous month
+    	reportDate = new Date(reportDate.getFullYear(), reportDate.getMonth(), 1); // set date to be the 1st day of the current month
     	reportDate = reportDate.format('ymd'); // format the report date in the following format YY-MM-DD
     	
     	// retrieve search results
@@ -118,7 +118,7 @@ function(runtime, search, file, email, task) {
 			filters: [{
 				name: 'trandate',
 				operator: search.Operator.WITHIN,
-				values: ['lastmonth']
+				values: ['thismonth']
 			},
 					{
 				name: 'parent',

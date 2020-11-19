@@ -43,6 +43,17 @@ function(search, message, dialog, currentRecord) {
 				    	}).show();
     				}
     		}
+    	
+    	// if record is being created
+    	if (scriptContext.mode == 'create')
+    		{
+		    	// initialize the expected ship date field on the current line using today's date
+		    	scriptContext.currentRecord.setCurrentSublistValue({
+		    		sublistId: 'item',
+		    		fieldId: 'expectedshipdate',
+		    		value: new Date() // today
+		    	});
+    		}
 
     }
 
@@ -199,6 +210,20 @@ function(search, message, dialog, currentRecord) {
 		    			});
 		    		}
     		}
+    	else if (scriptContext.fieldId == 'shipdate')
+    		{
+    			// call function to reset line level ship dates
+    			resetExpectedShipDates();
+    		}
+    	else if (scriptContext.sublistId == 'item' && scriptContext.fieldId == 'item')
+			{
+				// initialize the expected ship date field on the current line using today's date
+				scriptContext.currentRecord.setCurrentSublistValue({
+					sublistId: 'item',
+					fieldId: 'expectedshipdate',
+					value: new Date() // today
+				});
+			}
     }
 
     /**
@@ -238,17 +263,6 @@ function(search, message, dialog, currentRecord) {
      * @since 2015.2
      */
     function lineInit(scriptContext) {
-    	
-    	// if a new line has been selected on the item sublist
-    	if (scriptContext.sublistId == 'item')
-    		{
-    			// initialize the expected ship date field on the current line using today's date
-    			scriptContext.currentRecord.setCurrentSublistValue({
-    				sublistId: 'item',
-    				fieldId: 'expectedshipdate',
-    				value: new Date() // today
-    			});
-    		}
 
     }
 

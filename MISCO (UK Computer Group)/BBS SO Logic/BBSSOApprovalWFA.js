@@ -2,8 +2,8 @@
  * @NApiVersion 2.x
  * @NScriptType workflowactionscript
  */
-define(['N/search', 'N/record'],
-function(search, record) {
+define(['N/runtime', 'N/search', 'N/record'],
+function(runtime, search, record) {
    
     /**
      * Definition of the Suitelet script trigger point.
@@ -15,8 +15,21 @@ function(search, record) {
      */
     function onAction(scriptContext) {
     	
+    	// retrieve script parameters. Parameters are global variables so can be accessed throughout the script
+    	var currentScript = runtime.getCurrentScript();
+    	
+    	highValueOrderLimit = currentScript.getParameter({
+    		name: 'custscript_bbs_high_value_order_limit'
+    	});
+    	
+    	daysOverdue = currentScript.getParameter({
+    		name: 'custscript_bbs_so_approval_invoice_days'
+    	});
+    	
     	// declare and initialize variables
     	var creditLimitExceeded = false;
+    	var highValueOrder = false;
+    	var vatExempt = false;
     	
     	// get the current record
     	var currentRecord = scriptContext.newRecord;
@@ -30,6 +43,10 @@ function(search, record) {
     		fieldId: 'total'
     	});
     	
+    	var taxTotal = currentRecord.getValue({
+    		fieldId: 'taxtotal'
+    	});
+    	
     	// call function to lookup fields on the customer record
     	var customerInfo = getCustomerInfo(customerID);
     	var accountOnHold = customerInfo.accountonhold;
@@ -38,8 +55,8 @@ function(search, record) {
     	// call function to check if the customer has made 3 or less orders
     	var firstThreeOrders = checkNumberOfOrders(customerID);
     	
-    	// call function to check if the customer has any invoices older than 45 days old
-    	var invoicesOverFortyFiveDays = checkAgeOfInvoices(customerID);
+    	// call function to check if the customer has any overdue invoices
+    	var overdueInvoices = checkAgeOfInvoices(customerID);
     	
     	if (orderTotal > availableBalance)
     		{
@@ -47,7 +64,24 @@ function(search, record) {
     			creditLimitExceeded = true;
     		}
     	
+    	if (orderTotal > highValueOrderLimit)
+    		{
+    			// set highValueOrder variable to true
+    			highValueOrder = true;
+    		}
+    	
+    	if (taxTotal == 0)
+    		{
+    			// set vatExempt variable to true
+    			vatExempt = true;
+    		}
+    	
     	// update fields on the record
+    	currentRecord.setValue({
+    		fieldId: 'custbody_bbs_high_value_order',
+    		value: highValueOrder
+    	});
+    	
     	currentRecord.setValue({
     		fieldId: 'custbody_bbs_account_on_hold',
     		value: accountOnHold
@@ -64,8 +98,13 @@ function(search, record) {
     	});
     	
     	currentRecord.setValue({
-    		fieldId: 'custbody_bbs_invoices_over_45_days_old',
-    		value: invoicesOverFortyFiveDays
+    		fieldId: 'custbody_bbs_overdue_invoices',
+    		value: overdueInvoices
+    	});
+    	
+    	currentRecord.setValue({
+    		fieldId: 'custbody_bbs_vat_exempt',
+    		value: vatExempt
     	});
 
     }
@@ -190,7 +229,7 @@ function(search, record) {
     	
     	// declare and initialize variables
     	var numberOfInvoices = 0;
-    	var invoicesOverFortyFiveDays = false;
+    	var overdueInvoices = false;
     	
     	// run search to check if the customer has made 3 or less orders
     	search.create({
@@ -209,7 +248,7 @@ function(search, record) {
     				{
     			name: 'daysoverdue',
     			operator: search.Operator.GREATERTHANOREQUALTO,
-    			values: [45]
+    			values: [daysOverdue]
     		}],
     		
     		columns: [{
@@ -229,12 +268,12 @@ function(search, record) {
     	
     	if (numberOfInvoices > 0)
     		{
-    			// set invoicesOverFortyFiveDays variable to true
-    			invoicesOverFortyFiveDays = true;
+    			// set overdueInvoices variable to true
+    			overdueInvoices = true;
     		}
     	
-    	// return invoicesOverFortyFiveDays variable to main script function
-    	return invoicesOverFortyFiveDays;
+    	// return overdueInvoices variable to main script function
+    	return overdueInvoices;
     	
     }
 

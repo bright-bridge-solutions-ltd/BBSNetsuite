@@ -32,7 +32,7 @@ function(libraryScript, search, record) {
     			if (orderStatus == 'Pending Approval')
     				{
     					// set client script to run on the form
-    					scriptContext.form.clientScriptFileId = 9933162;
+    					scriptContext.form.clientScriptFileId = 9933161;
     					
     					// add button to the form
 			    		scriptContext.form.addButton({
@@ -193,7 +193,7 @@ function(libraryScript, search, record) {
 										    	});
 										    					
 										    	// if avsStreet/avsZip/csc = true and decision = ACCEPT
-										    	if (/*paymentResults.avsStreet == true && paymentResults.avsZip == true && paymentResults.csc == true &&*/ paymentResults.decision == 'ACCEPT')
+										    	if (paymentResults.avsStreet == true && paymentResults.avsZip == true && paymentResults.csc == true && paymentResults.decision == 'ACCEPT')
 										    		{
 										    			// set paymentApproval to true
 										    			paymentApproval = true;
@@ -257,7 +257,7 @@ function(libraryScript, search, record) {
 						   });
 						   
 						   // if all checks have been passed
-						   /*if (paymentApproval == true && passedBusinessRules == true)
+						   if (paymentApproval == true && passedBusinessRules == true)
 							   {
 								   	// call function to transform the sales order into a cash sale
 									var cashSaleID = libraryScript.transformToCashSale(currentRecordID);
@@ -268,7 +268,7 @@ function(libraryScript, search, record) {
 											// call function to send Ekomi email
 											libraryScript.sendEkomiFeedbackEmail(cashSaleID);
 										}
-							   }*/
+							   }
     				}
     		}
     	

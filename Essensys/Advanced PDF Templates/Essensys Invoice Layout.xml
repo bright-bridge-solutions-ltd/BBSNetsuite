@@ -193,38 +193,65 @@
 </head>
 <body header="nlheader" header-height="280pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
-<!-- ITEMS TABLE -->
-<#if record.item?has_content>
-	<table class="itemtable" style="width: 100%; margin-top: 10px; border-top: 2px solid black; border-bottom: 2px solid black; border-left: 2px solid black; border-right: 2px solid black;"><!-- start items -->
-		<#list record.item as item>
-			<#if item_index == 0>
-				<thead>
-					<tr>
-						<th colspan="10">CLIENT SERVICES</th>
-						<th colspan="8" style="border-left: 2px solid black;">SERVICE PERIOD</th>
-						<#if record.createdfrom?has_content>
-							<th align="left" colspan="4" style="border-left: 2px solid black;">LOCATION</th>
-						</#if>
-						<th align="right" colspan="4" style="border-left: 2px solid black;">QUANTITY</th>
-						<th align="right" colspan="4" style="border-left: 2px solid black;">UNIT PRICE</th>
-						<th align="right" colspan="4" style="border-left: 2px solid black;">AMOUNT</th>
-					</tr>
-				</thead>
+<#if record.createdfrom.custbody_bbs_order_type == 'Equipment'>
+<table class="itemtable" style="width: 100%; margin-top: 10px; border-top: 2px solid black; border-bottom: 2px solid black; border-left: 2px solid black; border-right: 2px solid black;"><!-- start items -->
+	<thead>
+		<tr>
+			<th colspan="10">CLIENT SERVICES</th>
+			<th colspan="8" style="border-left: 2px solid black;">SERVICE PERIOD</th>
+			<#if record.createdfrom?has_content>
+				<th align="left" colspan="4" style="border-left: 2px solid black;">LOCATION</th>
 			</#if>
-			<tr>
-				<td colspan="10" line-height="150%">${item.description}</td>
-				<td colspan="8" style="border-left: 2px solid black;">${item.custcol_bbs_date_from} to ${item.custcol_bbs_date_to}</td>
-				<#if record.createdfrom?has_content>
-					<td align="left" colspan="4" style="border-left: 2px solid black;">${item.custcol_bbs_site?keep_before("-")}</td>
+			<th align="right" colspan="4" style="border-left: 2px solid black;">QUANTITY</th>
+			<th align="right" colspan="4" style="border-left: 2px solid black;">UNIT PRICE</th>
+			<th align="right" colspan="4" style="border-left: 2px solid black;">AMOUNT</th>
+		</tr>
+	</thead>
+	<tr>
+		<td colspan="10" line-height="150%">50% of Bill of Materials as per contract</td>
+		<td colspan="8" style="border-left: 2px solid black;">${record.startdate} to ${record.enddate}</td>
+		<#if record.createdfrom?has_content>
+			<td align="left" colspan="4" style="border-left: 2px solid black;">${record.custbody_bbs_site_name?keep_before("-")}</td>
+		</#if>
+		<td align="right" colspan="4" style="border-left: 2px solid black;">&nbsp;</td>
+		<td align="right" colspan="4" style="border-left: 2px solid black;">&nbsp;</td>
+		<td align="right" colspan="4" style="border-left: 2px solid black;">${currencySymbol}${record.subtotal}</td>
+	</tr>
+</table>
+<#else>
+	<!-- ITEMS TABLE -->
+	<#if record.item?has_content>
+		<table class="itemtable" style="width: 100%; margin-top: 10px; border-top: 2px solid black; border-bottom: 2px solid black; border-left: 2px solid black; border-right: 2px solid black;"><!-- start items -->
+			<#list record.item as item>
+				<#if item_index == 0>
+					<thead>
+						<tr>
+							<th colspan="10">CLIENT SERVICES</th>
+							<th colspan="8" style="border-left: 2px solid black;">SERVICE PERIOD</th>
+							<#if record.createdfrom?has_content>
+								<th align="left" colspan="4" style="border-left: 2px solid black;">LOCATION</th>
+							</#if>
+							<th align="right" colspan="4" style="border-left: 2px solid black;">QUANTITY</th>
+							<th align="right" colspan="4" style="border-left: 2px solid black;">UNIT PRICE</th>
+							<th align="right" colspan="4" style="border-left: 2px solid black;">AMOUNT</th>
+						</tr>
+					</thead>
 				</#if>
-				<td align="right" colspan="4" style="border-left: 2px solid black;">${item.quantity?string["0"]}</td>
-				<td align="right" colspan="4" style="border-left: 2px solid black;">${currencySymbol}${item.rate}</td>
-				<td align="right" colspan="4" style="border-left: 2px solid black;">${currencySymbol}${item.amount}</td>
-			</tr>
-		</#list>
-	</table>
+				<tr>
+					<td colspan="10" line-height="150%">${item.description}</td>
+					<td colspan="8" style="border-left: 2px solid black;">${item.custcol_bbs_date_from} to ${item.custcol_bbs_date_to}</td>
+					<#if record.createdfrom?has_content>
+						<td align="left" colspan="4" style="border-left: 2px solid black;">${item.custcol_bbs_site?keep_before("-")}</td>
+					</#if>
+					<td align="right" colspan="4" style="border-left: 2px solid black;">${item.quantity?string["0"]}</td>
+					<td align="right" colspan="4" style="border-left: 2px solid black;">${currencySymbol}${item.rate}</td>
+					<td align="right" colspan="4" style="border-left: 2px solid black;">${currencySymbol}${item.amount}</td>
+				</tr>
+			</#list>
+		</table>
+	</#if>
 </#if>
-	
+
 <!-- TOTALS TABLE -->
 <table class="total" style="width: 100%;">
 	<tr>
