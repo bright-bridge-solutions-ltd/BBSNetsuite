@@ -35,7 +35,9 @@ function salesOrderFieldChanged(type, name, linenum)
  */
 function salesOrderPostSourcing(type, name) 
 {
-	if(type == 'item' && name == 'item')
+	var recordType = nlapiGetRecordType();
+	
+	if(recordType == 'salesorder' && type == 'item' && name == 'item')
 		{
 			nlapiSetCurrentLineItemValue(type, 'custcol_bbs_pack_size', 2, true, true);
 		}

@@ -16,33 +16,12 @@ function scheduled(type)
 	
 	var transactionSearch = getResults(nlapiCreateSearch("transaction",
 			[
-			   [
-			    ["postingperiod","abs","194"],"OR",
-			    ["postingperiod","abs","195"],"OR",
-			    ["postingperiod","abs","196"],"OR",
-			    
-			    ["postingperiod","abs","198"],"OR",
-			    ["postingperiod","abs","199"],"OR",
-			    ["postingperiod","abs","200"],"OR",
-			    
-			    ["postingperiod","abs","202"],"OR",
-			    ["postingperiod","abs","203"],"OR",
-			    ["postingperiod","abs","204"],"OR",
-			    
-			    ["postingperiod","abs","206"],"OR",
-			    ["postingperiod","abs","207"],"OR",
-			    ["postingperiod","abs","208"],"OR",
-			    
-			    ["postingperiod","abs","322"],"OR",
-			    ["postingperiod","abs","323"],"OR",
-			    ["postingperiod","abs","324"]
-			    
-			   ], 
+			   ["trandate","after","30/9/2019"], 
 			   "AND", 
 			   ["mainline","is","T"]
 			], 
 			[
-			   new nlobjSearchColumn("postingperiod"), 
+			   new nlobjSearchColumn("trandate"), 
 			   new nlobjSearchColumn("type")
 			]
 			));
@@ -55,8 +34,7 @@ function scheduled(type)
 				{
 					var recordId = transactionSearch[int].getId();
 					var recordType = transactionSearch[int].getValue('type');
-					var recordPeriod = transactionSearch[int].getValue('postingperiod');
-					var newPeriod = '135';
+					var recordDate = transactionSearch[int].getValue('trandate');
 					
 					if(!tranTypes[recordType])
 						{
@@ -72,7 +50,7 @@ function scheduled(type)
 					
 					try
 						{
-							nlapiSubmitField(translateType(recordType), recordId, ['postingperiod','custbody_bbs_saved_posting_period'], [newPeriod,recordPeriod], true);
+							nlapiSubmitField(translateType(recordType), recordId, ['trandate','custbody_bbs_original_trans_date'], ['30/09/2019',recordDate], true);
 						}
 					catch(err)
 						{
@@ -200,6 +178,11 @@ function translateType(_transactionType)
 			case "Deposit":
 				realTransactionType = 'deposit';
 				break;
+			
+			case "VendAuth":
+				realTransactionType = 'vendorreturnauthorization';
+				break;
+				
 				
 		}
 	
