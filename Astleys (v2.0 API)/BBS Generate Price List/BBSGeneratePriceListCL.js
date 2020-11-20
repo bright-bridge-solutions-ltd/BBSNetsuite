@@ -92,6 +92,33 @@ function(search, url, dialog) {
     	    			});
     				}
     		}
+    	else if (scriptContext.sublistId == 'itemsublist' && (scriptContext.fieldId == 'sellingprice' || scriptContext.fieldId == 'quantity'))
+    		{
+    			// get the value of the selling price and quantity fields from the current sublist line
+    			var sellingPrice = scriptContext.currentRecord.getCurrentSublistValue({
+    				sublistId: 'itemsublist',
+    				fieldId: 'sellingprice'
+    			});
+    			
+    			var quantity = scriptContext.currentRecord.getCurrentSublistValue({
+    				sublistId: 'itemsublist',
+    				fieldId: 'quantity'
+    			});
+    			
+    			// check we have a selling price and a quantity
+    			if (sellingPrice && quantity)
+    				{
+	    				// calculate the line total
+	        			var lineTotal = parseFloat(sellingPrice * quantity);
+	        			
+	        			// set the line total field on the current line
+	        			scriptContext.currentRecord.setCurrentSublistValue({
+    	    				sublistId: 'itemsublist',
+    	    				fieldId: 'linetotal',
+    	    				value: lineTotal
+    	    			});
+    				}
+    		}
 
     }
 

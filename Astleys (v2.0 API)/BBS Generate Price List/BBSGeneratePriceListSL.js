@@ -62,7 +62,7 @@ function(ui, search, file) {
 							id: 'item',
 							label: 'Item',
 							source: 'item'
-						});
+						}).isMandatory = true;
 	    				
 	    				itemSublist.addField({
 							type: ui.FieldType.TEXT,
@@ -92,12 +92,20 @@ function(ui, search, file) {
 							type: ui.FieldType.CURRENCY,
 							id: 'sellingprice',
 							label: 'Selling Price'
-						});
+						}).isMandatory = true;
 	    				
 	    				itemSublist.addField({
 							type: ui.FieldType.INTEGER,
 							id: 'quantity',
 							label: 'Quantity'
+						}).isMandatory = true;
+	    				
+	    				itemSublist.addField({
+							type: ui.FieldType.CURRENCY,
+							id: 'linetotal',
+							label: 'Line Total'
+						}).updateDisplayType({
+							displayType: ui.FieldDisplayType.DISABLED
 						});
 	    				
 	    				// add a submit button to the form
