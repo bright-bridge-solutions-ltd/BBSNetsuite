@@ -3,124 +3,120 @@
 <pdf>
 <head>
 	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
-	<#if .locale == "zh_CN">
-		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
-	<#elseif .locale == "zh_TW">
-		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
-	<#elseif .locale == "ja_JP">
-		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
-	<#elseif .locale == "ko_KR">
-		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
-	<#elseif .locale == "th_TH">
-		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
-	</#if>
     <macrolist>
-        <macro id="nlheader">
+		<macro id="nlheader">
+		    <table class="header" style="width: 100%;">
+			    <tr>
+					<td>&nbsp;</td>
+					<td align="right">&nbsp;</td>
+					<td align="right">&nbsp;</td>
+					<td align="right" rowspan="8"><img src="https://4057215.app.netsuite.com/core/media/media.nl?id=67149&amp;c=4057215&amp;h=9a222a13e18c799effb1" style="float: right; width:295px; height:108px;" /></td>
+				</tr>
+				<tr>
+					<td rowspan="5" colspan="2"><span style="font-size:18px;">LBS (Serving Biotechnology) Ltd</span><br/><span style="font-size:12px;">${companyInformation.addressText}<br/>Tel: +44 (0)129 3827940<br/>Web: ibs-biotech.com<br/>Email: admin@lbs-biotech.com<br/>VAT No. GB 425294550</span></td>
+					<td align="right">&nbsp;</td>
+				</tr>
+				<tr><td align="left">&nbsp;</td></tr>
+				<tr><td align="left">&nbsp;</td></tr>
+				<tr><td align="left">&nbsp;</td></tr>
+				<tr><td align="left">&nbsp;</td></tr>
+			</table>
           
-    <table class="header" style="width: 100%;"><tr>
-	<td>&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right" rowspan="8"><img src="https://4057215.app.netsuite.com/core/media/media.nl?id=67149&amp;c=4057215&amp;h=9a222a13e18c799effb1" style="float: right; width:295px; height:108px;" /></td>
-	</tr>
-	<tr><td rowspan="5" colspan="2"><span style="font-size:18px;">LBS (Serving Biotechnology) Ltd</span><br/><span style="font-size:12px;">${companyInformation.addressText}<br/>+44 (0)129 3827940</span></td><td align="right">&nbsp;</td></tr>
-	<tr><td align="left">&nbsp;</td></tr>
-	<tr><td align="left">&nbsp;</td></tr>
-	<tr><td align="left">&nbsp;</td></tr>
-	<tr><td align="left">&nbsp;</td></tr>
-	<tr><td align="left">&nbsp;</td></tr>
-	<tr><td align="left">&nbsp;</td></tr>
-	</table>
-          
-    <table style="width: 100%; margin-top: 10px;">
-	<tr>
-	<td align="left">&nbsp;</td>
-	<td align="left">&nbsp;</td>
-    <td align="left">&nbsp;</td>
-	<td align="left" colspan="2" style="font-size:18px;"><b>Delivery Note</b></td>
-	</tr>
-    <tr style="margin-top: 10px;">
-	<td align="left"><b>A/C No.</b></td>
-	<td align="left">&nbsp;</td>
-    <td align="left">&nbsp;</td>
-	<td align="left"><b>Order Date</b></td>
-	<td align="right">${salesorder.trandate}</td>
-	</tr> 
-    <tr>
-	<td align="left" colspan="2">${salesorder.entity}</td>
-    <td align="left">&nbsp;</td>
-	<td align="left"><b>Order #</b></td>
-	<td align="right">${salesorder.tranid}</td>
-	</tr> 
-    <tr>
-	<td align="left"><b>Client</b></td>
-	<td align="left">&nbsp;</td>
-    <td align="left">&nbsp;</td>
-	<td align="left"><b>PO #</b></td>
-	<td align="right">${salesorder.otherrefnum}</td>
-	</tr> 
-    <tr>
-	<td align="left" rowspan="3" colspan="2">${salesorder.billaddress}</td>
-    <td align="left">&nbsp;</td>
-	<td align="left"><b>Ship Date</b></td>
-	<td align="right">${record.trandate}</td>
-	</tr> 
-    <tr>
-	<td align="left">&nbsp;</td>
-	<td align="left"><b>Order Instructions</b></td>
-	<td align="right">&nbsp;</td>
-	</tr> 
-    <tr>
-	<td align="left">&nbsp;</td>
-	<td align="left" colspan="2">${salesorder.custbody_order_specific_instructions}</td>
-	</tr> 
+		    <table style="width: 100%; margin-top: 10px;">
+				<tr>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+				    <td align="left">&nbsp;</td>
+					<td align="left" colspan="2" style="font-size:18px;"><b>Invoice</b></td>
+				</tr>
+			    <tr style="margin-top: 10px;">
+					<td align="left"><b>A/C No.</b></td>
+					<td align="left">&nbsp;</td>
+				    <td align="left">&nbsp;</td>
+					<td align="left"><b>Date</b></td>
+					<td align="right">${record.trandate}</td>
+				</tr> 
+			    <tr>
+					<td align="left" colspan="2">${record.entity}</td>
+				    <td align="left">&nbsp;</td>
+					<td align="left"><b>Invoice #</b></td>
+					<td align="right">${record.tranid}</td>
+				</tr> 
+			    <tr>
+					<td align="left"><b>Client</b></td>
+					<td align="left">&nbsp;</td>
+				    <td align="left">&nbsp;</td>
+					<td align="left"><b>Terms</b></td>
+					<td align="right">${record.entity.terms}</td>
+				</tr> 
+			    <tr>
+					<td align="left" rowspan="3" colspan="2">${record.billaddress}</td>
+				    <td align="left">&nbsp;</td>
+					<td align="left"><b>Due Date</b></td>
+					<td align="right">${record.trandate}</td>
+				</tr> 
+			    <tr>
+					<td align="left">&nbsp;</td>
+					<td align="left"><b>PO #</b></td>
+					<td align="right">${record.otherrefnum}</td>
+				</tr> 
+			    <tr>
+					<td align="left">&nbsp;</td>
+					<td align="left"><b>Created From</b></td>
+					<td align="right">${record.createdfrom}</td>
+				</tr> 
+		    </table>
+   		</macro>
 
-    </table>
-    <table style="width: 100%;"><tr>
-	<td class="addressheader">${salesorder.shipaddress@label}</td>
-	</tr>
-	<tr>
-	<td class="address">${salesorder.shipaddress}</td>
-	</tr></table>  
-          
-   </macro>
-      
-      
-    <macro id="nlfooter">
-      
-    <table style="width: 100%;">
-    <tr>
-    <td align="left" rowspan="3"><img src="https://4057215.app.netsuite.com/core/media/media.nl?id=67150&amp;c=4057215&amp;h=d23c3ddfada0340be8da" style="float: left; width:110px; height:75px;" /></td>
-	<td align="left" colspan="2"><b>Received By:</b></td>
-    <td align="left" colspan="2"><b>Pallets In:</b></td>
-    </tr>
-    <tr>
-	<td colspan="2">&nbsp;</td>
-    <td colspan="2">&nbsp;</td>
-    </tr>
-    <tr>
-	<td align="left" colspan="2"><b>Picked/Loaded By:</b></td>
-    <td align="left" colspan="2"><b>Pallets Out:</b></td>
-    </tr>
-    </table>
-    </macro>
-      
+	    <macro id="nlfooter">
+	    	<table style="width: 100%;">
+	    		<tr>
+					<td align="left" colspan="2"><b>Bank Details</b></td>
+				    <td align="left">&nbsp;</td>
+					<td align="left" colspan="2"><b>Ship To</b></td>
+				</tr> 
+				<tr>
+					<td align="left" colspan="2">Sort Code: 56-00-46</td>
+				    <td align="left">&nbsp;</td>
+					<td align="left" rowspan="6" colspan="2">${record.shipaddress}</td>
+				</tr> 
+				<tr>
+					<td align="left" colspan="2">Acc No: 01414542</td>
+				    <td align="left">&nbsp;</td>
+				</tr>
+				<tr>
+					<td align="left" colspan="2">IBAN: GB19NWBK56004601414542</td>
+				    <td align="left">&nbsp;</td>
+				</tr>
+				<tr>
+					<td align="left" colspan="2">BIC (SWIFT): NWBK GB 2L</td>
+				    <td align="left">&nbsp;</td>
+				</tr>
+				<tr>
+					<td align="left" colspan="2"><b>Cheques should be made payable to:</b></td>
+				    <td align="left">&nbsp;</td>
+				</tr>
+				<tr>
+					<td align="left" colspan="3">LBS (Serving Biotechnology) Ltd PO Box 431 RH16 0UW</td>
+				</tr>
+	    	</table>
+	    	
+		    <table style="width: 100%;">
+			    <tr>
+				    <td align="left" rowspan="3"><img src="https://4057215.app.netsuite.com/core/media/media.nl?id=67150&amp;c=4057215&amp;h=d23c3ddfada0340be8da" style="float: left; width:110px; height:75px;" /></td>
+			    </tr>
+			    <tr>
+					<td align="left" colspan="3">All sales subject to the comapny's general conditions of sale</td>
+			    </tr>
+			    <tr>
+					<td align="left" colspan="3">Credit administration charge may be deducted if paid by due date</td>
+			    </tr>
+		    </table>
+	    </macro>
     </macrolist>
       
     <style type="text/css">* {
-		<#if .locale == "zh_CN">
-			font-family: NotoSans, NotoSansCJKsc, sans-serif;
-		<#elseif .locale == "zh_TW">
-			font-family: NotoSans, NotoSansCJKtc, sans-serif;
-		<#elseif .locale == "ja_JP">
-			font-family: NotoSans, NotoSansCJKjp, sans-serif;
-		<#elseif .locale == "ko_KR">
-			font-family: NotoSans, NotoSansCJKkr, sans-serif;
-		<#elseif .locale == "th_TH">
-			font-family: NotoSans, NotoSansThai, sans-serif;
-		<#else>
-			font-family: NotoSans, sans-serif;
-		</#if>
+		font-family: NotoSans, sans-serif;
 		}
 		table {
 			font-size: 9pt;
@@ -193,46 +189,70 @@
 </style>
 </head>
       
-<body header="nlheader" header-height="390px" footer="nlfooter" footer-height="60px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
-
-  
-<#if salesorder.item?has_content>
-
-<table class="itemtable" style="width: 100%;">
-<thead>
-	<tr>
-	<th colspan="10"><br/>Item Code / Description</th>
-    <th align="right" colspan="4"><br/>Units</th>
-	<th align="right" colspan="3"><br/>Qty</th>
-	<th align="right" colspan="3"><br/>Shipped</th>
-	<th align="right" colspan="5"><br/>Batch Number</th>
-	<th align="right" colspan="3">Back<br/>Order</th>
-	</tr>
-</thead>
-<#list salesorder.item as tranline><tr>
-	<td colspan="10"><b>${tranline.item}</b><br/>Commodity Code: ${tranline.custcol_bbs_item_commodity}</td>
-    <td align="right" colspan="4">${tranline.units}</td>
-	<td align="right" colspan="3">${tranline.quantityordered}</td>
-	<td align="right" colspan="3">${tranline.quantity}</td>
-	<td align="right" colspan="5">${tranline.custcol_serial_numbers}</td>
-	<td align="right" colspan="3">${tranline.quantityremaining}</td>
-	</tr>
-	</#list></table>
-</#if>
-
+<body header="nlheader" header-height="320px" footer="nlfooter" footer-height="200px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+	<#if record.item?has_content>
+		<table class="itemtable" style="width: 100%; margin-top: 10px;">
+			<#list record.item as item>
+				<#if item_index==0>
+					<thead>
+						<tr>
+							<th colspan="10"><br/>Item Code / Description</th>
+						    <th align="right" colspan="5">Batch Number</th>
+							<th align="right" colspan="3">Qty</th>
+							<th align="right" colspan="4">Units</th>
+							<th align="right" colspan="4">Rate</th>
+							<th align="right" colspan="4">Amount</th>
+						</tr>
+					</thead>
+				</#if>
+				<tr>
+					<td colspan="10"><b>${item.item}</b><br/>Commodity Code: ${item.custcol_bbs_item_commodity}</td>
+				   	<td align="right"  colspan="5">${item.custcol_serial_numbers}</td>
+					<td align="right"  colspan="3" line-height="150%">${item.quantity}</td>
+					<td align="right"  colspan="4">${item.units}</td>
+					<td align="right"  colspan="4">${item.rate}</td>
+					<td align="right"  colspan="4">${item.amount}</td>
+				</tr>
+			</#list>
+		</table>
+		<hr />
+	</#if>
+	
+	<table class="total" style="width: 100%; margin-top: 10px;">
+		<tr>
+			<td colspan="4">&nbsp;</td>
+			<td align="right"><b>${record.subtotal@label}</b></td>
+			<td align="right">${record.subtotal}</td>
+		</tr>
+		<tr>
+			<td colspan="4">&nbsp;</td>
+			<td align="right"><b>Admin Charge</b></td>
+			<td align="right">${record.shippingcost}</td>
+		</tr>
+		<tr>
+			<td colspan="4">&nbsp;</td>
+			<td align="right"><b>${record.taxtotal@label} (${record.taxrate}%)</b></td>
+			<td align="right">${record.taxtotal}</td>
+		</tr>
+			<tr class="totalrow">
+			<td background-color="#ffffff" colspan="4">&nbsp;</td>
+			<td align="right"><b>${record.total@label}</b></td>
+			<td align="right">${record.total}</td>
+		</tr>
+	</table>  
 </body>
 </pdf>
-<#if salesorder.entity.custentity_mainclassification_field == "EU Export" || salesorder.entity.custentity_mainclassification_field == "Export">
+<#if record.entity.custentity_mainclassification_field == "EU Export" || record.entity.custentity_mainclassification_field == "Export">
 <pdf>
 <head>
- 	<#assign signature>https://5554661.app.netsuite.com/core/media/media.nl?id=53618&amp;c=5554661&amp;h=de3261d7385e0236ef53</#assign>
+ 	<#assign signature>https://4057215-sb1.app.netsuite.com/core/media/media.nl?id=71337&amp;c=4057215_SB1&amp;h=ZjqSLS46-4vOy0EngFYTRen8wiIMa9JvfR8W16f2osBpMHvA</#assign>
   
 	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
     <macrolist>
     	<macro id="nlheader">
     		<table style="width: 100%;">
               	<tr>
-					<td style="font-size: 10px;" align="left"><b>PACKING LIST</b></td>
+					<td style="font-size: 10px;" align="left"><b>COMMERCIAL INVOICE</b></td>
                   	<td style="font-size: 8px;" align="left">&nbsp;</td>
                   	<td style="font-size: 8px;" align="left">&nbsp;</td>
 				</tr>
@@ -281,36 +301,28 @@
                   	<td style="font-size: 8px;" align="left">&nbsp;</td>
                   	<td style="font-size: 8px;" align="left">&nbsp;</td>
                   	<td style="font-size: 8px;" align="left"><b>Buyer VAT #</b></td>
-                  	<td style="font-size: 8px;" align="left" colspan="3">${salesorder.entity.vatregnumber}</td>
+                  	<td style="font-size: 8px;" align="left" colspan="3">${record.entity.vatregnumber}</td>
 				</tr>
               	<tr>
 					<td style="font-size: 8px;" align="left"><b>Order #</b></td>
-                  	<td style="font-size: 8px;" align="left">${salesorder.tranid}</td>
+                  	<td style="font-size: 8px;" align="left">${record.createdfrom.tranid}</td>
                   	<td style="font-size: 8px;" align="left">&nbsp;</td>
                   	<td style="font-size: 8px;" align="left">&nbsp;</td>
                   	<td style="font-size: 8px;" align="left"><b>Buyers PO #</b></td>
-                  	<td style="font-size: 8px;" align="left" colspan="3">${salesorder.otherrefnum}</td>
-				</tr>
-              	<tr>
-					<td style="font-size: 8px;" align="left"><b>Dispatch Date</b></td>
-                  	<td style="font-size: 8px;" align="left">${salesorder.shipdate}</td>
-                  	<td style="font-size: 8px;" align="left">&nbsp;</td>
-                  	<td style="font-size: 8px;" align="left">&nbsp;</td>
-                  	<td style="font-size: 8px;" align="left"><b>Buyer Contact</b></td>
-                  	<td style="font-size: 8px;" align="left" colspan="3">${record.custbody_bbs_buyer_contact}</td>
+                  	<td style="font-size: 8px;" align="left" colspan="3">${record.otherrefnum}</td>
 				</tr>
           </table>
           
           <hr style="width: 100%;"/>
           
-          <table style="width: 100%;">
+          <table style="width: 100%; table-layout: fixed;">
 				<tr>
 					<td style="font-size: 8px; border-left: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;" align="left" colspan="2"><b>Consignee</b></td>
                   	<td style="font-size: 8px; border-top: 1px solid black; border-right: 1px solid black;" align="left" colspan="2"><b>Buyer (if not consignee)</b></td>
 				</tr>
             	<tr>
-					<td style="font-size: 8px; border-left: 1px solid black; border-top: 1px solid black; border-right: 1px solid black; height: 80px;" align="left" colspan="2" >${record.shipaddress}</td>
-                  	<td style="font-size: 8px; border-top: 1px solid black; border-right: 1px solid black; height: 80px;" align="left" colspan="2" >${salesorder.billaddress}</td>
+					<td style="word-wrap: break-word; font-size: 8px; border-left: 1px solid black; border-top: 1px solid black; border-right: 1px solid black; height: 80px;" align="left" colspan="2" >${record.shipaddress}</td>
+                  	<td style="word-wrap: break-word; font-size: 8px; border-top: 1px solid black; border-right: 1px solid black; height: 80px;" align="left" colspan="2" >${record.billaddress}</td>
 				</tr>
 
             	<tr>
@@ -320,18 +332,11 @@
                   	<td style="font-size: 8px; border-top: 1px solid black; border-right: 1px solid black;" align="left">${record.custbody_bbs_place_of_loading}</td>
 				</tr>
             	<tr>
-					<td style="font-size: 8px; border-left: 1px solid black; border-top: 1px solid black; "  align="left"><b>Mode of Transport</b></td>
-                  	<td style="font-size: 8px; border-top: 1px solid black; border-right: 1px solid black;" align="left">${record.custbody_bbs_mode_of_transport}</td>
-                  	<td style="font-size: 8px; border-top: 1px solid black; " align="left"><b>Final Destination Country</b></td>
-                  	<td style="font-size: 8px; border-top: 1px solid black; border-right: 1px solid black;" align="left">${record.custbody_bbs_destination_country}</td>
+					<td style="font-size: 8px; border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;"  align="left"><b>Terms</b></td>
+                  	<td style="font-size: 8px; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;" align="left">${record.custbody_bbs_incoterms}</td>
+                  	<td style="font-size: 8px; border-top: 1px solid black; border-bottom: 1px solid black;" align="left"><b>Final Destination Country</b></td>
+                  	<td style="font-size: 8px; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;" align="left">${record.custbody_bbs_destination_country}</td>
 				</tr>
-            	<tr>
-					<td style="font-size: 8px; border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;"  align="left"><b>Container #</b></td>
-                  	<td style="font-size: 8px; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;" align="left">${record.custbody_bbs_container_no}</td>
-                  	<td style="font-size: 8px; border-top: 1px solid black; border-bottom: 1px solid black;" align="left"><b>Seal #</b></td>
-                  	<td style="font-size: 8px; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;" align="left">${record.custbody_bbs_seal_no}</td>
-				</tr>
-
           </table>
    	</macro>
       
@@ -382,7 +387,20 @@
       
       <table style="width: 100%; margin-top: 10px;">
           <tr>
-              <td align="left" ><img src="https://4057215.app.netsuite.com/core/media/media.nl?id=67150&amp;c=4057215&amp;h=d23c3ddfada0340be8da" style="float: left; width:110px; height:75px;" /></td>
+              	<td align="left" rowspan="5"><img src="https://4057215.app.netsuite.com/core/media/media.nl?id=67150&amp;c=4057215&amp;h=d23c3ddfada0340be8da" style="float: left; width:110px; height:75px;" /></td>
+            	<td align="right" style="font-size: 8px;">LBS (Serving Biotechnology) Ltd, PO Box 431, Surrey, RH6 0UW, United Kingdom</td>
+          </tr>
+          <tr>
+            	<td align="right" style="font-size: 8px;">Bank Details: Sort Code: 56-00-46</td>
+          </tr>
+          <tr>
+            	<td align="right" style="font-size: 8px;">Account Number: 01414542</td>
+          </tr>
+          <tr>
+            	<td align="right" style="font-size: 8px;">IBAN: GB19NWBK56004601414542</td>
+          </tr>
+          <tr>
+            	<td align="right" style="font-size: 8px;">BIC(SWIFT): NWBK GB 2L</td>
           </tr>
       </table>
     </macro>
@@ -395,48 +413,80 @@
 </style>
 </head>
       
-<body header="nlheader" header-height="360px" footer="nlfooter" footer-height="255px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">
-  
-<#assign totalUnit = 0>
-<#assign totalNett = 0>
-<#assign totalGross = 0>
+<body header="nlheader" header-height="340px" footer="nlfooter" footer-height="255px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">
   
 <#if record.item?has_content>
   <table style="width: 100%;">
 	<thead>
         <tr>
           <th align="left"   colspan="10" style="padding: 2px 2px; font-size: 8px; background-color: #e3e3e3; border-left: 1px solid black; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>Item Code / Description</b></th>
-          <th align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; background-color: #e3e3e3; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>Unit<br/>Quantity</b></th>
+          <th align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; background-color: #e3e3e3; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>Batch #</b></th>
+          <th align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; background-color: #e3e3e3; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>Origin</b></th>
+          <th align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; background-color: #e3e3e3; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>Quantity</b></th>
           <th align="center" colspan="3"  style="padding: 2px 2px; font-size: 8px; background-color: #e3e3e3; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>Unit<br/>Type</b></th>
-          <th align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; background-color: #e3e3e3; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>Pieces /<br/>Unit</b></th>
-          <th align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; background-color: #e3e3e3; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>Nett<br/>Weight<br/>Kg</b></th>
-          <th align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; background-color: #e3e3e3; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>Gross<br/>Weight<br/>Kg</b></th>
-          <th align="center" colspan="3"  style="padding: 2px 2px; font-size: 8px; background-color: #e3e3e3; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>Comment</b></th>
+          <th align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; background-color: #e3e3e3; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>Currency</b></th>
+          <th align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; background-color: #e3e3e3; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>Unit<br/>Price</b></th>
+          <th align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; background-color: #e3e3e3; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>Amount</b></th>
         </tr>
 	</thead>
     <#list record.item as tranline>
-      	<#assign totalUnit = totalUnit + tranline.quantity?c?number>
-      	<#assign totalNett = totalNett + tranline.custcol_bbs_nett_weight>
-      	<#assign totalGross = totalGross + tranline.custcol_bbs_gross_weight>
           <tr>
-            <td align="left"  colspan="10" style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${tranline.item} ${tranline.description}</td>
+            <td align="left"  colspan="10" style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${tranline.item}<br/>(HS Code: ${tranline.custcol_bbs_hs_code}); ${tranline.custcol_bbs_cust_prod_group}</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${tranline.custcol_serial_numbers}</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${tranline.custcol_bbs_country_of_origin}</td>
             <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${tranline.quantity}</td>
-            <td align="center" colspan="3"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${tranline.unitsdisplay}</td>
-            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${tranline.custcol_bbs_pieces_per_unit}</td>
-            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${tranline.custcol_bbs_nett_weight}</td>
-            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${tranline.custcol_bbs_gross_weight}</td>
-            <td align="center" colspan="3"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${tranline.custcol_bbs_item_comment}</td>
+            <td align="center" colspan="3"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${tranline.units}</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${record.currency.symbol}</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${tranline.rate}</td>
+            <td align="right" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${tranline.amount}</td>
           </tr>
     </#list>
-          
+    
     <tr style="margin-top: 20px;">
-    	<td align="right"  colspan="10" style="font-size: 8px; border-left: 1px solid black; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>Total Consignment</b></td>
-      	<td align="center" colspan="2"  style="font-size: 8px; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>${totalUnit}</b></td>
-        <td align="center" colspan="3"  style="font-size: 8px; border-top: 1px solid black; border-bottom: 1px solid black;"><b>Pallets</b></td>
-        <td align="center" colspan="2"  style="font-size: 8px; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custbody_bbs_total_pallets}</td>
-        <td align="center" colspan="2"  style="font-size: 8px; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${totalNett}</td>
-        <td align="center" colspan="2"  style="font-size: 8px; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${totalGross}</td>
-        <td align="center" colspan="3"  style="font-size: 8px; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+            <td align="left"  colspan="10" style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="3"  style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${record.currency.symbol}</td>
+            <td align="left" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">Subtotal</td>
+            <td align="right" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${record.subtotal}</td>
+    </tr>
+    <tr>
+            <td align="left"  colspan="10" style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="3"  style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${record.currency.symbol}</td>
+            <td align="left" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">Admin Charge</td>
+            <td align="right" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${record.shippingcost}</td>
+    </tr>
+   
+    
+    <tr>
+            <td align="left"  colspan="10" style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="3"  style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${record.currency.symbol}</td>
+			<#if record.taxrate == "">
+              <td align="left" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">VAT (0%)</td>
+            <#else>
+              <td align="left" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">VAT (${record.taxrate}%)</td>
+            </#if>
+      		<td align="right" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${record.taxtotal}</td>
+    </tr>
+    <tr>
+            <td align="left"  colspan="10" style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="3"  style="padding: 2px 2px; font-size: 8px;">&nbsp;</td>
+            <td align="center" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${record.currency.symbol}</td>
+            <td align="left" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;"><b>Total</b></td>
+            <td align="right" colspan="2"  style="padding: 2px 2px; font-size: 8px; border-bottom: 1px solid black;">${record.total}</td>
     </tr>
   </table>
 
@@ -446,4 +496,5 @@
 </body>
 </pdf>
 </#if>
+  
 </pdfset>
