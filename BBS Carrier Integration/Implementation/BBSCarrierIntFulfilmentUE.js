@@ -872,7 +872,7 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 							    									
 							    									itemFulfillmentRecord.setValue({
 							    										fieldId: 'custbody_bbs_ci_consignment_error',
-							    										value: errorMessages.message
+							    										value: errorMessages
 							    									});
 							    									
 							    									itemFulfillmentRecord.setValue({

@@ -18,7 +18,11 @@
     	<macro id="nlheader">
             <table style="width: 100%; margin-left:225px; margin-top: 0px;">
 				<tr>
+				<#if record.custbody_bbs_ci_label_image?length gt 0>
 					<td><img rotate="270" src="${record.custbody_bbs_ci_label_image}" style="width: 250px; height: 375px;"/></td>
+				<#else>
+					<td>&nbsp;</td>
+				</#if>
 				</tr>
 			</table>
         </macro>

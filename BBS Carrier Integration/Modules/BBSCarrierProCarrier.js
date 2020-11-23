@@ -46,6 +46,11 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 					//
 					var processShipmentRequestPC = new _processShipmentRequestPC(_processShipmentRequest);
 					
+					log.debug({
+						title: 'Shipment request',
+						details: processShipmentRequestPC
+					});
+					
 					//Populate the object with the data from the incoming standard message
 					//i.e. populate processShipmentRequestPC with data from _processShipmentRequest
 					//
@@ -286,14 +291,14 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			this.Shipment.Service			= shippingRequestData.shippingItemInfo.serviceCode;
 			this.Shipment.SenderAddress		= {};
 			this.Shipment.SenderAddress.Name				= shippingRequestData.senderAddress.addresse;
-			this.Shipment.SenderAddress.Company				= shippingRequestData.address.addresse;
-			this.Shipment.SenderAddress.AddressLine1		= shippingRequestData.address.line1;
-			this.Shipment.SenderAddress.AddressLine2		= shippingRequestData.address.line2;
+			this.Shipment.SenderAddress.Company				= shippingRequestData.senderAddress.addresse;
+			this.Shipment.SenderAddress.AddressLine1		= shippingRequestData.senderAddress.line1;
+			this.Shipment.SenderAddress.AddressLine2		= shippingRequestData.senderAddress.line2;
 			this.Shipment.SenderAddress.AddressLine3		= '';
-			this.Shipment.SenderAddress.City				= shippingRequestData.address.town;
-			this.Shipment.SenderAddress.State				= shippingRequestData.address.county;
-			this.Shipment.SenderAddress.Zip					= shippingRequestData.address.postCode;
-			this.Shipment.SenderAddress.Country				= shippingRequestData.address.countryCode;
+			this.Shipment.SenderAddress.City				= shippingRequestData.senderAddress.town;
+			this.Shipment.SenderAddress.State				= shippingRequestData.senderAddress.county;
+			this.Shipment.SenderAddress.Zip					= shippingRequestData.senderAddress.postCode.toUpperCase();
+			this.Shipment.SenderAddress.Country				= shippingRequestData.senderAddress.countryCode;
 			this.Shipment.SenderAddress.Phone				= shippingRequestData.senderContact.mobileNumber;
 			this.Shipment.SenderAddress.Email				= shippingRequestData.senderContact.emailAddress;
 			this.Shipment.SenderAddress.Vat					= shippingRequestData.senderContact.vatNo;
@@ -306,7 +311,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			this.Shipment.ConsigneeAddress.AddressLine3		= '';
 			this.Shipment.ConsigneeAddress.City				= shippingRequestData.address.town;
 			this.Shipment.ConsigneeAddress.State			= shippingRequestData.address.county;
-			this.Shipment.ConsigneeAddress.Zip				= shippingRequestData.address.postCode;
+			this.Shipment.ConsigneeAddress.Zip				= shippingRequestData.address.postCode.toUpperCase();
 			this.Shipment.ConsigneeAddress.Country			= shippingRequestData.address.countryCode;
 			this.Shipment.ConsigneeAddress.Phone			= shippingRequestData.contact.mobileNumber;
 			this.Shipment.ConsigneeAddress.Email			= shippingRequestData.contact.emailAddress;
