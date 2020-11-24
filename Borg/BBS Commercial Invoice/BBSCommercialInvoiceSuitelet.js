@@ -34,7 +34,7 @@ function suitelet(request, response)
 				//
 				if(file != null)
 					{
-						response.setContentType('PDF', 'Commercial Invoice', 'inline');
+						response.setContentType('PDF', 'Commercial Invoice.pdf', 'inline');
 						response.write(file.getValue());
 					}
 			}
