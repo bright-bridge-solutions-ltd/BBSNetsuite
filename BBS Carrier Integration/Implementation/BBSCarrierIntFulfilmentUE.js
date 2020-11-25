@@ -227,9 +227,7 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
     			var currentRecord = scriptContext.newRecord;
     			
     			// get the value of the BBS [CI] CONSIGNMENT NUMBER field
-    			var consignmentNumber = currentRecord.getValue({
-	    	    	fieldId: 'custbody_bbs_ci_consignment_number'
-	    	    });
+    			var consignmentNumber = currentRecord.getValue({fieldId: 'custbody_bbs_ci_consignment_number'});
     			
     			// check if the consignmentNumber variable returns a value
     			if (consignmentNumber)
@@ -239,19 +237,19 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    	        	
 	    	        	// define URL of Suitelet
 						var suiteletURL = url.resolveScript({
-							scriptId: 'customscript_bbs_carrier_int_label_sl',
-							deploymentId: 'customdeploy_bbs_carrier_int_label_sl',
-							params: {
-								'id': currentRecordID
-							}
-						});
+															scriptId: 		'customscript_bbs_carrier_int_label_sl',
+															deploymentId: 	'customdeploy_bbs_carrier_int_label_sl',
+															params: 		{
+																			'id': 	currentRecordID
+																			}
+															});
 	    	        	
 	    	        	// add button to the form
 	    	    		scriptContext.form.addButton({
-	    	    			id: 'custpage_print_courier_labels',
-	    	    			label: 'Print Courier Labels',
-	    	    			functionName: "window.open('" + suiteletURL + "');" // call Suitelet when button is clicked
-	    	    		});
+							    	    			id: 			'custpage_print_courier_labels',
+							    	    			label: 			'Print Courier Labels',
+							    	    			functionName: 	"window.open('" + suiteletURL + "');" // call Suitelet when button is clicked
+							    	    			});
     				}
     		}
     	
@@ -314,7 +312,8 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    								//
 	    								integrationDetails = BBSCommon.getConfig(shippingCarrierInfo.primaryCarrier);
 	    								
-	    								// reload the item fulfillment record
+	    								//Reload the item fulfillment record
+	    								//
 	    								var itemFulfillmentRecord = record.load({
 										    									type: 		record.Type.ITEM_FULFILLMENT,
 										    									id: 		recordID,
@@ -322,7 +321,8 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 										    									});
 	    								
 	    								
-	    								// get the required information from the item fulfilment record to build up the label
+	    								//Get the required information from the item fulfilment record to build up the label
+	    								//
 	    								var shipmentReference 	= itemFulfillmentRecord.getValue({fieldId: 'tranid'});
 	    								var weight 				= itemFulfillmentRecord.getValue({fieldId: 'custbody_bbs_total_weight'});
 	    								var transactionDate 	= itemFulfillmentRecord.getValue({fieldId: 'trandate'});
@@ -364,9 +364,7 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    										totalWeight = 0;
 	    									
 	    										// get count of lines on the package sublist
-	    										packageCount = itemFulfillmentRecord.getLineCount({
-	    																							sublistId: 'package'
-	    																							});
+	    										packageCount = itemFulfillmentRecord.getLineCount({sublistId: 'package'});
 	    										
 	    										// where packageCount is not 0
 	    										if (packageCount > 0)
@@ -395,43 +393,21 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    											}
 	    									}
 	    								
-	    								var customerID = itemFulfillmentRecord.getValue({
-	    									fieldId: 'entity'
-	    								});
+	    								var customerID = itemFulfillmentRecord.getValue({fieldId: 'entity'});
 	    								
-	    								// get the shipping address subrecord
-	    								var shippingAddressSubrecord = itemFulfillmentRecord.getSubrecord({
-	    									fieldId: 'shippingaddress'
-	    								});
+	    								//Get the shipping address subrecord
+	    								//
+	    								var shippingAddressSubrecord = itemFulfillmentRecord.getSubrecord({fieldId: 'shippingaddress'});
 	    								
-	    								// get shipping address fields
-	    								var addresse = shippingAddressSubrecord.getValue({
-	    									fieldId: 'addressee'
-	    								});
-	    								
-	    								var addressLine1 = shippingAddressSubrecord.getValue({
-	    									fieldId: 'addr1'
-	    								});
-	    								
-	    								var addressLine2 = shippingAddressSubrecord.getValue({
-	    									fieldId: 'addr2'
-	    								});
-	    								
-	    								var city = shippingAddressSubrecord.getValue({
-	    									fieldId: 'city'
-	    								});
-	    								
-	    								var county = shippingAddressSubrecord.getValue({
-	    									fieldId: 'state'
-	    								});
-	    								
-	    								var postcode = shippingAddressSubrecord.getValue({
-	    									fieldId: 'zip'
-	    								});
-	    								
-	    								var country = shippingAddressSubrecord.getValue({
-	    									fieldId: 'country'
-	    								});
+	    								//Get shipping address fields
+	    								//
+	    								var addresse 		= shippingAddressSubrecord.getValue({fieldId: 'addressee'});
+	    								var addressLine1 	= shippingAddressSubrecord.getValue({fieldId: 'addr1'});
+	    								var addressLine2 	= shippingAddressSubrecord.getValue({fieldId: 'addr2'});
+	    								var city 			= shippingAddressSubrecord.getValue({fieldId: 'city'});
+	    								var county 			= shippingAddressSubrecord.getValue({fieldId: 'state'});
+	    								var postcode 		= shippingAddressSubrecord.getValue({fieldId: 'zip'});
+	    								var country 		= shippingAddressSubrecord.getValue({fieldId: 'country'});
 	    								
 	    								// create an address object
 	    								//
@@ -440,10 +416,7 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    								
 	    								//Get the subsidiary field value from the IF record (if present)
 	    								//
-	    								var subsidiaryId = itemFulfillmentRecord.getValue({
-														    								fieldId: 'subsidiary'
-														    								});
-	    								
+	    								var subsidiaryId = itemFulfillmentRecord.getValue({fieldId: 'subsidiary'});
 	    								
 	    								//Return the senders address by either getting the data from the subsidiary, or the company information
 	    								//
@@ -453,8 +426,8 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    								//
 	    								var subsidiaryContactInfo = new BBSCommon.findSubsidiaryContactDetails(subsidiaryId);
 	    								
-	    								
-	    								// get today's date without the time component
+	    								//Get today's date without the time component
+	    								//
 	    								var today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
 	    								
 	    								//If the transaction date is in the past then use today's date as the despatch date
@@ -475,10 +448,12 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    								//
 	    								var isSaturday = (tempDate.getDay() == 6 ? true : false);
 	    								
-	    								// format the date in the following format YYYY-MM-DD
+	    								//Format the date in the following format YYYY-MM-DD
+	    								//
 	    								despatchDate = tempDate.format('Y-m-d');
 	    								
-	    								// call function to find contact details for the customer. Contact object will be returned
+	    								//Call function to find contact details for the customer. Contact object will be returned
+	    								//
 	    								var contactInfo = new BBSCommon.findContactDetails(customerID);
 	    								
 	    								//Build up the process shipments request object
@@ -497,402 +472,213 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 			    								//Work out which integration module to use
 			    								//=============================================================
 			    								//
+							    				var processShipmentsResponse = null;
+							    			
 			    								switch(shippingCarrierInfo.primaryCarrierName)
 			    									{
 					    								case 'GFS':
 					    								
 					    									//Send the request to the specific carrier
 					    									//
-					    									var processShipmentsResponse = BBSCarrierGFS.carrierProcessShipments(processShipmentsRequest);	//Pass in the info gleaned from the IF record here
-					    									
-					    									// check if we have got a success message back
-					    									if (processShipmentsResponse['status'] == 'SUCCESS')
-					    										{
-					    											// get the company URL
-					    											var companyURL = getCompanyUrl();
-					    											
-					    											// set the shipping carrier field on the record
-						    										itemFulfillmentRecord.setValue({
-							    										fieldId: 'custbody_bbs_ci_shipping_carrier',
-							    										value: shippingCarrier
-							    									});
-					    										
-					    											// get the consignment number and label
-					    											var consignmentNumber = processShipmentsResponse['consignmentNumber'];
-					    											
-					    											// get package count
-					    											var packages = processShipmentsResponse['packages'];
-					    											
-					    											// loop through package count
-					    											for (var i = 0; i < packages.length; i++)
-					    												{
-					    													// get package data
-					    													var labelImage = packages[i]['labelImage'];
-					    													var labelFileType = packages[i]['labelType'];
-					    													var packageNumber = packages[i]['packageNumber'];
-					    													
-					    													// select the line on the packages sublist on the item record
-					    													itemFulfillmentRecord.selectLine({
-					    														sublistId: 'package',
-					    														line: i
-					    													});
-					    													
-					    													// get the weight for the current line
-					    													var packageWeight = itemFulfillmentRecord.getCurrentSublistValue({
-					    														sublistId: 'package',
-					    														fieldId: 'packageweight'
-					    													});
-					    													
-					    													// if there is no weight on the line
-					    													if (!packageWeight)
-					    														{
-					    															// set the package weight to 1
-					    															itemFulfillmentRecord.setCurrentSublistValue({
-					    																sublistId: 'package',
-					    																fieldId: 'packageweight',
-					    																value: 1
-					    															});
-					    														}
-					    													
-					    													// set the tracking number field on the sublist line
-					    													itemFulfillmentRecord.setCurrentSublistValue({
-					    														sublistId: 'package',
-					    														fieldId: 'packagetrackingnumber',
-					    														value: packageNumber
-					    													});
-					    													
-					    													// commit the changes to the sublist line
-					    													itemFulfillmentRecord.commitLine({
-					    														sublistId: 'package'
-					    													});
-					    													
-					    													//Create the data required to generate the hyperlink to tracking info
-									    									//
-									    									try
-									    										{
-									    											var customRecord = record.create({
-									    																				type:		'customrecord_bbs_if_additional_fields',
-									    																				isDynamic:	true
-									    																			});
-									    											customRecord.setValue({
-									    																	fieldId:	'custrecord_bbs_if_fulfilment',
-									    																	value:		recordID
-									    																});
-									    											
-									    											customRecord.setValue({
-									    																	fieldId:	'custrecord_bbs_if_package_key',
-									    																	value:		packageNumber
-									    																});
-											
-									    											customRecord.save({
-									    																enableSourcing: 		false,
-									    																ignoreMandatoryFields:	true
-									    															});
-									    										}
-									    									catch(err)
-									    										{
-									    										
-									    										}
-					    													
-					    													// if labelFileType is PNG
-					    													if (labelFileType == 'PNG')
-					    														{
-						    														// create a PNG of the courier label and store in the file cabinet
-											    									var courierLabel = file.create({
-											    										fileType: file.Type.PNGIMAGE,
-											    										name: packageNumber + '.' + labelFileType,
-											    										contents: labelImage,
-											    										folder: fileCabinetFolder,
-											    										isOnline: true
-											    									});
-					    														}
-					    													else if (labelFileType == 'PDF') // if labelFileType is PDF
-					    														{
-						    														// create a PDF of the courier label and store in the file cabinet
-											    									var courierLabel = file.create({
-											    										fileType: file.Type.PDF,
-											    										name: packageNumber + '.' + labelFileType,
-											    										contents: labelImage,
-											    										folder: fileCabinetFolder,
-											    										isOnline: true
-											    									});
-					    														}
-									    									
-									    									// save the file in the file cabinet and get the file's ID
-									    									var courierLabelFileID = courierLabel.save();
-									    									
-									    									// attach the file to the item fulfilment
-							    											record.attach({
-							    												record: {
-							    													type: 'file',
-							    													id: courierLabelFileID
-							    												},
-							    												to: {
-							    													type: record.Type.ITEM_FULFILLMENT,
-							    													id: recordID
-							    												}
-							    											});
-							    											
-							    											// check if this is the first package
-							    											if (i == 0)
-							    												{
-								    												// reload the file
-											    									courierLabel = file.load({
-											    									    id: courierLabelFileID
-											    									});
-							    												
-							    													// build up the file's URL
-											    									var courierLabelFileURL = 'https://';
-											    									courierLabelFileURL += companyURL;
-											    									courierLabelFileURL += courierLabel.url;
-			
-									    											// update the item fulfilment record
-											    									itemFulfillmentRecord.setValue({
-											    										fieldId: 'custbody_bbs_ci_consignment_number',
-											    										value: consignmentNumber
-											    									});
-											    									
-											    									itemFulfillmentRecord.setValue({
-											    										fieldId: 'custbody_bbs_ci_consignment_error',
-											    										value: null
-											    									});
-											    									
-											    									itemFulfillmentRecord.setValue({
-											    										fieldId: 'custbody_bbs_ci_label_image',
-											    										value: courierLabelFileURL
-											    									});
-							    												}
-					    												}
-					    										}
-					    									else
-					    										{
-					    											// get any error messages
-					    											var errorMessages = processShipmentsResponse['message'];
-					    											
-					    											// update the item fulfilment record
-					    											itemFulfillmentRecord.setValue({
-							    										fieldId: 'custbody_bbs_ci_consignment_number',
-							    										value: null
-							    									});
-							    									
-							    									itemFulfillmentRecord.setValue({
-							    										fieldId: 'custbody_bbs_ci_consignment_error',
-							    										value: errorMessages.message
-							    									});
-							    									
-							    									itemFulfillmentRecord.setValue({
-							    										fieldId: 'custbody_bbs_ci_label_image',
-							    										value: null
-							    									});
-							    									
-							    									itemFulfillmentRecord.setValue({
-							    										fieldId: 'custbody_bbs_ci_shipping_carrier',
-							    										value: null
-							    									});
-					    										}
-					    									
+					    									processShipmentsResponse = BBSCarrierGFS.carrierProcessShipments(processShipmentsRequest);	//Pass in the info gleaned from the IF record here
+					    								
 					    									break;
-					    									
-					    									
+					    								
 					    								case 'ProCarrier':
 					    									
 					    									//Send the request to the specific carrier
 					    									//
-					    									var processShipmentsResponse = BBSCarrierProCarrier.carrierProcessShipments(processShipmentsRequest);	//Pass in the info gleaned from the IF record here
-					    									
-					    									// check if we have got a success message back
-					    									if (processShipmentsResponse['status'] == '200')
-					    										{
-					    											// get the company URL
-					    											var companyURL = getCompanyUrl();
-					    											
-					    											// set the shipping carrier field on the record
-						    										itemFulfillmentRecord.setValue({
-							    										fieldId: 'custbody_bbs_ci_shipping_carrier',
-							    										value: shippingCarrier
-							    									});
-					    										
-					    											// get the consignment number and label
-					    											var consignmentNumber = processShipmentsResponse['consignmentNumber'];
-					    											
-					    											// get package count
-					    											var packages = processShipmentsResponse['packages'];
-					    											
-					    											// loop through package count
-					    											for (var i = 0; i < packages.length; i++)
-					    												{
-					    													// get package data
-					    													var labelImage = packages[i]['labelImage'];
-					    													var labelFileType = packages[i]['labelType'];
-					    													var packageNumber = packages[i]['packageNumber'];
-					    													
-					    													// select the line on the packages sublist on the item record
-					    													itemFulfillmentRecord.selectLine({
-					    														sublistId: 'package',
-					    														line: i
-					    													});
-					    													
-					    													// get the weight for the current line
-					    													var packageWeight = itemFulfillmentRecord.getCurrentSublistValue({
-					    														sublistId: 'package',
-					    														fieldId: 'packageweight'
-					    													});
-					    													
-					    													// if there is no weight on the line
-					    													if (!packageWeight)
-					    														{
-					    															// set the package weight to 1
-					    															itemFulfillmentRecord.setCurrentSublistValue({
-					    																sublistId: 'package',
-					    																fieldId: 'packageweight',
-					    																value: 1
-					    															});
-					    														}
-					    													
-					    													// set the tracking number field on the sublist line
-					    													itemFulfillmentRecord.setCurrentSublistValue({
-					    														sublistId: 'package',
-					    														fieldId: 'packagetrackingnumber',
-					    														value: packageNumber
-					    													});
-					    													
-					    													// commit the changes to the sublist line
-					    													itemFulfillmentRecord.commitLine({
-					    														sublistId: 'package'
-					    													});
-					    													
-					    													//Create the data required to generate the hyperlink to tracking info
-									    									//
-									    									try
-									    										{
-									    											var customRecord = record.create({
-									    																				type:		'customrecord_bbs_if_additional_fields',
-									    																				isDynamic:	true
-									    																			});
-									    											customRecord.setValue({
-									    																	fieldId:	'custrecord_bbs_if_fulfilment',
-									    																	value:		recordID
-									    																});
-									    											
-									    											customRecord.setValue({
-									    																	fieldId:	'custrecord_bbs_if_package_key',
-									    																	value:		packageNumber
-									    																});
-											
-									    											customRecord.save({
-									    																enableSourcing: 		false,
-									    																ignoreMandatoryFields:	true
-									    															});
-									    										}
-									    									catch(err)
-									    										{
-									    										
-									    										}
-					    													
-					    													// if labelFileType is PNG
-					    													if (labelFileType == 'PNG')
-					    														{
-						    														// create a PNG of the courier label and store in the file cabinet
-											    									var courierLabel = file.create({
-																		    										fileType: 	file.Type.PNGIMAGE,
-																		    										name: 		packageNumber + '.' + labelFileType,
-																		    										contents: 	labelImage,
-																		    										folder: 	fileCabinetFolder,
-																		    										isOnline: 	true
-																		    										});
-					    														}
-					    													else if (labelFileType == 'PDF') // if labelFileType is PDF
-					    														{
-						    														// create a PDF of the courier label and store in the file cabinet
-											    									var courierLabel = file.create({
-																		    										fileType: 	file.Type.PDF,
-																		    										name: 		packageNumber + '.' + labelFileType,
-																		    										contents: 	labelImage,
-																		    										folder: 	fileCabinetFolder,
-																		    										isOnline: 	true
-																		    									});
-					    														}
-									    									
-									    									// save the file in the file cabinet and get the file's ID
-									    									var courierLabelFileID = courierLabel.save();
-									    									
-									    									// attach the file to the item fulfilment
-							    											record.attach({
-							    												record: {
-							    													type: 'file',
-							    													id: courierLabelFileID
-							    												},
-							    												to: {
-							    													type: record.Type.ITEM_FULFILLMENT,
-							    													id: recordID
-							    												}
-							    											});
-							    											
-							    											// check if this is the first package
-							    											if (i == 0)
-							    												{
-								    												// reload the file
-											    									courierLabel = file.load({
-											    									    id: courierLabelFileID
-											    									});
-							    												
-							    													// build up the file's URL
-											    									var courierLabelFileURL = 'https://';
-											    									courierLabelFileURL += companyURL;
-											    									courierLabelFileURL += courierLabel.url;
-			
-									    											// update the item fulfilment record
-											    									itemFulfillmentRecord.setValue({
-											    										fieldId: 'custbody_bbs_ci_consignment_number',
-											    										value: consignmentNumber
-											    									});
-											    									
-											    									itemFulfillmentRecord.setValue({
-											    										fieldId: 'custbody_bbs_ci_consignment_error',
-											    										value: null
-											    									});
-											    									
-											    									itemFulfillmentRecord.setValue({
-											    										fieldId: 'custbody_bbs_ci_label_image',
-											    										value: courierLabelFileURL
-											    									});
-							    												}
-					    												}
-					    										}
-					    									else
-					    										{
-					    											// get any error messages
-					    											var errorMessages = processShipmentsResponse['message'];
-					    											
-					    											// update the item fulfilment record
-					    											itemFulfillmentRecord.setValue({
-							    										fieldId: 'custbody_bbs_ci_consignment_number',
-							    										value: null
-							    									});
-							    									
-							    									itemFulfillmentRecord.setValue({
-							    										fieldId: 'custbody_bbs_ci_consignment_error',
-							    										value: errorMessages
-							    									});
-							    									
-							    									itemFulfillmentRecord.setValue({
-							    										fieldId: 'custbody_bbs_ci_label_image',
-							    										value: null
-							    									});
-							    									
-							    									itemFulfillmentRecord.setValue({
-							    										fieldId: 'custbody_bbs_ci_shipping_carrier',
-							    										value: null
-							    									});
-					    										}
+					    									processShipmentsResponse = BBSCarrierProCarrier.carrierProcessShipments(processShipmentsRequest);	//Pass in the info gleaned from the IF record here
 					    									
 					    									break;
-					    									
-					    									
-					    								//Other integration implementations go here
-					    								//
 			    									}
 			    								
+		    									//Check if we have got a success message back
+			    								//
+		    									if (processShipmentsResponse['status'] == 'SUCCESS' || processShipmentsResponse['status'] == '200')
+		    										{
+		    											// get the company URL
+		    											var companyURL = getCompanyUrl();
+		    											
+		    											// set the shipping carrier field on the record
+			    										itemFulfillmentRecord.setValue({
+											    										fieldId: 	'custbody_bbs_ci_shipping_carrier',
+											    										value: 		shippingCarrier
+											    										});
+		    										
+		    											// get the consignment number and label
+		    											var consignmentNumber = processShipmentsResponse['consignmentNumber'];
+		    											
+		    											// get package count
+		    											var packages = processShipmentsResponse['packages'];
+		    											
+		    											// loop through package count
+		    											for (var i = 0; i < packages.length; i++)
+		    												{
+		    													// get package data
+		    													var labelImage 		= packages[i]['labelImage'];
+		    													var labelFileType 	= packages[i]['labelType'];
+		    													var packageNumber 	= packages[i]['packageNumber'];
+		    													
+		    													// select the line on the packages sublist on the item record
+		    													itemFulfillmentRecord.selectLine({
+									    														sublistId: 	'package',
+									    														line: 		i
+		    																					});
+		    													
+		    													// get the weight for the current line
+		    													var packageWeight = itemFulfillmentRecord.getCurrentSublistValue({
+																		    														sublistId: 	'package',
+																		    														fieldId: 	'packageweight'
+																		    													});
+		    													
+		    													// if there is no weight on the line
+		    													if (!packageWeight)
+		    														{
+		    															// set the package weight to 1
+		    															itemFulfillmentRecord.setCurrentSublistValue({
+												    																sublistId: 	'package',
+												    																fieldId: 	'packageweight',
+												    																value: 		1
+												    																});
+		    														}
+		    													
+		    													// set the tracking number field on the sublist line
+		    													itemFulfillmentRecord.setCurrentSublistValue({
+												    														sublistId: 	'package',
+												    														fieldId: 	'packagetrackingnumber',
+												    														value: 		packageNumber
+												    														});
+		    													
+		    													// commit the changes to the sublist line
+		    													itemFulfillmentRecord.commitLine({sublistId: 'package'});
+		    													
+		    													//Create the data required to generate the hyperlink to tracking info
+						    									//
+						    									try
+						    										{
+						    											var customRecord = record.create({
+						    																				type:		'customrecord_bbs_if_additional_fields',
+						    																				isDynamic:	true
+						    																			});
+						    											customRecord.setValue({
+						    																	fieldId:	'custrecord_bbs_if_fulfilment',
+						    																	value:		recordID
+						    																	});
+						    											
+						    											customRecord.setValue({
+						    																	fieldId:	'custrecord_bbs_if_package_key',
+						    																	value:		packageNumber
+						    																	});
+								
+						    											customRecord.save({
+						    																enableSourcing: 		false,
+						    																ignoreMandatoryFields:	true
+						    																});
+						    										}
+						    									catch(err)
+						    										{
+						    										
+						    										}
+		    													
+		    													// if labelFileType is PNG
+		    													if (labelFileType == 'PNG')
+		    														{
+			    														// create a PNG of the courier label and store in the file cabinet
+								    									var courierLabel = file.create({
+															    										fileType: 	file.Type.PNGIMAGE,
+															    										name: 		packageNumber + '.' + labelFileType,
+															    										contents: 	labelImage,
+															    										folder: 	fileCabinetFolder,
+															    										isOnline: 	true
+															    									});
+		    														}
+		    													else if (labelFileType == 'PDF') // if labelFileType is PDF
+		    														{
+			    														// create a PDF of the courier label and store in the file cabinet
+								    									var courierLabel = file.create({
+															    										fileType: 	file.Type.PDF,
+															    										name: 		packageNumber + '.' + labelFileType,
+															    										contents: 	labelImage,
+															    										folder: 	fileCabinetFolder,
+															    										isOnline: 	true
+															    										});
+		    														}
+						    									
+						    									// save the file in the file cabinet and get the file's ID
+						    									var courierLabelFileID = courierLabel.save();
+						    									
+						    									// attach the file to the item fulfilment
+				    											record.attach({
+							    												record: {
+							    														type: 	'file',
+							    														id: 	courierLabelFileID
+							    														},
+							    												to: 	{
+							    														type: 	record.Type.ITEM_FULFILLMENT,
+							    														id: 	recordID
+							    														}
+							    												});
+				    											
+				    											// check if this is the first package
+				    											if (i == 0)
+				    												{
+					    												// reload the file
+								    									courierLabel = file.load({
+								    									    id: courierLabelFileID
+								    									});
+				    												
+				    													// build up the file's URL
+								    									var courierLabelFileURL = 'https://';
+								    									courierLabelFileURL += companyURL;
+								    									courierLabelFileURL += courierLabel.url;
+
+						    											// update the item fulfilment record
+								    									itemFulfillmentRecord.setValue({
+															    										fieldId: 	'custbody_bbs_ci_consignment_number',
+															    										value: 		consignmentNumber
+															    										});
+								    									
+								    									itemFulfillmentRecord.setValue({
+															    										fieldId: 	'custbody_bbs_ci_consignment_error',
+															    										value: 		null
+															    										});
+								    									
+								    									itemFulfillmentRecord.setValue({
+															    										fieldId: 	'custbody_bbs_ci_label_image',
+															    										value: 		courierLabelFileURL
+															    										});
+				    												}
+		    												}
+		    										}
+		    									else
+		    										{
+		    											// get any error messages
+		    											var errorMessages = processShipmentsResponse['message'];
+		    											
+		    											// update the item fulfilment record
+		    											itemFulfillmentRecord.setValue({
+		    																			fieldId: 	'custbody_bbs_ci_consignment_number',
+		    																			value: 		null
+				    																	});
+				    									
+				    									itemFulfillmentRecord.setValue({
+											    										fieldId: 	'custbody_bbs_ci_consignment_error',
+											    										value: 		errorMessages
+											    										});
+				    									
+				    									itemFulfillmentRecord.setValue({
+											    										fieldId: 	'custbody_bbs_ci_label_image',
+											    										value: 		null
+											    									});
+				    									
+				    									itemFulfillmentRecord.setValue({
+											    										fieldId: 	'custbody_bbs_ci_shipping_carrier',
+											    										value: 		null
+											    									});
+		    										}
+
+
 			    								// save the item fulfilment record
 			    								itemFulfillmentRecord.save();
 							    			}
@@ -964,80 +750,15 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    								
 	    								//Work out which integration module to use
 	    								//
+	    								var cancelShipmentResponse = null;
+	    								
 	    								switch(shippingCarrierInfo.primaryCarrierName)
 	    									{
 			    								case 'GFS':
 			    								
 			    									//Send the request to the specific carrier
 			    									//
-			    									var cancelShipmentResponse = BBSCarrierGFS.carrierCancelShipments(cancelShipmentRequest);	//Pass in the info gleaned from the IF record here
-			    									
-			    									//Process the response from the carrier
-			    									//
-			    									if (cancelShipmentResponse['status'] == 'SUCCESS')
-			    										{
-				    										//Define email subject
-					    									//
-					    									var emailSubject = 'Cancel Shipment Request - ' + cancelShipmentResponse['status'];
-					    									
-					    									//Define email body
-					    									//
-					    									var emailBody 	= 	'<b>Item Fulfillment:</b> ' + tranID;
-					    									emailBody 		+= 	'<br><b>Consignment No:</b> ' + consignmentNo;
-					    									emailBody		+= 	'<br><br>this alert has been generated by the script BBS Carrier Fulfilment Integration UE';
-					    									
-					    									try
-						    									{
-						    										//Send email to the logged in user
-							    									//
-							    									email.send({
-							    										author: emailSender,
-							    										recipients: currentUser,
-							    										subject: emailSubject,
-							    										body: emailBody
-							    									});
-						    									}
-					    									catch(e)
-					    										{
-					    											log.error({
-					    												title: 'Unable to Send Email',
-					    												details: e
-					    											});
-					    										}
-			    										}
-			    									else
-			    										{
-				    										//Define email subject
-					    									//
-					    									var emailSubject = 'Cancel Shipment Request - ' + cancelShipmentResponse['status'];
-					    									
-					    									//Define email body
-					    									//
-					    									var emailBody 	= 	'<b>Item Fulfillment:</b> ' + tranID;
-					    									emailBody 		+= 	'<br><b>Consignment No:</b> ' + consignmentNo;
-					    									emailBody		+=	'<br><b>Error Messages:</b> ' + cancelShipmentResponse['message'];
-					    									emailBody		+= 	'<br><br>this alert has been generated by the script BBS Carrier Fulfilment Integration UE';
-					    									
-					    									try
-						    									{
-						    										//Send email to the logged in user
-							    									//
-							    									email.send({
-							    										author: emailSender,
-							    										recipients: currentUser,
-							    										subject: emailSubject,
-							    										body: emailBody
-							    									});
-						    									}
-					    									catch(e)
-					    										{
-					    											log.error({
-					    												title: 'Unable to Send Email',
-					    												details: e
-					    											});
-					    										}
-			    										}
-			    									
+			    									cancelShipmentResponse = BBSCarrierGFS.carrierCancelShipments(cancelShipmentRequest);	//Pass in the info gleaned from the IF record here
 			    									
 			    									break;
 			    									
@@ -1045,79 +766,76 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 			    									
 			    									//Send the request to the specific carrier
 			    									//
-			    									var cancelShipmentResponse = BBSCarrierProCarrier.carrierCancelShipments(cancelShipmentRequest);	//Pass in the info gleaned from the IF record here
-			    									
-			    									//Process the response from the carrier
-			    									//
-			    									if (cancelShipmentResponse['status'] == '200')
-			    										{
-				    										//Define email subject
-					    									//
-					    									var emailSubject = 'Cancel Shipment Request - Processed Ok';
-					    									
-					    									//Define email body
-					    									//
-					    									var emailBody 	= 	'<b>Item Fulfillment:</b> ' + tranID;
-					    									emailBody 		+= 	'<br><b>Consignment No:</b> ' + consignmentNo;
-					    									emailBody		+= 	'<br><br>this alert has been generated by the script BBS Carrier Fulfilment Integration UE';
-					    									
-					    									try
-						    									{
-						    										//Send email to the logged in user
-							    									//
-							    									email.send({
-							    										author: emailSender,
-							    										recipients: currentUser,
-							    										subject: emailSubject,
-							    										body: emailBody
-							    									});
-						    									}
-					    									catch(e)
-					    										{
-					    											log.error({
-					    												title: 'Unable to Send Email',
-					    												details: e
-					    											});
-					    										}
-			    										}
-			    									else
-			    										{
-				    										//Define email subject
-					    									//
-					    									var emailSubject = 'Cancel Shipment Request - ' + cancelShipmentResponse['status'];
-					    									
-					    									//Define email body
-					    									//
-					    									var emailBody 	= 	'<b>Item Fulfillment:</b> ' + tranID;
-					    									emailBody 		+= 	'<br><b>Consignment No:</b> ' + consignmentNo;
-					    									emailBody		+=	'<br><b>Error Messages:</b> ' + cancelShipmentResponse['message'];
-					    									emailBody		+= 	'<br><br>this alert has been generated by the script BBS Carrier Fulfilment Integration UE';
-					    									
-					    									try
-						    									{
-						    										//Send email to the logged in user
-							    									//
-							    									email.send({
-							    										author: emailSender,
-							    										recipients: currentUser,
-							    										subject: emailSubject,
-							    										body: emailBody
-							    									});
-						    									}
-					    									catch(e)
-					    										{
-					    											log.error({
-					    												title: 'Unable to Send Email',
-					    												details: e
-					    											});
-					    										}
-			    										}
+			    									cancelShipmentResponse = BBSCarrierProCarrier.carrierCancelShipments(cancelShipmentRequest);	//Pass in the info gleaned from the IF record here
 			    									
 			    									break;
-			    									
-			    								//Other integration implementations go here
-				    							//
 	    									}
+	    								
+			    						//Process the response from the carrier
+			    						//
+			    						if (cancelShipmentResponse['status'] == 'SUCCESS' || cancelShipmentResponse['status'] == '200')
+			    							{
+				    							//Define email subject
+					    						//
+					    						var emailSubject = 'Cancel Shipment Request - Processed ok';
+					    									
+					    						//Define email body
+					    						//
+					    						var emailBody 	= 	'<b>Item Fulfillment:</b> ' + tranID;
+					    						emailBody 		+= 	'<br><b>Consignment No:</b> ' + consignmentNo;
+					    						emailBody		+= 	'<br><br>this alert has been generated by the script BBS Carrier Fulfilment Integration UE';
+					    									
+					    						try
+						    						{
+						    							//Send email to the logged in user
+							    						//
+							    						email.send({
+							    									author: 		emailSender,
+							    									recipients: 	currentUser,
+							    									subject: 		emailSubject,
+							    									body: 			emailBody
+							    								});
+						    						}
+					    						catch(e)
+					    							{
+					    								log.error({
+					    											title: 'Unable to Send Email',
+					    											details: e
+					    										});
+					    							}
+			    							}
+			    						else
+			    							{
+				    							//Define email subject
+					    						//
+					    						var emailSubject = 'Cancel Shipment Request - ' + cancelShipmentResponse['status'];
+					    									
+					    						//Define email body
+					    						//
+					    						var emailBody 	= 	'<b>Item Fulfillment:</b> ' + tranID;
+					    						emailBody 		+= 	'<br><b>Consignment No:</b> ' + consignmentNo;
+					    						emailBody		+=	'<br><b>Error Messages:</b> ' + cancelShipmentResponse['message'];
+					    						emailBody		+= 	'<br><br>this alert has been generated by the script BBS Carrier Fulfilment Integration UE';
+					    									
+					    						try
+						    						{
+						    							//Send email to the logged in user
+							    						//
+							    						email.send({
+							    									author: 		emailSender,
+							    									recipients: 	currentUser,
+							    									subject: 		emailSubject,
+							    									body: 			emailBody
+							    								});
+						    						}
+					    						catch(e)
+					    							{
+					    								log.error({
+					    											title: 		'Unable to Send Email',
+					    											details: 	e
+					    										});
+					    							}
+			    							}
 	    							}
 	    					}
 	    				

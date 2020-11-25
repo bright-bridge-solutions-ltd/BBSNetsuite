@@ -341,7 +341,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 							itemObj.Sku 			= shippingRequestData.itemDetails[int].itemText;
 							itemObj.HsCode 			= shippingRequestData.itemDetails[int].itemCommodity;
 							itemObj.OriginCountry 	= shippingRequestData.itemDetails[int].itemCountry;
-							itemObj.PurchaseUrl	 	= '';
+							itemObj.PurchaseUrl	 	= 'https://www.crafterscompanion.co.uk';
 							itemObj.Quantity 		= shippingRequestData.itemDetails[int].itemQty;
 							itemObj.Value 			= shippingRequestData.itemDetails[int].itemValue;
 							totalValue			   += Number(shippingRequestData.itemDetails[int].itemValue);
