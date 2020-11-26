@@ -102,6 +102,7 @@ function buildOutput(_fulfillmentId)
 								var soShipCost 			= Number(salesOrderRecord.getFieldValue('shippingcost'));
 								var soCurrency 			= salesOrderRecord.getFieldValue('currency');
 								var soCurrencySymbol	= getCurrencySymbol(soCurrency);
+								var soPlacedByEmail 	= nlapiEscapeXML(salesOrderRecord.getFieldValue('custbody_bbs_order_contact_email'));
 								
 								try
 									{
@@ -126,8 +127,8 @@ function buildOutput(_fulfillmentId)
 										xml += '            <table class="header" style="table-layout:fixed; width:100%;">';
 										xml += '            	<tr>';
 										xml += '					<td style="width: 60%"><img src="https://3976137-sb1.app.netsuite.com/core/media/media.nl?id=1897&amp;c=3976137_SB1&amp;h=a06e41069e3014da9368" style="width:136px; height:63px;" /></td>';
-										xml += '					<td style="width: 22%; font-size: 8px;" align="left">Telephone<br/>+44(0) 1362 695 006<br/>Email<br/>sales@borgandoverstrom.com<br/>&nbsp;<br/>&nbsp;<br/>&nbsp;<br/><b>borgandoverstrom.com</b></td>';
-										xml += '					<td style="width: 18%; font-size: 8px;" align="left">Synergy House<br/>Fakenham Road<br/>Morton on the Hill<br/>NR9 5SP</td>';
+										xml += '					<td style="width: 22%; font-size: 9px;" align="left">Telephone<br/>+44(0) 1362 695 006<br/>Email<br/>sales@borgandoverstrom.com<br/>&nbsp;<br/>&nbsp;<br/>&nbsp;<br/><b>borgandoverstrom.com</b></td>';
+										xml += '					<td style="width: 18%; font-size: 9px;" align="left">Synergy House<br/>Fakenham Road<br/>Morton on the Hill<br/>NR9 5SP</td>';
 										xml += '				</tr>';
 										xml += '			</table>';
 										xml += '          ';
@@ -135,14 +136,14 @@ function buildOutput(_fulfillmentId)
 										xml += '            	<tr>';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
 										xml += '					<td style="width: 27%; font-size: 10px;"><b>Invoice To</b></td>';
-										xml += '					<td style="width: 12%; font-size: 10px;" align="left"><b>Date</b></td>';
+										xml += '					<td style="width: 12%; font-size: 10px;" align="left">&nbsp;</td>';
 										xml += '					<td style="width: 41%; font-size: 10px;" align="left">' + ifTranDate + '</td>';
 										xml += '				</tr>';
 										xml += '				<tr style="margin-top: 5px;">';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
 										xml += '					<td style="width: 27%; font-size: 10px;">' + soBillAddress + '</td>';
 										xml += '					<td style="width: 12%; font-size: 10px;" align="left">&nbsp;</td>';
-										xml += '					<td style="width: 41%; font-size: 10px;" align="left">' + ifTranId + '</td>';
+										xml += '					<td style="width: 41%; font-size: 10px;" align="left">' + soTranId + '</td>';
 										xml += '				</tr>';
 										xml += '				<tr>';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
@@ -168,7 +169,7 @@ function buildOutput(_fulfillmentId)
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
 										xml += '					<td style="width: 20%; font-size: 10px;" align="left">&nbsp;</td>';
-										xml += '					<td style="width: 40%; font-size: 10px;" align="left" rowspan="6">' + ifTranShipAddress + '</td>';
+										xml += '					<td style="width: 40%; font-size: 10px;" align="left" rowspan="4">' + ifTranShipAddress + '</td>';
 										xml += '				</tr>';
 										xml += '				<tr>';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
@@ -189,11 +190,13 @@ function buildOutput(_fulfillmentId)
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
 										xml += '					<td style="width: 20%; font-size: 10px;" align="left">Our Reference</td>';
 										xml += '					<td style="width: 20%; font-size: 10px;" align="left">' + ifTranId + '</td>';
+										xml += '					<td style="width: 40%; font-size: 10px;" align="left"><b>Contact Email:</b></td>';
 										xml += '				</tr>';
 										xml += '				<tr>';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
 										xml += '					<td style="width: 20%; font-size: 10px;" align="left">SO Reference</td>';
 										xml += '					<td style="width: 20%; font-size: 10px;" align="left">Sales Order #' + soTranId + '</td>';
+										xml += '					<td style="width: 40%; font-size: 10px;" align="left">' + soPlacedByEmail + '</td>';
 										xml += '				</tr>';
 										xml += '';
 										xml += '			</table>';
@@ -201,7 +204,8 @@ function buildOutput(_fulfillmentId)
 										xml += '      ';
 										xml += '        <macro id="nlfooter">';
 										xml += '            <table class="header" style="table-layout:fixed; width:100%;">';
-										xml += '            	<tr>';
+							/*
+							 			xml += '            	<tr>';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
 										xml += '					<td style="width: 35%; font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Country of Origin: United Kingdom</td>';
 										xml += '					<td style="width: 45%; font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;" align="left">Watercooler Dispensers for filtered water and related parts.</td>';
@@ -211,10 +215,11 @@ function buildOutput(_fulfillmentId)
 										xml += '					<td style="width: 35%; font-size: 10px;">Certified True and Correct</td>';
 										xml += '					<td style="width: 45%; font-size: 10px;" align="left">&nbsp;</td>';
 										xml += '				</tr>';
+							*/
 										xml += '            	<tr style="margin-top: 10px;">';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
-										xml += '					<td style="width: 35%; font-size: 10px;">Print: ' + userName + '</td>';
-										xml += '					<td style="width: 45%; font-size: 10px;" align="left">&nbsp;</td>';
+										xml += '					<td style="width: 35%; font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Print: ' + userName + '</td>';
+										xml += '					<td style="width: 45%; font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;" align="left">&nbsp;</td>';
 										xml += '				</tr>';
 										xml += '            	<tr style="margin-top: 10px;">';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
@@ -241,7 +246,7 @@ function buildOutput(_fulfillmentId)
 										xml += '		}';
 										xml += '	</style>';
 										xml += '</head>';
-										xml += '<body header="nlheader" header-height="500px" footer="nlfooter" footer-height="120px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
+										xml += '<body header="nlheader" header-height="510px" footer="nlfooter" footer-height="100px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
 										
 									
 										var ifLines 	= fulfillmentRecord.getLineItemCount('item');
@@ -252,16 +257,16 @@ function buildOutput(_fulfillmentId)
 												xml += '  <table class="header" style="width: 100%;">';
 												xml += '    <thead>';
 												xml += '        <tr>';
-												xml += '          <th align="left"  colspan="2" style="font-size: 8px;">&nbsp;</th>';
-												xml += '          <th align="left"  colspan="2" style="font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Serial Number</th>';
-												xml += '          <th align="left"  colspan="2" style="font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Item</th>';
-												xml += '          <th align="left"  colspan="2" style="font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Com. Code</th>';
-												xml += '          <th align="left"  colspan="5" style="font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Description</th>';
-												xml += '          <th align="left"  colspan="2" style="font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Type</th>';
-												xml += '          <th align="right" colspan="2" style="font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Qty</th>';
-												xml += '          <th align="right" colspan="2" style="font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Unit Price</th>';
-												xml += '          <th align="right" colspan="2" style="font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Net Price</th>';
-												xml += '          <th align="right" colspan="2" style="font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">KG</th>';
+												xml += '          <th align="left"  colspan="2" style="font-size: 9px;">&nbsp;</th>';
+												xml += '          <th align="left"  colspan="2" style="font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Serial Number</th>';
+												xml += '          <th align="left"  colspan="2" style="font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Item</th>';
+												xml += '          <th align="left"  colspan="2" style="font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Com. Code</th>';
+												xml += '          <th align="left"  colspan="5" style="font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Description</th>';
+												xml += '          <th align="left"  colspan="2" style="font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Type</th>';
+												xml += '          <th align="right" colspan="2" style="font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Qty</th>';
+												xml += '          <th align="right" colspan="2" style="font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Unit Price</th>';
+												xml += '          <th align="right" colspan="2" style="font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Net Price</th>';
+												xml += '          <th align="right" colspan="2" style="font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">KG</th>';
 												xml += '        </tr>';
 												xml += '    </thead>';
 												
@@ -290,43 +295,59 @@ function buildOutput(_fulfillmentId)
 														subTotal 			   += ifNetPrice;
 														
 														xml += '       <tr>';
-														xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 8px;">&nbsp;</td>';
-														xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 8px;">' + ifLineSerialNo + '</td>';
-														xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 8px;">' + ifLineItem + '</td>';
-														xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 8px;">' + ifLineCommodity + '</td>';
-														xml += '          <td align="left"  colspan="5" style="padding-left: 0px; font-size: 8px;">' + ifLineDescription + '</td>';
-														xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 8px;">' + ifLineItemType + '</td>';
-														xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 8px;">' + ifLineQuantity.numberFormat('0.00') + '</td>';
-														xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 8px;">' + ifLineUnitPrice.numberFormat('0.00') + '</td>';
-														xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 8px;">' + ifNetPrice.numberFormat('0.00') + '</td>';
-														xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 8px;">' + ifLineWeight.numberFormat('0.00') + '</td>';
+														xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+														xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineSerialNo + '</td>';
+														xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineItem + '</td>';
+														xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineCommodity + '</td>';
+														xml += '          <td align="left"  colspan="5" style="padding-left: 0px; font-size: 9px;">' + ifLineDescription + '</td>';
+														xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineItemType + '</td>';
+														xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineQuantity.numberFormat('0.00') + '</td>';
+														xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineUnitPrice.numberFormat('0.00') + '</td>';
+														xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifNetPrice.numberFormat('0.00') + '</td>';
+														xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineWeight.numberFormat('0.00') + '</td>';
 														xml += '        </tr>';
 													}
 											
 												var total = Number(subTotal + soShipCost); 
 												
 												xml += '    	<tr style="margin-top: 10px;">';
-												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 8px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 8px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="15" style="padding-left: 0px; font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Subtotal</td>';
-												xml += '          <td align="right" colspan="2"  style="padding-left: 0px; font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">' + subTotal.numberFormat('0.00') + '</td>';
-												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 8px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="15" style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Subtotal</td>';
+												xml += '          <td align="right" colspan="2"  style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">' + subTotal.numberFormat('0.00') + '</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '        </tr>';
 												xml += '    	<tr>';
-												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 8px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 8px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="15" style="padding-left: 0px; font-size: 8px;">Shipping Cost (' + ifShipMethod + ')</td>';
-												xml += '          <td align="right" colspan="2"  style="padding-left: 0px; font-size: 8px;">' + soShipCost.numberFormat('0.00') + '</td>';
-												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 8px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="15" style="padding-left: 0px; font-size: 9px;">Shipping Cost (' + ifShipMethod + ')</td>';
+												xml += '          <td align="right" colspan="2"  style="padding-left: 0px; font-size: 9px;">' + soShipCost.numberFormat('0.00') + '</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '        </tr>';
 												xml += '    	<tr>';
-												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 8px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 8px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="15" style="padding-left: 0px; font-size: 8px;">Total Amount</td>';
-												xml += '          <td align="right" colspan="2"  style="padding-left: 0px; font-size: 8px;">' + soCurrencySymbol + total.numberFormat('0.00') + '</td>';
-												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 8px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="15" style="padding-left: 0px; font-size: 9px;">Total Amount</td>';
+												xml += '          <td align="right" colspan="2"  style="padding-left: 0px; font-size: 9px;">' + soCurrencySymbol + total.numberFormat('0.00') + '</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '        </tr>';
 												xml += '';
+												
+												xml += '    	<tr style="margin-top: 10px;">';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="9" style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Country of Origin: United Kingdom</td>';
+												xml += '          <td align="left"  colspan="8"  style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Watercooler Dispensers for filtered water and related parts.</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '        </tr>';
+												xml += '    	<tr>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="9"  style="padding-left: 0px; font-size: 9px;">Certified True and Correct</td>';
+												xml += '          <td align="left"  colspan="8"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '        </tr>';
+												
 												xml += '  </table>';
 											}
 										else
