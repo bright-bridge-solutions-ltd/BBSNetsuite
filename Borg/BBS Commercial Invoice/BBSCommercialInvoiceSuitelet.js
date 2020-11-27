@@ -195,7 +195,7 @@ function buildOutput(_fulfillmentId)
 										xml += '				<tr>';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
 										xml += '					<td style="width: 20%; font-size: 10px;" align="left">SO Reference</td>';
-										xml += '					<td style="width: 20%; font-size: 10px;" align="left">Sales Order #' + soTranId + '</td>';
+										xml += '					<td style="width: 20%; font-size: 10px;" align="left">' + soTranId + '</td>';
 										xml += '					<td style="width: 40%; font-size: 10px;" align="left">' + soPlacedByEmail + '</td>';
 										xml += '				</tr>';
 										xml += '';
@@ -204,22 +204,22 @@ function buildOutput(_fulfillmentId)
 										xml += '      ';
 										xml += '        <macro id="nlfooter">';
 										xml += '            <table class="header" style="table-layout:fixed; width:100%;">';
-							/*
+							
 							 			xml += '            	<tr>';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
 										xml += '					<td style="width: 35%; font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Country of Origin: United Kingdom</td>';
-										xml += '					<td style="width: 45%; font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;" align="left">Watercooler Dispensers for filtered water and related parts.</td>';
+										xml += '					<td style="width: 45%; font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;" align="left">&nbsp;</td>';
 										xml += '				</tr>';
 										xml += '            	<tr>';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
 										xml += '					<td style="width: 35%; font-size: 10px;">Certified True and Correct</td>';
 										xml += '					<td style="width: 45%; font-size: 10px;" align="left">&nbsp;</td>';
 										xml += '				</tr>';
-							*/
+							
 										xml += '            	<tr style="margin-top: 10px;">';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
-										xml += '					<td style="width: 35%; font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Print: ' + userName + '</td>';
-										xml += '					<td style="width: 45%; font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;" align="left">&nbsp;</td>';
+										xml += '					<td style="width: 35%; font-size: 10px;">Print: ' + userName + '</td>';
+										xml += '					<td style="width: 45%; font-size: 10px;" align="left">&nbsp;</td>';
 										xml += '				</tr>';
 										xml += '            	<tr style="margin-top: 10px;">';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
@@ -246,7 +246,7 @@ function buildOutput(_fulfillmentId)
 										xml += '		}';
 										xml += '	</style>';
 										xml += '</head>';
-										xml += '<body header="nlheader" header-height="510px" footer="nlfooter" footer-height="100px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
+										xml += '<body header="nlheader" header-height="510px" footer="nlfooter" footer-height="120px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
 										
 									
 										var ifLines 	= fulfillmentRecord.getLineItemCount('item');
@@ -308,9 +308,12 @@ function buildOutput(_fulfillmentId)
 														xml += '        </tr>';
 													}
 											
+												xml += '  </table>';
+												
 												var total = Number(subTotal + soShipCost); 
 												
-												xml += '    	<tr style="margin-top: 10px;">';
+												xml += '  <table class="header" style="width: 100%; page-break-inside: avoid; margin-top: 10px;">';
+												xml += '    	<tr>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="15" style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Subtotal</td>';
@@ -336,15 +339,8 @@ function buildOutput(_fulfillmentId)
 												xml += '    	<tr style="margin-top: 10px;">';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="9" style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Country of Origin: United Kingdom</td>';
-												xml += '          <td align="left"  colspan="8"  style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Watercooler Dispensers for filtered water and related parts.</td>';
-												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
-												xml += '        </tr>';
-												xml += '    	<tr>';
-												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="9"  style="padding-left: 0px; font-size: 9px;">Certified True and Correct</td>';
-												xml += '          <td align="left"  colspan="8"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="9" style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Watercooler Dispensers for filtered water and related parts.</td>';
+												xml += '          <td align="left"  colspan="8"  style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '        </tr>';
 												
