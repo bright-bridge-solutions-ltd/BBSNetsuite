@@ -59,6 +59,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 	    			var paramSelectTierText		= context.request.parameters['tiertext'];			//The selected tier as text
 	    			var paramSession			= context.request.parameters['session'];			//The session id
 	    			var paramMaxRecords			= context.request.parameters['maxrecs'];			//The max number of records to return
+	    			var paramSelectShip			= context.request.parameters['ship'];				//The shipping method
+	    			var paramSelectShipText		= context.request.parameters['shiptext'];			//The shipping method as text
 	    			
 					var stage 					= (paramStage == null || paramStage == '' || isNaN(paramStage) ? 1 : paramStage);
 					
@@ -139,12 +141,48 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													                id: 		'custpage_entry_select_tier',
 													                type: 		serverWidget.FieldType.SELECT,
 													                label: 		'Customer Tier',
-													                //source:		'customlist_ns_tiercustlist',
 													                source:		'customlist_group_id',
 													                container:	'custpage_filters_group'
 												            		});
 								
-								//selectTierField.isMandatory = true;
+								//Add a field for the shipping method
+								//
+								var selectShipField = form.addField({
+													                id: 		'custpage_entry_select_ship',
+													                type: 		serverWidget.FieldType.SELECT,
+													                label: 		'Shipping Method',
+													                //source:		'shipitem',
+													                container:	'custpage_filters_group'
+												            		});
+								
+								var shipitemSearchObj = getResults(search.create({
+																				   type: 	"shipitem",
+																				   filters:	[
+																							      ["isinactive","is","F"]
+																							],
+																				   columns:	
+																							   [
+																							      search.createColumn({name: "itemid", sort: search.Sort.ASC, label: "Name"}),
+																							      search.createColumn({name: "internalid", label: "Internal Id"})
+																							   ]
+																				}));
+								
+								selectShipField.addSelectOption({
+																value:			'',
+																text:			'',
+																isSelected:		false
+																});	
+
+
+								for (var int = 0; int < shipitemSearchObj.length; int++) 
+									{
+										selectShipField.addSelectOption({
+																			value:			shipitemSearchObj[int].getValue({name: 'internalid'}),
+																			text:			shipitemSearchObj[int].getValue({name: 'itemid'}),
+																			isSelected:		false
+																			});	
+									}
+								
 								
 								//Add a field for the max record count
 								//
@@ -196,6 +234,28 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													            		});
 								selectTierTxtField.defaultValue 	= paramSelectTierText;
 								selectTierTxtField.updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});
+								
+								//Add a field to display the shipping method
+								//
+								var selectShipField = form.addField({
+													                id: 		'custpage_entry_select_ship',
+													                type: 		serverWidget.FieldType.TEXT,
+													                label: 		'Shipping Method',
+													                container:	'custpage_filters_group'
+												            		});
+								selectShipField.defaultValue 	= paramSelectShip;
+								selectShipField.updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});
+
+
+								var selectShipTxtField = form.addField({
+														                id: 		'custpage_entry_select_ship_txt',
+														                type: 		serverWidget.FieldType.TEXT,
+														                label: 		'Shipping Method',
+														                container:	'custpage_filters_group'
+													            		});
+								selectShipTxtField.defaultValue 	= paramSelectShipText;
+								selectShipTxtField.updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});
+
 								
 								//Add a field to display the max records
 								//
@@ -277,6 +337,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													type:	serverWidget.FieldType.TEXT
 												});		
 
+								subList.addField({
+													id:		'custpage_sl_ship',
+													label:	'Shipping Method',
+													type:	serverWidget.FieldType.TEXT
+												});		
+
 								//Add a mark all button
 					            //
 								subList.addMarkAllButtons();
@@ -306,10 +372,15 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					            if(paramSelectTier != null && paramSelectTier != '')
 					            	{
 					            		filters.push("AND");
-					            		//filters.push(["customer.custentity_ns_tiercust","anyof",paramSelectTier]);
 					            		filters.push(["custbodycustbody_customer_group","anyof",paramSelectTier]);
 					            	}
 					            
+					            if(paramSelectShip != null && paramSelectShip != '')
+					            	{
+					            		filters.push("AND");
+					            		filters.push(["shipmethod","anyof",paramSelectShip]);
+					            	}
+				            
 					            var sessionData 	= BBSConsolidatedPickingListLibrary.libGetSessionData(paramSession);
 								
 								if(sessionData != null && sessionData != '')
@@ -329,20 +400,20 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 									}
 								
 					            var salesorderSearchObj = getResults(search.create({
-					            	   type: 		"salesorder",
-					            	   filters:		filters,
-					            	   columns:
-								            	   [
-								            	      search.createColumn({name: "internalid", label: "Internal Id"}),
-								            	      search.createColumn({name: "tranid", label: "Document Number"}),
-								            	      search.createColumn({name: "trandate", sort: search.Sort.ASC, label: "Date"}),
-								            	      search.createColumn({name: "entity", label: "Name"}),
-								            	    //  search.createColumn({name: "custentity_ns_tiercust", join: "customer", label: "Customer Tier"}),
-								            	      search.createColumn({name: "custbodycustbody_customer_group", label: "Customer Tier"}),
-								            	      search.createColumn({name: "amount", label: "Amount"}),
-								            	      search.createColumn({name: "locationnohierarchy", label: "Location (no hierarchy)"})
-								            	   ]
-					            	}));
+																            	   type: 		"salesorder",
+																            	   filters:		filters,
+																            	   columns:
+																			            	   [
+																			            	      search.createColumn({name: "internalid", label: "Internal Id"}),
+																			            	      search.createColumn({name: "tranid", label: "Document Number"}),
+																			            	      search.createColumn({name: "trandate", sort: search.Sort.ASC, label: "Date"}),
+																			            	      search.createColumn({name: "entity", label: "Name"}),
+																			            	      search.createColumn({name: "custbodycustbody_customer_group", label: "Customer Tier"}),
+																			            	      search.createColumn({name: "amount", label: "Amount"}),
+																			            	      search.createColumn({name: "shipmethod", label: "Shipping Method"}),
+																			            	      search.createColumn({name: "locationnohierarchy", label: "Location (no hierarchy)"})
+																			            	   ]
+																            	}));
 					            	
 					            if(salesorderSearchObj != null && salesorderSearchObj.length > 0)
 					            	{
@@ -390,6 +461,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																		id:		'custpage_sl_location',
 																		line:	int,
 																		value:	isNullorBlank(salesorderSearchObj[int].getText({name: 'locationnohierarchy'}), ' ')
+																		});	
+						            			
+						            			subList.setSublistValue({
+																		id:		'custpage_sl_ship',
+																		line:	int,
+																		value:	isNullorBlank(salesorderSearchObj[int].getText({name: 'shipmethod'}), ' ')
 																		});	
 
 						            			customers[salesorderSearchObj[int].getText({name: 'entity'})] = salesorderSearchObj[int].getValue({name: 'entity'});
@@ -444,6 +521,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								var tier 					= request.parameters['custpage_entry_select_tier'];
 								var tierText				= request.parameters['inpt_custpage_entry_select_tier'];
 								var maxRecs					= request.parameters['custpage_entry_select_max_rec'];
+								var ship 					= request.parameters['custpage_entry_select_ship'];
+								var shipText				= request.parameters['inpt_custpage_entry_select_ship'];
 								
 								//Increment the stage
 								//
@@ -460,7 +539,9 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																			tier:			tier,
 																			tiertext:		tierText,
 																			session:		session,
-																			maxrecs:		maxRecs
+																			maxrecs:		maxRecs,
+																			ship:			ship,
+																			shiptext:		shipText
 																		}
 														});
 								

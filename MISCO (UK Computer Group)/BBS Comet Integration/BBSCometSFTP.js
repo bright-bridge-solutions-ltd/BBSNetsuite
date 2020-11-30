@@ -336,8 +336,10 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																						
 																						//Find item 
 																						//
-																						var itemId = null;
-																						
+																						var itemId 			= null;
+																						var itemType 		= null;
+																						var itemDropShip	= null;
+
 																						var itemSearchObj = getResults(search.create({
 																																	   type: "item",
 																																	   filters:
@@ -347,13 +349,17 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																																	   columns:
 																																	   [
 																																	      search.createColumn({name: "itemid", label: "Name"}),
-																																	      search.createColumn({name: "displayname", label: "Display Name"})
+																																	      search.createColumn({name: "displayname", label: "Display Name"}),
+																																	      search.createColumn({name: "isdropshipitem", label: "Is DropShip"}), 
+																																	      search.createColumn({name: "type", label: "Type"})
 																																	   ]
 																																	}));
 																						
 																						if(itemSearchObj != null && itemSearchObj.length == 1)
 																							{	
-																								itemId = itemSearchObj[0].id;
+																								itemId 			= itemSearchObj[0].id;
+																								itemType 		= itemSearchObj[0].getValue({name: "type"});
+																								itemDropShip 	= itemSearchObj[0].getValue({name: "isdropshipitem"});
 																							}
 																						
 																						//If the item was not found, then we need to create one
@@ -438,6 +444,9 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																																		enableSourcing:			true,
 																																		ignoreMandatoryFields:	true
 																																		});
+																												
+																												itemType 		= 'InvtPart';
+																												itemDropShip 	= true;
 																											}
 																										else
 																											{
@@ -464,9 +473,9 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																								//
 																								var supplierId = findSupplier(lineSupplier, supplierSuffixParam);
 																							
-																								//Only add the line if we have found the supplier
+																								//Only add the line if we have found the supplier or the line is a discount item
 																								//
-																								if(supplierId != null)
+																								if((supplierId != null && itemType != 'Discount') || itemType == 'Discount')
 																									{
 																										salesOrderRecord.selectNewLine({
 																													    				sublistId: 'item'
@@ -507,29 +516,35 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																																	    				});
 																											}
 																										
-																										salesOrderRecord.setCurrentSublistValue({
-																															    				sublistId: 	'item',
-																															    				fieldId: 	'porate',
-																															    				value: 		linePoPrice
-																															    				});
-							
-																										salesOrderRecord.setCurrentSublistValue({
-																															    				sublistId: 	'item',
-																															    				fieldId: 	'costestimatetype',
-																															    				value: 		'CUSTOM'
-																															    				});
+																										if(itemType != 'Discount')
+																											{
+																												salesOrderRecord.setCurrentSublistValue({
+																																	    				sublistId: 	'item',
+																																	    				fieldId: 	'porate',
+																																	    				value: 		linePoPrice
+																																	    				});
+									
+																												salesOrderRecord.setCurrentSublistValue({
+																																	    				sublistId: 	'item',
+																																	    				fieldId: 	'costestimatetype',
+																																	    				value: 		'CUSTOM'
+																																	    				});
+																												
+																												salesOrderRecord.setCurrentSublistValue({
+																																	    				sublistId: 	'item',
+																																	    				fieldId: 	'costestimaterate',
+																																	    				value: 		linePoPrice
+																																	    				});
+																											}
 																										
-																										salesOrderRecord.setCurrentSublistValue({
-																															    				sublistId: 	'item',
-																															    				fieldId: 	'costestimaterate',
-																															    				value: 		linePoPrice
-																															    				});
-							
-																										salesOrderRecord.setCurrentSublistValue({
-																															    				sublistId: 	'item',
-																															    				fieldId: 	'createpo',
-																															    				value: 		'DropShip'
-																															    				});
+																										if(itemDropShip)
+																											{
+																												salesOrderRecord.setCurrentSublistValue({
+																																	    				sublistId: 	'item',
+																																	    				fieldId: 	'createpo',
+																																	    				value: 		'DropShip'
+																																	    				});
+																											}
 																										
 																										salesOrderRecord.setCurrentSublistValue({
 																						    													sublistId: 	'item',
@@ -740,7 +755,6 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				//
 																				var rawDateArray 		= output.Order.OrderHeader.OrderDate.substring(0,output.Order.OrderHeader.OrderDate.indexOf('T')).split('-');
 																				var headerOrderNo 		= getDataElement(output, 'output.Order.OrderHeader.ExternalSystemOrderNo');
-																				var headerCustomerNo 	= getDataElement(output, 'output.Order.OrderHeader.CustomerNo');
 																				var headerCoName 		= getDataElement(output, 'output.Order.OrderHeader.CompanyInformation.Name');
 																				var headerContactName 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Name');
 																				var headerContactPhone 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Phone');
@@ -768,272 +782,277 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				var headerDateString 	= rawDateArray[2] + '/' + rawDateArray[1] + '/' + rawDateArray[0];
 																				var headerDate 			= format.parse({value: headerDateString, type: format.Type.DATE});
 																				
-																				//Find the b2b customer
+																				//Create sales order record
 																				//
-																				var customerToUse = findB2BCustomer(headerCustomerNo);
+																				var salesOrderRecord = record.create({
+																														type: 			record.Type.SALES_ORDER, 
+																													    isDynamic: 		true,
+																													    defaultValues: 	{
+																													        			entity: integrationCashSaleCust	//Cash Sale Customer
+																													    				} 
+																													});
 																				
-																				if(customerToUse != null)
+																				salesOrderRecord.setValue({
+																											fieldId:	'customform',
+																											value:		integrationFormId					
+																											});
+								
+																				salesOrderRecord.setValue({
+																											fieldId:	'custbody_bbs_weborderref',
+																											value:		headerOrderNo
+																											});
+																				
+																				salesOrderRecord.setValue({
+																											fieldId:	'trandate',
+																											value:		headerDate
+																											});
+																				
+																				salesOrderRecord.setValue({
+																											fieldId:	'orderstatus',
+																											value:		'A'					//Pending Approval
+																											});
+																				
+																				salesOrderRecord.setValue({
+																											fieldId:	'paymentmethod',
+																											value:		integrationPaymentMethod					
+																											});
+																				
+																				salesOrderRecord.setValue({
+																											fieldId:	'cseg_bbs_division',
+																											value:		integrationDivision					
+																											});
+
+																				//Shipping Address
+																				//
+																				var shippingSubrecord = salesOrderRecord.getSubrecord({fieldId: 'shippingaddress'});
+																				shippingSubrecord.setValue({fieldId: 'addr1', value: headerShipAddress1});
+																				shippingSubrecord.setValue({fieldId: 'addr2', value: headerShipAddress2});
+																				shippingSubrecord.setValue({fieldId: 'city', value: headerShipCity});
+																				shippingSubrecord.setValue({fieldId: 'state', value: headerShipCounty});
+																				shippingSubrecord.setValue({fieldId: 'zip', value: headerShipPostCode});
+																				shippingSubrecord.setValue({fieldId: 'adressee', value: headerShipCompany});
+																				shippingSubrecord.setValue({fieldId: 'attention', value: headerShipAdressee});
+																				
+																				//Billing Address
+																				//
+																				var billingSubrecord = salesOrderRecord.getSubrecord({fieldId: 'billingaddress'});
+																				billingSubrecord.setValue({fieldId: 'addr1', value: headerBillAddress1});
+																				billingSubrecord.setValue({fieldId: 'addr2', value: headerBillAddress2});
+																				billingSubrecord.setValue({fieldId: 'city', value: headerBillCity});
+																				billingSubrecord.setValue({fieldId: 'state', value: headerBillCounty});
+																				billingSubrecord.setValue({fieldId: 'zip', value: headerBillPostCode});
+																				billingSubrecord.setValue({fieldId: 'adressee', value: headerBillCompany});
+																				billingSubrecord.setValue({fieldId: 'attention', value: headerBillAdressee});
+																				
+																				//Line Processing
+																				//
+																				for (var int2 = 0; int2 < output.Order.OrderLines.length; int2++) 
 																					{
-																						//Create sales order record
+																						var lineProduct 			= output.Order.OrderLines[int2].ProductLine.ManufacturerArticleNo;
+																						var lineDescription			= output.Order.OrderLines[int2].ProductLine.Label;
+																						var lineSupplierAricleNo	= output.Order.OrderLines[int2].ProductLine.SupplierArticleNo;
+																						var lineQuantity 			= output.Order.OrderLines[int2].ProductLine.Quantity;
+																				//		var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.Supplier;
+																						var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.SupplierExportId;
+																						var linePoNumber			= output.Order.OrderLines[int2].ProductLine.PurchaseOrderNumber;
+																						var linePoPrice 			= output.Order.OrderLines[int2].ProductLine.Price;
+																						var lineSalesRate 			= output.Order.OrderLines[int2].ProductLine.SalesPrice.ExclusiveVAT;
+																						var lineSalesAmount 		= output.Order.OrderLines[int2].ProductLine.TotalPrice.ExclusiveVAT;
+																						
+																						//lineSalesRate = Number(lineSalesRate);
+																						//lineSalesRate = Math.round(lineSalesRate * 100) / 100;
+																						
+																						//linePoPrice = Number(linePoPrice);
+																						//linePoPrice = Math.round(linePoPrice * 100) / 100;
+																						
+																						//lineSalesAmount = Number(lineSalesAmount);
+																						//lineSalesAmount = Math.round(lineSalesAmount * 100) / 100;
+																						
+																						
+																						//Find item 
 																						//
-																						var salesOrderRecord = record.create({
-																																type: 			record.Type.SALES_ORDER, 
-																															    isDynamic: 		true,
-																															    defaultValues: 	{
-																															        			entity: customerToUse
-																															    				} 
-																															});
+																						var itemId 			= null;
+																						var itemType 		= null;
+																						var itemDropShip	= null;
+
+																						var itemSearchObj = getResults(search.create({
+																																	   type: "item",
+																																	   filters:
+																																	   [
+																																	      ["name","is",lineProduct]
+																																	   ],
+																																	   columns:
+																																	   [
+																																	      search.createColumn({name: "itemid", label: "Name"}),
+																																	      search.createColumn({name: "displayname", label: "Display Name"}),
+																																	      search.createColumn({name: "isdropshipitem", label: "Is DropShip"}), 
+																																	      search.createColumn({name: "type", label: "Type"})
+																																	   ]
+																																	}));
 																						
-																						salesOrderRecord.setValue({
-																													fieldId:	'customform',
-																													value:		integrationFormId					
-																													});
-										
-																						salesOrderRecord.setValue({
-																													fieldId:	'custbody_bbs_weborderref',
-																													value:		headerOrderNo
-																													});
+																						if(itemSearchObj != null && itemSearchObj.length == 1)
+																							{	
+																								itemId 			= itemSearchObj[0].id;
+																								itemType 		= itemSearchObj[0].getValue({name: "type"});
+																								itemDropShip 	= itemSearchObj[0].getValue({name: "isdropshipitem"});
+																							}
 																						
-																						salesOrderRecord.setValue({
-																													fieldId:	'trandate',
-																													value:		headerDate
-																													});
-																						
-																						salesOrderRecord.setValue({
-																													fieldId:	'orderstatus',
-																													value:		'A'					//Pending Approval
-																													});
-																						
-																						salesOrderRecord.setValue({
-																													fieldId:	'paymentmethod',
-																													value:		integrationPaymentMethod					
-																													});
-																						
-																						/*salesOrderRecord.setValue({
-																													fieldId:	'cseg_bbs_division',
-																													value:		integrationDivision					
-																													});*/
-		
-																						//Shipping Address
+																						//If the item was not found, then we need to create one
 																						//
-																						var shippingSubrecord = salesOrderRecord.getSubrecord({fieldId: 'shippingaddress'});
-																						shippingSubrecord.setValue({fieldId: 'addr1', value: headerShipAddress1});
-																						shippingSubrecord.setValue({fieldId: 'addr2', value: headerShipAddress2});
-																						shippingSubrecord.setValue({fieldId: 'city', value: headerShipCity});
-																						shippingSubrecord.setValue({fieldId: 'state', value: headerShipCounty});
-																						shippingSubrecord.setValue({fieldId: 'zip', value: headerShipPostCode});
-																						shippingSubrecord.setValue({fieldId: 'adressee', value: headerShipCompany});
-																						shippingSubrecord.setValue({fieldId: 'attention', value: headerShipAdressee});
-																						
-																						//Billing Address
-																						//
-																						var billingSubrecord = salesOrderRecord.getSubrecord({fieldId: 'billingaddress'});
-																						billingSubrecord.setValue({fieldId: 'addr1', value: headerBillAddress1});
-																						billingSubrecord.setValue({fieldId: 'addr2', value: headerBillAddress2});
-																						billingSubrecord.setValue({fieldId: 'city', value: headerBillCity});
-																						billingSubrecord.setValue({fieldId: 'state', value: headerBillCounty});
-																						billingSubrecord.setValue({fieldId: 'zip', value: headerBillPostCode});
-																						billingSubrecord.setValue({fieldId: 'adressee', value: headerBillCompany});
-																						billingSubrecord.setValue({fieldId: 'attention', value: headerBillAdressee});
-																						
-																						//Line Processing
-																						//
-																						for (var int2 = 0; int2 < output.Order.OrderLines.length; int2++) 
+																						if(itemId == null)
 																							{
-																								var lineProduct 			= output.Order.OrderLines[int2].ProductLine.ManufacturerArticleNo;
-																								var lineDescription			= output.Order.OrderLines[int2].ProductLine.Label;
-																								var lineSupplierAricleNo	= output.Order.OrderLines[int2].ProductLine.SupplierArticleNo;
-																								var lineQuantity 			= output.Order.OrderLines[int2].ProductLine.Quantity;
-																						//		var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.Supplier;
-																								var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.SupplierExportId;
-																								var linePoNumber			= output.Order.OrderLines[int2].ProductLine.PurchaseOrderNumber;
-																								var linePoPrice 			= output.Order.OrderLines[int2].ProductLine.Price;
-																								var lineSalesRate 			= output.Order.OrderLines[int2].ProductLine.SalesPrice.ExclusiveVAT;
-																								var lineSalesAmount 		= output.Order.OrderLines[int2].ProductLine.TotalPrice.ExclusiveVAT;
-																								
-																								//lineSalesRate = Number(lineSalesRate);
-																								//lineSalesRate = Math.round(lineSalesRate * 100) / 100;
-																								
-																								//linePoPrice = Number(linePoPrice);
-																								//linePoPrice = Math.round(linePoPrice * 100) / 100;
-																								
-																								//lineSalesAmount = Number(lineSalesAmount);
-																								//lineSalesAmount = Math.round(lineSalesAmount * 100) / 100;
-																								
-																								
-																								//Find item 
-																								//
-																								var itemId = null;
-																								
-																								var itemSearchObj = getResults(search.create({
-																																			   type: "item",
-																																			   filters:
-																																			   [
-																																			      ["name","is",lineProduct]
-																																			   ],
-																																			   columns:
-																																			   [
-																																			      search.createColumn({name: "itemid", label: "Name"}),
-																																			      search.createColumn({name: "displayname", label: "Display Name"})
-																																			   ]
-																																			}));
-																								
-																								if(itemSearchObj != null && itemSearchObj.length == 1)
-																									{	
-																										itemId = itemSearchObj[0].id;
-																									}
-																								
-																								//If the item was not found, then we need to create one
-																								//
-																								if(itemId == null)
+																								try
 																									{
-																										try
-																											{
-																												var itemRecord = record.create({
-																																				type:		record.Type.INVENTORY_ITEM,
-																																				isDynamic:	true
-																																				});		
-																												
-																												itemRecord.setValue({
-																																	fieldId:	'itemid',
-																																	value:		lineProduct
-																																	});	
-																								
-																												itemRecord.setValue({
-																																	fieldId:	'isdropshipitem',
-																																	value:		true
-																																	});
-																												
-																												itemRecord.setValue({
-																																	fieldId: 	'offersupport',
-																																	value: 		true
-																																	});
-																								
-																												itemRecord.setValue({
-																																	fieldId:	'purchasedescription',
-																																	value:		lineDescription
-																																	});	
-																																			
-																												itemRecord.setValue({
-																																	fieldId:	'salesdescription',
-																																	value:		lineDescription
-																																	});	
-																				
-																												itemRecord.setValue({
-																																	fieldId:	'mpn',
-																																	value:		lineProduct
-																																	});	
-																				
-																												
-																												//Find the supplier
-																												//
-																												var supplierId = findSupplier(lineSupplier, '');
-																												
-																												if(supplierId != null && supplierId != '')
-																													{
-																														//Add the supplier sublist
-																														//
-																														itemRecord.selectNewLine({
-																																				sublistId:	'itemvendor'
-																																				});
-																													
-																														itemRecord.setCurrentSublistValue({
-																																							sublistId: 	'itemvendor',
-																																							fieldId: 	'vendor',
-																																							value: 		supplierId
-																																							});
-																														
-																														itemRecord.setCurrentSublistValue({
-																																							sublistId: 	'itemvendor',
-																																							fieldId: 	'preferredvendor',
-																																							value: 		true
-																																							});
-																														
-																														itemRecord.setCurrentSublistValue({
-																																							sublistId: 	'itemvendor',
-																																							fieldId: 	'purchaseprice',
-																																							value: 		linePoPrice
-																																							});
+																										var itemRecord = record.create({
+																																		type:		record.Type.INVENTORY_ITEM,
+																																		isDynamic:	true
+																																		});		
+																										
+																										itemRecord.setValue({
+																															fieldId:	'itemid',
+																															value:		lineProduct
+																															});	
 																						
-																														itemRecord.commitLine({
-																																				sublistId: 'itemvendor'
-																																				});
-																													
-																														//Save the item record
-																														//
-																														itemId = itemRecord.save({	
-																																				enableSourcing:			true,
-																																				ignoreMandatoryFields:	true
-																																				});
-																													}
-																												else
-																													{
-																														emailMessage += 'Cannot find supplier "' + lineSupplier + '" while attempting to create product with code ' + lineProduct + ' for order # '+ headerOrderNo + ' - Line not added to order\n\n';
-																													}
-																											}
-																										catch(err)
-																											{
-																												log.error({
-																															title: 		'Error creating new inventory item - ' + lineProduct,
-																															details: 	err
+																										itemRecord.setValue({
+																															fieldId:	'isdropshipitem',
+																															value:		true
 																															});
-																									
-																												emailMessage += 'Error creating new inventory item - ' + lineProduct + ' - ' + err.message + '\n\n';
-																											}
-																									
-																									}
-																								
-																								//If we have an item we can add it
-																								//
-																								if(itemId != null)
-																									{
+																										
+																										itemRecord.setValue({
+																															fieldId: 	'offersupport',
+																															value: 		true
+																															});
+																						
+																										itemRecord.setValue({
+																															fieldId:	'purchasedescription',
+																															value:		lineDescription
+																															});	
+																																	
+																										itemRecord.setValue({
+																															fieldId:	'salesdescription',
+																															value:		lineDescription
+																															});	
+																		
+																										itemRecord.setValue({
+																															fieldId:	'mpn',
+																															value:		lineProduct
+																															});	
+																		
+																										
 																										//Find the supplier
 																										//
-																										var supplierId = findSupplier(lineSupplier, '');
-																									
-																										//Only add the line if we have found the supplier
+																										var supplierId = findSupplier(lineSupplier, supplierSuffixParam);
+																										
+																										if(supplierId != null && supplierId != '')
+																											{
+																												//Add the supplier sublist
+																												//
+																												itemRecord.selectNewLine({
+																																		sublistId:	'itemvendor'
+																																		});
+																											
+																												itemRecord.setCurrentSublistValue({
+																																					sublistId: 	'itemvendor',
+																																					fieldId: 	'vendor',
+																																					value: 		supplierId
+																																					});
+																												
+																												itemRecord.setCurrentSublistValue({
+																																					sublistId: 	'itemvendor',
+																																					fieldId: 	'preferredvendor',
+																																					value: 		true
+																																					});
+																												
+																												itemRecord.setCurrentSublistValue({
+																																					sublistId: 	'itemvendor',
+																																					fieldId: 	'purchaseprice',
+																																					value: 		linePoPrice
+																																					});
+																				
+																												itemRecord.commitLine({
+																																		sublistId: 'itemvendor'
+																																		});
+																											
+																												//Save the item record
+																												//
+																												itemId = itemRecord.save({	
+																																		enableSourcing:			true,
+																																		ignoreMandatoryFields:	true
+																																		});
+																												
+																												itemType 		= 'InvtPart';
+																												itemDropShip 	= true;
+																											}
+																										else
+																											{
+																												emailMessage += 'Cannot find supplier "' + lineSupplier + '" while attempting to create product with code ' + lineProduct + ' for order # '+ headerOrderNo + ' - Line not added to order\n\n';
+																											}
+																									}
+																								catch(err)
+																									{
+																										log.error({
+																													title: 		'Error creating new inventory item - ' + lineProduct,
+																													details: 	err
+																													});
+																							
+																										emailMessage += 'Error creating new inventory item - ' + lineProduct + ' - ' + err.message + '\n\n';
+																									}
+																							
+																							}
+																						
+																						//If we have an item we can add it
+																						//
+																						if(itemId != null)
+																							{
+																								//Find the supplier
+																								//
+																								var supplierId = findSupplier(lineSupplier, supplierSuffixParam);
+																							
+																								//Only add the line if we have found the supplier
+																								//
+																								if((supplierId != null && itemType != 'Discount') || itemType == 'Discount')
+																									{
+																										salesOrderRecord.selectNewLine({
+																													    				sublistId: 'item'
+																													    				});
+																										
+																										salesOrderRecord.setCurrentSublistValue({
+																															    				sublistId: 	'item',
+																															    				fieldId: 	'item',
+																															    				value: 		itemId
+																															    				});
+																	
+																										salesOrderRecord.setCurrentSublistValue({
+																															    				sublistId: 	'item',
+																															    				fieldId: 	'quantity',
+																															    				value: 		lineQuantity
+																															    				});
+																										
+																										salesOrderRecord.setCurrentSublistValue({
+																															    				sublistId: 	'item',
+																															    				fieldId: 	'rate',
+																															    				value: 		lineSalesRate
+																															    				});
+																	
+																										salesOrderRecord.setCurrentSublistValue({
+																															    				sublistId: 	'item',
+																															    				fieldId: 	'amount',
+																															    				value: 		lineSalesAmount
+																															    				});
+								
+																										//If we have found the supplier then we can explicitly set it
 																										//
 																										if(supplierId != null)
 																											{
-																												salesOrderRecord.selectNewLine({
-																															    				sublistId: 'item'
-																															    				});
-																												
 																												salesOrderRecord.setCurrentSublistValue({
 																																	    				sublistId: 	'item',
-																																	    				fieldId: 	'item',
-																																	    				value: 		itemId
+																																	    				fieldId: 	'povendor',
+																																	    				value: 		supplierId
 																																	    				});
-																			
-																												salesOrderRecord.setCurrentSublistValue({
-																																	    				sublistId: 	'item',
-																																	    				fieldId: 	'quantity',
-																																	    				value: 		lineQuantity
-																																	    				});
-																												
-																												salesOrderRecord.setCurrentSublistValue({
-																																	    				sublistId: 	'item',
-																																	    				fieldId: 	'rate',
-																																	    				value: 		lineSalesRate
-																																	    				});
-																			
-																												salesOrderRecord.setCurrentSublistValue({
-																																	    				sublistId: 	'item',
-																																	    				fieldId: 	'amount',
-																																	    				value: 		lineSalesAmount
-																																	    				});
-										
-																												//If we have found the supplier then we can explicitly set it
-																												//
-																												if(supplierId != null)
-																													{
-																														salesOrderRecord.setCurrentSublistValue({
-																																			    				sublistId: 	'item',
-																																			    				fieldId: 	'povendor',
-																																			    				value: 		supplierId
-																																			    				});
-																													}
-																												
+																											}
+																										
+																										if(itemType != 'Discount')
+																											{
 																												salesOrderRecord.setCurrentSublistValue({
 																																	    				sublistId: 	'item',
 																																	    				fieldId: 	'porate',
@@ -1051,46 +1070,42 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																																	    				fieldId: 	'costestimaterate',
 																																	    				value: 		linePoPrice
 																																	    				});
-									
+																											}
+																										
+																										if(itemDropShip)
+																											{
 																												salesOrderRecord.setCurrentSublistValue({
 																																	    				sublistId: 	'item',
 																																	    				fieldId: 	'createpo',
 																																	    				value: 		'DropShip'
 																																	    				});
-																												
-																												salesOrderRecord.setCurrentSublistValue({
-															    																						sublistId: 	'item',
-															    																						fieldId: 	'custcol_bbs_sales_trx_ponumber',
-															    																						value: 		linePoNumber
-															    																						});
-				
-										
-																												salesOrderRecord.commitLine({
-																																			sublistId: 	'item'
-																																			});
 																											}
-																										else
-																											{
-																												emailMessage += 'Cannot find supplier "' + lineSupplier + '" for product with code ' + lineProduct + ' for order # '+ headerOrderNo + ' - Line not added to order\n\n';
-																											}
+																										
+																										salesOrderRecord.setCurrentSublistValue({
+													    																						sublistId: 	'item',
+													    																						fieldId: 	'custcol_bbs_sales_trx_ponumber',
+													    																						value: 		linePoNumber
+													    																						});
+		
+								
+																										salesOrderRecord.commitLine({
+																																	sublistId: 	'item'
+																																	});
 																									}
 																								else
 																									{
-																										emailMessage += 'Unable to add product with code ' + lineProduct + ' for order # '+ headerOrderNo + '\n\n';
+																										emailMessage += 'Cannot find supplier "' + lineSupplier + '" for product with code ' + lineProduct + ' for order # '+ headerOrderNo + ' - Line not added to order\n\n';
 																									}
 																							}
-																						
-																						//Save the sales order
-																						//
-																						salesOrderId = salesOrderRecord.save();
+																						else
+																							{
+																								emailMessage += 'Unable to add product with code ' + lineProduct + ' for order # '+ headerOrderNo + '\n\n';
+																							}
 																					}
-																				else
-																					{
-																						//No customer found - report as an error
-																						//
-																						emailMessage += 'Sales Order ' + headerOrderNo + ' not created, cannot find B2B customer with account no ' + headerCustomerNo + '\n\n';
-																						fileProcessedOk = false;
-																					}
+																				
+																				//Save the sales order
+																				//
+																				salesOrderId = salesOrderRecord.save();
 																			}
 																		catch(err)
 																			{
@@ -1487,51 +1502,6 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
     			}
 	    }
 
-    
-    //Function to find the B2B customer by searching the sage account number
-    //
-    function findB2BCustomer(_customerNo)
-    	{
-    		var customerId 			= null;
-    		var customerSearchObj 	= null;
-    		
-    		//Try to find the customer by sage account number
-    		//
-    		try
-    			{
-	    			customerSearchObj = getResults(search.create({
-										    				   type: 		"customer",
-										    				   filters:
-													    				   [
-													    				      ["custentity_bbs_sageaccno","is",_customerNo]
-													    				   ],
-										    				   columns:
-													    				   [
-													    				      search.createColumn({name: "entityid",sort: search.Sort.ASC,label: "Name"})
-													    				   ]
-										    				}));
-    				
-    			}
-    		catch(err)
-    			{
-	    			log.error({
-								title: 		'Error searching for customer by sage account no',
-								details: 	err
-								});
-	    			
-	    			customerSearchObj = null;
-    			}
-    		
-    		if(customerSearchObj != null && customerSearchObj.length > 0)
-    			{
-    				//If we have found at least one record then take the first one we find
-    				//
-    				customerId = customerSearchObj[0].id;
-    			}
-    		
-    		return customerId;
-    	}
-    
     //Find cash sale customer by email address
     //
     function findOrCreateCustomer(_headerContactEmail, _integrationCashSaleCust, _division, _contactName, _address1, _address2, _city, _county, _postCode, _customForm, _phone, _mobile)
@@ -1652,7 +1622,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
     						
     						createdCustomerRecord.setValue({
 															fieldId:	'category',
-															value:		60				//Consumer (was 3 - Prepayment)
+															value:		60				//Prepayment
 															});	
     						
     						createdCustomerRecord.setValue({
@@ -1760,12 +1730,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
     		var supplierId = null;
     		//var supplerSearch = (_supplier == 'Ingram Micro' ? _supplier : _supplier + ' ' + _supplierSuffixParam);
     		var supplerSearch = _supplier + ' ' + _supplierSuffixParam;
-    		supplerSearch = supplerSearch.trim();
-<<<<<<< HEAD
-          
-=======
     		
->>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite
 	    	var vendorSearchObj = getResults(search.create({
 				   type: 	"vendor",
 				   filters:
