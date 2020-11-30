@@ -101,18 +101,21 @@ function buildOutput(_salesOrderId)
 												soOrderNumber 	= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('otherrefnum')),'').split(' ')[0];
 												customerNo 		= isNull(nlapiEscapeXML(customerRecord.getFieldValue('entityid')).split(' ')[0],'');
 												soCustPoNumber	= '';
+												soShipDate		= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('custbody_exp_ship_date_so')),'');
 											}
 										else
 											{
 												soOrderNumber 	= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('tranid')),'');
 												customerNo 		= isNull(nlapiEscapeXML(customerRecord.getFieldValue('entityid')).split(' ')[0],'');
 												soCustPoNumber	= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('otherrefnum')),'');
+												soShipDate		= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('custbody_exp_ship_date_so')),'');
 											}
 										
 										
 										for (var int = 1; int <= soLines; int++) 
 											{
 												var soLineItemId		= salesOrderRecord.getLineItemValue('item', 'item', int);
+												var soLineItem 			= salesOrderRecord.getLineItemText('item', 'item', int);
 												var soLineItemRecType	= salesOrderRecord.getLineItemValue('item', 'itemtype', int);
 												var soLineSupplier		= salesOrderRecord.getLineItemValue('item', 'custcol_po_vendor', int);
 												var soSiteContact 		= '';
@@ -120,7 +123,7 @@ function buildOutput(_salesOrderId)
 												
 												//Look for the first line that is an inventory item & the supplier is AHS Limited
 												//
-												if(soLineItemRecType != 'NonInvtPart'  && soLineItemRecType != 'Group' && soLineSupplier == '16336')
+												if(soLineItem == 'Delivery')
 													{
 														soSiteContact 	= isNull(nlapiEscapeXML(salesOrderRecord.getLineItemValue('item', 'custcol7', int)),'');
 														soNotes 		= isNull(nlapiEscapeXML(salesOrderRecord.getLineItemValue('item', 'custcol_dspo_haulier_notes', int)),'');
@@ -136,7 +139,9 @@ function buildOutput(_salesOrderId)
 										xml += '		<macro id="nlheader">';
 										xml += '            <table class="header" style="width: 100%;">';
 										xml += '            	<tr>';
+										xml += '					<td align="left"><img src="https://4465021.app.netsuite.com/core/media/media.nl?id=3355802&amp;c=4465021&amp;h=0KolWeuoXm13Z6HRerQIeTQMBJJ4SsY7nJQkpmY6WC6EjuFO" style="width: 155px; height: 58px;" /></td>';
 										xml += '					<td align="center" style="font-size: 18pt;">' + (pageCount == 0 ? 'Picking Ticket' : 'Distribution Ticket') + '</td>';
+										xml += '					<td align="right"><img src="https://4465021.app.netsuite.com/core/media/media.nl?id=2270&amp;c=4465021&amp;h=2058ba18d0e82bf5543a" style="width: 180px; height: 62px;" /></td>';
 										xml += '				</tr>';
 										xml += '			</table>';
 										xml += '            <table class="header" style="width: 100%; margin-top: 20px;">';
@@ -158,8 +163,8 @@ function buildOutput(_salesOrderId)
 										xml += '				</tr>';
 										xml += '           		<tr>';
 										xml += '					<td align="left" style="font-size: 10pt;">&nbsp;</td>';
-										xml += '					<td align="left" style="font-size: 10pt;">&nbsp;</td>';
-										xml += '					<td align="left" style="font-size: 10pt;">&nbsp;</td>';
+										xml += '					<td align="left" style="font-size: 10pt;">Delivery Date</td>';
+										xml += '					<td align="left" style="font-size: 10pt;">' + soShipDate + '</td>';
 										xml += '				</tr>';
 										xml += '           		<tr>';
 										xml += '					<td align="left" style="font-size: 10pt;">&nbsp;</td>';
@@ -198,20 +203,38 @@ function buildOutput(_salesOrderId)
 												xml += '          			<td align="left" style="font-size: 10px; border-bottom: 1px solid black; border-right: 1px solid black; height: 50px; border-top: 1px solid black; border-bottom: 1px solid black; ">&nbsp;</td>';
 												xml += '          			<td align="left" style="font-size: 10px; border-bottom: 1px solid black; border-right: 1px solid black; height: 50px; border-top: 1px solid black; border-bottom: 1px solid black; ">&nbsp;</td>';
 												xml += '        		</tr>';
-												xml += '               	<tr> ';
-												xml += '                  	<td colspan="3" align="right" style="margin-top: 10px;">Page <pagenumber/> of <totalpages/></td>';
-												xml += '				</tr>';
 												xml += '          	</table>';
-											}
-										else
-											{
+												xml += '<table style="width: 100%; margin-top: 5px;">';
+												xml += '	<tr>';
+												xml += '    	<td style="border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;" align="left" colspan="2"><img src="https://system.eu2.netsuite.com/core/media/media.nl?id=1511529&amp;c=4465021&amp;h=71b54a3870eeb4ca87a5" style="width: 180px; height: 50px; vertical-align: bottom;"/></td>';
+												xml += '		<td style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;" align="center" colspan="2"><img src="https://4465021.app.netsuite.com/core/media/media.nl?id=1511532&amp;c=4465021&amp;h=45c5a8c93d87dbccb5b4" style="width: 180px; height: 50px; vertical-align: bottom;"/></td>';
+												xml += '    	<td style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;" align="center" colspan="1"><img src="https://4465021.app.netsuite.com/core/media/media.nl?id=1511531&amp;c=4465021&amp;h=9c21e4dbddf09cdf5545" style="width: 100px; height: 50px; vertical-align: bottom;"/></td>';
+												xml += '    	<td style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><img src="https://4465021.app.netsuite.com/core/media/media.nl?id=1511530&amp;c=4465021&amp;h=5fc9ad294f9a0c64d3a9" style="width: 50px; height: 50px; vertical-align: bottom;"/></td>';
+												xml += '	</tr>';
+												xml += '</table>';
 												xml += '            <table class="footer" style="width: 100%;">';
 												xml += '               	<tr> ';
 												xml += '                  	<td align="right" style="margin-top: 10px;">Page <pagenumber/> of <totalpages/></td>';
 												xml += '				</tr>';
 												xml += '          	</table>';
 											}
-										
+										else
+											{
+												xml += '<table style="width: 100%;">';
+												xml += '	<tr>';
+												xml += '    	<td style="border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;" align="left" colspan="2"><img src="https://system.eu2.netsuite.com/core/media/media.nl?id=1511529&amp;c=4465021&amp;h=71b54a3870eeb4ca87a5" style="width: 180px; height: 50px; vertical-align: bottom;"/></td>';
+												xml += '		<td style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;" align="center" colspan="2"><img src="https://system.eu2.netsuite.com/core/media/media.nl?id=1511532&amp;c=4465021&amp;h=45c5a8c93d87dbccb5b4" style="width: 180px; height: 50px; vertical-align: bottom;"/></td>';
+												xml += '    	<td style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;" align="center" colspan="1"><img src="https://system.eu2.netsuite.com/core/media/media.nl?id=1511531&amp;c=4465021&amp;h=9c21e4dbddf09cdf5545" style="width: 100px; height: 50px; vertical-align: bottom;"/></td>';
+												xml += '    	<td style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;" align="center"><img src="https://system.eu2.netsuite.com/core/media/media.nl?id=1511530&amp;c=4465021&amp;h=5fc9ad294f9a0c64d3a9" style="width: 50px; height: 50px; vertical-align: bottom;"/></td>';
+												xml += '	</tr>';
+												xml += '</table>';
+												xml += '            <table class="footer" style="width: 100%;">';
+												xml += '               	<tr> ';
+												xml += '                  	<td align="right" style="margin-top: 10px;">Page <pagenumber/> of <totalpages/></td>';
+												xml += '				</tr>';
+												xml += '          	</table>';
+											}
+
 										xml += '        </macro>';
 										xml += '    </macrolist>';
 										xml += '    <style type="text/css">* ';
@@ -279,7 +302,7 @@ function buildOutput(_salesOrderId)
 										xml += '		}';
 										xml += '</style>';
 										xml += '</head>';
-										xml += '<body header="nlheader" header-height="250px" footer="nlfooter" footer-height="' + (pageCount == 0 ? '60px' : '10px') + '" padding="0.5in 0.5in 0.5in 0.5in" size="A4">';
+										xml += '<body header="nlheader" header-height="270px" footer="nlfooter" footer-height="' + (pageCount == 0 ? '115px' : '50px') + '" padding="0.5in 0.5in 0.5in 0.5in" size="A4">';
 												
 										if(soLines > 0)
 											{
@@ -289,6 +312,12 @@ function buildOutput(_salesOrderId)
 												xml += '          <th align="left"  colspan="7" style="padding-left: 5px; font-size: 10px; border-left: 1px solid black; border-top: 1px solid black; border-right: 1px solid black; background-color: #808080; color: #ffffff">Item Description</th>';
 												xml += '          <th align="right" colspan="1" style="padding-left: 5px; font-size: 10px; border-top: 1px solid black; border-right: 1px solid black; background-color: #808080; color: #ffffff">Qty</th>';
 												xml += '          <th align="right"  colspan="1" style="padding-left: 5px; font-size: 10px; border-top: 1px solid black; border-right: 1px solid black; background-color: #808080; color: #ffffff">UOM</th>';
+												
+												if(pageCount == 0)
+													{
+														xml += ' <th align="center"  colspan="1" style="padding-left: 5px; font-size: 10px; border-top: 1px solid black; border-right: 1px solid black; background-color: #808080; color: #ffffff">Tick</th>';
+													}
+												
 												xml += '        </tr>';
 												xml += '    </thead>';
 												
@@ -307,6 +336,12 @@ function buildOutput(_salesOrderId)
 																xml += '          <td align="left"  colspan="7" style="padding-left: 5px; font-size: 10px; border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">' + soLineItem + '<br/>' + soLineDescription + '</td>';
 																xml += '          <td align="right" colspan="1" style="padding-right: 5px; font-size: 10px; border-bottom: 1px solid black; border-right: 1px solid black;">' + soLineQuantity.numberFormat('0.00') + '</td>';
 																xml += '          <td align="right" colspan="1" style="padding-right: 5px; font-size: 10px; border-bottom: 1px solid black; border-right: 1px solid black;">' + soLineUom + '</td>';
+																
+																if(pageCount == 0)
+																	{
+																		xml += '<td align="right" colspan="1" style="padding-right: 5px; font-size: 10px; border-bottom: 1px solid black; border-right: 1px solid black;">&nbsp;</td>';
+																	}
+																
 																xml += '        </tr>';
 															}
 													}
