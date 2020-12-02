@@ -179,6 +179,36 @@ function(search, dialog, url, https) {
      * @since 2015.2
      */
     function saveRecord(scriptContext) {
+    	
+    	// get the current record
+    	var currentRecord = scriptContext.currentRecord;
+    	
+    	// get the customer's internal ID
+    	var customerID = currentRecord.getValue({
+    		fieldId: 'entity'
+    	});
+    	
+    	// lookup fields on the customer record
+    	var customerLookup = search.lookupFields({
+    		type: search.Type.CUSTOMER,
+    		id: customerID,
+    		columns: ['custentity_bbs_hellosign_primary']
+    	});
+    	
+    	// do we have a primary signer on the customer
+    	if (customerLookup.custentity_bbs_hellosign_primary.length > 0)
+    		{
+    			// allow the record to be saved
+    			return true
+    		}
+    	else
+    		{
+    			// display an alert to the user
+	    		dialog.alert({
+					title: '⚠️ Error',
+					message: 'The sales order cannot be saved as there is no primary signer selected on the customer record.<br><br>Please ensure a primary signer has been selected on the sales order before saving.'
+				});
+    		}
 
     }
     
@@ -226,6 +256,7 @@ function(search, dialog, url, https) {
 
     return {
         fieldChanged: fieldChanged,
+        saveRecord: saveRecord,
         reject: reject
     };
     

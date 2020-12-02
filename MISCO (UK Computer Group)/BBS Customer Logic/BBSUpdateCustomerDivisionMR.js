@@ -24,7 +24,7 @@ function(search, record) {
     		
     		filters: [{
     			name: 'formulatext',
-    			formula: "CASE WHEN {cseg_bbs_division} != {salesrep.cseg_bbs_division} THEN 'UPDATE' END",
+    			formula: "CASE WHEN {cseg_bbs_division} IS NULL THEN 'UPDATE' ELSE CASE WHEN {cseg_bbs_division} != {salesrep.cseg_bbs_division} THEN 'UPDATE' END END",
     			operator: search.Operator.IS,
     			values: ['UPDATE']
     		}],

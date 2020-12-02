@@ -30,6 +30,7 @@ function(runtime, search, record) {
     	var creditLimitExceeded = false;
     	var highValueOrder = false;
     	var vatExempt = false;
+    	var unverifiedAddress = null;
     	
     	// get the current record
     	var currentRecord = scriptContext.newRecord;
@@ -46,6 +47,24 @@ function(runtime, search, record) {
     	var taxTotal = currentRecord.getValue({
     		fieldId: 'taxtotal'
     	});
+    	
+    	var verifiedAddress = currentRecord.getSubrecord({
+    		fieldId: 'shippingaddress'
+    	}).getValue({
+    		fieldId: 'custrecord_bbs_verified_address'
+    	});
+    	
+    	switch(verifiedAddress) {
+    	
+    		case true:
+    			unverifiedAddress = false;
+    			break;
+    		
+    		case false:
+    			unverifiedAddress = true;
+    			break;
+    	
+    	}
     	
     	// call function to lookup fields on the customer record
     	var customerInfo = getCustomerInfo(customerID);
@@ -105,6 +124,11 @@ function(runtime, search, record) {
     	currentRecord.setValue({
     		fieldId: 'custbody_bbs_vat_exempt',
     		value: vatExempt
+    	});
+    	
+    	currentRecord.setValue({
+    		fieldId: 'custbody_bbs_unverified_address',
+    		value: unverifiedAddress
     	});
 
     }
