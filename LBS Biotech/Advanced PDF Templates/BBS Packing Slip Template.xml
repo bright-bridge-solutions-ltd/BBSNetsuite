@@ -193,31 +193,35 @@
 </style>
 </head>
       
-<body header="nlheader" header-height="390px" footer="nlfooter" footer-height="60px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="410px" footer="nlfooter" footer-height="60px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
   
-<#if salesorder.item?has_content>
-
-<table class="itemtable" style="width: 100%;">
-<thead>
-	<tr>
-	<th colspan="10"><br/>Item Code / Description</th>
-    <th align="right" colspan="4"><br/>Units</th>
-	<th align="right" colspan="3"><br/>Qty</th>
-	<th align="right" colspan="3"><br/>Shipped</th>
-	<th align="right" colspan="5"><br/>Batch Number</th>
-	<th align="right" colspan="3">Back<br/>Order</th>
-	</tr>
-</thead>
-<#list salesorder.item as tranline><tr>
-	<td colspan="10"><b>${tranline.item}</b><br/>Commodity Code: ${tranline.custcol_bbs_item_commodity}</td>
-    <td align="right" colspan="4">${tranline.units}</td>
-	<td align="right" colspan="3">${tranline.quantityordered}</td>
-	<td align="right" colspan="3">${tranline.quantity}</td>
-	<td align="right" colspan="5">${tranline.custcol_serial_numbers}</td>
-	<td align="right" colspan="3">${tranline.quantityremaining}</td>
-	</tr>
-	</#list></table>
+<#if record.item?has_content>	
+	<table class="itemtable" style="width: 100%;">
+	<thead>
+		<tr>
+		<th colspan="10"><br/>Item Code / Description</th>
+	    <th align="right" colspan="4"><br/>Units</th>
+		<th align="right" colspan="3"><br/>Shipped</th>
+		<th align="right" colspan="5"><br/>Batch Number</th>
+		<th align="right" colspan="3">Back<br/>Order</th>
+		</tr>
+	</thead>
+	
+	<#list record.item as tranline>
+		<#list salesorder.item as soline>
+			<#if soline.line==tranline.orderline>
+				<tr>
+					<td colspan="10"><b>${tranline.item} ${tranline.description}</b><br/>Commodity Code: ${tranline.custcol_bbs_item_commodity}</td>
+				    <td align="right" colspan="4">${tranline.unitsdisplay}</td>
+					<td align="right" colspan="3">${tranline.quantity}</td>
+					<td align="right" colspan="5">${tranline.custcol_serial_numbers}</td>
+					<td align="right" colspan="3">${soline.quantitybackordered}</td>
+				</tr>
+			</#if>
+		</#list>
+	</#list>
+	</table>
 </#if>
 
 </body>
@@ -225,7 +229,7 @@
 <#if salesorder.entity.custentity_mainclassification_field == "EU Export" || salesorder.entity.custentity_mainclassification_field == "Export">
 <pdf>
 <head>
- 	<#assign signature>https://4057215-sb1.app.netsuite.com/core/media/media.nl?id=71337&amp;c=4057215_SB1&amp;h=ZjqSLS46-4vOy0EngFYTRen8wiIMa9JvfR8W16f2osBpMHvA</#assign>
+ 	<#assign signature>https://4057215.app.netsuite.com/core/media/media.nl?id=74463&amp;c=4057215&amp;h=3rKN4Z4lSgOII9XMEaXEPcqU2CRPXDv5in0ncOryh1F7FstV</#assign>
   
 	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
     <macrolist>

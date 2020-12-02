@@ -1760,16 +1760,16 @@ function productionBatchSuitelet(request, response)
 																xmlPb += "</tr>";
 																
 																//LJA 07-09-2019: modified condition to add .dst in the end of the item name, barcode value
-																if(woItemType == 'NonInvtPart')
-		                                                  		{
-																	xmlPb += "<tr>";
-																	xmlPb += "<td colspan=\"2\">&nbsp;</td>";
-																	xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size: 10pt; margin-top: 5px;\"><b>" + nlapiEscapeXML(removePrefix(woAssemblyItem))+"</b>";
-																	xmlPb += "<br/>";
-																	xmlPb += "<barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(removePrefix(woAssemblyItem))+ ".DST" + "\"/>";
-																	xmlPb += "</td>";
-																	xmlPb += "</tr>";
-																}
+												//				if(woItemType == 'NonInvtPart')
+		                                        //         		{
+												//					xmlPb += "<tr>";
+												//					xmlPb += "<td colspan=\"2\">&nbsp;</td>";
+												//					xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size: 10pt; margin-top: 5px;\"><b>" + nlapiEscapeXML(removePrefix(woAssemblyItem))+"</b>";
+												//					xmlPb += "<br/>";
+												//					xmlPb += "<barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(removePrefix(woAssemblyItem))+ ".DST" + "\"/>";
+												//					xmlPb += "</td>";
+												//					xmlPb += "</tr>";
+												//				}
 																	
 																if(woSpecInst != null && woSpecInst != '')
 																	{

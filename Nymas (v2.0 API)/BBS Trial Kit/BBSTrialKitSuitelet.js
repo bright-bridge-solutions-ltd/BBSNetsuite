@@ -176,6 +176,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													                id: 		'custpage_entry_assembly',
 													                type: 		serverWidget.FieldType.SELECT,
 													                label: 		'Assembly Item',
+													                source:		record.Type.ASSEMBLY_ITEM,
 													                container:	'custpage_filters_group'
 												            		});
 
@@ -211,7 +212,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								
 								//Populate the select fields
 								//
-								var assembliesArray = getAssemblies();
+/*								var assembliesArray = getAssemblies();
 								
 								assemblyItemField.addSelectOption({
 																	value:			'',
@@ -230,7 +231,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																					});	
 											}
 									}
-								
+*/
 								var salesOrdersArray = getSalesOrders();
 								
 								salesOrderField.addSelectOption({
@@ -549,7 +550,9 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 										    				{ 
 									            				//Is the current date element more in the future that the date we currently have?
 									            				//
-										            			if(bomList[bomListKey][int].availDateDate.getTime() > latestDate.getTime())
+									            				var tempObj = bomList[bomListKey][int];
+									            			
+										            			if(bomList[bomListKey][int].availDateDate != null && bomList[bomListKey][int].availDateDate.getTime() > latestDate.getTime())
 										            				{
 										            					latestDate = new Date(bomList[bomListKey][int].availDateDate.getFullYear(), bomList[bomListKey][int].availDateDate.getMonth(), bomList[bomListKey][int].availDateDate.getDate());
 										            				}
@@ -1090,7 +1093,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 															  (woDueDate == null || woDueDate == '' ? '<not known>' : woDueDate);
 								availData.availableDate		= (woDueDate == null || woDueDate == '' ? '<not known>' : woDueDate);
 								availData.transactionFound	= true;
-								availData.availableDateDate	= format.parse({value: woDueDate, type: format.Type.DATE});
+								availData.availableDateDate	= (woDueDate == null || woDueDate == '' ? null : format.parse({value: woDueDate, type: format.Type.DATE}));
 			    			}
 			    		else
 			    			{
@@ -1272,7 +1275,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												  (poDueDate == null || poDueDate == '' ? '<not known>' : poDueDate);
 					availData.availableDate		= (poDueDate == null || poDueDate == '' ? '<not known>' : poDueDate);
 					availData.transactionFound	= true;
-					availData.availableDateDate	= format.parse({value: poDueDate, type: format.Type.DATE});
+					availData.availableDateDate	= (poDueDate == null || poDueDate == '' ? null : format.parse({value: poDueDate, type: format.Type.DATE}));
 				}
 			else
 				{
