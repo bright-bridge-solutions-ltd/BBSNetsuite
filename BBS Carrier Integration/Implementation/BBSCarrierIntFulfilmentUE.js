@@ -879,8 +879,11 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 
 					//Get the rate from the corresponding sales order line
 					//
-					var soItemRate = Number(0);
-					var soItemText = '';
+					var soItemRate 		= Number(0);
+					var soItemAmount 	= Number(0);
+					var soItemQuantity 	= Number(0);
+					var soItemValue 	= Number(0);
+					var soItemText 		= '';
 					
 					for (var soLine = 0; soLine < salesOrdersLines; soLine++) 
 						{
@@ -904,7 +907,24 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 																							line: 		soLine
 																							});
 
+									soItemAmount = Number(_salesOrderRecord.getSublistValue({
+																							sublistId: 	'item',
+																							fieldId: 	'amount',
+																							line: 		soLine
+																							}));
 
+									soItemQuantity = Number(_salesOrderRecord.getSublistValue({
+																							sublistId: 	'item',
+																							fieldId: 	'quantity',
+																							line: 		soLine
+																							}));
+
+									//Allow for the item rate being zero
+									//
+									if(soItemRate == null || soItemRate == '' || soItemRate == 0)
+										{
+											soItemRate = soItemAmount / soItemQuantity;
+										}
 									
 									break;
 								}
