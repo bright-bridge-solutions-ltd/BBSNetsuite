@@ -255,13 +255,6 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												});		
 								
 								subList.addField({
-													id:		'custpage_sl_item_id',
-													label:	'Item Id',
-													type:	serverWidget.FieldType.TEXT
-												});		
-				
-								
-								subList.addField({
 													id:		'custpage_sl_item_text',
 													label:	'Item Name',
 													type:	serverWidget.FieldType.TEXT
@@ -274,21 +267,9 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												});		
 
 								subList.addField({
-													id:		'custpage_sl_item_weight',
-													label:	'Weight',
-													type:	serverWidget.FieldType.FLOAT
-												});		
-
-								subList.addField({
 													id:		'custpage_sl_item_qty_req',
 													label:	'Required Quantity',
 													type:	serverWidget.FieldType.FLOAT
-												});		
-
-								subList.addField({
-													id:		'custpage_sl_item_carton_id',
-													label:	'Carton Id',
-													type:	serverWidget.FieldType.TEXT
 												});		
 
 								subList.addField({
@@ -309,7 +290,23 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													type:	serverWidget.FieldType.CHECKBOX
 												});		
 
-				
+								subList.addField({
+													id:		'custpage_sl_item_weight',
+													label:	'Weight',
+													type:	serverWidget.FieldType.FLOAT
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});		
+
+								subList.addField({
+													id:		'custpage_sl_item_carton_id',
+													label:	'Carton Id',
+													type:	serverWidget.FieldType.TEXT
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});		
+
+								subList.addField({
+													id:		'custpage_sl_item_id',
+													label:	'Item Id',
+													type:	serverWidget.FieldType.TEXT
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});		
 
 								//Add a mark all button
 					            //
@@ -383,6 +380,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																	value:	ifLineItemQty
 																	});	
 						            	
+						            	subList.setSublistValue({
+																	id:		'custpage_sl_item_qty_pack',
+																	line:	ifLine,
+																	value:	format.parse({value: 0, type: format.Type.FLOAT})
+																	});	
+            	
 									}
 					            
 					            

@@ -273,6 +273,7 @@ function buildOutput(_fulfillmentId)
 												for (var int = 1; int <= ifLines; int++) 
 													{
 														var ifLineSerialNo 		= isNull(nlapiEscapeXML(fulfillmentRecord.getLineItemValue('item', 'custcol_bbs_if_serial_no', int)),'');
+														ifLineSerialNo			= ifLineSerialNo.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
 														var ifLineItem 			= nlapiEscapeXML(fulfillmentRecord.getLineItemText('item', 'item', int));
 														var ifLineItemId		= fulfillmentRecord.getLineItemValue('item', 'item', int);
 														var ifLineItemRecType	= fulfillmentRecord.getLineItemValue('item', 'itemtype', int);

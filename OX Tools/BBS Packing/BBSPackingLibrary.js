@@ -231,6 +231,107 @@ function(search, record)
 	    		return itemfulfillmentSearchObj;
 		}
     
+    function findItem(selectionValue)
+    	{
+    		var itemInfo = null;
+    		
+    		//Find an item based on its name or upc code
+    		//
+    		var itemSearchObj = getResults(search.create({
+									    			   type: 		"item",
+									    			   filters:
+												    			   [
+												    			      ["name","is",selectionValue], 
+												    			      "OR", 
+												    			      ["upccode","is",selectionValue]
+												    			   ],
+									    			   columns:
+												    			   [
+												    			      search.createColumn({name: "itemid",sort: search.Sort.ASC,label: "Name"}),
+												    			      search.createColumn({name: "displayname", label: "Display Name"}),
+												    			      search.createColumn({name: "salesdescription", label: "Description"}),
+												    			      search.createColumn({name: "type", label: "Type"}),
+												    			      search.createColumn({name: "saleunit", label: "Primary Sale Unit"}),
+												    			      search.createColumn({name: "weight", label: "Weight"})
+												    			   ]
+									    			}));
+    			
+    		//Did we find the item?
+    		//
+    		if(itemSearchObj != null && itemSearchObj.length > 0)
+    			{
+    				var itemId 			= itemSearchObj[0].id;
+    				var itemName 		= itemSearchObj[0].getValue({name: "itemid"});
+    				var itemDescription	= itemSearchObj[0].getValue({name: "displayname"});
+    				var itemType 		= itemSearchObj[0].getValue({name: "type"});
+    				var itemUnit 		= itemSearchObj[0].getValue({name: "saleunit"});
+    				var itemWeight 		= itemSearchObj[0].getValue({name: "weight"});
+    				itemInfo			= new itemInfoObj(itemId, itemName, itemUnit, itemWeight, 1);
+    			}
+    		else
+    			{
+    				//If not, try the item alias
+    				//
+	    			var customrecord_wmsse_sku_aliasSearchObj = getResults(search.create({
+																	    				   type: 		"customrecord_wmsse_sku_alias",
+																				    				   filters:
+																				    				   [
+																				    				      ["name","is",selectionValue]
+																				    				   ],
+																	    				   columns:
+																				    				   [
+																				    				    search.createColumn({name: "name",sort: search.Sort.ASC,label: "Name"}),
+																				    				    search.createColumn({name: "custrecord_wmsse_alias_item", label: "Item"}),
+																				    				    search.createColumn({name: "custrecord_wms_alias_unit", label: "Alias Unit"}),
+																				    				    search.createColumn({name: "internalid",join: "CUSTRECORD_WMSSE_ALIAS_ITEM",label: "Internal Id"}),
+																				    				    search.createColumn({name: "itemid",join: "CUSTRECORD_WMSSE_ALIAS_ITEM",label: "Name"}),
+																				    				    search.createColumn({name: "displayname",join: "CUSTRECORD_WMSSE_ALIAS_ITEM",label: "Display Name"}),         
+																				    				    search.createColumn({name: "type",join: "CUSTRECORD_WMSSE_ALIAS_ITEM",label: "Type"}),
+																				    				    search.createColumn({name: "saleunit",join: "CUSTRECORD_WMSSE_ALIAS_ITEM",label: "Primary Sale Unit"}),
+																				    				    search.createColumn({name: "weight",join: "CUSTRECORD_WMSSE_ALIAS_ITEM",label: "Weight"})
+																				    				    ]
+																	    				}));
+	    			
+	    			//Did we find an alias?
+	    			//
+	    			if(customrecord_wmsse_sku_aliasSearchObj != null && customrecord_wmsse_sku_aliasSearchObj.length > 0)
+	    				{
+		    				var itemId 			= customrecord_wmsse_sku_aliasSearchObj[0].getValue({name: "internalid",join: "CUSTRECORD_WMSSE_ALIAS_ITEM"});
+		    				var itemName 		= customrecord_wmsse_sku_aliasSearchObj[0].getValue({name: "itemid",join: "CUSTRECORD_WMSSE_ALIAS_ITEM"});
+		    				var itemDescription	= customrecord_wmsse_sku_aliasSearchObj[0].getValue({name: "displayname",join: "CUSTRECORD_WMSSE_ALIAS_ITEM"});
+		    				var itemType 		= customrecord_wmsse_sku_aliasSearchObj[0].getValue({name: "type",join: "CUSTRECORD_WMSSE_ALIAS_ITEM"});
+		    				var itemUnit 		= customrecord_wmsse_sku_aliasSearchObj[0].getValue({name: "saleunit",join: "CUSTRECORD_WMSSE_ALIAS_ITEM"});
+		    				var itemWeight 		= customrecord_wmsse_sku_aliasSearchObj[0].getValue({name: "weight",join: "CUSTRECORD_WMSSE_ALIAS_ITEM"});
+		    				
+		    				var aliasUOM		= customrecord_wmsse_sku_aliasSearchObj[0].getValue({name: "custrecord_wms_alias_unit"});
+		    				
+		    				var uomFactor		= findUomConversion(aliasUOM, itemUnit);
+		    				
+		    				itemInfo			= new itemInfoObj(itemId, itemName, itemUnit, itemWeight, uomFactor);
+	    				}
+    			}
+    		
+    		return itemInfo;
+    	}
+    
+    function findUomConversion(aliasUOM, itemUnit)
+    	{
+    		var uomFactor = Number(1);
+    		
+    		
+    		return uomFactor;
+    	}
+
+    function itemInfoObj(_itemId, _itemName, _itemUnit, _itemWeight, _itemUomFactor)
+    	{
+    		this.itemId			= _itemId;
+    		this.itemName		= _itemName;
+    		this.itemUnit		= _itemUnit;
+    		this.itemWeight		= _itemWeight;
+    		this.itemUomFactor	= _itemUomFactor;
+    	}
+    
+    
     //Page through results set from search
     //
     function getResults(_searchObject)
@@ -273,6 +374,7 @@ function(search, record)
 				libCreateNewCarton:		libCreateNewCarton,
 				libFindIfRecord:		libFindIfRecord,
 				loadItemFulfillment:	loadItemFulfillment,
-				isNullorBlank:			isNullorBlank
+				isNullorBlank:			isNullorBlank,
+				findItem:				findItem
 				}
 	});
