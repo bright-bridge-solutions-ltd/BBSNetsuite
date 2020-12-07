@@ -155,7 +155,7 @@ function(search, record)
     		
     		//Did we find a match
     		//
-    		if(initialSearch != null && initialSearch.length == 1)
+    		if(initialSearch != null && initialSearch.length > 0)
     			{
 	    			var initialTransType 	= initialSearch[0].getValue({name: "type"});
 	    			var initialTransId 		= initialSearch[0].getValue({name: "internalid"});
@@ -174,7 +174,7 @@ function(search, record)
 	    					
 	    					//Did we find a match
 	    		    		//
-	    		    		if(secondSearch != null && secondSearch.length == 1)
+	    		    		if(secondSearch != null && secondSearch.length > 0)
 	    		    			{
 	    			    			var secondTransId 	= secondSearch[0].getValue({name: "internalid"});
 	    			    			ifRecordId 			= secondTransId;
@@ -287,7 +287,7 @@ function(search, record)
 																				    				    search.createColumn({name: "itemid",join: "CUSTRECORD_WMSSE_ALIAS_ITEM",label: "Name"}),
 																				    				    search.createColumn({name: "displayname",join: "CUSTRECORD_WMSSE_ALIAS_ITEM",label: "Display Name"}),         
 																				    				    search.createColumn({name: "type",join: "CUSTRECORD_WMSSE_ALIAS_ITEM",label: "Type"}),
-																				    				    search.createColumn({name: "saleunit",join: "CUSTRECORD_WMSSE_ALIAS_ITEM",label: "Primary Sale Unit"}),
+																				    				    search.createColumn({name: "unitstype",join: "CUSTRECORD_WMSSE_ALIAS_ITEM",label: "Primary Sale Unit"}),
 																				    				    search.createColumn({name: "weight",join: "CUSTRECORD_WMSSE_ALIAS_ITEM",label: "Weight"})
 																				    				    ]
 																	    				}));
@@ -300,7 +300,7 @@ function(search, record)
 		    				var itemName 		= customrecord_wmsse_sku_aliasSearchObj[0].getValue({name: "itemid",join: "CUSTRECORD_WMSSE_ALIAS_ITEM"});
 		    				var itemDescription	= customrecord_wmsse_sku_aliasSearchObj[0].getValue({name: "displayname",join: "CUSTRECORD_WMSSE_ALIAS_ITEM"});
 		    				var itemType 		= customrecord_wmsse_sku_aliasSearchObj[0].getValue({name: "type",join: "CUSTRECORD_WMSSE_ALIAS_ITEM"});
-		    				var itemUnit 		= customrecord_wmsse_sku_aliasSearchObj[0].getValue({name: "saleunit",join: "CUSTRECORD_WMSSE_ALIAS_ITEM"});
+		    				var itemUnit 		= customrecord_wmsse_sku_aliasSearchObj[0].getValue({name: "unitstype",join: "CUSTRECORD_WMSSE_ALIAS_ITEM"});
 		    				var itemWeight 		= customrecord_wmsse_sku_aliasSearchObj[0].getValue({name: "weight",join: "CUSTRECORD_WMSSE_ALIAS_ITEM"});
 		    				
 		    				var aliasUOM		= customrecord_wmsse_sku_aliasSearchObj[0].getValue({name: "custrecord_wms_alias_unit"});
@@ -317,7 +317,38 @@ function(search, record)
     function findUomConversion(aliasUOM, itemUnit)
     	{
     		var uomFactor = Number(1);
+    		var unitsTypeRecord = null;
     		
+    		try
+    			{
+	    			unitsTypeRecord = record.load({
+	    											type:	'unitstype',
+	    											id:		itemUnit
+	    											});
+    			}
+    		catch(err)
+    			{
+    				unitsTypeRecord = null;
+    			}
+    		
+    		if(unitsTypeRecord != null)
+    			{
+    				var unitsTypeLines = unitsTypeRecord.getLineCount({sublistId: 'uom'});
+    				
+    				for(var unitTypeLine = 0; unitTypeLine < unitsTypeLines; unitTypeLine++)
+    					{
+	    					var unitTypeLineName = unitsTypeRecord.getSublistValue({sublistId: 'uom', fieldId: 'unitname', line: unitTypeLine});
+	    					var unitTypeLineId = unitsTypeRecord.getSublistValue({sublistId: 'uom', fieldId: 'internalid', line: unitTypeLine});
+							var unitTypeLineConversion = unitsTypeRecord.getSublistValue({sublistId: 'uom', fieldId: 'conversionrate', line: unitTypeLine});
+							
+							if(unitTypeLineId == aliasUOM)
+								{
+									uomFactor = Number(unitTypeLineConversion);
+									break;
+								}
+    					}
+    			
+    			}
     		
     		return uomFactor;
     	}

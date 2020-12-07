@@ -99,13 +99,14 @@ function(BBSPackingLibrary, currentRecord, format)
 						    						//
 							    					scriptContext.currentRecord.selectLine({sublistId: 'custpage_sublist_items', line: int});
 							    					
-							    					//Increment the line quantity by one
+							    					//Increment the line quantity by the uom factor (defaults to 1)
 							    					//
-							    					sublistQty++;
+							    					//sublistQty++;
+							    					sublistQty += itemInfo.itemUomFactor;
 							    					
 							    					//Increment the weight
 							    					//
-							    					sublistWeight += Number(itemInfo.itemWeight);
+							    					sublistWeight += (Number(itemInfo.itemWeight) * Number(itemInfo.itemUomFactor));
 							    					
 							    					//Update the values & commit
 							    					//
@@ -159,6 +160,10 @@ function(BBSPackingLibrary, currentRecord, format)
 									scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
 			    				}
 			    		}
+			    	
+			    	//Put the focus back on to the item input field
+			    	//
+			    	document.getElementById("custpage_entry_item").focus();
 				}
 	    }
 

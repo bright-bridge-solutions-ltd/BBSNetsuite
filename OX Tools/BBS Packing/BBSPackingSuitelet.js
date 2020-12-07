@@ -334,60 +334,64 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					            //Load the IF record
 					            //
 					            var ifRecord 	= BBSPackingLibrary.loadItemFulfillment(paramIfId);
-					            var ifLines		= ifRecord.getLineCount({sublistId: 'item'});
 					            
-					            for (var ifLine = 0; ifLine < ifLines; ifLine++) 
-						            {
-						            	var ifLineItemId		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: ifLine});
-						            	var ifLineItem			= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'itemname', line: ifLine});
-						            	var ifLineItemQty		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: ifLine});
-						            	var ifLineItemDesc		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'description', line: ifLine});
-						            	var ifLineItemLine		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'line', line: ifLine});
-						            	var ifLineItemWeight	= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'itemweight', line: ifLine});
-						            	
-						            	subList.setSublistValue({
-																	id:		'custpage_sl_line_no',
-																	line:	ifLine,
-																	value:	ifLineItemLine
-																	});	
-						            	subList.setSublistValue({
-																	id:		'custpage_sl_item_id',
-																	line:	ifLine,
-																	value:	ifLineItemId
-																	});	
-						            	
-						            	subList.setSublistValue({
-																	id:		'custpage_sl_item_text',
-																	line:	ifLine,
-																	value:	BBSPackingLibrary.isNullorBlank(ifLineItem,' ')
-																	});	
-						            	
-						            	subList.setSublistValue({
-																	id:		'custpage_sl_item_description',
-																	line:	ifLine,
-																	value:	BBSPackingLibrary.isNullorBlank(ifLineItemDesc,' ')
-																	});	
-						            	
-						            	subList.setSublistValue({
-																	id:		'custpage_sl_item_weight',
-																	line:	ifLine,
-																	value:	format.parse({value: BBSPackingLibrary.isNullorBlank(ifLineItemWeight, Number(0)), type: format.Type.INTEGER})
-																	});	
-						            	
-						            	subList.setSublistValue({
-																	id:		'custpage_sl_item_qty_req',
-																	line:	ifLine,
-																	value:	ifLineItemQty
-																	});	
-						            	
-						            	subList.setSublistValue({
-																	id:		'custpage_sl_item_qty_pack',
-																	line:	ifLine,
-																	value:	format.parse({value: 0, type: format.Type.FLOAT})
-																	});	
-            	
-									}
-					            
+					            if(ifRecord != null)
+					            	{
+							            var ifLines		= ifRecord.getLineCount({sublistId: 'item'});
+							            
+							            for (var ifLine = 0; ifLine < ifLines; ifLine++) 
+								            {
+								            	var ifLineItemId		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: ifLine});
+								            	var ifLineItem			= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'itemname', line: ifLine});
+								            	var ifLineItemQty		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: ifLine});
+								            	var ifLineItemDesc		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'description', line: ifLine});
+								            	var ifLineItemLine		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'line', line: ifLine});
+								            	var ifLineItemWeight	= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'itemweight', line: ifLine});
+								            	
+								            	subList.setSublistValue({
+																			id:		'custpage_sl_line_no',
+																			line:	ifLine,
+																			value:	ifLineItemLine
+																			});	
+								            	subList.setSublistValue({
+																			id:		'custpage_sl_item_id',
+																			line:	ifLine,
+																			value:	ifLineItemId
+																			});	
+								            	
+								            	subList.setSublistValue({
+																			id:		'custpage_sl_item_text',
+																			line:	ifLine,
+																			value:	BBSPackingLibrary.isNullorBlank(ifLineItem,' ')
+																			});	
+								            	
+								            	subList.setSublistValue({
+																			id:		'custpage_sl_item_description',
+																			line:	ifLine,
+																			value:	BBSPackingLibrary.isNullorBlank(ifLineItemDesc,' ')
+																			});	
+								            	
+								            	subList.setSublistValue({
+																			id:		'custpage_sl_item_weight',
+																			line:	ifLine,
+																			value:	format.parse({value: BBSPackingLibrary.isNullorBlank(ifLineItemWeight, Number(0)), type: format.Type.INTEGER})
+																			});	
+								            	
+								            	subList.setSublistValue({
+																			id:		'custpage_sl_item_qty_req',
+																			line:	ifLine,
+																			value:	ifLineItemQty
+																			});	
+								            	
+								            	subList.setSublistValue({
+																			id:		'custpage_sl_item_qty_pack',
+																			line:	ifLine,
+																			value:	format.parse({value: 0, type: format.Type.FLOAT})
+																			});	
+		            	
+											}
+							            
+					            	}
 					            
 								break;
 						}
@@ -451,200 +455,179 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								//
 								BBSPackingLibrary.libClearSessionData(session);
 								
-								
-								//Find all the sales orders that have been selected & put their id's into an array
+								//Get the fulfillment id from the field 
 								//
-								var sublistLineCount = request.getLineCount({group: 'custpage_sublist_orders'});
-								var salesOrdersArray = [];
+								var fulfillmentId = request.parameters['custpage_entry_if_id'];
 								
-								for (var int = 0; int < sublistLineCount; int++) 
-						    		{
-						    			var ticked = request.getSublistValue({
-															    			    group: 	'custpage_sublist_orders',
-															    			    name: 	'custpage_sl_ticked',
-															    			    line: 	int
-															    			});
-						    			
-						    			if(ticked== 'T')
-						    				{
-							    				var ticked = request.getSublistValue({
-																	    			    group: 	'custpage_sublist_orders',
-																	    			    name: 	'custpage_sl_ticked',
-																	    			    line: 	int
-																	    			});
-						    					
-							    				var soId = request.getSublistValue({
-																    			    group: 	'custpage_sublist_orders',
-																    			    name: 	'custpage_sl_order_id',
-																    			    line: 	int
-																    				});
-			
-							    				salesOrdersArray.push(soId);
-						    				}
-						    		}
-								
-								//Have we any orders to process
+								//Load the IF record
 								//
-								if(salesOrdersArray.length > 0)
+								var ifRecord = BBSPackingLibrary.loadItemFulfillment(fulfillmentId);
+					            
+								//Did we get the IF record ok?
+								//
+								if(ifRecord != null)
 									{
-										var consolPickingRecord 	= null;
-										var consolPickingRecordId 	= null;
+										var cartonSummary = {};
 										
-										//Create a new consolidated picking note record to assign to the sales orders
+										//Loop through all of the lines in the sublist
+										//
+										var sublistLineCount = request.getLineCount({group: 'custpage_sublist_items'});
+										
+										for (var int = 0; int < sublistLineCount; int++) 
+								    		{
+								    			var itemLineNumber = request.getSublistValue({
+																		    			    group: 	'custpage_sublist_items',
+																		    			    name: 	'custpage_sl_line_no',
+																		    			    line: 	int
+																	    					});
+								    			
+								    			var itemLinePacked = request.getSublistValue({
+																		    			    group: 	'custpage_sublist_items',
+																		    			    name: 	'custpage_sl_item_qty_pack',
+																		    			    line: 	int
+																	    					});
+		
+								    			var itemLineWeight = request.getSublistValue({
+																		    			    group: 	'custpage_sublist_items',
+																		    			    name: 	'custpage_sl_item_weight',
+																		    			    line: 	int
+																	    					});
+		
+								    			var itemLineCarton = request.getSublistValue({
+																		    			    group: 	'custpage_sublist_items',
+																		    			    name: 	'custpage_sl_item_carton',
+																		    			    line: 	int
+																	    					});
+		
+								    			var itemLineCartonId = request.getSublistValue({
+																		    			    group: 	'custpage_sublist_items',
+																		    			    name: 	'custpage_sl_item_carton_id',
+																		    			    line: 	int
+																	    					});
+		
+								    			//Update the IF line
+								    			//Find the relevant line & update the carton to it as well as the quantity
+								    			//
+								    			var ifLines		= ifRecord.getLineCount({sublistId: 'item'});
+									            
+									            for (var ifLine = 0; ifLine < ifLines; ifLine++) 
+										            {
+										            	var ifLineItemQty		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: ifLine});
+										            	var ifLineItemLine		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'line', line: ifLine});
+										            	
+										            	//Have we found the correct line number
+										            	//
+										            	if(ifLineItemLine == itemLineNumber)
+										            		{
+										            			//Set the carton id on the line
+										            			//
+										            			ifRecord.setSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_packing_carton', line: ifLine, value: itemLineCartonId});
+										            			
+										            			//Is the quantity packed different - if so change the line
+										            			//
+										            			if(ifLineItemQty != itemLinePacked)
+										            				{
+										            					//Set the line quantity
+										            					//
+										            					ifRecord.setSublistValue({sublistId: 'item', fieldId: 'quantity', line: ifLine, value: itemLinePacked});
+										            					
+										            					//Set the inventory status sub-record
+										            					//
+										            					var inventoryDetail = ifRecord.getSublistSubrecord({sublistId: 'item',fieldId: 'inventorydetail',line: ifLine});
+																		
+										            					if(inventoryDetail != null)
+																			{
+																				var inventoryAssignments = inventoryDetail.getLineCount({sublistId: 'inventoryassignment'});
+																					    			
+																				for (var inventoryAssignment = 0; inventoryAssignment < inventoryAssignments; inventoryAssignment++) 
+																					{		
+																						inventoryDetail.setSublistValue({sublistId: 'inventoryassignment', fieldId: 'quantity', line: inventoryAssignment, value: itemLinePacked});						
+																					}
+																			}
+										            					
+										            				
+											            			
+										            				}
+										            			
+										            			break;
+										            		}
+										            }
+
+								    			//Accumulate the carton info
+								    			//
+								    			if(!(itemLineCartonId in cartonSummary))
+								    				{
+								    					cartonSummary[itemLineCartonId] = new cartonSummaryObj(itemLineCartonId, itemLineCarton, Number(itemLineWeight));
+								    				}
+								    			else
+								    				{
+								    					cartonSummary[itemLineCartonId].cartonWeight += Number(itemLineWeight);
+								    				}
+								    		}
+								
+										//Add the cartons to the IF & mark as packed
+										//
+										var packagesLine = Number(0);
+										
+										ifRecord.setValue({fieldId: 'shipstatus', value: 'B'});		//Mark as packed
+										
+										for ( var cartonId in cartonSummary) 
+											{
+												ifRecord.setSublistValue({sublistId: 'package', fieldId: 'packagedescr', line: packagesLine, value: cartonSummary[cartonId].cartonName});
+												ifRecord.setSublistValue({sublistId: 'package', fieldId: 'packageweight', line: packagesLine, value: cartonSummary[cartonId].cartonWeight});
+
+												packagesLine++;
+											}
+										
+										
+										//Save the IF record
 										//
 										try
 											{
-												consolPickingRecord = record.create({
-																					type:		'customrecord_bbs_consolidated_picking',
-																					isDynamic:	true
-																					});
-												
-												
+												ifRecord.save({enableSourcing: true, ignoreMandatoryFields: true});
 											}
 										catch(err)
 											{
-												consolPickingRecord 	= null;
 												
-												log.error({
-															title:		'Error creating/saving new consolidated picking record',
-															details:	err
-														});
 											}
 										
-										//Have we created a new consolidated picking note record
+										//Update the cartons
 										//
-										if(consolPickingRecord != null)
+										for ( var cartonId in cartonSummary) 
 											{
-												//Get all the relevant order lines from the selected sales orders
-												//
-												var salesorderSearchObj = getResults(search.create({
-																								   type: 		"salesorder",
-																								   filters:
-																											   [
-																											      ["type","anyof","SalesOrd"], 
-																											      "AND", 
-																											      ["mainline","is","F"], 
-																											      "AND", 
-																											      ["taxline","is","F"], 
-																											      "AND", 
-																											      ["cogs","is","F"], 
-																											      "AND", 
-																											      ["shipping","is","F"], 
-																											      "AND", 
-																											      ["quantitycommitted","greaterthan","0"], 
-																											      "AND", 
-																											      ["internalid","anyof",salesOrdersArray]
-																											   ],
-																								   columns:
-																											   [
-																											      search.createColumn({name: "item",summary: "GROUP",sort: search.Sort.ASC,label: "Item"}),
-																											      search.createColumn({name: "salesdescription",join: "item",summary: "GROUP",label: "Description"}),
-																											      search.createColumn({name: "quantity",summary: "SUM",label: "Quantity"}),
-																											      search.createColumn({name: "quantitycommitted",summary: "SUM",label: "Quantity Committed"}),
-																											      search.createColumn({name: "amount",summary: "SUM",label: "Amount"})
-																											   ]
-																								}));
-												
-												//Have we got any results
-												//
-												var resultsArray = [];
-												
-												if(salesorderSearchObj != null && salesorderSearchObj.length > 0)
+												try
 													{
-														for (var int2 = 0; int2 < salesorderSearchObj.length; int2++) 
-												    		{
-																var searchItemId 		= salesorderSearchObj[int2].getValue({name: "item",summary: "GROUP"});
-																var searchItemName 		= salesorderSearchObj[int2].getText({name: "item",summary: "GROUP"});
-																var searchItemDesc 		= salesorderSearchObj[int2].getValue({name: "salesdescription",join: "item",summary: "GROUP"});
-																var searchItemCommitted	= Number(salesorderSearchObj[int2].getValue({name: "quantitycommitted",summary: "SUM"}));
-																var searchItemQuantity	= Number(salesorderSearchObj[int2].getValue({name: "quantity",summary: "SUM"}));
-																
-																var itemInfoObj 		= new itemInfo(searchItemId, searchItemName, searchItemDesc, searchItemCommitted, searchItemQuantity);
-																
-																resultsArray.push(itemInfoObj);
-												    		}
+														record.submitFields({
+																			type:		'customrecord_bbs_carton',
+																			id:			cartonId,
+																			values:		{
+																						custrecord_bbs_carton_weight: 			cartonSummary[cartonId].cartonWeight,
+																						custrecord_bbs_carton_item_fulfillment:	fulfillmentId
+																						},
+																			options:	{
+																						ignoreMandatoryFields:	true
+																						}
+																			});
 													}
-										
-												//Convert the item array into a JSON string
-												//
-												var jsonString 	= JSON.stringify(resultsArray);
-												var today		= new Date();
-												
-												consolPickingRecord.setValue({
-																			fieldId:	'custrecord_bbs_consolidated_picking_json',
-																			value:		jsonString
-																			});	
-												
-												
-						
-												//Save the consolidated invoicing record
-												//
-												consolPickingRecordId = consolPickingRecord.save({ignoreMandatoryFields: true});
-												
-												//Update the sales orders with the link to the consolidated picking note
-												//
-												for (var int2 = 0; int2 < salesOrdersArray.length; int2++) 
-										    		{
-														try
-															{
-																record.submitFields({
-																					type:		record.Type.SALES_ORDER,
-																					id:			salesOrdersArray[int2],
-																					values:		{
-																								custbody_bbs_consol_pick_list:	consolPickingRecordId
-																								},
-																					options:	{
-																								ignoreMandatoryFields:	true
-																								}
-																});
-															}
-														catch(err)
-															{
-																log.error({
-																			title:		'Error updating sales order with consolidated picking list id = ' + salesOrdersArray[int2],
-																			details:	err
-																		});
-															}
-														
-														//Check governance limits
-														//
-														var remainingUsage = runtime.getCurrentScript().getRemainingUsage();
-														
-														if(remainingUsage < 20)
-															{
-																break;
-															}
-										    		}
-												
-												//
-												//Now generate the output document
-												//
-												
-												//Get the template id
-												//
-												var templateId = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_consol_template'});
-									    		
-												//Create template renderer
-												//
-										    	var renderer = render.create();
-										    	
-										    	//Add record to renderer
-										    	//
-										    	renderer.addRecord('record', record.load({type: 'customrecord_bbs_consolidated_picking', id: consolPickingRecordId}));
-										    	
-										    	//Set the template
-										    	//
-										    	renderer.setTemplateById(templateId);
-										    	
-										    	//Return the pdf file to the client
-										    	//
-										    	context.response.writeFile({
-										    								file:		renderer.renderAsPdf(),
-										    								isInline:	true
-										    								});
-										    	
+												catch(err)
+													{
+													
+													}
 											}
 									}
+
+								
+								//Call the suitelet again
+								//
+								context.response.sendRedirect({
+														type: 			http.RedirectType.SUITELET, 
+														identifier: 	runtime.getCurrentScript().id, 
+														id: 			runtime.getCurrentScript().deploymentId, 
+														parameters:		{
+																			stage: 			1
+																		}
+														});
+								
 								
 								break;
 						}
@@ -652,6 +635,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 	    }
     
 
+    function cartonSummaryObj(_cartonId, _cartonName, _cartonWeight)
+    	{
+    		this.cartonId 		= _cartonId;
+    		this.cartonName 	= _cartonName;
+    		this.cartonWeight	= _cartonWeight;
+    	}
+    
     //Page through results set from search
     //
     function getResults(_searchObject)
