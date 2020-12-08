@@ -35,7 +35,7 @@ function(BBSPackingLibrary, currentRecord, format)
 					//Set values
 					//
 					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', value: format.parse({value: 0.0, type: format.Type.FLOAT}), ignoreFieldChange: true});						    					
-					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_weight', value: format.parse({value: 0.0, type: format.Type.FLOAT}), ignoreFieldChange: true});						    					
+					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_weight', value: null, ignoreFieldChange: true});						    					
 					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton_id', value: null, ignoreFieldChange: true});						    					
 					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton', value: null, ignoreFieldChange: true});						    					
 					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_remove', value: false, ignoreFieldChange: true});						    					
@@ -87,9 +87,6 @@ function(BBSPackingLibrary, currentRecord, format)
 						    				var sublistItem = scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_id', line: int});
 						    				var sublistRequired = Number(scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_req', line: int}));
 						    				var sublistQty = Number(scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', line: int}));
-						    				var sublistWeight = Number(scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_weight', line: int}));
-						    				var sublistCarton = scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton', line: int});
-						    				var sublistCartonId = Number(scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton_id', line: int}));
 						    				
 						    				//Does the item id on the line match the one we are searching for?
 						    				//
@@ -106,15 +103,41 @@ function(BBSPackingLibrary, currentRecord, format)
 							    					
 							    					//Increment the weight
 							    					//
-							    					sublistWeight += (Number(itemInfo.itemWeight) * Number(itemInfo.itemUomFactor));
+							    					//sublistWeight += (Number(itemInfo.itemWeight) * Number(itemInfo.itemUomFactor));
 							    					
 							    					//Update the values & commit
 							    					//
 							    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', value: format.parse({value: sublistQty, type: format.Type.FLOAT}), ignoreFieldChange: true});						    					
-							    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_weight', value: format.parse({value: sublistWeight, type: format.Type.FLOAT}), ignoreFieldChange: true});						    					
-							    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton_id', value: currentCartonId, ignoreFieldChange: true});						    					
-							    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton', value: currentCartonName, ignoreFieldChange: true});						    					
-											    	scriptContext.currentRecord.commitLine({sublistId: 'custpage_sublist_items'});
+							    					//scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_weight', value: format.parse({value: sublistWeight, type: format.Type.FLOAT}), ignoreFieldChange: true});						    					
+							    					
+							    					var lineCarton 		= scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton'});
+							    					var lineCartonId 	= scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton_id'});
+							    					var lineWeight 		= scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_weight', line: int});
+								    				
+							    					var cartonArray 		= (lineCarton == '' ? [] : lineCarton.split(','));
+							    					var cartonArrayId 		= (lineCartonId == '' ? [] : lineCartonId.split(','));
+							    					var cartonArrayWeight	= (lineWeight == '' ? [] : lineWeight.split(','));
+							    					
+							    					if(cartonArray.indexOf(currentCartonName) == -1)
+							    						{
+							    							cartonArray.push(currentCartonName);
+							    							cartonArrayId.push(currentCartonId);
+							    							cartonArrayWeight.push((Number(itemInfo.itemWeight) * Number(itemInfo.itemUomFactor)));
+							    						}
+							    					else
+							    						{
+							    							cartonArrayWeight[cartonArray.indexOf(currentCartonName)] = Number(cartonArrayWeight[cartonArray.indexOf(currentCartonName)]) + (Number(itemInfo.itemWeight) * Number(itemInfo.itemUomFactor));
+							    						}
+							    					
+							    					var  newCarton 		= cartonArray.toString();
+							    					var  newCartonId 	= cartonArrayId.toString();
+							    					var  newWeight 		= cartonArrayWeight.toString();
+							    					
+							    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton', value: newCarton, ignoreFieldChange: true});						    					
+							    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton_id', value: newCartonId, ignoreFieldChange: true});						    					
+							    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_weight', value: newWeight, ignoreFieldChange: true});						    					
+							    					
+							    					scriptContext.currentRecord.commitLine({sublistId: 'custpage_sublist_items'});
 											    	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
 											    	
 											    	//Set the colour
@@ -231,7 +254,7 @@ function(BBSPackingLibrary, currentRecord, format)
 	    	var trDom = document.getElementById('custpage_sublist_itemsrow' + rowNumber);
 	    	var trDomChild = trDom.children;
 	    	
-	    	for (var t=0; t < (trDomChild.length-3); t+=1)
+	    	for (var t=0; t < (trDomChild.length - 1); t+=1)
 		    	{
 		    		//get the child TD DOM element
 		    		var tdDom = trDomChild[t];

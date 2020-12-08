@@ -278,12 +278,15 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													type:	serverWidget.FieldType.FLOAT
 												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});		
 
-								subList.addField({
+								var cartonlistField = subList.addField({
 													id:		'custpage_sl_item_carton',
 													label:	'Carton',
 													type:	serverWidget.FieldType.TEXT
-												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});		
+												});		
 
+								cartonlistField.updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});
+								cartonlistField.updateDisplaySize({height: 10, width: 50});
+								
 								subList.addField({
 													id:		'custpage_sl_remove',
 													label:	'Remove From Carton',
@@ -293,14 +296,14 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								subList.addField({
 													id:		'custpage_sl_item_weight',
 													label:	'Weight',
-													type:	serverWidget.FieldType.FLOAT
-												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});		
+													type:	serverWidget.FieldType.TEXT
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});		
 
 								subList.addField({
 													id:		'custpage_sl_item_carton_id',
 													label:	'Carton Id',
 													type:	serverWidget.FieldType.TEXT
-												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});		
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});		
 
 								subList.addField({
 													id:		'custpage_sl_item_id',
@@ -371,11 +374,11 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																			value:	BBSPackingLibrary.isNullorBlank(ifLineItemDesc,' ')
 																			});	
 								            	
-								            	subList.setSublistValue({
-																			id:		'custpage_sl_item_weight',
-																			line:	ifLine,
-																			value:	format.parse({value: BBSPackingLibrary.isNullorBlank(ifLineItemWeight, Number(0)), type: format.Type.INTEGER})
-																			});	
+								            //	subList.setSublistValue({
+											//								id:		'custpage_sl_item_weight',
+											//								line:	ifLine,
+											//								value:	format.parse({value: 0, type: format.Type.FLOAT})
+											//								});	
 								            	
 								            	subList.setSublistValue({
 																			id:		'custpage_sl_item_qty_req',
@@ -519,9 +522,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 										            	//
 										            	if(ifLineItemLine == itemLineNumber)
 										            		{
-										            			//Set the carton id on the line
+										            			//Select the line
 										            			//
-										            			ifRecord.setSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_packing_carton', line: ifLine, value: itemLineCartonId});
+										            			ifRecord.selectLine({sublistId: 'item', line: ifLine});
+										            		
+										            			//Set the carton(s) on the line
+										            			//
+										            			ifRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_packing_carton', value: itemLineCarton});
 										            			
 										            			//Is the quantity packed different - if so change the line
 										            			//
@@ -529,11 +536,11 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 										            				{
 										            					//Set the line quantity
 										            					//
-										            					ifRecord.setSublistValue({sublistId: 'item', fieldId: 'quantity', line: ifLine, value: itemLinePacked});
+										            					ifRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'quantity', value: itemLinePacked});
 										            					
 										            					//Set the inventory status sub-record
 										            					//
-										            					var inventoryDetail = ifRecord.getSublistSubrecord({sublistId: 'item',fieldId: 'inventorydetail',line: ifLine});
+										            					var inventoryDetail = ifRecord.getCurrentSublistSubrecord({sublistId: 'item',fieldId: 'inventorydetail'});
 																		
 										            					if(inventoryDetail != null)
 																			{
@@ -541,13 +548,16 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																					    			
 																				for (var inventoryAssignment = 0; inventoryAssignment < inventoryAssignments; inventoryAssignment++) 
 																					{		
-																						inventoryDetail.setSublistValue({sublistId: 'inventoryassignment', fieldId: 'quantity', line: inventoryAssignment, value: itemLinePacked});						
+																						inventoryDetail.selectLine({sublistId: 'inventoryassignment', line: inventoryAssignment});
+																						inventoryDetail.setCurrentSublistValue({sublistId: 'inventoryassignment', fieldId: 'quantity', value: itemLinePacked});	
+																						inventoryDetail.commitLine({sublistId: 'inventoryassignment', ignoreRecalc: false});
 																					}
 																			}
-										            					
-										            				
-											            			
 										            				}
+										            			
+										            			//Commit the line
+										            			//
+										            			ifRecord.commitLine({sublistId: 'item', ignoreRecalc: false});
 										            			
 										            			break;
 										            		}
@@ -555,6 +565,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 
 								    			//Accumulate the carton info
 								    			//
+									            
 								    			if(!(itemLineCartonId in cartonSummary))
 								    				{
 								    					cartonSummary[itemLineCartonId] = new cartonSummaryObj(itemLineCartonId, itemLineCarton, Number(itemLineWeight));
@@ -565,20 +576,24 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								    				}
 								    		}
 								
-										//Add the cartons to the IF & mark as packed
+										//Mark as packed
 										//
-										var packagesLine = Number(0);
-										
 										ifRecord.setValue({fieldId: 'shipstatus', value: 'B'});		//Mark as packed
 										
+										//Remove the default first package line
+										//
+										ifRecord.removeLine({sublistId: 'package', line: 0});
+										
+										//Add the cartons to the IF
+										//
 										for ( var cartonId in cartonSummary) 
 											{
-												ifRecord.setSublistValue({sublistId: 'package', fieldId: 'packagedescr', line: packagesLine, value: cartonSummary[cartonId].cartonName});
-												ifRecord.setSublistValue({sublistId: 'package', fieldId: 'packageweight', line: packagesLine, value: cartonSummary[cartonId].cartonWeight});
-
-												packagesLine++;
+												ifRecord.selectNewLine({sublistId: 'package'});
+												ifRecord.setCurrentSublistValue({sublistId: 'package', fieldId: 'packagedescr', value: cartonSummary[cartonId].cartonName});
+												ifRecord.setCurrentSublistValue({sublistId: 'package', fieldId: 'packageweight', value: cartonSummary[cartonId].cartonWeight});
+												//ifRecord.setCurrentSublistValue({sublistId: 'package', fieldId: 'packagetrackingnumber', value: cartonSummary[cartonId].cartonId});
+												ifRecord.commitLine({sublistId: 'package', ignoreRecalc: false});
 											}
-										
 										
 										//Save the IF record
 										//

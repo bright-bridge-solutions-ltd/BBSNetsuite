@@ -91,7 +91,7 @@ function(search, record)
     				ifRecord = record.load({
 												type:		record.Type.ITEM_FULFILLMENT,
 												id:			ifId,
-												isDynamic:	false
+												isDynamic:	true
 												});
 					
 				}
