@@ -162,7 +162,7 @@ function(runtime, search, record, format, render, file, task) {
 					},
 							{
 						name: 'custrecord_bbs_service_data_service_name',
-						summary: 'MAX',
+						summary: 'GROUP',
 					},
     					{
 		    			name: 'formuladate',

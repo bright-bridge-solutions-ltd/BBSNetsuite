@@ -545,35 +545,6 @@ function(runtime, record, search, libraryModule, plugin)
 																						// update the tax amount in the summary
 																						//
 																						taxSummary[key].taxAmount += taxAmount;
-																								
-																						// now we have done all summarising, we need to generate the output format
-																						//
-																						
-																						// sort outputSummary
-																						//
-																						var sortedSummary = {};
-																				                  
-																						for (key in sortedSummary)
-																							{
-																								delete sortedSummary[key]
-																							}
-																							      
-																						Object.keys(taxSummary).sort().forEach(function(key) {
-																							sortedSummary[key] = taxSummary[key];
-																						});
-																							      
-																						// loop through the summaries
-																						//
-																						for (var key in sortedSummary)
-																							{
-																								// push a new instance of the output summary object onto the output array
-																								//
-																								outputArray.push(new libraryModule.libOutputSummary(
-																																						taxSummary[key].taxName,
-																																						taxSummary[key].taxLevel,
-																																						taxSummary[key].taxAmount
-																																					));
-																							}
 																						
 																						// add the tax amount to the totalTaxes variable
 																						//
@@ -660,35 +631,6 @@ function(runtime, record, search, libraryModule, plugin)
 																												// update the tax amount in the summary
 																												//
 																												taxSummary[key].taxAmount += taxAmount;
-																														
-																												// now we have done all summarising, we need to generate the output format
-																												//
-																												
-																												// sort outputSummary
-																												//
-																												var sortedSummary = {};
-																										                  
-																												for (key in sortedSummary)
-																													{
-																														delete sortedSummary[key]
-																													}
-																													      
-																												Object.keys(taxSummary).sort().forEach(function(key) {
-																													sortedSummary[key] = taxSummary[key];
-																												});
-																													      
-																												// loop through the summaries
-																												//
-																												for (var key in sortedSummary)
-																													{
-																														// push a new instance of the output summary object onto the output array
-																														//
-																														outputArray.push(new libraryModule.libOutputSummary(
-																																												taxSummary[key].taxName,
-																																												taxSummary[key].taxLevel,
-																																												taxSummary[key].taxAmount
-																																											));
-																													}
 																												
 																												// add the tax amount to the totalTaxes variable
 																												//
@@ -751,6 +693,36 @@ function(runtime, record, search, libraryModule, plugin)
 												errorMessages += '<br>';
 												errorMessages += 'Licence Check Message: ' + licenceResponse.message;
 							    			}
+							    		
+							    		/*
+							    		 * now we have done all summarising, we need to generate the output format
+							    		 */
+										
+										// sort outputSummary
+										//
+										var sortedSummary = {};
+								                  
+										for (key in sortedSummary)
+											{
+												delete sortedSummary[key]
+											}
+											      
+										Object.keys(taxSummary).sort().forEach(function(key) {
+											sortedSummary[key] = taxSummary[key];
+										});
+											      
+										// loop through the summaries
+										//
+										for (var key in sortedSummary)
+											{
+												// push a new instance of the output summary object onto the output array
+												//
+												outputArray.push(new libraryModule.libOutputSummary(
+																										taxSummary[key].taxName,
+																										taxSummary[key].taxLevel,
+																										taxSummary[key].taxAmount
+																									));
+											}
 
 										// call function to update the tax total on the record
 										libraryModule.updateTaxTotal(_transactionRecordType, _transactionRecordId, linesToUpdate, errorMessages, outputArray, totalTaxes);
