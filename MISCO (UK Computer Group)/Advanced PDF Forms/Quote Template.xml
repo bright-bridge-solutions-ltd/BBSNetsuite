@@ -41,11 +41,13 @@
 				</tr>
 			</table>
 		</macro>
-		
+
 		<macro id="nlfooter">
-		
 			<table style="width: 100%;">
 	       		<tr class="messagerow">
+	           		<td align="left" class="message">&nbsp;</td>
+			  	</tr>
+	          	<tr class="messagerow">
 	              	<td align="left" class="message">${regInfo}</td>
 			  	</tr>
 	      	</table>
@@ -175,25 +177,20 @@
 		</tr>
 		<tr>
 			<td class="address">&nbsp;</td>
-			<td align="left" style="font-size:10pt"><b>Invoice No.</b></td>
+			<td align="left" style="font-size:10pt"><b>Quote No.</b></td>
 			<td align="right" style="font-size:10pt">${record.tranid}</td>
 	    </tr>
 		<tr>
 			<td class="address">&nbsp;</td>
-			<td align="left" style="font-size:10pt"><b>Invoice Date</b></td>
+			<td align="left" style="font-size:10pt"><b>Quote Date</b></td>
 			<td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
 	    </tr>
-	    <tr>
-			<td class="address">&nbsp;</td>
-			<td align="left" style="font-size:10pt"><b>Due Date</b></td>
-			<td align="right" style="font-size:10pt">${record.duedate?string["dd MMM yyyy"]}</td>
-	    </tr>
-	  	<tr>
-			<td class="address">&nbsp;</td>
-			<td align="left" style="font-size:10pt"><b>Your Po #</b></td>
-			<td align="right" style="font-size:10pt">${record.otherrefnum}</td>
-	    </tr>
       	<tr>
+			<td class="address">&nbsp;</td>
+			<td></td>
+			<td></td>
+    	</tr>
+    	<tr>
 			<td class="address">&nbsp;</td>
 			<td></td>
 			<td></td>
@@ -260,45 +257,20 @@
 				<tr class="totalrow">
 					<td colspan="4">&nbsp;</td>
 					<td class="totalcell" align="right"><b>Net Total</b></td>
-					<td class="totalcell" align="right">${currencySymbol}${record.subtotal}</td>
+					<td class="totalcell" align="right">${record.subtotal}</td>
 				</tr>
 				<tr class="totalrow">
 					<td colspan="4">&nbsp;</td>
 				    <td class="totalcell" align="right"><b>VAT Total</b></td>
-					<td class="totalcell" align="right">${currencySymbol}${record.taxtotal}</td>
+					<td class="totalcell" align="right">${record.taxtotal}</td>
 				</tr>
 				<tr class="totalrow">
 					<td colspan="4">&nbsp;</td>
 					<td class="totalcell" align="right"><b>Gross Total</b></td>
-					<td class="totalcell" align="right">${currencySymbol}${record.total}</td>
+					<td class="totalcell" align="right">${record.total}</td>
 				</tr>
 			</table>
 		</td>
-	</tr>
-</table>
-
-<table class="bankdetails" style="width: 100%;">
-	<tr>
-		<td colspan="14"><b>Bank Details for payments in ${record.currency}:</b></td>
-	</tr>
-	<tr>
-		<td colspan="14">&nbsp;</td>
-	</tr>
-	<tr>
-		<td colspan="4" class="bankdetails"><b>Bank Name</b></td>
-		<td colspan="10" class="bankdetails">${record.cseg_bbs_division.custrecord_bbs_division_bank_name}</td>
-	</tr>
-	<tr>
-		<td colspan="4" class="bankdetails"><b>Account Number</b></td>
-		<td colspan="8" class="bankdetails">${record.cseg_bbs_division.custrecord_bbs_division_bank_account_num}</td>
-		<td colspan="4" class="bankdetails"><b>Sort Code</b></td>
-		<td colspan="8" class="bankdetails">${record.cseg_bbs_division.custrecord_bbs_division_bank_sort_code}</td>
-	</tr>
-	<tr>
-		<td colspan="4" class="bankdetails"><b>IBAN</b></td>
-		<td colspan="8" class="bankdetails">${record.cseg_bbs_division.custrecord_bbs_division_bank_iban}</td>
-		<td colspan="4" class="bankdetails"><b>BIC/SWIFT</b></td>
-		<td colspan="8" class="bankdetails">${record.cseg_bbs_division.custrecord_bbs_division_bank_bic_swift}</td>
 	</tr>
 </table>
 

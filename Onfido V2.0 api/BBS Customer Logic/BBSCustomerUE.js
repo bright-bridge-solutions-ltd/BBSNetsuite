@@ -97,7 +97,7 @@ function(record, search) {
 				    			var lineCurrency = currentRecord.getSublistValue({
 				    				sublistId: 'currency',
 				    				fieldId: 'currency',
-				    				line: i
+				    				line: x
 				    			});
 				    			
 				    			// check if the baseCurrency and lineCurrency variables are the same

@@ -30,27 +30,32 @@ function(runtime, render, file, url, record) {
     		
     			// get the current record
     			var currentRecord = scriptContext.newRecord;
-    		
+    			
+    			// get the custom form from the current record
+    			var transactionForm = parseInt(currentRecord.getValue({
+    				fieldId: 'customform'
+    			}));
+    			
     			// get the ID of the current record
-    			var recordID = currentRecord.id;
-    			
-    			// get the value of the location field
-    			var location = currentRecord.getValue({
-    				fieldId: 'location'
-    			});
-    			
-    			// if enabledLocation = location
-    			if (enabledLocation == location)
-    				{
-		    			// call function to generate the PDF of the transaction.
-		    			var fileID = generatePDF(recordID);
+		    	var recordID = currentRecord.id;
 		    			
-		    			// check the file was created successfully
-		    			if (fileID)
-		    				{
-		    					// call function to update the transaction with the URL of the file
-		    					updateTransaction(recordID, fileID);
-		    				}
+		    	// get the value of the location field
+		    	var location = currentRecord.getValue({
+		    		fieldId: 'location'
+		    	});
+		    			
+		    	// if enabledLocation = location
+		    	if (enabledLocation == location)
+		    		{
+				    	// call function to generate the PDF of the transaction.
+				    	var fileID = generatePDF(recordID, transactionForm);
+				    			
+				    	// check the file was created successfully
+				    	if (fileID)
+				    		{
+				    			// call function to update the transaction with the URL of the file
+				    			updateTransaction(recordID, fileID);
+				    		}
     				}
     		}   	
     }
@@ -59,14 +64,10 @@ function(runtime, render, file, url, record) {
     // HELPER FUNCTIONS
     // ================
     
-    function generatePDF(recordID) {
+    function generatePDF(recordID, transactionForm) {
     	
     	// retrieve script parameters
 		var currentScript = runtime.getCurrentScript();
-		
-		var transactionForm = parseInt(currentScript.getParameter({
-			name: 'custscript_bbs_sales_order_ue_tran_form'
-		})); // use parseInt to convert to integer number
 		
 		var fileCabinetFolder = parseInt(currentScript.getParameter({
 			name: 'custscript_bbs_sales_order_ue_folder_id'
