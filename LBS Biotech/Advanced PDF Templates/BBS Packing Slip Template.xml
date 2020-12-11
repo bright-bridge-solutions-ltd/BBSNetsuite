@@ -208,6 +208,27 @@
 		</tr>
 	</thead>
 	
+    <#list salesorder.item as tranline>
+		<#assign shipped=0>
+		<#list record.item as item>
+			<#if tranline.line==item.orderline>
+				<#assign shipped=item.quantity>
+			</#if>
+		</#list>
+          <#if tranline.item?index_of(' : ') gt -1>
+            <#assign itemName = tranline.item?keep_after(' : ')>
+          <#else>
+            <#assign itemName = tranline.item>
+          </#if>
+      	<tr>
+			<td colspan="10"><b>${itemName}</b><br/>Commodity Code: ${tranline.custcol_bbs_item_commodity}</td>
+			<td align="right" colspan="4">${tranline.units}</td>
+			<td align="right" colspan="3">${shipped}</td>
+			<td align="right" colspan="5">${tranline.custcol_serial_numbers}</td>
+			<td align="right" colspan="3">${tranline.quantitybackordered}</td>
+		</tr>
+    </#list>
+    <!--
 	<#list record.item as tranline>
 		<#list salesorder.item as soline>
 			<#if soline.line==tranline.orderline>
@@ -221,6 +242,7 @@
 			</#if>
 		</#list>
 	</#list>
+-->
 	</table>
 </#if>
 

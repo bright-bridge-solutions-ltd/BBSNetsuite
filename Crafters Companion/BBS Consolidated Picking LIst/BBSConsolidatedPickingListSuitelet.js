@@ -381,8 +381,18 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					            		filters.push(["shipmethod","anyof",paramSelectShip]);
 					            	}
 				            
-					            var sessionData 	= BBSConsolidatedPickingListLibrary.libGetSessionData(paramSession);
-								
+					            var sessionData = null;
+					            
+					            try
+					            	{
+					            		sessionData 	= BBSConsolidatedPickingListLibrary.libGetSessionData(paramSession);
+					            	}
+					            catch(err)
+					            	{
+					            		sessionData = null;
+					            	}
+					            
+					            
 								if(sessionData != null && sessionData != '')
 									{
 										var extraFilters = JSON.parse(sessionData);
@@ -551,7 +561,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								
 								//Delete the session data
 								//
-								BBSConsolidatedPickingListLibrary.libClearSessionData(session);
+								//BBSConsolidatedPickingListLibrary.libClearSessionData(session);
 								
 								
 								//Find all the sales orders that have been selected & put their id's into an array
