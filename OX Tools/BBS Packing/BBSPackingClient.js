@@ -3,10 +3,38 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['./BBSPackingLibrary', 'N/currentRecord','N/format'],
+define(['./BBSPackingLibrary', 'N/currentRecord','N/format','N/ui/dialog'],
 
-function(BBSPackingLibrary, currentRecord, format) 
+function(BBSPackingLibrary, currentRecord, format, dialog) 
 {
+	var DIALOGMODULE = dialog;
+	
+	//This global is used to detect if user has pressed "OK" in the prompt box
+	//
+	var IS_CONFIRMED; 
+
+	/**
+     * Function to be executed after page is initialized.
+     *
+     * @param {Object} scriptContext
+     * @param {Record} scriptContext.currentRecord - Current form record
+     * @param {string} scriptContext.mode - The mode in which the record is being accessed (create, copy, or edit)
+     *
+     * @since 2015.2
+     */
+    function pageInit(scriptContext) 
+	    {
+    		debugger;
+    		
+    		try
+    			{
+    				//document.getElementById("custpage_entry_item").focus();
+    			}
+    		catch(err)
+    			{
+    			
+    			}
+	    }
 
 	/**
      * Function to be executed when field is changed.
@@ -22,6 +50,18 @@ function(BBSPackingLibrary, currentRecord, format)
      */
     function fieldChanged(scriptContext) 
 	    {
+    		debugger;
+    		
+    		//Sales order or item fulfillment entered
+    		//
+	    	if(scriptContext.fieldId == 'custpage_entry_so_if')
+	    		{
+		    		//Spoof pressing the save button on the form
+	  				//
+	    			document.getElementById("custpage_entry_so_if").focus();
+	    			document.getElementById('submitter').click();
+	    		}
+    	
 	    	//Remove from carton
 			//
 	    	if(scriptContext.fieldId == 'custpage_sl_remove' && scriptContext.sublistId == 'custpage_sublist_items')
@@ -47,16 +87,21 @@ function(BBSPackingLibrary, currentRecord, format)
 					setRowColour(sublistLine, '#FFFFFF');
 					
 				}
+	    	
     		//Selection of an item
     		//
 	    	if(scriptContext.fieldId == 'custpage_entry_item' && scriptContext.sublistId == null)
 				{
-			    	debugger;
+
 			    	
 			    	//Get the value of the entered item
 			    	//
 			    	var selectionValue = scriptContext.currentRecord.getValue({fieldId: 'custpage_entry_item'});
 			    	
+			    	//Get the reverse flag
+			    	//
+			    	var reverseValue = scriptContext.currentRecord.getValue({fieldId: 'custpage_entry_reverse'});
+
 			    	//Check to see if we have entered something
 			    	//
 			    	if(selectionValue != null && selectionValue != '')
@@ -99,7 +144,7 @@ function(BBSPackingLibrary, currentRecord, format)
 							    					//Increment the line quantity by the uom factor (defaults to 1)
 							    					//
 							    					//sublistQty++;
-							    					sublistQty += itemInfo.itemUomFactor;
+							    					sublistQty += (reverseValue ? itemInfo.itemUomFactor * -1.0 : itemInfo.itemUomFactor);
 							    					
 							    					//Increment the weight
 							    					//
@@ -138,7 +183,8 @@ function(BBSPackingLibrary, currentRecord, format)
 							    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_weight', value: newWeight, ignoreFieldChange: true});						    					
 							    					
 							    					scriptContext.currentRecord.commitLine({sublistId: 'custpage_sublist_items'});
-											    	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
+							    					scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
+							    					scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_reverse', value: false});
 											    	
 											    	//Set the colour
 											    	//
@@ -169,18 +215,68 @@ function(BBSPackingLibrary, currentRecord, format)
 					    			//
 					    			if(!lineUpdated)
 					    				{
-						    				Ext.Msg.minWidth = 500;
-											Ext.Msg.alert('❗Alert', 'Item code "' + selectionValue + '"not found on any line', Ext.emptyFn)
-											
-											scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
+					    					var warnings = 'Item code "' + selectionValue + '"not found on any line<br/><br/>';
+						        			warnings += '<p style="color:Red;">Click \"Ok\" to Continue<p/>';
+						        			var titleText = '❗Alert';
+						    	      		var options = 	{
+						    		      					title: 		titleText,
+						    		      					message: 	warnings
+						    		      					};
+						    		  
+						    	      		//Function that is called when the dialogue box completes
+						    	      		//
+						    		      	function success(result) 
+							    		      	{ 
+							    		      		//See if we have clicked ok in the dialogue
+							    		      		//
+							    		      		if (result)
+							    		      			{
+								    		      			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
+								    		      			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_reverse', value: false});
+							    		      				document.getElementById("custpage_entry_item").focus();
+							    		      			}
+							    		      		
+							    		      	}
+
+						    		      	//Display the dialogue box
+						    		      	//
+						    		      	dialog.alert(options).then(success);
+						    		      	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
+						    		      	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_reverse', value: false});
+						    		      	document.getElementById("custpage_entry_item").focus();
+					    			
 					    				}
 			    				}
 			    			else
 			    				{
-				    				Ext.Msg.minWidth = 500;
-									Ext.Msg.alert('❗Alert', 'Item code not found - ' + selectionValue, Ext.emptyFn);
-									
-									scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
+				    				var warnings = 'Item code not found - ' + selectionValue + '<br/><br/>';
+				        			warnings += '<p style="color:Red;">Click \"Ok\" to Continue<p/>';
+				        			var titleText = '❗Alert';
+				    	      		var options = 	{
+				    		      					title: 		titleText,
+				    		      					message: 	warnings
+				    		      					};
+				    		  
+				    	      		//Function that is called when the dialogue box completes
+				    	      		//
+				    		      	function success(result) 
+					    		      	{ 
+					    		      		//See if we have clicked ok in the dialogue
+					    		      		//
+					    		      		if (result)
+					    		      			{
+						    		      			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
+						    		      			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_reverse', value: false});
+					    		      				document.getElementById("custpage_entry_item").focus();
+					    		      			}
+					    		      	}
+	
+				    		      	//Display the dialogue box
+				    		      	//
+				    		      	dialog.alert(options).then(success);
+				    		      	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
+				    		      	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_reverse', value: false});
+				    		      	document.getElementById("custpage_entry_item").focus();
 			    				}
 			    		}
 			    	
@@ -223,15 +319,54 @@ function(BBSPackingLibrary, currentRecord, format)
 								}
 						}
 		    		
-		    		if(completedCount != lines)
-		    			{
-			    			Ext.Msg.minWidth = 500;
-							Ext.Msg.alert('❗Alert', 'Not all lines have a carton allocated, please allocate all lines to cartons', Ext.emptyFn);
-							
-							return false;
-		    			}
+		    		//If we have clicked ok on the dialogue or there are no customer actions, then return true
+		          	//
+		        	if(IS_CONFIRMED || completedCount == lines)
+		        	  	{
+		        	  		return true;
+		        	  	}
+		        	else
+		        	  	{
+		        			//Set up the options for the dialogue box
+		        			//
+		        			var warnings = 'Not all lines have a carton allocated<br/><br/>'
+		        			warnings += '<p style="color:Red;">Click \"Ok\" to Continue, \"Cancel\" to Amend<p/>';
+		        			var titleText = '❗Alert';
+		    	      		var options = 	{
+		    		      					title: titleText,
+		    		      					message: warnings
+		    		      					};
+		    		  
+		    	      		//Function that is called when the dialogue box completes
+		    	      		//
+		    		      	function success(result) 
+			    		      	{ 
+			    		      		//See if we have clicked ok in the dialogue
+			    		      		//
+			    		      		if (result)
+			    		      			{
+			    		      				//Update the global variable to show that we have clicked ok
+			    		      				//
+			    		      				IS_CONFIRMED = true;
+			    		      				
+			    		      				//Spoof pressing the save button on the form
+			    		      				//
+			    		      				document.getElementById('submitter').click();
+			    		      			}
+			    		      		else
+			    		      			{
+			    		      				document.getElementById("custpage_entry_item").focus();
+			    		      			}
+			    		      	}
 
-		    		return true;
+		  
+		    		      	
+		    		      	//Display the dialogue box
+		    		      	//
+		    		      	dialog.confirm(options).then(success);
+		    		      	document.getElementById("custpage_entry_item").focus();
+		    		      	
+		        	  	}
     			}
     		else
     			{
@@ -241,9 +376,9 @@ function(BBSPackingLibrary, currentRecord, format)
     
     function newCarton()
     	{
-    		var cartonDetails = BBSPackingLibrary.libCreateNewCarton();
+    		var cartonDetails 	= BBSPackingLibrary.libCreateNewCarton();
+    		var currRec 		= currentRecord.get();
     		
-    		var currRec = currentRecord.get();
     		currRec.setValue({fieldId: 'custpage_entry_carton_id', value: cartonDetails.cartonId});
     		currRec.setValue({fieldId: 'custpage_entry_carton_number', value: cartonDetails.cartonNumber});
     	}
@@ -251,16 +386,15 @@ function(BBSPackingLibrary, currentRecord, format)
     function setRowColour(rowNumber, tdColor)
     	{
 	    	//var tdColor = '#B2FF33'; //(Light Green)
-	    	var trDom = document.getElementById('custpage_sublist_itemsrow' + rowNumber);
-	    	var trDomChild = trDom.children;
+	    	var trDom 		= document.getElementById('custpage_sublist_itemsrow' + rowNumber);
+	    	var trDomChild 	= trDom.children;
 	    	
-	    	for (var t=0; t < (trDomChild.length - 1); t+=1)
+	    	for (var t=0; t < (trDomChild.length - 3); t+=1)
 		    	{
 		    		//get the child TD DOM element
 		    		var tdDom = trDomChild[t];
 		    		
 		    		tdDom.setAttribute('style','background-color: '+tdColor+'!important;border-color: white '+tdColor+' '+tdColor+' '+tdColor+'!important;');
-		    			
 		    	}
     	
     	}
@@ -268,7 +402,8 @@ function(BBSPackingLibrary, currentRecord, format)
     return 	{
     		fieldChanged: 	fieldChanged,
     		saveRecord:		saveRecord,
-    		newCarton:		newCarton
+    		newCarton:		newCarton,
+    		pageInit: 		pageInit,
     		};
     
 });

@@ -61,18 +61,19 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 		    		//Get parameters
 					//
 	    			var paramStage 				= Number(context.request.parameters['stage']);		//The stage the suitelet is in
-	    			var paramSession			= context.request.parameters['session'];			//The session id
+	    			//var paramSession			= context.request.parameters['session'];			//The session id
 	    			var paramSelectSoIf			= context.request.parameters['soif'];				//The sales order number or item fulfillment number
 	    			var paramCartonId			= context.request.parameters['cartonid'];			//The carton id
 	    			var paramCartonNumber		= context.request.parameters['cartonnumber'];		//The carton number
 	    			var paramIfId				= context.request.parameters['ifid'];				//The IF id
+	    			var paramWstnId				= context.request.parameters['wsid'];				//The workstation id
 	    			
-					var stage 					= (paramStage == null || paramStage == '' || isNaN(paramStage) ? 1 : paramStage);
+					var stage 					= (paramStage == null || paramStage == '' || isNaN(paramStage) ? 0 : paramStage);
 					
-					if(paramSession == null || paramSession == '')
-						{
-							paramSession = BBSPackingLibrary.libCreateSession();
-						}
+					//if(paramSession == null || paramSession == '')
+					//	{
+					//		paramSession = BBSPackingLibrary.libCreateSession();
+					//	}
 					
 					//Create a form
 	    			//
@@ -124,21 +125,64 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					
 					//Store the current session in a field in the form so that it can be retrieved in the POST section of the code
 					//
-					var sessionParamField = form.addField({
-											                id: 	'custpage_param_session',
+					//var sessionParamField = form.addField({
+					//						                id: 	'custpage_param_session',
+					//						                type: 	serverWidget.FieldType.TEXT,
+					//						                label: 	'Session',
+					//						                container:	'custpage_hidden_group'
+					//					            	});
+
+					//sessionParamField.updateDisplayType({displayType: parameterFieldsDisplayMode});
+					//sessionParamField.defaultValue = paramSession;
+					
+					//Store the workstation in a field in the form so that it can be retrieved in the POST section of the code
+					//
+					var wstnParamField = form.addField({
+											                id: 	'custpage_param_wstn',
 											                type: 	serverWidget.FieldType.TEXT,
-											                label: 	'Session',
+											                label: 	'Workstation Id',
 											                container:	'custpage_hidden_group'
 										            	});
 
-					sessionParamField.updateDisplayType({displayType: parameterFieldsDisplayMode});
-					sessionParamField.defaultValue = paramSession;
+					wstnParamField.updateDisplayType({displayType: parameterFieldsDisplayMode});
+					wstnParamField.defaultValue = paramWstnId;
+					
 					
 					
 					//Work out what the form layout should look like based on the stage number
 					//
 					switch(stage)
 						{
+							case 0:	
+								
+								
+								//Add a field group for the selection
+								//
+								var filtersGroup = form.addFieldGroup({
+																		id:		'custpage_selection_group',
+																		label:	'Workstation'
+																		});
+								
+								//Add a field for the workstation
+								//
+								var selectTierField = form.addField({
+													                id: 		'custpage_entry_wkstn',
+													                type: 		serverWidget.FieldType.SELECT,
+													                label: 		'SelectWorkstation',
+													                source:		'customrecord_bbs_printnode_workstation',
+													                container:	'custpage_selection_group'
+												            		}).isMandatory = true;
+								
+								
+								
+								//Add a submit button
+					            //
+					            form.addSubmitButton({
+										                label: 'Continue'
+										            });
+					            
+								break;
+								
 							case 1:	
 								
 								
@@ -149,15 +193,23 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																		label:	'Selection'
 																		});
 								
-								//Add a field for the customer tier
+								//Add a field for the so / if number
 								//
-								var selectTierField = form.addField({
+								var selectSoIfField = form.addField({
 													                id: 		'custpage_entry_so_if',
 													                type: 		serverWidget.FieldType.TEXT,
 													                label: 		'Sales Order/Fulfillment',
 													                container:	'custpage_selection_group'
 												            		});
 								
+								var selectSoIfField = form.addField({
+													                id: 		'custpage_entry_dummy',
+													                type: 		serverWidget.FieldType.RADIO,
+													                label: 		' ',
+													                source:		'dummy',
+													                container:	'custpage_selection_group'
+												            		});
+
 								
 								
 								//Add a submit button
@@ -239,6 +291,14 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								
 								//Add a field to the tab
 								//
+								var reverseField = form.addField({
+														      id: 			'custpage_entry_reverse',
+														      type: 		serverWidget.FieldType.CHECKBOX,
+														      label: 		'Reverse',
+														      container:	'custpage_tab_items'
+													          }).updateLayoutType({
+													        	    layoutType: serverWidget.FieldLayoutType.OUTSIDEABOVE});
+								
 								var itemField = form.addField({
 														      id: 			'custpage_entry_item',
 														      type: 		serverWidget.FieldType.TEXT,
@@ -246,6 +306,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 														      container:	'custpage_tab_items'
 													          });
 								
+								
+		
 								//Add columns to sublist
 								//
 								subList.addField({
@@ -297,13 +359,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													id:		'custpage_sl_item_weight',
 													label:	'Weight',
 													type:	serverWidget.FieldType.TEXT
-												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});		
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});		
 
 								subList.addField({
 													id:		'custpage_sl_item_carton_id',
 													label:	'Carton Id',
 													type:	serverWidget.FieldType.TEXT
-												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});		
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});		
 
 								subList.addField({
 													id:		'custpage_sl_item_id',
@@ -332,7 +394,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					            //Find data for the sublist
 					            //
 					            
-					            var sessionData 	= BBSPackingLibrary.libGetSessionData(paramSession);
+					            //var sessionData 	= BBSPackingLibrary.libGetSessionData(paramSession);
 								
 					            //Load the IF record
 					            //
@@ -340,60 +402,64 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					            
 					            if(ifRecord != null)
 					            	{
-							            var ifLines		= ifRecord.getLineCount({sublistId: 'item'});
-							            
-							            for (var ifLine = 0; ifLine < ifLines; ifLine++) 
-								            {
-								            	var ifLineItemId		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: ifLine});
-								            	var ifLineItem			= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'itemname', line: ifLine});
-								            	var ifLineItemQty		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: ifLine});
-								            	var ifLineItemDesc		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'description', line: ifLine});
-								            	var ifLineItemLine		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'line', line: ifLine});
-								            	var ifLineItemWeight	= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'itemweight', line: ifLine});
-								            	
-								            	subList.setSublistValue({
-																			id:		'custpage_sl_line_no',
-																			line:	ifLine,
-																			value:	ifLineItemLine
-																			});	
-								            	subList.setSublistValue({
-																			id:		'custpage_sl_item_id',
-																			line:	ifLine,
-																			value:	ifLineItemId
-																			});	
-								            	
-								            	subList.setSublistValue({
-																			id:		'custpage_sl_item_text',
-																			line:	ifLine,
-																			value:	BBSPackingLibrary.isNullorBlank(ifLineItem,' ')
-																			});	
-								            	
-								            	subList.setSublistValue({
-																			id:		'custpage_sl_item_description',
-																			line:	ifLine,
-																			value:	BBSPackingLibrary.isNullorBlank(ifLineItemDesc,' ')
-																			});	
-								            	
-								            //	subList.setSublistValue({
-											//								id:		'custpage_sl_item_weight',
-											//								line:	ifLine,
-											//								value:	format.parse({value: 0, type: format.Type.FLOAT})
-											//								});	
-								            	
-								            	subList.setSublistValue({
-																			id:		'custpage_sl_item_qty_req',
-																			line:	ifLine,
-																			value:	ifLineItemQty
-																			});	
-								            	
-								            	subList.setSublistValue({
-																			id:		'custpage_sl_item_qty_pack',
-																			line:	ifLine,
-																			value:	format.parse({value: 0, type: format.Type.FLOAT})
-																			});	
-		            	
-											}
-							            
+					            		var ifStatus 	= ifRecord.getValue({fieldId: 'status'});
+					            		
+					            		if(ifStatus == 'Picked')
+					            			{
+									            var ifLines		= ifRecord.getLineCount({sublistId: 'item'});
+									            
+									            for (var ifLine = 0; ifLine < ifLines; ifLine++) 
+										            {
+										            	var ifLineItemId		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: ifLine});
+										            	var ifLineItem			= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'itemname', line: ifLine});
+										            	var ifLineItemQty		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: ifLine});
+										            	var ifLineItemDesc		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'description', line: ifLine});
+										            	var ifLineItemLine		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'line', line: ifLine});
+										            	var ifLineItemWeight	= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'itemweight', line: ifLine});
+										            	
+										            	subList.setSublistValue({
+																					id:		'custpage_sl_line_no',
+																					line:	ifLine,
+																					value:	ifLineItemLine
+																					});	
+										            	subList.setSublistValue({
+																					id:		'custpage_sl_item_id',
+																					line:	ifLine,
+																					value:	ifLineItemId
+																					});	
+										            	
+										            	subList.setSublistValue({
+																					id:		'custpage_sl_item_text',
+																					line:	ifLine,
+																					value:	BBSPackingLibrary.isNullorBlank(ifLineItem,' ')
+																					});	
+										            	
+										            	subList.setSublistValue({
+																					id:		'custpage_sl_item_description',
+																					line:	ifLine,
+																					value:	BBSPackingLibrary.isNullorBlank(ifLineItemDesc,' ')
+																					});	
+										            	
+										            //	subList.setSublistValue({
+													//								id:		'custpage_sl_item_weight',
+													//								line:	ifLine,
+													//								value:	format.parse({value: 0, type: format.Type.FLOAT})
+													//								});	
+										            	
+										            	subList.setSublistValue({
+																					id:		'custpage_sl_item_qty_req',
+																					line:	ifLine,
+																					value:	ifLineItemQty
+																					});	
+										            	
+										            	subList.setSublistValue({
+																					id:		'custpage_sl_item_qty_pack',
+																					line:	ifLine,
+																					value:	format.parse({value: 0, type: format.Type.FLOAT})
+																					});	
+				            	
+													}
+					            			}
 					            	}
 					            
 								break;
@@ -410,12 +476,38 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					//Get the stage of the processing we are at
 					//
 		    		var stage 		= Number(request.parameters['custpage_param_stage']);
-		    		var session 	= request.parameters['custpage_param_session'];
+		    		//var session 	= request.parameters['custpage_param_session'];
+					var workstn		= request.parameters['custpage_param_wstn'];
 					
 					//Process based on stage
 					//
 					switch(stage)
 						{
+							case 0:
+								
+								//Get the entered workstation
+								//
+								workstn		= request.parameters['custpage_entry_wkstn'];
+								
+								//Increment the stage
+								//
+								stage++;
+								
+								//Call the suitelet again
+								//
+								context.response.sendRedirect({
+														type: 			http.RedirectType.SUITELET, 
+														identifier: 	runtime.getCurrentScript().id, 
+														id: 			runtime.getCurrentScript().deploymentId, 
+														parameters:		{
+																			stage: 			stage,						//Stage
+																			//session:		session,					//Session id
+																			wsid:			workstn						//Internal id of the workstation
+																		}
+														});
+								
+								break;
+								
 							case 1:
 								
 								//Get user entered parameters
@@ -442,11 +534,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 														id: 			runtime.getCurrentScript().deploymentId, 
 														parameters:		{
 																			stage: 			stage,						//Stage
-																			session:		session,					//Session id
+																			//session:		session,					//Session id
 																			soif:			salesOrderItemFulfillment,	//Sales order or IF number
 																			ifid:			itemFulfillmentId,			//Internal id of IF record to process
 																			cartonid:		cartonDetails.cartonId,		//Internal id of the carton to use
-																			cartonnumber:	cartonDetails.cartonNumber	//Carton number
+																			cartonnumber:	cartonDetails.cartonNumber,	//Carton number
+																			wsid:			workstn						//Internal id of the workstation
 																		}
 														});
 								
@@ -456,7 +549,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								
 								//Delete the session data
 								//
-								BBSPackingLibrary.libClearSessionData(session);
+								//BBSPackingLibrary.libClearSessionData(session);
 								
 								//Get the fulfillment id from the field 
 								//
@@ -484,11 +577,11 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																		    			    line: 	int
 																	    					});
 								    			
-								    			var itemLinePacked = request.getSublistValue({
+								    			var itemLinePacked = Number(request.getSublistValue({
 																		    			    group: 	'custpage_sublist_items',
 																		    			    name: 	'custpage_sl_item_qty_pack',
 																		    			    line: 	int
-																	    					});
+																	    					}));
 		
 								    			var itemLineWeight = request.getSublistValue({
 																		    			    group: 	'custpage_sublist_items',
@@ -515,7 +608,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 									            
 									            for (var ifLine = 0; ifLine < ifLines; ifLine++) 
 										            {
-										            	var ifLineItemQty		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: ifLine});
+										            	var ifLineItemQty		= Number(ifRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: ifLine}));
 										            	var ifLineItemLine		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'line', line: ifLine});
 										            	
 										            	//Have we found the correct line number
@@ -534,52 +627,78 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 										            			//
 										            			if(ifLineItemQty != itemLinePacked)
 										            				{
-										            					//Set the line quantity
-										            					//
-										            					ifRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'quantity', value: itemLinePacked});
-										            					
-										            					//Set the inventory status sub-record
-										            					//
-										            					var inventoryDetail = ifRecord.getCurrentSublistSubrecord({sublistId: 'item',fieldId: 'inventorydetail'});
-																		
-										            					if(inventoryDetail != null)
-																			{
-																				var inventoryAssignments = inventoryDetail.getLineCount({sublistId: 'inventoryassignment'});
-																					    			
-																				for (var inventoryAssignment = 0; inventoryAssignment < inventoryAssignments; inventoryAssignment++) 
-																					{		
-																						inventoryDetail.selectLine({sublistId: 'inventoryassignment', line: inventoryAssignment});
-																						inventoryDetail.setCurrentSublistValue({sublistId: 'inventoryassignment', fieldId: 'quantity', value: itemLinePacked});	
-																						inventoryDetail.commitLine({sublistId: 'inventoryassignment', ignoreRecalc: false});
+										            					if(itemLinePacked != 0)
+										            						{
+												            					//Set the line quantity
+												            					//
+												            					ifRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'quantity', value: itemLinePacked});
+												            					
+												            					//Set the inventory status sub-record
+												            					//
+												            					var inventoryDetail = ifRecord.getCurrentSublistSubrecord({sublistId: 'item',fieldId: 'inventorydetail'});
+																				
+												            					if(inventoryDetail != null)
+																					{
+																						var inventoryAssignments = inventoryDetail.getLineCount({sublistId: 'inventoryassignment'});
+																							    			
+																						for (var inventoryAssignment = 0; inventoryAssignment < inventoryAssignments; inventoryAssignment++) 
+																							{		
+																								inventoryDetail.selectLine({sublistId: 'inventoryassignment', line: inventoryAssignment});
+																								inventoryDetail.setCurrentSublistValue({sublistId: 'inventoryassignment', fieldId: 'quantity', value: itemLinePacked});	
+																								inventoryDetail.commitLine({sublistId: 'inventoryassignment', ignoreRecalc: false});
+																							}
 																					}
-																			}
+												            					
+												            					//Commit the line
+														            			//
+														            			ifRecord.commitLine({sublistId: 'item', ignoreRecalc: false});
+														            			
+										            						}
+										            					else
+										            						{
+										            							//Zero quantity packed, so remove the line from the IF
+										            							//
+										            							ifRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'itemreceive', value: false});
+										            						}
 										            				}
 										            			
-										            			//Commit the line
-										            			//
-										            			ifRecord.commitLine({sublistId: 'item', ignoreRecalc: false});
 										            			
 										            			break;
 										            		}
 										            }
 
-								    			//Accumulate the carton info
-								    			//
-									            
-								    			if(!(itemLineCartonId in cartonSummary))
-								    				{
-								    					cartonSummary[itemLineCartonId] = new cartonSummaryObj(itemLineCartonId, itemLineCarton, Number(itemLineWeight));
-								    				}
-								    			else
-								    				{
-								    					cartonSummary[itemLineCartonId].cartonWeight += Number(itemLineWeight);
-								    				}
+									            //Extract the carton ids from the sublist field
+									            //
+									            if(itemLineCartonId != null)
+									            	{
+											            var cartonIdArray 		= itemLineCartonId.split(',');
+											            var cartonNameArray 	= itemLineCarton.split(',');
+											            var cartonWeightArray 	= itemLineWeight.split(',');
+											            
+											            for (var cartonIndex = 0; cartonIndex < cartonIdArray.length; cartonIndex++) 
+												            {
+												            	//Accumulate the carton info
+												    			//
+												    			if(!(cartonIdArray[cartonIndex] in cartonSummary))
+												    				{
+												    					cartonSummary[cartonIdArray[cartonIndex]] = new cartonSummaryObj(cartonIdArray[cartonIndex], cartonNameArray[cartonIndex], Number(cartonWeightArray[cartonIndex]));
+												    				}
+												    			else
+												    				{
+												    					cartonSummary[cartonIdArray[cartonIndex]].cartonWeight += Number(cartonWeightArray[cartonIndex]);
+												    				}
+															}
+									            	}
 								    		}
 								
 										//Mark as packed
 										//
 										ifRecord.setValue({fieldId: 'shipstatus', value: 'B'});		//Mark as packed
 										
+										//Update the printnode workstation id on the IF for use in the carrier integration
+										//
+										ifRecord.setValue({fieldId: 'custbody_bbs_printnode_workstation', value: workstn});
+											
 										//Remove the default first package line
 										//
 										ifRecord.removeLine({sublistId: 'package', line: 0});
@@ -639,7 +758,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 														identifier: 	runtime.getCurrentScript().id, 
 														id: 			runtime.getCurrentScript().deploymentId, 
 														parameters:		{
-																			stage: 			1
+																			stage: 			1,
+																			wsid:			workstn						//Internal id of the workstation
 																		}
 														});
 								

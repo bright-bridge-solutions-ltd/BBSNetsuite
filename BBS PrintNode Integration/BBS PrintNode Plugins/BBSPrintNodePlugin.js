@@ -3,7 +3,7 @@
  * @NScriptType plugintypeimpl
  * @NModuleScope Public
  */
-define(['N/email', 'N/encode', 'N/file', 'N/https', 'N/record', 'N/runtime', 'N/search', '../BBSPrintNodeModules/BBSPrintNodeLibraryModule'],
+define(['N/email', 'N/encode', 'N/file', 'N/https', 'N/record', 'N/runtime', 'N/search', '../BBS PrintNode Modules/BBSPrintNodeLibraryModule'],
 /**
  * @param {email} email
  * @param {encode} encode
@@ -94,10 +94,10 @@ function(email, encode, file, https, record, runtime, search, BBSPrintNodeLibrar
 						config.endpointWhoAmI			= endpointPrefix + endpointWhoami;
 						config.endpointPrintJob			= endpointPrefix + endpointPrintJob;
 						config.credentialsEncoded		= 'Basic ' + encode.convert({
-							string:			apiKey,
-							inputEncoding:	encode.Encoding.UTF_8,
-							outputEncoding:	encode.Encoding.BASE_64
-							});
+																					string:			apiKey,
+																					inputEncoding:	encode.Encoding.UTF_8,
+																					outputEncoding:	encode.Encoding.BASE_64
+																					});
 					}
 				
 				return config;
@@ -105,12 +105,12 @@ function(email, encode, file, https, record, runtime, search, BBSPrintNodeLibrar
 	
 	
 				
-		//Get general account info from the api
+		//Get account information
 		//
 		function getAccountInfo()
 			{
 				var headerObj 			= {};
-				var serviveInfoObj 		= new BBSPrintNodeLibraryModule.libGenericResponseObj();
+				var serviceInfoObj 		= new BBSPrintNodeLibraryModule.libGenericResponseObj();
 				var responseBodyObj 	= null;
 				var configurationObj	= null;
 				
@@ -136,7 +136,7 @@ function(email, encode, file, https, record, runtime, search, BBSPrintNodeLibrar
 						
 								//Extract the http response code	
 								//
-								serviveInfoObj.httpResponseCode = response.code;
+								serviceInfoObj.httpResponseCode = response.code;
 								
 								//Extract the http response body
 								//
@@ -157,31 +157,31 @@ function(email, encode, file, https, record, runtime, search, BBSPrintNodeLibrar
 										//
 										if(responseBodyObj != null)
 											{
-												serviveInfoObj.apiResponse 		= responseBodyObj;
+												serviceInfoObj.apiResponse 		= responseBodyObj;
 											}
 									}
 							}
 						catch(err)
 							{
-								serviveInfoObj.responseMessage = err.message;
+								serviceInfoObj.responseMessage = err.message;
 							}
 					}
 				else
 					{
-						serviveInfoObj.responseMessage = 'No valid configuration found';
+						serviceInfoObj.responseMessage = 'No valid configuration found';
 					}
 				
-				return serviveInfoObj;
+				return serviceInfoObj;
 				
 			}
 		
 	
-		//Get general account info from the api
+		//Get list of printers available
 		//
 		function getPrinters()
 			{
 				var headerObj 			= {};
-				var serviveInfoObj 		= new BBSPrintNodeLibraryModule.libGenericResponseObj();
+				var serviceInfoObj 		= new BBSPrintNodeLibraryModule.libGenericResponseObj();
 				var responseBodyObj 	= null;
 				var configurationObj	= null;
 				
@@ -207,7 +207,7 @@ function(email, encode, file, https, record, runtime, search, BBSPrintNodeLibrar
 						
 								//Extract the http response code	
 								//
-								serviveInfoObj.httpResponseCode = response.code;
+								serviceInfoObj.httpResponseCode = response.code;
 								
 								//Extract the http response body
 								//
@@ -228,30 +228,30 @@ function(email, encode, file, https, record, runtime, search, BBSPrintNodeLibrar
 										//
 										if(responseBodyObj != null)
 											{
-												serviveInfoObj.apiResponse 		= responseBodyObj;
+												serviceInfoObj.apiResponse 		= responseBodyObj;
 											}
 									}
 							}
 						catch(err)
 							{
-								serviveInfoObj.responseMessage = err.message;
+								serviceInfoObj.responseMessage = err.message;
 							}
 					}
 				else
 					{
-						serviveInfoObj.responseMessage = 'No valid configuration found';
+						serviceInfoObj.responseMessage = 'No valid configuration found';
 					}
 				
-				return serviveInfoObj;
+				return serviceInfoObj;
 				
 			}
 
-		//Get general account info from the api
+		//Send a print to the api
 		//
 		function sendPrint(_printRequest)
 			{
 				var headerObj 			= {};
-				var serviveInfoObj 		= new BBSPrintNodeLibraryModule.libGenericResponseObj();
+				var serviceInfoObj 		= new BBSPrintNodeLibraryModule.libGenericResponseObj();
 				var responseBodyObj 	= null;
 				var configurationObj	= null;
 				
@@ -271,14 +271,14 @@ function(email, encode, file, https, record, runtime, search, BBSPrintNodeLibrar
 						try
 							{
 								var response = https.post({	
-															url:		configurationObj.endpointGetPrinters,
+															url:		configurationObj.endpointPrintJob,
 															headers:	headerObj,
 															body:		JSON.stringify(_printRequest)
 															});
 						
 								//Extract the http response code	
 								//
-								serviveInfoObj.httpResponseCode = response.code;
+								serviceInfoObj.httpResponseCode = response.code;
 								
 								//Extract the http response body
 								//
@@ -299,21 +299,21 @@ function(email, encode, file, https, record, runtime, search, BBSPrintNodeLibrar
 										//
 										if(responseBodyObj != null)
 											{
-												serviveInfoObj.apiResponse 		= responseBodyObj;
+												serviceInfoObj.apiResponse 		= responseBodyObj;
 											}
 									}
 							}
 						catch(err)
 							{
-								serviveInfoObj.responseMessage = err.message;
+								serviceInfoObj.responseMessage = err.message;
 							}
 					}
 				else
 					{
-						serviveInfoObj.responseMessage = 'No valid configuration found';
+						serviceInfoObj.responseMessage = 'No valid configuration found';
 					}
 				
-				return serviveInfoObj;
+				return serviceInfoObj;
 				
 			}
 
@@ -391,7 +391,8 @@ function(email, encode, file, https, record, runtime, search, BBSPrintNodeLibrar
 		return {
 	        		doPing:					doPing,
 	        		getAccountInfo:			getAccountInfo,
-	        		getPrinters:			getPrinters
+	        		getPrinters:			getPrinters,
+	        		sendPrint:				sendPrint
 	    		};
 	    
 	});

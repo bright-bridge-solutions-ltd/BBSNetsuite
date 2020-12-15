@@ -93,6 +93,7 @@ function buildOutput(_fulfillmentId)
 								var ifTranId 			= nlapiEscapeXML(fulfillmentRecord.getFieldValue('tranid'));
 								var ifTranShipAddress 	= nlapiEscapeXML(fulfillmentRecord.getFieldValue('shipaddress'));
 								ifTranShipAddress 		= ifTranShipAddress.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
+								var ifEORI				= isNull(nlapiEscapeXML(fulfillmentRecord.getFieldValue('custbody_bo_tran_eori_number')),'');
 								
 								var soBillAddress 		= nlapiEscapeXML(salesOrderRecord.getFieldValue('billaddress'));
 								soBillAddress 			= soBillAddress.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
@@ -157,9 +158,15 @@ function buildOutput(_fulfillmentId)
 										xml += '					<td style="width: 12%; font-size: 10px;" align="left">&nbsp;</td>';
 										xml += '					<td style="width: 41%; font-size: 10px;" align="left">&nbsp;</td>';
 										xml += '				</tr>';
+										xml += '				<tr>';
+										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
+										xml += '					<td style="width: 27%; font-size: 10px;">EORI No.:  ' + ifEORI + '</td>';
+										xml += '					<td style="width: 12%; font-size: 10px;" align="left">&nbsp;</td>';
+										xml += '					<td style="width: 41%; font-size: 10px;" align="left">&nbsp;</td>';
+										xml += '				</tr>';
 										xml += '			</table>';
 										xml += '          ';
-										xml += '           	<table class="header" style="table-layout:fixed; width:100%; margin-top: 20px;">';
+										xml += '           	<table class="header" style="table-layout:fixed; width:100%; margin-top: 10px;">';
 										xml += '            	<tr>';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
 										xml += '					<td style="width: 40%; font-size: 16px; border-top: 1px solid #bfbfbf; padding-top: 5px;" colspan="2"><b>Commercial Invoice</b></td>';
@@ -246,7 +253,7 @@ function buildOutput(_fulfillmentId)
 										xml += '		}';
 										xml += '	</style>';
 										xml += '</head>';
-										xml += '<body header="nlheader" header-height="510px" footer="nlfooter" footer-height="120px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
+										xml += '<body header="nlheader" header-height="530px" footer="nlfooter" footer-height="120px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
 										
 									
 										var ifLines 	= fulfillmentRecord.getLineItemCount('item');
@@ -281,7 +288,7 @@ function buildOutput(_fulfillmentId)
 														var ifLineCommodity		= isNull(nlapiEscapeXML(fulfillmentRecord.getLineItemValue('item', 'custcol_bbs_commodity_code', int)),'');
 														var ifLineDescription 	= isNull(nlapiEscapeXML(fulfillmentRecord.getLineItemValue('item', 'description', int)),'');
 														var ifLineQuantity 		= Number(fulfillmentRecord.getLineItemValue('item', 'quantity', int));
-														var ifLineWeight 		= Number(fulfillmentRecord.getLineItemValue('item', 'itemweight', int));
+														var ifLineWeight 		= Number(fulfillmentRecord.getLineItemValue('item', 'custcol_bbs_item_weight', int));
 														var ifLineOrderLine 	= Number(fulfillmentRecord.getLineItemValue('item', 'orderline', int));
 														var ifLineUnitPrice		= Number(getSoLineInfo(salesOrderRecord, ifLineOrderLine, 'rate'));
 														
