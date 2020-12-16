@@ -755,6 +755,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				//
 																				var rawDateArray 		= output.Order.OrderHeader.OrderDate.substring(0,output.Order.OrderHeader.OrderDate.indexOf('T')).split('-');
 																				var headerOrderNo 		= getDataElement(output, 'output.Order.OrderHeader.ExternalSystemOrderNo');
+																				var headerCustomerId 	= getDataElement(output, 'output.Order.OrderHeader.CustomerId');
 																				var headerCoName 		= getDataElement(output, 'output.Order.OrderHeader.CompanyInformation.Name');
 																				var headerContactName 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Name');
 																				var headerContactPhone 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Phone');
@@ -782,13 +783,31 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				var headerDateString 	= rawDateArray[2] + '/' + rawDateArray[1] + '/' + rawDateArray[0];
 																				var headerDate 			= format.parse({value: headerDateString, type: format.Type.DATE});
 																				
+																				//Find or create a business customer
+																				//
+																				var customerToUse = findOrCreateBusinessCustomer(
+																														headerCustomerId,
+																														headerCoName,
+																														headerContactEmail, 
+																														integrationDivision, 
+																														headerContactName, 
+																														headerBillAddress1,
+																														headerBillAddress2,
+																														headerBillCity,
+																														headerBillCounty,
+																														headerBillPostCode,
+																														integrationCustFormId,
+																														headerContactPhone,
+																														headerContactMobile
+																														);
+																				
 																				//Create sales order record
 																				//
 																				var salesOrderRecord = record.create({
 																														type: 			record.Type.SALES_ORDER, 
 																													    isDynamic: 		true,
 																													    defaultValues: 	{
-																													        			entity: integrationCashSaleCust	//Cash Sale Customer
+																													        			entity: customerToUse
 																													    				} 
 																													});
 																				
@@ -1502,6 +1521,323 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
     			}
 	    }
 
+    
+    
+    //Find a business customer
+    //
+    function findOrCreateBusinessCustomer(_headerCustomerId, _headerCoName, _headerContactEmail, _integrationDivision, _headerContactName, _headerBillAddress1, _headerBillAddress2, _headerBillCity, _headerBillCounty, _headerBillPostCode, _integrationCustFormId, _headerContactPhone, _headerContactMobile)
+    	{
+    		var customerSearchObj 	= null;
+    		var customerId			= null;
+    		
+    		//Try to find the customer by customer id
+    		//
+    		try
+				{
+		    		var customerSearchObj = getResults(search.create({
+												    			   type: "customer",
+												    			   filters:
+												    			   [
+												    			      ["custentity_bbs_etailerid_customer","is",_headerCustomerId]
+												    			   ],
+												    			   columns:
+												    			   [
+												    			      search.createColumn({name: "entityid",sort: search.Sort.ASC,label: "Name"}),
+												    			      search.createColumn({name: "internalid", label: "Internal Id"})
+												    			   ]
+		    														}));
+				}
+    		catch(err)
+    			{
+	    			log.error({
+								title: 		'Error searching for customer by customer id',
+								details: 	err
+								});
+	    			
+	    			customerSearchObj = null;
+    			}
+    		
+    		//Did we find a match?
+    		//
+    		if(customerSearchObj != null && customerSearchObj.length > 0)
+    			{
+    				customerId = customerSearchObj[0].id;
+    			}
+    		else
+    			{
+    				//Is the company name populated, if so use that to search by, otherwise use the email address
+    				//
+    				if(_headerCoName != null && _headerCoName != '')
+    					{
+    						//Search by company name
+    						//
+	    					try
+		    					{
+		    			    		var customerSearchObj = getResults(search.create({
+		    													    			   type: "customer",
+		    													    			   filters:
+		    													    			   [
+		    													    			      ["entityid","is",_headerCoName]
+		    													    			   ],
+		    													    			   columns:
+		    													    			   [
+		    													    			      search.createColumn({name: "entityid",sort: search.Sort.ASC,label: "Name"}),
+		    													    			      search.createColumn({name: "internalid", label: "Internal Id"})
+		    													    			   ]
+		    			    														}));
+		    					}
+		    	    		catch(err)
+		    	    			{
+		    		    			log.error({
+		    									title: 		'Error searching for customer by customer name',
+		    									details: 	err
+		    									});
+		    		    			
+		    		    			customerSearchObj = null;
+		    	    			}
+    					
+		    	    		//Did we find a match?
+		    	    		//
+		    	    		if(customerSearchObj != null && customerSearchObj.length > 0)
+			        			{
+			        				customerId = customerSearchObj[0].id;
+			        			}
+		    	    		else
+		    	    			{
+		    	    				//If not found, then create a new customer
+		    	    				//
+		    	    				customerId = createBusinessCustomer('C', _headerCustomerId, _headerCoName, _headerContactEmail, _integrationDivision, _headerContactName, _headerBillAddress1, _headerBillAddress2, _headerBillCity, _headerBillCounty, _headerBillPostCode, _integrationCustFormId, _headerContactPhone, _headerContactMobile);
+		    	    			}
+    					}
+    				else
+    					{
+	    					if(_headerContactEmail != null && _headerContactEmail != '')
+	    					{
+	    						//Search by email address
+	    						//
+	    						try
+			    					{
+			    			    		var customerSearchObj = getResults(search.create({
+			    													    			   type: "customer",
+			    													    			   filters:
+			    													    			   [
+			    													    			      ["email","is",_headerContactEmail]
+			    													    			   ],
+			    													    			   columns:
+			    													    			   [
+			    													    			      search.createColumn({name: "entityid",sort: search.Sort.ASC,label: "Name"}),
+			    													    			      search.createColumn({name: "internalid", label: "Internal Id"})
+			    													    			   ]
+			    			    														}));
+			    					}
+			    	    		catch(err)
+			    	    			{
+			    		    			log.error({
+			    									title: 		'Error searching for customer by email',
+			    									details: 	err
+			    									});
+			    		    			
+			    		    			customerSearchObj = null;
+			    	    			}
+    					
+			    	    		//Did we find a match?
+			    	    		//
+			    	    		if(customerSearchObj != null && customerSearchObj.length > 0)
+				        			{
+				        				customerId = customerSearchObj[0].id;
+				        			}
+			    	    		else
+			    	    			{
+			    	    				//If not found, then create a new customer
+			    	    				//
+			    	    				customerId = createBusinessCustomer('I', _headerCustomerId, _headerCoName, _headerContactEmail, _integrationDivision, _headerContactName, _headerBillAddress1, _headerBillAddress2, _headerBillCity, _headerBillCounty, _headerBillPostCode, _integrationCustFormId, _headerContactPhone, _headerContactMobile);
+			    	    			}
+		    					}
+    					}
+    			}
+    		
+    		
+    		//Return the customer id
+    		//
+    		return customerId;
+    	}
+    
+    function createBusinessCustomer(_compOrInd, _headerCustomerId, _headerCoName, _headerContactEmail, _integrationDivision, _headerContactName, _headerBillAddress1, _headerBillAddress2, _headerBillCity, _headerBillCounty, _headerBillPostCode, _integrationCustFormId, _headerContactPhone, _headerContactMobile)
+    	{
+	    	var createdCustomerId 		= null;
+			var createdCustomerRecord	= null;
+			
+			try
+				{
+					createdCustomerRecord = record.create({
+															type:		record.Type.CUSTOMER,
+															isDynamic:	true
+															});		
+	
+					if(_customForm != null && _customForm != '')
+						{
+							createdCustomerRecord.setValue({
+															fieldId:	'customform',
+															value:		_customForm
+															});	
+						}
+	
+					if(_compOrInd == 'C')
+						{
+							createdCustomerRecord.setValue({
+															fieldId:	'isperson',
+															value:		'F'	
+															});	
+
+							createdCustomerRecord.setValue({
+															fieldId:	'companyname',
+															value:		_headerContactName
+															});	
+						}
+					else
+						{
+							createdCustomerRecord.setValue({
+															fieldId:	'isperson',
+															value:		'T'	
+															});	
+
+							var nameSplit = _headerContactName.split(' ');
+							
+							createdCustomerRecord.setValue({
+															fieldId:	'firstname',
+															value:		nameSplit[0]
+															});	
+			
+							createdCustomerRecord.setValue({
+															fieldId:	'lastname',
+															value:		nameSplit[nameSplit.length - 1]
+															});	
+			
+							createdCustomerRecord.setValue({
+															fieldId:	'name',
+															value:		_headerContactName
+															});	
+						}
+					
+					createdCustomerRecord.setValue({
+													fieldId:	'cseg_bbs_division',
+													value:		_integrationDivision	//Division from config record
+													});	
+					
+					
+	
+					if(_headerContactEmail != null && _headerContactEmail != '')
+						{
+							createdCustomerRecord.setValue({
+															fieldId:	'email',
+															value:		_headerContactEmail		
+															});	
+						}
+					
+					if(_headerContactPhone != null && _headerContactPhone != '')
+						{
+							createdCustomerRecord.setValue({
+															fieldId:	'phone',
+															value:		_headerContactPhone		
+															});	
+						}
+				
+					if(_headerContactMobile != null && _headerContactMobile != '')
+						{
+							createdCustomerRecord.setValue({
+															fieldId:	'mobilephone',
+															value:		_headerContactMobile		
+															});	
+						}
+				
+					createdCustomerRecord.setValue({
+													fieldId:	'terms',
+													value:		4				//0 Net
+													});	
+					
+					createdCustomerRecord.setValue({
+													fieldId:	'category',
+													value:		60				//Prepayment
+													});	
+					
+					createdCustomerRecord.setValue({
+													fieldId:	'custentity_bbs_postcode_searchable',
+													value:		_headerBillPostCode		//Searchable post code
+													});	
+					
+					
+					// add a new line to the address sublist
+					createdCustomerRecord.selectNewLine({
+						    	    					sublistId: 'addressbook'
+						    	    					});
+					
+					// select the address subrecord
+					var addressSubrecord = createdCustomerRecord.getCurrentSublistSubrecord({
+															    	    				    sublistId: 'addressbook',
+															    	    				    fieldId: 'addressbookaddress'
+															    	    					});
+					
+					// set fields on the sublist record
+					addressSubrecord.setValue({
+				    	    					fieldId: 	'defaultbilling',
+				    	    					value: 		true
+				    	    				});
+					
+					addressSubrecord.setValue({
+				    	    					fieldId: 	'defaultshipping',
+				    	    					value: 		true
+				    	    				});
+					
+					addressSubrecord.setValue({
+				    	    					fieldId: 	'addr1',
+				    	    					value: 		_headerBillAddress1
+				    	    				});
+					
+					addressSubrecord.setValue({
+				    	    					fieldId: 	'addr2',
+				    	    					value: 		_headerBillAddress2
+				    	    				});
+					
+					addressSubrecord.setValue({
+				    	    					fieldId: 	'city',
+				    	    					value: 		_headerBillCity
+				    	    				});
+					
+					addressSubrecord.setValue({
+				    	    					fieldId: 	'state',
+				    	    					value: 		_headerBillCounty
+				    	    				});
+					
+					addressSubrecord.setValue({
+				    	    					fieldId: 	'zip',
+				    	    					value: 		_headerBillPostCode
+				    	    				});
+					
+					createdCustomerRecord.commitLine({
+						    							sublistId: 'addressbook'
+						    						});
+					
+					createdCustomerId = createdCustomerRecord.save({
+			    													enableSourcing:			true,
+			    													ignoreMandatoryFields:	true
+			    													});								
+				}
+			catch(err)
+				{
+					createdCustomerId = null;
+				
+					log.error({
+								title: 		'Error creating new customer',
+								details: 	err
+								});
+				}
+		
+			//Return the customer id
+			//
+			return createdCustomerId;
+    	}
+    
+    
     //Find cash sale customer by email address
     //
     function findOrCreateCustomer(_headerContactEmail, _integrationCashSaleCust, _division, _contactName, _address1, _address2, _city, _county, _postCode, _customForm, _phone, _mobile)

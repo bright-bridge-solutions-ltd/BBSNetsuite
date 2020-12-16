@@ -22,48 +22,49 @@ function suitelet(request, response)
 		// Parameters passed to the suitelet
 		//=====================================================================
 		//
-		var fulfillmentParam = request.getParameter('fulfillment');
+		var salesOrderParam = request.getParameter('salesorder');
 		
-		if (fulfillmentParam != null && fulfillmentParam != '') 
+		if (salesOrderParam != null && salesOrderParam != '') 
 			{
 				// Build the output
 				//	
-				var file = buildOutput(fulfillmentParam);
+				var file = buildOutput(salesOrderParam);
 		
 				// Send back the output in the response message
 				//
 				if(file != null)
 					{
-						response.setContentType('PDF', 'Delivery Note.pdf', 'inline');
+						response.setContentType('PDF', 'Picking Ticket.pdf', 'inline');
 						response.write(file.getValue());
 					}
 			}
 	}
 
-function buildOutput(_fulfillmentId)
+function buildOutput(_salesOrderId)
 	{
-		var fulfillmentRecord 	= null;
+		var salesOrderRecord 	= null;
 		var customerRecord 		= null;
+		var salesOrderId		= null;
 		var pdfFileObject 		= null;
 		var xml 				= "<?xml version=\"1.0\"?>\n<!DOCTYPE pdf PUBLIC \"-//big.faceless.org//report\" \"report-1.1.dtd\">";
 		xml 				   += '<pdfset>';
 		
 		//Try to load the sales order
 		//
-		if(_fulfillmentId != null && _fulfillmentId != '')
+		if(_salesOrderId != null && _salesOrderId != '')
 			{
 				try
 					{
-						fulfillmentRecord = nlapiLoadRecord('itemfulfillment', _fulfillmentId);
+						salesOrderRecord = nlapiLoadRecord('salesorder', _salesOrderId);
 					}
 				catch(err)
 					{
-						fulfillmentRecord = null;
+						salesOrderRecord = null;
 					}
 				
 				//Did the sales order load ok?
 				//
-				if(fulfillmentRecord != null)
+				if(salesOrderRecord != null)
 					{
 						//Get data fields
 						//
@@ -73,11 +74,10 @@ function buildOutput(_fulfillmentId)
 						var soAccountNumber		= '';
 						var soCustPoNumber		= '';
 						var customerNo 			= '';
-						var soCustomer 			= fulfillmentRecord.getFieldValue('entity');
-						var soLines 			= fulfillmentRecord.getLineItemCount('item');
-						var salesOrderId		= fulfillmentRecord.getFieldValue('createdfrom');
+						var soCustomer 			= salesOrderRecord.getFieldValue('entity');
+						var soLines 			= salesOrderRecord.getLineItemCount('item');
 						
-						soShipAddress 			= nlapiEscapeXML(fulfillmentRecord.getFieldValue('shipaddress'));
+						soShipAddress 			= nlapiEscapeXML(salesOrderRecord.getFieldValue('shipaddress'));
 						soShipAddress 			= soShipAddress.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
 						
 						
@@ -98,26 +98,26 @@ function buildOutput(_fulfillmentId)
 										//
 										if(soCustomer == 19416)		//Gardoo Sales
 											{
-												soOrderNumber 	= isNull(nlapiEscapeXML(fulfillmentRecord.getFieldValue('otherrefnum')),'').split(' ')[0];
+												soOrderNumber 	= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('otherrefnum')),'').split(' ')[0];
 												customerNo 		= isNull(nlapiEscapeXML(customerRecord.getFieldValue('entityid')).split(' ')[0],'');
 												soCustPoNumber	= '';
-												soShipDate		= isNull(nlapiEscapeXML(fulfillmentRecord.getFieldValue('custbody_exp_ship_date_so')),'');
+												soShipDate		= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('custbody_exp_ship_date_so')),'');
 											}
 										else
 											{
-												soOrderNumber 	= isNull(nlapiEscapeXML(fulfillmentRecord.getFieldValue('tranid')),'');
+												soOrderNumber 	= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('tranid')),'');
 												customerNo 		= isNull(nlapiEscapeXML(customerRecord.getFieldValue('entityid')).split(' ')[0],'');
-												soCustPoNumber	= isNull(nlapiEscapeXML(fulfillmentRecord.getFieldValue('otherrefnum')),'');
-												soShipDate		= isNull(nlapiEscapeXML(fulfillmentRecord.getFieldValue('custbody_exp_ship_date_so')),'');
+												soCustPoNumber	= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('otherrefnum')),'');
+												soShipDate		= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('custbody_exp_ship_date_so')),'');
 											}
 										
 										
 										for (var int = 1; int <= soLines; int++) 
 											{
-												var soLineItemId		= fulfillmentRecord.getLineItemValue('item', 'item', int);
-												var soLineItem 			= fulfillmentRecord.getLineItemText('item', 'item', int);
-												var soLineItemRecType	= fulfillmentRecord.getLineItemValue('item', 'itemtype', int);
-												var soLineSupplier		= fulfillmentRecord.getLineItemValue('item', 'custcol_po_vendor', int);
+												var soLineItemId		= salesOrderRecord.getLineItemValue('item', 'item', int);
+												var soLineItem 			= salesOrderRecord.getLineItemText('item', 'item', int);
+												var soLineItemRecType	= salesOrderRecord.getLineItemValue('item', 'itemtype', int);
+												var soLineSupplier		= salesOrderRecord.getLineItemValue('item', 'custcol_po_vendor', int);
 												var soSiteContact 		= '';
 												var soNotes				= '';
 												
@@ -125,8 +125,8 @@ function buildOutput(_fulfillmentId)
 												//
 												if(soLineItem == 'Delivery')
 													{
-														soSiteContact 	= isNull(nlapiEscapeXML(fulfillmentRecord.getLineItemValue('item', 'custcol7', int)),'');
-														soNotes 		= isNull(nlapiEscapeXML(fulfillmentRecord.getLineItemValue('item', 'custcol_dspo_haulier_notes', int)),'');
+														soSiteContact 	= isNull(nlapiEscapeXML(salesOrderRecord.getLineItemValue('item', 'custcol7', int)),'');
+														soNotes 		= isNull(nlapiEscapeXML(salesOrderRecord.getLineItemValue('item', 'custcol_dspo_haulier_notes', int)),'');
 														break;
 													}
 											}
@@ -192,10 +192,13 @@ function buildOutput(_fulfillmentId)
 										
 										if(pageCount == 0)
 											{
-												xml += '            <table class="footer" style="width: 100%;">';
-												xml += '				<tr>';
-												xml += '    				<td colspan="3" align="center" style="margin-bottom: 5px;">All goods remain the property of AHS Ltd until full payment is received</td>';
-												xml += '				</tr>';
+												xml += '<table style="width: 100%;">';
+												xml += '	<tr>';
+												xml += '    	<td align="center"><b>All goods remain the property of AHS Ltd until full payment is received.</b></td>';
+												xml += '	</tr>';
+												xml += '</table>';
+										
+												xml += '            <table class="footer" style="width: 100%; margin-top: 10px;">';
 												xml += '            	<tr>';
 												xml += '					<td align="left" style="padding-left: 5px; font-size: 10px; border-left: 1px solid black; border-top: 1px solid black; border-right: 1px solid black; background-color: #808080; color: #ffffff">Received By</td>';
 												xml += '					<td align="left" style="padding-left: 5px; font-size: 10px; border-top: 1px solid black; border-right: 1px solid black; background-color: #808080; color: #ffffff">Print Name</td>';
@@ -225,8 +228,11 @@ function buildOutput(_fulfillmentId)
 											{
 												xml += '<table style="width: 100%;">';
 												xml += '	<tr>';
-												xml += '    	<td colspan="6" align="center" style="margin-bottom: 5px;">All goods remain the property of AHS Ltd until full payment is received</td>';
+												xml += '    	<td align="center"><b>All goods remain the property of AHS Ltd until full payment is received.</b></td>';
 												xml += '	</tr>';
+												xml += '</table>';
+											
+												xml += '<table style="width: 100%; margin-top: 10px;">';
 												xml += '	<tr>';
 												xml += '    	<td style="border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;" align="left" colspan="2"><img src="https://system.eu2.netsuite.com/core/media/media.nl?id=1511529&amp;c=4465021&amp;h=71b54a3870eeb4ca87a5" style="width: 180px; height: 50px; vertical-align: bottom;"/></td>';
 												xml += '		<td style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;" align="center" colspan="2"><img src="https://system.eu2.netsuite.com/core/media/media.nl?id=1511532&amp;c=4465021&amp;h=45c5a8c93d87dbccb5b4" style="width: 180px; height: 50px; vertical-align: bottom;"/></td>';
@@ -308,7 +314,7 @@ function buildOutput(_fulfillmentId)
 										xml += '		}';
 										xml += '</style>';
 										xml += '</head>';
-										xml += '<body header="nlheader" header-height="270px" footer="nlfooter" footer-height="' + (pageCount == 0 ? '130px' : '70px') + '" padding="0.5in 0.5in 0.5in 0.5in" size="A4">';
+										xml += '<body header="nlheader" header-height="270px" footer="nlfooter" footer-height="' + (pageCount == 0 ? '140px' : '75px') + '" padding="0.5in 0.5in 0.5in 0.5in" size="A4">';
 												
 										if(soLines > 0)
 											{
@@ -323,12 +329,12 @@ function buildOutput(_fulfillmentId)
 												
 												for (var int = 1; int <= soLines; int++) 
 													{
-														var soLineItem 			= isNull(nlapiEscapeXML(fulfillmentRecord.getLineItemText('item', 'item', int)),'');
-														var soLineDescription 	= isNull(nlapiEscapeXML(fulfillmentRecord.getLineItemValue('item', 'description', int)),'');
-														var soLineQuantity 		= Number(fulfillmentRecord.getLineItemValue('item', 'quantity', int));
-														var soLineItemRecType	= fulfillmentRecord.getLineItemValue('item', 'itemtype', int);
-														var soLineSupplier		= fulfillmentRecord.getLineItemValue('item', 'custcol_po_vendor', int);
-														var soLineUom			= nlapiEscapeXML(fulfillmentRecord.getLineItemValue('item', 'unitsdisplay', int));
+														var soLineItem 			= isNull(nlapiEscapeXML(salesOrderRecord.getLineItemText('item', 'item', int)),'');
+														var soLineDescription 	= isNull(nlapiEscapeXML(salesOrderRecord.getLineItemValue('item', 'description', int)),'');
+														var soLineQuantity 		= Number(salesOrderRecord.getLineItemValue('item', 'quantity', int));
+														var soLineItemRecType	= salesOrderRecord.getLineItemValue('item', 'itemtype', int);
+														var soLineSupplier		= salesOrderRecord.getLineItemValue('item', 'custcol_po_vendor', int);
+														var soLineUom			= nlapiEscapeXML(salesOrderRecord.getLineItemText('item', 'units', int));
 														
 														if(soLineItemRecType != 'NonInvtPart' && soLineItemRecType != 'Group' && soLineSupplier == '16336')
 															{
@@ -336,7 +342,7 @@ function buildOutput(_fulfillmentId)
 																xml += '          <td align="left"  colspan="7" style="padding-left: 5px; font-size: 10px; border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">' + soLineItem + '<br/>' + soLineDescription + '</td>';
 																xml += '          <td align="right" colspan="1" style="padding-right: 5px; font-size: 10px; border-bottom: 1px solid black; border-right: 1px solid black;">' + soLineQuantity.numberFormat('0.00') + '</td>';
 																xml += '          <td align="right" colspan="1" style="padding-right: 5px; font-size: 10px; border-bottom: 1px solid black; border-right: 1px solid black;">' + soLineUom + '</td>';
-																xml += '       </tr>';
+																xml += '        </tr>';
 															}
 													}
 											}

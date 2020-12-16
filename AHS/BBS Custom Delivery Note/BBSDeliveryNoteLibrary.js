@@ -9,11 +9,11 @@ function libExportDeliveryNote()
 {
 	var url = nlapiResolveURL('SUITELET', 'customscript_bbs_del_note_suitelet', 'customdeploy_bbs_del_note_suitelet');
 	
-	var fulfillmentId = nlapiGetRecordId();
+	var invId = nlapiGetRecordId();
 
 	// Add the invoice id to the url
 	//
-	url += '&fulfillment=' + fulfillmentId;
+	url += '&salesorder=' + invId;
 
 	// Open the suitelet in the current window
 	//
