@@ -89,7 +89,7 @@ function(record, ui, search) {
     								fieldId: 'custrecord_bbs_if_package_key',
     								value: packageId
     							});
-    							
+
     							rec.save();
     						}
     				}
@@ -123,13 +123,13 @@ function(record, ui, search) {
 		    				var packageNumberField = packagesSublist.addField({
 		    					id: 'custpage_trackingnumber',
 		    					type: ui.FieldType.TEXT,
-		    					label: 'Package Tracking Number'
+		    					label: '[CI]Package Tracking Number'
 		    				});
 		    			
 		    				var trackingLinkField = packagesSublist.addField({
 		    					id: 'custpage_trackinglink',
 		    					type: ui.FieldType.URL,
-		    					label: 'Package Tracking Link'
+		    					label: '[CI]Package Tracking Link'
 		    				});
 		    				
 		    				// set the link text and display type
@@ -166,10 +166,10 @@ function(record, ui, search) {
 		    								var fieldLookup = search.lookupFields({
 		    									type: 'customrecord_bbs_if_additional_fields',
 		    									id: mvfid,
-		    									columns: ['custrecord_bbs_if_package_key']
+		    									columns: ['custrecord_bbs_if_package_track_no']
 		    								});
 		    								
-		    								var trackingNumber = fieldLookup.custrecord_bbs_if_package_key;
+		    								var trackingNumber = fieldLookup.custrecord_bbs_if_package_track_no;
 		    								
 		    								currentRecord.setSublistValue({
 		    									sublistId: 'package',
@@ -231,24 +231,15 @@ function(record, ui, search) {
 	    		
 	    			// create search
 	    			var mySearch = search.create({
-	    				type: 'customrecord_bbs_if_additional_fields',
-	    				
-	    				columns: [{
-	    					name: 'internalid'
-	    				}],
-	    				
-	    				filters: [{
-	    					name: 'custrecord_bbs_if_fulfilment',
-	    					operator: 'is',
-	    					values: [_fulfilmentId]
-	    				},
-	    						{
-	    					name: 'custrecord_bbs_if_package_key',
-	    					operator: 'is',
-	    					values: [_packageId]
-	    				}],
-
-	    			});
+							    				type: 		'customrecord_bbs_if_additional_fields',
+							    				columns: 	[
+							    				         	 {name: 'internalid'}
+							    				         	 ],
+							    				filters: 	[
+							    				         	 {name: 'custrecord_bbs_if_fulfilment',operator: 'is',values: [_fulfilmentId]},
+							    				         	 {name: 'custrecord_bbs_if_package_key',operator: 'is',values: [_packageId]}],
+						
+							    				});
 	    			
 	    			// run search and process results
 	    			mySearch.run().each(function(result){

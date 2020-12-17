@@ -296,8 +296,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 														      type: 		serverWidget.FieldType.CHECKBOX,
 														      label: 		'Reverse',
 														      container:	'custpage_tab_items'
-													          }).updateLayoutType({
-													        	    layoutType: serverWidget.FieldLayoutType.OUTSIDEABOVE});
+													          }).updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});	//.updateLayoutType({layoutType: serverWidget.FieldLayoutType.OUTSIDEABOVE});
 								
 								var itemField = form.addField({
 														      id: 			'custpage_entry_item',

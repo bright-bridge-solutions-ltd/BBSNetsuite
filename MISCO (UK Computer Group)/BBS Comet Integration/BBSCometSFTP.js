@@ -1674,14 +1674,22 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 															isDynamic:	true
 															});		
 	
-					if(_customForm != null && _customForm != '')
+					if(_integrationCustFormId != null && _integrationCustFormId != '')
 						{
 							createdCustomerRecord.setValue({
 															fieldId:	'customform',
-															value:		_customForm
+															value:		_integrationCustFormId
 															});	
 						}
 	
+					if(_headerCustomerId != null && _headerCustomerId != '')
+						{
+							createdCustomerRecord.setValue({
+															fieldId:	'custentity_bbs_etailerid_customer',
+															value:		_headerCustomerId
+															});	
+						}
+					
 					if(_compOrInd == 'C')
 						{
 							createdCustomerRecord.setValue({

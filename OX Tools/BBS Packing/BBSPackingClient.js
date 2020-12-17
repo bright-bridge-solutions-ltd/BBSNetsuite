@@ -86,6 +86,9 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
 			    	
 					setRowColour(sublistLine, '#FFFFFF');
 					
+					//Put the focus back on to the item input field
+			    	//
+			    	document.getElementById("custpage_entry_item").focus();
 				}
 	    	
     		//Selection of an item
@@ -135,7 +138,7 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
 						    				
 						    				//Does the item id on the line match the one we are searching for?
 						    				//
-						    				if(sublistItem == itemInfo.itemId)
+						    				if(sublistItem == itemInfo.itemId && sublistQty < sublistRequired)
 						    					{
 						    						//Select the line
 						    						//
@@ -381,6 +384,10 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
     		
     		currRec.setValue({fieldId: 'custpage_entry_carton_id', value: cartonDetails.cartonId});
     		currRec.setValue({fieldId: 'custpage_entry_carton_number', value: cartonDetails.cartonNumber});
+    		
+    		//Put the focus back on to the item input field
+	    	//
+	    	document.getElementById("custpage_entry_item").focus();
     	}
     
     function setRowColour(rowNumber, tdColor)

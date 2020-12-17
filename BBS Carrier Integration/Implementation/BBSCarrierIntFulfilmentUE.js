@@ -520,6 +520,59 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 		    													var labelFileType 	= packages[i]['labelType'];
 		    													var packageNumber 	= packages[i]['packageNumber'];
 		    													
+		    													// create a PNG of the courier label and store in the file cabinet
+								    							var courierLabel = file.create({
+															    								fileType: 	(labelFileType == 'PNG' ? file.Type.PNGIMAGE : file.Type.PDF),
+															    								name: 		packageNumber + '.' + labelFileType,
+															    								contents: 	labelImage,
+															    								folder: 	fileCabinetFolder,
+															    								isOnline: 	true
+															    								});
+		    													
+						    									
+						    									// save the file in the file cabinet and get the file's ID
+						    									var courierLabelFileID = courierLabel.save();
+						    									
+						    									// attach the file to the item fulfilment
+				    											record.attach({
+							    												record: {
+							    														type: 	'file',
+							    														id: 	courierLabelFileID
+							    														},
+							    												to: 	{
+							    														type: 	record.Type.ITEM_FULFILLMENT,
+							    														id: 	recordID
+							    														}
+							    												});
+				    											
+				    											// reload the file
+						    									courierLabel = file.load({id: courierLabelFileID});
+		    												
+		    													// build up the file's URL
+						    									var courierLabelFileURL  = 'https://';
+						    									courierLabelFileURL 	+= companyURL;
+						    									courierLabelFileURL 	+= courierLabel.url;
+
+						    									// check if this is the first package, in which case update the IF record with the url of the first label
+				    											if (i == 0)
+				    												{
+						    											// update the item fulfilment record
+								    									itemFulfillmentRecord.setValue({
+															    										fieldId: 	'custbody_bbs_ci_consignment_number',
+															    										value: 		consignmentNumber
+															    										});
+								    									
+								    									itemFulfillmentRecord.setValue({
+															    										fieldId: 	'custbody_bbs_ci_consignment_error',
+															    										value: 		null
+															    										});
+								    									
+								    									itemFulfillmentRecord.setValue({
+															    										fieldId: 	'custbody_bbs_ci_label_image',
+															    										value: 		courierLabelFileURL
+															    										});
+				    												}
+
 		    													// select the line on the packages sublist on the item record
 		    													itemFulfillmentRecord.selectLine({
 									    														sublistId: 	'package',
@@ -543,11 +596,14 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 												    																});
 		    														}
 		    													
-		    													// set the tracking number field on the sublist line
+		    													// set the tracking number field on the sublist line to hold the url of the label image
+		    													var labelUrlArray = courierLabel.url.replace('?','&').split('&');
+		    													var labelUrlString = '?' + labelUrlArray[1] + '&' + labelUrlArray[3]
+		    													
 		    													itemFulfillmentRecord.setCurrentSublistValue({
 												    														sublistId: 	'package',
 												    														fieldId: 	'packagetrackingnumber',
-												    														value: 		packageNumber
+												    														value: 		labelUrlString		//packageNumber
 												    														});
 		    													
 		    													// commit the changes to the sublist line
@@ -568,9 +624,14 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 						    											
 						    											customRecord.setValue({
 						    																	fieldId:	'custrecord_bbs_if_package_key',
+						    																	value:		labelUrlString	//packageNumber
+						    																	});
+						    											
+						    											customRecord.setValue({
+						    																	fieldId:	'custrecord_bbs_if_package_track_no',
 						    																	value:		packageNumber
 						    																	});
-								
+						    											
 						    											customRecord.save({
 						    																enableSourcing: 		false,
 						    																ignoreMandatoryFields:	true
@@ -580,75 +641,6 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 						    										{
 						    										
 						    										}
-		    													
-		    													// if labelFileType is PNG
-		    													if (labelFileType == 'PNG')
-		    														{
-			    														// create a PNG of the courier label and store in the file cabinet
-								    									var courierLabel = file.create({
-															    										fileType: 	file.Type.PNGIMAGE,
-															    										name: 		packageNumber + '.' + labelFileType,
-															    										contents: 	labelImage,
-															    										folder: 	fileCabinetFolder,
-															    										isOnline: 	true
-															    									});
-		    														}
-		    													else if (labelFileType == 'PDF') // if labelFileType is PDF
-		    														{
-			    														// create a PDF of the courier label and store in the file cabinet
-								    									var courierLabel = file.create({
-															    										fileType: 	file.Type.PDF,
-															    										name: 		packageNumber + '.' + labelFileType,
-															    										contents: 	labelImage,
-															    										folder: 	fileCabinetFolder,
-															    										isOnline: 	true
-															    										});
-		    														}
-						    									
-						    									// save the file in the file cabinet and get the file's ID
-						    									var courierLabelFileID = courierLabel.save();
-						    									
-						    									// attach the file to the item fulfilment
-				    											record.attach({
-							    												record: {
-							    														type: 	'file',
-							    														id: 	courierLabelFileID
-							    														},
-							    												to: 	{
-							    														type: 	record.Type.ITEM_FULFILLMENT,
-							    														id: 	recordID
-							    														}
-							    												});
-				    											
-				    											// check if this is the first package
-				    											if (i == 0)
-				    												{
-					    												// reload the file
-								    									courierLabel = file.load({
-								    									    id: courierLabelFileID
-								    									});
-				    												
-				    													// build up the file's URL
-								    									var courierLabelFileURL = 'https://';
-								    									courierLabelFileURL += companyURL;
-								    									courierLabelFileURL += courierLabel.url;
-
-						    											// update the item fulfilment record
-								    									itemFulfillmentRecord.setValue({
-															    										fieldId: 	'custbody_bbs_ci_consignment_number',
-															    										value: 		consignmentNumber
-															    										});
-								    									
-								    									itemFulfillmentRecord.setValue({
-															    										fieldId: 	'custbody_bbs_ci_consignment_error',
-															    										value: 		null
-															    										});
-								    									
-								    									itemFulfillmentRecord.setValue({
-															    										fieldId: 	'custbody_bbs_ci_label_image',
-															    										value: 		courierLabelFileURL
-															    										});
-				    												}
 		    												}
 		    										}
 		    									else
@@ -939,8 +931,8 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 														columns:	['countryofmanufacture', 'custitem_commodity_code']		
 														});
 					
-					var itemCountry 		= itemData.countryofmanufacture;
-					var itemCommodityCode	= itemData.custitem_commodity_code;
+					var itemCountry 		= (itemData.hasOwnProperty('countryofmanufacture') ? itemData.countryofmanufacture : '');
+					var itemCommodityCode	= (itemData.hasOwnProperty('custitem_commodity_code') ? itemData.custitem_commodity_code : '');
 					
 					itemInfoArray.push(new BBSObjects.itemInfoObj(soItemText, ifItemDesc, itemCommodityCode, itemCountry, ifItemQty, (ifItemQty * soItemRate)));
 				}
