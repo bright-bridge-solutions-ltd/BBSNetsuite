@@ -1,6 +1,10 @@
-define(['N/encode', 'N/format', 'N/http', 'N/record', 'N/runtime', 'N/search', 'N/xml',
-        '/SuiteScripts/BBS Carrier Integration/Modules/BBSObjects',								//Objects used to pass info back & forth
-        '/SuiteScripts/BBS Carrier Integration/Modules/BBSCommon'								//Common code
+/**
+ * @NApiVersion 2.x
+ * @NModuleScope Public
+ */
+define(['N/encode', 'N/format', 'N/https', 'N/record', 'N/runtime', 'N/search', 'N/xml',
+        './BBSObjects',								//Objects used to pass info back & forth
+        './BBSCommon'								//Common code
         ],
 /**
  * @param {encode} encode

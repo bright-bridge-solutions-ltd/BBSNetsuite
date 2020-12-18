@@ -103,7 +103,7 @@ function buildOutput(_fulfillmentId)
 								var soShipCost 			= Number(salesOrderRecord.getFieldValue('shippingcost'));
 								var soCurrency 			= salesOrderRecord.getFieldValue('currency');
 								var soCurrencySymbol	= getCurrencySymbol(soCurrency);
-								var soPlacedByEmail 	= nlapiEscapeXML(salesOrderRecord.getFieldValue('custbody_bbs_order_contact_email'));
+								var soPlacedByEmail 	= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('custbody_bbs_order_contact_email')),'');
 								
 								try
 									{
@@ -249,11 +249,11 @@ function buildOutput(_fulfillmentId)
 										xml += '  ';
 										xml += '    <style type="text/css">';
 										xml += '      * {';
-										xml += '			font-family: Futura, NotoSans, sans-serif;';
+										xml += '			font-family: helvetica;';   //Futura, NotoSans, sans-serif;';
 										xml += '		}';
 										xml += '	</style>';
 										xml += '</head>';
-										xml += '<body header="nlheader" header-height="530px" footer="nlfooter" footer-height="120px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
+										xml += '<body header="nlheader" header-height="550px" footer="nlfooter" footer-height="120px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
 										
 									
 										var ifLines 	= fulfillmentRecord.getLineItemCount('item');
