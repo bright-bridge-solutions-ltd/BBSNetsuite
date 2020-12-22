@@ -31,6 +31,8 @@ function(runtime, search, record) {
     	var highValueOrder = false;
     	var vatExempt = false;
     	var unverifiedAddress = null;
+    	var marginBelowThreePercent = false;
+    	var marginBelowSixPercent = false;
     	
     	// get the current record
     	var currentRecord = scriptContext.newRecord;
@@ -47,6 +49,21 @@ function(runtime, search, record) {
     	var taxTotal = currentRecord.getValue({
     		fieldId: 'taxtotal'
     	});
+    	
+    	var profitPercent = parseFloat(
+    			currentRecord.getValue({
+    				fieldId: 'estgrossprofitpercent'
+    			})
+    		);
+    	
+    	if (profitPercent < 3)
+    		{
+    			marginBelowThreePercent = true;
+    		}
+    	else if (profitPercent >= 3 && profitPercent <= 6)
+    		{
+    			marginBelowSixPercent = true;
+    		}
     	
     	var verifiedAddress = currentRecord.getSubrecord({
     		fieldId: 'shippingaddress'
@@ -77,6 +94,9 @@ function(runtime, search, record) {
     	// call function to check if the customer has any overdue invoices
     	var overdueInvoices = checkAgeOfInvoices(customerID);
     	
+    	// call function to check if the order contains zero value lines
+    	var zeroValueLine = checkZeroValueLines(currentRecord);
+    	
     	if (orderTotal > availableBalance)
     		{
     			// set creditLimitExceeded variable to true
@@ -96,6 +116,21 @@ function(runtime, search, record) {
     		}
     	
     	// update fields on the record
+    	currentRecord.setValue({
+    		fieldId: 'custbody_bbs_margin_below_3_pc',
+    		value: marginBelowThreePercent
+    	});
+    	
+    	currentRecord.setValue({
+    		fieldId: 'custbody_bbs_margin_below_6_pc',
+    		value: marginBelowSixPercent
+    	});
+    	
+    	currentRecord.setValue({
+    		fieldId: 'custbody_bbs_zero_value_line',
+    		value: zeroValueLine
+    	});
+    	
     	currentRecord.setValue({
     		fieldId: 'custbody_bbs_high_value_order',
     		value: highValueOrder
@@ -298,6 +333,41 @@ function(runtime, search, record) {
     	
     	// return overdueInvoices variable to main script function
     	return overdueInvoices;
+    	
+    }
+    
+    function checkZeroValueLines(currentRecord) {
+    	
+    	// declare and initialize variables
+    	var zeroValueLine = false;
+    	
+    	// get count of item lines on the sales order
+    	var lineCount = currentRecord.getLineCount({
+    		sublistId: 'item'
+    	});
+    	
+    	// loop through lineCount
+    	for (var i = 0; i < lineCount; i++)
+    		{
+    			// get the amount from the line
+    			var amount = currentRecord.getSublistValue({
+    				sublistId: 'item',
+    				fieldId: 'amount',
+    				line: i
+    			});
+    			
+    			// if the amount is 0
+    			if (amount == 0)
+    				{
+    					// set zeroValueLine variable to true
+    					zeroValueLine = true;
+    					
+    					// break the loop
+    					break;
+    				}
+    		}
+    	
+    	return zeroValueLine;
     	
     }
 

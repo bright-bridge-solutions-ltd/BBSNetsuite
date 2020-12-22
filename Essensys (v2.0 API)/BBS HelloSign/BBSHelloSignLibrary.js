@@ -642,8 +642,22 @@ function(search, encode, https, render, file, record, url)
 							// get the status from the helloSignRecipients array
 							var recipientStatus = helloSignRecipients[i].status_code;
 							
+							// if the recipient has not yet signed
+							if (recipientStatus == 'awaiting_signature')
+								{
+									// if the recipient has viewed but hasn't signed
+									if (helloSignRecipients[i].last_viewed_at)
+										{
+											// set decline reason/date signed to null
+											var declineReason = null;
+											var dateSigned = null;
+										
+											// set recipient status field to viewed
+											recipientStatus = 'viewed';
+										}
+								}
 							// if the recipient has declined
-							if (recipientStatus == 'declined')
+							else if (recipientStatus == 'declined') // recipient has declined
 								{
 									// get the decline reason
 									var declineReason = helloSignRecipients[i].decline_reason;
@@ -651,7 +665,7 @@ function(search, encode, https, render, file, record, url)
 									// set dateSigned to null
 									var dateSigned = null;
 								}
-							else // recipient has signed
+							else if (recipientStatus == 'signed') // recipient has signed
 								{
 									// set decline reason to null
 									var declineReason = null;

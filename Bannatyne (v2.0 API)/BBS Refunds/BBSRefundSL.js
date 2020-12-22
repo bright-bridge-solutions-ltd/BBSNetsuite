@@ -179,6 +179,14 @@ function(ui, search, file, runtime, task) {
 							displayType: ui.FieldDisplayType.HIDDEN
 						});
 	    				
+	    				refundSublist.addField({
+							type: ui.FieldType.TEXT,
+							id: 'bankreference',
+							label: 'Bank Reference'
+						}).updateDisplayType({
+							displayType: ui.FieldDisplayType.HIDDEN
+						});
+	    				
 	    				// initiate line variable
 						var line = 0;
 	    				
@@ -202,6 +210,7 @@ function(ui, search, file, runtime, task) {
 	    					var emailAddress	= result.getValue({name: 'custrecord_refund_email'});
 	    					var origTranDate	= result.getValue({name: 'custrecord_refund_date_orig_tran'});
 	    					var lastFourDigits	= result.getValue({name: 'custrecord_refund_last_4_digits'});
+	    					var bankReference	= result.getValue({name: 'custrecordrefund_request_bank_ref'});
 	    					
 	    					// set sublist fields
 	    					refundSublist.setSublistValue({
@@ -318,6 +327,15 @@ function(ui, search, file, runtime, task) {
 									});
 	    						}
 	    					
+	    					if (bankReference)
+	    						{
+		    						refundSublist.setSublistValue({
+										id: 'bankreference',
+										value: bankReference,
+										line: line
+									});
+	    						}
+	    					
 	    					// increase line variable
 							line++;
 	    					
@@ -391,7 +409,7 @@ function(ui, search, file, runtime, task) {
 					
 					// generate the CSV file
 					fileObj = file.create({
-						name: 'Bacs Report_' + new Date().format('dmy') + '.csv',
+						name: 'Bacs Report_' + new Date().format('c') + '.csv',
 						fileType: file.Type.CSV,
 						contents: CSV,
 						folder:	runtime.getCurrentScript().getParameter({name: 'custscript_bbs_refund_reports_folder_id'})
@@ -437,7 +455,7 @@ function(ui, search, file, runtime, task) {
 					
 					// generate the CSV file
 					fileObj = file.create({
-						name: 'Loylap Report_' + new Date().format('dmy') + '.csv',
+						name: 'Loylap Report_' + new Date().format('c') + '.csv',
 						fileType: file.Type.CSV,
 						contents: CSV,
 						folder:	runtime.getCurrentScript().getParameter({name: 'custscript_bbs_refund_reports_folder_id'})
@@ -483,11 +501,54 @@ function(ui, search, file, runtime, task) {
 					
 					// generate the CSV file
 					fileObj = file.create({
-						name: 'SagePay Report_' + new Date().format('dmy') + '.csv',
+						name: 'SagePay Report_' + new Date().format('c') + '.csv',
 						fileType: file.Type.CSV,
 						contents: CSV,
 						folder:	runtime.getCurrentScript().getParameter({name: 'custscript_bbs_refund_reports_folder_id'})
 					});
+					
+					break;
+					
+				case 5: //	Secure Trading
+					
+					// start off the CSV
+					var CSV = '"Bank Reference","Name","Date of Transaction","Amount","Last 4 Digits"\r\n';
+					
+					// get count of lines on the sublist
+	    			var lineCount = context.request.getLineCount('refundsublist');
+					
+					// loop through line count
+	    			for (var i = 0; i < lineCount; i++)
+	    				{
+	    					// get the value of the 'Refund' checkbox
+	    					var refund = context.request.getSublistValue({
+	    						group: 'refundsublist',
+	    						name: 'refund',
+	    						line: i
+	    					});
+	    					
+	    					// only process lines where the refund checkbox is ticked
+	    					if (refund == 'T')
+	    						{
+	    							// add the line to the CSV
+	    							CSV += context.request.getSublistValue({group: 'refundsublist', name: 'bankreference', line: i}) + ',';
+	    							CSV += context.request.getSublistValue({group: 'refundsublist', name: 'customername', line: i}) + ',';
+	    							CSV += context.request.getSublistValue({group: 'refundsublist', name: 'originaltransactiondate', line: i}) + ',';
+	    							CSV += context.request.getSublistValue({group: 'refundsublist', name: 'refundamount', line: i}) + ',';
+	    							CSV += context.request.getSublistValue({group: 'refundsublist', name: 'last4digits', line: i}) + ',';
+	    							
+	    							// push the internal ID of the refund request to the refundRequests array
+		    						refundRequests.push(context.request.getSublistValue({group: 'refundsublist', name: 'internalid', line: i}));
+	    						}
+	    				}
+	    					
+	    			// generate the CSV file
+	    			fileObj = file.create({
+	    				name: 'Secure Trading Report_' + new Date().format('c') + '.csv',
+	    				fileType: file.Type.CSV,
+	    				contents: CSV,
+	    				folder:	runtime.getCurrentScript().getParameter({name: 'custscript_bbs_refund_reports_folder_id'})
+	    			});
 				
 				}
 				
@@ -591,6 +652,9 @@ function(ui, search, file, runtime, task) {
 			},
 					{
 				name: 'custrecord_refund_last_4_digits'
+			},
+					{
+				name: 'custrecordrefund_request_bank_ref'
 			}],
     	
     	});
@@ -606,6 +670,12 @@ function(ui, search, file, runtime, task) {
 	//
 	(function() {
 
+		hour: this.get
+		
+		
+		
+		
+		
 		Date.shortMonths = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
 		Date.longMonths = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ];
 		Date.shortDays = [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ];
@@ -710,10 +780,10 @@ function(ui, search, file, runtime, task) {
 			return ((this.getHours() % 12 || 12) < 10 ? '0' : '') + (this.getHours() % 12 || 12);
 		},
 		H : function() {
-			return (this.getHours() < 10 ? '0' : '') + this.getHours();
+			return (this.getUTCHours() < 10 ? '0' : '') + this.getUTCHours();
 		},
 		i : function() {
-			return (this.getMinutes() < 10 ? '0' : '') + this.getMinutes();
+			return (this.getUTCMinutes() < 10 ? '0' : '') + this.getMinutes();
 		},
 		s : function() {
 			return (this.getSeconds() < 10 ? '0' : '') + this.getSeconds();
@@ -757,18 +827,18 @@ function(ui, search, file, runtime, task) {
 			return this.toTimeString().replace(/^.+ \(?([^\)]+)\)?$/, '$1');
 		},
 		Z : function() {
-			return -this.getTimezoneOffset() * 60;
+			return this.getTimezoneOffset() * 60;
 		},
 		// Full Date/Time
 		c : function() {
-			return this.format("Y-m-d\\TH:i:sP");
+			return this.format("Y-m-d_H:i");
 		}, // Fixed now
 		r : function() {
 			return this.toString();
 		},
 		U : function() {
 			return this.getTime() / 1000;
-		}
+		},
 		};
 
 		// Simulates PHP's date function

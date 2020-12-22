@@ -35,7 +35,7 @@
 					<td align="right">&nbsp;</td>
 				</tr>
 				<tr>
-	        		<td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.vatregnum}</span></td>
+	        		<td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.entitytaxregnum}</span></td>
 					<td align="right" style="font-size:10pt"></td>
 	    			<td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.cseg_bbs_division.custrecord_bbs_division_legal_name}<br/>${record.cseg_bbs_division.custrecord_bbs_division_address_1}<br/>${record.cseg_bbs_division.custrecord_bbs_division_address_2}<br/>${record.cseg_bbs_division.custrecord_bbs_division_city}<br/>${record.cseg_bbs_division.custrecord_bbs_division_address_county}<br/>${record.cseg_bbs_division.custrecord_bbs_division_postcode}<br/>${record.cseg_bbs_division.custrecord_bbs_division_address_country}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
 				</tr>

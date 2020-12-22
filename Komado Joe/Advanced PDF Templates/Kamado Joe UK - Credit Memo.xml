@@ -1,0 +1,303 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header"><tr>
+	<td rowspan="1" align="left"><img src="${subsidiary.logo@url}"/></td>
+	<td colspan="1" style="align: right;"><span class="title">Credit Note</span></td>
+	</tr>
+	<tr>
+	<td></td>
+	</tr>
+	<tr>
+	<td>
+	<span class="companyaddress">${subsidiary.name}<br/>
+	<#if subsidiary.mainaddress_text?length != 0> ${subsidiary.mainaddress_text}<br />${subsidiary.phone}<br />${subsidiary.email}<br />
+	<#if subsidiary.id == "3"><u>accounts.uk@kamadojoe.com</u></#if><br />
+	<!-- Print GFR requirements if location is Waddinxween -->
+		<#if subsidiary.id == "3" && record.location.id != "225">
+		Our VAT Registration # GB 292 5730 83
+		<#elseif subsidiary.id == "3" && record.location.id == "225">
+		Our VAT Registration # NL 825 8328 95 B01
+		</#if>
+		</#if>
+	</span>
+	</td>
+	</tr></table>
+
+<hr class="line" style="margin: 5px 0px;" />
+        </macro>
+        <macro id="nlfooter">
+            <table class="footer" style="width: 100%;"><tr>
+	<td align="center" colspan="14">&nbsp;</td>
+	</tr>
+	<tr>
+	<td align="left" colspan="7"><span class="pagenumber"><barcode codetype="code128" showtext="true" value="${record.tranid}"/></span></td>
+	<td align="right" colspan="7"><span class="pagenumber">Page <pagenumber/> of <totalpages/></span></td>
+	</tr></table>
+        </macro>
+    </macrolist>
+    <style type="text/css">table {
+        <#if .locale == "zh_CN">
+            font-family: stsong, sans-serif;
+        <#elseif .locale == "zh_TW">
+            font-family: msung, sans-serif;
+        <#elseif .locale == "ja_JP">
+            font-family: heiseimin, sans-serif;
+        <#elseif .locale == "ko_KR">
+            font-family: hygothic, sans-serif;
+        <#elseif .locale == "ru_RU">
+            font-family: verdana;
+        <#else>
+            font-family: sans-serif;
+        </#if>
+        font-size: 10pt;
+        table-layout: fixed;
+        width: 100%;
+      }
+      table.bankinfo {
+        font-size: 8pt;
+        border-collapse: collapse ;
+      }
+      td.bankinfo {
+        font-size: 8pt;
+        border-collapse: collapse ;
+      }
+      tr.bankinfo {
+        font-size: 8pt;
+        border-collapse: collapse ;
+      }
+      table.itemtable {
+        font-size: 8pt;
+      }
+      /*table.header img {
+            height: 55%;
+            width: 55%;
+      }*/
+      th {
+        font-weight: bold;
+        vertical-align: middle;
+        background-color: #E53D32;
+        color: #fff;
+        padding: 5px 5px;
+      }
+      td {
+        padding: 2px 5px;
+      }
+      table.footer td {
+        font-size: 7pt;
+      }
+      table.total {
+        page-break-inside: avoid;
+      }
+      tr.totalrow {
+        background-color: #E53D32;
+        color: #fff;
+        border-bottom: 1px solid white;
+        font-size: 14pt;
+        font-weight: bold;
+      }
+      tr.taxrow {
+        padding: 5px 5px 6px 5px;
+      }
+      tr.shippingrow {
+        padding: 5px 5px 2px 5px;
+      }
+      span.title {
+        font-size: 18pt;
+        font-weight: bold;
+      }
+      span.due-date {
+        font-size: 16pt;
+        text-align: right;
+      }
+      span.colored-text {
+        font-weight: bold;
+      }
+      <!-- Address text to line-->
+      span.colored-text-to-line {
+        color: #E53D32;
+        font-weight: bold;
+      }
+      <!-- Address text -->
+      span.colored-text-to {
+        font-weight: bold;
+        font-size: 7pt;
+      }
+      span.companyaddress {
+        font-weight: bold;
+        font-size: 7pt;
+      }
+      span.itemname {
+        font-weight: bold;
+        line-height: 150%;
+      }
+      hr.line {
+        width: 100%;
+        margin: 0px 0px 20px;
+        height: 0px;
+        color: #fff;
+        background-color: #fff;
+        border-top: 3px solid #E53D32;
+      }
+      td.bottom-highlight {
+        border-bottom: 1px solid #E53D32;
+      }
+      table.total td {
+        padding: 1px 1px;
+<!--         vertical-align: middle; -->
+      }
+      table.order-details td {
+        border-top: 1px solid #E53D32;
+      }
+      span.pagenumber {
+        text-align: right;
+      }
+</style>
+</head>
+<body header="nlheader" header-height="16.3%" footer="nlfooter" footer-height="5%" padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
+    <table><tr>
+	<td colspan="5" style="vertical-align: middle;">
+	<table><tr>
+		<td><span class="colored-text-to-line">${record.billaddress@label}</span></td>
+		<td><span class="colored-text-to-line">${record.shipaddress@label}</span></td>
+		</tr>
+		<tr>
+		<td><span class="colored-text-to">${record.billaddress}<br /><br />VAT ${record.vatregnum}</span></td>
+		<td><span class="colored-text-to">${record.shipaddress}</span></td>
+		</tr>
+		<tr>
+		<td colspan="2"><span class="colored-text-to">${record.billphone}</span></td>
+		</tr></table>
+	</td>
+	<td colspan="3" style="vertical-align: middle;">
+	<table class="order-details"><tr>
+		<td colspan="2"><span class="colored-text-to">Credit Date</span></td>
+		<td colspan="3" style="vertical-align: middle; align: right;"><span class="colored-text-to">${record.trandate}</span></td>
+		</tr>
+		<tr>
+		<td colspan="2"><span class="colored-text-to">Account</span></td>
+		<td colspan="3" style="vertical-align: middle; align: right;"><#if record.entityname?length != 0><span class="colored-text-to">${record.entityname?split(" ")[0]}</span> </#if></td>
+		</tr>
+		<tr>
+		<td colspan="2"><span class="colored-text-to">${record.otherrefnum@label}</span></td>
+		<td colspan="3" style="vertical-align: middle; align: right;"><span class="colored-text-to">${record.otherrefnum}</span></td>
+		</tr>
+		<tr>
+		<td colspan="2"><span class="colored-text-to">Sales Order</span></td>
+		<td colspan="3" style="vertical-align: middle; align: right;"><#if record.createdfrom?length &gt; 0><span class="colored-text-to">${record.createdfrom?substring(13,record.createdfrom?length)}</span> </#if>		 </td>
+		</tr>
+		<tr>
+		<td colspan="2"><span class="colored-text-to">${record.salesrep@label}</span></td>
+		<td colspan="3" style="vertical-align: middle; align: right;"><span class="colored-text-to">${record.salesrep}</span></td>
+		</tr></table>
+	</td>
+	</tr></table>
+
+<hr class="line" />
+<table><tr>
+	<td colspan="1"><span class="title">Credit Note <span class="colored-text">${record.tranid}</span></span></td>
+	</tr></table>
+<#if record.item?has_content>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list record.item as itemline><#if itemline.item?length gt 0><#if itemline_index==0>
+<thead>
+	<tr>
+	<th align="left" colspan="2">Quantity</th>
+	<th align="left" colspan="5">${itemline.item@label}</th>
+	<th align="right" colspan="3">${itemline.taxrate1@label}</th>
+	<th align="right" colspan="4">Unit Rate</th>
+	<th align="right" colspan="4">${itemline.amount@label}</th>
+	</tr>
+</thead>
+</#if><!-- Ignore discount lines --><#if itemline.itemtype != "Discount"><tr>
+	<td align="left" colspan="2">${itemline.quantity}</td>
+	<td colspan="5"><span class="itemname">${itemline.item}</span><br />${itemline.description}</td>
+	<td align="right" colspan="3">${itemline.taxrate1}</td>
+	<td align="right" colspan="4">${itemline.rate}</td>
+	<td align="right" colspan="4">${itemline.amount}</td>
+	</tr>
+	</#if></#if></#list><!-- end items --></table>
+</#if>
+
+<table class="total" style="width: 100%; margin-top: 10px;"><tr>
+	<td align="left" colspan="4" rowspan="3"><#if subsidiary.internalid?string == "3"><span class="colored-text-to-line"></span> <!-- Subsidiary internal ID = 1= US, 3= UK, 4=NL --> <!-- If the codes are not printed correctly, please check to see if the name of the currency has changed -->
+
+	<table class="bankinfo" style="width: 100%;"><tr>
+		<td></td>
+		</tr></table>
+	</#if></td>
+	<td align="right"><b>${record.subtotal@label}</b></td>
+	<td align="right">${record.subtotal}</td>
+	</tr>
+	<tr>
+	<td align="right"><b>${record.shippingcost@label}</b></td>
+	<td align="right">${record.shippingcost}</td>
+	</tr>
+	<tr>
+	<td align="right"><b>${record.taxtotal@label}</b></td>
+	<td align="right">${record.taxtotal}</td>
+	</tr>
+	<tr class="totalrow">
+	<td background-color="#ffffff" colspan="4">&nbsp;</td>
+	<td align="right"><b>Credit Total</b></td>
+	<td align="right">${record.total}</td>
+	</tr></table>
+<!-- Print Remit to for US Subsidiary --><#if subsidiary.internalid?string == "1">
+
+<table style="width: 100%;"><tr>
+	<td colspan="6"><span class="companyaddress">REMIT TO:<br />Premier Specialty Brands<br />PO BOX 639582<br />Cincinnati, OH 45263-9582 </span></td>
+	<td colspan="10"><span class="companyaddress">WIRE/ACH INFORMATION:<br />Bank: Fifth Third Bank<br />Account Number: 7461105525<br />ACH Routing: 263190812<br />Domestic (US) Wire Routing: 042000314<br />International Wire Routing: FTBCUS3C</span></td>
+	</tr></table>
+</#if>
+
+<!-- Print GFR requirements if location is Waddinxween -->
+<#if record.location.id == "225">
+
+<table style="width: 100%; margin-top: 15px;">
+<tr>
+	<td><span class="companyaddress">
+      <!-- Print GFR VAT Requirements -->
+      <#if record.location.id == '225'>
+        <!-- Sold to Company in Netherlands -->
+        <#if record.shipcountry == "NL">0% VAT shifts to recipient according to art. 12,3 of the NL VAT act 1968
+          </#if>
+        <!-- Sold to Company in EU, not in Netherlands -->
+        <#if record.shipcountry == "AT" || record.shipcountry == "BE" || record.shipcountry == "BG" || record.shipcountry == "HR" || record.shipcountry == "CZ" || record.shipcountry == "DK" || 
+             record.shipcountry == "EE" || record.shipcountry == "FI" || record.shipcountry == "FR" || record.shipcountry == "DE" || record.shipcountry == "GR" || record.shipcountry == "HU" || 
+             record.shipcountry == "IE" || record.shipcountry == "IT" || record.shipcountry == "LV" || record.shipcountry == "LT" || record.shipcountry == "LU" || record.shipcountry == "MT" || 
+             record.shipcountry == "PL" || record.shipcountry == "PT" || record.shipcountry == "RO" || record.shipcountry == "SK" || record.shipcountry == "SI" || record.shipcountry == "ES" || 
+             record.shipcountry == "SE"> 0% VAT shifts, EC supply of goods according Article 138,1 and Article 197,1,b Directive 2006/112/EC
+          <!-- Sold Outside of EU -->
+          <#elseif record.shipcountry != 'NL' || record.shipcountry != "AT" || record.shipcountry != "BE" || record.shipcountry != "BG" || record.shipcountry != "HR" || record.shipcountry != "CZ" || record.shipcountry != "DK" || 
+                   record.shipcountry != "EE" || record.shipcountry != "FI" || record.shipcountry != "FR" || record.shipcountry != "DE" || record.shipcountry != "GR" || record.shipcountry != "HU" || 
+                   record.shipcountry != "IE" || record.shipcountry != "IT" || record.shipcountry != "LV" || record.shipcountry != "LT" || record.shipcountry != "LU" || record.shipcountry != "MT" || 
+                   record.shipcountry != "PL" || record.shipcountry != "PT" || record.shipcountry != "RO" || record.shipcountry != "SK" || record.shipcountry != "SI" || record.shipcountry != "ES" || 
+                   record.shipcountry != "SE">0% Export delivery according art. 146 Directive 2006/112/EC
+            </#if>
+          </#if> <br /> <br />
+	General fiscal representative<br />
+	Gaston Schul VAT B.V.<br />
+	NL801238055B01<br />
+	Kazernestraat 10<br />
+	5928 NL Venlo</span>
+	</td>
+</tr>
+</table>
+</#if>
+
+</body>
+</pdf>

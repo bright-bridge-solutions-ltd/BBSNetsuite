@@ -28,14 +28,6 @@ function(runtime, search) {
     				fieldId: 'custbody_bbs_approval_status'
     			});
     			
-    			var nextApproverOne = currentRecord.getValue({
-    				fieldId: 'custbody_bbs_next_approver_1'
-    			});
-    			
-    			var nextApproverTwo = currentRecord.getValue({
-    				fieldId: 'custbody_bbs_next_approver_2'
-    			});
-    			
     			// get the user ID and role
     			var userID 		= runtime.getCurrentUser().id;
     			var userRole	= runtime.getCurrentUser().role;
@@ -47,7 +39,7 @@ function(runtime, search) {
     			// SHOW REJECT BUTTON BASED UPON DEFINED CONDITION
     			// ===============================================
     			
-    			if (((approvalStatus == 2 || approvalStatus == 3) && (userID == nextApproverOne || userID == nextApproverTwo || userRole == 3)) || (approvalStatus == 4 && (isCreditController == true || userRole == 3)))
+    			if ((approvalStatus == 2 && (userRole == 1013 || userRole == 3)) || (approvalStatus == 3 && (userRole == 1008 || userRole == 3)) || (approvalStatus == 4 && (isCreditController == true || userRole == 3)) || (approvalStatus == 5 && (userRole == 1011 || userRole == 3)))
     				{
     					// set a client script to run on the form
     					scriptContext.form.clientScriptFileId = 108980;
@@ -104,9 +96,7 @@ function(runtime, search) {
     }
 
     return {
-        beforeLoad: beforeLoad,
-        beforeSubmit: beforeSubmit,
-        afterSubmit: afterSubmit
+        beforeLoad: beforeLoad
     };
     
 });

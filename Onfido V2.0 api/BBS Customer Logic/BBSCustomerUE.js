@@ -57,83 +57,12 @@ function(record, search) {
 		    		isDynamic: true
 		    	});
 		    	
-		    	// get count of subsdiaries
-		    	var subsidiaries = currentRecord.getLineCount({
-		    		sublistId: 'submachine'
-		    	});
+		    	// call function to update currencies
+		    	currentRecord = updateCurrencies(currentRecord);
 		    	
-		    	// loop through subsidiaries
-		    	for (var i = 0; i < subsidiaries; i++)
-		    		{
-			    		// declare variables
-				    	var addCurrency = true;
-		    		
-		    			// get the internal ID of the subsidiary
-		    			var subsidiaryID = currentRecord.getSublistValue({
-		    				sublistId: 'submachine',
-		    				fieldId: 'subsidiary',
-		    				line: i
-		    			});
-		    			
-		    			// lookup fields on the subsidiary record
-				    	var subsidiaryLookup = search.lookupFields({
-				    		type: search.Type.SUBSIDIARY,
-				    		id: subsidiaryID,
-				    		columns: ['currency']
-				    	});
-				    	
-				    	// retrieve the base currency from the subsidiary record
-				    	var baseCurrency = subsidiaryLookup.currency[0].value;
-				    	
-				    	// get count of lines in the 'Currencies' sublist
-				    	var currencies = currentRecord.getLineCount({
-				    		sublistId: 'currency'
-				    	});
-				    	
-				    	// loop through currencies
-				    	for (var x = 0; x < currencies; x++)
-				    		{
-					    		// get the currency from the line
-				    			var lineCurrency = currentRecord.getSublistValue({
-				    				sublistId: 'currency',
-				    				fieldId: 'currency',
-				    				line: x
-				    			});
-				    			
-				    			// check if the baseCurrency and lineCurrency variables are the same
-				    			if (baseCurrency == lineCurrency)
-				    				{
-				    					// set addCurrency variable to false
-				    					addCurrency = false;
-				    					
-				    					// break the loop
-				    					break;
-				    				}
-				    		}
-				    	
-				    	// check value of addCurrency variable returns true
-				    	if (addCurrency == true)
-				    		{
-				    			// select a new line in the 'Currencies' sublist
-				    			currentRecord.selectNewLine({
-				    				sublistId: 'currency'
-				    			});
-				    			
-				    			// set currency field on the new line
-				    			currentRecord.setCurrentSublistValue({
-				    				sublistId: 'currency',
-				    				fieldId: 'currency',
-				    				value: baseCurrency
-				    			});
-				    			
-				    			// commit the new line
-				    			currentRecord.commitLine({
-				    				sublistId: 'currency'
-				    			});
-				    		}
-				    	
-		    		}
-		    	
+		    	// call function to update the defaultTaxCode
+		    	currentRecord = updateDefaultTaxCode(currentRecord);
+
 		    	try
 			        {
 			        	// submit the record
@@ -155,10 +84,122 @@ function(record, search) {
 			        }
     		}
     }
+    
+    // ================
+    // HELPER FUNCTIONS
+    // ================
+    
+    function updateCurrencies(currentRecord) {
+    	
+    	// get count of subsdiaries
+    	var subsidiaries = currentRecord.getLineCount({
+    		sublistId: 'submachine'
+    	});
+    	
+    	// loop through subsidiaries
+    	for (var i = 0; i < subsidiaries; i++)
+    		{
+	    		// declare variables
+		    	var addCurrency = true;
+    		
+    			// get the internal ID of the subsidiary
+    			var subsidiaryID = currentRecord.getSublistValue({
+    				sublistId: 'submachine',
+    				fieldId: 'subsidiary',
+    				line: i
+    			});
+    			
+    			// lookup fields on the subsidiary record
+		    	var subsidiaryLookup = search.lookupFields({
+		    		type: search.Type.SUBSIDIARY,
+		    		id: subsidiaryID,
+		    		columns: ['currency']
+		    	});
+		    	
+		    	// retrieve the base currency from the subsidiary record
+		    	var baseCurrency = subsidiaryLookup.currency[0].value;
+		    	
+		    	// get count of lines in the 'Currencies' sublist
+		    	var currencies = currentRecord.getLineCount({
+		    		sublistId: 'currency'
+		    	});
+		    	
+		    	// loop through currencies
+		    	for (var x = 0; x < currencies; x++)
+		    		{
+			    		// get the currency from the line
+		    			var lineCurrency = currentRecord.getSublistValue({
+		    				sublistId: 'currency',
+		    				fieldId: 'currency',
+		    				line: x
+		    			});
+		    			
+		    			// check if the baseCurrency and lineCurrency variables are the same
+		    			if (baseCurrency == lineCurrency)
+		    				{
+		    					// set addCurrency variable to false
+		    					addCurrency = false;
+		    					
+		    					// break the loop
+		    					break;
+		    				}
+		    		}
+		    	
+		    	// check value of addCurrency variable returns true
+		    	if (addCurrency == true)
+		    		{
+		    			// select a new line in the 'Currencies' sublist
+		    			currentRecord.selectNewLine({
+		    				sublistId: 'currency'
+		    			});
+		    			
+		    			// set currency field on the new line
+		    			currentRecord.setCurrentSublistValue({
+		    				sublistId: 'currency',
+		    				fieldId: 'currency',
+		    				value: baseCurrency
+		    			});
+		    			
+		    			// commit the new line
+		    			currentRecord.commitLine({
+		    				sublistId: 'currency'
+		    			});
+		    		}
+    		}
+    	
+    	return currentRecord;
+    	
+    }
+    
+    function updateDefaultTaxCode(currentRecord) {
+    	
+    	// get count of tax registrations
+    	var taxRegistrations = currentRecord.getLineCount({
+    		sublistId: 'taxregistration'
+    	});
+    	
+    	// check we have at least one tax registration
+    	if (taxRegistrations > 0)
+    		{
+	    		// get the ID of the tax registration from the first line
+	    		var taxRegistrationID = currentRecord.getSublistValue({
+	    			sublistId: 'taxregistration',
+	    			fieldId: 'id',
+	    			line: 0
+	    		});
+	    		
+	    		// set the default tax reg field on the record
+	    		currentRecord.setValue({
+	    			fieldId: 'defaulttaxreg',
+	    			value: taxRegistrationID
+	    		});
+    		}
+    	
+    	return currentRecord;
+    	
+    }
 
     return {
-        beforeLoad: beforeLoad,
-        beforeSubmit: beforeSubmit,
         afterSubmit: afterSubmit
     };
     

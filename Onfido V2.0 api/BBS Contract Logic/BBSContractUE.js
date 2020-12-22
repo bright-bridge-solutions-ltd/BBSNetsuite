@@ -167,7 +167,7 @@ function(ui, url, runtime, record, search, format, task, redirect) {
 				var oldRecord = scriptContext.oldRecord;
 				var currentRecord = scriptContext.newRecord;
     			
-    			// get the internal ID of the custoemr from the currentRecord object
+    			// get the internal ID of the customer from the currentRecord object
 			    var customer = currentRecord.getValue({
 					fieldId: 'custrecord_bbs_contract_customer'
 				});
@@ -257,6 +257,18 @@ function(ui, url, runtime, record, search, format, task, redirect) {
 	    							}
 	    						});
 	        				}
+    				}
+    			
+    			// check if the record is being created
+    			if (scriptContext.type == scriptContext.UserEventType.CREATE)
+    				{
+    					// get the value of the currency field from the currentRecord object
+    					var currency = currentRecord.getValue({
+    						fieldId: 'custrecord_bbs_contract_currency'
+    					});
+    					
+    					// call function to add the currency to the customer record
+    					addCurrencyToCustomer(customer, currency);
     				}
     			
     			// check if the record is being edited
@@ -1366,6 +1378,99 @@ function(ui, url, runtime, record, search, format, task, redirect) {
     		});
     		
     	}
+    
+    //======================================================
+	// FUNCTION TO ADD THE CONTRACT CURRENCY TO THE CUSTOMER
+	//======================================================
+    
+    function addCurrencyToCustomer(customerID, contractCurrency) {
+    	
+    	try
+    		{
+    			// declare and initialize variables
+    			var addCurrency = true;
+    		
+    			// load the customer record
+    			var customerRecord = record.load({
+    				type: record.Type.CUSTOMER,
+    				id: customerID,
+    				isDynamic: true
+    			});
+    			
+    			// get count of currencies
+    			var currencies = customerRecord.getLineCount({
+    				sublistId: 'currency'
+    			});
+    			
+    			// loop through currencies
+    			for (var i = 0; i < currencies; i++)
+    				{
+    					// get the currency from the line
+    					var lineCurrency = customerRecord.getSublistValue({
+    						sublistId: 'currency',
+    						fieldId: 'currency',
+    						line: i
+    					});
+    					
+    					if (contractCurrency == lineCurrency)
+    						{
+    							// set addCurrency variable to false
+    							addCurrency = false;
+    							
+    							// break the loop
+    							break;
+    						}
+    				}
+    			
+    			// if addCurrency variable returns true
+    			if (addCurrency == true)
+    				{
+    					// select a new line on the currency sublist
+    					customerRecord.selectNewLine({
+    						sublistId: 'currency'
+    					});
+    					
+    					// set currency field on the new line
+    					customerRecord.setCurrentSublistValue({
+		    				sublistId: 'currency',
+		    				fieldId: 'currency',
+		    				value: contractCurrency
+		    			});
+		    			
+		    			// commit the new line
+		    			customerRecord.commitLine({
+		    				sublistId: 'currency'
+		    			});
+		    			
+		    			try
+		    				{
+			    				// submit the record
+					        	customerRecord.save({
+					        		ignoreMandatoryFields: true
+					        	});
+					        			
+					        	log.audit({
+					        		title: 'Currency Added to Customer Record',
+					        		details: 'Record ID: ' + customerID
+					        	});
+		    				}
+		    			catch(e)
+		    				{
+			    				log.error({
+					        		title: 'Error Adding Currency to Customer Record ' + customerID,
+					        		details: e
+					        	});
+		    				}
+    				}  			
+    		}
+    	catch(e)
+    		{
+	    		log.error({
+	        		title: 'Error Adding Currency to Customer Record ' + customerID,
+	        		details: e
+	        	});
+    		}
+    }
     
     //================================================
 	// FUNCTION TO GET THE NUMBER OF DAYS IN THE MONTH
