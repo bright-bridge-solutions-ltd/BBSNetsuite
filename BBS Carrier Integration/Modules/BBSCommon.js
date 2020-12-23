@@ -11,6 +11,13 @@ function(record, search, xml, config, https, BBSObjects, secret, oauth, cryptojs
 	//=========================================================================
 	//
 	
+	function _convertHtmlToPng(_htmlText)
+		{
+		
+		
+		
+		}
+	
 	function _doLicenceCheck(_product)
 		{
 			var configRecord 	= null;
@@ -621,7 +628,8 @@ function(record, search, xml, config, https, BBSObjects, secret, oauth, cryptojs
 	    		findContactDetails:				_findContactDetails,
 	    		getSenderAddress:				_getSenderAddress,
 	    		findSubsidiaryContactDetails:	_findSubsidiaryContactDetails,
-	    		doLicenceCheck:					_doLicenceCheck
+	    		doLicenceCheck:					_doLicenceCheck,
+	    		convertHtmlToPng:				_convertHtmlToPng
     		};
     
 });

@@ -16,12 +16,13 @@ define([
         '../Modules/BBSObjects',				//Objects used to pass info back & forth
         '../Modules/BBSCommon',					//Common code
         '../Modules/BBSCarrierGFS',				//GFS integration module
-        '../Modules/BBSCarrierProCarrier'		//ProCarrier integration module
+        '../Modules/BBSCarrierProCarrier',		//ProCarrier integration module
+        '../Modules/BBSCarrierDPD'				//DPD integration module
         ],
 /**
  * @param {record} record
  */
-function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCarrierGFS, BBSCarrierProCarrier) 
+function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCarrierGFS, BBSCarrierProCarrier, BBSCarrierDPD) 
 {
 	
 	//=============================================================================================
@@ -491,6 +492,15 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 					    									processShipmentsResponse = BBSCarrierProCarrier.carrierProcessShipments(processShipmentsRequest);	//Pass in the info gleaned from the IF record here
 					    									
 					    									break;
+					    									
+					    								case 'DPD':
+					    									
+					    									//Send the request to the specific carrier
+					    									//
+					    									processShipmentsResponse = BBSCarrierDPD.carrierProcessShipments(processShipmentsRequest);	//Pass in the info gleaned from the IF record here
+					    									
+					    									break;
+
 			    									}
 			    								
 		    									//Check if we have got a success message back
