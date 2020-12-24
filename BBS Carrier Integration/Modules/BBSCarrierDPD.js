@@ -56,10 +56,7 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 					//
 					var processShipmentRequestDPD = new _processShipmentRequestDPD(_processShipmentRequest);
 					
-					log.debug({
-								title: 'Shipment request',
-								details: processShipmentRequestDPD
-							});
+					log.debug({title: 'Shipment request',details: processShipmentRequestDPD});
 					
 					//Populate the object with the data from the incoming standard message
 					//i.e. populate processShipmentRequestDPD with data from _processShipmentRequest
@@ -95,12 +92,14 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 									catch(err)
 										{
 											responseBodyObj = null;
+											log.error({title: 'Error during DPD processing',details: err});
 										}
 								}
 						}
 					catch(err)
 						{
 							responseStatus = err.message;
+							log.error({title: 'Error during DPD processing',details: err});
 						}
 					
 					//Check the responseObject to see whether a success or error/failure message was returned
@@ -197,8 +196,10 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 					//
 					return processShipmentResponse;
 				}
-			catch(e)
+			catch(err)
 				{
+					log.error({title: 'Error during DPD processing',details: err});
+					
 					//Set the shipment response using the error caught
 					//
 					var processShipmentResponse = new BBSObjects.processShipmentResponse('ERROR', e);
@@ -217,14 +218,7 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 
 		}
 
-	//Function to cancel a shipment from DPD
-	//
-	function dpdLogin(_loginRequest)
-		{
 
-		}
-
-	
 	//=========================================================================
 	//Helper functions
 	//=========================================================================
@@ -238,7 +232,7 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 			var labelsArray	= [];
 			
 			headerObj['Content-Type']		= 'application/json';
-			headerObj['Accept']				= _processShipmentRequest.config.labelFormat;
+			headerObj['Accept']				= _processShipmentRequest.configuration.labelFormat;
 			headerObj['GeoSession']			= dpdGetGeoSession(_processShipmentRequest.configuration)[CACHE_KEY];
 		
 			//Send the request to DPD to get the label(s)
@@ -258,6 +252,7 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 			catch(err)
 				{
 					responseStatus = err.message;
+					log.error({title: 'Error during DPD processing',details: err});
 				}
 			
 			//Was the call ok?
@@ -329,10 +324,6 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 	
 	function dpdLoader(context)
 		{
-			debugger;
-			log.debug({title: 'loader',details: context});
-			log.debug({title: 'loader',details: configObj});
-			
 			//Get the username & password from the configuration 
 			//
 			var cacheDataObj			= {};
@@ -349,8 +340,6 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 			headerObj['Content-Type']	= 'application/json';
 			headerObj['Accept']			= 'application/json';
 			headerObj['Authorization']	= authorisation;
-			
-			log.debug({title: 'loader',details: headerObj});
 			
 			try
 				{
@@ -386,6 +375,7 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 			catch(err)
 				{
 					responseStatus = err.message;
+					log.error({title: 'Error during DPD processing',details: err});
 				}
 			
 			//Return the data to add to the cache
@@ -504,8 +494,7 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
    return 	{
         		carrierCommitShipments:		dpdCloseShipment,
         		carrierProcessShipments:	dpdProcessShipments,
-        		carrierCancelShipments:		dpdCancelPickup,
-        		carrierAuthenticate:		dpdLogin
+        		carrierCancelShipments:		dpdCancelPickup
     		};
     
 });

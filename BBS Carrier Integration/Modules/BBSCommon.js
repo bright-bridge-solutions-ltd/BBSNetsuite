@@ -1,23 +1,98 @@
-define(['N/record', 'N/search', 'N/xml', 'N/config', 'N/https',
+define(['N/record', 'N/search', 'N/xml', 'N/config', 'N/https','N/encode',
         './BBSObjects',
         './secret',
         './oauth',
         './cryptojs'
         ],
-function(record, search, xml, config, https, BBSObjects, secret, oauth, cryptojs) 
+function(record, search, xml, config, https, encode, BBSObjects, secret, oauth, cryptojs) 
 {
 	//=========================================================================
 	//Main functions
 	//=========================================================================
 	//
 	
+	//Convert html label to png using pdfcrowd
+	//
 	function _convertHtmlToPng(_htmlText)
 		{
-		
-		
-		
+			var pngImage = '';
+			
+			//Get the config record for the converter
+			//
+			var customrecord_bbs_carrier_label_conv_confSearchObj = getResults(search.create({
+				   type: "customrecord_bbs_carrier_label_conv_conf",
+				   filters:
+				   [
+				      ["isinactive","is","F"]
+				   ],
+				   columns:
+				   [
+				      search.createColumn({name: "custrecord_bbs_carrier_label_conv_user", label: "Username"}),
+				      search.createColumn({name: "custrecord_bbs_carrier_label_conv_key", label: "API Key"}),
+				      search.createColumn({name: "custrecord_bbs_carrier_label_conv_url", label: "API Endpoint"})
+				   ]
+				}));
+			
+			//Did we find the record?
+			//
+			if(customrecord_bbs_carrier_label_conv_confSearchObj != null && customrecord_bbs_carrier_label_conv_confSearchObj.length > 0)
+				{
+					var username 	= customrecord_bbs_carrier_label_conv_confSearchObj[0].getValue({name: "custrecord_bbs_carrier_label_conv_user"});
+					var apiKey 		= customrecord_bbs_carrier_label_conv_confSearchObj[0].getValue({name: "custrecord_bbs_carrier_label_conv_key"});
+					var endpoint 	= customrecord_bbs_carrier_label_conv_confSearchObj[0].getValue({name: "custrecord_bbs_carrier_label_conv_url"});
+					
+					//Encode the credentials
+					//
+					var combinedCredentials 	= username + ':' + apiKey;
+					var authorisation 			= 'Basic ' + encode.convert({
+																			string:			combinedCredentials,
+																			inputEncoding:	encode.Encoding.UTF_8,
+																			outputEncoding:	encode.Encoding.BASE_64
+																			});
+					//Construct the header of the call
+					//
+					var headerObj 				= {};
+					headerObj['Content-Type'] 	= 'application/x-www-form-urlencoded';
+					headerObj['Authorization'] 	= authorisation;
+			
+					//Construct the body of the call
+					//
+					var bodyObj 				= {};
+					bodyObj['output_format']	= 'png';
+					bodyObj['text']				= _htmlText;
+					
+					//Attempt the call to the api
+					//
+					try
+						{
+							var response = https.post({	
+														url:		endpoint,
+														headers:	headerObj,
+														body:		bodyObj
+														});
+							
+							//Extract the http response code	
+							//
+							responseStatus = response.code;
+							
+							//Extract the http response body
+							//
+							if(response.body != null && response.body != '')
+								{
+									pngImage = response.body;
+								}
+						}
+				catch(err)
+						{
+							responseStatus = err.message;
+						}
+				}
+			
+			return pngImage;
 		}
 	
+	//Perform a licence check against our licence database
+	//
 	function _doLicenceCheck(_product)
 		{
 			var configRecord 	= null;
