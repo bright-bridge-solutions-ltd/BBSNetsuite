@@ -526,13 +526,33 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 		    											for (var i = 0; i < packages.length; i++)
 		    												{
 		    													// get package data
-		    													var labelImage 		= packages[i]['labelImage'];
-		    													var labelFileType 	= packages[i]['labelType'];
-		    													var packageNumber 	= packages[i]['packageNumber'];
+		    													var labelImage 			= packages[i]['labelImage'];
+		    													var labelFileType 		= packages[i]['labelType'];
+		    													var packageNumber 		= packages[i]['packageNumber'];
+		    													var fileTypeIdentifier	= '';
+		    													
+		    													switch(labelFileType)
+		    														{
+				    													case 'PNG':
+				    														fileTypeIdentifier = file.Type.PNGIMAGE;
+				    														
+				    														break;
+				    												
+				    													case 'PDF':
+				    														fileTypeIdentifier = file.Type.PDF;
+				    														
+				    														break;
+				    										
+				    													default:
+				    														fileTypeIdentifier = file.Type.PLAINTEXT;
+				    														
+				    														break;
+				    										
+		    														}
 		    													
 		    													// create a PNG of the courier label and store in the file cabinet
 								    							var courierLabel = file.create({
-															    								fileType: 	(labelFileType == 'PNG' ? file.Type.PNGIMAGE : file.Type.PDF),
+															    								fileType: 	fileTypeIdentifier,
 															    								name: 		packageNumber + '.' + labelFileType,
 															    								contents: 	labelImage,
 															    								folder: 	fileCabinetFolder,

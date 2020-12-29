@@ -153,13 +153,35 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 																						{
 																							//Add packages to processShipmentResponse
 																							//
-																							var sequence = parcels + 1;
+																							var sequence 	= parcels + 1;
+																							var labelFormat = '';
+																							
+																							switch(_processShipmentRequest.configuration.labelFormat)
+																								{
+																									case 'text/html':	//HTML labels will have been converted to PNG by a call to pdfcrowd
+																										
+																										labelFormat = 'PNG';
+																										
+																										break;
+																										
+																									case 'text/vnd.eltron-epl;':	//EPL format will be saved as a text file TXT
+																										
+																										labelFormat = 'TXT';
+																										
+																										break;
+																										
+																									case 'text/vnd.citizen-clp;':	//CPL format will be saved as a text file TXT
+																										
+																										labelFormat = 'TXT';
+																										
+																										break;
+																								}
 																							
 																							processShipmentResponse.addPackage(
 																																sequence, 
 																																consignmentDetail.parcelNumbers[parcels], 
 																																labelsArray[parcels], 
-																																'PNG'
+																																labelFormat
 																																);
 																						}
 																				}
@@ -263,31 +285,82 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 					//
 					if(response.body != null && response.body != '')
 						{
-							var labelHtmlText 	= response.body.replace(/"/g, "'");
-							var splitter		= "<div style='position: relative; margin-top: 25px; height: 800px;page-break-after: always;margin:0;padding:0;'>";
-							var labelHtmlArray	= labelHtmlText.split(splitter);
-							
-							//Remove the first element from the array as it will be blank
+							//Process the returned labels based on format requested
 							//
-							labelHtmlArray.shift();
-							
-							//Now add the splitter text back on to the start of the text in each element of the array
-							//
-							for (var arrayElement = 0; arrayElement < labelHtmlArray.length; arrayElement++) 
+							switch(_processShipmentRequest.configuration.labelFormat)
 								{
-									labelHtmlArray[arrayElement] = splitter + labelHtmlArray[arrayElement];
-								}
-						
-							//Now convert the html to the required label format by calling pdfcrowd
-							//
-							for (var arrayElement = 0; arrayElement < labelHtmlArray.length; arrayElement++) 
-								{
-									var pngImage = BBSCommon.convertHtmlToPng(labelHtmlArray[arrayElement]);
+									case 'text/html':	//HTML format
+		
+										var labelHtmlText 	= response.body.replace(/"/g, "'");		//Replace any double quotes with single quotes
+										var splitter		= "<div style='position: relative; margin-top: 25px; height: 800px;page-break-after: always;margin:0;padding:0;'>";
+										var labelHtmlArray	= labelHtmlText.split(splitter);
+										
+										//Remove the first element from the array as it will be blank
+										//
+										labelHtmlArray.shift();
+										
+										//Now add the splitter text back on to the start of the text in each element of the array
+										//
+										for (var arrayElement = 0; arrayElement < labelHtmlArray.length; arrayElement++) 
+											{
+												labelHtmlArray[arrayElement] = splitter + labelHtmlArray[arrayElement];
+											}
 									
-									if(pngImage != null)
-										{
-											labelsArray.push(pngImage);
-										}
+										//Now convert the html to the required label format by calling pdfcrowd
+										//
+										for (var arrayElement = 0; arrayElement < labelHtmlArray.length; arrayElement++) 
+											{
+												var pngImage = BBSCommon.convertHtmlToPng(labelHtmlArray[arrayElement]);
+												
+												if(pngImage != null)
+													{
+														labelsArray.push(pngImage);
+													}
+											}
+										
+										break;
+										
+									case 'text/vnd.eltron-epl;':	//EPL format
+										
+										var labelDataText 	= response.body;
+										var labelDataArray 	= labelDataText.split('N\r');
+										
+										for(var int=0; int < labelDataArray.length; int++)
+											{
+												if(labelDataArray[int].length > 4)
+													{
+														labelsArray.push('N\r' + labelDataArray[int] + 'N\r');
+													}
+											}
+										
+										break;
+										
+									case 'text/vnd.citizen-clp;':	//CPL format
+										
+										var labelDataText 	= response.body;
+										var splitter 		= String.fromCharCode(2) + 'M';
+
+										var labelDataArray = labelDataText.split(splitter);
+
+										//Remove the first element from the array as it will be blank
+										//
+										labelDataArray.shift();
+
+										//Now add the splitter text back on to the start of the text in each element of the array
+										//
+										for (var arrayElement = 0; arrayElement < labelDataArray.length; arrayElement++) 
+											{
+												labelDataArray[arrayElement] = splitter + labelDataArray[arrayElement];
+											}
+
+										//Copy the label data to the returned labels array
+										//
+										for (var arrayElement = 0; arrayElement < labelDataArray.length; arrayElement++) 
+											{
+												labelsArray.push(labelDataArray[arrayElement]);
+											}
+
+										break;
 								}
 						}
 				}
@@ -318,6 +391,22 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 											ttl:	CACHE_TTL,
 											loader:	dpdLoader
 										});
+			
+			//Check to see if any data has been returned, if not try to remove the key from the cache & re-create it
+			//
+			if(dpdGeoSession == null || dpdGeoSession == '')
+				{
+					dpdCache.remove({
+									key:	CACHE_KEY
+									});
+					
+					dpdGeoSession = dpdCache.get({
+													key:	CACHE_KEY,
+													ttl:	CACHE_TTL,
+													loader:	dpdLoader
+												});
+					
+				}
 			
 			return JSON.parse(dpdGeoSession);
 		}

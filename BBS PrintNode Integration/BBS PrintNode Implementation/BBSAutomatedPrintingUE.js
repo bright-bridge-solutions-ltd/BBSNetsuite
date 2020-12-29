@@ -3,13 +3,13 @@
  * @NScriptType UserEventScript
  * @NModuleScope Public
  */
-define(['N/https', 'N/record', 'N/search', 'N/plugin', 'N/render'],
+define(['N/https', 'N/record', 'N/search', 'N/plugin', 'N/render', 'N/file', 'N/encode'],
 /**
  * @param {https} https
  * @param {record} record
  * @param {search} search
  */
-function(https, record, search, plugin, render) 
+function(https, record, search, plugin, render, file, encode) 
 {
     /**
      * Function definition to be triggered before record is loaded.
@@ -42,7 +42,6 @@ function(https, record, search, plugin, render)
     						//
     						if(packingStation != null && packingStation != '')
     							{
-    								
 		    						//Search for the workstation record
 		    						//
 			    					var customrecord_bbs_printnode_workstationSearchObj = getResults(search.create({
@@ -86,6 +85,7 @@ function(https, record, search, plugin, render)
 			    							//
 			    							if(pnPlugin != null)
 												{
+			    									//
 			    									//Process the packing slip
 			    									//
 			    									try
@@ -95,7 +95,7 @@ function(https, record, search, plugin, render)
 														    									printMode: 	render.PrintMode.PDF
 														    									});
 
-				    										var contents = printFile.getContents();
+				    										var contents 		= printFile.getContents();
 
 				    										var printRequestObj = new pnPrintRequestObj(documentPrinter, 'Packing Slip', 'pdf_base64', contents, '', 1);
 				    										var printResult 	= pnPlugin.sendPrint(printRequestObj);
@@ -106,11 +106,73 @@ function(https, record, search, plugin, render)
 			    											log.error({title: 'Error in processing packing slip via printnode', details: err});
 			    										}
 			    								
+			    									
+			    									//
 			    									//Process the carrier labels
 			    									//
-			    								
-			    								
-			    								
+			    									
+			    									//Find any attachments to the IF record
+			    									//
+			    									var itemfulfillmentSearchObj = getResults(search.create({
+			    										   type: "itemfulfillment",
+			    										   filters:
+			    										   [
+			    										      ["type","anyof","ItemShip"], 
+			    										      "AND", 
+			    										      ["mainline","is","T"], 
+			    										      "AND", 
+			    										      ["internalid","anyof",recordId], 
+			    										      "AND", 
+			    										      ["file.internalid","noneof","@NONE@"]
+			    										   ],
+			    										   columns:
+			    										   [
+			    										      search.createColumn({name: "tranid", label: "Document Number"}),
+			    										      search.createColumn({name: "entity", label: "Name"}),
+			    										      search.createColumn({name: "name",join: "file",label: "Name"}),
+			    										      search.createColumn({name: "filetype",join: "file",label: "Type"}),
+			    										      search.createColumn({name: "description",join: "file",label: "Description"}),
+			    										      search.createColumn({name: "internalid",join: "file",label: "Internal ID"}),
+			    										      search.createColumn({name: "url",join: "file",label: "URL"})
+			    										   ]
+			    										}));
+			    										
+			    									if(itemfulfillmentSearchObj != null && itemfulfillmentSearchObj.length > 0)
+			    										{
+			    											for (var resultCount = 0; resultCount < itemfulfillmentSearchObj.length; resultCount++) 
+				    											{
+			    													//Get the internal id of the file
+			    													//
+																	var fileId = itemfulfillmentSearchObj[resultCount].getValue({name: "internalid",join: "file"});
+																	
+																	//Load the file, get its contents, encode to base64 & send to printnode
+																	//
+																	var fileObj = null;
+																	
+																	try
+																		{
+																			fileObj = file.load({id: fileId});
+																		}
+																	catch(err)	
+																		{
+																			fileObj = null;
+																			log.error({title: 'Error in processing pcarrier labvel via printnode', details: err});
+																		}
+																	
+																	if(fileObj != null)
+																		{
+																			var contents 		= fileObj.getContents();
+																			var encodedContents	= encode.convert({
+																													string:			contents,
+																													inputEncoding:	encode.Encoding.UTF_8,
+																													outputEncoding:	encode.Encoding.BASE_64
+																													});
+								    										var printRequestObj = new pnPrintRequestObj(labelPrinter, 'Carrier Label', 'raw_base64', encodedContents, '', 1);
+								    										var printResult 	= pnPlugin.sendPrint(printRequestObj);
+
+																		}
+																}
+			    										}
 													
 												}
 	    								}
