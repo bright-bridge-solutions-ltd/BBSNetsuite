@@ -28,7 +28,9 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 	//
 	function fedExCloseShipment(_commitShipmentRequest)
 		{
-	
+			//
+			//Not Implemented
+			//
 		}
 
 	
@@ -45,7 +47,77 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 	//
 	function fedExCancelPickup(_cancelShipmentRequest)
 		{
-
+			try
+				{
+					//Create a JSON object that represents the structure of the FedEx specific request
+					//
+					var cancelShipmentRequestFedEx = new _deleteShipmentRequestFedEx(_cancelShipmentRequest);
+					
+					//Populate the object with the data from the incoming standard message
+					//
+					
+					// Declare xmlRequest variable and set SOAP envelope
+					var xmlRequest = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v26="http://fedex.com/ws/ship/v26"><soapenv:Header/><soapenv:Body>';
+					
+					//Convert the gfs request object into xml. Add to xmlRequest variable
+					//
+					xmlRequest += BBSCommon.json2xml(cancelShipmentRequestFedEx, '', 'v26:');
+					
+					//Add closing SOAP envelope tags
+					//
+					xmlRequest += '</soapenv:Body></soapenv:Envelope>';
+					
+					//Send the request to FedEx
+					//
+					var xmlResponse = https.post({
+												     url: 	_cancelShipmentRequest.configuration.url,
+												     body: 	xmlRequest
+												});
+					
+					//Parse the xmlResponse string and convert it to XML
+					//
+					xmlResponse = xml.Parser.fromString({text: xmlResponse.body});
+					
+					//Convert the xml response back into a JSON object so that it is easier to manipulate
+					//
+					var responseObject = BBSCommon.xml2Json(xmlResponse);
+					
+					//Get the status of the response from the responseObject
+					//
+					var responseStatus = responseObject['soap:Envelope']['soap:Body']['ProcessedDeleteShipments']['DeleteShipmentsResult']['Shipments']['Status']['Status']['#text'];
+					
+					//Check responseStatus to see whether a success or error/failure message was returned
+					//
+					if (responseStatus == 'SUCCESS')
+						{
+							//Convert the FedEx response object to the standard commit shipments response object
+							//
+							var cancelShipmentResponse = new BBSObjects.cancelShipmentResponse(responseStatus, null);
+						}
+					else if (responseStatus == 'ERROR' || responseStatus == 'FAILURE')
+						{
+							//Get the error message from the responseObject
+							var responseMessage = responseObject['soap:Envelope']['soap:Body']['ProcessedDeleteShipments']['DeleteShipmentsResult']['Shipments']['Status']['StatusDescription']['#text'];
+							
+							//Convert the FedEx response object to the standard commit shipments response object
+							//
+							var cancelShipmentResponse = new BBSObjects.cancelShipmentResponse(responseStatus, responseMessage);
+						}
+					
+					//Return the response
+					//
+					return cancelShipmentResponse;
+				}
+			catch(err)
+				{
+					//Set the shipment response using the error caught
+					//
+					var processShipmentResponse = new BBSObjects.processShipmentResponse('ERROR', err);
+					
+					//Return the response
+					//
+					return processShipmentResponse;
+				}
 		}
 
 	
@@ -60,95 +132,30 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 	//FedEx Specific Objects
 	//=========================================================================
 	//
-	function _closeShipmentRequestFedEx()
+	function _deleteShipmentRequestFedEx(shippingRequestData)
 		{
-			this.CloseWithDocumentsRequest = {};
-			this.CloseWithDocumentsRequest.WebAuthenticationDetail = {};
-			this.CloseWithDocumentsRequest.WebAuthenticationDetail.ParentCredential = {};
-			this.CloseWithDocumentsRequest.WebAuthenticationDetail.ParentCredential.Key = '';	
-			this.CloseWithDocumentsRequest.WebAuthenticationDetail.ParentCredential.Password = '';
-			
-			this.CloseWithDocumentsRequest.WebAuthenticationDetail.UserCredential = {};
-			this.CloseWithDocumentsRequest.WebAuthenticationDetail.UserCredential.Key = '';
-			this.CloseWithDocumentsRequest.WebAuthenticationDetail.UserCredential.Password = '';
-			
-			this.CloseWithDocumentsRequest.ClientDetail = {};
-			this.CloseWithDocumentsRequest.ClientDetail.AccountNumber = '';	
-			this.CloseWithDocumentsRequest.ClientDetail.MeterNumber = '';
-			
-			this.CloseWithDocumentsRequest.ClientDetail.Localization = {};
-			this.CloseWithDocumentsRequest.ClientDetail.Localization.LanguageCode = '';	
-			this.CloseWithDocumentsRequest.ClientDetail.Localization.LocaleCode = '';
-			
-			this.CloseWithDocumentsRequest.TransactionDetail = {};
-			this.CloseWithDocumentsRequest.TransactionDetail.CustomerTransactionId = 'CloseWithDocumentsRequest_v5';
-			
-			this.CloseWithDocumentsRequest.TransactionDetail.Localization = {};
-			this.CloseWithDocumentsRequest.TransactionDetail.Localization.LanguageCode = '';	
-			this.CloseWithDocumentsRequest.TransactionDetail.Localization.LocaleCode = '';
-			
-			this.CloseWithDocumentsRequest.Version = {};
-			this.CloseWithDocumentsRequest.Version.ServiceId = 'clos';	
-			this.CloseWithDocumentsRequest.Version.Major = '';	
-			this.CloseWithDocumentsRequest.Version.Intermediate = '';	
-			this.CloseWithDocumentsRequest.Version.Minor = '';
-			
-			this.CloseWithDocumentsRequest.ActionType = 'CLOSE';	
-			
-			this.CloseWithDocumentsRequest.ProcessingOptions = {};
-			this.CloseWithDocumentsRequest.ProcessingOptions.Options = 'ERROR_IF_OPEN_SHIPMENTS_FOUND';	
-			this.CloseWithDocumentsRequest.CarrierCode = 'FDXE';
-			this.CloseWithDocumentsRequest.ReprintCloseDate = '';
-			
-			this.CloseWithDocumentsRequest.ManifestReferenceDetail = {};
-			this.CloseWithDocumentsRequest.ManifestReferenceDetail.Type = 'CUSTOMER_REFERENCE';	
-			this.CloseWithDocumentsRequest.ManifestReferenceDetail.Value = '';
-			
-			this.CloseWithDocumentsRequest.CloseDocumentSpecification = {};
-			this.CloseWithDocumentsRequest.CloseDocumentSpecification.CloseDocumentTypes = 'MANIFEST';	
+			this.DeleteShipmentRequest 													= {};
+			this.DeleteShipmentRequest.WebAuthenticationDetail 							= {};
+			this.DeleteShipmentRequest.WebAuthenticationDetail.UserCredential 			= {};
+			this.DeleteShipmentRequest.WebAuthenticationDetail.UserCredential.Key 		= shippingRequestData.configuration.username;
+			this.DeleteShipmentRequest.WebAuthenticationDetail.UserCredential.Password 	= shippingRequestData.configuration.password;
+			this.DeleteShipmentRequest.ClientDetail 									= {};
+			this.DeleteShipmentRequest.ClientDetail.AccountNumber 						= shippingRequestData.shippingItemInfo.carrierContractNo;
+			this.DeleteShipmentRequest.ClientDetail.MeterNumber 						= shippingRequestData.shippingItemInfo.meterNumber;	
+			this.DeleteShipmentRequest.TransactionDetail 								= {};
+			this.DeleteShipmentRequest.TransactionDetail.CustomerTransactionId 			= 'DeleteShipmentRequest_v26';
+			this.DeleteShipmentRequest.Version 											= {};
+			this.DeleteShipmentRequest.Version.ServiceId 								= 'ship';	
+			this.DeleteShipmentRequest.Version.Major 									= shippingRequestData.configuration.majorId;
+			this.DeleteShipmentRequest.Version.Intermediate 							= shippingRequestData.configuration.intermediateId;
+			this.DeleteShipmentRequest.Version.Minor 									= shippingRequestData.configuration.minorId;
+			this.DeleteShipmentRequest.TrackingId 										= {};
+			this.DeleteShipmentRequest.TrackingId.TrackingIdType 						= 'EXPRESS';
+			this.DeleteShipmentRequest.TrackingId.TrackingNumber 						= shippingRequestData.consignmentNumber;
+			this.DeleteShipmentRequest.DeletionControl 									= 'DELETE_ALL_PACKAGES';	
 		}
 	
-	function _deleteShipmentRequestFedEx()
-		{
-			this.DeleteShipmentRequest = {};
-			this.DeleteShipmentRequest.WebAuthenticationDetail = {};
-			this.DeleteShipmentRequest.WebAuthenticationDetail.ParentCredential = {};
-			this.DeleteShipmentRequest.WebAuthenticationDetail.ParentCredential.Key = '';	
-			this.DeleteShipmentRequest.WebAuthenticationDetail.ParentCredential.Password = '';
-			
-			this.DeleteShipmentRequest.WebAuthenticationDetail.UserCredential = {};
-			this.DeleteShipmentRequest.WebAuthenticationDetail.UserCredential.Key = '';	
-			this.DeleteShipmentRequest.WebAuthenticationDetail.UserCredential.Password = '';
-			
-			this.DeleteShipmentRequest.ClientDetail = {};
-			this.DeleteShipmentRequest.ClientDetail.AccountNumber = '';	
-			this.DeleteShipmentRequest.ClientDetail.MeterNumber = '';	
-			this.DeleteShipmentRequest.ClientDetail.IntegratorId = '';
-			
-			this.DeleteShipmentRequest.ClientDetail.Localization = {};
-			this.DeleteShipmentRequest.ClientDetail.Localization.LanguageCode = '';	
-			this.DeleteShipmentRequest.ClientDetail.Localization.LocaleCode = '';
-			
-			this.DeleteShipmentRequest.TransactionDetail = {};
-			this.DeleteShipmentRequest.TransactionDetail.CustomerTransactionId = 'DeleteShipmentRequest_v23.1';
-			
-			this.DeleteShipmentRequest.Version = {};
-			this.DeleteShipmentRequest.Version.ServiceId = 'ship';	
-			this.DeleteShipmentRequest.Version.Major = '';	
-			this.DeleteShipmentRequest.Version.Intermediate = '';
-			this.DeleteShipmentRequest.Version.Minor = '';
-			
-			this.DeleteShipmentRequest.ShipTimestamp = '';	
-			
-			this.DeleteShipmentRequest.TrackingId = {};
-			this.DeleteShipmentRequest.TrackingId.TrackingIdType = '';	
-			this.DeleteShipmentRequest.TrackingId.FormId = '';	
-			this.DeleteShipmentRequest.TrackingId.TrackingNumber = '';	
-			
-			this.DeleteShipmentRequest.DeletionControl = 'DELETE_ALL_PACKAGES';	
-		}
-	
-	function _processShipmentRequestFedEx()
+	function _processShipmentRequestFedEx(shippingRequestData)
 		{
 			this.ProcessShipmentRequest = {};
 			this.ProcessShipmentRequest.WebAuthenticationDetail = {};

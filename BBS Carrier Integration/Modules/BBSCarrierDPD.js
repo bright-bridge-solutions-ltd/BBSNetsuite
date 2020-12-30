@@ -34,7 +34,9 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 	//
 	function dpdCloseShipment(_commitShipmentRequest)
 		{
-	
+			//
+			//Not implemented
+			//
 		}
 
 	
@@ -237,7 +239,9 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 	//
 	function dpdCancelPickup(_cancelShipmentRequest)
 		{
-
+			//
+			//Not Implemented
+			//
 		}
 
 
