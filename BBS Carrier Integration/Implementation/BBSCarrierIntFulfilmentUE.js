@@ -17,12 +17,13 @@ define([
         '../Modules/BBSCommon',					//Common code
         '../Modules/BBSCarrierGFS',				//GFS integration module
         '../Modules/BBSCarrierProCarrier',		//ProCarrier integration module
-        '../Modules/BBSCarrierDPD'				//DPD integration module
+        '../Modules/BBSCarrierDPD',				//DPD integration module
+        '../Modules/BBSCarrierFedEx'			//FedEx integration module
         ],
 /**
  * @param {record} record
  */
-function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCarrierGFS, BBSCarrierProCarrier, BBSCarrierDPD) 
+function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCarrierGFS, BBSCarrierProCarrier, BBSCarrierDPD, BBSCarrierFedEx) 
 {
 	
 	//=============================================================================================
@@ -501,6 +502,13 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 					    									
 					    									break;
 
+					    								case 'FedEx':
+					    									
+					    									//Send the request to the specific carrier
+					    									//
+					    									processShipmentsResponse = BBSCarrierFedEx.carrierProcessShipments(processShipmentsRequest);	//Pass in the info gleaned from the IF record here
+					    									
+					    									break;
 			    									}
 			    								
 		    									//Check if we have got a success message back

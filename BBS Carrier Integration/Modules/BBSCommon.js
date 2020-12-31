@@ -296,35 +296,37 @@ function(record, search, xml, config, https, encode, BBSObjects, secret, oauth, 
 	//
 	function _getConfig(_configId)
 		{
-			var configRecord = null;
 			var carrierConfig = null;
 			
-			//Read the configuration record
-			//
-			try
+			var customrecord_bbs_carrier_configSearchObj = getResults(search.create({
+																	   type: "customrecord_bbs_carrier_config",
+																	   filters:
+																	   [
+																	      ["custrecord_bbs_config_carrier","anyof",_configId]
+																	   ],
+																	   columns:
+																	   [
+																	      search.createColumn({name: "custrecord_bbs_config_intermediate", label: "Intermediate Version"}),
+																	      search.createColumn({name: "custrecord_bbs_config_label_format", label: "Label Format"}),
+																	      search.createColumn({name: "custrecord_bbs_config_major", label: "Major Version Id"}),
+																	      search.createColumn({name: "custrecord_bbs_config_minor", label: "Minor Version Id"}),
+																	      search.createColumn({name: "custrecord_bbs_config_password", label: "Password / API Key"}),
+																	      search.createColumn({name: "custrecord_bbs_config_carrier", label: "Primary Carrier/Integrator"}),
+																	      search.createColumn({name: "custrecord_bbs_config_username", label: "User Name"}),
+																	      search.createColumn({name: "custrecord_bbs_config_url", label: "URL"})
+																	   ]
+																	}));
+			
+			if(customrecord_bbs_carrier_configSearchObj != null && customrecord_bbs_carrier_configSearchObj.length == 1)
 				{
-					configRecord = record.load({
-												type:	'customrecord_bbs_carrier_config',
-												id:		_configId
-												});
-				}
-			catch(err)
-				{
-					configRecord = null;
-				}
-		
-			//Process the configuration record into a configuration object
-			//
-			if(configRecord != null)
-				{
-					var configCarrier 		= configRecord.getValue({fieldId: 'custrecord_bbs_config_carrier'});
-					var configUser 			= configRecord.getValue({fieldId: 'custrecord_bbs_config_username'});
-					var configPassword 		= configRecord.getValue({fieldId: 'custrecord_bbs_config_password'});
-					var configUrl 			= configRecord.getValue({fieldId: 'custrecord_bbs_config_url'});
-					var configMajor 		= configRecord.getValue({fieldId: 'custrecord_bbs_config_major'});
-					var configMinor 		= configRecord.getValue({fieldId: 'custrecord_bbs_config_minor'});
-					var configIntermediate 	= configRecord.getValue({fieldId: 'custrecord_bbs_config_intermediate'});
-					var configLabelFormat	= configRecord.getValue({fieldId: 'custrecord_bbs_config_label_format'});
+					var configCarrier 		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_carrier"});
+					var configUser 			= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_username"});
+					var configPassword 		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_password"});
+					var configUrl 			= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_url"});
+					var configMajor 		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_major"});
+					var configMinor 		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_minor"});
+					var configIntermediate 	= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_intermediate"});
+					var configLabelFormat	= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_label_format"});
 				
 					carrierConfig = new BBSObjects.carrierConfiguration(configCarrier, configUser, configPassword, configUrl, configMajor, configMinor, configIntermediate, configLabelFormat);
 				}

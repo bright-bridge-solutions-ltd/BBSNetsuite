@@ -26,7 +26,9 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 	
 	function pcCommitShipments(_commitShipmentRequest)
 		{
-		
+			//
+			//Not Implemented
+			//
 		}
 	
 	//Function to send a shipment request to ProCarrier

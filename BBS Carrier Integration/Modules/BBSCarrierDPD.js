@@ -482,12 +482,16 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 	//
 	function _closeShipmentRequestDPD()
 		{
-
+			//
+			//Not Implemented
+			//
 		}
 	
 	function _deleteShipmentRequestDPD()
 		{
-			
+			//
+			//Not Implemented
+			//
 		}
 	
 	function _processShipmentRequestDPD(shippingRequestData)
