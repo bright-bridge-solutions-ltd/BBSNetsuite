@@ -81,10 +81,10 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 					log.debug({title: 'response object', details: responseObject});
 					
 					// check if we have a soap fault
-					if (responseObject['soap:Envelope']['soap:Body']['soap:Fault'])
+					if (responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['soap:Fault'])
 						{
 							// get the soap fault
-							var responseMessage = responseObject['soap:Envelope']['soap:Body']['soap:Fault']['faultstring']['#text'];
+							var responseMessage = responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['soap:Fault']['faultstring']['#text'];
 							
 							//Convert the GFS response object to the standard process shipments response object
 							//
@@ -94,44 +94,43 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 						{
 							//Get the status of the response from the responseObject
 							//
-							var responseStatus = responseObject['soap:Envelope']['soap:Body']['ProcessedShipments']['ProcessShipmentsResult']['ResponseStatus']['#text'];
+							var responseStatus = responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['HighestSeverity']['#text'];
 							
 							//Check the responseObject to see whether a success or error/failure message was returned
 							//
-							if (responseStatus == 'SUCCESS')
+							if (responseStatus == 'SUCCESS' || responseStatus == 'WARNING')
 								{
 									//Get the consignment number from the responseObject
 									//
-									var consignmentNumber = responseObject['soap:Envelope']['soap:Body']['ProcessedShipments']['ProcessShipmentsResult']['Shipments']['ProcessedShipment']['ConsignmentNo']['#text']
+									var consignmentNumber = responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['CompletedShipmentDetail']['MasterTrackingId']['TrackingNumber']['#text']
 								
-									//Get the packages from the responseObject
-									var packages = responseObject['soap:Envelope']['soap:Body']['ProcessedShipments']['ProcessShipmentsResult']['Shipments']['ProcessedShipment']['Packages'];
-									
-									//Convert the GFS response object to the standard process shipments response object
+									//Convert the FedEx response object to the standard process shipments response object
 									//
 									var processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, null, consignmentNumber);
 									
-									// check if we have more than one package
-									if (packages.length)
-										{
-											// loop through packages
-											for (var i = 0; i < packages.length; i++)
-												{
-													// add packages to processShipmentResponse
-													processShipmentResponse.addPackage(packages[i]['SequenceID']['#text'],packages[i]['PackageNo']['#text'],packages[i]['Labels']['Image']['#text'],packages[i]['Labels']['DocumentType']['#text']);
-												}
-										}
-									else // only one package
-										{
-											// add packages to processShipmentResponse
-											processShipmentResponse.addPackage(packages['SequenceID']['#text'],packages['PackageNo']['#text'],packages['Labels']['Image']['#text'],packages['Labels']['DocumentType']['#text']);
-										}
+									
+									var labelSequence 	= responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['CompletedShipmentDetail']['CompletedPackageDetails']['SequenceNumber']['#text'];
+									var labelTracking 	= responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['CompletedShipmentDetail']['CompletedPackageDetails']['TrackingIds']['TrackingNumber']['#text'];
+									var labelImage 		= responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['CompletedShipmentDetail']['CompletedPackageDetails']['Label']['Parts']['Image']['#text'];
+									var labelType 		= responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['CompletedShipmentDetail']['CompletedPackageDetails']['Label']['ImageType']['#text'];
+							
+									//Add packages to processShipmentResponse
+									//
+									processShipmentResponse.addPackage(
+																		labelSequence,
+																		labelTracking,
+																		labelImage,
+																		labelType
+																		);
+										
 								}
 							else
 								{
 									//Get the message from the responseObject
 									//
-									var responseMessage = responseObject['soap:Envelope']['soap:Body']['ProcessedShipments']['ProcessShipmentsResult']['Shipments']['ProcessedShipment']['ShipmentStatus']['StatusDescription']['#text'];
+									var responseMessage  = responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['HighestSeverity']['#text'];
+									responseMessage		+= ' ';
+									responseMessage 	+= responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['Notifications']['Message']['#text'];
 								
 									//Convert the FedEx response object to the standard process shipments response object
 									//
