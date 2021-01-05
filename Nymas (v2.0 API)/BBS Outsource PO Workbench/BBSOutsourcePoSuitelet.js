@@ -146,6 +146,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												});													//Item Location
 					
 								subList.addField({
+													id:		'custpage_sl_items_lead_time',
+													label:	'WO Lead Time',
+													type:	serverWidget.FieldType.TEXT
+												});	
+								
+								subList.addField({
 													id:		'custpage_sl_items_backorder',
 													label:	'Qty Back Ordered',
 													type:	serverWidget.FieldType.FLOAT
@@ -214,7 +220,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																								      search.createColumn({name: "quantitybackordered", label: "Back Ordered"}),
 																								      search.createColumn({name: "quantityonorder", label: "On Order"}),
 																								      search.createColumn({name: "formulanumeric",formula: "NVL({quantitybackordered},0) - NVL({quantityonorder}, 0)",label: "Needed"}),
-																								      search.createColumn({name: "internalid",join: "preferredVendor",label: "Internal ID"})
+																								      search.createColumn({name: "internalid",join: "preferredVendor",label: "Internal ID"}),
+																								      search.createColumn({name: "custitem_bbs_wo_lead_time", label: "Lead Time"})
 																				      			]
 																				}));
 								
@@ -230,9 +237,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												var itemQtyBackOrdered 	= isNullorBlank(assemblyitemSearchObj[int].getValue({name: "quantitybackordered"}),'0');
 												var itemQtyOnOrder 		= isNullorBlank(assemblyitemSearchObj[int].getValue({name: "quantityonorder"}),'0');
 												var itemQtyRequired		= isNullorBlank(assemblyitemSearchObj[int].getValue({name: "formulanumeric"}),'0');
-												
-												
-												
+												var itemLeadTime		= isNullorBlank(assemblyitemSearchObj[int].getValue({name: "custitem_bbs_wo_lead_time"}),'0');
 												
 						    					 if(itemId != '' && itemId != null)
 						    						 {
@@ -306,6 +311,15 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																				value:	format.parse({value: itemQtyRequired, type: format.Type.FLOAT})
 																				});	
 						    						 }
+						    					 
+						    					 if(itemLeadTime != '' && itemLeadTime != null)
+						    						 {
+							    						 subList.setSublistValue({
+																				id:		'custpage_sl_items_lead_time',
+																				line:	int,
+																				value:	itemLeadTime
+																				});	
+						    						 }
 						    				}
 									}
 					            
@@ -338,7 +352,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 						{
 							case 1:
 								
-								var outsourcedFormId = runtime.getCurrentScript().getParameter({name: 'custscript_bbs_outsourced_po_form_id'});
+								var outsourcedFormId 		= runtime.getCurrentScript().getParameter({name: 'custscript_bbs_outsourced_po_form_id'});
+								var transferFromLocation 	= runtime.getCurrentScript().getParameter({name: 'custscript_bbs_outsourced_from_loc'});
 								
 								var suppliers = {};
 								
@@ -383,6 +398,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																	    			    name: 	'custpage_sl_items_p_end',
 																	    			    line: 	int
 																    					});
+										
+										var itemLineLeadTime = request.getSublistValue({
+																	    			    group: 	'custpage_sublist_items',
+																	    			    name: 	'custpage_sl_items_lead_time',
+																	    			    line: 	int
+																    					});
+										
 
 										//See if the line was ticked
 										//
@@ -392,13 +414,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													{
 														//If the suppliers object already has this supplier set up, then add the item to the array of items to process for that supplier
 														//
-														suppliers[itemLineSupplier].push(new itemObject(itemLineItem, itemLineQuantity, itemLineStartDate, itemLineEndDate));
+														suppliers[itemLineSupplier].push(new itemObject(itemLineItem, itemLineQuantity, itemLineStartDate, itemLineEndDate, itemLineLeadTime));
 													}
 												else
 													{
 														//If not, create a new entry & setup an array to hold the items/quantities needed
 														//
-														suppliers[itemLineSupplier] = [new itemObject(itemLineItem, itemLineQuantity, itemLineStartDate, itemLineEndDate)];
+														suppliers[itemLineSupplier] = [new itemObject(itemLineItem, itemLineQuantity, itemLineStartDate, itemLineEndDate, itemLineLeadTime)];
 													}
 											}
 										
@@ -422,7 +444,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 										catch(err)
 											{
 												supplierRecord = null;
-												log.error({title: 'Error loading supplier record', deatils: err});
+												log.error({title: 'Error loading supplier record', details: err});
 											}
 											
 										if(supplierRecord != null)
@@ -433,7 +455,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												
 												if(supplierOutsourceLocations != null && supplierOutsourceLocations.length > 0)
 													{
-														supplierOutsourceLocation = supplierOutsourceLocations[0];
+														var supplierOutsourceLocation = supplierOutsourceLocations[0];
 													
 														//Get the array of item for this supplier
 														//
@@ -445,14 +467,18 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 														
 														try
 															{
-																poRecord = record.craete({
-																						type:		record.Type.PURCHASE_ORDER,
-																						isDynamid:	true
+																poRecord = record.create({
+																						type:			record.Type.PURCHASE_ORDER,
+																						isDynamic:		true,
+																						defaultValues:	{
+																										customform: outsourcedFormId,
+																										entity:		supplier
+																										}
 																						});
 															}
 														catch(err)
 															{
-																log.error({title: 'Error creating outsource po', deatils: err});
+																log.error({title: 'Error creating outsource po', details: err});
 																poRecord = null;
 															}
 														
@@ -460,8 +486,9 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 															{
 																//Header fields
 																//
-																poRecord.setValue({fieldId: 'customform', value: outsourcedFormId});
-																poRecord.setValue({fieldId: 'entity', value: supplier});
+																//poRecord.setValue({fieldId: 'customform', value: outsourcedFormId});
+																//poRecord.setValue({fieldId: 'entity', value: supplier});
+																
 																
 																//Item fields - loop through all of the items for this supplier
 																//
@@ -471,27 +498,74 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																		var itemQty			= itemArray[int2].itemLineQuantity;
 																		var itemStartDate	= itemArray[int2].itemLineStartDate;
 																		var itemEndDate		= itemArray[int2].itemLineEndDate;
+																		var itemLeadTime	= itemArray[int2].itemLineLeadTime;
 																		
 																		//Find the bom & bom revision for the assembly
 																		//
-																		var bomResults 		= findBomFromAssembly(itemId);
+																		var bomResults = findBomFromAssembly(itemId);
 																		
 																		if(bomResults != null && bomResults.length == 1)
 																			{
-																				var bomId			= bomResults[0].getValue({name: "internalid"});
-																				var bomRevisionId	= bomResults[0].getValue({name: "internalid",join: "revision"});
-				
-																				//Add a new line to the PO
-																				//
-																				poRecord.selectNewLine({sublistId: 'item'});
-																				poRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'assembly', value: itemId});
-																				poRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'billofmaterials', value: bomId});
-																				poRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'billofmaterialsrevision', value: bomRevisionId});
-																				poRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'location', value: supplierOutsourceLocation});
-																				poRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'quantity', value: itemQty});
-																				poRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'productionstartdate', value: itemStartDate});
-																				poRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'productionenddate', value: itemEndDate});
-																				poRecord.commitLine({sublistId: 'item', ignoreRecalc: false});
+																				var bomId				= bomResults[0].getValue({name: "internalid"});
+																				var bomRevisionId		= bomResults[0].getValue({name: "internalid",join: "revision"});
+																				var componentResults	= findPrimaryComponent(bomRevisionId);
+																				
+																				if(componentResults != null && componentResults.length > 0)
+																					{
+																						var bomComponent = componentResults[0].getValue({name: "item",join: "component"});
+																						
+																						//Add a new line to the PO
+																						//
+																						poRecord.selectNewLine({sublistId: 'item'});
+																						poRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'assembly', value: itemId});
+																						poRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'location', value: supplierOutsourceLocation});
+																						poRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'billofmaterials', value: bomId});
+																						poRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'billofmaterialsrevision', value: bomRevisionId});
+																						poRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'item', value: bomComponent});
+																						
+																						//Check the rate field to see if it is blank or zero, if so set it to value of 1
+																						//
+																						var currentRate = poRecord.getCurrentSublistValue({sublistId: 'item', fieldId: 'rate'});
+																						
+																						if(currentRate == null || currentRate == '' || currentRate == '0')
+																							{
+																								poRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'rate', value: format.parse({value: 1, type: format.Type.CURRENCY})});
+																							}
+																						
+																						//Set the quantity from the entered value
+																						//
+																						poRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'quantity', value: itemQty});
+																						
+																						//Work out the production start & end dates
+																						//
+																						var prodStartDate 	= new Date();
+																						var prodEndDate 	= new Date();
+																						
+																						//If we have a specific start date, then set it
+																						//
+																						if(itemStartDate != null && itemStartDate != '')
+																							{
+																								prodStartDate 	= format.parse({value: itemStartDate, type: format.Type.DATE});
+																							}
+																						
+																						//End date will be start date plus manufacturing lead time
+																						//
+																						prodEndDate.setDate(prodStartDate.getDate() + itemLeadTime);
+																						
+																						//If we have a specific end date, then set it
+																						//
+																						if(itemEndDate != null && itemEndDate != '')
+																							{
+																								prodEndDate	= format.parse({value: itemEndDate, type: format.Type.DATE});
+																							}
+																						
+																						poRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'productionstartdate', value: prodStartDate});
+																						poRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'productionenddate', value: prodEndDate});
+																						
+																						//Commit the line to the PO
+																						//
+																						poRecord.commitLine({sublistId: 'item', ignoreRecalc: false});
+																					}
 																			}
 																	}
 																
@@ -509,8 +583,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																catch(err)
 																	{
 																		poRecordId = null;
-																		log.error({title: 'Error saving outsource po', deatils: err});
+																		log.error({title: 'Error saving outsource po', details: err});
 																	}
+																
+																//Having saved the PO, we now need to create a transfer order for items at the outsource location that are on back order
+																//
+																var transferOrderId = createTransferOrder(poRecordId, supplierOutsourceLocation, transferFromLocation);
+																
 															}
 													}
 											}
@@ -521,12 +600,84 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 						}
 		        }
 	    }
+   
+    //Function to create a transfer order
+    //
+    function createTransferOrder(_poRecordId, _supplierOutsourceLocation, _transferFromLocation)
+    	{
+    		var transferOrderId = null;
+    		
+    		//Find all the items that are on back order at the trasfer location
+    		//
+    		var inventoryitemSearchObj = getResults(search.create({
+									    			   type: 		"inventoryitem",
+									    			   filters:
+												    			   [
+												    			      ["inventorylocation","anyof",_supplierOutsourceLocation], 
+												    			      "AND", 
+												    			      ["formulanumeric: NVL({quantitybackordered},0) - NVL({quantityonorder},0)","greaterthan","0"], 
+												    			      "AND", 
+												    			      ["type","anyof","InvtPart"]
+												    			   ],
+									    			   columns:
+												    			   [
+												    			      search.createColumn({name: "itemid",sort: search.Sort.ASC,label: "Name"}),
+												    			      search.createColumn({name: "displayname", label: "Display Name"}),
+												    			      search.createColumn({name: "internalid", label: "Internal Id"}),
+												    			      search.createColumn({name: "salesdescription", label: "Description"}),
+												    			      search.createColumn({name: "type", label: "Type"}),
+												    			      search.createColumn({name: "formulanumeric",formula: "NVL({quantitybackordered},0) - NVL({quantityonorder},0)",label: "Required Quantity"})
+												    			   ]
+									    			}));
+    		
+    		//Did we find any items?
+    		//
+    		if(inventoryitemSearchObj != null && inventoryitemSearchObj.length > 0)
+    			{
+    				//Create a transfer order
+    				//
+    				var transferOrderRecord = null;
+    				
+    				try
+    					{
+	    					transferOrderRecord = record.create({
+	    														type:		record.Type.TRANSFER_ORDER,
+	    														isDynamic:	true
+	    														});
+    					}
+    				catch(err)
+    					{
+    						transferOrderRecord = null;
+    						log.error({title: 'Error creating transfer order', details: err});
+    					}
+
+    				if(transferOrderRecord != null)
+    					{
+	    					//Set body field values
+	        				//
+    						transferOrderRecord.setValue({fieldId: 'location', value: _transferFromLocation});
+    						transferOrderRecord.setValue({fieldId: 'transferlocation', value: _supplierOutsourceLocation});
+
+    						//Loop through the items to add to the order
+    						//
+			    			for (var transferLines = 0; transferLines < array.length; transferLines++) 
+			    				{
+			    					var transferItemId			= inventoryitemSearchObj[transferLines].getValue({name: "internalid"});
+			    					var transferItemQuantity	= inventoryitemSearchObj[transferLines].getValue({name: "formulanumeric"});
+									
+			    					
+			    				}
+    					}
+    			}
+    		
+    		return transferOrderId;
+    	}
     
     //Function to search for a bom from an assembly
     //
     function findBomFromAssembly(_assemblyId)
     	{
-	    	return bomSearchObj = getResults(search.create({
+	    	return getResults(search.create({
 												 		   type: "bom",
 												 		   filters:
 												 		   [
@@ -547,13 +698,36 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												 		}));
     	}
 
+    function findPrimaryComponent(_revisionId)
+    	{
+    		return getResults(search.create({
+								    		   type: 		"bomrevision",
+								    		   filters:
+											    		   [
+											    		      ["internalidnumber","equalto",_revisionId], 
+											    		      "AND", 
+											    		      ["component.lineid","equalto","1"]
+											    		   ],
+								    		   columns:
+								    		   [
+								    		      search.createColumn({name: "internalid",sort: search.Sort.ASC,label: "Internal ID"}),
+								    		      search.createColumn({name: "lineid",join: "component",label: "Line ID"}),
+								    		      search.createColumn({name: "item",join: "component",label: "Item"}),
+								    		      search.createColumn({name: "description",join: "component",label: "Description"}),
+								    		      search.createColumn({name: "quantity",join: "component",label: "Quantity"}),
+								    		      search.createColumn({name: "name", label: "Name"})
+								    		   ]
+    		}));
+    		
+    	}
     
-    function itemObject(_itemLineItem, _itemLineQuantity, _itemLineStartDate, _itemLineEndDate)
+    function itemObject(_itemLineItem, _itemLineQuantity, _itemLineStartDate, _itemLineEndDate, _itemLineLeadTime)
     	{
     		this.itemLineItem		= _itemLineItem;
     		this.itemLineQuantity	= _itemLineQuantity;
     		this.itemLineStartDate	= _itemLineStartDate;
     		this.itemLineEndDate	= _itemLineEndDate;
+    		this.itemLineLeadTime	= _itemLineLeadTime;
     	}
     
     //Page through results set from search

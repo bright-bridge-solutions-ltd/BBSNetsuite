@@ -220,13 +220,20 @@
           <#else>
             <#assign itemName = tranline.item>
           </#if>
-      	<tr>
-			<td colspan="10"><b>${itemName}</b><br/>Commodity Code: ${tranline.custcol_bbs_item_commodity}</td>
-			<td align="right" colspan="4">${tranline.units}</td>
-			<td align="right" colspan="3">${shipped}</td>
-			<td align="right" colspan="5">${tranline.custcol_serial_numbers}</td>
-			<td align="right" colspan="3">${tranline.quantitybackordered}</td>
-		</tr>
+            <#if tranline.quantitybackordered?length gt 0>
+              <#assign backOrd = tranline.quantitybackordered?number>
+            <#else>
+              <#assign backOrd = 0>
+            </#if>
+            <#if shipped?number gt 0 || backOrd gt 0>
+              <tr>
+                  <td colspan="10"><b>${itemName}</b><br/>Commodity Code: ${tranline.custcol_bbs_item_commodity}</td>
+                  <td align="right" colspan="4">${tranline.units}</td>
+                  <td align="right" colspan="3">${shipped}</td>
+                  <td align="right" colspan="5">${tranline.custcol_serial_numbers}</td>
+                  <td align="right" colspan="3">${tranline.quantitybackordered}</td>
+              </tr>
+            </#if>
     </#list>
     <!--
 	<#list record.item as tranline>
