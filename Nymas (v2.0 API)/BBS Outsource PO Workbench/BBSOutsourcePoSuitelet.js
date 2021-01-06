@@ -657,16 +657,41 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 	        				//
     						transferOrderRecord.setValue({fieldId: 'location', value: _transferFromLocation});
     						transferOrderRecord.setValue({fieldId: 'transferlocation', value: _supplierOutsourceLocation});
+    						transferOrderRecord.setValue({fieldId: 'custbody_bbs_related_po', value: _poRecordId});
 
     						//Loop through the items to add to the order
     						//
-			    			for (var transferLines = 0; transferLines < array.length; transferLines++) 
+			    			for (var transferLines = 0; transferLines < inventoryitemSearchObj.length; transferLines++) 
 			    				{
 			    					var transferItemId			= inventoryitemSearchObj[transferLines].getValue({name: "internalid"});
 			    					var transferItemQuantity	= inventoryitemSearchObj[transferLines].getValue({name: "formulanumeric"});
 									
+			    					//Add a new line to the TO
+									//
+			    					transferOrderRecord.selectNewLine({sublistId: 'item'});
 			    					
+			    					transferOrderRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'item', value: transferItemId});
+			    					transferOrderRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'quantity', value: transferItemQuantity});
+			    					
+			    					//Commit the line to the TO
+									//
+			    					transferOrderRecord.commitLine({sublistId: 'item', ignoreRecalc: false});
 			    				}
+			    			
+			    			//Save the TO record
+							//
+							try
+								{
+									transferOrderId = transferOrderRecord.save({
+																				enableSourcing: 		true, 
+																				ignoreMandatoryFields: 	true
+																				});
+								}
+							catch(err)
+								{
+									transferOrderId = null;
+									log.error({title: 'Error saving transfer order', details: err});
+								}
     					}
     			}
     		

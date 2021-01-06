@@ -53,7 +53,7 @@
 					<td align="left" rowspan="3" colspan="2">${record.billaddress}</td>
 				    <td align="left">&nbsp;</td>
 					<td align="left"><b>Due Date</b></td>
-					<td align="right">${record.trandate}</td>
+					<td align="right">${record.duedate}</td>
 				</tr> 
 			    <tr>
 					<td align="left">&nbsp;</td>
@@ -206,7 +206,7 @@
 					</thead>
 				</#if>
 				<tr>
-					<td colspan="10"><b>${item.item}</b><br/>Commodity Code: ${item.custcol_bbs_item_commodity}</td>
+					<td colspan="10"><b>${item.item}</b><br/>${item.description}<br/>Commodity Code: ${item.custcol_bbs_item_commodity}</td>
 				   	<td align="right"  colspan="5">${item.custcol_serial_numbers}</td>
 					<td align="right"  colspan="3" line-height="150%">${item.quantity}</td>
 					<td align="right"  colspan="4">${item.units}</td>
@@ -245,7 +245,7 @@
 <#if record.entity.custentity_mainclassification_field == "EU Export" || record.entity.custentity_mainclassification_field == "Export">
 <pdf>
 <head>
- 	<#assign signature>https://4057215-sb1.app.netsuite.com/core/media/media.nl?id=71337&amp;c=4057215_SB1&amp;h=ZjqSLS46-4vOy0EngFYTRen8wiIMa9JvfR8W16f2osBpMHvA</#assign>
+ 	<#assign signature>https://4057215.app.netsuite.com/core/media/media.nl?id=74463&amp;c=4057215&amp;h=3rKN4Z4lSgOII9XMEaXEPcqU2CRPXDv5in0ncOryh1F7FstV</#assign>
   
 	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
     <macrolist>
@@ -344,6 +344,9 @@
     <macro id="nlfooter">
       <table style="width: 100%;">
         <tr>
+          <td align="left" colspan="6" style="font-size: 8px; border-left: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;">Customs Procedure Code: CPC 10 00 001 (Permanent Export)</td>
+        </tr>
+        <tr>
           <td align="left" colspan="6" style="font-size: 8px; border-left: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;"><b>Additional Information:</b></td>
         </tr>
         <tr>
@@ -413,7 +416,7 @@
 </style>
 </head>
       
-<body header="nlheader" header-height="340px" footer="nlfooter" footer-height="255px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">
+<body header="nlheader" header-height="340px" footer="nlfooter" footer-height="265px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">
   
 <#if record.item?has_content>
   <table style="width: 100%;">

@@ -104,6 +104,7 @@ function buildOutput(_fulfillmentId)
 								var soCurrency 			= salesOrderRecord.getFieldValue('currency');
 								var soCurrencySymbol	= getCurrencySymbol(soCurrency);
 								var soPlacedByEmail 	= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('custbody_bbs_order_contact_email')),'');
+								var soDeliveryTerms		= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('custpage_delivery_terms')),'');
 								
 								try
 									{
@@ -349,6 +350,14 @@ function buildOutput(_fulfillmentId)
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="9" style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Watercooler Dispensers for filtered water and related parts.</td>';
 												xml += '          <td align="left"  colspan="8"  style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '        </tr>';
+												
+												xml += '    	<tr style="margin-top: 10px;">';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="9"  style="padding-left: 0px; font-size: 9px;">Shipping Terms: ' + soDeliveryTerms + '</td>';
+												xml += '          <td align="left"  colspan="8"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '        </tr>';
 												
