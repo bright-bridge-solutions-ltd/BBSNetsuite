@@ -37,7 +37,7 @@ function(record, search) {
 					
 					//Get the entered estimated completion date
 					//
-					var estimatedCompletionDate = currentRecord.getValue({fieldId: 'createdfrom'});
+					var estimatedCompletionDate = currentRecord.getValue({fieldId: 'custbody_bbs_est_outsouce_complete'});
 					
 					//Check to see if the created from is a transfer order
 					//
@@ -97,6 +97,24 @@ function(record, search) {
 													
 													//Update the end date on each works order
 													//
+													try
+														{
+															record.submitFields({
+																				type:		record.Type.,
+																				id:			worksOrderId,
+																				values:		{
+																							enddate:	estimatedCompletionDate
+																							},
+																				options:	{
+																							enableSourcing:			true,
+																							ignoreMandatoryFields:	true
+																							}
+																				});
+														}
+													catch(err)
+														{
+															log.error({title: 'Error updateing works order id = ' + worksOrderId, details: err});
+														}
 													
 												}
 										}
