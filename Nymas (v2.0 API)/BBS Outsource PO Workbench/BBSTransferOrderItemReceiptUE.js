@@ -39,90 +39,93 @@ function(record, search) {
 					//
 					var estimatedCompletionDate = currentRecord.getValue({fieldId: 'custbody_bbs_est_outsouce_complete'});
 					
-					//Check to see if the created from is a transfer order
+					//Do we have a date?
 					//
-					var recordType = checkRecordType(createdFrom);
-					
-					if(recordType == 'Transfer Order')
+					if(estimatedCompletionDate != null && estimatedCompletionDate != '')
 						{
-							//Find the purchase order that is on the transfer order
+							//Check to see if the created from is a transfer order
 							//
-							var purchaseOrder = search.lookupFields({
-																	type:		record.Type.TRANSFER_ORDER,
-																	id:			createdFrom,
-																	columns:	'custbody_bbs_related_po'
-																	})[custbody_bbs_related_po];
+							var recordType = checkRecordType(createdFrom);
 							
-							//Do we have a related purchase order?
-							//
-							if(purchaseOrder != null && purchaseOrder != '')
+							if(recordType == 'TrnfrOrd')
 								{
-									//Find all works orders that are linked to lines on the purchase order
+									//Find the purchase order that is on the transfer order
 									//
-									var purchaseorderSearchObj = getResults(search.create({
-																						   type:	"purchaseorder",
-																						   filters:
-																							   		[
-																								      ["type","anyof","PurchOrd"], 
-																								      "AND", 
-																								      ["mainline","is","F"], 
-																								      "AND", 
-																								      ["shipping","is","F"], 
-																								      "AND", 
-																								      ["taxline","is","F"], 
-																								      "AND", 
-																								      ["cogs","is","F"], 
-																								      "AND", 
-																								      ["internalidnumber","equalto",purchaseOrder], 
-																								      "AND", 
-																								      ["applyingtransaction","noneof","@NONE@"]
-																								   ],
-																						   columns:
-																								   [
-																								      search.createColumn({name: "line", label: "Line ID"}),
-																								      search.createColumn({name: "item", label: "Item"}),
-																								      search.createColumn({name: "applyingtransaction", label: "Applying Transaction"})
-																								   ]
-																							}));
+									var purchaseOrder = search.lookupFields({
+																			type:		record.Type.TRANSFER_ORDER,
+																			id:			createdFrom,
+																			columns:	'custbody_bbs_related_po'
+																			})['custbody_bbs_related_po'][0].value;
 									
-									//Did we find any results?
+								
+									//Do we have a related purchase order?
 									//
-									if(purchaseorderSearchObj != null && purchaseorderSearchObj.length > 0)
+									if(purchaseOrder != null && purchaseOrder != '')
 										{
-											for (var poResult = 0; poResult < purchaseorderSearchObj.length; poResult++) 
+											//Find all works orders that are linked to lines on the purchase order
+											//
+											var purchaseorderSearchObj = getResults(search.create({
+																								   type:	"purchaseorder",
+																								   filters:
+																									   		[
+																										      ["type","anyof","PurchOrd"], 
+																										      "AND", 
+																										      ["mainline","is","F"], 
+																										      "AND", 
+																										      ["shipping","is","F"], 
+																										      "AND", 
+																										      ["taxline","is","F"], 
+																										      "AND", 
+																										      ["cogs","is","F"], 
+																										      "AND", 
+																										      ["internalidnumber","equalto",purchaseOrder], 
+																										      "AND", 
+																										      ["applyingtransaction","noneof","@NONE@"]
+																										   ],
+																								   columns:
+																										   [
+																										      search.createColumn({name: "line", label: "Line ID"}),
+																										      search.createColumn({name: "item", label: "Item"}),
+																										      search.createColumn({name: "applyingtransaction", label: "Applying Transaction"})
+																										   ]
+																									}));
+											
+											//Did we find any results?
+											//
+											if(purchaseorderSearchObj != null && purchaseorderSearchObj.length > 0)
 												{
-													//Get the id of the works order
-													//
-													var worksOrderId = purchaseorderSearchObj[poResult].getValue({name: "applyingtransaction"});
-													
-													//Update the end date on each works order
-													//
-													try
+													for (var poResult = 0; poResult < purchaseorderSearchObj.length; poResult++) 
 														{
-															record.submitFields({
-																				type:		record.Type.,
-																				id:			worksOrderId,
-																				values:		{
-																							enddate:	estimatedCompletionDate
-																							},
-																				options:	{
-																							enableSourcing:			true,
-																							ignoreMandatoryFields:	true
-																							}
-																				});
+															//Get the id of the works order
+															//
+															var worksOrderId = purchaseorderSearchObj[poResult].getValue({name: "applyingtransaction"});
+															
+															//Update the end date on each works order
+															//
+															try
+																{
+																	record.submitFields({
+																						type:		record.Type.WORK_ORDER,
+																						id:			worksOrderId,
+																						values:		{
+																									enddate:	estimatedCompletionDate
+																									},
+																						options:	{
+																									enableSourcing:			true,
+																									ignoreMandatoryFields:	true
+																									}
+																						});
+																}
+															catch(err)
+																{
+																	log.error({title: 'Error updating works order id = ' + worksOrderId, details: err});
+																}
+															
 														}
-													catch(err)
-														{
-															log.error({title: 'Error updateing works order id = ' + worksOrderId, details: err});
-														}
-													
 												}
 										}
-									
 								}
 						}
-					
-					
 				}
 	    }
 

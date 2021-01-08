@@ -258,7 +258,7 @@ function buildOutput(_fulfillmentId)
 										xml += '	</style>';
 										xml += '</head>';
 										//xml += '<body header="nlheader" header-height="550px" footer="nlfooter" footer-height="170px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
-										xml += '<body header="nlheader" header-height="550px" footer="nlfooter" footer-height="50px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
+										xml += '<body header="nlheader" header-height="550px" footer="nlfooter" footer-height="70px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
 										
 									
 										var ifLines 	= fulfillmentRecord.getLineItemCount('item');

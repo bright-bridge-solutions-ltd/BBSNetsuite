@@ -149,7 +149,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													id:		'custpage_sl_items_lead_time',
 													label:	'WO Lead Time',
 													type:	serverWidget.FieldType.TEXT
-												});	
+												});													//Manufacturing lead time
 								
 								subList.addField({
 													id:		'custpage_sl_items_backorder',
@@ -169,13 +169,39 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													type:	serverWidget.FieldType.FLOAT
 												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});		//Quantity required
 						
-								subList.addField({
+								var supplierField = subList.addField({
 												id:		'custpage_sl_items_supplier',
 												label:	'Supplier',
-												type:	serverWidget.FieldType.SELECT,
-												source:	record.Type.VENDOR
+												type:	serverWidget.FieldType.SELECT
+												//source:	record.Type.VENDOR
 												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});		//Item Supplier
 	
+								//Populate supplier field with only out source suppliers
+								//
+								var outsourceSuppliers = getOutsourceSuppliers();
+								
+								supplierField.addSelectOption({
+																value: 			'', 
+																text: 			'', 
+																isSelected: 	true
+																});
+								
+								if(outsourceSuppliers != null && outsourceSuppliers.length > 0)
+									{
+										for (var outsup = 0; outsup < outsourceSuppliers.length; outsup++) 
+											{
+												var outsupId 		= outsourceSuppliers[outsup].getValue({name: "internalid"});
+												var outsupName 		= outsourceSuppliers[outsup].getValue({name: "entityid"});
+												var outsupAltName 	= outsourceSuppliers[outsup].getValue({name: "altname"});
+											
+												supplierField.addSelectOption({
+																				value: 			outsupId, 
+																				text: 			outsupName + ' ' + outsupAltName, 
+																				isSelected: 	false
+																				});
+											}
+									}
+								
 								subList.addField({
 												id:		'custpage_sl_items_p_start',
 												label:	'Production Start',
@@ -595,8 +621,19 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 											}
 									}
 								
-								break;
 								
+								//Call the suitelet again
+								//
+								context.response.sendRedirect({
+														type: 			http.RedirectType.SUITELET, 
+														identifier: 	runtime.getCurrentScript().id, 
+														id: 			runtime.getCurrentScript().deploymentId, 
+														parameters:		{
+																			stage: 			stage						//Stage																	
+																		}
+														});
+								
+								break;
 						}
 		        }
 	    }
@@ -731,7 +768,9 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 											    		   [
 											    		      ["internalidnumber","equalto",_revisionId], 
 											    		      "AND", 
-											    		      ["component.lineid","equalto","1"]
+											    		      ["component.itemsubtype","is","Purchase"],
+											    		      "AND",
+											    		      ["component.itemtype","is","OthCharge"]
 											    		   ],
 								    		   columns:
 								    		   [
@@ -740,9 +779,29 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								    		      search.createColumn({name: "item",join: "component",label: "Item"}),
 								    		      search.createColumn({name: "description",join: "component",label: "Description"}),
 								    		      search.createColumn({name: "quantity",join: "component",label: "Quantity"}),
-								    		      search.createColumn({name: "name", label: "Name"})
+								    		      search.createColumn({name: "name", label: "Name"}),
+								    		      search.createColumn({name: "itemtype",join: "component",label: "Item Type"}),
+								    		      search.createColumn({name: "itemsubtype",join: "component",label: "Item Subtype"})
 								    		   ]
     		}));
+    		
+    	}
+    
+    function getOutsourceSuppliers()
+    	{
+    		return getResults(search.create({
+							    		   type: 	  "vendor",
+							    		   filters:
+										    		   [
+										    		      ["formulatext: {manufacturinglocations}","isnotempty",""]
+										    		   ],
+							    		   columns:
+										    		   [
+										    		      search.createColumn({name: "entityid",sort: search.Sort.ASC,label: "ID"}),
+										    		      search.createColumn({name: "altname", label: "Name"}),
+										    		      search.createColumn({name: "internalid", label: "Internal Id"})
+										    		   ]
+							    		}));
     		
     	}
     
