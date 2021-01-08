@@ -389,14 +389,5 @@
 	
 </#if>
 
-<!-- Check we have a customer VAT number and the country is not UK-->
-<#if record.vatregnum?has_content && record.billaddress?contains("United Kingdom")>
-	<table style="width: 100%;">
-		<tr>
-			<td><p align="center">Supplies in relation to this invoice are covered under Article 28C(A) of the EC Sixth Directive (77/388/EEC) and therefore zero rated under UK VAT law. The recipient of the invoice is required to account for the relevant tax.</p></td>
-		</tr>
-	</table>
-</#if>
-
 </body>
 </pdf>
