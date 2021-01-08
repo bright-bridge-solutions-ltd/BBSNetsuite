@@ -16,12 +16,14 @@ define([
         '../Modules/BBSObjects',				//Objects used to pass info back & forth
         '../Modules/BBSCommon',					//Common code
         '../Modules/BBSCarrierGFS',				//GFS integration module
-        '../Modules/BBSCarrierProCarrier'		//ProCarrier integration module
+        '../Modules/BBSCarrierProCarrier',		//ProCarrier integration module
+        '../Modules/BBSCarrierDPD',				//DPD integration module
+        '../Modules/BBSCarrierFedEx'			//FedEx integration module
         ],
 /**
  * @param {record} record
  */
-function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCarrierGFS, BBSCarrierProCarrier) 
+function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCarrierGFS, BBSCarrierProCarrier, BBSCarrierDPD, BBSCarrierFedEx) 
 {
 	
 	//=============================================================================================
@@ -491,6 +493,22 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 					    									processShipmentsResponse = BBSCarrierProCarrier.carrierProcessShipments(processShipmentsRequest);	//Pass in the info gleaned from the IF record here
 					    									
 					    									break;
+					    									
+					    								case 'DPD':
+					    									
+					    									//Send the request to the specific carrier
+					    									//
+					    									processShipmentsResponse = BBSCarrierDPD.carrierProcessShipments(processShipmentsRequest);	//Pass in the info gleaned from the IF record here
+					    									
+					    									break;
+
+					    								case 'FedEx':
+					    									
+					    									//Send the request to the specific carrier
+					    									//
+					    									processShipmentsResponse = BBSCarrierFedEx.carrierProcessShipments(processShipmentsRequest);	//Pass in the info gleaned from the IF record here
+					    									
+					    									break;
 			    									}
 			    								
 		    									//Check if we have got a success message back
@@ -516,13 +534,33 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 		    											for (var i = 0; i < packages.length; i++)
 		    												{
 		    													// get package data
-		    													var labelImage 		= packages[i]['labelImage'];
-		    													var labelFileType 	= packages[i]['labelType'];
-		    													var packageNumber 	= packages[i]['packageNumber'];
+		    													var labelImage 			= packages[i]['labelImage'];
+		    													var labelFileType 		= packages[i]['labelType'];
+		    													var packageNumber 		= packages[i]['packageNumber'];
+		    													var fileTypeIdentifier	= '';
+		    													
+		    													switch(labelFileType)
+		    														{
+				    													case 'PNG':
+				    														fileTypeIdentifier = file.Type.PNGIMAGE;
+				    														
+				    														break;
+				    												
+				    													case 'PDF':
+				    														fileTypeIdentifier = file.Type.PDF;
+				    														
+				    														break;
+				    										
+				    													default:
+				    														fileTypeIdentifier = file.Type.PLAINTEXT;
+				    														
+				    														break;
+				    										
+		    														}
 		    													
 		    													// create a PNG of the courier label and store in the file cabinet
 								    							var courierLabel = file.create({
-															    								fileType: 	(labelFileType == 'PNG' ? file.Type.PNGIMAGE : file.Type.PDF),
+															    								fileType: 	fileTypeIdentifier,
 															    								name: 		packageNumber + '.' + labelFileType,
 															    								contents: 	labelImage,
 															    								folder: 	fileCabinetFolder,

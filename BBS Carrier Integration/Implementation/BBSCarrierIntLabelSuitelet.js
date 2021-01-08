@@ -66,7 +66,7 @@ function(search, render, xml) {
     		imageURL = xml.escape({xmlText: imageURL});  // replace the & symbol with &amp;
     		
     		// add image to the xml
-    		xmlString += '<img src="' + imageURL + '" style="height: 1000px; width: 700px;"/>'
+    		xmlString += '<img src="' + imageURL + '" style="height: 1024px; width: 682px;"/>'
     		
     		// continue processing search results
     		return true;

@@ -68,7 +68,7 @@ function(runtime, search, record, format) {
     					// select the line item
     					soRecord.selectLine({
     						sublistId: 'item',
-    						line: i
+    						line: i-1
     					});
     					
     					// get the value of the 'Usage Consolidated' checkbox for the line

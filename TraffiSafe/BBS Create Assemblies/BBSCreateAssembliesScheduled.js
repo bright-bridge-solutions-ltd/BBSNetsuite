@@ -124,7 +124,8 @@ function createAssembliesScheduled(type)
 						"custitem_bbs_item_uom3_width",
 						"custitem_bbs_item_upom1_vol",
 						"custitem_bbs_item_upom3_nett_weight",
-						"custitem1"
+						"custitem1",
+						"custitem_commodity_code"
 						];
 
 	//Read in the parameter containing the parent child object

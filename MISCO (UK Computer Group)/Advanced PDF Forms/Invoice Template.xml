@@ -4,7 +4,7 @@
 	
 	<#setting number_format=",##0.00">
 	<#assign regInfo>Company Registration No: ${record.cseg_bbs_division.custrecord_bbs_division_company_reg}. Registered Office: ${record.cseg_bbs_division.custrecord_bbs_division_legal_name}, ${record.cseg_bbs_division.custrecord_bbs_division_address_1}, ${record.cseg_bbs_division.custrecord_bbs_division_address_2}, ${record.cseg_bbs_division.custrecord_bbs_division_city}, ${record.cseg_bbs_division.custrecord_bbs_division_address_county}, ${record.cseg_bbs_division.custrecord_bbs_division_postcode}, ${record.cseg_bbs_division.custrecord_bbs_division_address_country}</#assign>
-   	<#assign emailInfo>${record.cseg_bbs_division.custrecord_bbs_division_sales_email}</#assign>
+   	<#assign emailInfo>${record.cseg_bbs_division.custrecord_bbs_division_accounts_email}</#assign>
    	<#assign telInfo>${record.cseg_bbs_division.custrecord_bbs_division_telephone_number}</#assign>
     <#assign vatInfo>${record.cseg_bbs_division.custrecord_bbs_division_vat_number}</#assign>
     <#assign footerMsg>All goods remain the property of ${record.cseg_bbs_division.custrecord_bbs_division_legal_name} until paid in full.</#assign>

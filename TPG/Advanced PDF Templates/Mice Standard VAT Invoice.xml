@@ -1,0 +1,306 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+ 
+ <!--Currency Function-->
+<#assign cs = "">
+<#assign fmt = "#,##0.00">
+
+<#function toCurrency value showSymbol=true>
+	<#local retval = 0>
+	<#local tmpcs = cs>
+	<#if showSymbol == false>
+		<#local tmpcs = "">
+	</#if>
+	<!-- <#if value &lt; 0 >
+		<#local retval = value?string[fmt]>
+		<#local retval = "(" + tmpcs + retval?replace("-","") + ")"> 
+          <#local retval = tmpcs + value?string[fmt]>
+	<#else>
+		<#local retval = tmpcs + value?string[fmt]>
+	</#if> -->
+    <#local retval = tmpcs + value?string[fmt]>
+	<#if value == 0 >
+		<#local retval = "">
+	</#if>
+	<#return retval>
+</#function>
+
+      <#assign HK_Grotesk>https://5241141-sb1.app.netsuite.com/core/media/media.nl?id=114131&amp;c=5241141_SB1&amp;h=f42c1cbed824108bba0f&amp;_xt=.ttf</#assign>
+      <#assign HK_Grotesk_Bold>https://5241141-sb1.app.netsuite.com/core/media/media.nl?id=114132&amp;c=5241141_SB1&amp;h=8e499e8233f93e09dc25&amp;_xt=.ttf</#assign>
+      <#assign HK_Grotesk_Italic>https://5241141-sb1.app.netsuite.com/core/media/media.nl?id=114133&amp;c=5241141_SB1&amp;h=eec7592bbd428fb0bef8&amp;_xt=.ttf</#assign>
+      <#assign HK_Grotesk_Bolditalic>https://5241141-sb1.app.netsuite.com/core/media/media.nl?id=114134&amp;c=5241141_SB1&amp;h=80ec617055e64bb243a9&amp;_xt=.ttf</#assign>
+  	
+	<!-- <link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" /> -->
+      <link name="HK Grotesk" type="font" subtype="truetype" src="${HK_Grotesk}" src-bold="${HK_Grotesk_Bold}" src-italic="${HK_Grotesk_Italic}" src-bolditalic="${HK_Grotesk_Bolditalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+     
+      <#if record.subsidiary.id == "12">
+       <#assign logoUrl>https://5241141.app.netsuite.com/core/media/media.nl?id=346081&amp;c=5241141&amp;h=1ce881ac861c65be9e79</#assign>
+       <#assign logoUrl_BG>https://5241141.app.netsuite.com/core/media/media.nl?id=96836&amp;c=5241141&amp;h=7aed749f9cef703c25d9</#assign>
+       <#assign hg>150px</#assign>
+      <#elseif record.subsidiary.id == "21">
+        <#assign logoUrl>https://5241141.app.netsuite.com/core/media/media.nl?id=346080&amp;c=5241141&amp;h=eb4ac5f3d462a6c91e10</#assign>
+        <#assign logoUrl_BG>https://5241141.app.netsuite.com/core/media/media.nl?id=96845&amp;c=5241141&amp;h=48d8aa0e24ef5e17e69b</#assign>
+        <#assign hg>150px</#assign>
+        <#else>
+          <#assign logoUrl>https://5241141.app.netsuite.com/core/media/media.nl?id=346080&amp;c=5241141&amp;h=eb4ac5f3d462a6c91e10</#assign>
+          <#assign logoUrl_BG>https://5241141.app.netsuite.com/core/media/media.nl?id=96835&amp;c=5241141&amp;h=7b80aaf43f52fe08a7d1</#assign>
+          <#assign hg>150px</#assign>
+          </#if>
+      
+    <macrolist>
+        <macro id="nlheader">
+            &nbsp;
+        </macro>
+        <macro id="nlfooter">
+            <table style="width: 100%; font-size: 9pt;">
+      <tr>
+	<td style="width: 25%; color: #dcc38a; margin-left: -33px;">VAT Reg No. ${subsidiary.federalidnumber}<#if record.subsidiary.id == "12"><br />UK VAT No. 269 4190 73</#if></td>
+	<td>&nbsp;</td>
+	</tr>
+     <tr>
+     <td style="width: 25%; color: #dcc38a; margin-left: -33px;">Company Reg No. ${subsidiary.custrecord_bbs_comp_reg_no}</td>
+	<td align="right" style="padding: 0;">&nbsp;</td>
+	</tr></table>
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 9pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            
+            color: #333333;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { align:left }
+      table.itemtable th {
+            padding-bottom: 2px;
+            padding-top: 2px;
+
+        }
+</style>
+</head>
+      
+      <body header="nlheader" header-height="3%" footer="nlfooter" footer-height="26pt" padding="-0.3in 0.3in 0.3in 0.5in" size="Letter" style="background-image: url(${logoUrl_BG});">
+  
+    <!--Assign the correct currency symbol based on the record.currency--><#switch record.currency><#case "GBP"><#assign cs = "£ "><#setting locale="en_GB"><#break><#case "USD"><#assign cs = "$ "><#setting locale="en_US"><#break><#case "EUR"><#assign cs = "€ "><#setting locale="fr_FR"><#break><#case "DKK"><#assign cs = "kr "><#setting locale="da_DK"><#break><#case "SEK"><#assign cs = "kr "><#setting locale="sv_SE"><#break><#case "NOK"><#assign cs = "NOK "><#setting locale="nb_NO"><#break><#case "ISK"><#assign cs = "kr "><#setting locale="is_IS"><#break><#default><#assign cs = ""></#switch>
+<table style="width:100%;"><tr>
+	<td colspan="1" rowspan="9" style="width: 25%; margin-left: -33px;"><#if logoUrl?has_content><img src="${logoUrl}" style="float: right; width: 210px; height: ${hg};" /></#if></td>
+	<td style="width: 30%;">&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr>
+	<tr>
+	<td><b>${record.trandate@label}</b></td>
+	<td><b>${record.tranid@label}</b></td>
+	</tr>
+	<tr>
+	<td>${record.trandate}</td>
+	<td>${record.tranid}</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr>
+	<tr>
+	<td colspan="1" style="font-size:14pt">&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr>
+	<tr>
+	<td colspan="1" style="font-size:14pt"><b>${record@title}</b></td>
+	<td rowspan="2">&nbsp;</td>
+	</tr>
+	<tr>
+	<td colspan="1" style="font-size:14pt">&nbsp;</td>
+	</tr>
+	<tr style="line-height: 13px; height: 13px;">
+	<td align="left" style="color: #dcc38a; font-size:10pt; margin-left: -33px;"><b><#if record.subsidiary.id == "12">Irish Horizons<#elseif record.subsidiary.id == "21">Experience Scotland<#else>Experience England</#if></b></td>
+	<td><b>${record.custbody_csegbkref.custrecord_arrival_date@label}</b></td>
+	<td>${record.custbody_csegbkref.custrecord_arrival_date}</td>
+	</tr>
+	<tr style="line-height: 13px; height: 13px;">
+	<td colspan="1" rowspan="4"  style="text-align: left; vertical-align: top; color: #dcc38a; margin-left: -33px;" valign="top"><span style="font-size:9pt"><span style="font-family:Calibri,sans-serif"><#if subsidiary.addr1?has_content>${subsidiary.addr1}<br /></#if></span></span><span style="font-size:9pt"><span style="font-family:Calibri,sans-serif"><#if subsidiary.addr2?has_content>${subsidiary.addr2}<br /></#if></span></span><span style="font-size:9pt"><span style="font-family:Calibri,sans-serif"><#if subsidiary.city?has_content>${subsidiary.city}<br /></#if></span></span><span style="font-size:9pt"><span style="font-family:Calibri,sans-serif"><#if subsidiary.state?has_content>${subsidiary.state}<br /></#if></span></span><span style="font-size:10pt"><span style="font-family:Calibri,sans-serif"><#if subsidiary.zip?has_content>${subsidiary.zip}<br /></#if></span></span><span style="font-size:9pt"><span style="font-family:Calibri,sans-serif"><#if subsidiary.country?has_content>${subsidiary.country}</#if></span></span></td>
+	<td><b>${record. duedate@label}</b></td>
+	<td>${record. duedate}</td>
+	</tr>
+	<tr style="line-height: 13px; height: 13px;">
+	<td><b>${record.salesrep@label}</b></td>
+	<td>${record.salesrep}</td>
+	</tr>
+	<tr style="line-height: 13px; height: 13px;">
+	<td><b>${record.custbody_csegbkref@label}</b></td>
+	<td>${record.custbody_csegbkref}</td>
+	</tr>
+	<tr style="line-height: 13px; height: 13px;">
+	<td><b>${record.entity.custentity_ext_id@label}</b></td>
+	<td>${record.entity.custentity_ext_id}</td>
+	</tr></table>
+
+<table align="left" style="width:100%;"><tr>
+	<td style="width: 25%; margin-left: -33px;">&nbsp;</td>
+	<td style="width: 30%;"><b>${record.custbody_booking_name@label}</b></td>
+	<td>${record.custbody_booking_name}</td>
+	</tr>
+	<tr>
+	<td style="width: 25%; margin-left: -33px;">&nbsp;</td>
+	<td style="width: 30%;">&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr>
+	
+	<tr>
+	<td style="width: 25%; margin-left: -33px; color: #dcc38a; font-size:10pt"><b>${record.billaddress@label}</b></td>
+	<td align="right" colspan="2" rowspan="1" style="width: 30%;">&nbsp;</td>
+	</tr>
+	<tr>
+	<td colspan="1" rowspan="5" style="text-align: left; vertical-align: top; color: #dcc38a; margin-left: -33px;"><span style="font-family:Calibri,sans-serif">${record.billaddress}</span></td>
+	<td align="right" colspan="2" rowspan="1">
+      <#if record.item?has_content>
+        <table class="itemtable" align="center" style="width:100%;">
+          <#list record.item as item>
+            <tr><td align="right">${item.description}</td></tr>
+          </#list>
+        </table>
+      </#if>
+    </td>
+	</tr>
+	<tr>
+	<td colspan="2" rowspan="1">
+	<hr style="width: 100%; color: #76787a; background-color: #d3d3d3; height: 1px;" /></td>
+	</tr>
+	<tr>
+	<td align="right" colspan="2" rowspan="1" style="text-align: right; vertical-align: top; font-size: 12pt;"> <#setting number_format=",##0.00">
+<#setting locale="en_US">${record.total@label}:&nbsp;&nbsp;<b>${cs}${record.total}</b></td>
+	</tr>
+	<tr>
+	<td colspan="2" rowspan="1">&nbsp;</td>
+	</tr></table>
+  
+  <#if record.item?has_content>
+  <table align="left" style="width:100%; margin-top: 10px;"><tr>
+	<td style="width: 25%; margin-left: -33px;">&nbsp;</td>
+	<td align="center">
+      
+      
+      <table class="itemtable" align="center" style="width:80%; border: 0.5px; margin-left: 22px;">
+        <thead >
+          <tr >
+          <th align="center">VAT Code</th>
+          <th align="center">Gross Amount</th>
+          <th align="center">VAT Amount</th>
+          </tr>
+		</thead>
+        
+        <!--Loop round the items to group same vat code-->
+
+<#assign miceLineNo = 0>
+
+
+<#list record.item as item>
+
+  <#if item.custcol_bbs_mice_lineno gt miceLineNo >
+	<#assign miceLineNo += 1>
+  </#if>
+</#list>
+
+ <#list 1..miceLineNo as i>
+   
+<#assign count = 0>
+<#assign vatcode = "">
+<#assign lineVatAmount = 0>
+<#assign lineGrossAmount = 0>
+
+<#list record.item as item>
+<#if item.custcol_bbs_mice_lineno == i>
+  <#assign count += 1>
+  <#assign lineVatAmount += item.tax1amt>
+  <#assign lineGrossAmount += item.grossamt>
+</#if>
+</#list>
+    
+<#list record.item as item>
+<#if item.custcol_bbs_mice_lineno == i>
+  <#if item.taxrate1?has_content> <#assign vatcode = item.taxrate1?number * 100> <#break> </#if>
+</#if>
+</#list>
+  
+<tr>
+ <td align="center">${vatcode} %</td>
+  <td align="center"><#if lineGrossAmount == 0 || !lineGrossAmount??>${cs} 0.00<#else>${toCurrency(lineGrossAmount)}</#if></td>
+    <td align="center"><#if lineVatAmount == 0 || !lineVatAmount??>${cs} 0.00<#else>${toCurrency(lineVatAmount)}</#if></td>
+</tr>   
+ </#list> 
+
+      </table>
+      
+      
+    </td></tr>
+  </table>
+</#if>
+  
+<table align="left" style="width:100%; margin-top: 10px;"><tr>
+	<td style="width: 25%; margin-left: -33px; margin-top: 10px; color: #dcc38a;">&nbsp;</td>
+	<td>Account Details for Invoices in ${record.currency}</td>
+	</tr>
+	<tr>
+	<td style="width: 25%; margin-left: -33px;">&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr>
+	<tr>
+	<td colspan="1" rowspan="2" style="width: 25%; margin-left: -33px; color: #dcc38a;">&nbsp;</td>
+	<td colspan="1" rowspan="5" style="text-align: left; vertical-align: top;"><#if record.currency == "GBP">${subsidiary.custrecord_bbs_gbp_inv}<#elseif record.currency == "EUR">${subsidiary.custrecord1}<#elseif record.currency == "NOK">${subsidiary.custrecord2}<#elseif record.currency == "DKK">${subsidiary.custrecord3}</#if></td>
+	</tr></table>
+
+<table align="left" style="width:100%; margin-top: 10px;"><tr>
+	<td style="width: 25%; margin-left: -33px;">&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr>	
+	<tr>
+	<td style="width: 25%; color: #dcc38a; font-size:10pt; margin-left: -33px;"><b>${subsidiary.custrecord_bbs_contact_us@label}</b></td>
+	<td><#if record.subsidiary.id == "12">Irish Horizons<#elseif record.subsidiary == "21">Experience Scotland<#else>Experience England</#if> does not accept liability for any bank charges</td>
+	</tr>
+	<tr>
+	<td style="width: 25%; margin-left: -33px; color: #dcc38a;">${subsidiary.custrecord_bbs_contact_us}</td>
+	<td>Invoice to be paid in accordance with your payments terms.</td>
+	</tr></table>
+  </body>
+  </pdf>

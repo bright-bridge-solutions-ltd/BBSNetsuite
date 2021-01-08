@@ -1,16 +1,98 @@
-define(['N/record', 'N/search', 'N/xml', 'N/config', 'N/https',
+define(['N/record', 'N/search', 'N/xml', 'N/config', 'N/https','N/encode',
         './BBSObjects',
         './secret',
         './oauth',
         './cryptojs'
         ],
-function(record, search, xml, config, https, BBSObjects, secret, oauth, cryptojs) 
+function(record, search, xml, config, https, encode, BBSObjects, secret, oauth, cryptojs) 
 {
 	//=========================================================================
 	//Main functions
 	//=========================================================================
 	//
 	
+	//Convert html label to png using pdfcrowd
+	//
+	function _convertHtmlToPng(_htmlText)
+		{
+			var pngImage = '';
+			
+			//Get the config record for the converter
+			//
+			var customrecord_bbs_carrier_label_conv_confSearchObj = getResults(search.create({
+				   type: "customrecord_bbs_carrier_label_conv_conf",
+				   filters:
+				   [
+				      ["isinactive","is","F"]
+				   ],
+				   columns:
+				   [
+				      search.createColumn({name: "custrecord_bbs_carrier_label_conv_user", label: "Username"}),
+				      search.createColumn({name: "custrecord_bbs_carrier_label_conv_key", label: "API Key"}),
+				      search.createColumn({name: "custrecord_bbs_carrier_label_conv_url", label: "API Endpoint"})
+				   ]
+				}));
+			
+			//Did we find the record?
+			//
+			if(customrecord_bbs_carrier_label_conv_confSearchObj != null && customrecord_bbs_carrier_label_conv_confSearchObj.length > 0)
+				{
+					var username 	= customrecord_bbs_carrier_label_conv_confSearchObj[0].getValue({name: "custrecord_bbs_carrier_label_conv_user"});
+					var apiKey 		= customrecord_bbs_carrier_label_conv_confSearchObj[0].getValue({name: "custrecord_bbs_carrier_label_conv_key"});
+					var endpoint 	= customrecord_bbs_carrier_label_conv_confSearchObj[0].getValue({name: "custrecord_bbs_carrier_label_conv_url"});
+					
+					//Encode the credentials
+					//
+					var combinedCredentials 	= username + ':' + apiKey;
+					var authorisation 			= 'Basic ' + encode.convert({
+																			string:			combinedCredentials,
+																			inputEncoding:	encode.Encoding.UTF_8,
+																			outputEncoding:	encode.Encoding.BASE_64
+																			});
+					//Construct the header of the call
+					//
+					var headerObj 				= {};
+					headerObj['Content-Type'] 	= 'application/x-www-form-urlencoded';
+					headerObj['Authorization'] 	= authorisation;
+			
+					//Construct the body of the call
+					//
+					var bodyObj 				= {};
+					bodyObj['output_format']	= 'png';
+					bodyObj['text']				= _htmlText;
+					
+					//Attempt the call to the api
+					//
+					try
+						{
+							var response = https.post({	
+														url:		endpoint,
+														headers:	headerObj,
+														body:		bodyObj
+														});
+							
+							//Extract the http response code	
+							//
+							responseStatus = response.code;
+							
+							//Extract the http response body
+							//
+							if(response.body != null && response.body != '')
+								{
+									pngImage = response.body;
+								}
+						}
+				catch(err)
+						{
+							responseStatus = err.message;
+						}
+				}
+			
+			return pngImage;
+		}
+	
+	//Perform a licence check against our licence database
+	//
 	function _doLicenceCheck(_product)
 		{
 			var configRecord 	= null;
@@ -214,35 +296,37 @@ function(record, search, xml, config, https, BBSObjects, secret, oauth, cryptojs
 	//
 	function _getConfig(_configId)
 		{
-			var configRecord = null;
 			var carrierConfig = null;
 			
-			//Read the configuration record
-			//
-			try
+			var customrecord_bbs_carrier_configSearchObj = getResults(search.create({
+																	   type: "customrecord_bbs_carrier_config",
+																	   filters:
+																	   [
+																	      ["custrecord_bbs_config_carrier","anyof",_configId]
+																	   ],
+																	   columns:
+																	   [
+																	      search.createColumn({name: "custrecord_bbs_config_intermediate", label: "Intermediate Version"}),
+																	      search.createColumn({name: "custrecord_bbs_config_label_format", label: "Label Format"}),
+																	      search.createColumn({name: "custrecord_bbs_config_major", label: "Major Version Id"}),
+																	      search.createColumn({name: "custrecord_bbs_config_minor", label: "Minor Version Id"}),
+																	      search.createColumn({name: "custrecord_bbs_config_password", label: "Password / API Key"}),
+																	      search.createColumn({name: "custrecord_bbs_config_carrier", label: "Primary Carrier/Integrator"}),
+																	      search.createColumn({name: "custrecord_bbs_config_username", label: "User Name"}),
+																	      search.createColumn({name: "custrecord_bbs_config_url", label: "URL"})
+																	   ]
+																	}));
+			
+			if(customrecord_bbs_carrier_configSearchObj != null && customrecord_bbs_carrier_configSearchObj.length == 1)
 				{
-					configRecord = record.load({
-												type:	'customrecord_bbs_carrier_config',
-												id:		_configId
-												});
-				}
-			catch(err)
-				{
-					configRecord = null;
-				}
-		
-			//Process the configuration record into a configuration object
-			//
-			if(configRecord != null)
-				{
-					var configCarrier 		= configRecord.getValue({fieldId: 'custrecord_bbs_config_carrier'});
-					var configUser 			= configRecord.getValue({fieldId: 'custrecord_bbs_config_username'});
-					var configPassword 		= configRecord.getValue({fieldId: 'custrecord_bbs_config_password'});
-					var configUrl 			= configRecord.getValue({fieldId: 'custrecord_bbs_config_url'});
-					var configMajor 		= configRecord.getValue({fieldId: 'custrecord_bbs_config_major'});
-					var configMinor 		= configRecord.getValue({fieldId: 'custrecord_bbs_config_minor'});
-					var configIntermediate 	= configRecord.getValue({fieldId: 'custrecord_bbs_config_intermediate'});
-					var configLabelFormat	= configRecord.getValue({fieldId: 'custrecord_bbs_config_label_format'});
+					var configCarrier 		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_carrier"});
+					var configUser 			= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_username"});
+					var configPassword 		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_password"});
+					var configUrl 			= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_url"});
+					var configMajor 		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_major"});
+					var configMinor 		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_minor"});
+					var configIntermediate 	= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_intermediate"});
+					var configLabelFormat	= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_label_format"});
 				
 					carrierConfig = new BBSObjects.carrierConfiguration(configCarrier, configUser, configPassword, configUrl, configMajor, configMinor, configIntermediate, configLabelFormat);
 				}
@@ -621,7 +705,8 @@ function(record, search, xml, config, https, BBSObjects, secret, oauth, cryptojs
 	    		findContactDetails:				_findContactDetails,
 	    		getSenderAddress:				_getSenderAddress,
 	    		findSubsidiaryContactDetails:	_findSubsidiaryContactDetails,
-	    		doLicenceCheck:					_doLicenceCheck
+	    		doLicenceCheck:					_doLicenceCheck,
+	    		convertHtmlToPng:				_convertHtmlToPng
     		};
     
 });
