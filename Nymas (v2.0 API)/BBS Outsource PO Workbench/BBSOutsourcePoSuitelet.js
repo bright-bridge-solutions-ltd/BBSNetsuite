@@ -3,7 +3,7 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/search', 'N/task', 'N/ui/serverWidget', 'N/ui/dialog', 'N/ui/message','N/format', 'N/http','N/record'],
+define(['N/runtime', 'N/search', 'N/task', 'N/ui/serverWidget', 'N/ui/dialog', 'N/ui/message','N/format', 'N/http','N/record', 'N/url'],
 /**
  * @param {runtime} runtime
  * @param {search} search
@@ -12,7 +12,8 @@ define(['N/runtime', 'N/search', 'N/task', 'N/ui/serverWidget', 'N/ui/dialog', '
  * @param {dialog} dialog
  * @param {message} message
  */
-function(runtime, search, task, serverWidget, dialog, message, format, http, record) {
+function(runtime, search, task, serverWidget, dialog, message, format, http, record, url) 
+{
    
     /**
      * Definition of the Suitelet script trigger point.
@@ -39,10 +40,10 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 		    			
 		    		//Get parameters
 					//
-	    			var paramStage 				= Number(context.request.parameters['stage']);				//The stage the suitelet is in
-	    			
-					var stage 	= (paramStage == null || paramStage == '' || isNaN(paramStage) ? 1 : paramStage);
-					
+	    			var paramStage 	= Number(context.request.parameters['stage']);										//The stage the suitelet is in
+					var stage 		= (paramStage == null || paramStage == '' || isNaN(paramStage) ? 1 : paramStage);	//Default to stage 1
+					var createdData	= context.request.parameters['createddata'];
+
 	    			//Create a form
 	    			//
 		            var form = serverWidget.createForm({title: 	'Outsource Purchase Orders Workbench'});
@@ -96,7 +97,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													id:		'custpage_tab_items',
 													label:	'Items To Process'
 													});
-			
+							
 								//Add a sublist
 								//
 								var subList = form.addSublist({
@@ -105,6 +106,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																label:	'Items To Process',
 																tab:	'custpage_tab_items'
 																});
+								
+								form.addSublist({
+												id:		'custpage_sublist_dummy', 
+												type:	serverWidget.SublistType.LIST, 
+												label:	'_',
+												tab:	'custpage_tab_items'
+												});
 								
 								//Add a submit button
 					            //
@@ -127,6 +135,14 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													type:	serverWidget.FieldType.TEXT
 												});													//Item Name
 					
+								var linkField = subList.addField({
+													id:		'custpage_sl_items_item_link',
+													label:	'View',
+													type:	serverWidget.FieldType.URL
+												});													//Item url link
+					
+								linkField.linkText = 'View';
+								
 								subList.addField({
 													id:		'custpage_sl_items_item_id',
 													label:	'Item',
@@ -265,6 +281,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												var itemQtyRequired		= isNullorBlank(assemblyitemSearchObj[int].getValue({name: "formulanumeric"}),'0');
 												var itemLeadTime		= isNullorBlank(assemblyitemSearchObj[int].getValue({name: "custitem_bbs_wo_lead_time"}),'0');
 												
+												var itemUrl				= url.resolveRecord({
+																							isEditMode:		false,
+																							recordId:		itemId,
+																							recordType:		record.Type.ASSEMBLY_ITEM
+																							});
+													
 						    					 if(itemId != '' && itemId != null)
 						    						 {
 							    						 subList.setSublistValue({
@@ -283,7 +305,15 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																				});	
 						    						 }
 					    					 
-					    					 
+						    					 if(itemUrl != '' && itemUrl != null)
+						    						 {
+							    						 subList.setSublistValue({
+																				id:		'custpage_sl_items_item_link',
+																				line:	int,
+																				value:	itemUrl
+																				});	
+						    						 }
+						    					 
 						    					 if(itemDescription != '' && itemDescription != null)
 						    						 {
 							    						 subList.setSublistValue({
@@ -353,10 +383,158 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								
 							case 2:
 								
+								//Add a tab
+								//
+								var tab = form.addTab({
+														id:		'custpage_tab_items',
+														label:	'Results'
+														});
+			
+								//Add a sublist
+								//
+								var subList = form.addSublist({
+																id:		'custpage_sublist_items', 
+																type:	serverWidget.SublistType.LIST, 
+																label:	'Created Records',
+																tab:	'custpage_tab_items'
+																});
+								
+								form.addSublist({
+													id:		'custpage_sublist_dummy', 
+													type:	serverWidget.SublistType.LIST, 
+													label:	'_',
+													tab:	'custpage_tab_items'
+												});
 													            		
-					            				
+								subList.addField({
+													id:		'custpage_sl_items_po_name',
+													label:	'PO Number',
+													type:	serverWidget.FieldType.TEXT
+												});													//PO Name
+	
+								subList.addField({
+													id:		'custpage_sl_items_po_entity',
+													label:	'PO Supplier',
+													type:	serverWidget.FieldType.TEXT
+												});													//PO Entity
 
-					            
+								var poLinkField = subList.addField({
+																	id:		'custpage_sl_items_po_link',
+																	label:	'View',
+																	type:	serverWidget.FieldType.URL
+																});									//PO url link
+					
+								poLinkField.linkText = 'View';
+								
+								subList.addField({
+													id:		'custpage_sl_items_to_name',
+													label:	'TO Number',
+													type:	serverWidget.FieldType.TEXT
+												});													//TO Name
+
+								subList.addField({
+													id:		'custpage_sl_items_to_loc',
+													label:	'TO Location',
+													type:	serverWidget.FieldType.TEXT
+												});													//TO location
+
+								subList.addField({
+													id:		'custpage_sl_items_to_trfloc',
+													label:	'TO Transfer Location',
+													type:	serverWidget.FieldType.TEXT
+												});													//TO tranmsfer location
+
+								var toLinkField = subList.addField({
+																		id:		'custpage_sl_items_to_link',
+																		label:	'View',
+																		type:	serverWidget.FieldType.URL
+																	});								//TO url link
+
+								toLinkField.linkText = 'View';
+								
+								//Process the created data
+								//
+								createdDataArray = JSON.parse(createdData);
+								
+								if(createdDataArray != null && createdDataArray.length > 0)
+									{
+										for (var dataCounter = 0; dataCounter < createdDataArray.length; dataCounter++) 
+											{
+												var poRecordId			= createdDataArray[dataCounter].poRecordId;
+												var poTranid 			= createdDataArray[dataCounter].poTranid;
+												var poEntity 			= createdDataArray[dataCounter].poEntity;
+												var poUrl				= createdDataArray[dataCounter].poUrl;
+												var transferOrderId		= createdDataArray[dataCounter].transferOrderId;
+												var toTranid			= createdDataArray[dataCounter].toTranid;
+												var toLocation			= createdDataArray[dataCounter].toLocation;
+												var toTransferLocation	= createdDataArray[dataCounter].toTransferLocation;
+												var toUrl				= createdDataArray[dataCounter].toUrl;
+												
+												if(poTranid != null && poTranid != '')
+													{
+														subList.setSublistValue({
+																					id:		'custpage_sl_items_po_name',
+																					line:	dataCounter,
+																					value:	poTranid
+																					});	
+													}
+												
+												if(poEntity != null && poEntity != '')
+													{
+														subList.setSublistValue({
+																					id:		'custpage_sl_items_po_entity',
+																					line:	dataCounter,
+																					value:	poEntity
+																					});	
+													}
+												
+												if(poUrl != null && poUrl != '')
+													{
+														subList.setSublistValue({
+																					id:		'custpage_sl_items_po_link',
+																					line:	dataCounter,
+																					value:	poUrl
+																					});	
+													}
+												
+												if(toTranid != null && toTranid != '')
+													{
+														subList.setSublistValue({
+																					id:		'custpage_sl_items_to_name',
+																					line:	dataCounter,
+																					value:	toTranid
+																					});	
+													}
+												
+												if(toLocation != null && toLocation != '')
+													{
+														subList.setSublistValue({
+																					id:		'custpage_sl_items_to_loc',
+																					line:	dataCounter,
+																					value:	toLocation
+																					});	
+													}
+												
+												if(toTransferLocation != null && toTransferLocation != '')
+													{
+														subList.setSublistValue({
+																					id:		'custpage_sl_items_to_trfloc',
+																					line:	dataCounter,
+																					value:	toTransferLocation
+																					});	
+													}
+											
+												if(toUrl != null && toUrl != '')
+													{
+														subList.setSublistValue({
+																					id:		'custpage_sl_items_to_link',
+																					line:	dataCounter,
+																					value:	toUrl
+																					});	
+													}
+											}
+									}
+								
 								break;
 						}
 		            
@@ -366,8 +544,9 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 		        } 
 		    else 
 		    	{
-		    		var request = context.request;
-
+		    		var request 	= context.request;
+		    		var createdData	= [];
+		    		
 					//Get the stage of the processing we are at
 					//
 					var stage = Number(request.parameters['custpage_param_stage']);
@@ -530,7 +709,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																		//
 																		var bomResults = findBomFromAssembly(itemId);
 																		
-																		if(bomResults != null && bomResults.length == 1)
+																		if(bomResults != null && bomResults.length > 0)
 																			{
 																				var bomId				= bomResults[0].getValue({name: "internalid"});
 																				var bomRevisionId		= bomResults[0].getValue({name: "internalid",join: "revision"});
@@ -572,11 +751,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																						if(itemStartDate != null && itemStartDate != '')
 																							{
 																								prodStartDate 	= format.parse({value: itemStartDate, type: format.Type.DATE});
+																								prodEndDate 	= format.parse({value: itemStartDate, type: format.Type.DATE});
 																							}
 																						
 																						//End date will be start date plus manufacturing lead time
 																						//
-																						prodEndDate.setDate(prodStartDate.getDate() + itemLeadTime);
+																						prodEndDate.setDate(Number(prodEndDate.getDate()) + Number(itemLeadTime));
 																						
 																						//If we have a specific end date, then set it
 																						//
@@ -612,15 +792,87 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																		log.error({title: 'Error saving outsource po', details: err});
 																	}
 																
-																//Having saved the PO, we now need to create a transfer order for items at the outsource location that are on back order
-																//
-																var transferOrderId = createTransferOrder(poRecordId, supplierOutsourceLocation, transferFromLocation);
-																
+																if(poRecordId != null)
+																	{
+																		//Having saved the PO, we now need to create a transfer order for items at the outsource location that are on back order
+																		//
+																		var transferOrderId = createTransferOrder(poRecordId, supplierOutsourceLocation, transferFromLocation);
+																		
+																		//Get info from the PO & TO to show on the next screen of the suitelet
+																		//
+																		var poEntity 			= '';
+																		var poTranid 			= '';
+																		var toTranid			= '';
+																		var toLocation			= '';
+																		var toTransferLocation 	= '';
+																		var poUrl				= '';
+																		var toUrl				= '';
+																		
+																		var poDetails = search.lookupFields({
+																											type:		search.Type.PURCHASE_ORDER,
+																											id:			poRecordId,
+																											columns:	['entity', 'tranid']
+																											});
+																		
+																		poEntity = poDetails.entity[0].text;
+																		poTranid = poDetails.tranid;
+																		
+																		poUrl	= url.resolveRecord({
+																										isEditMode:		false,
+																										recordId:		poRecordId,
+																										recordType:		record.Type.PURCHASE_ORDER
+																										});
+																		
+																		if(transferOrderId != null)
+																			{
+																				var toDetails = search.lookupFields({
+																													type:		search.Type.TRANSFER_ORDER,
+																													id:			transferOrderId,
+																													columns:	['location', 'transferlocation', 'tranid']
+																													});
+																				
+																				toLocation 			= toDetails.location[0].text;
+																				toTransferLocation 	= toDetails.transferlocation[0].text;
+																				toTranid 			= toDetails.tranid;
+																				
+																				toUrl	= url.resolveRecord({
+																												isEditMode:		false,
+																												recordId:		transferOrderId,
+																												recordType:		record.Type.TRANSFER_ORDER
+																												});
+																				
+																				//Update the PO with the related TO
+																				//
+																				try
+																					{
+																						record.submitFields({
+																											type:		record.Type.PURCHASE_ORDER,
+																											id:			poRecordId,
+																											options:	{
+																														ignoreMandatoryFields:		true
+																														},
+																											values:		{
+																														custbody_bbs_related_to:	transferOrderId
+																														}
+																						});
+																					}
+																				catch(err)
+																					{
+																						log.error({title: 'Error updating PO with TO link', details: err});
+																					}
+																			}
+																		
+																		createdData.push(new createdOrdersObj(poRecordId, poTranid, poEntity, poUrl, transferOrderId, toTranid, toLocation, toTransferLocation, toUrl));	
+																	}
 															}
 													}
 											}
 									}
 								
+								
+								//Increment the stage
+								//
+								stage++;
 								
 								//Call the suitelet again
 								//
@@ -629,7 +881,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 														identifier: 	runtime.getCurrentScript().id, 
 														id: 			runtime.getCurrentScript().deploymentId, 
 														parameters:		{
-																			stage: 			stage						//Stage																	
+																			stage: 			stage,						//Stage	
+																			createddata:	JSON.stringify(createdData)	//Created data
 																		}
 														});
 								
@@ -638,6 +891,21 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 		        }
 	    }
    
+    //Object to hold the created PO & TO details
+    //
+    function createdOrdersObj(_poId, _poTranid, _poEntity, _poUrl, _toId, _toTranid, _toLocation, _toTransferLocation, _toUrl)
+    	{
+	    	this.poId				= _poId;
+	    	this.poTranid			= _poTranid;
+	    	this.poEntity			= _poEntity;
+	    	this.poUrl				= _poUrl;
+	    	this.toId				= _toId;
+	    	this.toTranid			= _toTranid;
+	    	this.toLocation			= _toLocation;
+	    	this.toTransferLocation	= _toTransferLocation;
+	    	this.toUrl				= _toUrl;
+    	}
+    
     //Function to create a transfer order
     //
     function createTransferOrder(_poRecordId, _supplierOutsourceLocation, _transferFromLocation)
@@ -652,7 +920,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												    			   [
 												    			      ["inventorylocation","anyof",_supplierOutsourceLocation], 
 												    			      "AND", 
-												    			      ["formulanumeric: NVL({quantitybackordered},0) - NVL({quantityonorder},0)","greaterthan","0"], 
+												    			      ["formulanumeric: NVL({locationquantitybackordered},0) - NVL({locationquantityonorder},0)","greaterthan","0"], 
 												    			      "AND", 
 												    			      ["type","anyof","InvtPart"]
 												    			   ],
@@ -663,7 +931,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												    			      search.createColumn({name: "internalid", label: "Internal Id"}),
 												    			      search.createColumn({name: "salesdescription", label: "Description"}),
 												    			      search.createColumn({name: "type", label: "Type"}),
-												    			      search.createColumn({name: "formulanumeric",formula: "NVL({quantitybackordered},0) - NVL({quantityonorder},0)",label: "Required Quantity"})
+												    			      search.createColumn({name: "formulanumeric",formula: "NVL({locationquantitybackordered},0) - NVL({locationquantityonorder},0)",label: "Qty Reuired"})
 												    			   ]
 									    			}));
     		
@@ -769,8 +1037,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 											    		      ["internalidnumber","equalto",_revisionId], 
 											    		      "AND", 
 											    		      ["component.itemsubtype","is","Purchase"],
-											    		      "AND",
-											    		      ["component.itemtype","is","OthCharge"]
+											    		  //    "AND",
+											    		  //    ["component.itemtype","is","OthCharge"]			//This does not work - bug in NS??
 											    		   ],
 								    		   columns:
 								    		   [
