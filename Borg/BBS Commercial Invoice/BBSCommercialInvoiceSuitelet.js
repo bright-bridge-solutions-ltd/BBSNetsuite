@@ -299,6 +299,7 @@ function buildOutput(_fulfillmentId)
 														var ifLineWeight 		= Number(fulfillmentRecord.getLineItemValue('item', 'custcol_bbs_item_weight', int));
 														var ifLineOrderLine 	= Number(fulfillmentRecord.getLineItemValue('item', 'orderline', int));
 														var ifLineUnitPrice		= Number(getSoLineInfo(salesOrderRecord, ifLineOrderLine, 'rate'));
+														var ifKitLevel			= fulfillmentRecord.getLineItemValue('item', 'kitlevel', int);
 														
 														netWeight += ifLineWeight;
 														
@@ -312,46 +313,80 @@ function buildOutput(_fulfillmentId)
 														var ifNetPrice 			= Number(ifLineUnitPrice * ifLineQuantity);
 														subTotal 			   += ifNetPrice;
 														
-														var tempSerialArray = ifLineSerialNo.split('<br />');
+														//Split the serial numbers out into an array
+														//
+														var tempSerialArray = (ifLineSerialNo.length > 0 ? ifLineSerialNo.split('<br />') : []);
 														
-														if(tempSerialArray.length > 0)
+														//If the current line is a 'Kit', find  any lines that belong to that kit & if they have serial numbers on them add them to the serial numbers array
+														//
+														if(ifLineItemRecType == 'Kit')
 															{
-																xml += '       <tr>';
-																xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
-																xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + tempSerialArray[0] + '</td>';
-																xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineItem + '</td>';
-																xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineCommodity + '</td>';
-																xml += '          <td align="left"  colspan="5" style="padding-left: 0px; font-size: 9px;">' + ifLineDescription + '</td>';
-																xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineItemType + '</td>';
-																xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineQuantity.numberFormat('0.00') + '</td>';
-																xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineUnitPrice.numberFormat('0.00') + '</td>';
-																xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifNetPrice.numberFormat('0.00') + '</td>';
-																xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineWeight.numberFormat('0.00') + '</td>';
-																xml += '        </tr>';
+																var kitLineId = fulfillmentRecord.getLineItemValue('item', 'kitlineid', int);
 																
-																
-																for (var serials = 1; serials < tempSerialArray.length; serials++) 
+																if(kitLineId != null && kitLineId != '')
+																	{
+																		//Find any lines that are on the same kit
+																		//
+																		for(var kitCount = 1; kitCount <= ifLines; kitCount++)
+																			{
+																				var kitMemberOf 	= fulfillmentRecord.getLineItemValue('item', 'kitmemberof', kitCount);
+																				var kitSerialNo 	= isNull(nlapiEscapeXML(fulfillmentRecord.getLineItemValue('item', 'custcol_bbs_if_serial_no', kitCount)),'');
+																				kitSerialNo			= kitSerialNo.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
+																				var kitSerialArray 	= (kitSerialNo.length > 0 ? kitSerialNo.split('<br />') : []);
+																				
+																				if(kitMemberOf == kitLineId && kitSerialArray.length > 0)
+																					{
+																						tempSerialArray = tempSerialArray.concat(kitSerialArray);
+																					}
+																			}
+																	}
+															}
+														
+														
+														
+														//We only want to print out items that are not part of a kit
+														//
+														if(ifKitLevel == null || ifKitLevel == '')
+															{
+																if(tempSerialArray.length > 0)
 																	{
 																		xml += '       <tr>';
 																		xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
-																		xml += '          <td align="left"  colspan="21" style="padding-left: 0px; font-size: 9px;">' + tempSerialArray[serials] + '</td>';
+																		xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + tempSerialArray[0] + '</td>';
+																		xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineItem + '</td>';
+																		xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineCommodity + '</td>';
+																		xml += '          <td align="left"  colspan="5" style="padding-left: 0px; font-size: 9px;">' + ifLineDescription + '</td>';
+																		xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineItemType + '</td>';
+																		xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineQuantity.numberFormat('0.00') + '</td>';
+																		xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineUnitPrice.numberFormat('0.00') + '</td>';
+																		xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifNetPrice.numberFormat('0.00') + '</td>';
+																		xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineWeight.numberFormat('0.00') + '</td>';
+																		xml += '        </tr>';
+																		
+																		
+																		for (var serials = 1; serials < tempSerialArray.length; serials++) 
+																			{
+																				xml += '       <tr>';
+																				xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+																				xml += '          <td align="left"  colspan="21" style="padding-left: 0px; font-size: 9px;">' + tempSerialArray[serials] + '</td>';
+																				xml += '        </tr>';
+																			}
+																	}
+																else
+																	{
+																		xml += '       <tr>';
+																		xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+																		xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineSerialNo + '</td>';
+																		xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineItem + '</td>';
+																		xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineCommodity + '</td>';
+																		xml += '          <td align="left"  colspan="5" style="padding-left: 0px; font-size: 9px;">' + ifLineDescription + '</td>';
+																		xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineItemType + '</td>';
+																		xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineQuantity.numberFormat('0.00') + '</td>';
+																		xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineUnitPrice.numberFormat('0.00') + '</td>';
+																		xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifNetPrice.numberFormat('0.00') + '</td>';
+																		xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineWeight.numberFormat('0.00') + '</td>';
 																		xml += '        </tr>';
 																	}
-															}
-														else
-															{
-																xml += '       <tr>';
-																xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
-																xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineSerialNo + '</td>';
-																xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineItem + '</td>';
-																xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineCommodity + '</td>';
-																xml += '          <td align="left"  colspan="5" style="padding-left: 0px; font-size: 9px;">' + ifLineDescription + '</td>';
-																xml += '          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineItemType + '</td>';
-																xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineQuantity.numberFormat('0.00') + '</td>';
-																xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineUnitPrice.numberFormat('0.00') + '</td>';
-																xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifNetPrice.numberFormat('0.00') + '</td>';
-																xml += '          <td align="right" colspan="2" style="padding-left: 0px; font-size: 9px;">' + ifLineWeight.numberFormat('0.00') + '</td>';
-																xml += '        </tr>';
 															}
 													}
 											

@@ -915,14 +915,14 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
     		//Find all the items that are on back order at the trasfer location
     		//
     		var inventoryitemSearchObj = getResults(search.create({
-									    			   type: 		"inventoryitem",
+									    			   type: 		"item",
 									    			   filters:
 												    			   [
 												    			      ["inventorylocation","anyof",_supplierOutsourceLocation], 
 												    			      "AND", 
-												    			      ["formulanumeric: NVL({locationquantitybackordered},0) - NVL({locationquantityonorder},0)","greaterthan","0"], 
-												    			      "AND", 
-												    			      ["type","anyof","InvtPart"]
+												    			      ["formulanumeric: NVL({locationquantitybackordered},0) - NVL({locationquantityonorder},0)","greaterthan","0"]
+												    			//      "AND", 
+												    			//      ["type","anyof","InvtPart"]
 												    			   ],
 									    			   columns:
 												    			   [
