@@ -3,7 +3,7 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/search', 'N/task', 'N/ui/serverWidget', 'N/ui/dialog', 'N/ui/message','N/format', 'N/http','N/record'],
+define(['N/runtime', 'N/search', 'N/task', 'N/ui/serverWidget', 'N/ui/dialog', 'N/ui/message','N/format', 'N/http','N/record', 'N/url'],
 /**
  * @param {runtime} runtime
  * @param {search} search
@@ -12,7 +12,8 @@ define(['N/runtime', 'N/search', 'N/task', 'N/ui/serverWidget', 'N/ui/dialog', '
  * @param {dialog} dialog
  * @param {message} message
  */
-function(runtime, search, task, serverWidget, dialog, message, format, http, record) {
+function(runtime, search, task, serverWidget, dialog, message, format, http, record, url) 
+{
    
     /**
      * Definition of the Suitelet script trigger point.
@@ -56,6 +57,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 	    			var paramAssemblyItem 		= context.request.parameters['assemblyitem'];				//Selected assembly item
 	    			var paramSalesOrder 		= context.request.parameters['salesorder'];					//Selected sales order
 	    			var paramWorksOrder 		= context.request.parameters['worksorder'];					//Selected works order
+	    			var paramPurchaseOrder 		= context.request.parameters['purchaseorder'];				//Selected purchase order
 	    			var paramStage 				= Number(context.request.parameters['stage']);				//The stage the suitelet is in
 	    			var paramQuantity 			= Number(context.request.parameters['quantity']);			//The assembly quantity
 	    			var paramSelectType			= Number(context.request.parameters['type']);				//The selection type
@@ -145,15 +147,9 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								selectTypeField.isMandatory = true;
 								
 								selectTypeField.addSelectOption({
-																	value:			'',
-																	text:			'',
-																	isSelected:		false
-																	});	
-								
-								selectTypeField.addSelectOption({
 																	value:			'1',
 																	text:			'Assembly Item',
-																	isSelected:		false
+																	isSelected:		true
 																	});	
 
 								selectTypeField.addSelectOption({
@@ -168,7 +164,11 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																	isSelected:		false
 																	});	
 
-
+								selectTypeField.addSelectOption({
+																	value:			'4',
+																	text:			'Outsourced Purchase Order',
+																	isSelected:		false
+																	});	
 
 								//Add a field for the assembly items
 								//
@@ -178,7 +178,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													                label: 		'Assembly Item',
 													                source:		record.Type.ASSEMBLY_ITEM,
 													                container:	'custpage_filters_group'
-												            		});
+												            		}).isMandatory;
 
 								//Add a field to filter by kit quantity
 								//
@@ -198,8 +198,9 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 														                type: 		serverWidget.FieldType.SELECT,
 														                label: 		'Sales Order',
 														                container:	'custpage_filters_group'	
-													            		});
-						
+													            		}).updateDisplayType({displayType : serverWidget.FieldDisplayType.NODISPLAY});
+								
+								
 								//Add a field to filter by works orders
 								//
 								var worksOrderField = form.addField({
@@ -207,31 +208,20 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 														                type: 		serverWidget.FieldType.SELECT,
 														                label: 		'Works Order',
 														                container:	'custpage_filters_group'
-													            		});
+													            		}).updateDisplayType({displayType : serverWidget.FieldDisplayType.NODISPLAY});
+
+								//Add a field to filter by purchase orders
+								//
+								var purchaseOrderField = form.addField({
+														                id: 		'custpage_entry_purchase_order',
+														                type: 		serverWidget.FieldType.SELECT,
+														                label: 		'Outsourced Purchase Order',
+														                container:	'custpage_filters_group'
+													            		}).updateDisplayType({displayType : serverWidget.FieldDisplayType.NODISPLAY});
 
 								
-								//Populate the select fields
+								//Populate the select field - Sales Orders
 								//
-/*								var assembliesArray = getAssemblies();
-								
-								assemblyItemField.addSelectOption({
-																	value:			'',
-																	text:			'',
-																	isSelected:		false
-																	});	
-								
-								if(assembliesArray != null && assembliesArray.length > 0)
-									{
-										for (var int = 0; int < assembliesArray.length; int++) 
-											{
-												assemblyItemField.addSelectOption({
-																					value:			assembliesArray[int].getValue({name: "internalid"}),
-																					text:			assembliesArray[int].getValue({name: "itemid"}),
-																					isSelected:		false
-																					});	
-											}
-									}
-*/
 								var salesOrdersArray = getSalesOrders();
 								
 								salesOrderField.addSelectOption({
@@ -253,6 +243,9 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 											}
 									}
 								
+								
+								//Populate the select field - Works Orders
+								//
 								var worksOrdersArray = getWorksOrders();
 								
 								worksOrderField.addSelectOption({
@@ -273,6 +266,28 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 											}
 									}
 								
+								
+								//Populate the select field - Purchase Orders
+								//
+								var purchaseOrdersArray = getPurchaseOrders();
+								
+								purchaseOrderField.addSelectOption({
+																value:			'',
+																text:			'',
+																isSelected:		false
+																});	
+
+								if(purchaseOrdersArray != null && purchaseOrdersArray.length > 0)
+									{
+										for (var int = 0; int < purchaseOrdersArray.length; int++) 
+											{
+												purchaseOrderField.addSelectOption({
+																					value:			purchaseOrdersArray[int].getValue({name: "internalid"}),
+																					text:			purchaseOrdersArray[int].getValue({name: "tranid"}),
+																					isSelected:		false
+																					});	
+											}
+									}
 								
 								//Add a submit button
 					            //
@@ -346,6 +361,16 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								worksOrderField.updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});
 								
 								
+								//Add a field to filter by purchase orders
+								//
+								var purchaseOrderField = form.addField({
+														                id: 		'custpage_entry_purchase_order',
+														                type: 		serverWidget.FieldType.TEXT,
+														                label: 		'Works Order',
+														                container:	'custpage_filters_group'
+													            		});
+								purchaseOrderField.defaultValue 	= paramPurchaseOrder;
+								purchaseOrderField.updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});
 
 								
 								//Allow the amendment of the bom level
@@ -386,8 +411,14 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													id:		'custpage_sl_items_item',
 													label:	'Item',
 													type:	serverWidget.FieldType.TEXT
-												});		
-
+												});	
+								
+								subList.addField({
+													id:		'custpage_sl_items_link',
+													label:	'View',
+													type:	serverWidget.FieldType.URL
+													}).linkText = 'View';								
+								
 								subList.addField({
 													id:		'custpage_sl_items_description',
 													label:	'Description',
@@ -412,11 +443,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													type:	serverWidget.FieldType.TEXT
 												});		
 
-								subList.addField({
+								var sourceField = subList.addField({
 													id:		'custpage_sl_items_supply',
 													label:	'Supply Source',
 													type:	serverWidget.FieldType.TEXT
 												});	
+								
+								//sourceField.updateDisplayType({displayType : serverWidget.FieldDisplayType.INLINE});
 								
 								subList.addField({
 													id:		'custpage_sl_items_routing',
@@ -518,6 +551,43 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 							            		}
 							            	
 							            	break;
+							            	
+							            case 4:		//purchase order
+							            	
+							            	var purchaseOrderItems = getResults(search.create({
+							            		   type: "purchaseorder",
+							            		   filters:
+							            		   [
+							            		      ["type","anyof","PurchOrd"], 
+							            		      "AND", 
+							            		      ["mainline","is","F"], 
+							            		      "AND", 
+							            		      ["cogs","is","F"], 
+							            		      "AND", 
+							            		      ["taxline","is","F"], 
+							            		      "AND", 
+							            		      ["shipping","is","F"], 
+							            		      "AND", 
+							            		      ["internalid","anyof",paramPurchaseOrder], 
+							            		      "AND", 
+							            		      ["assembly","noneof","@NONE@"]
+							            		   ],
+							            		   columns:
+							            		   [
+							            		      search.createColumn({name: "assembly", label: "Assembly"}),
+							            		      search.createColumn({name: "quantity", label: "Quantity"})
+							            		   ]
+							            		}));
+							            		
+							            	if(purchaseOrderItems != null && purchaseOrderItems.length > 0)
+							            		{
+							            			for (var int2 = 0; int2 < purchaseOrderItems.length; int2++) 
+								            			{
+							            					assebliesToProcess.push(new assemblyItemData(purchaseOrderItems[int2].getValue({name: 'assembly'}), purchaseOrderItems[int2].getValue({name: 'quantity'})));
+														}
+							            		}
+							            	
+							            	break;
 					            	}
 					            
 					            //See if we have any assemblies to process
@@ -530,7 +600,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 						            		{
 						            			level = Number(1);
 						            			bomList[assebliesToProcess[int3].id] = new Array();
-						            			
+
 												explodeBom(assebliesToProcess[int3].id, bomList[assebliesToProcess[int3].id], level, assebliesToProcess[int3].quantity, true, assebliesToProcess[int3].id, assebliesToProcess[int3].quantity, paramMaxBomLevel);
 											}
 					            	
@@ -558,11 +628,24 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 										            				}
 										    				}
 									            		
-									            		//Set the date in the output object that gets displayed in the sublist
+									            		//Add the routing days
 									            		//
 									            		var finalDate 				= new Date(latestDate.getFullYear(), latestDate.getMonth(), latestDate.getDate());
 									            		finalDate.setDate(finalDate.getDate() + Number(bomList[bomListKey][0].routingDays));
 									            		
+									            		//Add the man hours to build
+									            		//
+									            		var manHours = Number(search.lookupFields({
+									            											type:		search.Type.ITEM,
+									            											id:			bomList[bomListKey][0].item,
+									            											columns:	'custitem_bbs_hours_to_build'
+									            											}).custitem_bbs_hours_to_build);
+									            		
+									            		var buildDays = Math.ceil(manHours / 8);
+									            		finalDate.setDate(finalDate.getDate() + Number(buildDays));
+									            		
+									            		//Set the date in the output object that gets displayed in the sublist
+									            		//
 									            		bomList[bomListKey][0].availDateDate 	= finalDate
 									            		bomList[bomListKey][0].availDate		= format.format({value: finalDate, type: format.Type.DATE});
 							            			}
@@ -590,6 +673,15 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																						id:		'custpage_sl_items_item',
 																						line:	linenum,
 																						value:	bomList[bomListKey][int].itemText
+																						});	
+								    						 }
+								    					 
+								    					 if(bomList[bomListKey][int].itemUrl != '' && bomList[bomListKey][int].itemUrl != null)
+								    						 {
+									    						 subList.setSublistValue({
+																						id:		'custpage_sl_items_link',
+																						line:	linenum,
+																						value:	bomList[bomListKey][int].itemUrl
 																						});	
 								    						 }
 								    					 
@@ -687,6 +779,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								var assemblyItem 			= request.parameters['custpage_entry_assembly'];
 								var salesOrder 				= request.parameters['custpage_entry_sales_order'];
 								var worksOrder 				= request.parameters['custpage_entry_works_order'];
+								var purchaseOrder			= request.parameters['custpage_entry_purchase_order'];
 								var quantity 				= request.parameters['custpage_entry_quantity'];
 								var type 					= request.parameters['custpage_entry_select_type'];
 								var maxBomLevel				= request.parameters['custpage_entry_bom_level'];
@@ -706,6 +799,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																			assemblyitem: 	assemblyItem,
 																			salesorder:		salesOrder,
 																			worksorder:		worksOrder,
+																			purchaseorder:	purchaseOrder,
 																			quantity:		quantity,
 																			type:			type,
 																			maxbomlevel:	maxBomLevel
@@ -721,6 +815,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								var assemblyItem 			= request.parameters['custpage_entry_assembly'];
 								var salesOrder 				= request.parameters['custpage_entry_sales_order'];
 								var worksOrder 				= request.parameters['custpage_entry_works_order'];
+								var purchaseOrder			= request.parameters['custpage_entry_purchase_order'];
 								var quantity 				= request.parameters['custpage_entry_quantity'];
 								var type 					= request.parameters['custpage_entry_select_type'];
 								var maxBomLevel				= request.parameters['custpage_entry_bom_level'];
@@ -736,6 +831,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																			assemblyitem: 	assemblyItem,
 																			salesorder:		salesOrder,
 																			worksorder:		worksOrder,
+																			purchaseorder:	purchaseOrder,
 																			quantity:		quantity,
 																			type:			type,
 																			maxbomlevel:	maxBomLevel
@@ -762,7 +858,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
     		
     	}
     
-    function expolsionData(_level, _item, _itemText, _itemDesc, _itemUnit, _itemQty, _itemType, _itemSource, _supplySource, _availDate, _availDateDate, _routingDays)
+    function expolsionData(_level, _item, _itemText, _itemDesc, _itemUnit, _itemQty, _itemType, _itemSource, _supplySource, _availDate, _availDateDate, _routingDays, _itemUrl)
     	{
     		this.level			= _level;			//Bom explosion level
     		this.item			= _item;			//Item id
@@ -776,6 +872,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
     		this.availDate		= _availDate;		//Item availability as text
     		this.availDateDate	= _availDateDate;	//Item availability as date object
     		this.routingDays	= _routingDays;		//Days to add from routing information
+    		this.itemUrl		= _itemUrl;			//Item url
     	}
     
     //Function to search for a bom from an assembly
@@ -928,7 +1025,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 			    			    			var topLevelDescription = assemblyName;
 			    			    			var topLevelItemId 		= assemblyName;
 			    			    		
-			    			    			bomList.push(new expolsionData(0,itemId,topLevelItemId,topLevelDescription,'',itemQty,'Assembly','','','', null, routingDaysToAdd));
+			    			    			var assemblyUrl = url.resolveRecord({
+																				isEditMode:		false,
+																				recordId:		itemId,
+																				recordType:		getItemRecordType('Assembly')
+																				});
+			    			    			
+			    			    			bomList.push(new expolsionData(0,itemId,topLevelItemId,topLevelDescription,'',itemQty,'Assembly','','','', null, routingDaysToAdd,assemblyUrl));
 			    			    		}
 	    						
 	    						
@@ -959,22 +1062,80 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 				    				    	    			routingDaysToAdd 	= getRoutingDays(bomId);
 				    				        			}
 				    				    			
+				    				    			var memberUrl = url.resolveRecord({
+																						isEditMode:		false,
+																						recordId:		memberItem,
+																						recordType:		getItemRecordType(memberType)
+																						});
+				    				    			
 				    				    			//Add this item to the bom list
 					    				    		//
-					    				    		bomList.push(new expolsionData(level,memberItem,memberItemText,memberDesc,memberUnit,memberQty,memberType,memberSource, availabilityObj.supplySource, availabilityObj.availableDate, availabilityObj.availableDateDate, routingDaysToAdd));
+					    				    		bomList.push(new expolsionData(level,memberItem,memberItemText,memberDesc,memberUnit,memberQty,memberType,memberSource, availabilityObj.supplySource, availabilityObj.availableDate, availabilityObj.availableDateDate, routingDaysToAdd, memberUrl));
 						
 			    				    				explodeBom(memberItem, bomList, level + 1, requiredQty, false, null, null, maxBomLevel);
 			    				    			}
 			    				    		else
 			    				    			{
+				    				    			var memberUrl = url.resolveRecord({
+																						isEditMode:		false,
+																						recordId:		memberItem,
+																						recordType:		getItemRecordType(memberType)
+																						});
+			    				    			
 				    				    			//Add this item to the bom list
 					    				    		//
-					    				    		bomList.push(new expolsionData(level,memberItem,memberItemText,memberDesc,memberUnit,memberQty,memberType,memberSource, availabilityObj.supplySource, availabilityObj.availableDate, availabilityObj.availableDateDate, Number(0)));
+					    				    		bomList.push(new expolsionData(level,memberItem,memberItemText,memberDesc,memberUnit,memberQty,memberType,memberSource, availabilityObj.supplySource, availabilityObj.availableDate, availabilityObj.availableDateDate, Number(0), memberUrl));
 			    				    			}
 						            	}
 			    				}
     					}
     			}
+	    }
+    
+    function getItemRecordType(_itemType)
+	    {
+	    	var _itemRecordType = '';
+	    	
+	    	switch(_itemType)
+	    	{
+	    		case 'InvtPart':
+	    			_itemRecordType = 'inventoryitem';
+	    			break;
+	    		
+	    		case 'NonInvtPart':
+	    			_itemRecordType = 'noninventoryitem';
+	    			break;
+	    		
+	    		case 'Assembly':
+	    			_itemRecordType = 'assemblyitem';
+	    			break;
+	    			
+	    		case 'Kit':
+	    			_itemRecordType = 'kititem';
+	    			break;
+	    			
+	    		case 'Service':
+	    			_itemRecordType = 'serviceitem';
+	    			break;
+	    			
+	    		case 'Discount':
+	    			_itemRecordType = 'discountitem';
+	    			break;
+	    		
+	    		case 'Group':
+	    			_itemRecordType = 'itemgroup';
+	    			break;
+	    		
+	    		case 'OthCharge':
+	    			_itemRecordType = 'otherchargeitem';
+	    			break;
+	    			
+	    		default:
+	    			_itemRecordType = _itemType;
+	    			break;
+	    	}
+	
+	    	return _itemRecordType;
 	    }
     
     function getRoutingDays(_bomId)
@@ -1077,23 +1238,58 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 			    			      search.createColumn({name: "trandate",sort: search.Sort.ASC,label: "Date"}),
 			    			      search.createColumn({name: "tranid", label: "Document Number"}),
 			    			      search.createColumn({name: "item", label: "Item"}),
+			    			      search.createColumn({name: "startdate", label: "Start Date"}),
 			    			      search.createColumn({name: "enddate", label: "End Date"}),
-			    			      search.createColumn({name: "quantity", label: "Quantity"})
+			    			      search.createColumn({name: "quantity", label: "Quantity"}),
+			    			      search.createColumn({name: "internalid", label: "Internal Id"})
 			    			   ]
 			    			}));
 			    			
 			    		if(workorderSearchObj != null && workorderSearchObj.length > 0)
 			    			{
-				    			var woNumber 	= workorderSearchObj[0].getValue({name: "tranid"});
-								var woDueDate	= workorderSearchObj[0].getValue({name: "enddate"});
-								var woAmountDue	= Number(workorderSearchObj[0].getValue({name: "quantity"}));
-								
-								availData.supplySource 		= 'Works Order (' + woNumber + '), ' + 
-															  woAmountDue.toString() + ' due ' + 
-															  (woDueDate == null || woDueDate == '' ? '<not known>' : woDueDate);
-								availData.availableDate		= (woDueDate == null || woDueDate == '' ? '<not known>' : woDueDate);
-								availData.transactionFound	= true;
-								availData.availableDateDate	= (woDueDate == null || woDueDate == '' ? null : format.parse({value: woDueDate, type: format.Type.DATE}));
+			    				availData.supplySource 	= '';
+			    				availData.availableDate	= '';
+			    				
+			    				for(var woCount = 0; woCount < workorderSearchObj.length; woCount++)
+			    					{
+			    						var woId	 	= workorderSearchObj[woCount].getValue({name: "internalid"});
+			    						var woNumber 	= workorderSearchObj[woCount].getValue({name: "tranid"});
+					    				var woDueDate	= workorderSearchObj[woCount].getValue({name: "enddate"});
+						    			var woStartDate	= workorderSearchObj[woCount].getValue({name: "startdate"});
+										var woAmountDue	= Number(workorderSearchObj[woCount].getValue({name: "quantity"}));
+										
+										var woUrl = url.resolveRecord({
+																		isEditMode:		false,
+																		recordId:		woId,
+																		recordType:		record.Type.WORK_ORDER
+																		});
+										
+								//		var tempString = '<a href="' + woUrl + '">' + woNumber + '</a> (' +
+								//						  woAmountDue.toString() + ') : ' + 
+								//						  ' start ' + 
+								//						  (woStartDate == null || woStartDate == '' ? '<n/a>' : woStartDate) +
+								//						  ' end ' + 
+								//						  (woDueDate == null || woDueDate == '' ? '<n/a>' : woDueDate) + '\n';
+										
+										var tempString =  woNumber + ' (' +
+														  woAmountDue.toString() + ') : ' + 
+														  ' start ' + 
+														  (woStartDate == null || woStartDate == '' ? '<n/a>' : woStartDate) +
+														  ' end ' + 
+														  (woDueDate == null || woDueDate == '' ? '<n/a>' : woDueDate) + '\n';
+						
+										if(availData.supplySource.length + tempString.length <= 300)
+											{
+												availData.supplySource 		+= tempString;
+											}
+										
+										if(woCount == 0)
+											{
+												availData.transactionFound	= true;
+												availData.availableDate		= (woDueDate == null || woDueDate == '' ? '<n/a>' : woDueDate) + '\n';
+												availData.availableDateDate	= (woDueDate == null || woDueDate == '' ? null : format.parse({value: woDueDate, type: format.Type.DATE}));
+											}
+			    					}
 			    			}
 			    		else
 			    			{
@@ -1160,10 +1356,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 			    					{
 			    						//Yes - return quantity available
 			    						//
-					    				availData.supplySource 		= 'Stock ' + itemSearchObj[0].getValue({name: "locationquantityonhand", summary: "SUM"}).toString();
-					    				availData.availableDate		= 'Now';
+			    						var availableDate = new Date();
+			    						
+					    				availData.supplySource 		= 'Stock (' + itemSearchObj[0].getValue({name: "locationquantityonhand", summary: "SUM"}).toString() + ')';
+					    				availData.availableDate		= format.format({value: availableDate, type: format.Type.DATE});	//'Now';
 					    				availData.transactionFound	= true;
-					    				availData.availableDateDate	= new Date(new Date().toDateString());
+					    				availData.availableDateDate	= availableDate;
 			    					}
 			    				else
 			    					{
@@ -1243,6 +1441,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 				      search.createColumn({name: "trandate",sort: search.Sort.ASC,label: "Date"}),
 				      search.createColumn({name: "tranid", label: "Document Number"}),
 				      search.createColumn({name: "entity", label: "Name"}),
+				      search.createColumn({name: "internalid", label: "Internal Id"}),
 				      search.createColumn({name: "item", label: "Item"}),
 				      search.createColumn({name: "quantity", label: "Quantity"}),
 				      search.createColumn({name: "quantityshiprecv", label: "Quantity Fulfilled/Received"}),
@@ -1252,30 +1451,49 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
     		
     		if(purchaseorderSearchObj != null && purchaseorderSearchObj.length > 0)
 				{ 
-					//Get the PO details
-					//
-					var poNumber 	= purchaseorderSearchObj[0].getValue({name: "tranid"});
-					var poDueDate	= purchaseorderSearchObj[0].getValue({name: "duedate"});
-					var poAmountDue	= Number(purchaseorderSearchObj[0].getValue({name: "formulanumeric"}));
-					
-					//If the due date is not on the PO then use the lead time from the item record
-					//
-					if(poDueDate == null || poDueDate == '')
+	    			for(var poCount = 0; poCount < purchaseorderSearchObj.length; poCount++)
 						{
-							var itemLeadTime = getItemLeadTime(_item);
-							var availableDate = new Date();
-    						
-    						availableDate.setDate(availableDate.getDate() + itemLeadTime);
-    						
-    						poDueDate = format.format({value: availableDate, type: format.Type.DATE});
+							//Get the PO details
+							//
+		    				var poId	 	= purchaseorderSearchObj[poCount].getValue({name: "internalid"});
+		    				var poNumber 	= purchaseorderSearchObj[poCount].getValue({name: "tranid"});
+							var poDueDate	= purchaseorderSearchObj[poCount].getValue({name: "duedate"});
+							var poAmountDue	= Number(purchaseorderSearchObj[poCount].getValue({name: "formulanumeric"}));
+							
+							//If the due date is not on the PO then use the lead time from the item record
+							//
+							if(poDueDate == null || poDueDate == '')
+								{
+									var itemLeadTime = getItemLeadTime(_item);
+									var availableDate = new Date();
+		    						
+		    						availableDate.setDate(availableDate.getDate() + itemLeadTime);
+		    						
+		    						poDueDate = format.format({value: availableDate, type: format.Type.DATE});
+								}
+							
+							var poUrl = url.resolveRecord({
+															isEditMode:		false,
+															recordId:		poId,
+															recordType:		record.Type.PRCHASE_ORDER
+															});
+
+							var tempString = 	poNumber + ' (' + 
+											  	poAmountDue.toString() + ') : due ' + 
+											  	(poDueDate == null || poDueDate == '' ? '<n/a>' : poDueDate) + '\n';
+											  
+							if(availData.supplySource.length + tempString.length <= 300)
+								{
+									availData.supplySource 		+= tempString
+								}
+							
+							if(poCount == 0)
+								{
+									availData.transactionFound	= true;
+									availData.availableDate		= (poDueDate == null || poDueDate == '' ? '<n/a>' : poDueDate) + '\n';
+									availData.availableDateDate	= (poDueDate == null || poDueDate == '' ? null : format.parse({value: poDueDate, type: format.Type.DATE}));
+								}
 						}
-					
-					availData.supplySource 		= 'Purchase Order (' + poNumber + '), ' + 
-												  poAmountDue.toString() + ' due ' + 
-												  (poDueDate == null || poDueDate == '' ? '<not known>' : poDueDate);
-					availData.availableDate		= (poDueDate == null || poDueDate == '' ? '<not known>' : poDueDate);
-					availData.transactionFound	= true;
-					availData.availableDateDate	= (poDueDate == null || poDueDate == '' ? null : format.parse({value: poDueDate, type: format.Type.DATE}));
 				}
 			else
 				{
@@ -1354,6 +1572,31 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 						    			   [
 						    			      search.createColumn({name: "internalid", label: "Internal ID"}),
 						    			      search.createColumn({name: "tranid",sort: search.Sort.ASC,label: "Document Number"}),
+						    			      search.createColumn({name: "entity", label: "Name"})
+						    			   ]
+						    			}));
+    	}
+    
+    //Function to search for outsourced purchase orders
+    //
+    function getPurchaseOrders()
+    	{
+    		return getResults(search.create({
+						    			   type: "purchaseorder",
+						    			   filters:
+						    			   [
+						    			      ["type","anyof","PurchOrd"], 
+						    			      "AND", 
+						    			      ["status","anyof","PurchOrd:P","PurchOrd:B","PurchOrd:E","PurchOrd:D"], 
+						    			      "AND", 
+						    			      ["mainline","is","T"], 
+						    			      "AND", 
+						    			      ["customform","anyof","111"]
+						    			   ],
+						    			   columns:
+						    			   [
+						    			      search.createColumn({name: "internalid", label: "Internal ID"}),
+						    			      search.createColumn({name: "tranid", label: "Document Number"}),
 						    			      search.createColumn({name: "entity", label: "Name"})
 						    			   ]
 						    			}));
