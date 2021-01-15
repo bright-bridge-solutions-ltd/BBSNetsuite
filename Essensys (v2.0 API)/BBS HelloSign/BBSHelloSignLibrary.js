@@ -745,16 +745,11 @@ function(search, encode, https, render, file, record, url)
 		search.create({
 			type: 'customrecord_bbs_hellosign_recipients',
 			
-			filters: [{
-				name: 'custrecord_bbs_hellosign_recipients_so',
-				operator: search.Operator.ANYOF,
-				values: [salesOrderID]
-			},
-					{
-				name: 'custrecord_bbs_hellosign_recipientstatus',
-				operator: search.Operator.IS,
-				values: ['awaiting_signature']
-			}],
+			filters: [
+		    			["custrecord_bbs_hellosign_recipients_so", search.Operator.ANYOF, salesOrderID],
+		    			"AND",
+		    			[["custrecord_bbs_hellosign_recipientstatus", search.Operator.IS, "awaiting_signature"],"OR",["custrecord_bbs_hellosign_recipientstatus", search.Operator.IS, "viewed"]],
+		    		],
 			
 			columns: [{
 				name: 'custrecord_bbs_hellosign_recipientsorder',

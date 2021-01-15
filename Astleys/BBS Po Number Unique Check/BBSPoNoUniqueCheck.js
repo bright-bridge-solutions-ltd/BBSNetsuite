@@ -1,8 +1,8 @@
 /**
  * Module Description
  * 
- * Version    	Date           	Author           Remarks
- * 1.00       	15 Nov 19     	sambatten
+ * Version    Date            Author           Remarks
+ * 1.00       06 Dec 2018     cedricgriffiths
  *
  */
 
@@ -17,30 +17,14 @@
  */
 function poFieldChanged(type, name, linenum)
 {
-	if(name == 'otherrefnum' || name == 'custbody_bbs_weborderref')
+	if(name == 'otherrefnum')
 		{
 			//Get the current record id, the current po number and the customer
 			//
-			var currentId 	= nlapiGetRecordId();
-			var currentPoNo = nlapiGetFieldValue(name);
+			var currentId = nlapiGetRecordId();
+			var currentPoNo = nlapiGetFieldValue('otherrefnum');
+			var customer = nlapiGetFieldValue('entity');
 			var currentType = '';
-			var searchField = '';
-			var warningMsg 	= '';
-			
-			switch(name)
-				{
-					case 'otherrefnum':
-						searchField = 'poastext';
-						warningMsg = 'WARNING - Purchase Order Number ';
-						
-						break;
-						
-					case 'custbody_bbs_weborderref':
-						searchField = 'custbody_bbs_weborderref';
-						warningMsg = 'WARNING - Web Order Ref  ';
-						
-						break;
-				}
 			
 			switch(nlapiGetRecordType())
 				{
@@ -65,11 +49,14 @@ function poFieldChanged(type, name, linenum)
 					//Basic filter
 					//
 					var filters = [
+								   //["type","anyof","Estimate","CustInvc","SalesOrd"], 
 								   ["type", "anyof", currentType], 
 								   "AND", 
 								   ["mainline", "is", "T"], 
 								   "AND",
-								   [searchField, "is", currentPoNo]
+								   ["entity", "anyof", customer],
+								   "AND",
+								   ["poastext", "is", currentPoNo]
 								];
 					
 					//If the current id is not -1 (new record) then exclude it from the serach
@@ -91,7 +78,8 @@ function poFieldChanged(type, name, linenum)
 					//
 					if(transactionSearch != null && transactionSearch.length > 0)
 						{
-							alert(warningMsg + currentPoNo + ' Has Already Been Used On Another Transaction');
+							Ext.Msg.alert('⚠️ Warning', 'Purchase Order Number <b>' + currentPoNo + '</b> Has Already Been Used On Another Transaction');
+							//nlapiSetFieldValue('otherrefnum', '', false, true);
 						}
 				}
 		}

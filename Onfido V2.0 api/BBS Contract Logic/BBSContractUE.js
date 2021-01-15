@@ -44,8 +44,8 @@ function(ui, url, runtime, record, search, format, task, redirect) {
      */
     function contractBL(scriptContext) {
     	
-    	// check if the record is being viewed
-    	if (scriptContext.type == scriptContext.UserEventType.VIEW && runtime.executionContext == runtime.ContextType.USERINTERFACE)
+    	// check if the record is being viewed in the UI
+    	if (scriptContext.type == scriptContext.UserEventType.VIEW && runtime.executionContext == runtime.ContextType.USER_INTERFACE)
     		{ 	
 		    	// get the currentRecord object
 		    	var currentRecord = scriptContext.newRecord;

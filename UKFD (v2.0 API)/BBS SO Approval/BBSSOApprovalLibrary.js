@@ -319,6 +319,40 @@ function(search, record, url, https)  {
     	
     }
     
+    // =====================================================================
+    // FUNCTION TO CHECK THE BILLING/SHIPPING ADDRESS POSTCODES ARE THE SAME
+    // =====================================================================
+    
+    function checkPostcodes(currentRecord) {
+    	
+    	// declare and initialize variables
+    	var samePostcode = true;
+    	
+    	// get the postcode from the billing/shipping addresses
+    	var billingPostcode = currentRecord.getSubrecord({
+		    fieldId: 'billingaddress'
+		}).getValue({
+			fieldId: 'zip'
+		});
+    	
+    	var shippingPostcode = currentRecord.getSubrecord({
+		    fieldId: 'shippingaddress'
+		}).getValue({
+			fieldId: 'zip'
+		});
+    	
+    	// check if billing and shipping postcodes are different
+    	if (billingPostcode != shippingPostcode)
+    		{
+    			// set samePostcode variable to false
+    			samePostcode = false;
+    		}
+    	
+    	// return samePostcode to main script function
+    	return samePostcode;
+    	
+    }
+    
     // =======================================
     // FUNCTION TO RETURN THE ON HAND QUANTITY
     // =======================================
@@ -460,6 +494,7 @@ function(search, record, url, https)  {
     	checkUniversalBusinessRules:	checkUniversalBusinessRules,
     	return3DSecureResults:			return3DSecureResults,
     	getPaymentResponseDetails:		getPaymentResponseDetails,
+    	checkPostcodes:					checkPostcodes,
     	checkStockLevels:				checkStockLevels,
     	getOnHandQuantity:				getOnHandQuantity,
     	transformToCashSale:			transformToCashSale,

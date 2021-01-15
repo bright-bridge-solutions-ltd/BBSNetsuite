@@ -21,7 +21,7 @@
 					<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /></td>
     			</tr>
     			<tr>
-					<td><span style="font-size:24px;">${record@title}</span></td>
+					<td><span style="font-size:24px;"><#if record.custbody_bbs_sales_proformaflag == true>Pro Forma Invoice<br/><span style="font-size:10pt"><b>This is not a Tax document</b></span><#else>${record@title}</#if></span></td>
 					<td align="right">&nbsp;</td>
 					<td align="right">&nbsp;</td>
 				</tr>

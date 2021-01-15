@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['./BBSSOApprovalLibrary', 'N/search', 'N/record'],
-function(libraryScript, search, record) {
+define(['./BBSSOApprovalLibrary', 'N/search', 'N/record', 'N/runtime'],
+function(libraryScript, search, record, runtime) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -32,7 +32,7 @@ function(libraryScript, search, record) {
     			if (orderStatus == 'Pending Approval')
     				{
     					// set client script to run on the form
-    					scriptContext.form.clientScriptFileId = 9933161;
+    					scriptContext.form.clientScriptFileId = 9539881;
     					
     					// add button to the form
 			    		scriptContext.form.addButton({
@@ -142,6 +142,9 @@ function(libraryScript, search, record) {
 									{
 										// call function to retrieve 3D secure results
 										var paymentResults = libraryScript.return3DSecureResults(currentRecord);
+										
+										// call function to check if the billing/shipping address postcodes are the same
+										var samePostcode = libraryScript.checkPostcodes(currentRecord);
 										    			
 										// set fields on the Sales Order
 										currentRecord.setValue({
@@ -183,22 +186,30 @@ function(libraryScript, search, record) {
 										    fieldId: 'custbody_bbs_payment_csc',
 										    value: paymentResults.csc
 										});
-										    			
-										if ((paymentResults.eciRaw == 05 || paymentResults.eciRaw == 02) && paymentResults.paresStatus == 'Y' && paymentResults.reasonCode == 100)
-									    	{
-										    	// set the 3D secure checkbox on the record
-										    	currentRecord.setValue({
-										    		fieldId: 'custbody_bbs_payment_3d_secure',
-										    		value: true
-										    	});
-										    					
-										    	// if avsStreet/avsZip/csc = true and decision = ACCEPT
-										    	if (paymentResults.avsStreet == true && paymentResults.avsZip == true && paymentResults.csc == true && paymentResults.decision == 'ACCEPT')
-										    		{
-										    			// set paymentApproval to true
-										    			paymentApproval = true;
-										    		}
-									    	}
+										
+										currentRecord.setValue({
+											fieldId: 'custbody_bbs_payment_same_postcode',
+											value: samePostcode
+										});
+										
+										if(samePostcode)
+											{		
+												/*if ((paymentResults.eciRaw == 05 || paymentResults.eciRaw == 02) && paymentResults.paresStatus == 'Y' && paymentResults.reasonCode == 100)
+											    	{
+												    	// set the 3D secure checkbox on the record
+												    	currentRecord.setValue({
+												    		fieldId: 'custbody_bbs_payment_3d_secure',
+												    		value: true
+												    	});*/
+												    					
+												    	// if avsStreet/avsZip/csc = true and decision = ACCEPT
+												    	if (paymentResults.avsStreet == true && paymentResults.avsZip == true && paymentResults.csc == true && paymentResults.decision == 'ACCEPT')
+												    		{
+												    			// set paymentApproval to true
+												    			paymentApproval = true;
+												    		}
+											    	//}
+											}
 									}
 						    }
 						    	
@@ -229,46 +240,46 @@ function(libraryScript, search, record) {
 							   value: new Date() // today's date'
 						   });
 						    	
-						   // if all checks have passed
-						   if (paymentApproval == true && passedBusinessRules == true)
-						    	{
-							    	// set the order status to Pending Fulfilment
+						   // if all checks have passed AND the execution context is WEBSTORE
+						   if (runtime.executionContext == runtime.ContextType.WEBSTORE && paymentApproval == true && passedBusinessRules == true)
+							   {
+								   // set the order status to Pending Fulfilment
 									currentRecord.setValue({
 										fieldId: 'orderstatus',
 										value: 'B' // B = Pending Fulfilment
 									});
-									
+											
 									// tick the 'System Approved' checkbox
 									currentRecord.setValue({
 										fieldId: 'custbody_bbs_system_approved',
 										value: true
 									});
-									
+											
 									// tick the 'Can Be Fulfilled' checkbox on the record
 									currentRecord.setValue({
 										fieldId: 'custbody_canbefulfilled',
 										value: true
 									});
-						    	}
+							   }
 						   
 						   // save the changes to the sales order record
 						   currentRecord.save({
 							   ignoreMandatoryFields: true
 						   });
 						   
-						   // if all checks have been passed
-						   if (paymentApproval == true && passedBusinessRules == true)
-							   {
-								   	// call function to transform the sales order into a cash sale
+						   // if all checks have been passed AND the execution context is WEBSTORE
+						   if (runtime.executionContext == runtime.ContextType.WEBSTORE && paymentApproval == true && passedBusinessRules == true)
+						   		{
+							   		// call function to transform the sales order into a cash sale
 									var cashSaleID = libraryScript.transformToCashSale(currentRecordID);
-									
+										
 									// if we have been able to create a cash sale
 									if (cashSaleID)
 										{
 											// call function to send Ekomi email
 											libraryScript.sendEkomiFeedbackEmail(cashSaleID);
 										}
-							   }
+						   		}
     				}
     		}
     	

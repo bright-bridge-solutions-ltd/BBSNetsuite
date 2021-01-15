@@ -247,12 +247,12 @@ function(runtime, search, file, task) {
     		},
     				{
     			name: 'formuladate',
-    			formula: "CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_start_date} ELSE LAST_DAY(ADD_MONTHS({today},-2))+1 END",
+    			formula: "CASE WHEN TO_CHAR({custrecord_bbs_service_data_start_date},'MM') = TO_CHAR(ADD_MONTHS({today},-1),'MM') AND TO_CHAR({custrecord_bbs_service_data_start_date},'YYYY') = TO_CHAR(ADD_MONTHS({today},-1),'YYYY') THEN {custrecord_bbs_service_data_start_date} ELSE LAST_DAY(ADD_MONTHS({today},-2))+1 END",
     			summary: 'GROUP'
     		},
     				{
     			name: 'formuladate',
-    			formula: "CASE WHEN TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR({today},'MM') - 1 AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR({today},'YYYY') THEN {custrecord_bbs_service_data_end_date} ELSE LAST_DAY(ADD_MONTHS({today}, -1)) END",
+    			formula: "CASE WHEN TO_CHAR({custrecord_bbs_service_data_end_date},'MM') = TO_CHAR(ADD_MONTHS({today},-1),'MM') AND TO_CHAR({custrecord_bbs_service_data_end_date},'YYYY') = TO_CHAR(ADD_MONTHS({today},-1),'YYYY') THEN {custrecord_bbs_service_data_end_date} ELSE LAST_DAY(ADD_MONTHS({today}, -1)) END",
     			summary: 'GROUP'
     		},
     				{
@@ -261,12 +261,12 @@ function(runtime, search, file, task) {
     		},
     				{
     			name: 'formulatext',
-    			formula: "TO_CHAR({today},'YYYY')",
+    			formula: "TO_CHAR(ADD_MONTHS({today},-1),'YYYY')",
     			summary: 'MAX'
     		},
     				{
     			name: 'formulatext',
-    			formula: "TO_CHAR({today},'MM') - 1",
+    			formula: "TO_CHAR(ADD_MONTHS({today},-1),'MM')",
     			summary: 'MAX'
     		}],
     		

@@ -1,0 +1,10 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdfset>
+	
+	<#if record.shipaddress?contains("France")>
+		<#include "183762">
+	<#else>
+		<#include "183761">
+	</#if>
+
+</pdfset>
