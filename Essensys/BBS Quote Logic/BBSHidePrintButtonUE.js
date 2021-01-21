@@ -20,6 +20,6 @@ function userEventBeforeLoad(type, form, request)
 		if (type == 'view') // else the record is being viewed
 			{
 				// set client script to run on the form
-				form.setScript('customscript_bbs_quote_cl');
+				form.setScript('customscript_bbs_hide_print_button_cl');
 			}
 	}

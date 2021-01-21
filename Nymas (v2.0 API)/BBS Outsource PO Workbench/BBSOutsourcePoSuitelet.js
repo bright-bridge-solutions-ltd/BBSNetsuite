@@ -263,7 +263,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																								      search.createColumn({name: "quantityonorder", label: "On Order"}),
 																								      search.createColumn({name: "formulanumeric",formula: "NVL({quantitybackordered},0) - NVL({quantityonorder}, 0)",label: "Needed"}),
 																								      search.createColumn({name: "internalid",join: "preferredVendor",label: "Internal ID"}),
-																								      search.createColumn({name: "custitem_bbs_wo_lead_time", label: "Lead Time"})
+																								      search.createColumn({name: "leadtime", label: "Lead Time"})
 																				      			]
 																				}));
 								
@@ -279,7 +279,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												var itemQtyBackOrdered 	= isNullorBlank(assemblyitemSearchObj[int].getValue({name: "quantitybackordered"}),'0');
 												var itemQtyOnOrder 		= isNullorBlank(assemblyitemSearchObj[int].getValue({name: "quantityonorder"}),'0');
 												var itemQtyRequired		= isNullorBlank(assemblyitemSearchObj[int].getValue({name: "formulanumeric"}),'0');
-												var itemLeadTime		= isNullorBlank(assemblyitemSearchObj[int].getValue({name: "custitem_bbs_wo_lead_time"}),'0');
+												var itemLeadTime		= isNullorBlank(assemblyitemSearchObj[int].getValue({name: "leadtime"}),'0');
 												
 												var itemUrl				= url.resolveRecord({
 																							isEditMode:		false,

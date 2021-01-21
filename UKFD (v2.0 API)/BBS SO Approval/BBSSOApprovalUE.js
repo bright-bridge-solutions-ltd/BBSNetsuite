@@ -32,7 +32,7 @@ function(libraryScript, search, record, runtime) {
     			if (orderStatus == 'Pending Approval')
     				{
     					// set client script to run on the form
-    					scriptContext.form.clientScriptFileId = 9539881;
+    					scriptContext.form.clientScriptFileId = 9933162;
     					
     					// add button to the form
 			    		scriptContext.form.addButton({
@@ -129,87 +129,19 @@ function(libraryScript, search, record, runtime) {
 										    	}).getValue({
 										    		fieldId: 'addrphone'
 										    	});
+										    	
+										    	// get the PayPal authorization ID
+										    	var authorizationID = currentRecord.getValue({
+										    		fieldId: 'paypalauthid'
+										    	});
 										    					
-										    	// if we have a customer phone number
-										    	if (customerPhone)
+										    	// if we have a customer phone number and an authorization ID
+										    	if (customerPhone && authorizationID)
 										    		{
 										    			// set paymentApproval to true
 										    			paymentApproval = true;
 										    		}
 										    }
-									}
-								else if (paymentMethod == 13 || paymentMethod == 14) // if paymentMethod is 13 (VISA) or 14 (Master Card)
-									{
-										// call function to retrieve 3D secure results
-										var paymentResults = libraryScript.return3DSecureResults(currentRecord);
-										
-										// call function to check if the billing/shipping address postcodes are the same
-										var samePostcode = libraryScript.checkPostcodes(currentRecord);
-										    			
-										// set fields on the Sales Order
-										currentRecord.setValue({
-										    fieldId: 'custbody_bbs_payment_eci',
-										    value: paymentResults.eci
-										});
-										    			
-										currentRecord.setValue({
-										    fieldId: 'custbody_bbs_payment_eci_raw',
-										    value: paymentResults.eciRaw
-										});
-										    			
-										currentRecord.setValue({
-										    fieldId: 'custbody_bbs_payment_pares_status',
-										    value: paymentResults.paresStatus
-										});
-										    			
-										currentRecord.setValue({
-										    fieldId: 'custbody_bbs_payment_reason_code',
-										    value: paymentResults.reasonCode
-										});
-										    			
-										currentRecord.setValue({
-										    fieldId: 'custbody_bbs_payment_decision',
-										    value: paymentResults.decision
-										});
-										    			
-										currentRecord.setValue({
-										    fieldId: 'custbody_bbs_payment_avs_street',
-										    value: paymentResults.avsStreet
-										});
-										    			
-										currentRecord.setValue({
-										    fieldId: 'custbody_bbs_payment_avs_zip',
-										    value: paymentResults.avsZip
-										});
-										    			
-										currentRecord.setValue({
-										    fieldId: 'custbody_bbs_payment_csc',
-										    value: paymentResults.csc
-										});
-										
-										currentRecord.setValue({
-											fieldId: 'custbody_bbs_payment_same_postcode',
-											value: samePostcode
-										});
-										
-										if(samePostcode)
-											{		
-												/*if ((paymentResults.eciRaw == 05 || paymentResults.eciRaw == 02) && paymentResults.paresStatus == 'Y' && paymentResults.reasonCode == 100)
-											    	{
-												    	// set the 3D secure checkbox on the record
-												    	currentRecord.setValue({
-												    		fieldId: 'custbody_bbs_payment_3d_secure',
-												    		value: true
-												    	});*/
-												    					
-												    	// if avsStreet/avsZip/csc = true and decision = ACCEPT
-												    	if (paymentResults.avsStreet == true && paymentResults.avsZip == true && paymentResults.csc == true && paymentResults.decision == 'ACCEPT')
-												    		{
-												    			// set paymentApproval to true
-												    			paymentApproval = true;
-												    		}
-											    	//}
-											}
 									}
 						    }
 						    	
@@ -240,8 +172,8 @@ function(libraryScript, search, record, runtime) {
 							   value: new Date() // today's date'
 						   });
 						    	
-						   // if all checks have passed AND the execution context is WEBSTORE
-						   if (runtime.executionContext == runtime.ContextType.WEBSTORE && paymentApproval == true && passedBusinessRules == true)
+						   // if all checks have passed
+						   if (paymentApproval == true && passedBusinessRules == true)
 							   {
 								   // set the order status to Pending Fulfilment
 									currentRecord.setValue({
@@ -266,20 +198,6 @@ function(libraryScript, search, record, runtime) {
 						   currentRecord.save({
 							   ignoreMandatoryFields: true
 						   });
-						   
-						   // if all checks have been passed AND the execution context is WEBSTORE
-						   if (runtime.executionContext == runtime.ContextType.WEBSTORE && paymentApproval == true && passedBusinessRules == true)
-						   		{
-							   		// call function to transform the sales order into a cash sale
-									var cashSaleID = libraryScript.transformToCashSale(currentRecordID);
-										
-									// if we have been able to create a cash sale
-									if (cashSaleID)
-										{
-											// call function to send Ekomi email
-											libraryScript.sendEkomiFeedbackEmail(cashSaleID);
-										}
-						   		}
     				}
     		}
     	

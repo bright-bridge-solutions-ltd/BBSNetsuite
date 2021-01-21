@@ -124,8 +124,8 @@ function(search, record, url, https)  {
     				line: i
     			});
     			
-    			// if the type is Authorization and the result is Accept
-    			if (type == 'Authorization' && result == 'Accept')
+    			// if the type is Sale and the result is Accept
+    			if (type == 'Sale' && result == 'Accept')
     				{
     					// return values from the line
     					avsStreet = convertToBoolean(

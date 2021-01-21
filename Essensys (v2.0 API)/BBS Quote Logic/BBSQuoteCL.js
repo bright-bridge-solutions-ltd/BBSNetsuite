@@ -32,6 +32,16 @@ function(dialog, url, https) {
      * @since 2015.2
      */
     function fieldChanged(scriptContext) {
+    	
+    	// check which field has been edited
+    	if (scriptContext.fieldId == 'billingschedule' || scriptContext.fieldId == 'rate')
+    		{
+    			// tick the 'Non Standard Order' checkbox
+    			scriptContext.currentRecord.setValue({
+    				fieldId: 'custbody_bbs_non_standard_order',
+    				value: true
+    			});
+    		}
 
     }
 
@@ -191,10 +201,32 @@ function(dialog, url, https) {
     	});
     	
     }
+    
+    function transformToSalesOrder(recordID) {
+    	
+    	// define URL of Suitelet
+		var suiteletURL = url.resolveScript({
+			scriptId: 'customscript_bbs_transform_quote_sl',
+			deploymentId: 'customdeploy_bbs_transform_quote_sl',
+			params: {
+				'id': recordID
+			}
+		});
+		
+		// call a backend Suitelet to update the estimate
+		https.get({
+			url: suiteletURL
+		});
+		
+		// reload the current record to display the changes to the user
+		location.reload();
+    	
+    }
 
     return {
-        pageInit: pageInit,
-        reject: reject
+        fieldChanged: fieldChanged,
+        reject: reject,
+        transformToSalesOrder: transformToSalesOrder
     };
     
 });

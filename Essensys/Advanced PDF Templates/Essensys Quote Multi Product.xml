@@ -1,0 +1,14 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdfset>
+	<#if record.custbody_bbs_order_type == 'Connect'>
+      <#if record.class == 'Connect : STEP'>
+			<#include "183982">
+      <#else>
+            <#include "183979">
+      </#if>
+	<#elseif record.custbody_bbs_order_type == 'Operate'>
+   		<#include "183981">
+    <#elseif record.custbody_bbs_order_type == 'Equipment'>
+        <#include "183980">
+	</#if>
+</pdfset>

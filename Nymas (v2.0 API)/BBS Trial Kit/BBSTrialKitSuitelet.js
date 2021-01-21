@@ -453,7 +453,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								
 								subList.addField({
 													id:		'custpage_sl_items_routing',
-													label:	'Additional Routing (Days)',
+													label:	'Hours To Build',
 													type:	serverWidget.FieldType.TEXT
 												});		
 
@@ -631,7 +631,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 									            		//Add the routing days
 									            		//
 									            		var finalDate 				= new Date(latestDate.getFullYear(), latestDate.getMonth(), latestDate.getDate());
-									            		finalDate.setDate(finalDate.getDate() + Number(bomList[bomListKey][0].routingDays));
+									            		//finalDate.setDate(finalDate.getDate() + Number(bomList[bomListKey][0].routingDays));
 									            		
 									            		//Add the man hours to build
 									            		//
@@ -916,7 +916,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 	    			var bomRevisionId 		= bomSearchObj[0].getValue({name: "internalid",join: "revision"});
 	    			var assemblyName 		= bomSearchObj[0].getText({name: "assembly",join: "assemblyItem"});
 	    			
-	    			routingDaysToAdd 		= getRoutingDays(bomId);
+	    		//	routingDaysToAdd 		= getRoutingDays(bomId);
+	    			
+	    			routingDaysToAdd 		= Number(search.lookupFields({
+																		type:		search.Type.ITEM,
+																		id:			topLevelAssemblyId,
+																		columns:	'custitem_bbs_hours_to_build'
+																		}).custitem_bbs_hours_to_build);
 
     				if(bomRevisionId != null && bomRevisionId != '')
     					{
@@ -1059,9 +1065,14 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 				    				        		if(bomSearchObj != null && bomSearchObj.length > 0)
 				    				        			{
 				    				    	    			var bomId 			= bomSearchObj[0].getValue({name: "internalid"});
-				    				    	    			routingDaysToAdd 	= getRoutingDays(bomId);
+				    				    	  //  			routingDaysToAdd 	= getRoutingDays(bomId);
 				    				        			}
 				    				    			
+				    				    			routingDaysToAdd 			= Number(search.lookupFields({
+																											type:		search.Type.ITEM,
+																											id:			memberItem,
+																											columns:	'custitem_bbs_hours_to_build'
+																											}).custitem_bbs_hours_to_build);
 				    				    			var memberUrl = url.resolveRecord({
 																						isEditMode:		false,
 																						recordId:		memberItem,
@@ -1306,8 +1317,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 			    						var woLeadTime = Number(search.lookupFields({
 			    																type: 		search.Type.ITEM,
 			    																id: 		_memberItem,
-			    																columns: 	['buildtime']
-			    															}).buildtime);
+			    																columns: 	['leadtime']
+			    															}).leadtime);
 			    						
 			    						woLeadTime = (isNaN(woLeadTime) ? Number(0) : woLeadTime);
 			    						
