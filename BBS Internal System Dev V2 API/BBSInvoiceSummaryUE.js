@@ -50,10 +50,10 @@ function(runtime, record)
 	    			
 	    			for (var timeLine = 0; timeLine < timeLines; timeLine++) 
 		    			{
-		    				var timeAmount 		= Number(currentRecord.getSublistValue({sublistId: 'time', fieldId: 'amount', line: timeLine}));
-		    				var timeQuantity 	= Number(currentRecord.getSublistValue({sublistId: 'time', fieldId: 'qty', line: timeLine}));
-		    				var timeRate 		= Number(currentRecord.getSublistValue({sublistId: 'time', fieldId: 'rate', line: timeLine}));
-		    				var timeItemName	= currentRecord.getSublistValue({sublistId: 'time', fieldId: 'itemdisp', line: timeLine});
+		    				var timeAmount 		= Number(isNullorBlank(currentRecord.getSublistValue({sublistId: 'time', fieldId: 'amount', line: timeLine}),0));
+		    				var timeQuantity 	= Number(isNullorBlank(currentRecord.getSublistValue({sublistId: 'time', fieldId: 'qty', line: timeLine}),0));
+		    				var timeRate 		= Number(isNullorBlank(currentRecord.getSublistValue({sublistId: 'time', fieldId: 'rate', line: timeLine}),0));
+		    				var timeItemName	= isNullorBlank(currentRecord.getSublistValue({sublistId: 'time', fieldId: 'itemdisp', line: timeLine}),'');
 		    				var timeItemId		= currentRecord.getSublistValue({sublistId: 'time', fieldId: 'item', line: timeLine});
 						
 		    				//Does the item exist in the temp object
@@ -86,26 +86,25 @@ function(runtime, record)
 	    			//
 	    			var tempExpenseObj = {};
 	    			
-	    			for (var expenseLine = 0; timeLine < expensesLines; expenseLine++) 
+	    			for (var expenseLine = 0; expenseLine < expensesLines; expenseLine++) 
 		    			{
-		    				var expenseAmount 	= Number(currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'amount', line: expenseLine}));
-		    				var expenseItemName	= currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'itemdisp', line: expenseLine});
-		    				var expenseItemId	= currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'item', line: expenseLine});
+		    				var expenseAmount 	= Number(isNullorBlank(currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'amount', line: expenseLine}),0));
+		    				var expenseItemName	= isNullorBlank(currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'categorydisp', line: expenseLine}),'');
+		    				var expenseItemId	= currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'category', line: expenseLine});
 						
 		    				//Does the item exist in the temp object
 		    				//
-		    				if(tempExpenseObj.hasOwnProperty(timeItemId))
+		    				if(tempExpenseObj.hasOwnProperty(expenseItemId))
 		    					{
 		    						//Update the temp objects
 		    						//
-		    						tempExpenseObj[timeItemId].timeQuantity += timeQuantity;
-		    						tempExpenseObj[timeItemId].timeAmount 	+= timeAmount;
+		    						tempExpenseObj[expenseItemId].expenseAmount 	+= expenseAmount;
 		    					}
 		    				else
 		    					{
 		    						//Create a new entry
 		    						//
-		    						tempExpenseObj[timeItemId] = new expenseSummaryObj(expenseItemId, expenseItemName, expenseAmount);
+		    						tempExpenseObj[expenseItemId] = new expenseSummaryObj(expenseItemId, expenseItemName, expenseAmount);
 		    					}
 	    				}
 	    			
@@ -124,26 +123,26 @@ function(runtime, record)
 	    			
 	    			for (var itemLine = 0; itemLine < itemLines; itemLine++) 
 		    			{
-		    				var timeAmount 		= Number(currentRecord.getSublistValue({sublistId: 'time', fieldId: 'amount', line: itemLine}));
-		    				var timeQuantity 	= Number(currentRecord.getSublistValue({sublistId: 'time', fieldId: 'qty', line: itemLine}));
-		    				var timeRate 		= Number(currentRecord.getSublistValue({sublistId: 'time', fieldId: 'rate', line: itemLine}));
-		    				var timeItemName	= currentRecord.getSublistValue({sublistId: 'time', fieldId: 'itemdisp', line: itemLine});
-		    				var timeItemId		= currentRecord.getSublistValue({sublistId: 'time', fieldId: 'item', line: itemLine});
+		    				var itemAmount 		= Number(isNullorBlank(currentRecord.getSublistValue({sublistId: 'item', fieldId: 'amount', line: itemLine}),0));
+		    				var itemQuantity 	= Number(isNullorBlank(currentRecord.getSublistValue({sublistId: 'item', fieldId: 'qty', line: itemLine}),0));
+		    				var itemRate 		= Number(isNullorBlank(currentRecord.getSublistValue({sublistId: 'item', fieldId: 'rate', line: itemLine}),0));
+		    				var itemItemName	= isNullorBlank(currentRecord.getSublistValue({sublistId: 'item', fieldId: 'item_display', line: itemLine}),'');
+		    				var itemItemId		= currentRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: itemLine});
 						
 		    				//Does the item exist in the temp object
 		    				//
-		    				if(tempItemObj.hasOwnProperty(timeItemId))
+		    				if(tempItemObj.hasOwnProperty(itemItemId))
 		    					{
 		    						//Update the temp objects
 		    						//
-		    						tempItemObj[timeItemId].timeQuantity 	+= timeQuantity;
-		    						tempItemObj[timeItemId].timeAmount 		+= timeAmount;
+		    						tempItemObj[itemItemId].itemQuantity 	+= itemQuantity;
+		    						tempItemObj[itemItemId].itemAmount 		+= itemAmount;
 		    					}
 		    				else
 		    					{
 		    						//Create a new entry
 		    						//
-		    						tempItemObj[timeItemId] = new itemSummaryObj(timeItemId, timeItemName, timeQuantity, timeRate, timeAmount);
+		    						tempItemObj[itemItemId] = new itemSummaryObj(itemItemId, itemItemName, itemQuantity, itemRate, itemAmount);
 		    					}
 	    				}
 	    			
@@ -202,7 +201,7 @@ function(runtime, record)
     //
     function itemSummaryObj(_itemItemId, _itemItemName, _itemQuantity, _itemRate, _itemAmount)
     	{
-    		this.itemItemId		= _itemtemId;
+    		this.itemItemId		= _itemItemId;
     		this.itemItemName	= _itemItemName;
     		this.itemQuantity	= _itemQuantity;
     		this.itemRate		= _itemRate;
@@ -210,6 +209,17 @@ function(runtime, record)
     	}
    
     
+    function isNullorBlank(_string, _replacer)
+		{
+			return (_string == null || _string == '' ? _replacer : _string);
+		}
+
+	function isNull(_string, _replacer)
+		{
+			return (_string == null ? _replacer : _string);
+		}
+	
+	
     return 	{
         	afterSubmit: invoiceSummaryAS
     		};
