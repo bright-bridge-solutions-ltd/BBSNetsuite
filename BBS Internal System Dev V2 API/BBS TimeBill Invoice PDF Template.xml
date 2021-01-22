@@ -1,151 +1,173 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
 <pdf>
 <head>
-	<link name="NotoSans" 	type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<link name="NotoSans" 	type="font" subtype="truetype" 
+          src="${nsfont.NotoSans_Regular}" 
+          src-bold="${nsfont.NotoSans_Bold}" 
+          src-italic="${nsfont.NotoSans_Italic}" 
+          src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
 	<link name="HKGrotesk" 	type="font" subtype="truetype" 
           src="https://4136219.app.netsuite.com/core/media/media.nl?id=2632448&amp;c=4136219&amp;h=juJJ11EWtswAmEqcMajpZKzCFECdMPokwMs9F_olYBpMw4pg&amp;_xt=.ttf" 
           src-bold="https://4136219.app.netsuite.com/core/media/media.nl?id=2632452&amp;c=4136219&amp;h=IUy9bPCpV8jHPGfp2DGAPfkOddgIO3pkZnREppPTm0ltIu4p&amp;_xt=.ttf" 
           src-italic="https://4136219.app.netsuite.com/core/media/media.nl?id=2632447&amp;c=4136219&amp;h=RAmkXJ1UpGUdZ2Y1h7E3pFFaF1Ji1N_dKSTa2w6uU67UxrzW&amp;_xt=.ttf" 
           src-bolditalic="https://4136219.app.netsuite.com/core/media/media.nl?id=2632445&amp;c=4136219&amp;h=xTJrg8aNah9HGFUSz2fFJ7-pdWlOrEH2uar5rMIk1GAT7Zhf&amp;_xt=.ttf" bytes="2" />
 
-  <#assign cs = "£">
-
-<#function toCurrency value showSymbol=true>
-	<#local retval = 0>
-	<#local tmpcs = cs>
-	<#if showSymbol == false>
-		<#local tmpcs = "">
-	</#if>
-	<#if value &lt; 0 >
-		<#local retval = value?string["#,##0.00"]>
-		<#local retval = "(" + tmpcs + retval?replace("-","") + ")">
-	<#else>
-		<#local retval = tmpcs + value?string["#,##0.00"]>
-	</#if>
-	<#if value == 0 >
-		<#local retval = tmpcs + "0.00">
-	</#if>
-	<#return retval>
-</#function>
+    <#assign cs = "£">
+    <#assign accountNumber = "83081265">
+    <#assign sortCode = "20-49-17">
+    <#assign swiftNumber = "BUKBG822">
+    <#assign ibanNumber = "GB14 BUKB 2049 1783 0812 65">
+      
+      
+	<#if record.currency.symbol == "USD">
+      <#assign cs = "$">
+      <#assign accountNumber = "83081265">
+      <#assign sortCode = "20-49-17">
+      <#assign swiftNumber = "BUKBG822">
+      <#assign ibanNumber = "GB20 BUKB 2049 1747 4017 44">
+     
+    </#if>
+        
+    <#if record.currency.symbol == "EUR">
+      <#assign cs = "€">
+      <#assign accountNumber = "83081265">
+      <#assign sortCode = "20-49-17">
+      <#assign swiftNumber = "BUKBG822">
+      <#assign ibanNumber = "GB14 BUKB 2049 1783 0812 65">
+    </#if>
+	
+	<#function toCurrency value showSymbol=true>
+      	<#local retval = 0>
+      	<#local tmpcs = cs>
+      	<#if showSymbol == false>
+          	<#local tmpcs = "">
+      	</#if>
+      	<#if value &lt; 0 >
+          	<#local retval = value?string["#,##0.00"]>
+          	<#local retval = "(" + tmpcs + retval?replace("-","") + ")">
+      	<#else>
+          	<#local retval = tmpcs + value?string["#,##0.00"]>
+      	</#if>
+      	<#if value == 0 >
+          	<#local retval = tmpcs + "0.00">
+      	</#if>
+      	<#return retval>
+	</#function>
 
     <macrolist>
 		<macro id="nlheader">
 			<table class="header" style="width: 100%;">
 				<tr>
-                  	<td align="left" colspan="2" style="font-size: 28pt; margin-top: 30px;">${record@title}</td>
-                  	<td>&nbsp;</td>
-					<td rowspan="3" colspan="2" ><img src="${companyInformation.logoUrl}" style="float: left; width: 227px; height: 72px;" /></td>
+                  	<td align="left" colspan="12" style="font-size: 28pt; margin-top: 30px;">${record@title}</td>
+					<td rowspan="3"  colspan="9" ><img src="${companyInformation.logoUrl}" style="float: left; width: 227px; height: 72px;" /></td>
 				</tr>
              	<tr>
-                  	<td colspan="2" >&nbsp;</td>
-                  	<td>&nbsp;</td>
+                  	<td colspan="12" >&nbsp;</td>
 				</tr>
              	<tr>
-                  	<td colspan="2" >&nbsp;</td>
-               		<td>&nbsp;</td>
+                  	<td colspan="12" >&nbsp;</td>
 				</tr>
 			</table>
-          		
+
           	<table class="header" style="width: 100%;">
             	<tr>
-                	<td align="left" colspan="2" style="font-size: 10px;"><i>Phone: 0330 133 5000</i></td>
-                  	<td>&nbsp;</td>
-                  	<td rowspan="6" colspan="2" style="font-size: 12px;"><span class="nameandaddress">${subsidiary.mainaddress_text}</span></td>
+                	<td align="left" colspan="12" style="font-size: 10px;"><b>Contact Us</b></td>
+                  	<td align="left" rowspan="6"  colspan="9" style="font-size: 12px;"><span class="nameandaddress">${subsidiary.mainaddress_text}</span></td>
                 </tr>
               	<tr>
-                  	<td colspan="2" >&nbsp;</td>
-               		<td>&nbsp;</td>
+                  	<td align="left" colspan="12" style="font-size: 10px;"><i>Phone: 0330 133 5000</i></td>
 				</tr>
               	<tr>
-                  	<td align="left" colspan="2" style="font-size: 10px;"><i>Email: accounts@brightbridgesolutions.com</i></td>
-               		<td>&nbsp;</td>
+                  	<td align="left" colspan="12" style="font-size: 10px;"><i>Email: accounts@brightbridgesolutions.com</i></td>
 				</tr>
               	<tr>
-                  	<td colspan="2" >&nbsp;</td>
-               		<td>&nbsp;</td>
+                  	<td align="left" colspan="12" style="font-size: 10px;"><i>Web: brightbridgesolutions.com</i></td>
+
 				</tr>
               	<tr>
-                  	<td align="left" colspan="2" style="font-size: 10px;"><i>Web: brightbridgesolutions.com</i></td>
-               		<td>&nbsp;</td>
+                  	<td colspan="12" >&nbsp;</td>
 				</tr>
               	<tr>
-                  	<td colspan="2" >&nbsp;</td>
-               		<td>&nbsp;</td>
+                  	<td colspan="12" >&nbsp;</td>
 				</tr>
               	<tr>
-                  	<td colspan="2" >&nbsp;</td>
-               		<td>&nbsp;</td>
-               		<td align="left" colspan="2" style="font-size: 10px;">VAT No. 213 9382 13</td>
+                  	<td colspan="12" >&nbsp;</td>
+               		<td align="left" colspan="9" style="font-size: 12px;">VAT No. 213 9382 13</td>
 				</tr>
           	</table>
-          
+
           	<table class="header" style="width: 100%; margin-top: 20px;">
             	<tr>
-                  	<td class="address" colspan="3" rowspan="7" style="font-size: 12px;">${record.billaddress}</td>
-                  	<td align="left" style="font-size: 12px;">Invoice Number:</td>
-                  	<td align="left" style="font-size: 12px;">${record.tranid}</td>
+                  	<td class="address" colspan="12" rowspan="7" style="font-size: 12px;">${record.billaddress}<br/>VAT No: ${record.entity.vatregnumber}</td>
+                  	<td align="left" colspan="3" style="font-size: 12px;"><b>Invoice Number:</b></td>
+                  	<td align="left" colspan="6" style="font-size: 12px;"><b>${record.tranid}</b></td>
               	</tr>
             	<tr>
-                  	<td align="left" style="font-size: 12px;">Invoice Date:</td>
-                  	<td align="left" style="font-size: 12px;">${record.trandate?string["dd MMM yyyy"]}</td>
+                  	<td align="left" colspan="3" style="font-size: 12px;">Invoice Date:</td>
+                  	<td align="left" colspan="6" style="font-size: 12px;">${record.trandate?string["dd MMM yyyy"]}</td>
               	</tr>
             	<tr>
-                  	<td align="left" style="font-size: 12px;">Account Manager:</td>
-                  	<td align="left" style="font-size: 12px;">${record.salesrep}</td>
+                  	<td align="left" colspan="3" style="font-size: 12px;">Acc Manager:</td>
+                  	<td align="left" colspan="6" style="font-size: 12px;">${record.salesrep}</td>
               	</tr>
             	<tr>
-                  	<td align="left" style="font-size: 12px;">Project Details:</td>
-                  	<td align="left" style="font-size: 12px;">${record.job.companyname?keep_after(': ')}</td>
+                  	<td align="left" colspan="3" style="font-size: 12px;">Project Details:</td>
+                  	<td align="left" colspan="6" style="font-size: 12px;">${record.job.companyname?keep_after(': ')}</td>
               	</tr>
             	<tr>
-                  	<td align="left" style="font-size: 12px;">Your Reference:</td>
-                  	<td align="left" style="font-size: 12px;">${record.otherrefnum}</td>
+                  	<td align="left" colspan="3" style="font-size: 12px;">Your Reference:</td>
+                  	<td align="left" colspan="6" style="font-size: 12px;">${record.otherrefnum}</td>
               	</tr>
             	<tr>
-                  	<td align="left" style="font-size: 12px;">&nbsp;</td>
-                  	<td align="left" style="font-size: 12px;">&nbsp;</td>
+                  	<td align="left" colspan="3" style="font-size: 12px;">Terms:</td>
+                  	<td align="left" colspan="6" style="font-size: 12px;">${record.terms}</td>
               	</tr>
             	<tr>
-                  	<td align="left" style="font-size: 12px;">&nbsp;</td>
-                  	<td align="left" style="font-size: 12px;">&nbsp;</td>
+                  	<td align="left" colspan="3" style="font-size: 12px;">Due Date:</td>
+                  	<td align="left" colspan="6" style="font-size: 12px;">${record.duedate?string["dd MMM yyyy"]}</td>
               	</tr>
-              	<tr>
-                  	<td align="left" colspan="3" style="font-size: 12px;">&nbsp;</td>
-                  	<td align="left" style="font-size: 12px;">&nbsp;</td>
-                  	<td align="left" style="font-size: 12px;">&nbsp;</td>
-              	</tr>
-              	<tr>
-                  	<td align="left" colspan="3" style="font-size: 12px;">VAT No: ${record.entity.vatregnumber}</td>
-                  	<td align="left" style="font-size: 12px;">&nbsp;</td>
-                  	<td align="left" style="font-size: 12px;">&nbsp;</td>
-              	</tr>
-              
-              
-              
           	</table>
-          
         </macro>
-      
+
         <macro id="nlfooter">
             <table class="footer" style="width: 100%;">
 				<tr>
-                  	<td align="left" colspan="2">Please pay, quoting the above invoice number, by the due date into the following account</td>
+                  	<td align="left" colspan="18">Please pay, quoting the above invoice number, by the due date into the following account</td>
 				</tr>
 				<tr>
-                  	<td align="left" colspan="2">Account Number: 83081265</td>
+                  	<td align="left" colspan="6">Account Number: ${accountNumber}</td>
+                  	<td align="left" colspan="6">SWIFTBIC: ${swiftNumber}</td>
+                  	<td align="left" colspan="6">&nbsp;</td>
 				</tr>
 				<tr>
-                  	<td align="left" colspan="2">Sort Code: 20-49-17</td>
+                  	<td align="left" colspan="6">Sort Code: ${sortCode}</td>
+                  	<td align="left" colspan="6">IBAN: ${ibanNumber}</td>
+                  	<td align="left" colspan="6">&nbsp;</td>
 				</tr>
 
             	<tr style="margin-top: 10px;">
+                  	<td align="left" colspan="18">BrightBridge Solutions Limited. Registered in England, Number 09552788</td>
+				</tr>
+          	</table>
+        </macro>
+
+      	<macro id="nlheaderDetail">
+			<table class="footer" style="width: 100%;">
+				<tr>
+                  	<td align="left" colspan="2" style="font-size: 16pt;">Detailed Breakdown</td>
+				</tr>
+          	</table>
+        </macro>
+
+      <macro id="nlfooterDetail">
+            <table class="footer" style="width: 100%;">
+              	<tr style="margin-top: 10px;">
                   	<td align="left">BrightBridge Solutions Limited. Registered in England, Number 09552788</td>
-					<td align="right"><pagenumber/> of <totalpages/></td>
 				</tr>
           	</table>
         </macro>
     </macrolist>
-  
+
     <style type="text/css">* {
 			font-family: HKGrotesk, NotoSans, sans-serif;
 		}
@@ -223,7 +245,8 @@
 </style>
 </head>
 
-<body header="nlheader" header-height="360px" footer="nlfooter" footer-height="60px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+<!--Summary body section-->
+<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="50px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 
 <#setting number_format=",##0.00">
 
@@ -239,25 +262,25 @@
                     <th align="left" 	colspan="21" style="font-size: 10pt; padding-left: 6px;"><b>Time Summary</b></th>
                 </tr>
                 <tr>
-                    <th align="left" 	colspan="12" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">Item</th>
-                    <th align="center"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">Hours</th>
-                    <th align="center" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">Rate</th>
-                    <th align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">Value</th>
+                    <th align="left" 	colspan="12" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Item</th>
+                    <th align="center"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Hours</th>
+                    <th align="center" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Rate</th>
+                    <th align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">Value</th>
                 </tr>
 
                 <#list summaryInfo as time>
                     <#assign timeTotal += time.timeAmount>
                     <tr>
-                        <td align="left" 	colspan="12" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">${time.timeItemName}</td>
-                        <td align="right"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">${time.timeQuantity}</td>
-                        <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">${toCurrency(time.timeRate)}</td>
-                        <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">${toCurrency(time.timeAmount)}</td>
+                        <td align="left" 	colspan="12" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${time.timeItemName}</td>
+                        <td align="right"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${time.timeQuantity}</td>
+                        <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${toCurrency(time.timeRate)}</td>
+                        <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">${toCurrency(time.timeAmount)}</td>
                     </tr>
                 </#list>
 
                 <tr>
-                    <td align="left" 	colspan="18" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>Time Total</b></td>
-                    <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">${toCurrency(timeTotal)}</td>
+                    <td align="left" 	colspan="18" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>Time Total</b></td>
+                    <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;"><b>${toCurrency(timeTotal)}</b></td>
                 </tr>
 
             </table>
@@ -276,21 +299,21 @@
                     <th align="left" 	colspan="21" style="font-size: 10pt; padding-left: 6px;"><b>Expenses Summary</b></th>
                 </tr>
                 <tr>
-                    <th align="left" 	colspan="18" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">Item</th>
-                    <th align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">Value</th>
+                    <th align="left" 	colspan="18" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Item</th>
+                    <th align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">Value</th>
                 </tr>
 
                 <#list summaryInfo as expense>
                     <#assign expenseTotal += expense.expenseAmount>
                     <tr>
-                        <td align="left" 	colspan="18" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">${expense.expenseItemName}</td>
-                        <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">${toCurrency(expense.expenseAmount)}</td>
+                        <td align="left" 	colspan="18" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${expense.expenseItemName}</td>
+                        <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">${toCurrency(expense.expenseAmount)}</td>
                     </tr>
                 </#list>
 
                 <tr>
-                    <td align="left" 	colspan="18" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>Expenses Total</b></td>
-                    <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">${toCurrency(expenseTotal)}</td>
+                    <td align="left" 	colspan="18" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>Expenses Total</b></td>
+                    <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;"><b>${toCurrency(expenseTotal)}</b></td>
                 </tr>
 
             </table>
@@ -309,25 +332,25 @@
                     <th align="left" 	colspan="21" style="font-size: 10pt; padding-left: 6px;"><b>Other Items Summary</b></th>
                 </tr>
                 <tr>
-                    <th align="left" 	colspan="12" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">Item</th>
-                    <th align="center"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">Hours</th>
-                    <th align="center" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">Rate</th>
-                    <th align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">Value</th>
+                    <th align="left" 	colspan="12" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Item</th>
+                    <th align="center"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Hours</th>
+                    <th align="center" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Rate</th>
+                    <th align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">Value</th>
                 </tr>
 
                 <#list summaryInfo as item>
                     <#assign itemTotal += item.itemAmount>
                     <tr>
-                        <td align="left" 	colspan="12" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">${item.itemItemName}</td>
-                        <td align="right"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><#if item.itemQuantity != 0>${item.itemQuantity}<#else>&nbsp;</#if></td>
-                        <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><#if item.itemRate != 0>${item.itemRate}<#else>&nbsp;</#if></td>
-                        <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">${toCurrency(item.itemAmount)}</td>
+                        <td align="left" 	colspan="12" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${item.itemItemName}</td>
+                        <td align="right"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;"><#if item.itemQuantity != 0>${item.itemQuantity}<#else>&nbsp;</#if></td>
+                        <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;"><#if item.itemRate != 0>${item.itemRate}<#else>&nbsp;</#if></td>
+                        <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">${toCurrency(item.itemAmount)}</td>
                     </tr>
                 </#list>
 
                 <tr>
-                    <td align="left" 	colspan="18" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>Item Total</b></td>
-                    <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">${toCurrency(itemTotal)}</td>
+                    <td align="left" 	colspan="18" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>Item Total</b></td>
+                    <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;"><b>${toCurrency(itemTotal)}</b></td>
                 </tr>
 
             </table>
@@ -336,44 +359,209 @@
 
 <!-- Totals -->
 <table style="width: 100%; margin-top: 10px; page-break-inside: avoid;">
-	<tr>
-		<th align="left" 	colspan="21" style="font-size: 10pt; padding-left: 6px;"><b>Invoice Totals</b></th>
-	</tr>
+
 
 	<tr>
-		<td align="left" 	colspan="18" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Services Total</td>
+		<td align="left" 	colspan="12" rowspan="2">${record.message}</td>
+		<td align="left" 	colspan="6"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Invoice Subtotal</td>
 		<td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">${toCurrency(record.subtotal)}</td>
 	</tr>
 	<tr>
-		<td align="left" 	colspan="18" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">VAT (${record.taxrate}%)</td>
+		<td align="left" 	colspan="6"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">VAT (${record.taxrate}%)</td>
 		<td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">${toCurrency(record.taxtotal)}</td>
 	</tr>
 	<tr>
-		<td align="left" 	colspan="18" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>Invoice Total</b></td>
+		<td align="left" 	colspan="12" >&nbsp;</td>
+		<td align="left" 	colspan="6"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>Invoice Total</b></td>
 		<td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;"><b>${toCurrency(record.total)}</b></td>
 	</tr>
 	<tr>
-		<td align="left" 	colspan="18" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">&nbsp;</td>
+		<td align="left" 	colspan="12" >&nbsp;</td>
+		<td align="left" 	colspan="6"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">&nbsp;</td>
 		<td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">&nbsp;</td>
 	</tr>
 	<tr>
-		<td align="left" 	colspan="18" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">Amount Paid</td>
+		<td align="left" 	colspan="12" >&nbsp;</td>
+		<td align="left" 	colspan="6"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">Amount Paid</td>
 		<td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">${toCurrency(record.amountpaid)}</td>
 	</tr>
 	<tr>
-		<td align="left" 	colspan="18" style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>Amount Outstanding</b></td>
+		<td align="left" 	colspan="12" >&nbsp;</td>
+		<td align="left" 	colspan="6"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>Amount Outstanding</b></td>
 		<td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;"><b>${toCurrency(record.amountremaining)}</b></td>
 	</tr>
 </table>
 
-<!-- Prepaid hours-->
-<#if record.custbody_bbs_prepaid_hours_bal gt 0>
-	<table style="width: 100%; margin-top: 10px; page-break-inside: avoid;">
-		<tr>
-			<td align="left" colspan="21" style="font-size: 10pt; padding-left: 6px;">Your pre-paid hours balance as at ${record.trandate?string["dd MMM yyyy"]} is ${toCurrency(record.custbody_bbs_prepaid_hours_bal)}</td>
-		</tr>
-	</table>
-</#if>
 
 </body>
+
+<!--Only generate the detail body section if we have any detail-->
+<#if record.custbody_bbs_time_detail_json?length gt 0 || record.custbody_bbs_expenses_detail_json?length gt 0>
+
+  <!--Detail body section-->
+  <body header="nlheaderDetail" header-height="40px" footer="nlfooterDetail" footer-height="10px" padding="0.25in 0.25in 0.25in 0.25in" size="A4-LANDSCAPE">
+
+    <!--Time detail section-->
+  	<#if record.custbody_bbs_time_detail_json?length gt 0>
+
+      <#assign detailInfo = record.custbody_bbs_time_detail_json?eval>
+      <#if detailInfo?has_content>
+
+          <#assign timeTotal = 0>
+          <#assign timeHoursTotal = 0>
+          <#assign timeSubTotal = 0>
+          <#assign timeHoursSubTotal = 0>
+          <#assign lastEmployee = "~~~~~~~~~~">
+
+          <table style="width: 100%; margin-top: 10px;">
+              <tr>
+                  <th align="left" 	colspan="25" style="font-size: 10pt; padding-left: 6px;"><b>Time Details</b></th>
+              </tr>
+                  <tr>
+                      <th align="left" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Date</th>
+                      <th align="left"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Employee</th>
+                      <th align="left" 	colspan="5"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Item</th>
+                      <th align="left" 	colspan="9"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Description</th>
+                      <th align="center" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Hours</th>
+                      <th align="center" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Rate</th>
+                      <th align="right" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">Value</th>
+                  </tr>
+
+                  <#list detailInfo as time>
+
+                      <#assign timeTotal += time.timeAmount>
+					  <#assign timeHoursTotal += time.timeQuantity>
+
+                      <#if time_index==0>
+                          <#assign lastEmployee = time.timeEmployee>
+                      </#if>
+
+                      <#if time.timeEmployee != lastEmployee>
+                          <tr>
+                              <td align="left" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">&nbsp;</td>
+                              <td align="left"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">&nbsp;</td>
+                              <td align="left"	colspan="5"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">&nbsp;</td>
+                              <td align="left"	colspan="9"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;"><b>${lastEmployee} Subtotal</b></td>
+                              <td align="right"	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;"><b>${timeHoursSubTotal}</b></td>
+                              <td align="right" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">&nbsp;</td>
+                              <td align="right" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;"><b>${toCurrency(timeSubTotal)}</b></td>
+                          </tr>
+                          <tr>
+                              <td align="left" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">&nbsp;</td>
+                              <td align="left"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">&nbsp;</td>
+                              <td align="left"	colspan="5"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">&nbsp;</td>
+                              <td align="left"	colspan="9"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">&nbsp;</td>
+                              <td align="right"	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">&nbsp;</td>
+                              <td align="right" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">&nbsp;</td>
+                              <td align="right" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">&nbsp;</td>
+                          </tr>
+                          <#assign lastEmployee = time.timeEmployee>
+                          <#assign timeSubTotal = time.timeAmount>
+                          <#assign timeHoursSubTotal = time.timeQuantity>
+                      <#else>
+                          <#assign timeSubTotal += time.timeAmount>
+                          <#assign timeHoursSubTotal += time.timeQuantity>
+                      </#if>
+
+                      <tr>
+                          <td align="left" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${time.timeBillDate}</td>
+                          <td align="left"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${time.timeEmployee}</td>
+                          <td align="left"	colspan="5"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${time.timeItemName}</td>
+                          <td align="left"	colspan="9"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${time.timeMemo}</td>
+                          <td align="right"	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${time.timeQuantity}</td>
+                          <td align="right" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${toCurrency(time.timeRate)}</td>
+                          <td align="right" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">${toCurrency(time.timeAmount)}</td>
+                      </tr>
+                  </#list>
+
+                      <tr>
+                          <td align="left" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">&nbsp;</td>
+                          <td align="left"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">&nbsp;</td>
+                          <td align="left"	colspan="5"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">&nbsp;</td>
+                          <td align="left"	colspan="9"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>${lastEmployee} Subtotal</b></td>
+                          <td align="right"	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>${timeHoursSubTotal}</b></td>
+                          <td align="right" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">&nbsp;</td>
+                          <td align="right" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;"><b>${toCurrency(timeSubTotal)}</b></td>
+                      </tr>
+
+              </table>
+      </#if>
+  </#if>
+
+    <!--Expense detail section-->
+  	<#if record.custbody_bbs_expenses_detail_json?length gt 0>
+
+      <#assign detailInfo = record.custbody_bbs_expenses_detail_json?eval>
+      <#if detailInfo?has_content>
+
+          <#assign expenseTotal = 0>
+          <#assign expenseSubTotal = 0>
+          <#assign lastEmployee = "~~~~~~~~~~">
+
+          <table style="width: 100%; margin-top: 10px;">
+              <tr>
+                  <th align="left" 	colspan="25" style="font-size: 10pt; padding-left: 6px;"><b>Expense Details</b></th>
+              </tr>
+                  <tr>
+                      <th align="left" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Date</th>
+                      <th align="left"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Employee</th>
+                      <th align="left" 	colspan="9"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Item</th>
+                      <th align="left" 	colspan="9"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">Description</th>
+                      <th align="right" colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">Value</th>
+                  </tr>
+
+                  <#list detailInfo as expense>
+
+                      <#assign expenseTotal += expense.expenseAmount>
+
+                      <#if expense_index==0>
+                          <#assign lastEmployee = expense.expenseEmployee>
+                      </#if>
+
+                      <#if expense.expenseEmployee != lastEmployee>
+                          <tr>
+                              <td align="left" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">&nbsp;</td>
+                              <td align="left"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">&nbsp;</td>
+                              <td align="left"	colspan="9"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">&nbsp;</td>
+                              <td align="left"	colspan="9"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;"><b>${lastEmployee} Subtotal</b></td>
+                              <td align="right" colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;"><b>${toCurrency(expenseSubTotal)}</b></td>
+                          </tr>
+                          <tr>
+                              <td align="left" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">&nbsp;</td>
+                              <td align="left"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">&nbsp;</td>
+                              <td align="left"	colspan="9"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">&nbsp;</td>
+                              <td align="left"	colspan="9"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">&nbsp;</td>
+                              <td align="right" colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">&nbsp;</td>
+                          </tr>
+                          <#assign lastEmployee = expense.expenseEmployee>
+                          <#assign expenseSubTotal = expense.expenseAmount>
+                      <#else>
+                          <#assign expenseSubTotal += expense.expenseAmount>
+                      </#if>
+
+                      <tr>
+                          <td align="left" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${expense.expenseBillDate}</td>
+                          <td align="left"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${expense.expenseEmployee}</td>
+                          <td align="left"	colspan="9"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${expense.expenseItemName}</td>
+                          <td align="left"	colspan="9"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${expense.expenseMemo?keep_after(': ')}</td>
+                          <td align="right" colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">${toCurrency(expense.expenseAmount)}</td>
+                      </tr>
+                  </#list>
+
+                      <tr>
+                          <td align="left" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">&nbsp;</td>
+                          <td align="left"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">&nbsp;</td>
+                          <td align="left"	colspan="9"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">&nbsp;</td>
+                          <td align="left"	colspan="9"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>${lastEmployee} Subtotal</b></td>
+                          <td align="right" colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;"><b>${toCurrency(expenseSubTotal)}</b></td>
+                      </tr>
+
+              </table>
+      </#if>
+  </#if>
+
+  </body>
+
+</#if>
+
 </pdf>

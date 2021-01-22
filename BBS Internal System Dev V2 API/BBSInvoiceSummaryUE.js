@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/record'],
-function(runtime, record) 
+define(['N/runtime', 'N/record', 'N/format'],
+function(runtime, record, format) 
 {
    
      /**
@@ -35,6 +35,8 @@ function(runtime, record)
 	    			summaryInfo.expenseSummary	= [];
 	    			summaryInfo.itemSummary		= [];
 	    			summaryInfo.totalSummary	= [];
+	    			summaryInfo.timeDetail		= [];
+	    			summaryInfo.expenseDetail	= [];
 	    			
 	    			//Get line counts from the sublists
 	    			//
@@ -46,7 +48,8 @@ function(runtime, record)
 	    			//
 	    			//Process the time lines
 	    			//
-	    			var tempTimeObj = {};
+	    			var tempTimeObj 		= {};
+	    			var tempTimeDetailObj	= {};
 	    			
 	    			for (var timeLine = 0; timeLine < timeLines; timeLine++) 
 		    			{
@@ -55,8 +58,18 @@ function(runtime, record)
 		    				var timeRate 		= Number(isNullorBlank(currentRecord.getSublistValue({sublistId: 'time', fieldId: 'rate', line: timeLine}),0));
 		    				var timeItemName	= isNullorBlank(currentRecord.getSublistValue({sublistId: 'time', fieldId: 'itemdisp', line: timeLine}),'');
 		    				var timeItemId		= currentRecord.getSublistValue({sublistId: 'time', fieldId: 'item', line: timeLine});
-						
-		    				//Does the item exist in the temp object
+		    				var timeBillDate	= currentRecord.getSublistValue({sublistId: 'time', fieldId: 'billeddate', line: timeLine});
+		    				var timeEmployee	= isNullorBlank(currentRecord.getSublistValue({sublistId: 'time', fieldId: 'employeedisp', line: timeLine}),'');
+		    				var timeMemo		= isNullorBlank(currentRecord.getSublistValue({sublistId: 'time', fieldId: 'memo', line: timeLine}),'');
+		    				
+		    				//Add to the temp detail object
+		    				//
+		    				var keyValue = timeEmployee + '|' + padding_left(timeBillDate.getTime(),'0',20) + '|' + timeLine;		//Create a key to sort by later
+		    				
+		    				tempTimeDetailObj[keyValue] = new timeDetailObj(format.format({value: timeBillDate, type: format.Type.DATE}), timeEmployee, timeItemName, timeMemo, timeQuantity, timeRate, timeAmount);
+		    					
+		    					
+		    				//Does the item exist in the temp summary object
 		    				//
 		    				if(tempTimeObj.hasOwnProperty(timeItemId))
 		    					{
@@ -73,6 +86,17 @@ function(runtime, record)
 		    					}
 	    				}
 	    			
+	    			//Sort the detail and then add to the summary
+	    			//
+	    			const sortedTimeDetail = {};
+				    Object.keys(tempTimeDetailObj).sort().forEach(function(key) {sortedTimeDetail[key] = tempTimeDetailObj[key];});
+	    			
+	    			for ( var key in sortedTimeDetail) 
+		    			{
+	    					summaryInfo.timeDetail.push(sortedTimeDetail[key])
+						}
+	    			
+	    			
 	    			//Add the time data to the time summary
 	    			//
 	    			for ( var key in tempTimeObj) 
@@ -84,14 +108,25 @@ function(runtime, record)
 	    			//
 	    			//Process the expense lines
 	    			//
-	    			var tempExpenseObj = {};
+	    			var tempExpenseObj 			= {};
+	    			var tempExpenseDetailObj	= {};
 	    			
 	    			for (var expenseLine = 0; expenseLine < expensesLines; expenseLine++) 
 		    			{
 		    				var expenseAmount 	= Number(isNullorBlank(currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'amount', line: expenseLine}),0));
 		    				var expenseItemName	= isNullorBlank(currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'categorydisp', line: expenseLine}),'');
 		    				var expenseItemId	= currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'category', line: expenseLine});
-						
+		    				var expenseBillDate	= currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'billeddate', line: expenseLine});
+		    				var expenseEmployee	= isNullorBlank(currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'employeedisp', line: expenseLine}),'');
+		    				var expenseMemo		= isNullorBlank(currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'memo', line: expenseLine}),'');
+		    				var expenseLineNo	= isNullorBlank(currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'line', line: expenseLine}),'');
+		    				
+		    				//Add to the temp detail object
+		    				//
+		    				var keyValue = expenseEmployee + '|' + padding_left(expenseBillDate.getTime(),'0',20) + '|' + expenseLineNo;		//Create a key to sort by later
+		    				
+		    				tempExpenseDetailObj[keyValue] = new expenseDetailObj(format.format({value: expenseBillDate, type: format.Type.DATE}), expenseEmployee, expenseItemName, expenseMemo, expenseAmount);
+		    				
 		    				//Does the item exist in the temp object
 		    				//
 		    				if(tempExpenseObj.hasOwnProperty(expenseItemId))
@@ -107,6 +142,16 @@ function(runtime, record)
 		    						tempExpenseObj[expenseItemId] = new expenseSummaryObj(expenseItemId, expenseItemName, expenseAmount);
 		    					}
 	    				}
+	    			
+	    			//Sort the detail and then add to the summary
+	    			//
+	    			const sortedExpenseDetail = {};
+				    Object.keys(tempExpenseDetailObj).sort().forEach(function(key) {sortedExpenseDetail[key] = tempExpenseDetailObj[key];});
+	    			
+	    			for ( var key in sortedExpenseDetail) 
+		    			{
+	    					summaryInfo.expenseDetail.push(sortedExpenseDetail[key])
+						}
 	    			
 	    			//Add the expense data to the expense summary
 	    			//
@@ -124,9 +169,9 @@ function(runtime, record)
 	    			for (var itemLine = 0; itemLine < itemLines; itemLine++) 
 		    			{
 		    				var itemAmount 		= Number(isNullorBlank(currentRecord.getSublistValue({sublistId: 'item', fieldId: 'amount', line: itemLine}),0));
-		    				var itemQuantity 	= Number(isNullorBlank(currentRecord.getSublistValue({sublistId: 'item', fieldId: 'qty', line: itemLine}),0));
+		    				var itemQuantity 	= Number(isNullorBlank(currentRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: itemLine}),0));
 		    				var itemRate 		= Number(isNullorBlank(currentRecord.getSublistValue({sublistId: 'item', fieldId: 'rate', line: itemLine}),0));
-		    				var itemItemName	= isNullorBlank(currentRecord.getSublistValue({sublistId: 'item', fieldId: 'item_display', line: itemLine}),'');
+		    				var itemItemName	= isNullorBlank(currentRecord.getSublistValue({sublistId: 'item', fieldId: 'description', line: itemLine}),'');
 		    				var itemItemId		= currentRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: itemLine});
 						
 		    				//Does the item exist in the temp object
@@ -165,7 +210,9 @@ function(runtime, record)
 	    										values:		{
 	    													custbody_bbs_time_summary_json:			JSON.stringify(summaryInfo.timeSummary),
 	    													custbody_bbs_expenses_summary_json:		JSON.stringify(summaryInfo.expenseSummary),
-	    													custbody_bbs_item_summary_json:			JSON.stringify(summaryInfo.itemSummary)
+	    													custbody_bbs_item_summary_json:			JSON.stringify(summaryInfo.itemSummary),
+	    													custbody_bbs_time_detail_json:			JSON.stringify(summaryInfo.timeDetail),
+	    													custbody_bbs_expenses_detail_json:		JSON.stringify(summaryInfo.expenseDetail)
 	    													}
 	    										});			
 	    				}
@@ -177,6 +224,19 @@ function(runtime, record)
 
     }
 
+    //Time detail object 
+    //
+    function timeDetailObj(_timeBillDate, _timeEmployee, _timeItemName, _timeMemo, _timeQuantity, _timeRate, _timeAmount)
+    	{
+    		this.timeBillDate	= _timeBillDate;
+    		this.timeEmployee	= _timeEmployee;
+    		this.timeItemName	= _timeItemName;
+    		this.timeMemo		= _timeMemo;
+    		this.timeQuantity	= _timeQuantity;
+    		this.timeRate		= _timeRate;
+    		this.timeAmount		= _timeAmount;
+    	}
+   
     //Time summary object
     //
     function timeSummaryObj(_timeItemId, _timeItemName, _timeQuantity, _timeRate, _timeAmount)
@@ -188,6 +248,17 @@ function(runtime, record)
     		this.timeAmount		= _timeAmount;
     	}
    
+    //Expense detail object
+    //
+    function expenseDetailObj(_expenseBillDate, _expenseEmployee, _expenseItemName, _expenseMemo, _expenseAmount)
+    	{
+    		this.expenseBillDate	= _expenseBillDate;
+    		this.expenseEmployee	= _expenseEmployee;
+    		this.expenseItemName	= _expenseItemName;
+    		this.expenseMemo		= _expenseMemo;
+    		this.expenseAmount		= _expenseAmount;
+    	}
+    
     //Expense summary object
     //
     function expenseSummaryObj(_expenseItemId, _expenseItemName, _expenseAmount)
@@ -208,6 +279,24 @@ function(runtime, record)
     		this.itemAmount		= _itemAmount;
     	}
    
+    //Left padding s with c to a total of n chars
+    //
+    function padding_left(s, c, n) 
+	    {
+	    	if (! s || ! c || s.length >= n) 
+		    	{
+		    		return s;
+		    	}
+	    	
+	    	var max = (n - s.length)/c.length;
+	    	
+	    	for (var i = 0; i < max; i++) 
+		    	{
+		    		s = c + s;
+		    	}
+	    	
+	    	return s;
+	    }
     
     function isNullorBlank(_string, _replacer)
 		{
