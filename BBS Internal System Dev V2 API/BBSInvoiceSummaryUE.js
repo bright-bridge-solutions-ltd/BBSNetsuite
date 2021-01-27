@@ -61,28 +61,31 @@ function(runtime, record, format)
 		    				var timeBillDate	= currentRecord.getSublistValue({sublistId: 'time', fieldId: 'billeddate', line: timeLine});
 		    				var timeEmployee	= isNullorBlank(currentRecord.getSublistValue({sublistId: 'time', fieldId: 'employeedisp', line: timeLine}),'');
 		    				var timeMemo		= isNullorBlank(currentRecord.getSublistValue({sublistId: 'time', fieldId: 'memo', line: timeLine}),'');
+		    				var timeApply		= currentRecord.getSublistValue({sublistId: 'time', fieldId: 'apply', line: timeLine});
 		    				
-		    				//Add to the temp detail object
-		    				//
-		    				var keyValue = timeEmployee + '|' + padding_left(timeBillDate.getTime(),'0',20) + '|' + timeLine;		//Create a key to sort by later
-		    				
-		    				tempTimeDetailObj[keyValue] = new timeDetailObj(format.format({value: timeBillDate, type: format.Type.DATE}), timeEmployee, timeItemName, timeMemo, timeQuantity, timeRate, timeAmount);
-		    					
-		    					
-		    				//Does the item exist in the temp summary object
-		    				//
-		    				if(tempTimeObj.hasOwnProperty(timeItemId))
+		    				if(timeApply)
 		    					{
-		    						//Update the temp objects
-		    						//
-		    						tempTimeObj[timeItemId].timeQuantity 	+= timeQuantity;
-		    						tempTimeObj[timeItemId].timeAmount 		+= timeAmount;
-		    					}
-		    				else
-		    					{
-		    						//Create a new entry
-		    						//
-		    						tempTimeObj[timeItemId] = new timeSummaryObj(timeItemId, timeItemName, timeQuantity, timeRate, timeAmount);
+				    				//Add to the temp detail object
+				    				//
+				    				var keyValue = timeEmployee + '|' + padding_left(timeBillDate.getTime(),'0',20) + '|' + timeLine;		//Create a key to sort by later
+				    				
+				    				tempTimeDetailObj[keyValue] = new timeDetailObj(format.format({value: timeBillDate, type: format.Type.DATE}), timeEmployee, timeItemName, timeMemo, timeQuantity, timeRate, timeAmount);
+				    					
+				    				//Does the item exist in the temp summary object
+				    				//
+				    				if(tempTimeObj.hasOwnProperty(timeItemId))
+				    					{
+				    						//Update the temp objects
+				    						//
+				    						tempTimeObj[timeItemId].timeQuantity 	+= timeQuantity;
+				    						tempTimeObj[timeItemId].timeAmount 		+= timeAmount;
+				    					}
+				    				else
+				    					{
+				    						//Create a new entry
+				    						//
+				    						tempTimeObj[timeItemId] = new timeSummaryObj(timeItemId, timeItemName, timeQuantity, timeRate, timeAmount);
+				    					}
 		    					}
 	    				}
 	    			

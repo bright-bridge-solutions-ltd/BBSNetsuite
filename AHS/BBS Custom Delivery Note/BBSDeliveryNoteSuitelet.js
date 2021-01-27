@@ -111,9 +111,11 @@ function buildOutput(_salesOrderId)
 												soShipDate		= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('custbody_exp_ship_date_so')),'');
 											}
 										
+										var previousLineSupp	= salesOrderRecord.getLineItemValue('item', 'custcol_po_vendor', 1);
 										
 										for (var int = 1; int <= soLines; int++) 
 											{
+												
 												var soLineItemId		= salesOrderRecord.getLineItemValue('item', 'item', int);
 												var soLineItem 			= salesOrderRecord.getLineItemText('item', 'item', int);
 												var soLineItemRecType	= salesOrderRecord.getLineItemValue('item', 'itemtype', int);
@@ -123,11 +125,15 @@ function buildOutput(_salesOrderId)
 												
 												//Look for the first line that is an inventory item & the supplier is AHS Limited
 												//
-												if(soLineItem == 'Delivery')
+												if(soLineItem == 'Delivery' && previousLineSupp == '16336')
 													{
 														soSiteContact 	= isNull(nlapiEscapeXML(salesOrderRecord.getLineItemValue('item', 'custcol7', int)),'');
 														soNotes 		= isNull(nlapiEscapeXML(salesOrderRecord.getLineItemValue('item', 'custcol_dspo_haulier_notes', int)),'');
 														break;
+													}
+												else
+													{
+														previousLineSupp = soLineSupplier;
 													}
 											}
 										

@@ -101,8 +101,17 @@ function createAssembliesScheduled(type)
 								{
 									//Get the abbreviation of the colour from the custom list
 									//
-									var colourAbbreviation = nlapiLookupField('customlist_bbs_item_colour', parentColour, 'abbreviation');
+									var colourAbbreviation = '';
 
+									try
+										{
+											colourAbbreviation = nlapiLookupField('customlist_bbs_item_colour', parentColour, 'abbreviation');
+										}
+									catch(err)
+										{
+											colourAbbreviation = '';
+										}
+										
 									//Get data from the customer record
 									//
 									var customerRef = customerRecord.getFieldValue('custentity_bbs_legacy_accnumber');
@@ -214,7 +223,7 @@ function createAssembliesScheduled(type)
 													newParentRecord.setFieldValue('class', parentClass);
 													newParentRecord.setFieldValue('custitem_unit_of_sale', '1');
 													newParentRecord.setFieldValue('custitem_bbs_item_customer', customerId);
-													
+                                                  
 													//Copy in the custom fields
 													//
 													for (var custFieldCount = 0; custFieldCount < customFields.length; custFieldCount++) 
@@ -286,7 +295,7 @@ function createAssembliesScheduled(type)
 														{	
 //SMI														var minStock = data[2];
 //SMI														var maxStock = data[3];
-															var webProduct = data[3];
+//SMI														var webProduct = data[4];
 															
 															//Read the child record
 															//
@@ -497,10 +506,10 @@ function createAssembliesScheduled(type)
 																					
 																					//Add the child item to the list of web products
 																					//
-																				if(webProduct == 'T')
-																						{
+//SMI																				if(webProduct == 'T')
+//																						{
  																							allChildWebProducts[newchildId] = newchildId;
-																						}
+//																						}
 																					
 																					//Add info to the email message
 																					//
@@ -642,7 +651,7 @@ function createAssembliesScheduled(type)
 					
 					emailText += 'Customer web products have been updated\n';
 				}
-		}
+	  }
 	
 	//Send the email to the user to say that we have finished
 	//

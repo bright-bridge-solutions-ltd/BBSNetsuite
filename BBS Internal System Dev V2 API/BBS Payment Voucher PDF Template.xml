@@ -1,0 +1,322 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" 	type="font" subtype="truetype"
+          src="${nsfont.NotoSans_Regular}"
+          src-bold="${nsfont.NotoSans_Bold}"
+          src-italic="${nsfont.NotoSans_Italic}"
+          src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2"/>
+	<link name="HKGrotesk" 	type="font" subtype="truetype"
+          src="https://4136219.app.netsuite.com/core/media/media.nl?id=2632448&amp;c=4136219&amp;h=juJJ11EWtswAmEqcMajpZKzCFECdMPokwMs9F_olYBpMw4pg&amp;_xt=.ttf"
+          src-bold="https://4136219.app.netsuite.com/core/media/media.nl?id=2632452&amp;c=4136219&amp;h=IUy9bPCpV8jHPGfp2DGAPfkOddgIO3pkZnREppPTm0ltIu4p&amp;_xt=.ttf"
+          src-italic="https://4136219.app.netsuite.com/core/media/media.nl?id=2632447&amp;c=4136219&amp;h=RAmkXJ1UpGUdZ2Y1h7E3pFFaF1Ji1N_dKSTa2w6uU67UxrzW&amp;_xt=.ttf"
+          src-bolditalic="https://4136219.app.netsuite.com/core/media/media.nl?id=2632445&amp;c=4136219&amp;h=xTJrg8aNah9HGFUSz2fFJ7-pdWlOrEH2uar5rMIk1GAT7Zhf&amp;_xt=.ttf" bytes="2"/>
+
+    <#assign cs = "£">
+    <#assign accountNumber = "83081265">
+    <#assign sortCode = "20-49-17">
+    <#assign swiftNumber = "BUKBG822">
+    <#assign ibanNumber = "GB14 BUKB 2049 1783 0812 65">
+      
+	<#if record.currency.symbol == "USD">
+      <#assign cs = "$">
+      <#assign accountNumber = "47401744">
+      <#assign sortCode = "20-49-17">
+      <#assign swiftNumber = "BUKBG822">
+      <#assign ibanNumber = "GB20 BUKB 2049 1747 4017 44">
+     
+    </#if>
+        
+    <#if record.currency.symbol == "EUR">
+      <#assign cs = "€">
+      <#assign accountNumber = "83081265">
+      <#assign sortCode = "20-49-17">
+      <#assign swiftNumber = "BUKBG822">
+      <#assign ibanNumber = "GB14 BUKB 2049 1783 0812 65">
+    </#if>
+	
+	<#function toCurrency value showSymbol=true>
+      	<#local retval = 0>
+      	<#local tmpcs = cs>
+      	<#if showSymbol == false>
+          	<#local tmpcs = "">
+      	</#if>
+      	<#if value &lt; 0 >
+          	<#local retval = value?string["#,##0.00"]>
+          	<#local retval = "(" + tmpcs + retval?replace("-","") + ")">
+      	<#else>
+          	<#local retval = tmpcs + value?string["#,##0.00"]>
+      	</#if>
+      	<#if value == 0 >
+          	<#local retval = tmpcs + "0.00">
+      	</#if>
+      	<#return retval>
+	</#function>
+
+    <macrolist>
+		<macro id="nlheader">
+			<table class="header" style="width: 100%;">
+				<tr>
+                  	<td align="left" colspan="12" style="font-size: 28pt; margin-top: 20px;">Payment Advice</td>
+					<td align="left" colspan="1">&nbsp;</td>
+                  	<td align="right" colspan="7" ><img src="${companyInformation.logoUrl}" style="float: right; width: 175px; height: 72px;" /></td>
+                  	<td align="left" colspan="1">&nbsp;</td>
+				</tr>
+			</table>
+
+          	<table class="header" style="width: 100%; margin-top: 10px;">
+            	<tr>
+                	<td align="left" colspan="3" style="font-size: 12px; padding-left: 6px;"><b>Paid To</b></td>
+                  	<td align="left" colspan="9" style="font-size: 12px;">&nbsp;</td>
+                  	<td align="left" colspan="1">&nbsp;</td>
+                  	<td align="right" colspan="7" style="font-size: 12px;">BrightBridge Solutions Limited</td>
+                 	<td align="left" colspan="1">&nbsp;</td>
+                </tr>
+              	<tr>
+                  	<td class="address" colspan="12" rowspan="8" style="font-size: 12px; padding-left: 5px; padding-top: 5px; padding-bottom: 5px; border: 1px solid #6EBBFF;">${record.address}<br/><br/>VAT No: ${record.entity.vatregnumber}</td>
+                  	<td align="left" colspan="1">&nbsp;</td>
+                  	<td align="right" colspan="7" style="font-size: 12px; padding-top: 1px;">Fosseway Suite</td>
+                 	<td align="left" colspan="1">&nbsp;</td>
+				</tr>
+              	<tr>
+                  	<td align="left" colspan="1">&nbsp;</td>
+                  	<td align="right" colspan="7" style="font-size: 12px;">Highcross Business Park</td>
+                 	<td align="left" colspan="1">&nbsp;</td>
+              	</tr>
+            	<tr>
+                  	<td align="left" colspan="1">&nbsp;</td>
+                  	<td align="right" colspan="7" style="font-size: 12px;">Coventry Road</td>
+                 	<td align="left" colspan="1">&nbsp;</td>
+              	</tr>
+            	<tr>
+                  	<td align="left" colspan="1">&nbsp;</td>
+                  	<td align="right" colspan="7" style="font-size: 12px;">Sharnford</td>
+                 	<td align="left" colspan="1">&nbsp;</td>
+              	</tr>
+            	<tr>
+                  	<td align="left" colspan="1">&nbsp;</td>
+                  	<td align="right" colspan="7" style="font-size: 12px;">LE10 3PG</td>
+                 	<td align="left" colspan="1">&nbsp;</td>
+              	</tr>
+            	<tr>
+                  	<td align="left" colspan="1">&nbsp;</td>
+                  	<td align="right" colspan="7" style="font-size: 12px;">United Kingdom</td>
+                 	<td align="left" colspan="1">&nbsp;</td>
+              	</tr>
+              	<tr>
+                  	<td align="left" colspan="1">&nbsp;</td>
+                  	<td align="right" colspan="7" style="font-size: 12px;">&nbsp;</td>
+                 	<td align="left" colspan="1">&nbsp;</td>
+              	</tr>
+              	<tr>
+                  	<td align="left" colspan="1">&nbsp;</td>
+                  	<td align="right" colspan="7" style="font-size: 12px;">VAT No. 213 9382 13</td>
+                 	<td align="left" colspan="1">&nbsp;</td>
+              	</tr>
+          	</table>
+
+          	<table class="header" style="width: 100%; margin-top: 10px;">
+            	<tr>
+                  	<td class="address" colspan="12" style="font-size: 12px; padding-left: 6px;"><b>Payment Details</b></td>
+                  	<td align="left" colspan="1">&nbsp;</td>
+                  	<td align="right" colspan="7" style="font-size: 12px; ">&nbsp;</td>
+                 	<td align="left" colspan="1">&nbsp;</td>
+              	</tr>
+              	<tr>
+                  	<td align="left" colspan="3" style="padding: 1px; padding-left: 5px; font-size: 12px; border-left: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;"><b>Payment No</b></td>
+                  	<td align="left" colspan="9" style="padding: 1px; padding-left: 5px; font-size: 12px; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">${record.tranid}</td>
+                  	<td align="left" colspan="1">&nbsp;</td>
+                  	<td align="right" colspan="7" style="font-size: 12px; "><b>Contact Us</b></td>
+                 	<td align="left" colspan="1">&nbsp;</td>
+              	</tr>
+            	<tr>
+                  	<td align="left" colspan="3" style="padding: 1px; padding-left: 5px; font-size: 12px; border-left: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>Date</b></td>
+                  	<td align="left" colspan="9" style="padding: 1px; padding-left: 5px; font-size: 12px; border-right: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">${record.trandate?string["dd MMM yyyy"]}</td>
+                  	<td align="left" colspan="1">&nbsp;</td>
+                  	<td align="right" colspan="7" style="font-size: 12px;"><a href="tel:+443301335000">0330 133 5000</a></td>
+                 	<td align="left" colspan="1">&nbsp;</td>
+              	</tr>
+            	<tr>
+                  	<td align="left" colspan="3">&nbsp;</td>
+                  	<td align="left" colspan="9">&nbsp;</td>
+                  	<td align="left" colspan="1">&nbsp;</td>
+                  	<td align="right" colspan="7" style="font-size: 12px;"><a href="mailto:accounts@brightbridgesolutions.com">accounts@brightbridgesolutions.com</a></td>
+                 	<td align="left" colspan="1">&nbsp;</td>
+              	</tr>
+            	<tr>
+                  	<td align="left" colspan="3">&nbsp;</td>
+                  	<td align="left" colspan="9">&nbsp;</td>
+                  	<td align="left" colspan="1">&nbsp;</td>
+                  	<td align="right" colspan="7" style="font-size: 12px; padding-top: 4px;"><a href="www.brightbridgesolutions.com">brightbridgesolutions.com</a></td>
+                  	<td align="left" colspan="1" style="font-size: 12px;">&nbsp;</td>
+              	</tr>
+            	<tr>
+                  	<td align="left" colspan="3">&nbsp;</td>
+                  	<td align="left" colspan="9">&nbsp;</td>
+                  	<td align="left" colspan="1">&nbsp;</td>
+                  	<td align="left" colspan="8" style="font-size: 12px;">&nbsp;</td>
+              	</tr>
+            	<tr>
+                  	<td align="left" colspan="3">&nbsp;</td>
+                  	<td align="left" colspan="9">&nbsp;</td>
+                  	<td align="left" colspan="1">&nbsp;</td>
+                  	<td align="left" colspan="8">&nbsp;</td>
+              	</tr>
+              	<tr>
+                  	<td align="left" colspan="3">&nbsp;</td>
+                  	<td align="left" colspan="9">&nbsp;</td>
+                  	<td align="left" colspan="1">&nbsp;</td>
+                  	<td align="left" colspan="8">&nbsp;</td>
+              	</tr>
+            	
+          	</table>
+        </macro>
+
+        <macro id="nlfooter">
+            <table class="footer" style="width: 100%;">
+            	<tr style="margin-top: 10px;">
+                  	<td align="left" colspan="12">BrightBridge Solutions Limited. Registered in England, Number 09552788</td>
+                  	<td align="right" colspan="6">Page <pagenumber/> of <totalpages/></td>
+				</tr>
+          	</table>
+        </macro>
+    </macrolist>
+
+    <style type="text/css">* {
+			font-family: HKGrotesk, NotoSans, sans-serif;
+		}
+		table {
+			font-size: 			9pt;
+			table-layout: 		fixed;
+         	padding: 			5px 6px 3px;
+		}
+ 
+        td {
+            padding: 4px 6px;
+        }
+		td p { align:left }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            height: 1px;
+        }
+</style>
+</head>
+
+
+<body header="nlheader" header-height="340px" footer="nlfooter" footer-height="20px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+    <#if record.apply?has_content>
+            <table style="width: 100%;">
+              	<thead>
+                    <tr>
+                        <th align="left" 	colspan="3"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b><br/>Date</b></th>
+                        <th align="left" 	colspan="7"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b><br/>Description</b></th>
+                        <th align="right"	colspan="3"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>Original<br/>Amount</b></th>
+                        <th align="right"	colspan="3"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>Amount<br/>Due</b></th>
+                        <th align="right"	colspan="2"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b><br/>Discount</b></th>
+                        <th align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;"><b>Applied<br/>Amount</b></th>
+                    </tr>
+				</thead>
+
+                <#list record.apply as apply>
+                    <tr>
+                        <td align="left"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">${apply.applydate}</td>
+                        <td align="left" 	colspan="7"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">${apply.type}&nbsp;${apply.refnum}</td>
+                        <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">${apply.total}</td>
+                        <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">${apply.due}</td>
+                        <td align="right" 	colspan="2"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">${apply.disc}</td>
+                        <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">${apply.amount}</td>
+                    </tr>
+                </#list>
+            </table>
+	</#if>
+
+      <#if record.credit?has_content>
+            <table style="width: 100%; margin-top: 10px;">
+              	<thead>
+                    <tr>
+                        <th align="left" 	colspan="3"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>Date</b></th>
+                        <th align="left" 	colspan="7"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>Description</b></th>
+                        <th align="left"	colspan="8"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>Applied To</b></th>
+                        <th align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;"><b>Amount</b></th>
+                    </tr>
+				</thead>
+
+                <#list record.credit as credit>
+                    <tr>
+                        <td align="left"	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">${credit.creditdate}</td>
+                        <td align="left" 	colspan="7"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">${credit.type}&nbsp;${credit.refnum}</td>
+                        <td align="left" 	colspan="8"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">${credit.appliedto}</td>
+                        <td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">${credit.amount}</td>
+                    </tr>
+                </#list>
+            </table>
+	</#if>
+
+<!-- Totals -->
+<table style="width: 100%; margin-top: 10px; page-break-inside: avoid;">
+	<tr>
+      	<td align="left" 	colspan="13">&nbsp;</td>
+		<td align="left" 	colspan="5" style="padding: 5px 5px 5px 5px; background-color: #F6F9FC; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;"><b>Total Amount</b></td>
+		<td align="right" 	colspan="3" style="padding: 5px 5px 5px 5px; background-color: #F6F9FC; border: 1px solid #6EBBFF;"><b>${record.total}</b></td>
+	</tr>
+</table>
+
+</body>
+</pdf>
