@@ -2,13 +2,13 @@
 <pdfset>
 	<#if record.custbody_bbs_order_type == 'Connect'>
       <#if record.class == 'Connect : STEP'>
-			<#include "183982">
+			<#include "183771">
       <#else>
-            <#include "183979">
+            <#include "183768">
       </#if>
 	<#elseif record.custbody_bbs_order_type == 'Operate'>
-   		<#include "183981">
+   		<#include "183985">
     <#elseif record.custbody_bbs_order_type == 'Equipment'>
-        <#include "183980">
+        <#include "183769">
 	</#if>
 </pdfset>

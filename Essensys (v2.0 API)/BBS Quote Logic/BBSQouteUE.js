@@ -102,6 +102,7 @@ function(runtime, search, url) {
 		    	var premisesSummary = {};
 		    	var recurringItems = 0;
 		    	var setupItems = 0;
+		    	var nonStandardOrder = false;
 		    	
 		    	// get the current record
 		    	var currentRecord = scriptContext.newRecord;
@@ -174,7 +175,43 @@ function(runtime, search, url) {
 									}
 		    				}
 		    			
-		    			// get the value of the setup fee checkbox for the line
+		    			// get values from the item line
+		    			var itemID = currentRecord.getSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'item',
+		    				line: x
+		    			});
+		    			
+		    			var itemType = currentRecord.getSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'itemtype',
+		    				line: x
+		    			});
+		    			
+		    			var rate = currentRecord.getSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'rate',
+		    				line: x
+		    			});
+		    			
+		    			var billingSchedule = currentRecord.getSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'billingschedule',
+		    				line: x
+		    			});
+		    			
+		    			var defaultRate = currentRecord.getSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'custcol_bbs_default_rate',
+		    				line: x
+		    			});
+		    			
+		    			var defaultBillingSchedule = currentRecord.getSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'custcol_bbs_default_billing_schedule',
+		    				line: x
+		    			});
+		    			
 		    			var setupFee = currentRecord.getSublistValue({
 		    				sublistId: 'item',
 		    				fieldId: 'custcol_bbs_setup_fee',
@@ -192,6 +229,14 @@ function(runtime, search, url) {
 		    					// increase the recurringItems variable
 		    					recurringItems++;
 		    				}
+		    			
+		    			// if the rate or billing schedule is different to the default
+		    			if (rate != defaultRate || billingSchedule != defaultBillingSchedule)
+		    				{
+		    					// set nonStandardOrder to true
+		    					nonStandardOrder = true;
+		    				}
+		    			
 		    		}
 		    	
 		    	// update fields on the record
@@ -209,6 +254,12 @@ function(runtime, search, url) {
 		    		fieldId: 'custbody_bbs_number_of_setup_items',
 		    		value: setupItems
 		    	});
+		    	
+		    	currentRecord.setValue({
+		    		fieldId: 'custbody_bbs_non_standard_order',
+		    		value: nonStandardOrder
+		    	});
+		    	
     		}
     
     }

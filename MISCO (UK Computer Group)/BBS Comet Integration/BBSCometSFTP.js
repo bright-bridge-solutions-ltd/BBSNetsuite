@@ -229,6 +229,19 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				var headerOrderVat		= getDataElement(output, 'output.Order.OrderHeader.OrderTotal.VAT');
 																				var headerDateString 	= rawDateArray[2] + '/' + rawDateArray[1] + '/' + rawDateArray[0];
 																				var headerDate 			= format.parse({value: headerDateString, type: format.Type.DATE});
+																				var headerPaymentMethod	= getDataElement(output, 'output.Order.OrderHeader.ShipmentOptions.PaymentInformation.Payment.Provider');
+																				
+																				// switch the headerPaymentMethod
+																				switch(headerPaymentMethod) {
+																				
+																					case 'Stripe':
+																						headerPaymentMethod = 8;
+																						break;
+																					
+																					default:
+																						headerPaymentMethod = integrationPaymentMethod;
+																				
+																				}
 																				
 																				//Find or create a cash sale customer
 																				//
@@ -279,7 +292,12 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				
 																				salesOrderRecord.setValue({
 																											fieldId:	'paymentmethod',
-																											value:		integrationPaymentMethod					
+																											value:		headerPaymentMethod					
+																											});
+																				
+																				salesOrderRecord.setValue({
+																											fieldId:	'custbody_bbs_payment_method',
+																											value: headerPaymentMethod
 																											});
 																				
 																				salesOrderRecord.setValue({
@@ -782,6 +800,19 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				var headerOrderVat		= getDataElement(output, 'output.Order.OrderHeader.OrderTotal.VAT');
 																				var headerDateString 	= rawDateArray[2] + '/' + rawDateArray[1] + '/' + rawDateArray[0];
 																				var headerDate 			= format.parse({value: headerDateString, type: format.Type.DATE});
+																				var headerPaymentMethod	= getDataElement(output, 'output.Order.OrderHeader.ShipmentOptions.PaymentInformation.Payment.Provider');
+																				
+																				// switch the headerPaymentMethod
+																				switch(headerPaymentMethod) {
+																				
+																					case 'Stripe':
+																						headerPaymentMethod = 8;
+																						break;
+																					
+																					default:
+																						headerPaymentMethod = integrationPaymentMethod;
+																				
+																				}
 																				
 																				//Find or create a business customer
 																				//
@@ -833,7 +864,12 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				
 																				salesOrderRecord.setValue({
 																											fieldId:	'paymentmethod',
-																											value:		integrationPaymentMethod					
+																											value:		headerPaymentMethod					
+																											});
+																				
+																				salesOrderRecord.setValue({
+																											fieldId:	'custbody_bbs_payment_method',
+																											value: headerPaymentMethod
 																											});
 																				
 																				salesOrderRecord.setValue({
@@ -2072,14 +2108,23 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
     function findSupplier(_supplier, _supplierSuffixParam)
     	{
     		var supplierId = null;
+    		var supplierSearch = null;
     		//var supplerSearch = (_supplier == 'Ingram Micro' ? _supplier : _supplier + ' ' + _supplierSuffixParam);
-    		var supplerSearch = _supplier + ' ' + _supplierSuffixParam;
+    		
+    		if (_supplierSuffixParam)
+    			{
+    				supplierSearch = _supplier + ' ' + _supplierSuffixParam;
+    			}
+    		else
+    			{
+    				supplierSearch = _supplier;
+    			}
     		
 	    	var vendorSearchObj = getResults(search.create({
 				   type: 	"vendor",
 				   filters:
 							   [
-							      ["entityid","is",supplerSearch]
+							      ["entityid","is",supplierSearch]
 							   ],
 				   columns:
 							   [
@@ -2098,7 +2143,6 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 			    	
 			return supplierId;
     	}
-    
     
     //Get data elements from output object
     //
