@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/record', 'N/format'],
-function(runtime, record, format) 
+define(['N/runtime', 'N/record', 'N/format', 'N/search'],
+function(runtime, record, format, search) 
 {
    
      /**
@@ -123,26 +123,30 @@ function(runtime, record, format)
 		    				var expenseEmployee	= isNullorBlank(currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'employeedisp', line: expenseLine}),'');
 		    				var expenseMemo		= isNullorBlank(currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'memo', line: expenseLine}),'');
 		    				var expenseLineNo	= isNullorBlank(currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'line', line: expenseLine}),'');
+		    				var expenseApply	= currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'apply', line: timeLine});
 		    				
-		    				//Add to the temp detail object
-		    				//
-		    				var keyValue = expenseEmployee + '|' + padding_left(expenseBillDate.getTime(),'0',20) + '|' + expenseLineNo;		//Create a key to sort by later
-		    				
-		    				tempExpenseDetailObj[keyValue] = new expenseDetailObj(format.format({value: expenseBillDate, type: format.Type.DATE}), expenseEmployee, expenseItemName, expenseMemo, expenseAmount);
-		    				
-		    				//Does the item exist in the temp object
-		    				//
-		    				if(tempExpenseObj.hasOwnProperty(expenseItemId))
+		    				if(expenseApply)
 		    					{
-		    						//Update the temp objects
-		    						//
-		    						tempExpenseObj[expenseItemId].expenseAmount 	+= expenseAmount;
-		    					}
-		    				else
-		    					{
-		    						//Create a new entry
-		    						//
-		    						tempExpenseObj[expenseItemId] = new expenseSummaryObj(expenseItemId, expenseItemName, expenseAmount);
+				    				//Add to the temp detail object
+				    				//
+				    				var keyValue = expenseEmployee + '|' + padding_left(expenseBillDate.getTime(),'0',20) + '|' + expenseLineNo;		//Create a key to sort by later
+				    				
+				    				tempExpenseDetailObj[keyValue] = new expenseDetailObj(format.format({value: expenseBillDate, type: format.Type.DATE}), expenseEmployee, expenseItemName, expenseMemo, expenseAmount);
+				    				
+				    				//Does the item exist in the temp object
+				    				//
+				    				if(tempExpenseObj.hasOwnProperty(expenseItemId))
+				    					{
+				    						//Update the temp objects
+				    						//
+				    						tempExpenseObj[expenseItemId].expenseAmount 	+= expenseAmount;
+				    					}
+				    				else
+				    					{
+				    						//Create a new entry
+				    						//
+				    						tempExpenseObj[expenseItemId] = new expenseSummaryObj(expenseItemId, expenseItemName, expenseAmount);
+				    					}
 		    					}
 	    				}
 	    			
@@ -202,6 +206,20 @@ function(runtime, record, format)
 						}
 	    			
 	    			
+	    			//Update the PO numner on the invoice with the "invoice reference" field from the project, if there is one.....
+	    			//
+	    			var projectId 	= currentRecord.getValue({fieldId: 'job'});
+	    			var poNumber	= currentRecord.getValue({fieldId: 'otherrefnum'});
+	    			
+	    			if(projectId != null && projectId != '' && (poNumber == null || poNumber == ''))
+	    				{
+	    					poNumber = search.lookupFields({
+	    													type:		search.Type.JOB,
+	    													id:			projectId,
+	    													columns:	'custentity_bbs_inv_ref'
+	    													}).custentity_bbs_inv_ref;
+	    				}
+	    			
 	    			//
 	    			//Save the summary to the invoice
 	    			//
@@ -215,7 +233,8 @@ function(runtime, record, format)
 	    													custbody_bbs_expenses_summary_json:		JSON.stringify(summaryInfo.expenseSummary),
 	    													custbody_bbs_item_summary_json:			JSON.stringify(summaryInfo.itemSummary),
 	    													custbody_bbs_time_detail_json:			JSON.stringify(summaryInfo.timeDetail),
-	    													custbody_bbs_expenses_detail_json:		JSON.stringify(summaryInfo.expenseDetail)
+	    													custbody_bbs_expenses_detail_json:		JSON.stringify(summaryInfo.expenseDetail),
+	    													otherrefnum:							poNumber
 	    													}
 	    										});			
 	    				}

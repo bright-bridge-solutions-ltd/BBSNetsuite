@@ -18,6 +18,7 @@
     <#assign swiftNumber = "BUKBG822">
     <#assign ibanNumber = "GB14 BUKB 2049 1783 0812 65">
       
+      
 	<#if record.currency.symbol == "USD">
       <#assign cs = "$">
       <#assign accountNumber = "47401744">
@@ -145,13 +146,13 @@
               	</tr>
             	<tr>
                   	<td align="left" colspan="3" style="padding: 1px; padding-left: 5px; font-size: 12px; border-left: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;"><b>Project Details</b></td>
-                  	<td align="left" colspan="9" style="padding: 1px; padding-left: 5px; font-size: 12px; border-right: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${record.job.companyname?keep_after(': ')}</td>
+                  	<td align="left" colspan="9" style="padding: 1px; padding-left: 5px; font-size: 12px; border-right: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${record.job.entitynumber} : ${record.job.companyname?keep_after(': ')}</td>
                   	<td align="left" colspan="1">&nbsp;</td>
                   	<td align="right" colspan="7" style="font-size: 12px;"><a href="www.brightbridgesolutions.com">brightbridgesolutions.com</a></td>
                  	<td align="left" colspan="1">&nbsp;</td>
               	</tr>
             	<tr>
-                  	<td align="left" colspan="3" style="padding: 1px; padding-left: 5px; font-size: 12px; border-left: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;"><b>Your Reference</b></td>
+                  	<td align="left" colspan="3" style="padding: 1px; padding-left: 5px; font-size: 12px; border-left: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;"><b>Reference</b></td>
                   	<td align="left" colspan="9" style="padding: 1px; padding-left: 5px; font-size: 12px; border-right: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${record.otherrefnum}</td>
                   	<td align="left" colspan="1">&nbsp;</td>
                   	<td align="left" colspan="8" style="font-size: 12px;">&nbsp;</td>
@@ -316,7 +317,6 @@
                         <th align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;"><b>Value</b></th>
                     </tr>
 				</thead>
-				
                 <#list summaryInfo as time>
                     <#assign timeTotal += time.timeAmount>
                     <tr>
@@ -353,7 +353,6 @@
                         <th align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;"><b>Value</b></th>
                     </tr>
 				</thead>
-				
                 <#list summaryInfo as expense>
                     <#assign expenseTotal += expense.expenseAmount>
                     <tr>
@@ -390,7 +389,6 @@
                         <th align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;"><b>Value</b></th>
                     </tr>
 				</thead>
-				
                 <#list summaryInfo as item>
                     <#assign itemTotal += item.itemAmount>
                     <tr>
@@ -463,11 +461,11 @@
           <#assign lastEmployee = "~~~~~~~~~~">
 
           <table style="width: 100%; margin-top: 10px;">
-			<thead>
-				<tr>
-					<th align="left" 	colspan="25" style="font-size: 10pt; padding-left: 6px;"><b>Time Details</b></th>
-				</tr>
-				<tr>
+         	<thead>
+              <tr>
+                  <th align="left" 	colspan="25" style="font-size: 10pt; padding-left: 6px;"><b>Time Details</b></th>
+              </tr>
+                  <tr>
                       <th align="left" 	colspan="2"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;"><b>Date</b></th>
                       <th align="left"	colspan="3"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;"><b>Employee</b></th>
                       <th align="left" 	colspan="5"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;"><b>Item</b></th>
@@ -475,9 +473,8 @@
                       <th align="right" colspan="2"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;"><b>Hours</b></th>
                       <th align="right" colspan="2"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;"><b>Rate</b></th>
                       <th align="right" colspan="2"  style="padding: 5px 5px 5px 5px; background-color: #ECF1F8; border-left: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;"><b>Value</b></th>
-				</tr>
+                  </tr>
 			</thead>
-			
                   <#list detailInfo as time>
 
                       <#assign timeTotal += time.timeAmount>

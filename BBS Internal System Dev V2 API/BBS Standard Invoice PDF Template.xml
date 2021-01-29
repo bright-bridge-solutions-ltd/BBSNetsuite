@@ -144,7 +144,7 @@
                  	<td align="left" colspan="1">&nbsp;</td>
               	</tr>
             	<tr>
-                  	<td align="left" colspan="3" style="padding: 1px; padding-left: 5px; font-size: 12px; border-left: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;"><b>Your Reference</b></td>
+                  	<td align="left" colspan="3" style="padding: 1px; padding-left: 5px; font-size: 12px; border-left: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;"><b>Reference</b></td>
                   	<td align="left" colspan="9" style="padding: 1px; padding-left: 5px; font-size: 12px; border-right: 1px solid #6EBBFF; border-top: 1px solid #6EBBFF;">${record.otherrefnum}</td>
                   	<td align="left" colspan="1">&nbsp;</td>
                   	<td align="right" colspan="7" style="font-size: 12px;"><a href="www.brightbridgesolutions.com">brightbridgesolutions.com</a></td>

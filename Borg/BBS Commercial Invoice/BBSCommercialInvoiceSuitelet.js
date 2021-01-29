@@ -133,7 +133,7 @@ function buildOutput(_fulfillmentId)
 													companyEmail		= 'sales@borgandoverstrom.com';
 													companyPhone 		= '+44(0) 1362 695 006';
 													companyWeb			= 'borgandoverstrom.com';
-													companyLogo			= 'https://3976137-sb1.app.netsuite.com/core/media/media.nl?id=1897&amp;c=3976137_SB1&amp;h=a06e41069e3014da9368" style="width:136px; height:63px;';
+													companyLogo			= 'https://3976137.app.netsuite.com/core/media/media.nl?id=1897&amp;c=3976137_SB1&amp;h=a06e41069e3014da9368" style="width:136px; height: 63px;';
 													companyVatNo		= 'GB 788436081';
 													companyEori			= 'GB788436081000';
 													companyName			= 'Borg &amp; Overstrom - the trading name of Azure Uk';
@@ -145,10 +145,10 @@ function buildOutput(_fulfillmentId)
 													companyEmail		= 'accounts@freshground.co.uk';
 													companyPhone 		= '+44(0) 845 845 1500';
 													companyWeb			= 'freshground.co.uk';
-													companyLogo			= 'https://system.eu2.netsuite.com/core/media/media.nl?id=1565231&amp;c=3976137&amp;h=8647aeb5cc9fbb9a2ea3" style="width: 280px;';
+													companyLogo			= 'https://3976137.app.netsuite.com/core/media/media.nl?id=1565231&amp;c=3976137&amp;h=8647aeb5cc9fbb9a2ea3" style="width: 143px; height: 26px;';
 													companyVatNo		= 'GB 224258184';
 													companyEori			= 'GB224258184000';
-													companyName			= 'FreshGround - the trading name of Azure Uk';
+													companyName			= 'The Freshground Coffee Service LLP';
 													companyDeclaration	= 'Watercooler Dispensers for filtered water and related parts.';
 													
 													break;
@@ -263,18 +263,18 @@ function buildOutput(_fulfillmentId)
 										xml += '            <table style="table-layout:fixed; width:100%;">';
 
 										xml += '            	<tr>';
-										xml += '					<td style="width: 11%; font-size: 10px;">&nbsp;</td>';
-										xml += '					<td style="width: 89%; font-size: 10px;" align="right">VAT No.  ' + companyVatNo + '</td>';
+										xml += '					<td style="width: 11%; font-size: 8px;">&nbsp;</td>';
+										xml += '					<td style="width: 89%; font-size: 8px;" align="right">VAT No.  ' + companyVatNo + '</td>';
 										xml += '				</tr>';
 										
 										xml += '            	<tr>';
-										xml += '					<td style="width: 11%; font-size: 10px;">&nbsp;</td>';
-										xml += '					<td style="width: 89%; font-size: 10px;" align="right">EORI No. ' + companyEori + '</td>';
+										xml += '					<td style="width: 11%; font-size: 8px;">&nbsp;</td>';
+										xml += '					<td style="width: 89%; font-size: 8px;" align="right">EORI No. ' + companyEori + '</td>';
 										xml += '				</tr>';
 										
 										xml += '            	<tr>';
-										xml += '					<td style="width: 11%; font-size: 10px;">&nbsp;</td>';
-										xml += '					<td style="width: 89%; font-size: 10px;" align="right">' + companyName + '</td>';
+										xml += '					<td style="width: 11%; font-size: 8px;">&nbsp;</td>';
+										xml += '					<td style="width: 89%; font-size: 8px;" align="right">' + companyName + '</td>';
 										xml += '				</tr>';
 										xml += '          	</table>';
 										xml += '        </macro>';
@@ -287,7 +287,7 @@ function buildOutput(_fulfillmentId)
 										xml += '	</style>';
 										xml += '</head>';
 										//xml += '<body header="nlheader" header-height="550px" footer="nlfooter" footer-height="170px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
-										xml += '<body header="nlheader" header-height="550px" footer="nlfooter" footer-height="70px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
+										xml += '<body header="nlheader" header-height="550px" footer="nlfooter" footer-height="60px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
 										
 									
 										var ifLines 	= fulfillmentRecord.getLineItemCount('item');
