@@ -161,7 +161,7 @@ function buildOutput(_fulfillmentId)
 													companyVatNo		= 'GB 187770165';
 													companyEori			= 'GB187770165000';
 													companyName			= 'Sterizen is trading name of Azure Corporate. Sterizen and the Totality ‘T’ icon are registered trademarks.';
-													companyDeclaration	= 'Watercooler Dispensers for filtered water and related parts.';
+													companyDeclaration	= 'Sanitaryware with related parts, and sanitiser products.';
 													
 													break;
 
