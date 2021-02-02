@@ -145,11 +145,11 @@ function buildOutput(_fulfillmentId)
 													companyEmail		= 'accounts@freshground.co.uk';
 													companyPhone 		= '+44(0) 845 845 1500';
 													companyWeb			= 'freshground.co.uk';
-													companyLogo			= 'https://3976137.app.netsuite.com/core/media/media.nl?id=1565231&amp;c=3976137&amp;h=8647aeb5cc9fbb9a2ea3" style="width: 143px; height: 26px;';
+													companyLogo			= 'https://3976137.app.netsuite.com/core/media/media.nl?id=1565231&amp;c=3976137&amp;h=8647aeb5cc9fbb9a2ea3" style="width: 198px; height: 36px;';
 													companyVatNo		= 'GB 224258184';
 													companyEori			= 'GB224258184000';
 													companyName			= 'The Freshground Coffee Service LLP';
-													companyDeclaration	= 'Watercooler Dispensers for filtered water and related parts.';
+													companyDeclaration	= 'Beverage Machines, consumables and related parts';
 													
 													break;
 
@@ -178,12 +178,13 @@ function buildOutput(_fulfillmentId)
 										xml += '            <table class="header" style="table-layout:fixed; width:100%;">';
 										xml += '            	<tr>';
 										xml += '					<td style="width: 60%"><img src="' + companyLogo + '" /></td>';
-										xml += '					<td style="width: 22%; font-size: 9px;" align="left">Telephone<br/>' + companyPhone + '<br/>Email<br/>' + companyEmail + '<br/>&nbsp;<br/>&nbsp;<br/>&nbsp;<br/><b>' + companyWeb + '</b></td>';
+										xml += '					<td style="width: 22%; font-size: 9px;" align="left">Telephone<br/>' + companyPhone + '<br/>Email<br/>' + companyEmail + '<br/>&nbsp;<br/><b>' + companyWeb + '</b></td>';
 										xml += '					<td style="width: 18%; font-size: 9px;" align="left">Synergy House<br/>Fakenham Road<br/>Morton on the Hill<br/>NR9 5SP</td>';
 										xml += '				</tr>';
 										xml += '			</table>';
 										xml += '          ';
-										xml += '            <table class="header" style="table-layout:fixed; width:100%; margin-top: 160px;">';
+									//	xml += '            <table class="header" style="table-layout:fixed; width:100%; margin-top: 160px;">';
+										xml += '            <table class="header" style="table-layout:fixed; width:100%; margin-top: 60px;">';
 										xml += '            	<tr>';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
 										xml += '					<td style="width: 27%; font-size: 10px;"><b>Invoice To</b></td>';
@@ -286,8 +287,8 @@ function buildOutput(_fulfillmentId)
 										xml += '		}';
 										xml += '	</style>';
 										xml += '</head>';
-										//xml += '<body header="nlheader" header-height="550px" footer="nlfooter" footer-height="170px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
-										xml += '<body header="nlheader" header-height="550px" footer="nlfooter" footer-height="60px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
+									//	xml += '<body header="nlheader" header-height="550px" footer="nlfooter" footer-height="60px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
+										xml += '<body header="nlheader" header-height="470px" footer="nlfooter" footer-height="60px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
 										
 									
 										var ifLines 	= fulfillmentRecord.getLineItemCount('item');

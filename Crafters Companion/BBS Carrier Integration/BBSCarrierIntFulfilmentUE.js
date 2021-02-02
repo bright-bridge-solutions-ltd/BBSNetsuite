@@ -434,6 +434,12 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    									fieldId: 'country'
 	    								});
 	    								
+	    								//CG 02-02-21 get phone no from address
+	    								//
+	    								var addressPhone = shippingAddressSubrecord.getValue({
+	    									fieldId: 'addrphone'
+	    								});
+	    								
 	    								// create an address object
 	    								//
 	    								var shippingAddress = new BBSObjects.addressObject(addresse, addressLine1, addressLine2, city, county, postcode, country);
@@ -488,6 +494,15 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    									{
 	    										contactInfo.emailAddress = emailAddress;
 	    									}
+	    								
+	    								
+	    								//CG 02-02-21 update the contact phone no
+	    								//
+	    								if(contactInfo.mobileNumber == null || contactInfo.mobileNumber == '')
+	    									{
+	    										contactInfo.mobileNumber = addressPhone;
+	    									}
+	    								
 	    								
 	    								//Build up the process shipments request object
 	    								//
