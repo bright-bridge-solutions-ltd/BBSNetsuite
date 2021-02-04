@@ -341,7 +341,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 
 								var cartonlistField = subList.addField({
 													id:		'custpage_sl_item_carton',
-													label:	'Carton',
+													label:	'Cartons',
 													type:	serverWidget.FieldType.TEXT
 												});		
 
@@ -349,16 +349,23 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								cartonlistField.updateDisplaySize({height: 10, width: 50});
 								
 								subList.addField({
-													id:		'custpage_sl_remove',
-													label:	'Remove From Carton',
-													type:	serverWidget.FieldType.CHECKBOX
-												});		
+													id:		'custpage_sl_item_weight',
+													label:	'Weight Per Carton',
+													type:	serverWidget.FieldType.TEXT
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});		
 
 								subList.addField({
-													id:		'custpage_sl_item_weight',
-													label:	'Weight',
+													id:		'custpage_sl_item_qty',
+													label:	'Quantity Per Carton',
 													type:	serverWidget.FieldType.TEXT
-												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});		
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});		
+
+				
+								subList.addField({
+													id:		'custpage_sl_remove',
+													label:	'Remove Current Carton',
+													type:	serverWidget.FieldType.CHECKBOX
+												});		
 
 								subList.addField({
 													id:		'custpage_sl_item_carton_id',

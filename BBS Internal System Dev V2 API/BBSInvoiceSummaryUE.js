@@ -73,18 +73,20 @@ function(runtime, record, format, search)
 				    					
 				    				//Does the item exist in the temp summary object
 				    				//
-				    				if(tempTimeObj.hasOwnProperty(timeItemId))
+				    				var summaryKey = timeItemId + '|' + timeRate.toString();
+				    				
+				    				if(tempTimeObj.hasOwnProperty(summaryKey))
 				    					{
 				    						//Update the temp objects
 				    						//
-				    						tempTimeObj[timeItemId].timeQuantity 	+= timeQuantity;
-				    						tempTimeObj[timeItemId].timeAmount 		+= timeAmount;
+				    						tempTimeObj[summaryKey].timeQuantity 	+= timeQuantity;
+				    						tempTimeObj[summaryKey].timeAmount 		+= timeAmount;
 				    					}
 				    				else
 				    					{
 				    						//Create a new entry
 				    						//
-				    						tempTimeObj[timeItemId] = new timeSummaryObj(timeItemId, timeItemName, timeQuantity, timeRate, timeAmount);
+				    						tempTimeObj[summaryKey] = new timeSummaryObj(timeItemId, timeItemName, timeQuantity, timeRate, timeAmount);
 				    					}
 		    					}
 	    				}
@@ -102,9 +104,12 @@ function(runtime, record, format, search)
 	    			
 	    			//Add the time data to the time summary
 	    			//
-	    			for ( var key in tempTimeObj) 
+	    			const sortedTimeSummary = {};
+				    Object.keys(tempTimeObj).sort().forEach(function(key) {sortedTimeSummary[key] = tempTimeObj[key];});
+	    			
+	    			for ( var key in sortedTimeSummary) 
 		    			{
-	    					summaryInfo.timeSummary.push(tempTimeObj[key])
+	    					summaryInfo.timeSummary.push(sortedTimeSummary[key])
 						}
 	    			
 	    			
@@ -123,7 +128,7 @@ function(runtime, record, format, search)
 		    				var expenseEmployee	= isNullorBlank(currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'employeedisp', line: expenseLine}),'');
 		    				var expenseMemo		= isNullorBlank(currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'memo', line: expenseLine}),'');
 		    				var expenseLineNo	= isNullorBlank(currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'line', line: expenseLine}),'');
-		    				var expenseApply	= currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'apply', line: timeLine});
+		    				var expenseApply	= currentRecord.getSublistValue({sublistId: 'expcost', fieldId: 'apply', line: expenseLine});
 		    				
 		    				if(expenseApply)
 		    					{

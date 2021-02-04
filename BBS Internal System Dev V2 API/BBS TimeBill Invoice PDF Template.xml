@@ -434,7 +434,7 @@
 		<td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">${toCurrency(record.amountpaid)}</td>
 	</tr>
 	<tr>
-		<td align="left" 	colspan="6"  style="padding: 5px 5px 5px 5px; background-color: #F6F9FC; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>Amount Outstanding</b></td>
+		<td align="left" 	colspan="6"  style="padding: 5px 5px 5px 5px; background-color: #F6F9FC; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;"><b>Amount To Pay</b></td>
 		<td align="right" 	colspan="3"  style="padding: 5px 5px 5px 5px; background-color: #F6F9FC; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;"><b>${toCurrency(record.amountremaining)}</b></td>
 	</tr>
 </table>

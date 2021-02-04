@@ -126,6 +126,9 @@ function buildOutput(_fulfillmentId)
 										var companyEori			= '';
 										var companyName			= '';
 										var companyDeclaration	= '';
+										var signatory			= '';
+										var signatureImage		= '';
+										var origin				= '';
 										
 										switch(soSubsidiary)
 											{
@@ -138,7 +141,9 @@ function buildOutput(_fulfillmentId)
 													companyEori			= 'GB788436081000';
 													companyName			= 'Borg &amp; Overstrom - the trading name of Azure Uk';
 													companyDeclaration	= 'Watercooler Dispensers for filtered water and related parts.';
-													
+													signatory			= 'J. Dunn';
+													signatureImage		= 'https://3976137.app.netsuite.com/core/media/media.nl?id=4189690&amp;c=3976137&amp;h=CC1In69r7OobXEQbYe5jiIf4yuRvRoHHpVWIOkuR0bvgxBui" style="float: left; width:95px; height:40px;';
+													origin				= 'UK/EU';
 													break;
 
 												case 7:	//FreshGround
@@ -150,7 +155,9 @@ function buildOutput(_fulfillmentId)
 													companyEori			= 'GB224258184000';
 													companyName			= 'The Freshground Coffee Service LLP';
 													companyDeclaration	= 'Beverage Machines, consumables and related parts';
-													
+													signatory			= 'R. Cowley';
+													signatureImage		= 'https://3976137.app.netsuite.com/core/media/media.nl?id=4253534&amp;c=3976137&amp;h=Ht0bgi4wdXKrBqGYXHpT23ol9pW4KXw1RwzVI-HoGD311en_" style="float: left; width:95px; height:40px;';
+													origin				= 'UK';
 													break;
 
 												case 8:	//Sterizen
@@ -162,7 +169,9 @@ function buildOutput(_fulfillmentId)
 													companyEori			= 'GB187770165000';
 													companyName			= 'Sterizen is trading name of Azure Corporate. Sterizen and the Totality ‘T’ icon are registered trademarks.';
 													companyDeclaration	= 'Sanitaryware with related parts, and sanitiser products.';
-													
+													signatory			= 'J. Dunn';
+													signatureImage		= 'https://3976137.app.netsuite.com/core/media/media.nl?id=4189690&amp;c=3976137&amp;h=CC1In69r7OobXEQbYe5jiIf4yuRvRoHHpVWIOkuR0bvgxBui" style="float: left; width:95px; height:40px;';
+													origin				= 'UK';
 													break;
 
 											}
@@ -485,7 +494,7 @@ function buildOutput(_fulfillmentId)
 									 			xml += '        <tr style="margin-top: 10px;">';
 									 			xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="17" style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">05.01.2021 to 31.12.2021<br/>The exporter of the products covered by this document <b>(EORI No. ' + companyEori + ')</b> declares that,<br/>except where otherwise clearly indicated, these products are of UK/EU preferential origin.</td>';
+												xml += '          <td align="left"  colspan="17" style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">05.01.2021 to 31.12.2021<br/>The exporter of the products covered by this document <b>(EORI No. ' + companyEori + ')</b> declares that,<br/>except where otherwise clearly indicated, these products are of ' + origin + ' preferential origin.</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '		</tr>';
 				
@@ -499,14 +508,16 @@ function buildOutput(_fulfillmentId)
 												xml += '            	<tr>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="17" style="padding-left: 0px; font-size: 9px;"><img src="https://3976137.app.netsuite.com/core/media/media.nl?id=4189690&amp;c=3976137&amp;h=CC1In69r7OobXEQbYe5jiIf4yuRvRoHHpVWIOkuR0bvgxBui" style="float: left; width:95px; height:40px;"/></td>';
+												xml += '          <td align="left"  colspan="17" style="padding-left: 0px; font-size: 9px;"><img src="' + signatureImage + '" /></td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '				</tr>';
 													
 												xml += '            	<tr>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="17" style="padding-left: 0px; font-size: 9px;">J. Dunn</td>';
+												
+												xml += '          <td align="left"  colspan="17" style="padding-left: 0px; font-size: 9px;">' + signatory + '</td>';
+												
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '				</tr>';
 											
@@ -521,6 +532,7 @@ function buildOutput(_fulfillmentId)
 										
 										xml += '</body>';
 										xml += '</pdf>';
+										
 										
 										//Convert to pdf using the BFO library
 										//
