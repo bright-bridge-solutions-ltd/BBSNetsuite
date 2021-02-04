@@ -350,7 +350,6 @@ function buildOutput(_fulfillmentId)
 															}
 														
 														var ifNetPrice 			= Number(ifLineUnitPrice * ifLineQuantity);
-														subTotal 			   += ifNetPrice;
 														
 														//Split the serial numbers out into an array
 														//
@@ -387,6 +386,8 @@ function buildOutput(_fulfillmentId)
 														//
 														if(ifKitLevel == null || ifKitLevel == '')
 															{
+																subTotal 			   += ifNetPrice;
+																
 																if(tempSerialArray.length > 0)
 																	{
 																		xml += '       <tr>';
