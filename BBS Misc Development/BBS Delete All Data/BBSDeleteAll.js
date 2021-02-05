@@ -14,7 +14,7 @@ function deleteAllScheduled(type)
 {
 	for (var int = 0; int < 5; int++) 
 	{
-		var dummy = deleteAll('T',4);
+		var dummy = deleteAll('A',4);
 	}
 }
 

@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['./BBSSOApprovalLibrary', 'N/search', 'N/record', 'N/runtime'],
-function(libraryScript, search, record, runtime) {
+define(['./BBSSOApprovalLibrary', 'N/search', 'N/record', 'N/runtime', 'N/url', 'N/https'],
+function(libraryScript, search, record, runtime, url, https) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -192,6 +192,23 @@ function(libraryScript, search, record, runtime) {
 										fieldId: 'custbody_canbefulfilled',
 										value: true
 									});
+									
+									// if paymentMethod is 16 (PayPal (UKFD Site))
+									if (paymentMethod == 16)
+										{
+											//  call SuiteCentric suitelet
+											https.get({
+											    url: url.resolveScript({
+													scriptId: 'customscript_suitelet_web_order_payment',
+													deploymentId: 'customdeploy_ukfd_transform_paypal_web_o',
+													params: {
+														id: currentRecordID
+													},
+													returnExternalUrl: true
+											    }),
+											});
+										}
+									
 							   }
 						   
 						   // save the changes to the sales order record

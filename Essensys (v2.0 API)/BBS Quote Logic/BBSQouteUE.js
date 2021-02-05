@@ -176,40 +176,28 @@ function(runtime, search, url) {
 		    				}
 		    			
 		    			// get values from the item line
-		    			var itemID = currentRecord.getSublistValue({
-		    				sublistId: 'item',
-		    				fieldId: 'item',
-		    				line: x
-		    			});
-		    			
-		    			var itemType = currentRecord.getSublistValue({
-		    				sublistId: 'item',
-		    				fieldId: 'itemtype',
-		    				line: x
-		    			});
-		    			
 		    			var rate = currentRecord.getSublistValue({
 		    				sublistId: 'item',
 		    				fieldId: 'rate',
-		    				line: x
+		    				line: i
 		    			});
 		    			
 		    			var billingSchedule = currentRecord.getSublistValue({
 		    				sublistId: 'item',
 		    				fieldId: 'billingschedule',
-		    				line: x
+		    				line: i
 		    			});
 		    			
 		    			var defaultRate = currentRecord.getSublistValue({
 		    				sublistId: 'item',
 		    				fieldId: 'custcol_bbs_default_rate',
-		    				line: x
+		    				line: i
 		    			});
 		    			
 		    			var defaultBillingSchedule = currentRecord.getSublistValue({
 		    				sublistId: 'item',
 		    				fieldId: 'custcol_bbs_default_billing_schedule',
-		    				line: x
+		    				line: i
 		    			});
 		    			
 		    			var setupFee = currentRecord.getSublistValue({

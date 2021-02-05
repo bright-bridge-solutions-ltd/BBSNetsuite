@@ -169,7 +169,7 @@ function(runtime, search, record, format, email) {
 				    				
 			columns: [{
 				name: 'internalid'
-				    }],
+			}],
 				    				
 			filters: [{
 				name: 'custrecord_contract_product_parent',

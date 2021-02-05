@@ -218,7 +218,9 @@ function(search, record)
 										    		      "AND", 
 										    		      ["mainline","is","T"], 
 										    		      "AND", 
-										    		      ["createdfrom","anyof",soId]
+										    		      ["createdfrom","anyof",soId],
+										    		      "AND", 
+										    		      ["status","anyof","ItemShip:A"]	//Status = Picked
 										    		   ],
 										    		   columns:
 										    		   [

@@ -202,6 +202,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				//
 																				var rawDateArray 		= output.Order.OrderHeader.OrderDate.substring(0,output.Order.OrderHeader.OrderDate.indexOf('T')).split('-');
 																				var headerOrderNo 		= getDataElement(output, 'output.Order.OrderHeader.ExternalSystemOrderNo');
+																				var headerCustomerNo	= getDataElement(output, 'output.Order.OrderHeader.CustomerNo');
 																				var headerCoName 		= getDataElement(output, 'output.Order.OrderHeader.CompanyInformation.Name');
 																				var headerContactName 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Name');
 																				var headerContactPhone 	= getDataElement(output, 'output.Order.OrderHeader.ContactInformation.Phone');
@@ -257,7 +258,8 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																														headerBillPostCode,
 																														integrationCustFormId,
 																														headerContactPhone,
-																														headerContactMobile
+																														headerContactMobile,
+																														headerCustomerNo
 																														);
 																				
 																				//Create sales order record
@@ -1884,7 +1886,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
     
     //Find cash sale customer by email address
     //
-    function findOrCreateCustomer(_headerContactEmail, _integrationCashSaleCust, _division, _contactName, _address1, _address2, _city, _county, _postCode, _customForm, _phone, _mobile)
+    function findOrCreateCustomer(_headerContactEmail, _integrationCashSaleCust, _division, _contactName, _address1, _address2, _city, _county, _postCode, _customForm, _phone, _mobile, _customerNo)
     	{
     		var customerSearchObj 	= null;
     		var customerId			= _integrationCashSaleCust;	//Default returned customer to be the built in one
@@ -1939,9 +1941,9 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
     						if(_customForm != null && _customForm != '')
     							{
 		    						createdCustomerRecord.setValue({
-																	fieldId:	'customform',
-																	value:		_customForm
-																	});	
+																		fieldId:	'customform',
+																		value:		_customForm
+																	});
     							}
 
     						createdCustomerRecord.setValue({
@@ -1963,7 +1965,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 
     						createdCustomerRecord.setValue({
 															fieldId:	'lastname',
-															value:		nameSplit[nameSplit.length - 1]
+															value:		nameSplit[nameSplit.length - 1] + ' ' + _customerNo
 															});	
 
     						createdCustomerRecord.setValue({

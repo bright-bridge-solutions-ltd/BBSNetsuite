@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/search'],
-function(search) {
+define(['./BBSSFTPLibrary', 'N/search', 'N/sftp', 'N/file', 'N/format', 'N/record', 'N/runtime'],
+function(libraryScript, search, sftp, file, format, record, runtime) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -29,87 +29,6 @@ function(search) {
      * @Since 2015.2
      */
     function beforeSubmit(scriptContext) {
-    	
-    	// if the record is being created
-    	if (scriptContext.type == scriptContext.UserEventType.EDIT)
-    		{
-    			// declare and initialize variables
-    			var address1 	= null;
-    			var address2	= null;
-    			var address3	= null;
-    			var city		= null;
-    			var county		= null;
-    			var postcode	= null;
-    		
-    			// get the current record
-    			var currentRecord = scriptContext.newRecord;
-    			
-    			// get the postcode from the shipping address subrecord
-    			var postcode = currentRecord.getSubrecord({
-    			    fieldId: 'shippingaddress'
-    			}).getValue({
-    				fieldId: 'zip'
-    			});
-    			
-    			// check if the postcode contains a space
-    			if (postcode.indexOf(" ") != -1)
-    				{
-    					// keep the characters before the space
-    					postcode = postcode.split(" ").shift();
-    					
-    					// lookup the Menzies depot using the postcode
-    					var menziesDepot = getMenziesDepot(postcode);
-    					
-    					// retrieve the menzies depot details
-    					address1 	= menziesDepot.address1;
-    					address2	= menziesDepot.address2;
-    					address3	= menziesDepot.address3;
-    					city		= menziesDepot.city;
-    					county		= menziesDepot.county;
-    					postcode	= menziesDepot.postcode;
-    				}
-    			
-    			// replace the shipping address with the Menzies depot address details
-    			var shippingAddress = currentRecord.getSubrecord({
-    				fieldId: 'shippingaddress'
-    			});
-    			
-    			shippingAddress.setValue({
-    				fieldId: 'addressee',
-    				value: 'Menzies Distribution'
-    			});
-    			
-    			shippingAddress.setValue({
-    				fieldId: 'addr1',
-    				value: address1
-    			});
-    			
-    			shippingAddress.setValue({
-    				fieldId: 'addr2',
-    				value: address2
-    			});
-    			
-    			shippingAddress.setValue({
-    				fieldId: 'addr3',
-    				value: address3
-    			});
-    			
-    			shippingAddress.setValue({
-    				fieldId: 'city',
-    				value: city
-    			});
-    			
-    			shippingAddress.setValue({
-    				fieldId: 'state',
-    				value: county
-    			});
-    			
-    			shippingAddress.setValue({
-    				fieldId: 'zip',
-    				value: postcode
-    			});
-    				
-    		}
 
     }
 
@@ -124,100 +43,216 @@ function(search) {
      */
     function afterSubmit(scriptContext) {
     	
-    }
-    
-    // =========================================
-    // FUNCTION TO RETURN THE MENZIES DEPOT INFO
-    // =========================================
-    
-    function getMenziesDepot(areaCode) {
-    	
-    	// declare and initialize variables
-    	var address1 	= null;
-    	var address2 	= null;
-    	var address3 	= null;
-    	var city 		= null;
-    	var county 		= null;
-    	var postcode 	= null;
-    	
-    	// search for the menzies depot by the area code
-    	search.create({
-    		type: 'customrecord_bbs_menzies_depot',
+    	// check the PO is a special order
+    	if (scriptContext.type == scriptContext.UserEventType.SPECIALORDER)
+    		{
+	    		// retrieve script parameters
+	        	var folderID = runtime.getCurrentScript().getParameter({
+	        		name: 'custscript_bbs_supplier_sftp_folder_id'
+	        	});
     		
-    		filters: [{
-    			name: 'isinactive',
-    			operator: search.Operator.IS,
-    			values: ['F']
-    		},
-    				{
-    			name: 'custrecord_bbs_menzies_depot_area_code',
-    			operator: search.Operator.IS,
-    			values: [areaCode]
-    		}],
-    		
-    		columns: [{
-    			name: 'custrecord_bbs_menzies_depot_address_1'
-    		},
-    				{
-    			name: 'custrecord_bbs_menzies_depot_address_2'
-    		},
-    				{
-    			name: 'custrecord_bbs_menzies_depot_address_3'
-    		},
-    				{
-    			name: 'custrecord_bbs_menzies_depot_city'
-    		},
-    				{
-    			name: 'custrecord_bbs_menzies_depot_county'
-    		},
-    				{
-    			name: 'custrecord_bbs_menzies_depot_postcode'
-    		}],
-    		
-    	}).run().each(function(result){
-    		
-    		// get the address details from the search results
-    		address1 = result.getValue({
-    			name: 'custrecord_bbs_menzies_depot_address_1'
-    		});
-    		
-    		address2 = result.getValue({
-    			name: 'custrecord_bbs_menzies_depot_address_2'
-    		});
-    		
-    		address3 = result.getValue({
-    			name: 'custrecord_bbs_menzies_depot_address_3'
-    		});
-    		
-    		city = result.getValue({
-    			name: 'custrecord_bbs_menzies_depot_city'
-    		});
-    		
-    		county = result.getValue({
-    			name: 'custrecord_bbs_menzies_depot_county'
-    		});
-    		
-    		postcode = result.getValue({
-    			name: 'custrecord_bbs_menzies_depot_postcode'
-    		});
-    		
-    	});
-    	
-    	// return the depot info to main script function
-    	return {
-    		address1:	address1,
-    		address2:	address2,
-    		address3:	address3,
-    		city:		city,
-    		county:		county,
-    		postcode:	postcode
-    	}
+    			// get the current record
+    			var currentRecord = scriptContext.newRecord;
+    			
+    			// get the supplier ID
+		    	var supplierID = currentRecord.getValue({
+		    		fieldId: 'entity'
+		    	});
+		    			
+		    	// see if we have a matching SFTP record for the supplier
+		    	var sftpDetails = libraryScript.getSftpDetails(supplierID);
+		    			
+		    	// retrieve the SFTP details
+		    	var sftpEndpoint 		= sftpDetails.endpoint;
+		    	var sftpUsername		= sftpDetails.username;
+		    	var sftpPassword		= sftpDetails.password;
+		    	var sftpHostKey			= sftpDetails.hostKey;
+		    	var sftpPortNumber		= sftpDetails.portNumber;
+		    	var sftpOutDirectory	= sftpDetails.outDirectory;
+		    	var sftpInDirectory		= sftpDetails.inDirectory;
+		    			
+		    	// if we have SFTP details for this supplier
+		    	if (sftpEndpoint)
+		    		{
+		    			// declare and initialize variables
+		    			var sftpConnection 	= null;
+		    			var csvFile			= null;
+		    				
+		    			try
+							{
+								// make a connection to the SFTP site
+								var sftpConnection = sftp.createConnection({
+									url: 			sftpEndpoint,
+									username:		sftpUsername,
+									passwordGuid:	sftpPassword,
+									hostKey:		sftpHostKey,
+									directory:		sftpInDirectory
+								});
+							}
+		    			catch(e)
+		    				{
+		    					log.error({
+		    						title: 'SFTP Connection Error',
+		    						details: e
+		    					});
+		    				}
+		    					
+		    			// if we have been able to successfully make a connection
+		    			if (sftpConnection)
+		    				{
+		    					try
+		    						{
+				    					// get details from the record header
+				    					var poNumber = currentRecord.getValue({
+				    						fieldId: 'tranid'
+				    					});
+				    							
+				    					var orderDate = currentRecord.getValue({
+				    						fieldId: 'trandate'
+				    					});
+				    							
+				    					// format orderDate as a date string
+				    					orderDate = format.format({
+		    								type: 	format.Type.DATE,
+		    								value: 	orderDate
+		    							});
+				    							
+				    					var requiredDate = currentRecord.getValue({
+				    						fieldId: 'duedate'
+				    					});
+				    							
+				    					// if we have a required date
+				    					if (requiredDate)
+				    						{
+				    							// format as a date string
+				    							requiredDate = format.format({
+				    								type: 	format.Type.DATE,
+				    								value: 	requiredDate
+				    							});
+				    						}
+				    									
+				    					// start off the CSV
+				    					var CSV = '"HEAD",,"UKFD","UKFD",' + poNumber + ',' + orderDate + ',' + requiredDate + ',,,,,,,,,,"UKFD Warehouse","Unit H1","Pilgrims Walk","Prologis Park","Coventry","CV6 4QG"\r\n';
+				    							
+				    					// get count of lines on the PO
+				    					var lineCount = currentRecord.getLineCount({
+				    						sublistId: 'item'
+				    					});
+				    							
+				    					// loop through line count
+				    					for (var i = 0; i < lineCount; i++)
+				    						{
+				    							// retrieve details from the line
+				    							var productCode = currentRecord.getSublistText({
+				    								sublistId: 	'item',
+				    								fieldId: 	'item',
+				    								line: 		i
+				    							});
+				    									
+				    							var productDescription = currentRecord.getSublistValue({
+				    								sublistId: 	'item',
+				    								fieldId: 	'description',
+				    								line: 		i
+				    							});
+				    									
+				    							var quantityRequired = currentRecord.getSublistValue({
+				    								sublistId: 	'item',
+				    								fieldId: 	'quantity',
+				    								line: 		i
+				    							});
+				    									
+				    							// add the line details to the CSV
+				    							CSV += "LINE" + ',' + (i+1) + ',,,,,' + productCode + ',,,,,' + productDescription + ',,,,,,,,,,,,,,,' + quantityRequired + ',"M"\r\n';		    									
+				    						}
+				    								
+				    					// add a 'RECON' line to the CSV
+				    					CSV += '"RECON",,"UKFD",' + poNumber + ',' + lineCount + '\r\n';
+				    							
+				    					// create the CSV file
+				    					csvFile = file.create({
+				    					fileType: 	file.Type.CSV,
+				    						name: 		poNumber + '.csv',
+				    						contents: 	CSV
+				    					});
+		    						}
+		    					catch(e)
+		    						{
+		    							log.error({
+		    								title: 'Error Generating CSV File',
+		    								details: e
+		    							});
+		    						}
+		    					
+		    					// if we have been able to successfully generate the CSV file
+		    					if (csvFile)
+		    						{
+		    							try
+		    								{
+		    									// upload the file to the SFTP site
+		    									sftpConnection.upload({
+		    										file: 				csvFile,
+		    										replaceExisting: 	true
+		    									});
+		    								}
+		    							catch(e)
+		    								{
+		    									log.error({
+		    										title: 'SFTP Upload Error',
+		    										details: e
+		    									});
+		    								}
+		    							
+		    							// declare and initialize variables
+		    							var fileID = null;
+		    							
+		    							try
+		    								{
+		    									// save the CSV file to the file cabinet
+		    									csvFile.folder = folderID;
+		    									
+		    									fileID = csvFile.save();
+		    								}
+		    							catch(e)
+		    								{
+		    									log.error({
+		    										title: 'Error Saving File',
+		    										details: e
+		    									});
+		    								}
+		    							
+		    							// if we have been able to save the file
+		    							if (fileID)
+		    								{
+			    								try
+			    									{
+				    									// attach the file to the PO
+														record.attach({
+															record: {
+														        type: 'file',
+														        id: fileID
+														    },
+														    to: {
+														        type: record.Type.PURCHASE_ORDER,
+														        id: currentRecord.id
+														    }
+														});
+			    									}
+			    								catch(e)
+			    									{
+			    										log.error({
+			    											title: 'Error Attaching File to PO',
+			    											details: 'File ID: ' + fileID + '<br>Error: ' + e
+			    										});
+			    									}
+		    								}
+		    						}
+		    				}
+    				}
+    		}
     	
     }
 
     return {
-        beforeLoad: beforeLoad,
-        beforeSubmit: beforeSubmit,
         afterSubmit: afterSubmit
     };
     

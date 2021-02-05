@@ -35,7 +35,7 @@
   		<#assign regInfo>Company Registration No: 514029820. Registered Office: Avenida D João II, n°46 - 4A, 1990-095 Lisboa</#assign>
     </#if>
   
-  	<#if subsidiary.id == "5"> <!--Uk-->
+  	<#if subsidiary.id == "5"> <!--UK-->
   		<#assign vatInfo>VAT No: GB 159 2397 76</#assign>
   		<#assign regInfo>Company Registration No: 07479524. Registered Office: 3 Finsbury Avenue, 5th Floor, London, EC2M 2PA, United Kingdom</#assign>
     </#if>
@@ -43,6 +43,11 @@
   	<#if subsidiary.id == "9"> <!--USA-->
   		<#assign vatInfo></#assign>
   		<#assign regInfo>Registered Office: Suite 623, Werqwise, 149 New Montgomery St., San Francisco, CA 94105</#assign>
+    </#if>
+    
+    <#if subsidiary.id == "17"> <!--Germany-->
+  		<#assign vatInfo>VAT No: DE329424543</#assign>
+  		<#assign regInfo>Registered Office: Onfido GmbH, Innere KanalstraBe 15, 50823, Koln, Germany</#assign>
     </#if>
   
   

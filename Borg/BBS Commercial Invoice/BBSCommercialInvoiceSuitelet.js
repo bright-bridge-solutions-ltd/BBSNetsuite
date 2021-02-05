@@ -126,6 +126,9 @@ function buildOutput(_fulfillmentId)
 										var companyEori			= '';
 										var companyName			= '';
 										var companyDeclaration	= '';
+										var signatory			= '';
+										var signatureImage		= '';
+										var origin				= '';
 										
 										switch(soSubsidiary)
 											{
@@ -133,24 +136,28 @@ function buildOutput(_fulfillmentId)
 													companyEmail		= 'sales@borgandoverstrom.com';
 													companyPhone 		= '+44(0) 1362 695 006';
 													companyWeb			= 'borgandoverstrom.com';
-													companyLogo			= 'https://3976137-sb1.app.netsuite.com/core/media/media.nl?id=1897&amp;c=3976137_SB1&amp;h=a06e41069e3014da9368" style="width:136px; height:63px;';
+													companyLogo			= 'https://3976137.app.netsuite.com/core/media/media.nl?id=1897&amp;c=3976137_SB1&amp;h=a06e41069e3014da9368" style="width:136px; height: 63px;';
 													companyVatNo		= 'GB 788436081';
 													companyEori			= 'GB788436081000';
 													companyName			= 'Borg &amp; Overstrom - the trading name of Azure Uk';
 													companyDeclaration	= 'Watercooler Dispensers for filtered water and related parts.';
-													
+													signatory			= 'J. Dunn';
+													signatureImage		= 'https://3976137.app.netsuite.com/core/media/media.nl?id=4189690&amp;c=3976137&amp;h=CC1In69r7OobXEQbYe5jiIf4yuRvRoHHpVWIOkuR0bvgxBui" style="float: left; width:95px; height:40px;';
+													origin				= 'UK/EU';
 													break;
 
 												case 7:	//FreshGround
 													companyEmail		= 'accounts@freshground.co.uk';
 													companyPhone 		= '+44(0) 845 845 1500';
 													companyWeb			= 'freshground.co.uk';
-													companyLogo			= 'https://system.eu2.netsuite.com/core/media/media.nl?id=1565231&amp;c=3976137&amp;h=8647aeb5cc9fbb9a2ea3" style="width: 280px;';
+													companyLogo			= 'https://3976137.app.netsuite.com/core/media/media.nl?id=1565231&amp;c=3976137&amp;h=8647aeb5cc9fbb9a2ea3" style="width: 198px; height: 36px;';
 													companyVatNo		= 'GB 224258184';
 													companyEori			= 'GB224258184000';
-													companyName			= 'FreshGround - the trading name of Azure Uk';
-													companyDeclaration	= 'Watercooler Dispensers for filtered water and related parts.';
-													
+													companyName			= 'The Freshground Coffee Service LLP';
+													companyDeclaration	= 'Beverage Machines, consumables and related parts';
+													signatory			= 'R. Cowley';
+													signatureImage		= 'https://3976137.app.netsuite.com/core/media/media.nl?id=4253534&amp;c=3976137&amp;h=Ht0bgi4wdXKrBqGYXHpT23ol9pW4KXw1RwzVI-HoGD311en_" style="float: left; width:95px; height:40px;';
+													origin				= 'UK';
 													break;
 
 												case 8:	//Sterizen
@@ -161,8 +168,10 @@ function buildOutput(_fulfillmentId)
 													companyVatNo		= 'GB 187770165';
 													companyEori			= 'GB187770165000';
 													companyName			= 'Sterizen is trading name of Azure Corporate. Sterizen and the Totality ‘T’ icon are registered trademarks.';
-													companyDeclaration	= 'Watercooler Dispensers for filtered water and related parts.';
-													
+													companyDeclaration	= 'Sanitaryware with related parts, and sanitiser products.';
+													signatory			= 'J. Dunn';
+													signatureImage		= 'https://3976137.app.netsuite.com/core/media/media.nl?id=4189690&amp;c=3976137&amp;h=CC1In69r7OobXEQbYe5jiIf4yuRvRoHHpVWIOkuR0bvgxBui" style="float: left; width:95px; height:40px;';
+													origin				= 'UK';
 													break;
 
 											}
@@ -178,12 +187,13 @@ function buildOutput(_fulfillmentId)
 										xml += '            <table class="header" style="table-layout:fixed; width:100%;">';
 										xml += '            	<tr>';
 										xml += '					<td style="width: 60%"><img src="' + companyLogo + '" /></td>';
-										xml += '					<td style="width: 22%; font-size: 9px;" align="left">Telephone<br/>' + companyPhone + '<br/>Email<br/>' + companyEmail + '<br/>&nbsp;<br/>&nbsp;<br/>&nbsp;<br/><b>' + companyWeb + '</b></td>';
+										xml += '					<td style="width: 22%; font-size: 9px;" align="left">Telephone<br/>' + companyPhone + '<br/>Email<br/>' + companyEmail + '<br/>&nbsp;<br/><b>' + companyWeb + '</b></td>';
 										xml += '					<td style="width: 18%; font-size: 9px;" align="left">Synergy House<br/>Fakenham Road<br/>Morton on the Hill<br/>NR9 5SP</td>';
 										xml += '				</tr>';
 										xml += '			</table>';
 										xml += '          ';
-										xml += '            <table class="header" style="table-layout:fixed; width:100%; margin-top: 160px;">';
+									//	xml += '            <table class="header" style="table-layout:fixed; width:100%; margin-top: 160px;">';
+										xml += '            <table class="header" style="table-layout:fixed; width:100%; margin-top: 60px;">';
 										xml += '            	<tr>';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
 										xml += '					<td style="width: 27%; font-size: 10px;"><b>Invoice To</b></td>';
@@ -263,18 +273,18 @@ function buildOutput(_fulfillmentId)
 										xml += '            <table style="table-layout:fixed; width:100%;">';
 
 										xml += '            	<tr>';
-										xml += '					<td style="width: 11%; font-size: 10px;">&nbsp;</td>';
-										xml += '					<td style="width: 89%; font-size: 10px;" align="right">VAT No.  ' + companyVatNo + '</td>';
+										xml += '					<td style="width: 11%; font-size: 8px;">&nbsp;</td>';
+										xml += '					<td style="width: 89%; font-size: 8px;" align="right">VAT No.  ' + companyVatNo + '</td>';
 										xml += '				</tr>';
 										
 										xml += '            	<tr>';
-										xml += '					<td style="width: 11%; font-size: 10px;">&nbsp;</td>';
-										xml += '					<td style="width: 89%; font-size: 10px;" align="right">EORI No. ' + companyEori + '</td>';
+										xml += '					<td style="width: 11%; font-size: 8px;">&nbsp;</td>';
+										xml += '					<td style="width: 89%; font-size: 8px;" align="right">EORI No. ' + companyEori + '</td>';
 										xml += '				</tr>';
 										
 										xml += '            	<tr>';
-										xml += '					<td style="width: 11%; font-size: 10px;">&nbsp;</td>';
-										xml += '					<td style="width: 89%; font-size: 10px;" align="right">' + companyName + '</td>';
+										xml += '					<td style="width: 11%; font-size: 8px;">&nbsp;</td>';
+										xml += '					<td style="width: 89%; font-size: 8px;" align="right">' + companyName + '</td>';
 										xml += '				</tr>';
 										xml += '          	</table>';
 										xml += '        </macro>';
@@ -286,8 +296,8 @@ function buildOutput(_fulfillmentId)
 										xml += '		}';
 										xml += '	</style>';
 										xml += '</head>';
-										//xml += '<body header="nlheader" header-height="550px" footer="nlfooter" footer-height="170px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
-										xml += '<body header="nlheader" header-height="550px" footer="nlfooter" footer-height="70px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
+									//	xml += '<body header="nlheader" header-height="550px" footer="nlfooter" footer-height="60px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
+										xml += '<body header="nlheader" header-height="470px" footer="nlfooter" footer-height="60px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">';
 										
 									
 										var ifLines 	= fulfillmentRecord.getLineItemCount('item');
@@ -340,7 +350,6 @@ function buildOutput(_fulfillmentId)
 															}
 														
 														var ifNetPrice 			= Number(ifLineUnitPrice * ifLineQuantity);
-														subTotal 			   += ifNetPrice;
 														
 														//Split the serial numbers out into an array
 														//
@@ -377,6 +386,8 @@ function buildOutput(_fulfillmentId)
 														//
 														if(ifKitLevel == null || ifKitLevel == '')
 															{
+																subTotal 			   += ifNetPrice;
+																
 																if(tempSerialArray.length > 0)
 																	{
 																		xml += '       <tr>';
@@ -484,7 +495,7 @@ function buildOutput(_fulfillmentId)
 									 			xml += '        <tr style="margin-top: 10px;">';
 									 			xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="17" style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">05.01.2021 to 31.12.2021<br/>The exporter of the products covered by this document <b>(EORI No. ' + companyEori + ')</b> declares that,<br/>except where otherwise clearly indicated, these products are of UK/EU preferential origin.</td>';
+												xml += '          <td align="left"  colspan="17" style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">05.01.2021 to 31.12.2021<br/>The exporter of the products covered by this document <b>(EORI No. ' + companyEori + ')</b> declares that,<br/>except where otherwise clearly indicated, these products are of ' + origin + ' preferential origin.</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '		</tr>';
 				
@@ -498,14 +509,16 @@ function buildOutput(_fulfillmentId)
 												xml += '            	<tr>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="17" style="padding-left: 0px; font-size: 9px;"><img src="https://3976137.app.netsuite.com/core/media/media.nl?id=4189690&amp;c=3976137&amp;h=CC1In69r7OobXEQbYe5jiIf4yuRvRoHHpVWIOkuR0bvgxBui" style="float: left; width:95px; height:40px;"/></td>';
+												xml += '          <td align="left"  colspan="17" style="padding-left: 0px; font-size: 9px;"><img src="' + signatureImage + '" /></td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '				</tr>';
 													
 												xml += '            	<tr>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="17" style="padding-left: 0px; font-size: 9px;">J. Dunn</td>';
+												
+												xml += '          <td align="left"  colspan="17" style="padding-left: 0px; font-size: 9px;">' + signatory + '</td>';
+												
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '				</tr>';
 											
@@ -520,6 +533,7 @@ function buildOutput(_fulfillmentId)
 										
 										xml += '</body>';
 										xml += '</pdf>';
+										
 										
 										//Convert to pdf using the BFO library
 										//

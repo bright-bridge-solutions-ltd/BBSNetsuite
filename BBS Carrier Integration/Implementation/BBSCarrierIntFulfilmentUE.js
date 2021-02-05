@@ -410,6 +410,7 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    								var county 			= shippingAddressSubrecord.getValue({fieldId: 'state'});
 	    								var postcode 		= shippingAddressSubrecord.getValue({fieldId: 'zip'});
 	    								var country 		= shippingAddressSubrecord.getValue({fieldId: 'country'});
+	    								var addressPhone 	= shippingAddressSubrecord.getValue({fieldId: 'addrphone'});
 	    								
 	    								// create an address object
 	    								//
@@ -458,6 +459,13 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    								//
 	    								var contactInfo = new BBSCommon.findContactDetails(customerID);
 	    								
+	    								//If the contact phone no is blank, get it from the shipping address
+	    								//
+	    								if(contactInfo.mobileNumber == null || contactInfo.mobileNumber == '')
+	    									{
+	    										contactInfo.mobileNumber = addressPhone;
+	    									}
+                                  
 	    								//Build up the process shipments request object
 	    								//
 	    								var processShipmentsRequest = new BBSObjects.processShipmentRequest(integrationDetails, shippingCarrierInfo, shipmentReference, shippingAddress, contactInfo, despatchDate, totalWeight, packageCount, isSaturday, senderAddress, subsidiaryContactInfo, itemLineInfo);

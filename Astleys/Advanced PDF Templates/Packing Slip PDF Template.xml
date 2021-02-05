@@ -289,6 +289,7 @@
 							<td align="right" colspan="2">${item.quantity}</td>
 						</tr>
 					</#if>
+					
 				</#list>
 			</#list><!-- end items -->
           
