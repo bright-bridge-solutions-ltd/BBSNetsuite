@@ -321,22 +321,14 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								//
 								var assemblyItemField = form.addField({
 													                id: 		'custpage_entry_assembly',
-													                type: 		serverWidget.FieldType.TEXT,
+													                type: 		serverWidget.FieldType.SELECT,
 													                label: 		'Assembly Item',
+													                source:		record.Type.ASSEMBLY_ITEM,
 													                container:	'custpage_filters_group'
 												            		});
 								assemblyItemField.defaultValue 	= paramAssemblyItem;
-								assemblyItemField.updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});
+								//assemblyItemField.updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});
 								
-								//Add a field to filter by kit quantity
-								//
-								var quantityField = form.addField({
-														                id: 		'custpage_entry_quantity',
-														                type: 		serverWidget.FieldType.TEXT,
-														                label: 		'Assembly Item Quantity',
-														                container:	'custpage_filters_group'
-													            		});
-								quantityField.defaultValue 	= paramQuantity;
 								
 								//Add a field to filter by sales orders
 								//
@@ -372,6 +364,16 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								purchaseOrderField.defaultValue 	= paramPurchaseOrder;
 								purchaseOrderField.updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});
 
+								
+								//Allow amendment of the kit quantity
+								//
+								var quantityField = form.addField({
+														                id: 		'custpage_entry_quantity',
+														                type: 		serverWidget.FieldType.TEXT,
+														                label: 		'Assembly Item Quantity',
+														                container:	'custpage_filters_group'
+													            		});
+								quantityField.defaultValue 	= paramQuantity;
 								
 								//Allow the amendment of the bom level
 								//
@@ -426,6 +428,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												});		
 
 								subList.addField({
+													id:		'custpage_sl_items_supplier',
+													label:	'Preferred Supplier',
+													type:	serverWidget.FieldType.TEXT
+												});		
+
+								subList.addField({
 													id:		'custpage_sl_items_type',
 													label:	'Type',
 													type:	serverWidget.FieldType.TEXT
@@ -448,9 +456,45 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													label:	'Supply Source',
 													type:	serverWidget.FieldType.TEXT
 												});	
-								
 								//sourceField.updateDisplayType({displayType : serverWidget.FieldDisplayType.INLINE});
 								
+								
+								subList.addField({
+													id:		'custpage_sl_items_ny_oh',
+													label:	'Nymas On Hand',
+													type:	serverWidget.FieldType.TEXT
+												});	
+								
+								subList.addField({
+													id:		'custpage_sl_items_ny_av',
+													label:	'Nymas Available',
+													type:	serverWidget.FieldType.TEXT
+												});	
+				
+								subList.addField({
+													id:		'custpage_sl_items_ny_bo',
+													label:	'Nymas Back Ordered',
+													type:	serverWidget.FieldType.TEXT
+												});	
+				
+								subList.addField({
+													id:		'custpage_sl_items_ny_oo',
+													label:	'Nymas On Order',
+													type:	serverWidget.FieldType.TEXT
+												});	
+				
+								subList.addField({
+													id:		'custpage_sl_items_os_oh',
+													label:	'Out Source On Hand',
+													type:	serverWidget.FieldType.TEXT
+												});	
+				
+								subList.addField({
+													id:		'custpage_sl_items_os_av',
+													label:	'Out Source Available',
+													type:	serverWidget.FieldType.TEXT
+												});	
+
 								subList.addField({
 													id:		'custpage_sl_items_routing',
 													label:	'Hours To Build',
@@ -692,8 +736,17 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																						line:	linenum,
 																						value:	bomList[bomListKey][int].itemDesc
 																						});	
-									    						 }
+								    						 }
 								    					 
+								    					 if(bomList[bomListKey][int].itemSupplier != '' && bomList[bomListKey][int].itemSupplier != null)
+								    					 	{
+									    						 subList.setSublistValue({
+																						id:		'custpage_sl_items_supplier',
+																						line:	linenum,
+																						value:	bomList[bomListKey][int].itemSupplier
+																						});	
+								    						 }
+							    					 
 								    					 if(bomList[bomListKey][int].itemType != '' && bomList[bomListKey][int].itemType != null)
 								    						 {
 									    						 subList.setSublistValue({
@@ -730,6 +783,61 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																						});	
 								    						 }
 							    					 
+								    					 
+								    					 if(bomList[bomListKey][int].nymasOnHand != '' && bomList[bomListKey][int].nymasOnHand != null)
+								    						 {
+									    						 subList.setSublistValue({
+																						id:		'custpage_sl_items_ny_oh',
+																						line:	linenum,
+																						value:	bomList[bomListKey][int].nymasOnHand
+																						});	
+								    						 }
+								    					 
+								    					 if(bomList[bomListKey][int].nymasAvailable != '' && bomList[bomListKey][int].nymasAvailable != null)
+								    						 {
+									    						 subList.setSublistValue({
+																						id:		'custpage_sl_items_ny_av',
+																						line:	linenum,
+																						value:	bomList[bomListKey][int].nymasAvailable
+																						});	
+								    						 }
+								    					 
+								    					 if(bomList[bomListKey][int].nymasBackOrdered != '' && bomList[bomListKey][int].nymasBackOrdered != null)
+								    						 {
+									    						 subList.setSublistValue({
+																						id:		'custpage_sl_items_ny_bo',
+																						line:	linenum,
+																						value:	bomList[bomListKey][int].nymasBackOrdered
+																						});	
+								    						 }
+							    					 
+								    					 if(bomList[bomListKey][int].nymasOnOrder != '' && bomList[bomListKey][int].nymasOnOrder != null)
+								    						 {
+									    						 subList.setSublistValue({
+																						id:		'custpage_sl_items_ny_oo',
+																						line:	linenum,
+																						value:	bomList[bomListKey][int].nymasOnOrder
+																						});	
+								    						 }
+						    					 
+								    					 if(bomList[bomListKey][int].outsourceOnHand != '' && bomList[bomListKey][int].outsourceOnHand != null)
+								    						 {
+									    						 subList.setSublistValue({
+																						id:		'custpage_sl_items_os_oh',
+																						line:	linenum,
+																						value:	bomList[bomListKey][int].outsourceOnHand
+																						});	
+								    						 }
+					    					 
+								    					 if(bomList[bomListKey][int].outsourceAvailable != '' && bomList[bomListKey][int].outsourceAvailable != null)
+								    						 {
+									    						 subList.setSublistValue({
+																						id:		'custpage_sl_items_os_av',
+																						line:	linenum,
+																						value:	bomList[bomListKey][int].outsourceAvailable
+																						});	
+								    						 }
+
 								    					 if(bomList[bomListKey][int].routingDays != '' && bomList[bomListKey][int].routingDays != null)
 								    						 {
 									    						 subList.setSublistValue({
@@ -843,36 +951,53 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 		        }
 	    }
     
+    function itemData()
+    	{
+    		this.supplier	= '';
+    	}
+    
     function assemblyItemData(_id, _qty)
     	{
     		this.id			= _id;		//Assembly id
     		this.quantity	= _qty;		//Assembly quantity required
     	}
     
-    function availabilityData(_supplySource, _availableDate, _transactionFound, _availableDateDate)
+    function availabilityData(_supplySource, _availableDate, _transactionFound, _availableDateDate, _nymasOnHand, _nymasAvailable, _nymasBackOrdered, _nymasOnOrder, _outsourceOnHand, _outsourceAvailable)
     	{
     		this.supplySource		= _supplySource;		//Supply source text
     		this.availableDate		= _availableDate;		//Available date as text
     		this.transactionFound	= _transactionFound;	//Flag to show that a transaction was actually found for this item
     		this.availableDateDate	= _availableDateDate;	//Available date as a date object
-    		
+    		this.nymasOnHand		= _nymasOnHand;
+    		this.nymasAvailable		= _nymasAvailable;
+    		this.nymasBackOrdered	= _nymasBackOrdered;
+    		this.nymasOnOrder		= _nymasOnOrder;
+    		this.outsourceOnHand	= _outsourceOnHand;
+    		this.outsourceAvailable	= _outsourceAvailable;
     	}
     
-    function expolsionData(_level, _item, _itemText, _itemDesc, _itemUnit, _itemQty, _itemType, _itemSource, _supplySource, _availDate, _availDateDate, _routingDays, _itemUrl)
+    function expolsionData(_level, _item, _itemText, _itemDesc, _itemUnit, _itemQty, _itemType, _itemSource, _supplySource, _availDate, _availDateDate, _routingDays, _itemUrl, _supplier, _nymasOnHand, _nymasAvailable, _nymasBackOrdered, _nymasOnOrder, _outsourceOnHand, _outsourceAvailable)
     	{
-    		this.level			= _level;			//Bom explosion level
-    		this.item			= _item;			//Item id
-    		this.itemText		= _itemText;		//Item as text	
-    		this.itemDesc		= _itemDesc;		//Item description
-    		this.itemUnit		= _itemUnit;		//Item unit
-    		this.itemQty		= _itemQty;			//Item quantity required
-    		this.itemType		= _itemType;		//Item type InvtPart, Assembly, OthCharge etc.
-    		this.itemSource		= _itemSource;		//Item source STOCK, WORK_ORDER etc
-    		this.supplySource 	= _supplySource;	//Item supplied from source as text
-    		this.availDate		= _availDate;		//Item availability as text
-    		this.availDateDate	= _availDateDate;	//Item availability as date object
-    		this.routingDays	= _routingDays;		//Days to add from routing information
-    		this.itemUrl		= _itemUrl;			//Item url
+    		this.level				= _level;			//Bom explosion level
+    		this.item				= _item;			//Item id
+    		this.itemText			= _itemText;		//Item as text	
+    		this.itemDesc			= _itemDesc;		//Item description
+    		this.itemUnit			= _itemUnit;		//Item unit
+    		this.itemQty			= _itemQty;			//Item quantity required
+    		this.itemType			= _itemType;		//Item type InvtPart, Assembly, OthCharge etc.
+    		this.itemSource			= _itemSource;		//Item source STOCK, WORK_ORDER etc
+    		this.supplySource 		= _supplySource;	//Item supplied from source as text
+    		this.availDate			= _availDate;		//Item availability as text
+    		this.availDateDate		= _availDateDate;	//Item availability as date object
+    		this.routingDays		= _routingDays;		//Days to add from routing information
+    		this.itemUrl			= _itemUrl;			//Item url
+    		this.itemSupplier		= _supplier;		//Item preferred supplier
+    		this.nymasOnHand		= _nymasOnHand;
+    		this.nymasAvailable		= _nymasAvailable;
+    		this.nymasBackOrdered	= _nymasBackOrdered;
+    		this.nymasOnOrder		= _nymasOnOrder;
+    		this.outsourceOnHand	= _outsourceOnHand;
+    		this.outsourceAvailable	= _outsourceAvailable;
     	}
     
     //Function to search for a bom from an assembly
@@ -936,91 +1061,23 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 	    						   ],
 	    						   columns:
 	    						   [
-	    						      search.createColumn({
-	    						         name: "internalid",
-	    						         label: "Internal ID"
-	    						      }),
-	    						      search.createColumn({
-	    						         name: "baseunits",
-	    						         join: "component",
-	    						         label: "Base Units"
-	    						      }),
-	    						      search.createColumn({
-	    						         name: "bomquantity",
-	    						         join: "component",
-	    						         label: "Bom Quantity"
-	    						      }),
-	    						      search.createColumn({
-	    						         name: "bombasequantity",
-	    						         join: "component",
-	    						         label: "Bom Quantity in Base Units"
-	    						      }),
-	    						      search.createColumn({
-	    						         name: "componentyield",
-	    						         join: "component",
-	    						         label: "Component Yield"
-	    						      }),
-	    						      search.createColumn({
-	    						         name: "description",
-	    						         join: "component",
-	    						         label: "Description"
-	    						      }),
-	    						      search.createColumn({
-	    						         name: "internalid",
-	    						         join: "component",
-	    						         label: "Internal ID"
-	    						      }),
-	    						      search.createColumn({
-	    						         name: "item",
-	    						         join: "component",
-	    						         label: "Item"
-	    						      }),
-	    						      search.createColumn({
-	    						         name: "itemsource",
-	    						         join: "component",
-	    						         label: "Item Source"
-	    						      }),
-	    						      search.createColumn({
-	    						         name: "itemsubtype",
-	    						         join: "component",
-	    						         label: "Item Subtype"
-	    						      }),
-	    						      search.createColumn({
-	    						         name: "itemtype",
-	    						         join: "component",
-	    						         label: "Item Type"
-	    						      }),
-	    						      search.createColumn({
-	    						         name: "lineid",
-	    						         join: "component",
-	    						         label: "Line ID",
-	    						         sort: search.Sort.ASC
-	    						      }),
-	    						      search.createColumn({
-	    						         name: "quantity",
-	    						         join: "component",
-	    						         label: "Quantity"
-	    						      }),
-	    						      search.createColumn({
-	    						         name: "basequantity",
-	    						         join: "component",
-	    						         label: "Quantity in Base Units"
-	    						      }),
-	    						      search.createColumn({
-	    						         name: "bomrevision",
-	    						         join: "component",
-	    						         label: "Revision Name"
-	    						      }),
-	    						      search.createColumn({
-	    						         name: "units",
-	    						         join: "component",
-	    						         label: "Units"
-	    						      }),
-	    						      search.createColumn({
-	    						         name: "weight",
-	    						         join: "component",
-	    						         label: "Weight"
-	    						      })
+	    						      search.createColumn({name: "internalid", label: "Internal ID"}),
+	    						      search.createColumn({name: "baseunits", join: "component", label: "Base Units"}),
+	    						      search.createColumn({name: "bomquantity", join: "component", label: "Bom Quantity"}),
+	    						      search.createColumn({name: "bombasequantity", join: "component", label: "Bom Quantity in Base Units"}),
+	    						      search.createColumn({name: "componentyield", join: "component",  label: "Component Yield"}),
+	    						      search.createColumn({name: "description", join: "component", label: "Description"}),
+	    						      search.createColumn({name: "internalid", join: "component", label: "Internal ID"}),
+	    						      search.createColumn({name: "item", join: "component", label: "Item"}),
+	    						      search.createColumn({name: "itemsource", join: "component", label: "Item Source"}),
+	    						      search.createColumn({name: "itemsubtype", join: "component", label: "Item Subtype"}),
+	    						      search.createColumn({name: "itemtype", join: "component", label: "Item Type"}),
+	    						      search.createColumn({name: "lineid", join: "component", label: "Line ID", sort: search.Sort.ASC}),
+	    						      search.createColumn({name: "quantity", join: "component", label: "Quantity"}),
+	    						      search.createColumn({name: "basequantity", join: "component", label: "Quantity in Base Units"}),
+	    						      search.createColumn({name: "bomrevision", join: "component", label: "Revision Name"}),
+	    						      search.createColumn({name: "units", join: "component", label: "Units"}),
+	    						      search.createColumn({name: "weight", join: "component", label: "Weight"})
 	    						   ]
 	    						}));
 	    					
@@ -1037,7 +1094,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																				recordType:		getItemRecordType('Assembly')
 																				});
 			    			    			
-			    			    			bomList.push(new expolsionData(0,itemId,topLevelItemId,topLevelDescription,'',itemQty,'Assembly','','','', null, routingDaysToAdd,assemblyUrl));
+			    			    			bomList.push(new expolsionData(0,itemId,topLevelItemId,topLevelDescription,'',itemQty,'Assembly','','','', null, routingDaysToAdd,assemblyUrl,''));
 			    			    		}
 	    						
 	    						
@@ -1050,10 +1107,14 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 			    				    		var memberQty 		= Number(bomrevisionSearchObj[int4].getValue({name: "bomquantity", join: "component"})) * requiredQty; 
 			    				    		var memberType 		= bomrevisionSearchObj[int4].getValue({name: "itemtype", join: "component"}); 
 			    				    		var memberSource 	= bomrevisionSearchObj[int4].getValue({name: "itemsource", join: "component"}); 
-			    				
+			    				    		
 			    				    		//Get availability of item
 			    				    		//
 			    				    		var availabilityObj = getItemAvailablity(memberItem, memberType, memberQty);
+			    				    		
+			    				    		//Get additional item info
+			    				    		//
+			    				    		var itemInfoObj = getItemInfo(memberItem, memberType, memberQty);
 			    				    		
 			    				    		
 			    				    		//If we have found another assembly, then explode that as well
@@ -1081,7 +1142,28 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 				    				    			
 				    				    			//Add this item to the bom list
 					    				    		//
-					    				    		bomList.push(new expolsionData(level,memberItem,memberItemText,memberDesc,memberUnit,memberQty,memberType,memberSource, availabilityObj.supplySource, availabilityObj.availableDate, availabilityObj.availableDateDate, routingDaysToAdd, memberUrl));
+					    				    		bomList.push(new expolsionData(
+					    				    										level,
+					    				    										memberItem,
+					    				    										memberItemText,
+					    				    										memberDesc,
+					    				    										memberUnit,
+					    				    										memberQty,
+					    				    										memberType,
+					    				    										memberSource, 
+					    				    										availabilityObj.supplySource, 
+					    				    										availabilityObj.availableDate, 
+					    				    										availabilityObj.availableDateDate, 
+					    				    										routingDaysToAdd, 
+					    				    										memberUrl,
+					    				    										itemInfoObj.supplier,
+					    				    										availabilityObj.nymasOnHand,
+					    				    										availabilityObj.nymasAvailable,
+					    				    										availabilityObj.nymasBackOrdered,
+					    				    										availabilityObj.nymasOnOrder,
+					    				    										availabilityObj.outsourceOnHand,
+					    				    										availabilityObj.outsourceAvailable
+					    				    										));
 						
 			    				    				explodeBom(memberItem, bomList, level + 1, requiredQty, false, null, null, maxBomLevel);
 			    				    			}
@@ -1095,7 +1177,28 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 			    				    			
 				    				    			//Add this item to the bom list
 					    				    		//
-					    				    		bomList.push(new expolsionData(level,memberItem,memberItemText,memberDesc,memberUnit,memberQty,memberType,memberSource, availabilityObj.supplySource, availabilityObj.availableDate, availabilityObj.availableDateDate, Number(0), memberUrl));
+					    				    		bomList.push(new expolsionData(	
+					    				    										level,
+					    				    										memberItem,
+					    				    										memberItemText,
+					    				    										memberDesc,
+					    				    										memberUnit,
+					    				    										memberQty,
+					    				    										memberType,
+					    				    										memberSource, 
+					    				    										availabilityObj.supplySource, 
+					    				    										availabilityObj.availableDate, 
+					    				    										availabilityObj.availableDateDate, 
+					    				    										Number(0), 
+					    				    										memberUrl,
+					    				    										itemInfoObj.supplier,
+					    				    										availabilityObj.nymasOnHand,
+					    				    										availabilityObj.nymasAvailable,
+					    				    										availabilityObj.nymasBackOrdered,
+					    				    										availabilityObj.nymasOnOrder,
+					    				    										availabilityObj.outsourceOnHand,
+					    				    										availabilityObj.outsourceAvailable
+					    				    										));
 			    				    			}
 						            	}
 			    				}
@@ -1210,6 +1313,51 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 			return routingDays;
     	}
     
+ 
+    //Function to get item additional info
+    //
+    function getItemInfo(_memberItem, _memberType, _memberQty)
+	    {
+    		var itemInfo = new itemData();
+    		
+	    	switch(_memberType)
+	    		{
+			    	case 'OthCharge':	//Other Charge - no availability as such, but we need to look at the manufacturing routing to get the timing
+			    		
+			    		itemInfo.supplier 			= '';
+			    		
+			    		break;
+	    	
+			    	case 'Assembly':	//Assembly Item
+			    	case 'InvtPart':	//Inventory Item
+			    		
+			    		//Find info about the item record 
+			    		//
+			    		var itemSearchObj = getResults(search.create({
+										    			   type: "item",
+										    			   filters:
+										    			   [
+										    			      ["internalid","anyof",_memberItem]
+										    			   ],
+										    			   columns:
+										    			   [
+										    			    	search.createColumn({name: "vendor", label: "Preferred Supplier"}),
+										    			   ]
+										    			}));
+			    		
+			    		if(itemSearchObj != null && itemSearchObj.length == 1)
+			    			{
+			    				//Get the supplier
+			    				//
+			    				itemInfo.supplier = itemSearchObj[0].getText({name: "vendor"});
+			    			}
+			    			
+			    		break;
+	    	
+	    		}
+	    	
+	    	return itemInfo;
+	    }
     
     //Function to get availability of item
     //
@@ -1337,6 +1485,105 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 			    		
 			    	case 'InvtPart':	//Inventory Item
 			    		
+			    		var itemSearchObj = getResults(search.create({
+										    			   type: 		"item",
+										    			   filters:
+													    			   [
+													    			      		["internalid","anyof",_memberItem]
+													    			   ],
+										    			   columns:
+													    			   [
+													    			      search.createColumn({name: "inventorylocation", label: "Inventory Location"}),
+													    			      search.createColumn({name: "custrecord_bbs_i_am_outsource",join: "inventoryLocation",label: "Outsource Location"}),
+													    			      search.createColumn({name: "locationquantityonhand", label: "Location On Hand"}),
+													    			      search.createColumn({name: "locationquantityavailable", label: "Location Available"}),
+													    			      search.createColumn({name: "locationquantitybackordered", label: "Location Back Ordered"}),
+													    			      search.createColumn({name: "locationquantityonorder", label: "Location On Order"})
+													    			   ]
+										    			}));
+			    		
+			    		var nymasOnHand 		= Number(0);
+			    		var nymasAvailable 		= Number(0);
+			    		var nymasBackOrdered	= Number(0);
+			    		var nymasOnOrder 		= Number(0);
+			    		var outsourceOnHand 	= Number(0);
+			    		var outsourceAvailable	= Number(0);
+			    		
+			    		if(itemSearchObj != null && itemSearchObj.length > 0)
+			    			{
+				    			for(var itemCounter = 0; itemCounter < itemSearchObj.length; itemCounter++)
+				    				{
+				    					var itemLocation 		= itemSearchObj[itemCounter].getValue({name: "inventorylocation"});
+				    					var itemLocOutsourced 	= itemSearchObj[itemCounter].getValue({name: "custrecord_bbs_i_am_outsource", join: "inventoryLocation"});
+				    					var itemOnHand 			= Number(itemSearchObj[itemCounter].getValue({name: "locationquantityonhand"}));
+				    					var itemAvailable		= Number(itemSearchObj[itemCounter].getValue({name: "locationquantityavailable"}));
+				    					var itemBackOrdered		= Number(itemSearchObj[itemCounter].getValue({name: "locationquantitybackordered"}));
+				    					var itemOnOrder			= Number(itemSearchObj[itemCounter].getValue({name: "locationquantityonorder"}));
+				    					
+				    					if(itemLocation == 1)	//Nymas Warehouse
+				    						{
+					    						nymasOnHand			+= itemOnHand;
+					    						nymasAvailable		+= itemAvailable;
+					    						nymasBackOrdered	+= itemBackOrdered;
+					    						nymasOnOrder		+= itemOnOrder;
+				    						}
+				    					
+				    					if(itemLocOutsourced)
+				    						{
+				    							outsourceOnHand		+= itemOnHand;
+				    							outsourceAvailable	+= itemAvailable;
+				    						}
+				    				}
+			    			}
+			    		
+			    		availData.nymasOnHand			= nymasOnHand;
+			    		availData.nymasAvailable		= nymasAvailable;
+			    		availData.nymasBackOrdered		= nymasBackOrdered;
+			    		availData.nymasOnOrder			= nymasOnOrder;
+			    		availData.outsourceOnHand		= outsourceOnHand;
+			    		availData.outsourceAvailable	= outsourceAvailable;
+			    		
+			    		//Do we have enough in stock?
+	    				//
+	    				if(nymasOnHand >= _memberQty)
+	    					{
+	    						//Yes - return quantity available
+	    						//
+	    						var availableDate = new Date();
+	    						
+			    				availData.supplySource 		= 'Stock (' + nymasOnHand.toString() + ')';
+			    				availData.availableDate		= format.format({value: availableDate, type: format.Type.DATE});	//'Now';
+			    				availData.transactionFound	= true;
+			    				availData.availableDateDate	= availableDate;
+	    					}
+	    				else
+	    					{
+	    						//No - find a PO if we can
+	    						//
+	    						availData = getPurchaseOrderInfo(_memberItem);
+	    						
+	    						//If no PO is found, then we will return with the fact that a new PO must be created
+								//
+			    				if(!availData.transactionFound)
+			    					{
+			    						//Get the lead time (in days) from the item record
+			    						//
+			    						var itemLeadTime = getItemLeadTime(_memberItem);
+			    						
+			    						var availableDate = new Date();
+			    						
+			    						availableDate.setDate(availableDate.getDate() + itemLeadTime);
+			    					
+				    					availData.supplySource 		= 'New Purchase Order';
+			    						availData.availableDate 	= format.format({value: availableDate, type: format.Type.DATE});
+			    						availData.transactionFound	= false;
+			    						availData.availableDateDate	= availableDate;
+			    					}
+	    					}
+			    		
+	    				break;
+	    				
+			    		/*
 			    		//Find info about the item record (quantity on hand)
 			    		//
 			    		var itemSearchObj = getResults(search.create({
@@ -1347,11 +1594,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 										    			   ],
 										    			   columns:
 										    			   [
-										    			      search.createColumn({
-										    			         name: "locationquantityonhand",
-										    			         summary: "SUM",
-										    			         label: "Location On Hand"
-										    			      })
+										    			      search.createColumn({name: "locationquantityonhand",summary: "SUM",label: "Location On Hand"})
 										    			   ]
 										    			}));
 			    		
@@ -1401,7 +1644,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 			    			}
 			    			
 			    		break;
-	    	
+	    			*/
 	    		}
 	    	
 	    	return availData;

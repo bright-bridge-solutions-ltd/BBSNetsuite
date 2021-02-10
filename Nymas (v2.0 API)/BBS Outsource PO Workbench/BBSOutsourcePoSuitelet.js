@@ -163,10 +163,16 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					
 								subList.addField({
 													id:		'custpage_sl_items_lead_time',
-													label:	'WO Lead Time',
+													label:	'PO Lead Time',
 													type:	serverWidget.FieldType.TEXT
 												});													//Manufacturing lead time
 								
+								subList.addField({
+													id:		'custpage_sl_items_pref_supplier',
+													label:	'Preferred Supplier',
+													type:	serverWidget.FieldType.TEXT
+												});													//Preferred supplier
+				
 								subList.addField({
 													id:		'custpage_sl_items_backorder',
 													label:	'Qty Back Ordered',
@@ -275,6 +281,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												var itemId				= assemblyitemSearchObj[int].getValue({name: "internalid"});
 												var itemDescription 	= assemblyitemSearchObj[int].getValue({name: "salesdescription"});
 												var itemSupplier 		= assemblyitemSearchObj[int].getValue({name: "vendor"});
+												var itemSupplierText	= assemblyitemSearchObj[int].getText({name: "vendor"});
 												var itemLocation 		= assemblyitemSearchObj[int].getValue({name: "name",join: "inventoryLocation"});
 												var itemQtyBackOrdered 	= isNullorBlank(assemblyitemSearchObj[int].getValue({name: "quantitybackordered"}),'0');
 												var itemQtyOnOrder 		= isNullorBlank(assemblyitemSearchObj[int].getValue({name: "quantityonorder"}),'0');
@@ -332,6 +339,15 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																				});	
 						    						 }
 						    					 
+						    					 if(itemSupplierText != '' && itemSupplierText != null)
+						    						 {
+							    						 subList.setSublistValue({
+																				id:		'custpage_sl_items_pref_supplier',
+																				line:	int,
+																				value:	itemSupplierText
+																				});	
+						    						 }
+					    					 
 						    					 if(itemLocation != '' && itemLocation != null)
 						    						 {
 							    						 subList.setSublistValue({
@@ -692,7 +708,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																//Header fields
 																//
 																//poRecord.setValue({fieldId: 'customform', value: outsourcedFormId});
-																//poRecord.setValue({fieldId: 'entity', value: supplier});
+																poRecord.setValue({fieldId: 'approvalstatus', value: 2});				//Approved
 																
 																
 																//Item fields - loop through all of the items for this supplier

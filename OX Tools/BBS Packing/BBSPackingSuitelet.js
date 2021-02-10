@@ -280,6 +280,19 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 														label:	'Item Lines'
 													});
 
+								var tab2 = form.addTab({
+														id:		'custpage_tab_dummy',
+														label:	'.'
+													});
+
+								var dummyField = form.addField({
+												                id: 		'custpage_entry_dummy',
+												                type: 		serverWidget.FieldType.INLINEHTML,
+												                label: 		'.',
+												                container:	'custpage_tab_dummy'
+											            		});
+								
+
 								//Add a sublist
 								//
 								var subList = form.addSublist({
@@ -298,6 +311,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 														      container:	'custpage_tab_items'
 													          }).updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});	//.updateLayoutType({layoutType: serverWidget.FieldLayoutType.OUTSIDEABOVE});
 								
+								var qtyOverrideField = form.addField({
+															      id: 			'custpage_entry_qty_override',
+															      type: 		serverWidget.FieldType.INTEGER,
+															      label: 		'Scan Quantity Override',
+															      container:	'custpage_tab_items'
+														          });
+								
 								var itemField = form.addField({
 														      id: 			'custpage_entry_item',
 														      type: 		serverWidget.FieldType.TEXT,
@@ -305,6 +325,26 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 														      container:	'custpage_tab_items'
 													          });
 								
+		
+								//Add line count fields to the subtab
+								//
+								var lineCountField = form.addField({
+													                id: 		'custpage_entry_line_count',
+													                type: 		serverWidget.FieldType.INTEGER,
+													                label: 		'Total Items',
+													                container:	'custpage_tab_items'
+												            		});
+								lineCountField.updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});
+								lineCountField.updateBreakType({breakType: serverWidget.FieldBreakType.STARTCOL});
+
+								var completedLinesField = form.addField({
+													                id: 		'custpage_entry_lines_complete',
+													                type: 		serverWidget.FieldType.INTEGER,
+													                label: 		'Completed Items',
+													                container:	'custpage_tab_items'
+												            		});
+								completedLinesField.updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});
+
 								
 		
 								//Add columns to sublist
@@ -336,7 +376,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								subList.addField({
 													id:		'custpage_sl_item_qty_pack',
 													label:	'Packed Quantity',
-													type:	serverWidget.FieldType.FLOAT
+													type:	serverWidget.FieldType.TEXT
 												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});		
 
 								var cartonlistField = subList.addField({
@@ -363,7 +403,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 				
 								subList.addField({
 													id:		'custpage_sl_remove',
-													label:	'Remove Current Carton',
+													label:	'Remove Last Carton',
 													type:	serverWidget.FieldType.CHECKBOX
 												});		
 
@@ -379,13 +419,6 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													type:	serverWidget.FieldType.TEXT
 												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});		
 
-								//Add a mark all button
-					            //
-								//subList.addMarkAllButtons();
-								
-								//Add a refresh button
-								//
-								//subList.addRefreshButton();
 								
 								//Add a next carton button
 								//
@@ -396,6 +429,14 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					            form.addSubmitButton({
 										                label: 'Fully Packed'
 										            });
+					            
+					            //Add an abandon button
+					            //
+					            form.addButton({
+					            				id:				'custbutton_button_abandon',
+										        label: 			'Abandon',
+										        functionName:	"abandonButton('" + paramWstnId + "','" + runtime.getCurrentScript().id + "','" + runtime.getCurrentScript().deploymentId + "')"
+						 				        });
 					            
 					            //Find data for the sublist
 					            //
@@ -412,8 +453,10 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					            		
 					            		if(ifStatus == 'Picked')
 					            			{
-									            var ifLines		= ifRecord.getLineCount({sublistId: 'item'});
-									            
+									            var ifLines							= ifRecord.getLineCount({sublistId: 'item'});
+									            lineCountField.defaultValue 		= ifLines;
+									            completedLinesField.defaultValue 	= Number(0);
+												
 									            for (var ifLine = 0; ifLine < ifLines; ifLine++) 
 										            {
 										            	var ifLineItemId		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: ifLine});
@@ -775,7 +818,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 		        }
 	    }
     
-
+    
     function cartonSummaryObj(_cartonId, _cartonName, _cartonWeight)
     	{
     		this.cartonId 		= _cartonId;

@@ -1,0 +1,307 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	
+	<#assign regInfo 			= "Company Registration No: " + record.custbody_bbs_branding.custrecord_bbs_branding_co_reg + ".">
+   	<#assign emailInfo 			= record.custbody_bbs_branding.custrecord_bbs_branding_email_acc>
+   	<#assign telInfo 			= record.custbody_bbs_branding.custrecord_bbs_branding_phone>
+    <#assign vatInfo 			= record.custbody_bbs_branding.custrecord_bbs_branding_vat>
+    <#assign eoriInfo 			= record.custbody_bbs_branding.custrecord_bbs_branding_eori>
+    <#assign eoriEuInfo 		= record.custbody_bbs_branding.custrecord_bbs_branding_eu_eori>
+    <#assign footerMsg 			= "All goods remain the property of " + record.custbody_bbs_branding.custrecord_bbs_branding_trade_name + "until paid in full.">
+    <#assign logoInfo 			= record.custbody_bbs_branding.custrecord_bbs_branding_logo@url>
+    <#assign logoHeight 		= record.custbody_bbs_branding.custrecord_bbs_branding_logo_height>
+    <#assign logoWidth 			= record.custbody_bbs_branding.custrecord_bbs_branding_logo_width>
+    <#assign currencySymbol 	= record.custbody_bbs_currency_symbol>
+
+    <macrolist>
+        
+        <macro id="nlheader">
+           	<table class="header" style="width: 100%;">
+   	 			<tr>
+					<td align="right" colspan="3"><img src="${logoInfo}" style="float: right; width: ${logoWidth}px; height: ${logoHeight}px;" /></td>
+    			</tr>
+    			<tr>
+					<td><span style="font-size:24px;">${record@title}</span></td>
+					<td align="right">&nbsp;</td>
+					<td align="right">&nbsp;</td>
+				</tr>
+          	</table>
+          
+          	<table class="header" style="width: 100%; margin-top: 10px;">
+				<tr>
+	        		<td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.entitytaxregnum}</span></td>
+					<td align="right" style="font-size:10pt">&nbsp;</td>
+	    			<td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custbody_bbs_branding.custrecord_bbs_branding_trade_name}<br/>
+                      ${record.custbody_bbs_branding.custrecord_bbs_branding_address}</span></td>
+				</tr>
+			</table>
+          
+          	<table class="header" style="width: 100%; margin-top: 10px;">
+				<tr>
+                  <td align="left" colspan="2" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" colspan="2" style="font-size:10pt"><b>VAT No.</b> ${vatInfo}</td>
+                </tr>
+              	<tr>
+                  <td align="left" colspan="2" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" colspan="2" style="font-size:10pt"><b>EORI No.</b> ${eoriInfo}</td>
+                </tr>
+              	<tr>
+                  <td align="left" colspan="2" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" colspan="2" style="font-size:10pt"><b>Email:</b> ${emailInfo}</td>
+                </tr>
+              	<tr>
+                  <td align="left" colspan="2" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" colspan="2" style="font-size:10pt"><b>Tel:</b> ${telInfo}</td>
+                </tr>
+			</table>
+          	
+          	<table style="width: 100%; margin-top: 10px;">
+    	<tr>
+			<td colspan="2" class="addressheader"><b>Shipping Address:</b></td>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td class="address">&nbsp;</td>
+			<td align="left" style="font-size:10pt"><b>Invoice No.</b></td>
+			<td align="right" style="font-size:10pt">${record.tranid}</td>
+	    </tr>
+		<tr>
+			<td class="address">&nbsp;</td>
+			<td align="left" style="font-size:10pt"><b>Invoice Date</b></td>
+			<td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+	    </tr>
+	    <tr>
+			<td class="address">&nbsp;</td>
+			<td align="left" style="font-size:10pt"><b>Due Date</b></td>
+			<td align="right" style="font-size:10pt"><#if record.duedate?length gt 0>${record.duedate?string["dd MMM yyyy"]}<#else>&nbsp;</#if></td>
+	    </tr>
+	  	<tr>
+			<td class="address">&nbsp;</td>
+			<td align="left" style="font-size:10pt"><b>Your Reference</b></td>
+			<td align="right" style="font-size:10pt">${record.otherrefnum}</td>
+	    </tr>
+      	<tr>
+			<td class="address">&nbsp;</td>
+			<td></td>
+			<td></td>
+    	</tr>
+    	<tr>
+			<td class="address">&nbsp;</td>
+			<td></td>
+			<td></td>
+    	</tr>
+  	</table>
+  	
+		</macro>
+		
+		<macro id="nlfooter">
+          
+          <table class="bankdetails" style="width: 100%;">
+            <tr>
+                <td colspan="14"><b>Bank Details for payments in ${record.currency}:</b></td>
+            </tr>
+            <tr>
+                <td colspan="14">&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan="4" class="bankdetails"><b>Bank Name</b></td>
+                <td colspan="10" class="bankdetails">${record.custbody_bbs_branding.custrecord_bbs_branding_bank}</td>
+            </tr>
+            <tr>
+                <td colspan="4" class="bankdetails"><b>Account Number</b></td>
+                <td colspan="8" class="bankdetails">${record.custbody_bbs_branding.custrecord_bbs_branding_bank_account}</td>
+                <td colspan="4" class="bankdetails"><b>Sort Code</b></td>
+                <td colspan="8" class="bankdetails">${record.custbody_bbs_branding.custrecord_bbs_branding_sort_code}</td>
+            </tr>
+            <tr>
+                <td colspan="4" class="bankdetails"><b>IBAN</b></td>
+                <td colspan="8" class="bankdetails">${record.custbody_bbs_branding.custrecord_bbs_branding_iban}</td>
+                <td colspan="4" class="bankdetails"><b>BIC/SWIFT</b></td>
+                <td colspan="8" class="bankdetails">${record.custbody_bbs_branding.custrecord_bbs_branding_bic}</td>
+            </tr>
+  		</table>
+          
+			<table style="width: 100%; margin-top: 10px;">
+	       		<tr class="messagerow">
+	              	<td colspan="6" align="left" class="message">${record.custbody_bbs_branding.custrecord_bbs_branding_trade_name}.&nbsp;${regInfo}&nbsp;EU EORI Number:&nbsp;${eoriEuInfo}</td>
+                  	<td align="right"><pagenumber/> of <totalpages/></td>
+			  	</tr>
+	      	</table>
+	  	</macro>
+    
+	</macrolist>
+
+    <style type="text/css">table {
+            <!--font-family: sans-serif;-->
+      		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            <!--background-color: #e3e3e3;-->
+            border-bottom: 1px solid black;
+    		border-collapse: collapse;
+            <!--color: #333333;-->
+        }
+        td {
+            padding: 0px;
+            vertical-align: top;
+            font-size:10px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 6pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      	table.message{
+        	border: 1px solid #dddddd;
+      	}
+        tr.totalrow {
+            <!--background-color: #e3e3e3;-->
+            line-height: 200%;
+        }
+      	tr.messagerow{
+        	font-size: 6pt;
+      	}
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 10pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+          font-size: 10pt;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalcell {
+          border-bottom: 1px solid black;
+    		border-collapse: collapse;
+        }
+      	td.message{
+        	font-size: 8pt;
+      	}
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="350pt" footer="nlfooter" footer-height="50pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+
+<#if record.item?has_content>
+	<table class="itemtable" style="width: 100%; margin-top: 10px;">
+		<#list record.item as item>
+          <#if item_index==0><!-- start items -->
+            <thead>
+                <tr>
+                    <th colspan="12"><br/>Description</th>
+                    <th align="center" colspan="2"><br/>Quantity</th>
+                    <th align="right" colspan="2">Unit<br/>Price</th>
+                    <th align="right" colspan="3">Net<br/>Amount</th>
+                    <th align="right" colspan="3">VAT<br/>Amount</th>
+                    <th align="right" colspan="3">Gross<br/>Amount</th>
+                </tr>
+            </thead>
+			</#if>
+          <tr>
+              <td colspan="12">${item.description}</td>
+              <td align="center" colspan="2">${item.quantity?string["0"]}</td>
+              <td align="right" colspan="2">${item.rate}</td>
+              <td align="right" colspan="3">${item.amount}</td>
+              <td align="right" colspan="3">${item.tax1amt}</td>
+              <td align="right" colspan="3">${item.grossamt}</td>
+          </tr>
+		</#list><!-- end items -->
+	</table>
+</#if>
+
+<hr />
+
+<table style="width:100%">
+	<tr>
+		<td colspan="2">&nbsp;</td>
+		<td colspan="2">
+			<table class="total" style="width: 100%;">
+				<tr class="totalrow">
+					<td colspan="4">&nbsp;</td>
+					<td class="totalcell" align="right"><b>Net Total</b></td>
+					<td class="totalcell" align="right">${record.subtotal}</td>
+				</tr>
+				<tr class="totalrow">
+					<td colspan="4">&nbsp;</td>
+				    <td class="totalcell" align="right"><b>VAT Total</b></td>
+					<td class="totalcell" align="right">${record.taxtotal}</td>
+				</tr>
+				<tr class="totalrow">
+					<td colspan="4">&nbsp;</td>
+					<td class="totalcell" align="right"><b>Gross Total</b></td>
+					<td class="totalcell" align="right">${record.total}</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+
+
+
+</body>
+</pdf>

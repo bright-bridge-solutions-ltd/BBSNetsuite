@@ -3,9 +3,9 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['./BBSPackingLibrary', 'N/currentRecord','N/format','N/ui/dialog'],
+define(['./BBSPackingLibrary', 'N/currentRecord','N/format','N/ui/dialog', 'N/url', 'N/runtime'],
 
-function(BBSPackingLibrary, currentRecord, format, dialog) 
+function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime) 
 {
 	var DIALOGMODULE = dialog;
 	
@@ -29,6 +29,27 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
     		try
     			{
     				//document.getElementById("custpage_entry_item").focus();
+    				var stage 		= Number(scriptContext.currentRecord.getValue({fieldId: 'custpage_param_stage'}));
+    				
+    				if(stage == 2)
+    					{
+    			//			document.getElementById("tbl_submitter").style.visibility = "hidden"; 
+    			//			document.getElementById("tbl_secondarysubmitter").style.visibility = "hidden"; 
+    					
+    						var lines = scriptContext.currentRecord.getLineCount({sublistId: 'custpage_sublist_items'});
+
+	    		    		for (var int = 1; int <= lines; int++) 
+	    			    		{
+	    		    				document.getElementById('custpage_sl_item_carton' + int.toString()).disabled = true;
+	    		    				document.getElementById('custpage_sl_item_weight' + int.toString()).disabled = true;
+	    		    				document.getElementById('custpage_sl_item_qty' + int.toString()).disabled = true;
+	    		    				document.getElementById('custpage_sl_item_qty_pack' + int.toString()).disabled = true;
+	    			    		}
+	    		    		
+	    		    		//Put the focus back on to the item input field
+	    			    	//
+	    			    	document.getElementById("custpage_entry_item").focus();
+    					}
     			}
     		catch(err)
     			{
@@ -77,13 +98,51 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
 					//
 					scriptContext.currentRecord.selectLine({sublistId: 'custpage_sublist_items', line: sublistLine});
 					
+					//Get the quantity from the last carton
+					//
+					var packedQuantity = Number(scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack'}));
+					
+					var qtyPerCarton 	= scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty'});
+					var weightPerCarton = scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_weight'});
+					var cartonNames 	= scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton'});
+					var cartonIds	 	= scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton_id'});
+					
+					var qtyPerCartonArray 		= qtyPerCarton.split(',');
+					var weightPerCartonArray 	= weightPerCarton.split(',');
+					var cartonNamesArray 		= cartonNames.split(',');
+					var cartonIdsArray 			= cartonIds.split(',');
+					
+					var lastQuantity = Number(qtyPerCartonArray[qtyPerCartonArray.length - 1]);
+					var newPackedQuantity = packedQuantity - lastQuantity;
+					
+					qtyPerCartonArray.pop();
+					weightPerCartonArray.pop();
+					cartonNamesArray.pop();
+					cartonIdsArray.pop();
+					
+					for (var weightIndex = 0; weightIndex < weightPerCartonArray.length; weightIndex++) 
+						{
+							weightPerCartonArray[weightIndex] = Number(weightPerCartonArray[weightIndex]).numberFormat("0.00");
+						}
+				
+					for (var quantityIndex = 0; quantityIndex < qtyPerCartonArray.length; quantityIndex++) 
+						{
+							qtyPerCartonArray[quantityIndex] = Number(qtyPerCartonArray[quantityIndex]).numberFormat("0.0");
+						}
+					
 					//Set values
 					//
-					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', value: format.parse({value: 0.0, type: format.Type.FLOAT}), ignoreFieldChange: true});						    					
-					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_weight', value: null, ignoreFieldChange: true});
-					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty', value: null, ignoreFieldChange: true});
-					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton_id', value: null, ignoreFieldChange: true});						    					
-					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton', value: null, ignoreFieldChange: true});						    					
+					//scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_weight', value: null, ignoreFieldChange: true});
+					//scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty', value: null, ignoreFieldChange: true});
+					//scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', value: format.parse({value: 0.0, type: format.Type.FLOAT}), ignoreFieldChange: true});						    					
+					//scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton', value: null, ignoreFieldChange: true});						    					
+					//scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton_id', value: null, ignoreFieldChange: true});						    					
+					
+					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', value: newPackedQuantity.numberFormat("0.00"), ignoreFieldChange: true});						    					
+					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_weight', value: weightPerCartonArray.toString(), ignoreFieldChange: true});
+					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty', value: qtyPerCartonArray.toString(), ignoreFieldChange: true});
+					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton_id', value: cartonIdsArray.toString(), ignoreFieldChange: true});						    					
+					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton', value: cartonNamesArray.toString(), ignoreFieldChange: true});						    					
 					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_remove', value: false, ignoreFieldChange: true});						    					
 			    	
 					//Commit
@@ -92,30 +151,31 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
 			    	
 					setRowColour(sublistLine, '#FFFFFF');
 					
+					recalculateCompletedLines(scriptContext);
+					
 					//Put the focus back on to the item input field
 			    	//
 			    	document.getElementById("custpage_entry_item").focus();
 				}
 	    	
+	    	
     		//Selection of an item
     		//
 	    	if(scriptContext.fieldId == 'custpage_entry_item' && scriptContext.sublistId == null)
 				{
-
-			    	
 			    	//Get the value of the entered item
 			    	//
 			    	var selectionValue = scriptContext.currentRecord.getValue({fieldId: 'custpage_entry_item'});
 			    	
-			    	//Get the reverse flag
+			    	//Get the quantity override value
 			    	//
-			    	var reverseValue = scriptContext.currentRecord.getValue({fieldId: 'custpage_entry_reverse'});
+			    	var overrideValue = Number(scriptContext.currentRecord.getValue({fieldId: 'custpage_entry_qty_override'}));
 
 			    	//Check to see if we have entered something
 			    	//
 			    	if(selectionValue != null && selectionValue != '')
 			    		{
-			    			//Get the value of the current cartpn from the form
+			    			//Get the value of the current carton from the form
 			    			//
 			    			var currentCartonName 	= scriptContext.currentRecord.getValue({fieldId: 'custpage_entry_carton_number'});
 			    			var currentCartonId 	= scriptContext.currentRecord.getValue({fieldId: 'custpage_entry_carton_id'});
@@ -146,22 +206,19 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
 						    				//
 						    				if(sublistItem == itemInfo.itemId && sublistQty < sublistRequired)
 						    					{
+						    						//lineUpdated = updateLine(scriptContext, int, itemInfo.itemUomFactor, sublistQty, itemInfo, sublistRequired);
+						    						
 						    						//Select the line
 						    						//
 							    					scriptContext.currentRecord.selectLine({sublistId: 'custpage_sublist_items', line: int});
 							    					
 							    					//Increment the line quantity by the uom factor (defaults to 1)
 							    					//
-							    					//sublistQty++;
-							    					sublistQty += (reverseValue ? itemInfo.itemUomFactor * -1.0 : itemInfo.itemUomFactor);
-							    					
-							    					//Increment the weight
-							    					//
-							    					//sublistWeight += (Number(itemInfo.itemWeight) * Number(itemInfo.itemUomFactor));
+							    					sublistQty += (overrideValue > 0 ? overrideValue: itemInfo.itemUomFactor);
 							    					
 							    					//Update the values & commit
 							    					//
-							    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', value: format.parse({value: sublistQty, type: format.Type.FLOAT}), ignoreFieldChange: true});						    					
+							    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', value: sublistQty.numberFormat("0.0"), ignoreFieldChange: true});						    					
 							    					//scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_weight', value: format.parse({value: sublistWeight, type: format.Type.FLOAT}), ignoreFieldChange: true});						    					
 							    					
 							    					var lineCarton 		= scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton'});
@@ -178,22 +235,23 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
 							    						{
 							    							cartonArray.push(currentCartonName);
 							    							cartonArrayId.push(currentCartonId);
-							    							cartonArrayWeight.push((Number(itemInfo.itemWeight) * Number(itemInfo.itemUomFactor)));
-							    							cartonArrayQuantity.push((Number(1.0) * Number(itemInfo.itemUomFactor)));
+							    							cartonArrayWeight.push((Number(itemInfo.itemWeight) * Number((overrideValue > 0 ? overrideValue: itemInfo.itemUomFactor))));
+							    							cartonArrayQuantity.push((Number(1.0) * Number((overrideValue > 0 ? overrideValue: itemInfo.itemUomFactor))));
 							    						}
 							    					else
 							    						{
-							    							cartonArrayWeight[cartonArray.indexOf(currentCartonName)] = Number(cartonArrayWeight[cartonArray.indexOf(currentCartonName)]) + (Number(itemInfo.itemWeight) * Number(itemInfo.itemUomFactor));
-							    							cartonArrayQuantity[cartonArray.indexOf(currentCartonName)] = Number(cartonArrayQuantity[cartonArray.indexOf(currentCartonName)]) + (Number(1.0) * Number(itemInfo.itemUomFactor));
+							    							cartonArrayWeight[cartonArray.indexOf(currentCartonName)] = Number(cartonArrayWeight[cartonArray.indexOf(currentCartonName)]) + (Number(itemInfo.itemWeight) * Number((overrideValue > 0 ? overrideValue: itemInfo.itemUomFactor)));
+							    							cartonArrayQuantity[cartonArray.indexOf(currentCartonName)] = Number(cartonArrayQuantity[cartonArray.indexOf(currentCartonName)]) + (Number(1.0) * Number((overrideValue > 0 ? overrideValue: itemInfo.itemUomFactor)));
 							    						}
 							    					
 							    					for (var weightIndex = 0; weightIndex < cartonArrayWeight.length; weightIndex++) 
 								    					{
 							    							cartonArrayWeight[weightIndex] = Number(cartonArrayWeight[weightIndex]).numberFormat("0.00");
 														}
+							    					
 							    					for (var quantityIndex = 0; quantityIndex < cartonArrayQuantity.length; quantityIndex++) 
 								    					{
-							    							cartonArrayQuantity[quantityIndex] = Number(cartonArrayQuantity[quantityIndex]).numberFormat("0");
+							    							cartonArrayQuantity[quantityIndex] = Number(cartonArrayQuantity[quantityIndex]).numberFormat("0.0");
 														}
 						    					
 							    					var  newCarton 		= cartonArray.toString();
@@ -208,8 +266,9 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
 							    					
 							    					scriptContext.currentRecord.commitLine({sublistId: 'custpage_sublist_items'});
 							    					scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
-							    					scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_reverse', value: false});
-											    	
+							    					scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: ''});
+							    					scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: ''});
+							    					
 											    	//Set the colour
 											    	//
 											    	if(sublistQty == sublistRequired)
@@ -227,6 +286,8 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
 											    			setRowColour(int, '#FFFFFF');
 											    		}
 									    	
+											    	recalculateCompletedLines(scriptContext);
+													
 											    	//We have updated a line
 											    	//
 											    	lineUpdated = true;
@@ -239,7 +300,7 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
 					    			//
 					    			if(!lineUpdated)
 					    				{
-					    					var warnings = 'Item code "' + selectionValue + '"not found on any line<br/><br/>';
+					    					var warnings = 'Item code "' + selectionValue + '"not availaible on any line<br/><br/>';
 						        			warnings += '<p style="color:Red;">Click \"Ok\" to Continue<p/>';
 						        			var titleText = '❗Alert';
 						    	      		var options = 	{
@@ -256,7 +317,7 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
 							    		      		if (result)
 							    		      			{
 								    		      			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
-								    		      			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_reverse', value: false});
+								    		      			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: ''});
 							    		      				document.getElementById("custpage_entry_item").focus();
 							    		      			}
 							    		      		
@@ -266,7 +327,7 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
 						    		      	//
 						    		      	dialog.alert(options).then(success);
 						    		      	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
-						    		      	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_reverse', value: false});
+						    		      	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: ''});
 						    		      	document.getElementById("custpage_entry_item").focus();
 					    			
 					    				}
@@ -290,7 +351,7 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
 					    		      		if (result)
 					    		      			{
 						    		      			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
-						    		      			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_reverse', value: false});
+						    		      			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: ''});
 					    		      				document.getElementById("custpage_entry_item").focus();
 					    		      			}
 					    		      	}
@@ -299,7 +360,7 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
 				    		      	//
 				    		      	dialog.alert(options).then(success);
 				    		      	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
-				    		      	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_reverse', value: false});
+				    		      	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: ''});
 				    		      	document.getElementById("custpage_entry_item").focus();
 			    				}
 			    		}
@@ -310,6 +371,8 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
 				}
 	    }
 
+    
+    
     /**
      * Validation function to be executed when record is saved.
      *
@@ -329,17 +392,34 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
     			{
 		    		var lines 			= scriptContext.currentRecord.getLineCount({sublistId: 'custpage_sublist_items'});
 		    		var completedCount	= Number(0);
+		    		var missingProducts	= [];
 		    		
 		    		for (var int = 0; int < lines; int++) 
 			    		{
-							var cartonId = scriptContext.currentRecord.getSublistValue({
+							var qtyRequired = Number(scriptContext.currentRecord.getSublistValue({
 																					sublistId: 'custpage_sublist_items',
-																					fieldId:	'custpage_sl_item_carton_id',
+																					fieldId:	'custpage_sl_item_qty_req',
 																					line:		int
-																					});	
-							if(cartonId != null && cartonId != '')
+																					}));
+							
+							var qtyPacked = Number(scriptContext.currentRecord.getSublistValue({
+																				sublistId: 'custpage_sublist_items',
+																				fieldId:	'custpage_sl_item_qty_pack',
+																				line:		int
+																				}));
+
+							var itemName = scriptContext.currentRecord.getSublistValue({
+																				sublistId: 'custpage_sublist_items',
+																				fieldId:	'custpage_sl_item_text',
+																				line:		int
+																				});
+							if(qtyRequired == qtyPacked)
 								{
 									completedCount++;
+								}
+							else
+								{
+									missingProducts.push(itemName);
 								}
 						}
 		    		
@@ -353,8 +433,10 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
 		        	  	{
 		        			//Set up the options for the dialogue box
 		        			//
-		        			var warnings = 'Not all lines have a carton allocated<br/><br/>'
-		        			warnings += '<p style="color:Red;">Click \"Ok\" to Continue, \"Cancel\" to Amend<p/>';
+		        			var warnings = 'The following products have not been processed properly<br/><br/>';
+		        			warnings += missingProducts.join('<br/>');
+		        			
+		        			//warnings += '<p style="color:Red;">Click \"Ok\" to Continue, \"Cancel\" to Amend<p/>';
 		        			var titleText = '❗Alert';
 		    	      		var options = 	{
 		    		      					title: titleText,
@@ -365,29 +447,12 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
 		    	      		//
 		    		      	function success(result) 
 			    		      	{ 
-			    		      		//See if we have clicked ok in the dialogue
-			    		      		//
-			    		      		if (result)
-			    		      			{
-			    		      				//Update the global variable to show that we have clicked ok
-			    		      				//
-			    		      				IS_CONFIRMED = true;
-			    		      				
-			    		      				//Spoof pressing the save button on the form
-			    		      				//
-			    		      				document.getElementById('submitter').click();
-			    		      			}
-			    		      		else
-			    		      			{
-			    		      				document.getElementById("custpage_entry_item").focus();
-			    		      			}
+			    		      		document.getElementById("custpage_entry_item").focus();
 			    		      	}
 
-		  
-		    		      	
 		    		      	//Display the dialogue box
 		    		      	//
-		    		      	dialog.confirm(options).then(success);
+		    		      	dialog.alert(options).then(success);
 		    		      	document.getElementById("custpage_entry_item").focus();
 		    		      	
 		        	  	}
@@ -398,6 +463,50 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
     			}
 	    }
     
+    function recalculateCompletedLines(scriptContext)
+    	{
+	    	//Get the line count of the sublist
+			//
+			var lines 		= scriptContext.currentRecord.getLineCount({sublistId: 'custpage_sublist_items'});
+			var completed	= Number(0);
+			
+			//Loop through the sublist lines
+			//
+			for (var int = 0; int < lines; int++) 
+				{
+					//Get the quantities
+					//
+					var sublistRequired = Number(scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_req', line: int}));
+					var sublistQty 		= Number(scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', line: int}));
+					
+					if(sublistRequired == sublistQty)
+						{
+							completed++;
+						}
+				}
+			
+			var currRec = currentRecord.get();
+    		
+    		currRec.setValue({fieldId: 'custpage_entry_lines_complete', value: completed});
+    	}
+	
+    function abandonButton(workstation, scriptId, deploymentId)
+		{
+    		debugger;
+    		var redirect = url.resolveScript({
+								scriptId: 		scriptId, 
+								deploymentId:	deploymentId, 
+								params:			{
+													stage: 			1,
+													wsid:			workstation						//Internal id of the workstation
+												}
+								});
+    		
+    		// Open the suitelet in the current window
+    		//
+    		window.open(redirect, '_self', 'Packing');
+		}
+
     function newCarton()
     	{
     		var cartonDetails 	= BBSPackingLibrary.libCreateNewCarton();
@@ -424,7 +533,6 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
 		    		
 		    		tdDom.setAttribute('style','background-color: '+tdColor+'!important;border-color: white '+tdColor+' '+tdColor+' '+tdColor+'!important;');
 		    	}
-    	
     	}
     
     return 	{
@@ -432,6 +540,7 @@ function(BBSPackingLibrary, currentRecord, format, dialog)
     		saveRecord:		saveRecord,
     		newCarton:		newCarton,
     		pageInit: 		pageInit,
+    		abandonButton:	abandonButton
     		};
     
 });
