@@ -44,17 +44,30 @@
 
 		<macro id="nlfooter">
 			<table style="width: 100%;">
-	       		<tr class="messagerow">
-	           		<td align="left" class="message"><b>${footerMsg}</b></td>
+	       		<tr>
+	           		<td><b>${footerMsg}</b></td>
 			  	</tr>
-	         	<tr class="messagerow">
-	           		<td align="left" class="message">&nbsp;</td>
+			  	<tr>
+			  		<td>Prices exclude VAT</td>
 			  	</tr>
-	          	<tr class="messagerow">
-	              	<td align="left" class="message">${regInfo}</td>
+			  	<tr>
+			  		<td>Errors &amp; Omissions Excepted</td>
 			  	</tr>
-	      	</table>
-			<table class="footer" style="width: 100%;">
+			  	<tr>
+			  		<td>Special Order Items - Please be aware that certain products are non-cancellable and non-returnable</td>
+			  	</tr>
+			  	<tr>
+			  		<td>This is not a tax invoice. All orders are accepted subject to our standard Terms and Conditions of Sale, available on our website <a href="https://www.misco.co.uk">https://www.misco.co.uk</a></td>
+			  	</tr>
+			  	<tr>
+			  		<td>Any issues with the order i.e. incorrect items/quantities/delivery address please liaise with your Account Manager within 24 hours.</td>
+			  	</tr>
+			  	<tr>
+			  		<td>Lead times for delivery are accurate at time of order but subject to change and Misco shall not be liable for delays howsoever caused.</td>
+			  	</tr>
+			  	<tr>
+			  		<td>Please note: any queries arising on receipt of goods must be reported within 48 hours of delivery.</td>
+			  	</tr>
 				<tr>
 					<td align="right"><pagenumber/> of <totalpages/></td>
 				</tr>
@@ -163,7 +176,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="230pt" footer="nlfooter" footer-height="20pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="230pt" footer="nlfooter" footer-height="75pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
 	<table style="width: 100%;">
     	<tr>
@@ -249,7 +262,7 @@
 			        	<td colspan="6">&nbsp;</td>
 				        <td colspan="4" align="center">${tax.taxcode}</td>
 				        <td colspan="6" align="center">${currencySymbol}${tax.taxbasis}</td>
-				        <td colspan="4" align="center">${currencySymbol}${tax.taxrate}</td>
+				        <td colspan="4" align="center">${tax.taxrate?string.percent}</td>
 				        <td colspan="6" align="center">${currencySymbol}${tax.taxamount}</td>
 		        	</tr>
 		        </#list>

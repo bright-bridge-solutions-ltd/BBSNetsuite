@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['./BBSSOApprovalLibrary', 'N/search', 'N/record', 'N/runtime', 'N/url', 'N/https'],
-function(libraryScript, search, record, runtime, url, https) {
+define(['./BBSSOApprovalLibrary', 'SuiteScripts/SuiteCentric/ukfd.library.2.0.webSalesOrderPaymentToCustomerDeposit', 'N/search', 'N/record', 'N/runtime', 'N/url', 'N/https'],
+function(libraryScript, suiteCentricLibrary, search, record, runtime, url, https) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -69,10 +69,15 @@ function(libraryScript, search, record, runtime, url, https) {
      */
     function afterSubmit(scriptContext) {
     	
-    	// check the record is being created or edited
-    	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
+    	// check the record is being created
+    	if (scriptContext.type == scriptContext.UserEventType.CREATE)
     		{
-		    	// declare and initialize variables
+	    		// retrieve script parameters
+				var use3DSecure = runtime.getCurrentScript().getParameter({
+					name: 'custscript_bbs_so_approval_use_3d_secure'
+				});
+    		
+    			// declare and initialize variables
 		    	var paymentApproval 		= false;
 		    	var passedBusinessRules 	= false;
 		    	var allItemsInStock			= false;
@@ -143,6 +148,123 @@ function(libraryScript, search, record, runtime, url, https) {
 										    		}
 										    }
 									}
+								else if (paymentMethod == 13 || paymentMethod == 14) // if paymentMethod is 13 (VISA) or 14 (Mastercard)
+									{
+										// run search to find deposits linked to this sales order
+										search.create({
+											type: record.Type.CUSTOMER_DEPOSIT,
+											
+											filters: [{
+												name: 'mainline',
+												operator: search.Operator.IS,
+												values: ['T']
+											},
+													{
+												name: 'createdfrom',
+												operator: search.Operator.ANYOF,
+												values: [currentRecordID]
+											}],
+											
+											columns: [{
+												name: 'tranid'
+											}],
+
+										}).run().each(function(result){
+											
+											// get the internal ID of the deposit record
+											var depositID = result.id;
+											
+											// load the deposit record
+									    	var depositRecord = record.load({
+									    		type: record.Type.CUSTOMER_DEPOSIT,
+									    		id: depositID,
+									    		isDynamic: true
+									    	});
+									    	
+									    	// call function to retrieve 3D secure results
+											var paymentResults = libraryScript.return3DSecureResults(depositRecord);
+											
+											// call function to check if the billing/shipping address postcodes are the same
+											var samePostcode = libraryScript.checkPostcodes(currentRecord);
+											
+											// set fields on the Sales Order
+											currentRecord.setValue({
+											    fieldId: 'custbody_bbs_payment_eci',
+											    value: paymentResults.eci
+											});
+											    			
+											currentRecord.setValue({
+											    fieldId: 'custbody_bbs_payment_eci_raw',
+											    value: paymentResults.eciRaw
+											});
+											    			
+											currentRecord.setValue({
+											    fieldId: 'custbody_bbs_payment_pares_status',
+											    value: paymentResults.paresStatus
+											});
+											    			
+											currentRecord.setValue({
+											    fieldId: 'custbody_bbs_payment_reason_code',
+											    value: paymentResults.reasonCode
+											});
+											    			
+											currentRecord.setValue({
+											    fieldId: 'custbody_bbs_payment_decision',
+											    value: paymentResults.decision
+											});
+											    			
+											currentRecord.setValue({
+											    fieldId: 'custbody_bbs_payment_avs_street',
+											    value: paymentResults.avsStreet
+											});
+											    			
+											currentRecord.setValue({
+											    fieldId: 'custbody_bbs_payment_avs_zip',
+											    value: paymentResults.avsZip
+											});
+											    			
+											currentRecord.setValue({
+											    fieldId: 'custbody_bbs_payment_csc',
+											    value: paymentResults.csc
+											});
+											
+											currentRecord.setValue({
+												fieldId: 'custbody_bbs_payment_same_postcode',
+												value: samePostcode
+											});
+											
+											if(samePostcode)
+												{		
+													// if avsStreet/avsZip/csc = true and decision = ACCEPT
+											    	/*if (paymentResults.avsStreet == true && paymentResults.avsZip == true && paymentResults.csc == true && paymentResults.decision == 'ACCEPT')
+											    		{*/
+											    			if(use3DSecure) // 3D secure enabled
+											    				{
+													    			if ((paymentResults.eciRaw == 05 || paymentResults.eciRaw == 02) && paymentResults.paresStatus == 'Y' && paymentResults.reasonCode == 100)
+													    				{
+																	    	// set the 3D secure checkbox on the sales order record
+													    					currentRecord.setValue({
+																	    		fieldId: 'custbody_bbs_payment_3d_secure',
+																	    		value: true
+																	    	});
+													    		
+															    			// set paymentApproval to true
+															    			paymentApproval = true;
+													    				}
+											    				}
+											    			else
+											    				{
+												    				// set paymentApproval to true
+													    			paymentApproval = true;
+											    				}
+											    		//}
+												}
+											
+											// just process the first deposit record found
+											return false;
+											
+										});
+									}
 						    }
 						    	
 						   // call function to check if the order passes Universal Business Rules
@@ -193,32 +315,26 @@ function(libraryScript, search, record, runtime, url, https) {
 										value: true
 									});
 									
-									// if paymentMethod is 16 (PayPal (UKFD Site))
-									if (paymentMethod == 16)
-										{
-											//  call SuiteCentric suitelet
-											https.get({
-											    url: url.resolveScript({
-													scriptId: 'customscript_suitelet_web_order_payment',
-													deploymentId: 'customdeploy_ukfd_transform_paypal_web_o',
-													params: {
-														id: currentRecordID
-													},
-													returnExternalUrl: true
-											    }),
-											});
-										}
-									
 							   }
 						   
 						   // save the changes to the sales order record
 						   currentRecord.save({
 							   ignoreMandatoryFields: true
 						   });
+						   
+						   // if paymentMethod is 16 (PayPal (UKFD Site)) and all checks have passed
+						   if (paymentMethod == 16 && paymentApproval == true && passedBusinessRules == true)
+						   		{
+									// call SuiteCentric library function
+									var suiteCentricStatus = suiteCentricLibrary.convert(currentRecordID, paymentMethod);
+									
+									log.audit({
+										title: 'SuiteCentric Status',
+										details: suiteCentricStatus
+									});
+								}
     				}
     		}
-    	
-    	
 
     }    
 

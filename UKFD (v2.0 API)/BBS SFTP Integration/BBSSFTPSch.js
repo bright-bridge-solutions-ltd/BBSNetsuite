@@ -387,7 +387,12 @@ function(search, sftp, record, format, file, runtime) {
 									}
 							}
 					}
-			}    	
+			}
+		
+		log.audit({
+			title: '*** END OF SCRIPT ***'
+		});
+		
     }
     
     // ==================================

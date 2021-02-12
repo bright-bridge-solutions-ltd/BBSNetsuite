@@ -156,8 +156,8 @@ function(libraryScript, search, record, runtime) {
 										if(samePostcode)
 											{		
 												// if avsStreet/avsZip/csc = true and decision = ACCEPT
-										    	if (paymentResults.avsStreet == true && paymentResults.avsZip == true && paymentResults.csc == true && paymentResults.decision == 'ACCEPT')
-										    		{
+										    	/*if (paymentResults.avsStreet == true && paymentResults.avsZip == true && paymentResults.csc == true && paymentResults.decision == 'ACCEPT')
+										    		{*/
 										    			if(use3DSecure) // 3D secure enabled
 										    				{
 												    			if ((paymentResults.eciRaw == 05 || paymentResults.eciRaw == 02) && paymentResults.paresStatus == 'Y' && paymentResults.reasonCode == 100)
@@ -177,7 +177,7 @@ function(libraryScript, search, record, runtime) {
 											    				// set paymentApproval to true
 												    			paymentApproval = true;
 										    				}
-										    		}
+										    		//}
 											}
 									}
 						    }

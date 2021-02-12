@@ -355,37 +355,156 @@
 	<p>(1) Installation thereof and<br/>(2)	Receipt of all payments due in respect thereof by Company</p>
 	
 	<#if record.item?has_content>
-	<#assign onBoardingTotal = 0> 		<!-- Define the onBoardingTotal variable -->
-		<table style="width:100%; margin-bottom: 30px;">
-			<thead>
-				<tr>
-					<th colspan="4" align="center" style="border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Quantity</th>
-					<th colspan="12" align="center" style="border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Item</th>
-					<th colspan="4" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Amount</th>
-				</tr>
-			</thead>
-			<!-- start items -->
-	        <#list record.item as item>
-	        	<#if item.custcol_bbs_setup_fee == true> <!-- Only print items where the setup fee checkbox is ticked -->
+	
+		<#if record.custbody_bbs_item_grouping == "None">
+			<#assign onBoardingTotal = 0> 		<!-- Define the onBoardingTotal variable -->
+				<table style="width:100%; margin-bottom: 30px;">
+					<thead>
+						<tr>
+							<th colspan="4" align="center" style="border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Quantity</th>
+							<th colspan="12" align="center" style="border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Item</th>
+							<th colspan="4" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Amount</th>
+						</tr>
+					</thead>
+					<!-- start items -->
+			        <#list record.item as item>
+			        	<#if item.custcol_bbs_setup_fee == true> <!-- Only print items where the setup fee checkbox is ticked -->
+							<tr>
+								<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.quantity?string.number}</td>
+								<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.description}</td>
+								<td colspan="4" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"></td>
+							</tr>
+							<#assign onBoardingTotal += item.amount> <!-- Add the amount to the onBoardingTotal variable -->
+						</#if>
+					</#list>
 					<tr>
-						<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.quantity?string.number}</td>
-						<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.description}</td>
-						<td colspan="4" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"></td>
+						<td colspan="16" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Total Onboarding</b></td>
+						<td colspan="4" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${onBoardingTotal}</td>
 					</tr>
-					<#assign onBoardingTotal += item.amount> <!-- Add the amount to the onBoardingTotal variable -->
-				</#if>
-			</#list>
-			<tr>
-				<td colspan="16" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Total Onboarding</b></td>
-				<td colspan="4" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${onBoardingTotal}</td>
-			</tr>
-			<#if record.custbody_bbs_order_type == 'Equipment' && subsidiary.id != "2"> <!-- Subsidiary is NOT essensys UK -->
-				<tr>
-					<td colspan="16" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Estimated Taxes</b></td>
-					<td colspan="4" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${record.taxtotal}</td>
-				</tr>
+					<#if record.custbody_bbs_order_type == 'Equipment' && subsidiary.id != "2"> <!-- Subsidiary is NOT essensys UK -->
+						<tr>
+							<td colspan="16" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Estimated Taxes</b></td>
+							<td colspan="4" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${record.taxtotal}</td>
+						</tr>
+					</#if>
+				</table>
+			<#elseif record.custbody_bbs_item_grouping == "Floor">
+				<#assign onBoardingTotal = 0>
+				<#assign lastFloor = -1>
+		        <#assign quantitySubTotal = 0>
+		        <#assign amountSubTotal = 0>
+				<table style="width:100%; margin-bottom: 30px;">
+					<!-- start items -->
+			        <#list record.item?sort_by("custcol_bbs_floor_number") as item>
+			        	<#if item_index == 0>
+                  		<#assign lastFloor = item.custcol_bbs_floor_number>
+							<thead>
+								<tr>
+									<th colspan="4" align="center" style="border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Quantity</th>
+									<th colspan="12" align="center" style="border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Item</th>
+									<th colspan="4" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Amount</th>
+								</tr>
+							</thead>
+						</#if>
+			        	<#if item.custcol_bbs_setup_fee == true> <!-- Only print items where the setup fee checkbox is ticked -->
+							
+							<#if lastFloor != item.custcol_bbs_floor_number>
+		                  	<!--Subtotal line goes here -->
+		                    <tr>
+		                      <td align="left" colspan="16" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Subtotal for floor ${lastFloor?string["0"]}</b></td>
+		                      <td align="right" colspan="4" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${amountSubTotal}</td>
+		                  	</tr>
+		                  	<#assign lastFloor = item.custcol_bbs_floor_number>
+		                  	<#assign quantitySubTotal = item.quantity>
+		        			<#assign amountSubTotal = item.amount>
+			                <#else>
+			                  	<#assign quantitySubTotal += item.quantity>
+			        			<#assign amountSubTotal += item.amount>
+			                </#if>
+							
+							<tr>
+								<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.quantity?string.number}</td>
+								<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.description}</td>
+								<td colspan="4" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"></td>
+							</tr>
+							<#assign onBoardingTotal += item.amount> <!-- Add the amount to the onBoardingTotal variable -->
+						</#if>
+					</#list>
+					<!--Last subtotal line goes here -->
+		            <tr>
+		           		<td align="left" colspan="16" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Subtotal for floor ${lastFloor?string["0"]}</b></td>
+		               	<td align="right" colspan="4" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${amountSubTotal}</td>
+		            </tr>
+					<tr>
+						<td colspan="16" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Total Onboarding</b></td>
+						<td colspan="4" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${onBoardingTotal}</td>
+					</tr>
+					<#if record.custbody_bbs_order_type == 'Equipment' && subsidiary.id != "2"> <!-- Subsidiary is NOT essensys UK -->
+						<tr>
+							<td colspan="16" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Estimated Taxes</b></td>
+							<td colspan="4" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${record.taxtotal}</td>
+						</tr>
+					</#if>
+				</table>
+			<#elseif record.custbody_bbs_item_grouping == "Product Family">
+				<#assign onBoardingTotal = 0>
+				<#assign lastFamily = -1>
+		        <#assign quantitySubTotal = 0>
+		        <#assign amountSubTotal = 0>
+				<table style="width:100%; margin-bottom: 30px;">
+					<!-- start items -->
+			        <#list record.item?sort_by("custcol_bbs_item_family") as item>
+			        	<#if item_index == 0>
+                  		<#assign lastFamily = item.custcol_bbs_item_family>
+							<thead>
+								<tr>
+									<th colspan="4" align="center" style="border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Quantity</th>
+									<th colspan="12" align="center" style="border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Item</th>
+									<th colspan="4" align="center" style="border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Amount</th>
+								</tr>
+							</thead>
+						</#if>
+			        	<#if item.custcol_bbs_setup_fee == true> <!-- Only print items where the setup fee checkbox is ticked -->
+							
+							<#if lastFamily != item.custcol_bbs_item_family>
+		                  	<!--Subtotal line goes here -->
+		                    <tr>
+		                      <td align="left" colspan="16" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Subtotal for ${lastFamily}</b></td>
+		                      <td align="right" colspan="4" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${amountSubTotal}</td>
+		                  	</tr>
+		                  	<#assign lastFamily = item.custcol_bbs_item_family>
+		                  	<#assign quantitySubTotal = item.quantity>
+		        			<#assign amountSubTotal = item.amount>
+			                <#else>
+			                  	<#assign quantitySubTotal += item.quantity>
+			        			<#assign amountSubTotal += item.amount>
+			                </#if>
+							
+							<tr>
+								<td colspan="4" align="center" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.quantity?string.number}</td>
+								<td colspan="12" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.description}</td>
+								<td colspan="4" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"></td>
+							</tr>
+							<#assign onBoardingTotal += item.amount> <!-- Add the amount to the onBoardingTotal variable -->
+						</#if>
+					</#list>
+					<!--Last subtotal line goes here -->
+		            <tr>
+		           		<td align="left" colspan="16" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Subtotal for ${lastFamily}</b></td>
+		               	<td align="right" colspan="4" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${amountSubTotal}</td>
+		            </tr>
+					<tr>
+						<td colspan="16" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Total Onboarding</b></td>
+						<td colspan="4" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${onBoardingTotal}</td>
+					</tr>
+					<#if record.custbody_bbs_order_type == 'Equipment' && subsidiary.id != "2"> <!-- Subsidiary is NOT essensys UK -->
+						<tr>
+							<td colspan="16" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Estimated Taxes</b></td>
+							<td colspan="4" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${record.taxtotal}</td>
+						</tr>
+					</#if>
+				</table>
 			</#if>
-		</table>
 	</#if>
 	
 </#if>

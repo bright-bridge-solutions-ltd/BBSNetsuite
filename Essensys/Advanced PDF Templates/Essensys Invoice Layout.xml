@@ -221,9 +221,15 @@
 <#else>
 	<!-- ITEMS TABLE -->
 	<#if record.item?has_content>
+      
+      	<#assign lastFloor = -1>
+        <#assign quantitySubTotal = 0>
+        <#assign amountSubTotal = 0>
+          
 		<table class="itemtable" style="width: 100%; margin-top: 10px; border-top: 2px solid black; border-bottom: 2px solid black; border-left: 2px solid black; border-right: 2px solid black;"><!-- start items -->
-			<#list record.item as item>
+			<#list record.item?sort_by("custcol_bbs_floor_number") as item>
 				<#if item_index == 0>
+                  	<#assign lastFloor = item.custcol_bbs_floor_number>
 					<thead>
 						<tr>
 							<th colspan="10">CLIENT SERVICES</th>
@@ -237,6 +243,21 @@
 						</tr>
 					</thead>
 				</#if>
+                  
+                  <#if lastFloor != item.custcol_bbs_floor_number>
+                  	<!--Subtotal line goes here -->
+                    <tr>
+                      <td align="right" colspan="26" style="border-top: 2px solid black; border-bottom: 2px solid black;"><b>Subtotal for floor ${lastFloor?string["0"]}</b></td>
+                      <td align="right" colspan="4" style="border-left: 2px solid black; border-top: 2px solid black; border-bottom: 2px solid black;"><b>${currencySymbol}${amountSubTotal}</b></td>
+                  	</tr>
+                  	<#assign lastFloor = item.custcol_bbs_floor_number>
+                  	<#assign quantitySubTotal = item.quantity>
+        			<#assign amountSubTotal = item.amount>
+                <#else>
+                  	<#assign quantitySubTotal += item.quantity>
+        			<#assign amountSubTotal += item.amount>
+                </#if>
+                      
 				<tr>
 					<td colspan="10" line-height="150%">${item.description}</td>
 					<td colspan="8" style="border-left: 2px solid black;">${item.custcol_bbs_date_from} to ${item.custcol_bbs_date_to}</td>
@@ -247,7 +268,16 @@
 					<td align="right" colspan="4" style="border-left: 2px solid black;">${currencySymbol}${item.rate}</td>
 					<td align="right" colspan="4" style="border-left: 2px solid black;">${currencySymbol}${item.amount}</td>
 				</tr>
+                  
+                
+                  
 			</#list>
+                  
+            <!--Last subtotal line goes here -->
+            <tr>
+           		<td align="right" colspan="26" style="border-top: 2px solid black;"><b>Subtotal for floor ${lastFloor?string["0"]}</b></td>
+               	<td align="right" colspan="4" style="border-top: 2px solid black; border-left: 2px solid black;"><b>${currencySymbol}${amountSubTotal}</b></td>
+            </tr>  
 		</table>
 	</#if>
 </#if>

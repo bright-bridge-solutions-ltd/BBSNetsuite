@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['./BBSSFTPLibrary', 'N/search', 'N/sftp', 'N/file', 'N/format', 'N/record', 'N/runtime'],
-function(libraryScript, search, sftp, file, format, record, runtime) {
+define(['N/search', 'N/sftp', 'N/file', 'N/format', 'N/record', 'N/runtime'],
+function(search, sftp, file, format, record, runtime) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -29,6 +29,16 @@ function(libraryScript, search, sftp, file, format, record, runtime) {
      * @Since 2015.2
      */
     function beforeSubmit(scriptContext) {
+    	
+    	// check the PO is a special order
+    	if (scriptContext.type == scriptContext.UserEventType.SPECIALORDER)
+    		{
+    			// set the status to 'Pending Receipt'
+    			scriptContext.newRecord.setValue({
+    				fieldId: 'orderstatus',
+					value: 'B' // B = Pending Receipt
+				});
+    		}
 
     }
 
@@ -60,7 +70,7 @@ function(libraryScript, search, sftp, file, format, record, runtime) {
 		    	});
 		    			
 		    	// see if we have a matching SFTP record for the supplier
-		    	var sftpDetails = libraryScript.getSftpDetails(supplierID);
+		    	var sftpDetails = getSftpDetails(supplierID);
 		    			
 		    	// retrieve the SFTP details
 		    	var sftpEndpoint 		= sftpDetails.endpoint;
@@ -118,7 +128,7 @@ function(libraryScript, search, sftp, file, format, record, runtime) {
 		    							});
 				    							
 				    					var requiredDate = currentRecord.getValue({
-				    						fieldId: 'duedate'
+				    						fieldId: 'custbody_bbs_requested_collection_date'
 				    					});
 				    							
 				    					// if we have a required date
@@ -130,9 +140,13 @@ function(libraryScript, search, sftp, file, format, record, runtime) {
 				    								value: 	requiredDate
 				    							});
 				    						}
+				    					
+				    					var soNumber = currentRecord.getText({
+				    						fieldId: 'createdfrom'
+				    					}).split('#').pop();
 				    									
 				    					// start off the CSV
-				    					var CSV = '"HEAD",,"UKFD","UKFD",' + poNumber + ',' + orderDate + ',' + requiredDate + ',,,,,,,,,,"UKFD Warehouse","Unit H1","Pilgrims Walk","Prologis Park","Coventry","CV6 4QG"\r\n';
+				    					var CSV = '"HEAD",,"UKFD","UKFD",' + poNumber + ',' + orderDate + ',' + requiredDate + ',,,,,,,,,,"UKFD Warehouse","Unit H1","Pilgrims Walk","Prologis Park","Coventry","CV6 4QG",,,,,,,,' + soNumber + '\r\n';
 				    							
 				    					// get count of lines on the PO
 				    					var lineCount = currentRecord.getLineCount({
@@ -162,7 +176,7 @@ function(libraryScript, search, sftp, file, format, record, runtime) {
 				    							});
 				    									
 				    							// add the line details to the CSV
-				    							CSV += "LINE" + ',' + (i+1) + ',,,,,' + productCode + ',,,,,' + productDescription + ',,,,,,,,,,,,,,,' + quantityRequired + ',"M"\r\n';		    									
+				    							CSV += "LINE" + ',' + (i+1) + ',,,,,' + productCode + ',,,,' + productDescription + ',,,,,,,,,,,,,,,' + quantityRequired + ',"M"\r\n';		    									
 				    						}
 				    								
 				    					// add a 'RECON' line to the CSV
@@ -251,8 +265,107 @@ function(libraryScript, search, sftp, file, format, record, runtime) {
     		}
     	
     }
+    
+    // ===========================================
+    // FUNCTION TO GET THE SFTP CONNECTION DETAILS
+    // ===========================================
+    
+    function getSftpDetails(supplierID) {
+    	
+    	// declare and initialize variables
+    	var endpoint 		= null;
+    	var username 		= null;
+    	var password 		= null;
+    	var hostKey			= null;
+    	var portNumber		= null;
+    	var outDirectory	= null;
+    	var inDirectory		= null;
+    	
+    	// search for Supplier SFTP Detail records
+    	search.create({
+    		type: 'customrecord_bbs_supplier_sftp',
+    		
+    		filters: [{
+    			name: 'isinactive',
+    			operator: search.Operator.IS,
+    			values: ['F']
+    		},
+    				{
+    			name: 'custrecord_bbs_supplier_sftp_supplier',
+    			operator: search.Operator.ANYOF,
+    			values: [supplierID]
+    		}],
+    		
+    		columns: [{
+    			name: 'custrecord_bbs_supplier_sftp_endpoint'
+    		},
+    				{
+    			name: 'custrecord_bbs_supplier_sftp_username'
+    		},
+    				{
+    			name: 'custrecord_bbs_supplier_sftp_password'
+    		},
+    				{
+    			name: 'custrecord_bbs_supplier_sftp_host_key'
+    		},
+    				{
+    			name: 'custrecord_bbs_supplier_sftp_port_number'
+    		},
+    				{
+    			name: 'custrecord_bbs_supplier_sftp_out_folder'
+    		},
+    				{
+    			name: 'custrecord_bbs_supplier_sftp_in_folder'
+    		}],
+    		
+    	}).run().each(function(result){
+    		
+    		// get the SFTP details from the search result
+    		endpoint = result.getValue({
+    			name: 'custrecord_bbs_supplier_sftp_endpoint'
+    		});
+    		
+    		username = result.getValue({
+    			name: 'custrecord_bbs_supplier_sftp_username'
+    		});
+    		
+    		password = result.getValue({
+    			name: 'custrecord_bbs_supplier_sftp_password'
+    		});
+    		
+    		hostKey = result.getValue({
+    			name: 'custrecord_bbs_supplier_sftp_host_key'
+    		});
+    		
+    		portNumber = result.getValue({
+    			name: 'custrecord_bbs_supplier_sftp_port_number'
+    		});
+    		
+    		outDirectory = result.getValue({
+    			name: 'custrecord_bbs_supplier_sftp_out_folder'
+    		});
+    		
+    		inDirectory = result.getValue({
+    			name: 'custrecord_bbs_supplier_sftp_in_folder'
+    		});
+    		
+    	});
+    	
+    	// return values to the main script function
+    	return {
+    		endpoint:		endpoint,
+    		username:		username,
+    		password:		password,
+    		hostKey:		hostKey,
+    		portNumber:		portNumber,
+    		outDirectory:	outDirectory,
+    		inDirectory:	inDirectory
+    	}
+    	
+    }
 
     return {
+    	beforeSubmit: beforeSubmit,
         afterSubmit: afterSubmit
     };
     

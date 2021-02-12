@@ -246,7 +246,7 @@
 			        	<td colspan="6">&nbsp;</td>
 				        <td colspan="4" align="center">${tax.taxcode}</td>
 				        <td colspan="6" align="center">-${currencySymbol}${tax.taxbasis}</td>
-				        <td colspan="4" align="center">-${currencySymbol}${tax.taxrate}</td>
+				        <td colspan="4" align="center">-${tax.taxrate?string.percent}</td>
 				        <td colspan="6" align="center">-${currencySymbol}${tax.taxamount}</td>
 		        	</tr>
 		        </#list>

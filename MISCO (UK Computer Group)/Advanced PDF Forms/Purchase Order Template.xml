@@ -7,6 +7,8 @@
    	<#assign emailInfo>${record.cseg_bbs_division.custrecord_bbs_division_purchasing_email}</#assign>
    	<#assign telInfo>${record.cseg_bbs_division.custrecord_bbs_division_telephone_number}</#assign>
     <#assign vatInfo>${record.cseg_bbs_division.custrecord_bbs_division_vat_number}</#assign>
+    <#assign EORI>${record.cseg_bbs_division.custrecord_bbs_division_eori_number}</#assign>
+    <#assign regInfo>${record.cseg_bbs_division.custrecord_bbs_division_company_reg}</#assign>
     <#assign footerMsg>All goods remain the property of ${record.cseg_bbs_division.custrecord_bbs_division_legal_name} until paid in full.</#assign>
     <#assign logoInfo>${record.cseg_bbs_division.custrecord_bbs_division_logo@url}</#assign>
     <#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
@@ -37,7 +39,7 @@
   				<tr>
   					<td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Supplier Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/></span></td>
   					<td align="right" style="font-size:10pt"></td>
- 					<td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${companyInformation.companyName}<br />${companyInformation.addressText}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+ 					<td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${companyInformation.companyName}<br />${companyInformation.addressText}</span><br/>VAT No. ${vatInfo}<br/>EORI: ${EORI}<br/>Company Reg No. ${regInfo}<br/><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
 				</tr>
           	</table>
  		</macro>
@@ -45,6 +47,12 @@
         <macro id="nlfooter">
 			<table style="width: 100%;">
           		<tr>
+          			<td><b><u>IF ANY ITEMS ARE NON-CANCELABLE / NON-RETURNABLE YOU NEED WRITTEN CONFIRMATION THAT WE AGREE BEFORE ORDERING, IF THIS IS NOT GAINED THE TERM WILL NOT BE ADHERED TO.</u></b></td>
+          		</tr>
+          		<tr style="margin-top:10px;">
+          			<td><span style="font-weight: bold; color:#FF0000;">IF ANY OF THE CHARGES ON THE PO ARE INCORRECT IE DELIVERY OR ITEM COST, YOU NEED TO INFORM US PRIOR TO PLACING THE ORDER. IF NOT ANY DIFFERENCES WILL NOT BE PAID.</span></td>
+          		</tr>
+          		<tr style="margin-top:10px;">
           			<td><b>Standard Terms and Conditions apply</b></td>
           		</tr>
           		<tr>
@@ -52,13 +60,7 @@
           		</tr>
         	</table>
 
-        	<table style="width: 100%; margin-top: 10px;">
-          		<tr class="messagerow">
-              		<td align="left" class="message">${regInfo}</td>
-      			</tr>
-        	</table>
-
-    		<table class="footer" style="width: 100%;">
+        	<table class="footer" style="width: 100%;">
           		<tr>
       				<td align="right"><pagenumber/> of <totalpages/></td>
     			</tr>
@@ -163,7 +165,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="230pt" footer="nlfooter" footer-height="30pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="230pt" footer="nlfooter" footer-height="50pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
     <table style="width: 100%;">
     	<tr>
@@ -264,7 +266,7 @@
 			        	<td colspan="6">&nbsp;</td>
 				        <td colspan="4" align="center">${tax.taxcode}</td>
 				        <td colspan="6" align="center">${currencySymbol}${tax.taxbasis}</td>
-				        <td colspan="4" align="center">${currencySymbol}${tax.taxrate}</td>
+				        <td colspan="4" align="center">${tax.taxrate?string.percent}</td>
 				        <td colspan="6" align="center">${currencySymbol}${tax.taxamount}</td>
 		        	</tr>
 		        </#list>
