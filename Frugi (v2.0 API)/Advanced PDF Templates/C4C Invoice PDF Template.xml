@@ -1,0 +1,245 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<#setting number_format=",##0.00">
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;">
+            	<tr>
+					<td rowspan="3"><#if subsidiary.logo?length != 0><img src="${subsidiary.logo@url}" style="float: left; margin: 7px; width:200px; height:100px;"/> </#if></td>
+					<td align="right"><p align="right"><span class="title"><b>${record@title}</b></span></p><p align="right"><span class="subtitle">${subsidiary.legalname}<br/>${subsidiary.addr1}<br/>${subsidiary.addr2}<br/>${subsidiary.city}<br/>${subsidiary.state}<br/>${subsidiary.zip}<br/>${subsidiary.country}</span></p></td>
+				</tr>
+			</table>
+        </macro>
+        <macro id="nlfooter">
+           
+           <table class="footer" style="width: 100%;">
+	           	<tr>
+	           		<td colspan="20">&nbsp;</td>
+	           		<td colspan="10">Bank Name</td>
+	           		<td colspan="10">${record.custbody_c4c_bank_account.custrecord_c4c_bank_name}</td>
+           		</tr>
+           		<tr>
+	           		<td colspan="20">&nbsp;</td>
+	           		<td colspan="10">IBAN Number</td>
+	           		<td colspan="10">${record.custbody_c4c_bank_account.custrecord_c4c_ba_iban}</td>
+           		</tr>
+           		<tr>
+	           		<td colspan="20">&nbsp;</td>
+	           		<td colspan="10">Branch Identifier Code</td>
+	           		<td colspan="10">(BIC) ${record.custbody_c4c_bank_account.custrecord_c4c_branch_identifier_code}</td>
+           		</tr>
+           		<tr>
+	           		<td colspan="20">&nbsp;</td>
+	           		<td colspan="10">Sort Code</td>
+	           		<td colspan="10">${record.custbody_c4c_bank_account.custrecord_c4c_ba_sort_code}</td>
+           		</tr>
+           		<tr>
+	           		<td colspan="20">&nbsp;</td>
+	           		<td colspan="10">Account Number</td>
+	           		<td colspan="10">${record.custbody_c4c_bank_account.custrecord_c4c_ba_account_number}</td>
+           		</tr>
+           		<tr>
+	           		<td colspan="20">&nbsp;</td>
+	           		<td colspan="10">Account Name</td>
+	           		<td colspan="10">${record.custbody_c4c_bank_account.name}</td>
+           		</tr>
+           		<tr style="margin-top: 20px;">
+	           		<td colspan="20">&nbsp;</td>
+	           		<td colspan="20">Please make all payments in RWEU, and NET of all charges. (please pay all bank charges). <b>Also please reference your company name.</b></td>
+           		</tr>
+           	</table>
+           
+           <hr/> <!-- Horizontal Line -->
+           
+           <table class="footer" style="width: 100%;">
+	           	<tr>
+	           		<td colspan="40">These goods are subject to a retention of title clause, under section 15, Title and Risk<br/>in your Terms and Conditions.</td>
+	           	</tr>
+	           	<tr>
+	           		<td colspan="30">&nbsp;</td>
+	           		<td colspan="5">Currency</td>
+	           		<td colspan="5" align="right">${record.currency.symbol}</td>
+	           	</tr>
+	           	<tr>
+	           		<td colspan="30">&nbsp;</td>
+	           		<td colspan="5">Net</td>
+	           		<td colspan="5" align="right">${record.subtotal}</td>
+	           	</tr>
+	           	<tr>
+	           		<td colspan="10">VAT No: ${subsidiary.federalidnumber}</td>
+	           		<td colspan="20">Exempt Intra-community supply, VAT 0%</td>
+	           		<td colspan="5">Vat</td>
+	           		<td colspan="5" align="right">${record.taxtotal}</td>
+	           	</tr>
+	           	<tr style="margin-top: 20px;">
+	           		<td colspan="30">&nbsp;</td>
+	           		<td colspan="5">Invoice Total</td>
+	           		<td colspan="5" align="right">${record.total}</td>
+	           	</tr>
+	           	<tr style="margin-top:10px;">
+	           		<td colspan="29">&nbsp;</td>
+	           		<td colspan="11"><span class="subtitle">Trade</span></td>
+	           	</tr>
+        	</table>
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 8pt;
+			table-layout: fixed;
+		}
+        th {
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #c0c0c0;
+            color: #000000;
+        }
+        td {
+            padding: 4px 6px;
+            line-height: 150%;
+        }
+		td p {
+			align:left 
+		}
+        b {
+            font-weight: bold;
+            color: #000000;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+        	font-size: 16pt;
+        }
+        span.subtitle {
+        	font-size: 12pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #000000;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="160pt" footer="nlfooter" footer-height="250pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+	<table class="header" style="width: 100%; margin-top: 20px;">
+		<tr>
+			<td colspan="10"><b>Customer Details</b></td>
+			<td colspan="10"><b>Delivery</b></td>
+			<td colspan="8">Sales Order No</td>
+			<td colspan="4">${record.createdfrom?keep_before("#")}</td>
+		</tr>
+		<tr>
+			<td colspan="10" rowpsan="8">${record.billaddr1}<#if record.billaddr2?has_content><br/>${record.billaddr2}</#if><br/>${record.billcity}<br/>${record.billstate}<br/>${record.billzip}<br/>${record.billcountry}</td>
+			<td colspan="10" rowpsan="8">${record.shipaddr1}<#if record.shipaddr2?has_content><br/>${record.shipaddr2}</#if><br/>${record.shipcity}<br/>${record.shipstate}<br/>${record.shipzip}<br/>${record.shipcountry}</td>
+			<td colspan="8" rowspan="8">Invoice / Tax Date<br/>Account Ref<br/>Payment Terms<br/>Invoice No<br/>Web Ref<br/>Your Ref<br/>PO Number<br/>VAT / Tax Code</td>
+			<td colspan="4" rowspan="8">${record.trandate}<br/><b>TODO</b><br/>${record.terms}<br/>${record.tranid?keep_before("#")}<br/><b>TODO</b><br/><b>TODO</b><br/>${record.otherrefnum}<br/>${record.vatregnum}</td>
+		</tr>
+	</table>
+	
+	<#if record.item?has_content>
+		<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items -->
+		<#list record.item as item>
+			<#if item_index==0>
+				<thead>
+					<tr>
+						<th align="left" colspan="6">Stock Code</th>
+						<th align="left" colspan="16">Product Description</th>
+						<th align="right" colspan="2">Qty</th>
+						<th align="center" colspan="4">Rate %</th>
+						<th align="right" colspan="4">Unit Price</th>
+						<th align="right" colspan="4">Net Amount</th>
+					</tr>
+				</thead>
+			</#if>
+			<tr>
+				<td align="left" colspan="6">${item.item}</td>
+				<td align="left" colspan="16">${item.description}</td>
+				<td align="right" colspan="2">${item.quantity?string["0"]}</td>
+				<td align="center" colspan="4">${item.taxrate1?string.percent}</td>
+				<td align="right" colspan="4">${item.rate}</td>
+				<td align="right" colspan="4">${item.amount}</td>
+			</tr>
+		</#list><!-- end items -->
+		</table>
+	</#if>
+
+</body>
+</pdf>
