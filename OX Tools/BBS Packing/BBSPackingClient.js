@@ -28,7 +28,6 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
     		
     		try
     			{
-    				//document.getElementById("custpage_entry_item").focus();
     				var stage 		= Number(scriptContext.currentRecord.getValue({fieldId: 'custpage_param_stage'}));
     				
     				if(stage == 2)
@@ -44,6 +43,7 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 	    		    				document.getElementById('custpage_sl_item_weight' + int.toString()).disabled = true;
 	    		    				document.getElementById('custpage_sl_item_qty' + int.toString()).disabled = true;
 	    		    				document.getElementById('custpage_sl_item_qty_pack' + int.toString()).disabled = true;
+	    		    				
 	    			    		}
 	    		    		
 	    		    		//Put the focus back on to the item input field
@@ -206,8 +206,6 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 						    				//
 						    				if(sublistItem == itemInfo.itemId && sublistQty < sublistRequired)
 						    					{
-						    						//lineUpdated = updateLine(scriptContext, int, itemInfo.itemUomFactor, sublistQty, itemInfo, sublistRequired);
-						    						
 						    						//Select the line
 						    						//
 							    					scriptContext.currentRecord.selectLine({sublistId: 'custpage_sublist_items', line: int});
@@ -219,7 +217,6 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 							    					//Update the values & commit
 							    					//
 							    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', value: sublistQty.numberFormat("0.0"), ignoreFieldChange: true});						    					
-							    					//scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_weight', value: format.parse({value: sublistWeight, type: format.Type.FLOAT}), ignoreFieldChange: true});						    					
 							    					
 							    					var lineCarton 		= scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton'});
 							    					var lineCartonId 	= scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton_id'});

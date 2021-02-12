@@ -1729,7 +1729,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 							var poUrl = url.resolveRecord({
 															isEditMode:		false,
 															recordId:		poId,
-															recordType:		record.Type.PRCHASE_ORDER
+															recordType:		record.Type.PURCHASE_ORDER
 															});
 
 							var tempString = 	poNumber + ' (' + 

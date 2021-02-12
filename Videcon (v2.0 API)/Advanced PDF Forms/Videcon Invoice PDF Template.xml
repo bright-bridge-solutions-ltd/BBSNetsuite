@@ -95,9 +95,9 @@
 	    </tr>
       	<tr>
 			<td class="address">&nbsp;</td>
-			<td></td>
-			<td></td>
-    	</tr>
+			<td align="left" style="font-size:10pt"><b>Terms</b></td>
+			<td align="right" style="font-size:10pt">${record.terms}</td>
+	    </tr>
     	<tr>
 			<td class="address">&nbsp;</td>
 			<td></td>
@@ -244,7 +244,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="350pt" footer="nlfooter" footer-height="50pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="340pt" footer="nlfooter" footer-height="60pt" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 
 
 <#if record.item?has_content>
@@ -263,7 +263,7 @@
             </thead>
 			</#if>
           <tr>
-              <td colspan="12">${item.description}</td>
+              <td colspan="12"><span class="itemname">${item.item}</span><br />${item.description}</td>
               <td align="center" colspan="2">${item.quantity?string["0"]}</td>
               <td align="right" colspan="2">${item.rate}</td>
               <td align="right" colspan="3">${item.amount}</td>

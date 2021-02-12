@@ -748,9 +748,14 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 										//
 										ifRecord.setValue({fieldId: 'custbody_bbs_printnode_workstation', value: workstn});
 											
-										//Remove the default first package line
+										//Remove the default package lines
 										//
-										ifRecord.removeLine({sublistId: 'package', line: 0});
+										var ifPackages = ifRecord.getLineCount({sublistId: 'package'});
+							            
+										for(var packLine = ifPackages - 1; packLine >= 0; packLine--)
+											{
+												ifRecord.removeLine({sublistId: 'package', line: 0});
+											}
 										
 										//Add the cartons to the IF
 										//

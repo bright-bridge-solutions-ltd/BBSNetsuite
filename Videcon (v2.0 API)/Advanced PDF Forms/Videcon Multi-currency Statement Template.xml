@@ -1,0 +1,296 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd"><pdfset><#if statements?has_content><#list statements as statement>
+<pdf>
+<head>
+	<#assign regInfo 			= "Company Registration No: 3085668.">
+   	<#assign emailInfo 			= "accounts@videcon.co.uk">
+   	<#assign telInfo 			= "01924 528000">
+    <#assign vatInfo 			= "640 7162 57">
+    <#assign eoriInfo 			= "GB640716257000">
+    <#assign eoriEuInfo 		= "IE3737149BH">
+    <#assign logoInfo 			= "https://6765982-sb1.app.netsuite.com/core/media/media.nl?id=1344&amp;c=6765982_SB1&amp;h=zhQJumP6IJdfBSVDBHbEVyHYczIGzd4PDxrUG7SO9qHihUHs">
+    <#assign logoHeight 		= "42">
+    <#assign logoWidth 			= "200">
+    
+    <macrolist>
+      
+              <macro id="nlheader">
+           	<table class="header" style="width: 100%;">
+   	 			<tr>
+					<td align="right" colspan="3"><img src="${logoInfo}" style="float: right; width: ${logoWidth}px; height: ${logoHeight}px;" /></td>
+    			</tr>
+    			<tr>
+					<td><span style="font-size:24px;">Statement</span></td>
+					<td align="right">&nbsp;</td>
+					<td align="right">&nbsp;</td>
+				</tr>
+          	</table>
+          
+          	<table class="header" style="width: 100%; margin-top: 10px;">
+				<tr>
+	        		<td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${statement.billaddress}<br/>VAT Number: ${customer.vatregnumber}</span></td>
+					<td align="right" style="font-size:10pt">&nbsp;</td>
+	    			<td colspan="2" align="left" rowspan="8"><span class="nameandaddress">Videcon Ltd<br/>Unit 1 Concept Business Park<br/>Smithies Lane<br/>Heckmondwike <br/>West Yorkshire<br/>WF16 0PN</span></td>
+				</tr>
+			</table>
+          
+          	<table class="header" style="width: 100%; margin-top: 10px;">
+				<tr>
+                  <td align="left" colspan="2" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" colspan="2" style="font-size:10pt"><b>VAT No.</b> ${vatInfo}</td>
+                </tr>
+              	<tr>
+                  <td align="left" colspan="2" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" colspan="2" style="font-size:10pt"><b>EORI No.</b> ${eoriInfo}</td>
+                </tr>
+              	<tr>
+                  <td align="left" colspan="2" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" colspan="2" style="font-size:10pt"><b>Email:</b> ${emailInfo}</td>
+                </tr>
+              	<tr>
+                  <td align="left" colspan="2" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" colspan="2" style="font-size:10pt"><b>Tel:</b> ${telInfo}</td>
+                </tr>
+			</table>
+          	
+          	<table style="width: 100%; margin-top: 10px;">
+    	<tr>
+			<td colspan="2" class="addressheader"></td>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan="2" rowspan="8" class="address"></td>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td class="address">&nbsp;</td>
+			<td align="left" style="font-size:10pt"><b>Statement Date</b></td>
+			<td align="right" style="font-size:10pt">${statement.trandate}</td>
+	    </tr>
+		<tr>
+			<td class="address">&nbsp;</td>
+			<td align="left" style="font-size:10pt"><b>Amount Due</b></td>
+			<td align="right" style="font-size:10pt">${statement.amountdue}</td>
+	    </tr>
+	    <tr>
+			<td class="address">&nbsp;</td>
+			<td align="left" style="font-size:10pt"><b>Terms</b></td>
+			<td align="right" style="font-size:10pt">${statement.terms}</td>
+	    </tr>
+	  	<tr>
+			<td class="address">&nbsp;</td>
+			<td align="left" style="font-size:10pt"><b>Currency</b></td>
+			<td align="right" style="font-size:10pt">${statement.currency}</td>
+	    </tr>
+      	<tr>
+			<td class="address">&nbsp;</td>
+			<td align="left" style="font-size:10pt"></td>
+			<td align="right" style="font-size:10pt"></td>
+	    </tr>
+    	<tr>
+			<td class="address">&nbsp;</td>
+			<td></td>
+			<td></td>
+    	</tr>
+  	</table>
+  	
+		</macro>
+      
+	<macro id="nlfooter">
+          
+          <table class="bankdetails" style="width: 100%;">
+            <tr>
+                <td colspan="14"><b>Bank Details for payments in ${statement.currency}:</b></td>
+            </tr>
+            <tr>
+                <td colspan="14">&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan="4" class="bankdetails"><b>Bank Name</b></td>
+                <td colspan="10" class="bankdetails"></td>
+            </tr>
+            <tr>
+                <td colspan="4" class="bankdetails"><b>Account Number</b></td>
+                <td colspan="8" class="bankdetails">15694267</td>
+                <td colspan="4" class="bankdetails"><b>Sort Code</b></td>
+                <td colspan="8" class="bankdetails">60-05-07</td>
+            </tr>
+            <tr>
+                <td colspan="4" class="bankdetails"><b>IBAN</b></td>
+                <td colspan="8" class="bankdetails">GB80NWBK60050715694267</td>
+                <td colspan="4" class="bankdetails"><b>BIC/SWIFT</b></td>
+                <td colspan="8" class="bankdetails">NWBK GB2L</td>
+            </tr>
+  		</table>
+          
+			<table style="width: 100%; margin-top: 10px;">
+	       		<tr class="messagerow">
+	              	<td colspan="6" align="left" class="message">Videcon Ltd.&nbsp;${regInfo}&nbsp;EU EORI Number:&nbsp;${eoriEuInfo}</td>
+                  	<td align="right"><pagenumber/> of <totalpages/></td>
+			  	</tr>
+	      	</table>
+	  	</macro>
+      
+    </macrolist>
+      
+ 
+         <style type="text/css">table {
+            <!--font-family: sans-serif;-->
+      		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            <!--background-color: #e3e3e3;-->
+            border-bottom: 1px solid black;
+    		border-collapse: collapse;
+            <!--color: #333333;-->
+        }
+        td {
+            padding: 0px;
+            vertical-align: top;
+            font-size:10px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 6pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      	table.message{
+        	border: 1px solid #dddddd;
+      	}
+        tr.totalrow {
+            <!--background-color: #e3e3e3;-->
+            line-height: 200%;
+        }
+      	tr.messagerow{
+        	font-size: 6pt;
+      	}
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 10pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+          font-size: 10pt;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalcell {
+          border-bottom: 1px solid black;
+    		border-collapse: collapse;
+        }
+      	td.message{
+        	font-size: 8pt;
+      	}
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+      
+</head>
+<body header="nlheader" header-height="300pt" footer="nlfooter" footer-height="60pt" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+
+<#if statement.lines?has_content>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list statement.lines as line><#if line_index==0>
+<thead>
+	<tr>
+	<th colspan="3">${line.datecol@label}</th>
+	<th colspan="12">${line.description@label}</th>
+	<th align="right" colspan="3">${line.charge@label}</th>
+	<th align="right" colspan="4">${line.payment@label}</th>
+	<th align="right" colspan="4">${line.balance@label}</th>
+	</tr>
+</thead>
+</#if><tr>
+	<td colspan="3">${line.datecol}</td>
+	<td colspan="12">${line.description}</td>
+	<td align="right" colspan="3">${line.charge}</td>
+	<td align="right" colspan="4">${line.payment}</td>
+	<td align="right" colspan="4">${line.balance}</td>
+	</tr>
+	</#list><!-- end items --></table>
+
+<table class="aging" style="width: 100%; margin-top: 10px;"><tr>
+	<th>${statement.aging1@label}</th>
+	<th>${statement.aging2@label}</th>
+	<th>${statement.aging3@label}</th>
+	<th>${statement.aging4@label}</th>
+	<th>${statement.aging5@label}</th>
+	<th>${statement.agingbal@label}</th>
+	</tr>
+	<tr>
+	<td>${statement.aging1}</td>
+	<td>${statement.aging2}</td>
+	<td>${statement.aging3}</td>
+	<td>${statement.aging4}</td>
+	<td>${statement.aging5}</td>
+	<td>${statement.agingbal}</td>
+	</tr></table>
+</#if>
+</body>
+</pdf>
+</#list>
+<#else>
+  <pdf>
+    <head></head>
+    <body>
+		<p>Please use Single Currency Advanced Printing Template</p>
+	</body>
+</pdf>
+</#if>
+</pdfset>
