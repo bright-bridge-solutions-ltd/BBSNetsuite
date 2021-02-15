@@ -1,0 +1,324 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+
+	<#assign regInfo 			= "Company Registration No: " + record.custrecord_bbs_rvn_branding.custrecord_bbs_branding_co_reg + ".">
+   	<#assign emailInfo 			= record.custrecord_bbs_rvn_branding.custrecord_bbs_branding_email_acc>
+   	<#assign retEmailInfo 		= record.custrecord_bbs_rvn_branding.custrecord_bbs_branding_email_ret>
+   	<#assign telInfo 			= record.custrecord_bbs_rvn_branding.custrecord_bbs_branding_phone>
+    <#assign vatInfo 			= record.custrecord_bbs_rvn_branding.custrecord_bbs_branding_vat>
+    <#assign eoriInfo 			= record.custrecord_bbs_rvn_branding.custrecord_bbs_branding_eori>
+    <#assign eoriEuInfo 		= record.custrecord_bbs_rvn_branding.custrecord_bbs_branding_eu_eori>
+    <#assign logoInfo 			= record.custrecord_bbs_rvn_branding.custrecord_bbs_branding_logo@url>
+    <#assign logoHeight 		= record.custrecord_bbs_rvn_branding.custrecord_bbs_branding_logo_height>
+    <#assign logoWidth 			= record.custrecord_bbs_rvn_branding.custrecord_bbs_branding_logo_width>
+
+    <macrolist>
+    <macro id="nlheader">
+        <table class="header" style="width: 100%;">
+          <tr>
+          	<td align="right" colspan="3"><img src="${logoInfo}" style="float: right; width: ${logoWidth}px; height: ${logoHeight}px;" /> </td>
+          </tr>
+          <tr>
+         	 	<td colspan="2"><span style="font-size:24px;">Request For RMA No.</span></td>
+          		<td align="right">&nbsp;</td>
+        </tr>
+        </table>
+
+        <table class="header" style="width: 100%; margin-top: 10px;">
+        <tr>
+        	<td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Customer Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.custrecord_bbs_rvn_cust_addresss}<br/>VAT Number: ${record.custrecord_bbs_rvn_customer.vatregnumber}</span></td>
+            <td align="right" style="font-size:10pt">&nbsp;</td>
+            <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custrecord_bbs_rvn_branding.custrecord_bbs_branding_trade_name}<br/>${record.custrecord_bbs_rvn_branding.custrecord_bbs_branding_address}</span></td>
+        </tr>
+      </table>
+
+      <table class="header" style="width: 100%; margin-top: 10px;">
+        <tr>
+                  <td align="left" colspan="2" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" colspan="2" style="font-size:10pt"><b>VAT No.</b> ${vatInfo}</td>
+                </tr>
+                <tr>
+                  <td align="left" colspan="2" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" colspan="2" style="font-size:10pt"><b>EORI No.</b> ${eoriInfo}</td>
+                </tr>
+                <tr>
+                  <td align="left" colspan="2" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" colspan="2" style="font-size:10pt"><b>Email:</b> ${emailInfo}</td>
+                </tr>
+                <tr>
+                  <td align="left" colspan="2" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" colspan="2" style="font-size:10pt"><b>Tel:</b> ${telInfo}</td>
+                </tr>
+      </table>
+            
+      <table style="width: 100%; margin-top: 10px;">
+      <tr>
+      <td colspan="2" class="addressheader"><b>Office Use Only</b></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td colspan="2" rowspan="4" class="address" style="border: 1px solid black"><b>Tech Call:</b><br/><b>RMA:</b><br/><b>AWR:</b></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="address">&nbsp;</td>
+      <td align="left" style="font-size:10pt"><b>Contact Tel.</b></td>
+      <td align="right" style="font-size:7pt">${record.custrecord_bbs_rvn_phone}</td>
+      </tr>
+    <tr>
+      <td class="address">&nbsp;</td>
+      <td align="left" style="font-size:10pt"><b>Contact Email</b></td>
+      <td align="right" style="font-size:7pt">${record.custrecord_bbs_rvn_customer.email}</td>
+      </tr>
+      <tr>
+      <td class="address">&nbsp;</td>
+      <td align="left" style="font-size:10pt"><b>Salesperson</b></td>
+      <td align="right" style="font-size:7pt">${record.custrecord_bbs_rvn_customer.salesrep}</td>
+      </tr>
+    </table>
+    </macro>
+    
+	<macro id="nlfooter">
+      <hr/>
+      <table style="width: 100%; margin-top: 10px;">
+      <tr class="messagerow">
+        <td align="left" style="font-size: 8pt;">This form must be fully completed, returned to <b>${retEmailInfo} / ${telInfo}</b> and an RMA number issued <b>BEFORE</b> any goods are returned.</td>
+      </tr>
+      <tr class="messagerow">
+        <td align="left" style="font-size: 8pt;">Once issued with a valid RMA number please display clearly on the outside of each package you are returning.</td>
+      </tr>
+      <tr class="messagerow">
+        <td align="left" style="font-size: 8pt;"><b>Any item received without a valid RMA number displayed may be returned unopened.</b></td>
+      </tr>
+  	  </table>
+  
+      <table style="width: 100%; margin-top: 10px;">
+      <tr class="messagerow">
+        <td align="left" style="font-size: 6pt;">1. AWR units where requested, are issued at the Seller’s discretion, when within the first 12 months of the units warranty.</td>
+      </tr>
+      <tr class="messagerow">
+        <td align="left" style="font-size: 6pt;">2. Premium delivery services where requested for AWR units will be charged at the Seller’s current carriage rates.</td>
+      </tr>
+      <tr class="messagerow">
+        <td align="left" style="font-size: 6pt;">3. All items to be returned should be complete including packaging and accessories. Incomplete items covered by warranty will be repaired and returned to the customer. </td>
+      </tr>
+      <tr class="messagerow">
+        <td align="left" style="font-size: 6pt; padding-left: 8px;">Where an AWR replacement has been issued in advance of the return, the Seller will be unable to issue any credit against the AWR unit should the returned item(s) prove to be incomplete.</td>
+      </tr>
+      <tr class="messagerow">
+        <td align="left" style="font-size: 6pt;">4. All returns will incur a 25% re-stocking charge (minimum £10) except in the following circumstances:</td>
+      </tr>
+      <tr class="messagerow">
+        <td align="left" style="font-size: 6pt; padding-left: 8px;">• Goods returned within 14 days of purchase, in new and unused condition in original packaging.</td>
+      </tr>
+      <tr class="messagerow">
+        <td align="left" style="font-size: 6pt; padding-left: 8px;">• Goods returned with the express written authorisation of the Seller.</td>
+      </tr>
+      <tr class="messagerow">
+        <td align="left" style="font-size: 6pt;">5. The Seller is under no obligation to credit any faulty items. Faulty items will be repaired or replaced at the discretion of the Seller. </td>
+      </tr>
+      <tr class="messagerow">
+        <td align="left" style="font-size: 6pt; padding-left: 8px;">The repair or replacement of an item will not extend in any way the original warranty period which started on the original purchase date.</td>
+      </tr>
+      <tr class="messagerow">
+        <td align="left" style="font-size: 6pt;">6. Goods which are found not to be faulty will be returned to the customer at the customers cost, and if any AWR issued, this will not be credited and the Buyer is required to pay AWR invoice.</td>
+      </tr>
+       <tr class="messagerow">
+        <td align="left" style="font-size: 6pt;">7. The Seller is unable to accept for return any 3rd party products ordered specifically at the Buyer’s request. Any faulty items are subject to 3rd party terms and conditions and any associated costs.</td>
+      </tr>
+      <tr class="messagerow">
+        <td align="left" style="font-size: 6pt;">8. The Seller reserves the right not to take any remedial action in respect of faulty goods where the customer's account is not in order.</td>
+      </tr>
+      </table>
+
+   	 <table style="width: 100%; margin-top: 10px;">
+      <tr class="messagerow">
+        <td align="center" style="font-size: 12pt;"><b>We aim to process all returns requests on the same day if received before 4pm.</b></td>
+     </tr>
+     <tr class="messagerow">
+        <td align="center" style="font-size: 12pt;"><b>Requests received after this time may be processed on the next working day.</b></td>
+     </tr>
+     </table>
+  
+	<table style="width: 100%; margin-top: 10px;">
+      <tr class="messagerow">
+        <td align="left" style="font-size: 10pt;">I have read and agree to the conditions of return stated above. Please issue an RMA number.</td>
+     </tr>
+     </table>
+      
+	<table style="width: 100%; margin-top: 20px;">
+      <tr class="messagerow">
+        <td align="left" colspan="2" style="font-size: 10pt;">Signed:</td>
+        <td align="left" colspan="6" style="font-size: 10pt; border-bottom: 1px dotted black">&nbsp;</td>
+        <td align="left" colspan="5" style="font-size: 10pt; padding-left: 5px;">Name (Please print):</td>
+        <td align="left" colspan="7" style="font-size: 10pt; border-bottom: 1px dotted black">&nbsp;</td>
+        <td align="left" colspan="2" style="font-size: 10pt; padding-left: 5px;">Date:</td>
+        <td align="left" colspan="2" style="font-size: 10pt; border-bottom: 1px dotted black">&nbsp;</td>
+     </tr>
+     </table>
+
+      <table style="width: 100%; margin-top: 10px;">
+            <tr class="messagerow">
+                  <td colspan="6" align="left" class="message">${record.custrecord_bbs_rvn_branding.custrecord_bbs_branding_trade_name}.&nbsp;${regInfo}&nbsp;EU EORI Number:&nbsp;${eoriEuInfo}</td>
+                  <td align="right"><pagenumber/> of <totalpages/></td>
+          </tr>
+      </table>
+    </macro>
+
+  </macrolist>
+      
+    <style type="text/css">table {
+            <!--font-family: sans-serif;-->
+      		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            <!--background-color: #e3e3e3;-->
+            border-bottom: 1px solid black;
+    		border-collapse: collapse;
+            <!--color: #333333;-->
+        }
+        td {
+            padding: 0px;
+            vertical-align: top;
+            font-size:10px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 6pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      	table.message{
+        	border: 1px solid #dddddd;
+      	}
+        tr.totalrow {
+            <!--background-color: #e3e3e3;-->
+            line-height: 200%;
+        }
+      	tr.messagerow{
+        	font-size: 6pt;
+      	}
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 10pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+          font-size: 10pt;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalcell {
+          border-bottom: 1px solid black;
+    		border-collapse: collapse;
+        }
+      	td.message{
+        	font-size: 8pt;
+      	}
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="290pt" footer="nlfooter" footer-height="250pt" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+
+	<table style="width: 100%;">
+      <tr>
+        <td colspan="4" align="left"  	style="font-size: 10pt; padding-left: 5px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b><br/>ProductCode</b></td>
+        <td colspan="1" align="center" 	style="font-size: 10pt; padding-left: 5px; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b><br/>Qty</b></td>
+        <td colspan="8" align="left" 	style="font-size: 10pt; padding-left: 5px; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>Fault (In Detail)</b><br/><span style="font-size: 8pt;">("Faulty"/"Not working" is not acceptable)</span></td>
+        <td colspan="4" align="left" 	style="font-size: 10pt; padding-left: 5px; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b><br/>Invoice Number</b></td>
+        <td colspan="4" align="left" 	style="font-size: 10pt; padding-left: 5px; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>Purchase<br/>Order/Date</b></td>
+        <td colspan="4" align="left" 	style="font-size: 10pt; padding-left: 5px; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>Action</b><br/><span style="font-size: 8pt;">Repair/AWRC/Credit</span></td>
+      </tr>
+
+  	<#if record.custrecord_bbs_rvn_product1?length gt 0>
+      <tr style="line-height: 400%;">
+        <td colspan="4" align="left"  	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_rvn_product1}</td>
+        <td colspan="1" align="center" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_qty_1}</td>
+        <td colspan="8" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+        <td colspan="4" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_rvn_inv_1}</td>
+        <td colspan="4" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_rvn_po_date_1}</td>
+        <td colspan="4" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+	  </tr>
+    </#if>
+ 
+    <#if record.custrecord_bbs_rvn_product2?length gt 0>
+      <tr style="line-height: 400%;">
+        <td colspan="4" align="left"  	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_rvn_product2}</td>
+        <td colspan="1" align="center" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_qty_2}</td>
+        <td colspan="8" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+        <td colspan="4" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_rvn_inv_2}</td>
+        <td colspan="4" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_rvn_po_date_2}</td>
+        <td colspan="4" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+	  </tr>
+    </#if>
+
+   	</table>
+  
+  	<table style="width: 100%; margin-top: 10px;">
+      <tr>
+        <td colspan="3" align="left" style="font-size: 10pt; padding-left: 5px; height: 70px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>AWR Delivery Address / Special Instructions:</b><br/>${record.custrecord_bbs_rvn_awradd_specinstr}</td>
+        <td colspan="2" align="left" style="font-size: 10pt; padding-left: 5px; height: 70px; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;"><b>Chargeable Upgrade:</b><br/>${record.custrecord_bbs_rvn_chargeable_upgrade}</td>
+      </tr>
+  	</table>
+  
+
+</body>
+</pdf>
