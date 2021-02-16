@@ -253,6 +253,7 @@
           <#if item_index==0><!-- start items -->
             <thead>
                 <tr>
+                    <th align="left"><br/>Link</th>
                     <th colspan="12"><br/>Description</th>
                     <th align="center" colspan="2"><br/>Quantity</th>
                     <th align="right" colspan="2">Unit<br/>Price</th>
@@ -263,6 +264,7 @@
             </thead>
 			</#if>
           <tr>
+              <td><#if item.custcol_bbs_data_sheet?length gt 10><a href="${item.custcol_bbs_data_sheet}">Link</a><#else>&nbsp;</#if></td>
               <td colspan="12"><span class="itemname">${item.item}</span><br />${item.description}</td>
               <td align="center" colspan="2">${item.quantity?string["0"]}</td>
               <td align="right" colspan="2">${item.rate}</td>
