@@ -7,7 +7,7 @@
     <#assign vatInfo 			= "640 7162 57">
     <#assign eoriInfo 			= "GB640716257000">
     <#assign eoriEuInfo 		= "IE3737149BH">
-    <#assign logoInfo 			= "https://6765982-sb1.app.netsuite.com/core/media/media.nl?id=1344&amp;c=6765982_SB1&amp;h=zhQJumP6IJdfBSVDBHbEVyHYczIGzd4PDxrUG7SO9qHihUHs">
+    <#assign logoInfo 			= "https://6765982-sb1.app.netsuite.com/c.6765982_SB1/suitebundle372819/PDF%20Videcon%20Logo.jpg">
     <#assign logoHeight 		= "42">
     <#assign logoWidth 			= "200">
     

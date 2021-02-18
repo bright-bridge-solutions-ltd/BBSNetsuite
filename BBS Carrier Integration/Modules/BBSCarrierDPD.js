@@ -213,7 +213,7 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 						}		
 					else
 						{
-							processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, '', '');
+							processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, responseStatus, '');
 						}
 							
 					//Return the response
@@ -398,7 +398,7 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 			
 			//Check to see if any data has been returned, if not try to remove the key from the cache & re-create it
 			//
-			if(dpdGeoSession == null || dpdGeoSession == '')
+			if(dpdGeoSession == null || dpdGeoSession == '' || dpdGeoSession == '{}')
 				{
 					dpdCache.remove({
 									key:	CACHE_KEY
@@ -450,7 +450,7 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 					
 					//Extract the http response body
 					//
-					if(response.body != null && response.body != '')
+					if(responseStatus == '200' && response.body != null && response.body != '')
 						{
 							//Try to parse the response body into a JSON object
 							//
@@ -461,14 +461,18 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 								}
 							catch(err)
 								{
-									responseBodyObj = null;
+									log.error({title: 'Error during DPD geosession get',details: err});
 								}
+						}
+					else
+						{
+							log.error({title: 'Error during DPD geosession get, response status = ' + responseStatus, details: response.body});
 						}
 				}
 			catch(err)
 				{
 					responseStatus = err.message;
-					log.error({title: 'Error during DPD processing',details: err});
+					log.error({title: 'Error during DPD geosession get',details: err});
 				}
 			
 			//Return the data to add to the cache
