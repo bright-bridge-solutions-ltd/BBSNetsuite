@@ -1,0 +1,253 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<#setting number_format=",##0.00">
+	<#assign totalUnits = 0>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;">
+            	<tr>
+					<td colspan="6" align="center"><br/><br/><br/><br/><span class="title"><b>${record@title}</b></span></td>
+					<td>&nbsp;</td>
+					<td colspan="10" rowspan="3" align="right"><#if subsidiary.logo?length != 0><img src="${subsidiary.logo@url}" style="float: right; margin: 7px; width:175px; height:100px;"/> </#if></td>
+				</tr>
+			</table>
+			<table class="header" style="width: 100%;">
+				<tr>
+					<td colspan="4" style="padding-left: 10px; border-top: 1px solid black; border-left: 1px solid black;">Supplier</td>
+					<td colspan="4" style="border-top: 1px solid black; border-right: 1px solid black;">${record.entity}</td>
+					<td>&nbsp;</td>
+					<td colspan="4" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Purchase Order No</td>
+					<td colspan="2" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">${record.tranid}</td>
+					<td colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">${record.memo}</td>
+				</tr>
+				<tr>
+					<td colspan="8" rowspan="3" style="border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">${record.billaddr1}<#if record.billaddr2?has_content><br/>${record.billaddr2}</#if><br/>${record.billcity}<br/>${record.billstate}<br/>${record.billzip}<br/>${record.billcountry}</td>
+					<td>&nbsp;</td>
+					<td colspan="4" align="center" style="border-bottom: 1px solid black; border-left: 1px solid black;">Order Date</td>
+					<td colspan="6" style="border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">${record.trandate}</td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+					<td colspan="4" align="center" style="border-left: 1px solid black;">Delivery Date</td>
+					<td colspan="6" style="border-left: 1px solid black; border-right: 1px solid black;">${record.duedate}</td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+					<td colspan="4" align="left" style="border-left: 1px solid black; border-bottom: 1px solid black; border-top: 1px solid black;"><b>Deliver To :-</b></td>
+					<td colspan="6" style="border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;"><p align="right"><span class="subtitle">${subsidiary.legalname}<br/>${subsidiary.addr1}<br/>${subsidiary.addr2}<br/>${subsidiary.city}<br/>${subsidiary.state}<br/>${subsidiary.zip}<br/>${subsidiary.country}</span></p></td>
+				</tr>
+			</table>
+        </macro>
+        <macro id="nlfooter">
+ 			<table class="footer" style="width: 100%;">
+ 				<tr>
+ 					<td>NOTE: All Frugi products to be fully compliant to GOTS standards. Transactional certificates</td>
+ 				</tr>
+ 				<tr>
+ 					<td>must be valid for each and every product unless otherwise agreed in writing with Frugi, prior to</td>
+ 				</tr>
+ 				<tr>
+ 					<td>production. Standard terms and conditions apply - supplied on request.</td>
+ 				</tr>
+ 			</table>
+ 			<table style="width: 100%">
+ 				<tr>
+ 					<td><p align="center"><span style="font-size: 8pt;">${subsidiary.legalname}, ${subsidiary.addr1}, ${subsidiary.addr2}, ${subsidiary.city}, ${subsidiary.state}, ${subsidiary.zip}, ${subsidiary.country}, Registered in England: ${subsidiary.custrecord_c4c_company_reg}. VAT registered No. ${subsidiary.federalidnumber}.</span></p></td>
+ 				</tr>
+ 			</table>
+ 			<table style="width: 100%">
+ 				<tr>
+ 					<td align="right">Page <pagenumber/> of <totalpages/></td>
+ 				</tr>
+ 			</table>
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 10pt;
+			table-layout: fixed;
+		}
+        th {
+            font-size: 10pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            color: #000000;
+        }
+        td {
+            padding: 4px 6px;
+            line-height: 150%;
+        }
+		td p {
+			align:left 
+		}
+        b {
+            font-weight: bold;
+            color: #000000;
+        }
+        table.header td {
+            padding: 5px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 5px;
+            font-size: 10pt;
+            font-weight: bold;
+            background-color: #761714;
+            color: #FFFFFF;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+            font-size: 8pt;
+        }
+        table.itemtable td {
+            font-size: 8pt;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        table.total td {
+        	font-size: 8pt;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+        	font-size: 16pt;
+        }
+        span.subtitle {
+        	font-size: 12pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #000000;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="315pt" footer="nlfooter" footer-height="100pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+	<#if record.item?has_content>
+		<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items -->
+		<#list record.item as item>
+			<#if item_index==0>
+				<thead>
+					<tr>
+						<th align="left" colspan="6" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Supplier<br/>Code</th>
+						<th align="left" colspan="10" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Product No</th>
+						<th align="left" colspan="8" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Commodity<br/>Code</th>
+						<th align="left" colspan="20" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;"><br/>Description</th>
+						<th align="left" colspan="10" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;"><br/>Barcode</th>
+						<th align="right" colspan="6" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;"><br/>Qty</th>
+						<th align="right" colspan="6" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Unit<br/>Price</th>
+						<th align="right" colspan="6" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">Total<br/>Value</th>
+					</tr>
+				</thead>
+			</#if>
+			<tr>
+				<td align="left" colspan="6">${item.vendorname}</td>
+				<td align="left" colspan="10">${item.item}</td>
+				<td align="left" colspan="8">${item.custcol_c4c_commodity_code}</td>
+				<td align="left" colspan="20">${item.description}</td>
+				<td align="left" colspan="10">${item.custcol_c4c_item_barcode}</td>
+				<td align="right" colspan="6"><#if item.class == "B2C">Cons.<#elseif item.class == "B2B">Trade</#if> ${item.quantity?string["0"]}</td>
+				<td align="right" colspan="6">${item.rate}</td>
+				<td align="right" colspan="6">${item.amount}</td>
+			</tr>
+			<#assign totalUnits += item.quantity>
+		</#list><!-- end items -->
+		</table>
+	</#if>
+	
+	<table class= "total" style="width: 100%; margin-top: 20px;">
+		<tr>
+			<td colspan="10" style="border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black;">Notes</td>
+			<td>&nbsp;</td>
+			<td colspan="4" style="border-left: 1px solid black; border-top: 1px solid black;">Currency</td>
+			<td align="right" colspan="4" style="border-right: 1px solid black; border-top: 1px solid black;">${record.currency.symbol}</td>
+		</tr>
+		<tr>
+			<td colspan="10" rowspan="4" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.memo}</td>
+			<td>&nbsp;</td>
+			<td colspan="4" style="border-left: 1px solid black;">Total Units</td>
+			<td align="right" colspan="4" style="border-right: 1px solid black;">${totalUnits}</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td colspan="4" style="border-left: 1px solid black;">Nett</td>
+			<td align="right" colspan="4" style="border-right: 1px solid black;">${record.subtotal}</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td colspan="4" style="border-left: 1px solid black;">Tax</td>
+			<td align="right" colspan="4" style="border-right: 1px solid black;">${record.taxtotal}</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td colspan="4" style="border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Total</td>
+			<td align="right" colspan="4" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">${record.total}</td>
+		</tr>
+	</table>
+
+</body>
+</pdf>

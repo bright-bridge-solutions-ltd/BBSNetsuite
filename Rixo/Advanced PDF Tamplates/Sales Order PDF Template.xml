@@ -2,69 +2,103 @@
 <pdfset>
 <pdf>
 <head>
+
+	<#assign totalQuantity = 0>
+    
+    <!-- Loop through items -->
+    <#if record.item?has_content>
+    	<#list record.item as item>
+    		<!-- Add the quantity to the totalQuantity variable -->
+    		<#assign totalQuantity += item.quantity>
+    	</#list>
+    </#if>
+
     <macrolist>
         <macro id="nlheader">
             <table class="header" style="width: 100%;">
-    <tr>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right"><img src="${subsidiary.logo@URL}" style="float: right; width:250px; height:41px;" /></td>
-    </tr>
-    <!--<tr><td>&nbsp;</td></tr>-->
-    <tr>
-	<td><span style="font-size:24px;">Order Confirmation</span></td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	</tr>
-          </table>
-    <table class="header" style="width: 100%;">
-
-	<tr>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	</tr>
-	<tr>
-        <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.vatregnum}</span></td>
-	<td align="right" style="font-size:10pt"></td>
-      
-    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${subsidiary.mainaddress_text}</span><br/>VAT No. ${subsidiary.federalidnumber}<br /><br/><b>Email:</b> ${subsidiary.custrecord_bbs_subsidiary_email_address}<br /><b>Tel:</b> ${subsidiary.custrecord_bbs_subsidiary_phone_number}</td>
-	</tr>
-          </table>
-          
-    <table style="width: 100%; margin-top: 10px;">
-    <tr>
-	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
-	</tr>
-	<tr>
-	<td colspan="2" rowspan="9" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
-	</tr>
-	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Number</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
-    </tr>
-	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
-    </tr>
-    <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Customer Reference</b></td><td align="right" style="font-size:10pt">${record.otherrefnum}</td>
-    </tr>
-    <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Joor Order Number</b></td><td align="right" style="font-size:10pt">${record.custbody_bbs_joor_so_number}</td>
-    </tr>
-    <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Status</b></td><td align="right" style="font-size:10pt">${record.status}</td>
-    </tr>
-    <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Ship With</b></td><td align="right" style="font-size:10pt">${record.custbody_bbs_shipping_method}</td>
-    </tr>
-    <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Delivery Window</b></td><td align="right" style="font-size:10pt">${record.custbody_bbs_whole_window_opening_date}<br/>${record.custbody_bbs_whole_window_closing_date}</td>
-    </tr>
-    <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Terms</b></td><td align="right" style="font-size:10pt">${record.terms}</td>
-    </tr>
-  </table>
+    			<tr>
+					<td align="right">&nbsp;</td>
+					<td align="right">&nbsp;</td>
+					<td align="right"><img src="${subsidiary.logo@URL}" style="float: right; width:250px; height:41px;" /></td>
+    			</tr>
+			    <tr>
+					<td><span style="font-size:24px;">Order Confirmation</span></td>
+					<td align="right">&nbsp;</td>
+					<td align="right">&nbsp;</td>
+				</tr>
+          	</table>
+    		<table class="header" style="width: 100%;">
+				<tr>
+					<td align="right">&nbsp;</td>
+					<td align="right">&nbsp;</td>
+					<td align="right">&nbsp;</td>
+					<td align="right">&nbsp;</td>
+				</tr>
+				<tr>
+        			<td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.vatregnum}</span></td>
+					<td align="right" style="font-size:10pt"></td>
+    				<td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${subsidiary.mainaddress_text}</span><br/>VAT No. ${subsidiary.federalidnumber}<br /><br/><b>Email:</b> ${subsidiary.custrecord_bbs_subsidiary_email_address}<br /><b>Tel:</b> ${subsidiary.custrecord_bbs_subsidiary_phone_number}</td>
+				</tr>
+        	</table>   
+    		<table style="width: 100%; margin-top: 10px;">
+    			<tr>
+					<td colspan="2" class="addressheader"><b>Shipping Address:</b></td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td colspan="2" rowspan="10" class="address">${record.shipaddress}</td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td class="address">&nbsp;</td>
+					<td align="left" style="font-size:10pt"><b>Order Number</b></td>
+					<td align="right" style="font-size:10pt">${record.tranid}</td>
+    			</tr>
+				<tr>
+					<td class="address">&nbsp;</td>
+					<td align="left" style="font-size:10pt"><b>Order Date</b></td>
+					<td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+    			</tr>
+    			<tr>
+					<td class="address">&nbsp;</td>
+					<td align="left" style="font-size:10pt"><b>Customer Reference</b></td>
+					<td align="right" style="font-size:10pt">${record.otherrefnum}</td>
+    			</tr>
+    			<tr>
+					<td class="address">&nbsp;</td>
+					<td align="left" style="font-size:10pt"><b>Joor Order Number</b></td>
+					<td align="right" style="font-size:10pt">${record.custbody_bbs_joor_so_number}</td>
+    			</tr>
+    			<tr>
+					<td class="address">&nbsp;</td>
+					<td align="left" style="font-size:10pt"><b>Status</b></td>
+					<td align="right" style="font-size:10pt">${record.status}</td>
+    			</tr>
+    			<tr>
+					<td class="address">&nbsp;</td>
+					<td align="left" style="font-size:10pt"><b>Ship With</b></td>
+					<td align="right" style="font-size:10pt">${record.custbody_bbs_shipping_method}</td>
+    			</tr>
+    			<tr>
+					<td class="address">&nbsp;</td>
+					<td align="left" style="font-size:10pt"><b>Delivery Window</b></td>
+					<td align="right" style="font-size:10pt">${record.custbody_bbs_whole_window_opening_date}<br/>${record.custbody_bbs_whole_window_closing_date}</td>
+    			</tr>
+    			<tr>
+					<td class="address">&nbsp;</td>
+					<td align="left" style="font-size:10pt"><b>Terms</b></td>
+					<td align="right" style="font-size:10pt">${record.terms}</td>
+    			</tr>
+    			<tr>
+					<td class="address">&nbsp;</td>
+					<td align="left" style="font-size:10pt"><b>Total Quantity</b></td>
+					<td align="right" style="font-size:10pt">${totalQuantity}</td>
+    			</tr>
+  			</table>
         </macro>
 
         <macro id="nlfooter">

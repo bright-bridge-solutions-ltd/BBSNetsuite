@@ -159,11 +159,6 @@ function(search, sftp, record, format, file, runtime) {
 						// loop through files
 						for (var i = 0; i < fileList.length; i++)
 							{
-								log.audit({
-									title: 'Processing File',
-									details: (i+1) + ' of ' + fileList.length
-								});
-							
 								// check we have sufficient remaining usage
 								if (currentScript.getRemainingUsage() > 200)
 									{

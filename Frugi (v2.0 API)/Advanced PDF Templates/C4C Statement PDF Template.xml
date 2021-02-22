@@ -1,0 +1,204 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdfset>
+<#if statements?has_content>
+<#list statements as statement>
+<pdf>
+<head>
+	<#setting number_format=",##0.00">
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;">
+            	<tr>
+					<td rowspan="3"><#if subsidiary.logo?length != 0><img src="${subsidiary.logo@url}" style="float: left; margin: 7px; width:200px; height:100px;"/> </#if></td>
+					<td align="right"><p align="right"><span class="title"><b><u>STATEMENT</u></b></span></p><p align="right"><span class="subtitle">${subsidiary.legalname}<br/>${subsidiary.addr1}<br/>${subsidiary.addr2}<br/>${subsidiary.city}<br/>${subsidiary.state}<br/>${subsidiary.zip}<br/>${subsidiary.country}</span></p></td>
+				</tr>
+			</table>
+			<table class="header" style="width: 100%; margin-top: 20px;">
+				<tr>
+					<td colspan="24" rowspan="8">${customer.companyname}<br/>${customer.billaddr1}<#if customer.billaddr2?has_content><br/>${customer.billaddr2}</#if><br/>${customer.billcity}<br/>${customer.billstate}<br/>${customer.billzip}<br/>${customer.billcountry}</td>
+					<td colspan="4"><br/><br/><br/><p align="left">Customer Ref</p><p align="left">Date</p></td>
+					<td colspan="4"><br/><br/><br/><p align="right">${customer.accountnumber}</p><p align="right">${statement.trandate}</p><p align="right"><span style="font-size: 8pt;">Page <pagenumber/> of <totalpages/></span></p></td>
+				</tr>
+			</table>
+        </macro>
+        <macro id="nlfooter">
+        	<table style="width: 100%;">
+        		<tr>
+        			<td colspan="4" rownspan="6"><span style="font-size: 8pt;">${customer.custentity_c4c_bank_account.custrecord_c4c_bank_address}</span></td>
+        			<td colspan="2"><span style="font-size: 8pt;">Bank Name<br/>IBAN Number<br/>Branch Identifier Code<br/>Sort Code<br/>Account Number<br/>Account Name</span></td>
+        			<td colspan="3"><span style="font-size: 8pt;">${customer.custentity_c4c_bank_account.custrecord_c4c_bank_name}<br/>${customer.custentity_c4c_bank_account.custrecord_c4c_ba_iban}<br/>(BIC) ${customer.custentity_c4c_bank_account.custrecord_c4c_branch_identifier_code}<br/>${customer.custentity_c4c_bank_account.custrecord_c4c_ba_sort_code}<br/>${customer.custentity_c4c_bank_account.custrecord_c4c_ba_account_number}<br/>${customer.custentity_c4c_bank_account.name}</span></td>
+        		</tr>
+        	</table>
+        	<table style="width: 100%; margin-top: 10px;">
+        		<tr>
+        			<td><span style="font-size: 8pt;">Please make all payments in GBP, and NET of all charges. (please pay all bank charges). <b>Also please reference your company name.</b></span></td>
+        		</tr>
+        	</table>       	
+        	<table class="aging" style="width: 100%; margin-top: 20px;">
+				<tr>
+					<th align="right">${statement.aging2@label}</th>
+					<th align="right">${statement.aging3@label}</th>
+					<th align="right">${statement.aging4@label}</th>
+					<th align="right">${statement.aging5@label}</th>
+					<th align="right">Balance</th>
+				</tr>
+				<tr>
+					<td align="right">${statement.aging2}</td>
+					<td align="right">${statement.aging3}</td>
+					<td align="right">${statement.aging4}</td>
+					<td align="right">${statement.aging5}</td>
+					<td align="right">${statement.agingbal}</td>
+				</tr>
+			</table>
+			<table style="width: 100%; margin-top: 20px;">
+				<tr>
+					<td><span style="font-size: 8pt;">Company Registration Number ${subsidiary.custrecord_c4c_company_reg}</span></td>
+					<td align="right"><span style="font-size: 8pt;">VAT Registration Number ${subsidiary.federalidnumber}</span></td>
+				</tr>
+			</table>
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 10pt;
+			table-layout: fixed;
+		}
+        th {
+            font-size: 10pt;
+            vertical-align: middle;
+            padding: 4px 6px;
+            color: #000000;
+        }
+        td {
+            padding: 4px 6px;
+            line-height: 120%;
+        }
+		td p {
+			align:left
+		}
+        b {
+            font-weight: bold;
+            color: #000000;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+        	font-size: 16pt;
+        }
+        span.subtitle {
+        	font-size: 12pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #000000;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="250pt" footer="nlfooter" footer-height="175pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+	<#if statement.lines?has_content>
+		<table class="itemtable" style="width: 100%; margin-top: 20px;"><!-- start items -->
+			<#list statement.lines as line>
+			<#if line_index==0>
+				<thead>
+					<tr>
+						<th colspan="3">${line.datecol@label}</th>
+						<th colspan="12">${line.description@label}</th>
+						<th align="right" colspan="3">Debit</th>
+						<th align="right" colspan="4">Credit</th>
+						<th align="right" colspan="4">${line.balance@label}</th>
+					</tr>
+				</thead>
+			</#if>
+			<tr>
+				<td colspan="3">${line.datecol}</td>
+				<td colspan="12">${line.description}</td>
+				<td align="right" colspan="3">${line.charge}</td>
+				<td align="right" colspan="4">${line.payment}</td>
+				<td align="right" colspan="4">${line.balance}</td>
+			</tr>
+			</#list><!-- end items -->
+		</table>
+	</#if>
+
+</body>
+</#list>
+</pdf>
+</#if>
+</pdfset>
