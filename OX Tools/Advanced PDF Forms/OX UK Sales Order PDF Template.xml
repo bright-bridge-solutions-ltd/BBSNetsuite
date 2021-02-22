@@ -1,0 +1,305 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+
+  	<!--Settings-->
+  	<#setting time_zone = "GMT">
+    
+    <!--Set the VAT number to its default value-->
+    <#assign vatNumber = "GB 407 3111 96">
+
+    <!--Use the VAT number from the location if it has one-->
+    <#if record.location.custrecord_bbs_vat_number?length gt 0>
+		<#assign vatNumber = record.location.custrecord_bbs_vat_number>
+    </#if>
+
+  	<!--Set the EORI to blank-->
+  	<#assign eoriNumber = "">
+
+    <!--Use the EORI from the location if it has one-->
+    <#if eoriNumber == "" && record.location.custrecord_bbs_location_eori_number?length gt 0>
+		<#assign eoriNumber = record.location.custrecord_bbs_location_eori_number>
+    </#if>
+
+    <!--If shipping to outside the UK use the EORI from the subsidiary record-->
+    <#if eoriNumber == "" && record.shipcountry != "GB">
+        <#assign eoriNumber = subsidiary.custrecord_bbs_eori_number>
+    </#if>
+
+    <!--If shipping to Northen Ireland use the NI EORI from the subsidiary record-->
+    <#if eoriNumber == "" && record.shipzip?starts_with("BT")>
+        <#assign eoriNumber = subsidiary.custrecord_bbs_ni_eori_number>
+    </#if>
+
+	<!--Set company billing address-->
+    <#assign billAddress = record.billaddressee>
+    <#if record.entity.custentity_bbs_legal_trading_name?length gt 0>
+    	<#assign billAddress = record.entity.custentity_bbs_legal_trading_name>
+    </#if>
+    
+    <!--Add in the remaining part of the billing address after the adressee-->
+    <#assign billAddress += "<br/>" + record.billaddress?keep_after("<br />")>
+    
+    <!--Add on additional fields to the address; cust number, vat number & eori number-->
+    <#assign billAddress += "<br/>">
+    <#if record.entity.entityid?index_of(" : ") gt 0>
+      <#assign billAddress += "<br/>Cust ID: " + record.entity.entityid?keep_after(" : ")>
+    <#else>         
+    	<#assign billAddress += "<br/>Cust ID: " + record.entity.entityid>
+    </#if>
+    <#assign billAddress += "<br/>VAT No: "  + record.entity.vatregnumber>
+    <#assign billAddress += "<br/>EORI: "    + record.entity.custentity_bbs_cust_eori_no>
+      
+    <macrolist>
+		<macro id="nlheader">
+			<table class="header" style="width: 100%;">
+				<tr>
+					<td align="left" colspan="2"><img src="${subsidiary.logo@url}" style="width: 300px; height: 52px;" /></td>
+					<td align="left" style="font-size: 7pt; padding-left: 40px;"><b>${subsidiary.mainaddress_text}</b></td>
+                  	<td align="left" style="font-size: 7pt; padding-left: 10px;"><b>T: +44 (0)208 676 9990<br/>F: +44 (0)208 676 7520<br/>E: sales@oxgroup.co.uk<br/>W: www.oxtools.com<#if eoriNumber != ""><br/>EORI: ${eoriNumber}</#if></b></td>
+				</tr>
+			</table>
+
+			<table class="header" style="width: 100%; margin-top: 10px;">
+				<tr>
+					<td align="left" style="font-size: 8pt; border-left: 1px solid black; border-top: 1px solid black; padding: 5px;"><b>Customer Name &amp; Address</b></td>
+					<td align="left" style="font-size: 8pt; border-top: 1px solid black;"></td>
+					<td align="left" style="font-size: 8pt; border-right: 1px solid black; border-top: 1px solid black; padding: 5px;"><b>Delivery Address</b></td>
+					<td align="center" style="font-size: 8pt; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; padding: 5px; margin-left: 3px;"><b>ACKNOWLEDGEMENT</b></td>
+              	</tr>
+				<tr>
+					<td align="left" rowspan="6" colspan="2" style="font-size: 8pt; border-left: 1px solid black; border-bottom: 1px solid black; padding: 5px;">${billAddress}</td>
+					<td align="left" rowspan="6" style="font-size: 8pt; border-bottom: 1px solid black; border-right: 1px solid black; padding: 5px;">${record.shipaddress}</td>
+					<td align="left" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>FAO:</b></td><td align="right" style="font-size: 7pt;">${record.entity.contact}</td></tr></table></td>
+              	</tr>
+				<tr>
+					<td align="left" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Order Date:</b></td><td align="right" style="font-size: 7pt;">${record.trandate}</td></tr></table></td>
+              	</tr>
+				<tr>
+					<td align="left" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Your Order No:</b></td><td align="right" style="font-size: 7pt;">${record.otherrefnum}</td></tr></table></td>
+              	</tr>
+				<tr>
+					<td align="left" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Taken By:</b></td><td align="right" style="font-size: 7pt;">${record.salesrep?keep_before(" ")}</td></tr></table></td>
+              	</tr>
+				<tr>
+					<td align="left" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; padding: 5px; margin-left: 3px;">&nbsp;</td>
+              	</tr>
+				<tr>
+					<td align="left" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; border-top: 1px solid black;padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Our Order No:</b></td><td align="right" style="font-size: 10pt;"><b>${record.tranid}</b></td></tr></table></td>
+              	</tr>
+			</table>
+
+			<table class="header" style="width: 100%; margin-top: 10px;">
+				<tr>
+					<td align="center"><b>This is Order Revision No ${record.custbody_bbs_so_revision_no} and Supercedes al Previous Issues</b></td>
+              	</tr>
+			</table>
+		</macro>
+      
+      	<macro id="nlfooter">
+            <table class="footer" style="width: 100%;">
+				<tr>
+					<td align="left"  style="border-top: 1px solid black">VAT Registration No: ${vatNumber}</td>
+                  	<td align="right" style="border-top: 1px solid black">Printed: ${.now?string.full}</td>
+              	</tr>
+              	<tr>
+					<td align="left">Company Reg No: 7697065</td>
+                  	<td align="right">Page <pagenumber/> of <totalpages/></td>
+              	</tr>
+			</table>
+		</macro>
+    </macrolist>
+  
+	<style type="text/css">table {
+            font-family: sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: left;
+            padding: 5px 6px 3px;
+            text-align: left;
+            
+        }
+        td {
+            padding: 4px 6px;
+          
+        }
+        b {
+            font-weight: bold;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 5px;
+            padding-top: 5px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+      
+      th.itemlist {
+            background-color: #000000;            
+            font-weight: bold;
+            color: #FFFFFF;
+      }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+            background-color: #000000;            
+            font-weight: bold;
+            color: #FFFFFF;
+        }
+        td.address {
+            padding-top: 0px;
+          border: 1px solid black;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+      td.bodyinfo {
+        text-align: left;
+        border: 1px solid black;
+      }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+  
+<body header="nlheader" header-height="280px" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+<#if record.item?has_content>
+  <table style="width: 100%;">
+      <#list record.item as item>
+        <#if item_index==0>
+          <thead>
+              <tr>
+              <th align="right" colspan="1"  style="font-size: 7pt; border-left: 1px solid black; border-bottom: 1px solid black; border-top: 1px solid black;" >Qty</th>
+              <th align="left"  colspan="3"  style="font-size: 7pt; border-bottom: 1px solid black; border-top: 1px solid black;" >Code</th>
+              <th align="left"  colspan="10" style="font-size: 7pt; border-bottom: 1px solid black; border-top: 1px solid black;" >Description</th>
+              <th align="right" colspan="2"  style="font-size: 7pt; border-bottom: 1px solid black; border-top: 1px solid black;" >Price Each</th>
+              <th align="right" colspan="2"  style="font-size: 7pt; border-bottom: 1px solid black; border-top: 1px solid black;" >Line Total</th>
+              <th align="right" colspan="2"  style="font-size: 7pt; border-right: 1px solid black; border-bottom: 1px solid black; border-top: 1px solid black;" >Line VAT</th>
+              </tr>
+          </thead>
+        </#if>
+
+        <tr>
+          <td align="right" colspan="1"  style="font-size: 7pt;" >${item.quantity}</td>
+          <td align="left"  colspan="3"  style="font-size: 7pt;" >${item.item}</td>
+          <td align="left"  colspan="10" style="font-size: 7pt;">${item.description}</td>
+          <td align="right" colspan="2"  style="font-size: 7pt;" >${item.rate}</td>
+          <td align="right" colspan="2"  style="font-size: 7pt;" >${item.amount}</td>
+          <td align="right" colspan="2"  style="font-size: 7pt;" >${item.tax1amt}</td>
+        </tr>
+        <#if record.shipcomplete || item.quantitycommitted?number gt 0>
+          <tr>
+            <td align="right" colspan="4"  style="font-size: 7pt;" >&nbsp;</td>
+            <td align="left"  colspan="10" style="font-size: 7pt; color: #A9A9A9">Scheduled Despatch Date: ${record.shipdate?string.short}</td>
+            <td align="right" colspan="6"  style="font-size: 7pt;" >&nbsp;</td>
+          </tr>
+        </#if>
+      </#list>
+  </table>
+</#if>
+
+	<div style="page-break-inside: avoid;">
+      <table style="width: 100%; margin-top: 10px;">
+          <tr>
+              <td colspan="14" align="left"  style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black;"><b>Special Instructions</b></td>
+              <td colspan="2"  align="left"  style="font-size: 7pt;">&nbsp;</td>
+              <td colspan="2"  align="left"  style="font-size: 7pt; border-left: 1px solid black; border-top: 1px solid black;"><b>Goods Net:</b></td>
+              <td colspan="2"  align="right" style="font-size: 7pt; border-right: 1px solid black; border-top: 1px solid black;">${record.subtotal}</td>
+          </tr>
+          <tr>
+              <td rowspan="6" colspan="14" align="left"  style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.memo}</td>
+              <td colspan="2"  align="left"  style="font-size: 7pt;">&nbsp;</td>
+              <td colspan="2"  align="left"  style="font-size: 7pt; border-left: 1px solid black;"><b>Delivery:</b></td>
+              <td colspan="2"  align="right" style="font-size: 7pt; border-right: 1px solid black;">${record.shippingcost}</td>
+          </tr>
+          <tr>
+              <td colspan="2"  align="left"  style="font-size: 7pt;">&nbsp;</td>
+              <td colspan="2"  align="left"  style="font-size: 7pt; border-left: 1px solid black;"><b>VAT:</b></td>
+              <td colspan="2"  align="right" style="font-size: 7pt; border-right: 1px solid black;">${record.taxtotal}</td>
+          </tr>
+          <tr>
+              <td colspan="2"  align="left"  style="font-size: 7pt;">&nbsp;</td>
+              <td colspan="2"  align="left"  style="font-size: 7pt; border-left: 1px solid black;"><b>Total:</b></td>
+              <td colspan="2"  align="right" style="font-size: 7pt; border-right: 1px solid black;">${record.total}</td>
+          </tr>
+          <tr>
+              <td colspan="2"  align="left"  style="font-size: 7pt;">&nbsp;</td>
+              <td colspan="2"  align="left"  style="font-size: 7pt; border-left: 1px solid black;">&nbsp;</td>
+              <td colspan="2"  align="right" style="font-size: 7pt; border-right: 1px solid black;">&nbsp;</td>
+          </tr>
+          <tr>
+              <td colspan="2"  align="left"   style="font-size: 7pt;">&nbsp;</td>
+              <td colspan="4"  align="center" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.currency}</td>
+          </tr>
+
+      </table>
+  
+      <table  style="width: 100%; margin-top: 5px; border: 1px solid black;">
+        <tr>
+          <td align="center" style="font-size: 7pt;"><b>Thank you for your order</b></td>
+        </tr>
+        <tr>
+          <td align="center" style="font-size: 7pt;"><b>Please note product codes, pricing and delivery charges and make any necessary changes to your purchase order and records.</b></td>
+        </tr>
+      </table>
+
+      <table  style="width: 100%; margin-top: 5px; border: 1px solid black;">
+        <tr>
+          <td align="center" style="font-size: 7pt;"><b>Our fully trained distribution team are preparing your order for despatch in accordance with the above.</b></td>
+        </tr>
+        <tr>
+          <td align="center" style="font-size: 7pt;"><b>Please check when you receive it and if there are any discrepancies please phone 020 8676 9990</b></td>
+        </tr>
+        <tr>
+          <td align="center" style="font-size: 7pt;"><b>and follow up within 48 hours by email to sales.uk@oxtools.com</b></td>
+        </tr>
+      </table>
+    </div>
+</body>
+</pdf>

@@ -1454,7 +1454,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 			    			{
 			    				//See if there is a purchase order for the assembly
 			    				//
-			    				availData = getPurchaseOrderInfo(_memberItem);
+			    				availData = getPurchaseOrderInfo(_memberItem, availData);
 			    				
 			    				//If no WO or PO is found, then we will return with the fact that a new WO must be created
 								//
@@ -1560,7 +1560,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 	    					{
 	    						//No - find a PO if we can
 	    						//
-	    						availData = getPurchaseOrderInfo(_memberItem);
+	    						availData = getPurchaseOrderInfo(_memberItem, availData);
 	    						
 	    						//If no PO is found, then we will return with the fact that a new PO must be created
 								//
@@ -1665,9 +1665,9 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
     		
     //Function to find purchase orders for a particular item & return the info about the earliest one
     //
-    function getPurchaseOrderInfo(_item)
+    function getPurchaseOrderInfo(_item, availData)
     	{
-    		var availData = new availabilityData('','');
+    		//var availData = new availabilityData('','');
 		
     		var purchaseorderSearchObj = getResults(search.create({
 				   type: "purchaseorder",

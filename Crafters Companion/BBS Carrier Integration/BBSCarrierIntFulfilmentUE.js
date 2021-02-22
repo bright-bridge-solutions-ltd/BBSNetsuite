@@ -503,6 +503,12 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    										contactInfo.mobileNumber = addressPhone;
 	    									}
 	    								
+	    								//CG 18-02-21 blank out the phone number if the destination is GB & the phone number does not start with '07' or '+447'
+	    								//
+	    								if(shippingAddress.countryCode == 'GB' && contactInfo.mobileNumber.indexOf('07') == -1 && contactInfo.mobileNumber.indexOf('+447') == -1)
+	    									{
+	    										contactInfo.mobileNumber = '';
+	    									}
 	    								
 	    								//Build up the process shipments request object
 	    								//

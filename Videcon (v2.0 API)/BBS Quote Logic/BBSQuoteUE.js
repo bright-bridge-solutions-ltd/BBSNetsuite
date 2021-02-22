@@ -64,9 +64,9 @@ function(runtime, record, search, file, config)
 																				    columns: 	'custitem_bbs_data_sheet'
 																					});
 													
-											if(fieldLookUp != null && fieldLookUp != '')
+											if(fieldLookUp != null && fieldLookUp != '' && fieldLookUp.custitem_bbs_data_sheet.length > 0)
 												{
-													var imageId = fieldLookUp.custitem_bbs_printed_cad[0].value;
+													var imageId = fieldLookUp.custitem_bbs_data_sheet[0].value;
 													
 													if(imageId != null && imageId != '')
 														{
@@ -118,6 +118,25 @@ function(runtime, record, search, file, config)
     			}
 	    }
 
+	//Page through results set from search
+    //
+    function getResults(_searchObject)
+	    {
+	    	var results = [];
+	
+	    	var pageData = _searchObject.runPaged({pageSize: 1000});
+	
+	    	for (var int = 0; int < pageData.pageRanges.length; int++) 
+	    		{
+	    			var searchPage = pageData.fetch({index: int});
+	    			var data = searchPage.data;
+	    			
+	    			results = results.concat(data);
+	    		}
+	
+	    	return results;
+	    }
+    
     return 	{
         		afterSubmit: 	quoteAfterSubmit
     		};

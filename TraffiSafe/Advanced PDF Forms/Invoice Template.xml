@@ -617,7 +617,7 @@
 </body>
 </pdf>
       
-<#if record.shipcountry != "GB">
+<#if record.shipcountry != "GB" || record.shipzip?starts_with("BT") >
 
 	<pdf>
 		<head>
@@ -663,7 +663,7 @@
         					<td align="left" style="font-size:10pt">Invoice Number:</td>
     						<td align="left" style="font-size:10pt">${record.tranid}</td>
     						<td align="right" style="font-size:10pt">&nbsp;</td>
-    						<td colspan="2" align="left" rowspan="9"><span class="nameandaddress">${record.subsidiary.custrecord_sw_subsidiary_address}</span><#if vatInfo?has_content><br/>${TaxNo}. ${vatInfo}<br />EORI No. ${eori}<br/></#if><br/><b>${Email}:</b> ${emailInfo}<br /><b>${Tel}:</b> ${telInfo}</td>
+    						<td colspan="2" align="left" rowspan="12"><span class="nameandaddress"><b>EXPORTER:</b><br/>${record.subsidiary.custrecord_sw_subsidiary_address}</span><#if vatInfo?has_content><br/>${TaxNo}. ${vatInfo}<br />EORI No. ${eori}<br/></#if><br/><b>${Email}:</b> ${emailInfo}<br /><b>${Tel}:</b> ${telInfo}</td>
 						</tr>
                       	<tr>
         					<td align="left" style="font-size:10pt">Invoice Date:</td>
@@ -674,6 +674,21 @@
         					<td align="left" style="font-size:10pt">&nbsp;</td>
     						<td align="left" style="font-size:10pt">&nbsp;</td>
     						<td   align="left" style="font-size:10pt">&nbsp;</td>
+						</tr>
+                      	<tr>
+        					<td align="left" style="font-size:10pt">&nbsp;</td>
+    						<td align="left" style="font-size:10pt">&nbsp;</td>
+    						<td  align="left" style="font-size:10pt">&nbsp;</td>
+						</tr>
+                      	<tr>
+        					<td align="left" style="font-size:10pt">&nbsp;</td>
+    						<td align="left" style="font-size:10pt">&nbsp;</td>
+    						<td  align="left" style="font-size:10pt">&nbsp;</td>
+						</tr>
+                      	<tr>
+        					<td align="left" style="font-size:10pt">&nbsp;</td>
+    						<td align="left" style="font-size:10pt">&nbsp;</td>
+    						<td  align="left" style="font-size:10pt">&nbsp;</td>
 						</tr>
                       	<tr>
         					<td align="left" style="font-size:10pt">&nbsp;</td>
@@ -876,21 +891,22 @@
 			</style>
       	</head>
 
-	<body header="ciheader" header-height="460px" footer="cifooter" footer-height="10px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+	<body header="ciheader" header-height="490px" footer="cifooter" footer-height="10px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
 	<#if record.item?has_content>
       	<#assign totalGross = 0>
         <#assign totalNet = 0>
-          
+
 		<table class="itemtable" style="width: 100%;">
         	<#list record.item as item>
             	<#if item_index==0>
 					<thead >
                         <tr >
-                          <th align="left"   colspan="14"><br/>Item</th>
+                          <th align="left"   colspan="11"><br/>Item</th>
                           <th align="left"   colspan="2">Country<br/>Of Origin</th>
                           <th align="center" colspan="2">Net<br/>Weight</th>
-                          <th align="right"  colspan="2"><br/>HS Code</th>
+                          <th align="center" colspan="2">Gross<br/>Weight</th>
+                          <th align="right"  colspan="3"><br/>HS Code</th>
                           <th align="right"  colspan="2"><br/>Qty</th>
                           <th align="right"  colspan="2">Unit<br/>Price</th>
                           <th align="right"  colspan="3">Total<br/>Price</th>
@@ -898,24 +914,37 @@
 					</thead>
 				</#if>
               	<#if item.quantity gt 0>
+                  
+                  <#assign lineNetWeight = 0>
+                  <#assign lineGrossWeight = 0>
+                    
+                  <#if item.item.custitemcommercial_invoice_gross_weigh?length gt 0>
+                        <#assign lineGrossWeight = item.item.custitemcommercial_invoice_gross_weigh?number * item.quantity>
+                  </#if>
+                    
+                  <#if item.item.custitem_commercial_invoice_net_weight?length gt 0>
+                        <#assign lineNetWeight = item.item.custitem_commercial_invoice_net_weight?number * item.quantity>
+                  </#if>
+                    
                   <tr>
-                      <td align="left"   colspan="14">${item.description}</td>
+                      <td align="left"   colspan="11">${item.description}</td>
                       <td align="left"   colspan="2">${item.item.custitem_bbs_item_country_origin}</td>
-                      <td align="center" colspan="2">${item.item.custitem_commercial_invoice_net_weight}</td>
-                      <td align="right"  colspan="2">${item.item.custitem_commodity_code}</td>
+                      <td align="center" colspan="2">${lineNetWeight?string["##0.00"]}</td>
+                      <td align="center" colspan="2">${lineGrossWeight?string["##0.00"]}</td>
+                      <td align="right"  colspan="3">${item.item.custitem_commodity_code}</td>
                       <td align="right"  colspan="2">${item.quantity}</td>
                       <td align="right"  colspan="2">${item.rate}</td>
                       <td align="right"  colspan="3">${item.amount}</td>
                     
-                      <#assign totalGross += item.item.custitemcommercial_invoice_gross_weigh>
-                      <#assign totalNet += item.item.custitem_commercial_invoice_net_weight>
-                        
+					  <#assign totalGross += lineGrossWeight>
+                      <#assign totalNet += lineNetWeight>
+                     
                   </tr>
               	</#if>
     		</#list>
       	</table>
 	</#if>
-          
+
 	<hr />
     <table class="itemtable" style="width: 100%;">
       <tr>
@@ -949,14 +978,21 @@
           </tr>
         </table>
 
+      	<#if record.subsidiary.internalid == "4"> <!-- Traffi -->
+          	<table class="itemtable" style="width: 100%; margin-top: 10px;">
+              <tr>
+                <td align="left" ><b>STATEMENT ON ORIGIN</b><br/>The exporter of the products covered by this document declares that, except where otherwise clearly indicated, these products are of SRI LANKA preferential origin.</td>
+              </tr>
+        	</table>
+        </#if>
+      
         <table class="itemtable" style="width: 100%; margin-top: 10px;">
           <tr>
-            <td align="left"  style="padding: 5px; border-left: 1px solid black; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; line-height: 150%">Signed By&nbsp;&nbsp;&nbsp;${signed}</td>
+            <td align="left"  style="padding: 5px; border-left: 1px solid black; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; line-height: 150%">Signed By&nbsp;&nbsp;&nbsp;${signed}<#if record.subsidiary.internalid == "4"><br/><b>EXPORTER: TraffiSafe Ltd</b><br/><b>DATE:</b> ${.now?date}</#if></td>
             <td align="left" style="padding: 5px; border-top: 1px solid black;  border-right: 1px solid black; border-bottom: 1px solid black; line-height: 150%"><img src="${signature}" style="float: right; width: 70px; height: 40px;" /></td>
           </tr>
         </table>
 	</div>
-          
 	</body>
   	</pdf>
 </#if>
