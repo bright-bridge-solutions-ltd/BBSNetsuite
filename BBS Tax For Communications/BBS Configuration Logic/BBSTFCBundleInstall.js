@@ -108,11 +108,19 @@ function(record, search) {
     				{
     					// update fields on the config record
     					record.submitFields({
-    						type: 'customrecord_bbstfc_config',
-    						id: configRecordID,
-    						values: {
-    							custrecord_bbstfc_conf_pcl_script: scriptID
-    						}
+    										type: 		'customrecord_bbstfc_config',
+    										id: 		configRecordID,
+    										values: 	{
+    													custrecord_bbstfc_conf_pcl_script: 	scriptID,
+    													custrecord_bbstfc_conf_username:	null,		//Remove username
+    													custrecord_bbstfc_conf_password:	null,		//Remove password
+    													custrecord_bbstfc_conf_client_id:	null,		//Remove client id
+    													custrecord_bbstfc_conf_profile_id:	null,		//Remove profile id
+    													custrecord_bbstfc_conf_tax_code:	null		//Remove tax code for avalara customers
+    													},
+    										options:	{
+    													ignoreMandatoryFields:				true
+    													}
     					});
     					
     					log.audit({
