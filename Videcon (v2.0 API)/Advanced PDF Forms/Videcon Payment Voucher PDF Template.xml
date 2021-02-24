@@ -115,6 +115,9 @@
 
             	<tr class="messagerow">
 	              	<td colspan="6" align="left" class="message" style="margin-top: 5px;">${record.custbody_bbs_branding.custrecord_bbs_branding_trade_name}.&nbsp;${regInfo}&nbsp;EU EORI Number:&nbsp;${eoriEuInfo}</td>
+			  	</tr>
+            	<tr class="messagerow">
+	              	<td colspan="6" align="left" class="message">Part of the Videcon Group</td>
                   	<td align="right"><pagenumber/> of <totalpages/></td>
 			  	</tr>
 	      	</table>
@@ -222,7 +225,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="340pt" footer="nlfooter" footer-height="20pt" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+<body header="nlheader" header-height="340pt" footer="nlfooter" footer-height="30pt" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 
 <#if record.apply?has_content>
 
