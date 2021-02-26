@@ -3,13 +3,13 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/render', 'N/file', 'N/url', 'N/record'],
+define(['N/runtime', 'N/render', 'N/file', 'N/url', 'N/record', 'N/search'],
 /**
  * @param {serverWidget} serverWidget
  */
-function(runtime, render, file, url, record) {
-   
-    /**
+function(runtime, render, file, url, record, search) {
+	
+	/**
      * Function definition to be triggered after record is saved.
      *
      * @param {Object} scriptContext
@@ -173,8 +173,7 @@ function(runtime, render, file, url, record) {
     	// return fileURL to main script function
     	return fileURL;
     	
-    }
-    
+    } 
 
     return {
         afterSubmit: afterSubmit

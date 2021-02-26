@@ -56,6 +56,9 @@ function(search, sftp, record, format, file, runtime) {
     		},
     				{
     			name: 'custrecord_bbs_supplier_sftp_in_folder'
+    		},
+    				{
+    			name: 'custrecord_bbs_supplier_sftp_file_types'
     		}],
     		
     	}).run().each(function(result){
@@ -89,8 +92,12 @@ function(search, sftp, record, format, file, runtime) {
     			name: 'custrecord_bbs_supplier_sftp_in_folder'
     		});
     		
+    		var sftpFileType = result.getValue({
+    			name: 'custrecord_bbs_supplier_sftp_file_types'
+    		});
+    		
     		// call function to process files on the server
-    		processFiles(sftpEndpoint, sftpUsername, sftpPassword, sftpHostKey, sftpPortNumber, sftpOutDirectory);
+    		processFiles(sftpEndpoint, sftpUsername, sftpPassword, sftpHostKey, sftpPortNumber, sftpOutDirectory, sftpFileType);
     		
     		// continue processing search results
     		return true;
@@ -102,7 +109,7 @@ function(search, sftp, record, format, file, runtime) {
     // FUNCTION TO PROCESS FILES ON THE SFTP SERVER
     // ============================================
     
-    function processFiles(sftpEndpoint, sftpUsername, sftpPassword, sftpHostKey, sftpPortNumber, sftpDirectory) {
+    function processFiles(sftpEndpoint, sftpUsername, sftpPassword, sftpHostKey, sftpPortNumber, sftpDirectory, sftpFileType) {
     	
     	// declare and initialize variables
     	var sftpConnection = null;
@@ -136,7 +143,7 @@ function(search, sftp, record, format, file, runtime) {
 					{
 						// get a list of files from the SFTP site
 						fileList = sftpConnection.list({
-							path: 	'./', 
+							path: 	'./' + sftpFileType, 
 							sort: 	sftp.Sort.DATE
 						});
 					}

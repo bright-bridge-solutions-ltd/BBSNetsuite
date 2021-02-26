@@ -23,14 +23,13 @@
 				</tr>
 			</table>
         </macro>
-        <macro id="nlfooter">
+        <macro id="nlfooter">      	
         	<table class="footer" style="width: 100%;">
         		<tr>
-        			<td colspan="3"><b>${subsidiary.legalname}, ${subsidiary.addr1}, ${subsidiary.addr2}, ${subsidiary.city}, ${subsidiary.state}, ${subsidiary.zip}, ${subsidiary.country}</b></td>
+        			<td><b>${subsidiary.legalname}, ${subsidiary.addr1}, ${subsidiary.addr2}, ${subsidiary.city}, ${subsidiary.state}, ${subsidiary.zip}, ${subsidiary.country}</b></td>
         		</tr>
         		<tr>
-        			<td colspan="2"><b>T: ${subsidiary.custrecord_c4c_phone_number} E: ${subsidiary.custrecord_c4c_email_address} W: ${subsidiary.custrecord_c4c_website}</b></td>
-        			<td colspan="1" align="right">Page <pagenumber/> of <totalpages/></td>
+        			<td><b>T: ${subsidiary.custrecord_c4c_phone_number} E: ${subsidiary.custrecord_c4c_email_address} W: ${subsidiary.custrecord_c4c_website}</b></td>
         		</tr>
         	</table>
         </macro>
@@ -139,26 +138,20 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="160pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="170pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
 	<table class="header" style="width: 100%; margin-top: 20px;">
 		<tr>
-			<td colspan="10">Customer Details</td>
-			<td colspan="10">Delivery</td>
-			<td colspan="8">&nbsp;</td>
-			<td colspan="4">&nbsp;</td>
-		</tr>
-		<tr>
+			<td colspan="10"><b>Customer Details</b></td>
 			<td colspan="10">&nbsp;</td>
-			<td colspan="10">&nbsp;</td>
-			<td colspan="8">&nbsp;</td>
-			<td colspan="4">&nbsp;</td>
+			<td colspan="8">Sales Order No</td>
+			<td colspan="4">${record.createdfrom.createdfrom?keep_after("#")}</td>
 		</tr>
 		<tr>
 			<td colspan="10" rowpsan="8">${record.billaddr1}<#if record.billaddr2?has_content><br/>${record.billaddr2}</#if><br/>${record.billcity}<br/>${record.billstate}<br/>${record.billzip}<br/>${record.billcountry}</td>
-			<td colspan="10" rowpsan="8">${record.shipaddr1}<#if record.shipaddr2?has_content><br/>${record.shipaddr2}</#if><br/>${record.shipcity}<br/>${record.shipstate}<br/>${record.shipzip}<br/>${record.shipcountry}</td>
-			<td colspan="8" rowspan="8">Sales Order No<br/>Invoice / Tax Date<br/>Account Ref<br/>Payment Terms<br/>Invoice No<br/>Web Ref<br/>Your Ref<br/>PO Number<br/>VAT / Tax Code</td>
-			<td colspan="4" rowspan="8">${record.createdfrom?keep_after("#")}<br/>${record.trandate}<br/><b>TODO</b><br/>${record.terms}<br/>${record.tranid?keep_before("#")}<br/><b>TODO</b><br/><b>TODO</b><br/>${record.otherrefnum}<br/>${record.vatregnum}</td>
+			<td colspan="10" rowpsan="8">&nbsp;</td>
+			<td colspan="8" rowspan="8">Credit Tax Date<br/>Account Ref<br/>Invoice No</td>
+			<td colspan="4" rowspan="8">${record.trandate}<br/>${record.entity.accountnumber}<br/>${record.createdfrom?keep_after("#")}</td>
 		</tr>
 	</table>
 	
@@ -170,29 +163,26 @@
 					<tr>
 						<th align="left" colspan="6">Stock Code</th>
 						<th align="left" colspan="16">Product Description</th>
-						<th align="right" colspan="2">Qty</th>
-						<th align="center" colspan="4">Rate %</th>
-						<th align="right" colspan="4">Unit Price</th>
-						<th align="right" colspan="4">Net Amount</th>
+						<th align="right" colspan="4">VAT %</th>
+						<th align="right" colspan="4">Qty</th>
+						<th align="right" colspan="4">VAT</th>
+						<th align="right" colspan="6">Gross Amount</th>
 					</tr>
 				</thead>
 			</#if>
 			<tr>
 				<td align="left" colspan="6">${item.item}</td>
 				<td align="left" colspan="16">${item.description}</td>
-				<td align="right" colspan="2">${item.quantity?string["0"]}</td>
-				<td align="center" colspan="4">${item.taxrate1?string.percent}</td>
-				<td align="right" colspan="4">${item.rate}</td>
-				<td align="right" colspan="4">${item.amount}</td>
+				<td align="right" colspan="4">${item.taxrate1?string.percent}</td>
+				<td align="right" colspan="4">${item.quantity?string["0"]}</td>
+				<td align="right" colspan="4">${item.tax1amt}</td>
+				<td align="right" colspan="6">${item.amount}</td>
 			</tr>
 		</#list><!-- end items -->
 		</table>
 	</#if>
-    
-    <table class="footer" style="width: 100%; margin-top: 30px;">
-		<tr>
-    		<td colspan="25">These goods are subject to a retention of title clause, under section 15, Title and Risk<br/>in your Terms and Conditions.</td>
-	 	</tr>
+	
+	<table class="footer" style="width: 100%; margin-top: 30px;">
 		<tr>
 			<td colspan="25">&nbsp;</td>
 	      	<td colspan="10" align="center">Currency</td>
@@ -203,15 +193,15 @@
 	       	<td colspan="10" style="border-top: 2px solid black;">&nbsp;</td>
 	       	<td colspan="5" style="border-top: 2px solid black;">&nbsp;</td>
 	  	</tr>
-	  	<tr>
-	  		<td colspan="25">VAT No: ${subsidiary.federalidnumber}</td>
-	   		<td colspan="10">VAT</td>
-	  		<td colspan="5" align="right">${record.taxtotal}</td>
-	 	</tr>
 	 	<tr>
 	 		<td colspan="25">&nbsp;</td>
 	      	<td colspan="10">Net</td>
 	     	<td colspan="5" align="right">${record.subtotal}</td>
+	 	</tr>
+	 	<tr>
+	  		<td colspan="25">VAT No: ${subsidiary.federalidnumber}</td>
+	   		<td colspan="10">VAT</td>
+	  		<td colspan="5" align="right">${record.taxtotal}</td>
 	 	</tr>
 	 	<tr>
 			<td colspan="25">&nbsp;</td>
@@ -224,42 +214,6 @@
 	      	<td colspan="5" style="border-bottom: 2px solid black;">&nbsp;</td>
 	 	</tr>
   	</table>
-  	
-  	<table class="footer" style="width: 100%; margin-top: 20px;">
-  		<tr>
-  			<td colspan="10">Bank Name</td>
-  			<td colspan="10">${record.custbody_c4c_bank_account.custrecord_c4c_bank_name}</td>
-       	</tr>
-       	<tr>
-	      	<td colspan="10">IBAN Number</td>
-	     	<td colspan="10">${record.custbody_c4c_bank_account.custrecord_c4c_ba_iban}</td>
-	     	<td colspan="20">&nbsp;</td>
-     	</tr>
-     	<tr>
-	      	<td colspan="10">Branch Identifier Code</td>
-	    	<td colspan="10">(BIC) ${record.custbody_c4c_bank_account.custrecord_c4c_branch_identifier_code}</td>
-	    	<td colspan="20">&nbsp;</td>
-      	</tr>
-     	<tr>
-	     	<td colspan="10">Sort Code</td>
-	       	<td colspan="10">${record.custbody_c4c_bank_account.custrecord_c4c_ba_sort_code}</td>
-	       	<td colspan="20">&nbsp;</td>
-     	</tr>
-       	<tr>
-	        <td colspan="10">Account Number</td>
-	       	<td colspan="10">${record.custbody_c4c_bank_account.custrecord_c4c_ba_account_number}</td>
-	       	<td colspan="20">&nbsp;</td>
-     	</tr>
-    	<tr>
-	        <td colspan="10">Account Name</td>
-	  		<td colspan="10">${record.custbody_c4c_bank_account.name}</td>
-	  		<td colspan="20">&nbsp;</td>
-        </tr>
-       	<tr style="margin-top: 20px;">
-	      	<td colspan="20">Please make all payments in ${record.currency.symbol}, and NET of all charges. (please pay all bank charges). <b>Also please reference your company name.</b></td>
-	      	<td colspan="20">&nbsp;</td>
-      	</tr>
-	</table>
 
 </body>
 </pdf>

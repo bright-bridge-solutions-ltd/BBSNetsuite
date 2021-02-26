@@ -19,7 +19,7 @@
             <table class="header" style="width: 100%;">
             	<tr>
 					<td rowspan="3"><#if subsidiary.logo?length != 0><img src="${subsidiary.logo@url}" style="float: left; margin: 7px; width:175px; height:100px;"/> </#if></td>
-					<td align="right"><p align="right"><span class="title"><b>${record@title}</b></span></p><p align="right"><span class="subtitle">${subsidiary.legalname}<br/>${subsidiary.addr1}<br/>${subsidiary.addr2}<br/>${subsidiary.city}<br/>${subsidiary.state}<br/>${subsidiary.zip}<br/>${subsidiary.country}</span></p></td>
+					<td align="right"><p align="right"><span class="title"><b><#if record.custbody_c4c_print_proforma == true>Proforma Invoice<#else>Order Confirmation</#if></b></span></p><p align="right"><span class="subtitle">${subsidiary.legalname}<br/>${subsidiary.addr1}<br/>${subsidiary.addr2}<br/>${subsidiary.city}<br/>${subsidiary.state}<br/>${subsidiary.zip}<br/>${subsidiary.country}</span></p></td>
 				</tr>
 			</table>
         </macro>
@@ -157,8 +157,8 @@
 		<tr>
 			<td colspan="10" rowpsan="8">${record.billaddr1}<#if record.billaddr2?has_content><br/>${record.billaddr2}</#if><br/>${record.billcity}<br/>${record.billstate}<br/>${record.billzip}<br/>${record.billcountry}</td>
 			<td colspan="10" rowpsan="8">${record.shipaddr1}<#if record.shipaddr2?has_content><br/>${record.shipaddr2}</#if><br/>${record.shipcity}<br/>${record.shipstate}<br/>${record.shipzip}<br/>${record.shipcountry}</td>
-			<td colspan="8" rowspan="8">Sales Order No<br/>Invoice / Tax Date<br/>Account Ref<br/>Payment Terms<br/>Invoice No<br/>Web Ref<br/>Your Ref<br/>PO Number<br/>VAT / Tax Code</td>
-			<td colspan="4" rowspan="8">${record.createdfrom?keep_after("#")}<br/>${record.trandate}<br/><b>TODO</b><br/>${record.terms}<br/>${record.tranid?keep_before("#")}<br/><b>TODO</b><br/><b>TODO</b><br/>${record.otherrefnum}<br/>${record.vatregnum}</td>
+			<td colspan="8" rowspan="8">Sales Order No<br/>Invoice / Tax Date<br/>Account Ref<br/>Payment Terms<br/>Web Ref<br/>Your Ref<br/>PO Number</td>
+			<td colspan="4" rowspan="8">${record.tranid}<br/>${record.trandate}<br/>${record.entity.accountnumber}<br/><b>TODO</b><br/><b>TODO</b><br/><b>TODO</b><br/>${record.otherrefnum}</td>
 		</tr>
 	</table>
 	
@@ -173,7 +173,7 @@
 						<th align="right" colspan="2">Qty</th>
 						<th align="center" colspan="4">Rate %</th>
 						<th align="right" colspan="4">Unit Price</th>
-						<th align="right" colspan="4">Net Amount</th>
+						<th align="right" colspan="5">Net Amount</th>
 					</tr>
 				</thead>
 			</#if>
@@ -183,7 +183,7 @@
 				<td align="right" colspan="2">${item.quantity?string["0"]}</td>
 				<td align="center" colspan="4">${item.taxrate1?string.percent}</td>
 				<td align="right" colspan="4">${item.rate}</td>
-				<td align="right" colspan="4">${item.amount}</td>
+				<td align="right" colspan="5">${item.amount}</td>
 			</tr>
 		</#list><!-- end items -->
 		</table>
@@ -203,19 +203,19 @@
 	       	<td colspan="10" style="border-top: 2px solid black;">&nbsp;</td>
 	       	<td colspan="5" style="border-top: 2px solid black;">&nbsp;</td>
 	  	</tr>
-	  	<tr>
-	  		<td colspan="25">VAT No: ${subsidiary.federalidnumber}</td>
-	   		<td colspan="10">VAT</td>
-	  		<td colspan="5" align="right">${record.taxtotal}</td>
-	 	</tr>
 	 	<tr>
 	 		<td colspan="25">&nbsp;</td>
 	      	<td colspan="10">Net</td>
 	     	<td colspan="5" align="right">${record.subtotal}</td>
 	 	</tr>
 	 	<tr>
+	  		<td colspan="25">VAT No: ${subsidiary.federalidnumber}</td>
+	   		<td colspan="10">VAT</td>
+	  		<td colspan="5" align="right">${record.taxtotal}</td>
+	 	</tr>
+	 	<tr>
 			<td colspan="25">&nbsp;</td>
-	        <td colspan="10">Credit Total</td>
+	        <td colspan="10">Total</td>
 	      	<td colspan="5" align="right">${record.total}</td>
 	  	</tr>
 	  	<tr>
@@ -225,41 +225,44 @@
 	 	</tr>
   	</table>
   	
-  	<table class="footer" style="width: 100%; margin-top: 20px;">
-  		<tr>
-  			<td colspan="10">Bank Name</td>
-  			<td colspan="10">${record.custbody_c4c_bank_account.custrecord_c4c_bank_name}</td>
-       	</tr>
-       	<tr>
-	      	<td colspan="10">IBAN Number</td>
-	     	<td colspan="10">${record.custbody_c4c_bank_account.custrecord_c4c_ba_iban}</td>
-	     	<td colspan="20">&nbsp;</td>
-     	</tr>
-     	<tr>
-	      	<td colspan="10">Branch Identifier Code</td>
-	    	<td colspan="10">(BIC) ${record.custbody_c4c_bank_account.custrecord_c4c_branch_identifier_code}</td>
-	    	<td colspan="20">&nbsp;</td>
-      	</tr>
-     	<tr>
-	     	<td colspan="10">Sort Code</td>
-	       	<td colspan="10">${record.custbody_c4c_bank_account.custrecord_c4c_ba_sort_code}</td>
-	       	<td colspan="20">&nbsp;</td>
-     	</tr>
-       	<tr>
-	        <td colspan="10">Account Number</td>
-	       	<td colspan="10">${record.custbody_c4c_bank_account.custrecord_c4c_ba_account_number}</td>
-	       	<td colspan="20">&nbsp;</td>
-     	</tr>
-    	<tr>
-	        <td colspan="10">Account Name</td>
-	  		<td colspan="10">${record.custbody_c4c_bank_account.name}</td>
-	  		<td colspan="20">&nbsp;</td>
-        </tr>
-       	<tr style="margin-top: 20px;">
-	      	<td colspan="20">Please make all payments in ${record.currency.symbol}, and NET of all charges. (please pay all bank charges). <b>Also please reference your company name.</b></td>
-	      	<td colspan="20">&nbsp;</td>
-      	</tr>
-	</table>
+  	<#if record.custbody_c4c_print_proforma == true>
+	  	<table class="footer" style="width: 100%; margin-top: 20px;">
+	  		<tr>
+	  			<td colspan="20">&nbsp;</td>
+	  			<td colspan="10">Bank Name</td>
+	  			<td colspan="10">${record.custbody_c4c_bank_account.custrecord_c4c_bank_name}</td>
+	       	</tr>
+	       	<tr>
+		      	<td colspan="20">&nbsp;</td>
+		      	<td colspan="10">IBAN Number</td>
+		     	<td colspan="10">${record.custbody_c4c_bank_account.custrecord_c4c_ba_iban}</td>
+	     	</tr>
+	     	<tr>
+		      	<td colspan="20">&nbsp;</td>
+		      	<td colspan="10">Branch Identifier Code</td>
+		    	<td colspan="10">(BIC) ${record.custbody_c4c_bank_account.custrecord_c4c_branch_identifier_code}</td>
+	      	</tr>
+	     	<tr>
+		     	<td colspan="20">&nbsp;</td>
+		     	<td colspan="10">Sort Code</td>
+		       	<td colspan="10">${record.custbody_c4c_bank_account.custrecord_c4c_ba_sort_code}</td>
+	     	</tr>
+	       	<tr>
+		        <td colspan="20">&nbsp;</td>
+		        <td colspan="10">Account Number</td>
+		       	<td colspan="10">${record.custbody_c4c_bank_account.custrecord_c4c_ba_account_number}</td>
+	     	</tr>
+	    	<tr>
+		        <td colspan="20">&nbsp;</td>
+		        <td colspan="10">Account Name</td>
+		  		<td colspan="10">${record.custbody_c4c_bank_account.name}</td>
+	        </tr>
+	       	<tr style="margin-top: 20px;">
+		      	<td colspan="20">&nbsp;</td>
+		      	<td colspan="20">Please make all payments in ${record.currency.symbol}, and NET of all charges. (please pay all bank charges). <b>Also please reference your company name.</b></td>
+	      	</tr>
+		</table>
+	</#if>
 
 </body>
 </pdf>

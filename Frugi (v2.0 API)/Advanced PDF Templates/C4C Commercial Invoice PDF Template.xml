@@ -1,0 +1,314 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	
+	<!-- Declare variables -->
+	<#assign totalUnits = 0>
+	<#assign totalPackages = 0>
+	<#assign totalWeight = 0>
+	<#assign netTotal = 0>
+	<#assign taxTotal = 0>
+
+	<#setting number_format=",##0.00">
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;">
+            	<tr>
+					<td rowspan="3"><#if subsidiary.logo?length != 0><img src="${subsidiary.logo@url}" style="float: left; margin: 7px; width:175px; height:100px;"/> </#if></td>
+					<td align="right"><p align="right"><span class="title"><b>Commercial Invoice</b></span></p><p align="right"><span class="subtitle">${subsidiary.legalname}<br/>${subsidiary.addr1}<br/>${subsidiary.addr2}<br/>${subsidiary.city}<br/>${subsidiary.state}<br/>${subsidiary.zip}<br/>${subsidiary.country}</span></p></td>
+				</tr>
+			</table>
+        </macro>
+        <macro id="nlfooter">
+        	<table class="footer" style="width: 100%;">
+        		<tr>
+        			<td colspan="3"><b>${subsidiary.legalname}, ${subsidiary.addr1}, ${subsidiary.addr2}, ${subsidiary.city}, ${subsidiary.state}, ${subsidiary.zip}, ${subsidiary.country}</b></td>
+        		</tr>
+        		<tr>
+        			<td colspan="2"><b>T: ${subsidiary.custrecord_c4c_phone_number} E: ${subsidiary.custrecord_c4c_email_address} W: ${subsidiary.custrecord_c4c_website}</b></td>
+        			<td colspan="1" align="right">Page <pagenumber/> of <totalpages/></td>
+        		</tr>
+        	</table>
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 8pt;
+			table-layout: fixed;
+		}
+        th {
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #c0c0c0;
+            color: #000000;
+        }
+        td {
+            padding: 4px 6px;
+            line-height: 150%;
+        }
+		td p {
+			align:left 
+		}
+        b {
+            font-weight: bold;
+            color: #000000;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+        	font-size: 16pt;
+        }
+        span.subtitle {
+        	font-size: 12pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #000000;
+            height: 1px;
+        }
+        a {
+        	text-decoration: none;
+        }
+        table.signatureBoxes {
+        	background-color: #C0C0C0;
+        }
+        table.signatureBoxes td {
+        	margin: 15px;
+        	height: 125px;
+        	border: 2px solid black;
+        	background-color: #FFFFFF;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="160pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+	<table class="header" style="width: 100%; margin-top: 20px;">
+		<tr>
+			<td colspan="10">Customer Details</td>
+			<td colspan="10">Delivery</td>
+			<td colspan="8">&nbsp;</td>
+			<td colspan="4">&nbsp;</td>
+		</tr>
+		<tr>
+			<td colspan="10">&nbsp;</td>
+			<td colspan="10">&nbsp;</td>
+			<td colspan="8">&nbsp;</td>
+			<td colspan="4">&nbsp;</td>
+		</tr>
+		<tr>
+			<td colspan="10" rowpsan="8">${salesorder.billaddr1}<#if salesorder.billaddr2?has_content><br/>${salesorder.billaddr2}</#if><br/>${salesorder.billcity}<br/>${salesorder.billstate}<br/>${salesorder.billzip}<br/>${salesorder.billcountry}</td>
+			<td colspan="10" rowpsan="8">${salesorder.shipaddr1}<#if salesorder.shipaddr2?has_content><br/>${salesorder.shipaddr2}</#if><br/>${salesorder.shipcity}<br/>${salesorder.shipstate}<br/>${salesorder.shipzip}<br/>${salesorder.shipcountry}</td>
+			<td colspan="8" rowspan="8">Sales Order No<br/>Invoice / Tax Date<br/>Account Ref<br/>Payment Terms<br/>Invoice No<br/>Web Ref<br/>Your Ref<br/>VAT / Tax Code</td>
+			<td colspan="4" rowspan="8">${record.createdfrom?keep_after("#")}<br/>${record.trandate}<br/>${customer.accountnumber}<br/><b>TODO</b><br/>${record.tranid}<br/><b>TODO</b><br/>${salesorder.otherrefnum}<br/>${salesorder.vatregnum}</td>
+		</tr>
+	</table>
+	
+	<#if record.item?has_content>
+		<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items -->
+			<#list record.item as item> <!-- start items -->
+				<#list salesorder.item as tranline>
+					<#if tranline.line == item.orderline>
+					<#assign lineTotal = item.quantity * tranline.rate>
+					<#assign lineTax = (tranline.tax1amt / tranline.quantity) * item.quantity>
+						<#if item_index==0>
+							<thead>
+								<tr>
+									<th align="left" colspan="6">Stock Code</th>
+									<th align="left" colspan="16">Product Description</th>
+									<th align="left" colspan="4">CO/HS Tariff</th>
+									<th align="right" colspan="2">Qty</th>
+									<th align="right" colspan="4">Unit Price</th>
+									<th align="right" colspan="4">Net Amount</th>
+								</tr>
+							</thead>
+						</#if>
+						<tr>
+							<td align="left" colspan="6">${item.item}</td>
+							<td align="left" colspan="16">${item.description}</td>
+							<td align="left" colspan="4">${item.custcol_c4c_commodity_code}</td>
+							<td align="right" colspan="2">${item.quantity?string["0"]}</td>
+							<td align="right" colspan="4">${lineTax}</td>
+							<td align="right" colspan="4">${lineTotal}</td>
+						</tr>
+						<!-- Add to total variables -->
+						<#assign totalUnits += item.quantity>
+						<#assign netTotal += lineTotal>
+						<#assign taxTotal += lineTax>
+					</#if>
+				</#list>
+			</#list><!-- end items -->
+		</table>
+	</#if>
+  	
+  	<table class="footer" style="width: 100%; margin-top: 20px;">
+  		<tr>
+  			<td colspan="20">&nbsp;</td>
+  			<td colspan="10">Bank Name</td>
+  			<td colspan="10">${salesorder.custbody_c4c_bank_account.custrecord_c4c_bank_name}</td>
+       	</tr>
+       	<tr>
+	      	<td colspan="20">&nbsp;</td>
+	      	<td colspan="10">IBAN Number</td>
+	     	<td colspan="10">${salesorder.custbody_c4c_bank_account.custrecord_c4c_ba_iban}</td>
+     	</tr>
+     	<tr>
+	      	<td colspan="20">&nbsp;</td>
+	      	<td colspan="10">Branch Identifier Code</td>
+	    	<td colspan="10">(BIC) ${salesorder.custbody_c4c_bank_account.custrecord_c4c_branch_identifier_code}</td>
+      	</tr>
+     	<tr>
+	     	<td colspan="20">&nbsp;</td>
+	     	<td colspan="10">Sort Code</td>
+	       	<td colspan="10">${salesorder.custbody_c4c_bank_account.custrecord_c4c_ba_sort_code}</td>
+     	</tr>
+       	<tr>
+	        <td colspan="20">&nbsp;</td>
+	        <td colspan="10">Account Number</td>
+	       	<td colspan="10">${salesorder.custbody_c4c_bank_account.custrecord_c4c_ba_account_number}</td>
+     	</tr>
+    	<tr>
+	        <td colspan="20">&nbsp;</td>
+	        <td colspan="10">Account Name</td>
+	  		<td colspan="10">${salesorder.custbody_c4c_bank_account.name}</td>
+        </tr>
+       	<tr style="margin-top: 20px;">
+	      	<td colspan="40">Please make all payments in ${salesorder.currency.symbol}, and NET of all charges. (please pay all bank charges). <b>Also please reference your company name.</b></td>
+      	</tr>
+	</table>
+	
+	<hr/> <!-- Horizontal line -->
+	
+	<#if record.package?has_content>
+		<#list record.package as package>
+			<!-- Increment totalPackages by 1 -->
+			<#assign totalPackages += 1>
+			<!-- Add the package weight to the totalWeight variable -->
+			<#assign totalWeight += package.packageweight>
+		</#list>
+	</#if>
+	
+	<table class="footer" style="width: 100%; margin-top: 20px;">
+  		<tr>
+  			<td colspan="8">Terms of Delivery</td>
+  			<td colspan="4"><b>TODO</b></td>
+  			<td colspan="4">&nbsp;</td>
+  			<td colspan="8">Total Units</td>
+  			<td colspan="4" align="right">${totalUnits?string["0"]}</td>
+  			<td colspan="4">&nbsp;</td>
+  			<td colspan="8">Net</td>
+  			<td colspan="4" align="right">${netTotal}</td>
+  		</tr>
+  		<tr style="margin-top: 10px;">
+  			<td colspan="8">Type of Goods</td>
+  			<td colspan="4"><b>TODO</b></td>
+  			<td colspan="4">&nbsp;</td>
+  			<td colspan="8">Total Packages</td>
+  			<td colspan="4" align="right">${totalPackages?string["0"]}</td>
+  			<td colspan="4">&nbsp;</td>
+  			<td colspan="8">VAT</td>
+  			<td colspan="4" align="right">${taxTotal}</td>
+  		</tr>
+  		<tr style="margin-top: 10px;">
+  			<td colspan="8">Symbol</td>
+  			<td colspan="4">${salesorder.currency.symbol}</td>
+  			<td colspan="4">&nbsp;</td>
+  			<td colspan="8">Weight in KG</td>
+  			<td colspan="4" align="right">${totalWeight}</td>
+  			<td colspan="4">&nbsp;</td>
+  			<td colspan="8">Invoice Total</td>
+  			<td colspan="4" align="right">${netTotal + taxTotal}</td>
+  		</tr>
+  		<tr style="margin-top: 10px;">
+  			<td colspan="36">VAT No ${subsidiary.federalidnumber}</td>
+  		</tr>
+  		<tr style="margin-top: 5px;">
+  			<td colspan="36">These goods are subject to a retention of title clause, under section 15, Title and Risk in your Terms and Conditions.</td>
+  		</tr>
+  	</table>
+  	
+  	<table class="signatureBoxes" style="width: 100%; margin-top: 20px;">
+  		<tr>
+  			<td>Name (Capitals)</td>
+  			<td>Position (Capitals)</td>
+  			<td>Signature</td>
+  		</tr>
+  	</table>
+
+</body>
+</pdf>
