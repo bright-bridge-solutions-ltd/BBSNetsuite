@@ -1,0 +1,266 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+
+  	<!--Settings-->
+  	<#setting time_zone = "GMT">
+    
+    <!--Set the VAT number to its default value-->
+    <#assign vatNumber = "GB 407 3111 96">
+
+    <!--Use the VAT number from the location if it has one-->
+    <#if record.location.custrecord_bbs_vat_number?length gt 0>
+		<#assign vatNumber = record.location.custrecord_bbs_vat_number>
+    </#if>
+
+  	<!--Set the EORI to blank-->
+  	<#assign eoriNumber = "">
+
+    <!--Use the EORI from the location if it has one-->
+    <#if eoriNumber == "" && record.location.custrecord_bbs_location_eori_number?length gt 0>
+		<#assign eoriNumber = record.location.custrecord_bbs_location_eori_number>
+    </#if>
+
+	<!--Set company billing address-->
+    <#assign billAddress = record.address>
+    
+    <!--Add on additional fields to the address; cust number, vat number & eori number-->
+    <#assign billAddress += "<br/>">
+    <#if record.entity.entityid?index_of(" : ") gt 0>
+      <#assign billAddress += "<br/>Supp ID: " + record.entity.entityid?keep_after(" : ")>
+    <#else>         
+    	<#assign billAddress += "<br/>Supp ID: " + record.entity.entityid>
+    </#if>
+    <#assign billAddress += "<br/>VAT No: "  + record.entity.vatregnumber>
+       
+    <macrolist>
+		<macro id="nlheader">
+			<table class="header" style="width: 100%;">
+				<tr>
+					<td align="left" colspan="2"><img src="${subsidiary.logo@url}" style="width: 300px; height: 52px;" /></td>
+					<td align="left" style="font-size: 7pt; padding-left: 40px;"><b>${subsidiary.mainaddress_text}</b></td>
+                  	<td align="left" style="font-size: 7pt; padding-left: 10px;"><b>T: +44 (0)208 676 9990<br/>F: +44 (0)208 676 7520<br/>E: sales@oxgroup.co.uk<br/>W: www.oxtools.com<#if eoriNumber != ""><br/>EORI: ${eoriNumber}</#if></b></td>
+				</tr>
+			</table>
+
+			<table class="header" style="width: 100%; margin-top: 10px;">
+				<tr>
+					<td align="left" style="font-size: 8pt; border-left: 1px solid black; border-top: 1px solid black; padding: 5px;"><b>Supplier Name &amp; Address</b></td>
+					<td align="left" style="font-size: 8pt; border-top: 1px solid black;"></td>
+					<td align="left" style="font-size: 8pt; border-right: 1px solid black; border-top: 1px solid black; padding: 5px;">&nbsp;</td>
+					<td align="center" style="font-size: 8pt; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; padding: 5px; margin-left: 3px;"><b>SUPPLIER PAYMENT</b></td>
+              	</tr>
+				<tr>
+					<td align="left" rowspan="6" colspan="2" style="font-size: 8pt; border-left: 1px solid black; border-bottom: 1px solid black; padding: 5px;">${billAddress}</td>
+					<td align="left" rowspan="6" style="font-size: 8pt; border-bottom: 1px solid black; border-right: 1px solid black; padding: 5px;">&nbsp;</td>
+					<td align="left" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>FAO:</b></td><td align="right" style="font-size: 7pt;">${record.entity.contact}</td></tr></table></td>
+              	</tr>
+				<tr>
+					<td align="left" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Payment Date:</b></td><td align="right" style="font-size: 7pt;">${record.trandate}</td></tr></table></td>
+              	</tr>
+				<tr>
+					<td align="left" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Payment No:</b></td><td align="right" style="font-size: 7pt;">${record.tranid}</td></tr></table></td>
+              	</tr>
+				<tr>
+					<td align="left" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Currency:</b></td><td align="right" style="font-size: 7pt;">${record.currency}</td></tr></table></td>
+              	</tr>
+				<tr>
+					<td align="left" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;">&nbsp;</td><td align="right" style="font-size: 7pt;">&nbsp;</td></tr></table></td>
+              	</tr>
+				<tr>
+					<td align="left" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; padding: 5px; margin-left: 3px;">&nbsp;</td>
+              	</tr>
+			</table>
+
+
+		</macro>
+      
+      	<macro id="nlfooter">
+            <table class="footer" style="width: 100%;">
+				<tr style="margin-top: 3px;">
+					<td align="left" >VAT Registration No: ${vatNumber}</td>
+                  	<td align="right">Printed: ${.now?string.full}</td>
+              	</tr>
+              	<tr>
+					<td align="left">Company Reg No: 7697065</td>
+                  	<td align="right">Page <pagenumber/> of <totalpages/></td>
+              	</tr>
+			</table>
+		</macro>
+    </macrolist>
+  
+	<style type="text/css">
+      table {
+            font-family: sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: left;
+            padding: 5px 6px 3px;
+            text-align: left;
+            
+        }
+        td {
+            padding: 4px 6px;
+          
+        }
+        b {
+            font-weight: bold;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 5px;
+            padding-top: 5px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+      
+      th.itemlist {
+            background-color: #000000;            
+            font-weight: bold;
+            color: #FFFFFF;
+      }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+            background-color: #000000;            
+            font-weight: bold;
+            color: #FFFFFF;
+        }
+        td.address {
+            padding-top: 0px;
+          border: 1px solid black;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+      td.bodyinfo {
+        text-align: left;
+        border: 1px solid black;
+      }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+  
+<body header="nlheader" header-height="280px" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+<#if record.apply?has_content>
+  <table style="width: 100%;">
+      <#list record.apply as apply>
+        <#if apply_index==0>
+          <thead>
+              <tr>
+              <th align="right" colspan="3"  style="font-size: 7pt; border-left: 1px solid black; border-bottom: 1px solid black; border-top: 1px solid black;" >${apply.applydate@label}</th>
+              <th align="left"  colspan="5"  style="font-size: 7pt; border-bottom: 1px solid black; border-top: 1px solid black;" >${apply.type@label}</th>
+              <th align="left"  colspan="3" style="font-size: 7pt; border-bottom: 1px solid black; border-top: 1px solid black;" >${apply.total@label}</th>
+              <th align="right" colspan="3"  style="font-size: 7pt; border-bottom: 1px solid black; border-top: 1px solid black;" >${apply.due@label}</th>
+              <th align="right" colspan="4"  style="font-size: 7pt; border-bottom: 1px solid black; border-top: 1px solid black;" >${apply.disc@label}</th>
+              <th align="right" colspan="4"  style="font-size: 7pt; border-right: 1px solid black; border-bottom: 1px solid black; border-top: 1px solid black;" >${apply.amount@label}</th>
+              </tr>
+          </thead>
+        </#if>
+
+        <tr>
+          <td align="right"  colspan="3"  style="font-size: 7pt;" >${apply.applydate}</td>
+          <td align="left"   colspan="5"  style="font-size: 7pt;" >${apply.type}</td>
+          <td align="left"   colspan="3"  style="font-size: 7pt;" >${apply.total}</td>
+          <td align="right"  colspan="3"  style="font-size: 7pt;" >${apply.due}</td>
+          <td align="right"  colspan="4"  style="font-size: 7pt;" >${apply.disc}</td>
+          <td align="right"  colspan="4"  style="font-size: 7pt;" >${apply.amount}</td>
+        </tr>
+      </#list>
+  </table>
+</#if>
+  
+<#if record.credit?has_content>
+        <#list record.credit as credit>
+        <#if apply_index==0>
+          <thead>
+              <tr>
+              <th align="right" colspan="3"  style="font-size: 7pt; border-left: 1px solid black; border-bottom: 1px solid black; border-top: 1px solid black;" >${credit.creditdate@label}</th>
+              <th align="left"  colspan="5"  style="font-size: 7pt; border-bottom: 1px solid black; border-top: 1px solid black;" >${credit.type@label}</th>
+              <th align="left"  colspan="3" style="font-size: 7pt; border-bottom: 1px solid black; border-top: 1px solid black;" >${credit.refnum@label}</th>
+              <th align="right" colspan="6"  style="font-size: 7pt; border-bottom: 1px solid black; border-top: 1px solid black;" >${credit.appliedto@label}</th>
+              <th align="right" colspan="4"  style="font-size: 7pt; border-right: 1px solid black; border-bottom: 1px solid black; border-top: 1px solid black;" >${credit.amount@label}</th>
+              </tr>
+          </thead>
+        </#if>
+
+        <tr>
+          <td align="right"  colspan="3"  style="font-size: 7pt;" >${credit.creditdate}</td>
+          <td align="left"   colspan="5"  style="font-size: 7pt;" >${credit.type}</td>
+          <td align="left"   colspan="3"  style="font-size: 7pt;" >${credit.refnum}</td>
+          <td align="right"  colspan="6"  style="font-size: 7pt;" >${credit.appliedto}</td>
+          <td align="right"  colspan="4"  style="font-size: 7pt;" >${credit.amount}</td>
+        </tr>
+      </#list>
+  </table>
+</#if>
+
+	<div style="page-break-inside: avoid;">
+      <table style="width: 100%; margin-top: 10px;">
+          <tr>
+              <td colspan="16" align="left"  style="font-size: 7pt;">&nbsp;</td>
+              <td colspan="2"  align="left"  style="font-size: 7pt; border-left: 1px solid black; border-top: 1px solid black;"><b>Total:</b></td>
+              <td colspan="2"  align="right" style="font-size: 7pt; border-right: 1px solid black; border-top: 1px solid black;">${record.total}</td>
+          </tr>
+          <tr>
+              <td colspan="16"  align="left"  style="font-size: 7pt;">&nbsp;</td>
+              <td colspan="2"  align="left"  style="font-size: 7pt; border-left: 1px solid black;">&nbsp;</td>
+              <td colspan="2"  align="right" style="font-size: 7pt; border-right: 1px solid black;">&nbsp;</td>
+          </tr>
+          <tr>
+              <td colspan="16" align="left"  style="font-size: 7pt;">&nbsp;</td>
+              <td colspan="4"  align="center" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.currency}</td>
+          </tr>
+
+      </table>
+  
+    </div>
+</body>
+</pdf>

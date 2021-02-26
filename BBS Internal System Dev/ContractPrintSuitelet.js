@@ -430,8 +430,8 @@ function buildReport(selectedContract)
 					xml += '                        <td align="left"  colspan="9"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">' + lineDescription + '</td>';
 					xml += '                        <td align="left"  colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">' + lineStartDate + '</td>';
 					xml += '                        <td align="left"  colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">' + lineEndDate + '</td>';
-					xml += '                        <td align="right" colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">' + currencySymbol + lineAnnualValue.numberFormat('#,##0.00') + '</td>';
-					xml += '                        <td align="right" colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">' + currencySymbol + lineProrataValue.numberFormat('#,##0.00') + '</td>';
+					xml += '                        <td align="right" colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF;">' + currencySymbol + lineProrataValue.numberFormat('#,##0.00') + '</td>';
+					xml += '                        <td align="right" colspan="3"  style="padding: 5px 5px 5px 5px; border-left: 1px solid #6EBBFF; border-bottom: 1px solid #6EBBFF; border-right: 1px solid #6EBBFF;">' + currencySymbol + lineAnnualValue.numberFormat('#,##0.00') + '</td>';
 					xml += '                    </tr>';
 
 					//Search for line detail items
