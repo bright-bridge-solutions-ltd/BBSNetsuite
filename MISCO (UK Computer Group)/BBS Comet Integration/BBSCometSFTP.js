@@ -340,7 +340,8 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				//		var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.Supplier;
 																						var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.SupplierExportId;
 																						var linePoNumber			= output.Order.OrderLines[int2].ProductLine.PurchaseOrderNumber;
-																						var linePoPrice 			= output.Order.OrderLines[int2].ProductLine.Price;
+																				//		var linePoPrice 			= output.Order.OrderLines[int2].ProductLine.Price;
+																						var linePoPrice 			= output.Order.OrderLines[int2].ProductLine.CalculatedInprice;
 																						var lineSalesRate 			= output.Order.OrderLines[int2].ProductLine.SalesPrice.ExclusiveVAT;
 																						var lineSalesAmount 		= output.Order.OrderLines[int2].ProductLine.TotalPrice.ExclusiveVAT;
 																						
@@ -912,7 +913,8 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				//		var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.Supplier;
 																						var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.SupplierExportId;
 																						var linePoNumber			= output.Order.OrderLines[int2].ProductLine.PurchaseOrderNumber;
-																						var linePoPrice 			= output.Order.OrderLines[int2].ProductLine.Price;
+																				//		var linePoPrice 			= output.Order.OrderLines[int2].ProductLine.Price;
+																						var linePoPrice 			= output.Order.OrderLines[int2].ProductLine.CalculatedInprice;
 																						var lineSalesRate 			= output.Order.OrderLines[int2].ProductLine.SalesPrice.ExclusiveVAT;
 																						var lineSalesAmount 		= output.Order.OrderLines[int2].ProductLine.TotalPrice.ExclusiveVAT;
 																						

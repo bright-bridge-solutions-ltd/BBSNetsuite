@@ -57,9 +57,11 @@ function(record, search, xml, config, https, encode, BBSObjects, secret, oauth, 
 			
 					//Construct the body of the call
 					//
-					var bodyObj 				= {};
-					bodyObj['output_format']	= 'png';
-					bodyObj['text']				= _htmlText;
+					var bodyObj 					= {};
+					bodyObj['output_format']		= 'png';
+					bodyObj['screenshot_width']		= '420';
+					bodyObj['screenshot_height']	= '420';
+					bodyObj['text']					= _htmlText;
 					
 					//Attempt the call to the api
 					//
