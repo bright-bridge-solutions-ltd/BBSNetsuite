@@ -50,9 +50,6 @@
   		<#assign regInfo>Registered Office: Onfido GmbH, Innere KanalstraBe 15, 50823, Koln, Germany</#assign>
     </#if>
   
-  
-
-  
     <macrolist>
         <macro id="nlheader">
 			<table class="header" style="width: 100%;">
@@ -313,6 +310,17 @@
 		</tr>
 	</table>
 </#if>
+
+<table class="header" style="width: 100%; margin-top: 20px; page-break-inside: avoid;">
+	<tr>
+		<td colspan="4">Reason for Credit Note:</td>
+		<td colspan="12">${record.memo}</td>
+	</tr>
+	<tr>
+		<td colspan="4">Applied to:</td>
+		<td colspan="12">${record.createdfrom?keep_after("#")} ${record.createdfrom.trandate}</td>
+	</tr>
+</table>
   
 </body>
 </pdf>

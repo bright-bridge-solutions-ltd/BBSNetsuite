@@ -21,7 +21,7 @@
         <macro id="nlheader">
             <table class="header" style="width: 100%;">
             	<tr>
-					<td rowspan="3"><#if subsidiary.logo?length != 0><img src="${subsidiary.logo@url}" style="float: left; margin: 7px; width:200px; height:100px;"/> </#if></td>
+					<td rowspan="3"><#if subsidiary.logo?length != 0><img src="${subsidiary.logo@url}" style="float: left; margin: 7px; width:175px; height:100px;"/> </#if></td>
 					<td align="right"><p align="right"><span class="title"><b><u>STATEMENT</u></b></span></p><p align="right"><span class="subtitle">${subsidiary.legalname}<br/>${subsidiary.addr1}<br/>${subsidiary.addr2}<br/>${subsidiary.city}<br/>${subsidiary.state}<br/>${subsidiary.zip}<br/>${subsidiary.country}</span></p></td>
 				</tr>
 			</table>
@@ -29,7 +29,7 @@
 				<tr>
 					<td colspan="24" rowspan="8">${customer.companyname}<br/>${customer.billaddr1}<#if customer.billaddr2?has_content><br/>${customer.billaddr2}</#if><br/>${customer.billcity}<br/>${customer.billstate}<br/>${customer.billzip}<br/>${customer.billcountry}</td>
 					<td colspan="4"><br/><br/><br/><p align="left">Customer Ref</p><p align="left">Date</p></td>
-					<td colspan="4"><br/><br/><br/><p align="right">${customer.accountnumber}</p><p align="right">${statement.trandate}</p><p align="right"><span style="font-size: 8pt;">Page <pagenumber/> of <totalpages/></span></p></td>
+					<td colspan="4"><br/><br/><br/><p align="right">${customer.accountnumber}</p><p align="right">${statement.trandate}</p></td>
 				</tr>
 			</table>
         </macro>
@@ -62,10 +62,11 @@
 					<td align="right">${statement.agingbal}</td>
 				</tr>
 			</table>
-			<table style="width: 100%; margin-top: 20px;">
+			<table class="footer" style="width: 100%; margin-top: 20px;">
 				<tr>
-					<td><span style="font-size: 8pt;">Company Registration Number ${subsidiary.custrecord_c4c_company_reg}</span></td>
-					<td align="right"><span style="font-size: 8pt;">VAT Registration Number ${subsidiary.federalidnumber}</span></td>
+					<td colspan="2">Company Registration Number ${subsidiary.custrecord_c4c_company_reg}</td>
+					<td colspan="2" align="center">VAT Registration Number ${subsidiary.federalidnumber}</td>
+					<td align="right">Page <pagenumber/> of <totalpages/></td>
 				</tr>
 			</table>
         </macro>
@@ -112,7 +113,7 @@
         }
         table.footer td {
             padding: 0px;
-            font-size: 10pt;
+            font-size: 8pt;
         }
         table.itemtable th {
             padding-bottom: 10px;
