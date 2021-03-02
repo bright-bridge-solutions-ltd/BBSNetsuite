@@ -61,6 +61,7 @@ function(record, search, xml, config, https, encode, BBSObjects, secret, oauth, 
 					bodyObj['output_format']		= 'png';
 					bodyObj['screenshot_width']		= '420';
 					bodyObj['screenshot_height']	= '420';
+					bodyObj['scale_factor']			= '200';
 					bodyObj['text']					= _htmlText;
 					
 					//Attempt the call to the api
@@ -315,7 +316,8 @@ function(record, search, xml, config, https, encode, BBSObjects, secret, oauth, 
 																	      search.createColumn({name: "custrecord_bbs_config_password", label: "Password / API Key"}),
 																	      search.createColumn({name: "custrecord_bbs_config_carrier", label: "Primary Carrier/Integrator"}),
 																	      search.createColumn({name: "custrecord_bbs_config_username", label: "User Name"}),
-																	      search.createColumn({name: "custrecord_bbs_config_url", label: "URL"})
+																	      search.createColumn({name: "custrecord_bbs_config_url", label: "URL"}),
+																	      search.createColumn({name: "custrecord_bbs_config_use_image_convert", label: "Use Image Converter"})
 																	   ]
 																	}));
 			
@@ -329,8 +331,9 @@ function(record, search, xml, config, https, encode, BBSObjects, secret, oauth, 
 					var configMinor 		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_minor"});
 					var configIntermediate 	= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_intermediate"});
 					var configLabelFormat	= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_label_format"});
-				
-					carrierConfig = new BBSObjects.carrierConfiguration(configCarrier, configUser, configPassword, configUrl, configMajor, configMinor, configIntermediate, configLabelFormat);
+					var configImageConvert	= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_use_image_convert"});
+					
+					carrierConfig = new BBSObjects.carrierConfiguration(configCarrier, configUser, configPassword, configUrl, configMajor, configMinor, configIntermediate, configLabelFormat, configImageConvert);
 				}
 			
 			return carrierConfig;

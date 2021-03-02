@@ -68,7 +68,7 @@ function salesInvoiceAS(type)
 					var q2End = new Date(invoiceYear, 5, 30);	//30th Jun
 					
 					var q3Start = new Date(invoiceYear, 6, 1);	//1st Jul
-					var q3End = new Date(invoiceYear, 8, 31);	//31st Sep
+					var q3End = new Date(invoiceYear, 8, 30);	//30th Sep
 					
 					var q4Start = new Date(invoiceYear, 9, 1);	//1st Oct
 					var q4End = new Date(invoiceYear, 11, 31);	//31st Dec

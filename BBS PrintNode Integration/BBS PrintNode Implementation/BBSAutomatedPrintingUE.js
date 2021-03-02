@@ -3,13 +3,13 @@
  * @NScriptType UserEventScript
  * @NModuleScope Public
  */
-define(['N/https', 'N/record', 'N/search', 'N/plugin', 'N/render', 'N/file', 'N/encode'],
+define(['N/https', 'N/record', 'N/search', 'N/plugin', 'N/render', 'N/file', 'N/encode', 'N/runtime'],
 /**
  * @param {https} https
  * @param {record} record
  * @param {search} search
  */
-function(https, record, search, plugin, render, file, encode) 
+function(https, record, search, plugin, render, file, encode, runtime) 
 {
     /**
      * Function definition to be triggered before record is loaded.
@@ -25,7 +25,7 @@ function(https, record, search, plugin, render, file, encode)
     		//
     		//Function to automatically print IF documents (packing slip & carrier labels) via printnode
     		//
-    		if(scriptContext.type == 'edit')
+    		if(scriptContext.type == 'edit' || scriptContext.type == 'pack')
     			{
     				var oldRecord 			= scriptContext.oldRecord;
     				var newRecord 			= scriptContext.newRecord;
@@ -33,6 +33,24 @@ function(https, record, search, plugin, render, file, encode)
     				var newShippingStatus 	= newRecord.getValue({fieldId: 'shipstatus'});							// A=Picked, B=Packed, C=Shipped
     				var packingStation	 	= newRecord.getValue({fieldId: 'custbody_bbs_printnode_workstation'});		
     				var recordId			= newRecord.id;
+    				
+    				//Get the current user
+    				//
+    				var currentUser			= runtime.getCurrentUser().id;
+    				
+    				//See if the current user has a printnode workstation assigned
+    				//
+    				var userWorkstation	=	search.lookupFields({
+						    									type:		search.Type.EMPLOYEE,
+						    									id:			currentUser,
+						    									columns:	'custentity_bbs_default_workstation'
+						    									}).custentity_bbs_default_workstation;		
+    				
+    				userWorkstation = (userWorkstation.length > 0 ? userWorkstation[0].value : null);
+    				
+    				//If the packing station from the IF is empty then try and use the default printnode workstation from the employee record
+    				//
+    				packingStation = (packingStation == null || packingStation == '' ? userWorkstation : packingStation);
     				
     				//Has the IF changed from picked to packed?
     				//

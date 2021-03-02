@@ -310,15 +310,26 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 												labelHtmlArray[arrayElement] = splitter + labelHtmlArray[arrayElement];
 											}
 									
-										//Now convert the html to the required label format by calling pdfcrowd
+										//Now convert the html to the required label format by calling pdfcrowd if the "use image converter" flag is set
 										//
 										for (var arrayElement = 0; arrayElement < labelHtmlArray.length; arrayElement++) 
 											{
-												var pngImage = BBSCommon.convertHtmlToPng(labelHtmlArray[arrayElement]);
-												
-												if(pngImage != null)
+												if(_processShipmentRequest.configuration.imageConvert)
 													{
-														labelsArray.push(pngImage);
+														//Convert html image to png
+														//
+														var pngImage = BBSCommon.convertHtmlToPng(labelHtmlArray[arrayElement]);
+														
+														if(pngImage != null)
+															{
+																labelsArray.push(pngImage);
+															}
+													}
+												else
+													{
+														//Otherwise, just put the html data into the labels array
+														//
+														labelsArray.push(labelHtmlArray[arrayElement]);
 													}
 											}
 										
