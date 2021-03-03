@@ -213,7 +213,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				var headerBillAddress1 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.Address1');
 																				var headerBillAddress2 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.Address2');
 																				var headerBillCity 		= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.City');
-																				var headerBillCounty 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.County');
+																				var headerBillCounty 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.County').substr(0,30);
 																				var headerBillPostCode 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.Zip');
 																				var headerBillCountry 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.Country');
 																				var headerShipAdressee 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.AddressName');
@@ -221,7 +221,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				var headerShipAddress1 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.Address1');
 																				var headerShipAddress2 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.Address2');
 																				var headerShipCity 		= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.City');
-																				var headerShipCounty 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.County');
+																				var headerShipCounty 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.County').substr(0,30);
 																				var headerShipPostCode 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.Zip');
 																				var headerShipCountry 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.Country');
 																				var headerShipTotal		= getDataElement(output, 'output.Order.OrderHeader.ShippingTotal.ExclusiveVAT');
@@ -310,24 +310,24 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				//Shipping Address
 																				//
 																				var shippingSubrecord = salesOrderRecord.getSubrecord({fieldId: 'shippingaddress'});
-																				shippingSubrecord.setValue({fieldId: 'addr1', value: headerShipAddress1});
-																				shippingSubrecord.setValue({fieldId: 'addr2', value: headerShipAddress2});
-																				shippingSubrecord.setValue({fieldId: 'city', value: headerShipCity});
-																				shippingSubrecord.setValue({fieldId: 'state', value: headerShipCounty});
-																				shippingSubrecord.setValue({fieldId: 'zip', value: headerShipPostCode});
-																				shippingSubrecord.setValue({fieldId: 'adressee', value: headerShipCompany});
-																				shippingSubrecord.setValue({fieldId: 'attention', value: headerShipAdressee});
+																				shippingSubrecord.setValue({fieldId: 'addr1', 		value: headerShipAddress1});
+																				shippingSubrecord.setValue({fieldId: 'addr2', 		value: headerShipAddress2});
+																				shippingSubrecord.setValue({fieldId: 'city', 		value: headerShipCity});
+																				shippingSubrecord.setValue({fieldId: 'state', 		value: headerShipCounty});
+																				shippingSubrecord.setValue({fieldId: 'zip',    		value: headerShipPostCode});
+																				shippingSubrecord.setValue({fieldId: 'adressee', 	value: headerShipCompany});
+																				shippingSubrecord.setValue({fieldId: 'attention', 	value: headerShipAdressee});
 																				
 																				//Billing Address
 																				//
 																				var billingSubrecord = salesOrderRecord.getSubrecord({fieldId: 'billingaddress'});
-																				billingSubrecord.setValue({fieldId: 'addr1', value: headerBillAddress1});
-																				billingSubrecord.setValue({fieldId: 'addr2', value: headerBillAddress2});
-																				billingSubrecord.setValue({fieldId: 'city', value: headerBillCity});
-																				billingSubrecord.setValue({fieldId: 'state', value: headerBillCounty});
-																				billingSubrecord.setValue({fieldId: 'zip', value: headerBillPostCode});
-																				billingSubrecord.setValue({fieldId: 'adressee', value: headerBillCompany});
-																				billingSubrecord.setValue({fieldId: 'attention', value: headerBillAdressee});
+																				billingSubrecord.setValue({fieldId: 'addr1', 		value: headerBillAddress1});
+																				billingSubrecord.setValue({fieldId: 'addr2', 		value: headerBillAddress2});
+																				billingSubrecord.setValue({fieldId: 'city', 		value: headerBillCity});
+																				billingSubrecord.setValue({fieldId: 'state', 		value: headerBillCounty});
+																				billingSubrecord.setValue({fieldId: 'zip', 			value: headerBillPostCode});
+																				billingSubrecord.setValue({fieldId: 'adressee', 	value: headerBillCompany});
+																				billingSubrecord.setValue({fieldId: 'attention', 	value: headerBillAdressee});
 																				
 																				//Line Processing
 																				//
@@ -786,7 +786,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				var headerBillAddress1 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.Address1');
 																				var headerBillAddress2 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.Address2');
 																				var headerBillCity 		= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.City');
-																				var headerBillCounty 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.County');
+																				var headerBillCounty 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.County').substr(0,30);
 																				var headerBillPostCode 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.Zip');
 																				var headerBillCountry 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.BillToAddress.Country');
 																				var headerShipAdressee 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.AddressName');
@@ -794,7 +794,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				var headerShipAddress1 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.Address1');
 																				var headerShipAddress2 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.Address2');
 																				var headerShipCity 		= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.City');
-																				var headerShipCounty 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.County');
+																				var headerShipCounty 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.County').substr(0,30);
 																				var headerShipPostCode 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.Zip');
 																				var headerShipCountry 	= getDataElement(output, 'output.Order.OrderHeader.AddressingInformation.ShipToAddress.Country');
 																				var headerShipTotal		= getDataElement(output, 'output.Order.OrderHeader.ShippingTotal.ExclusiveVAT');
@@ -883,24 +883,24 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				//Shipping Address
 																				//
 																				var shippingSubrecord = salesOrderRecord.getSubrecord({fieldId: 'shippingaddress'});
-																				shippingSubrecord.setValue({fieldId: 'addr1', value: headerShipAddress1});
-																				shippingSubrecord.setValue({fieldId: 'addr2', value: headerShipAddress2});
-																				shippingSubrecord.setValue({fieldId: 'city', value: headerShipCity});
-																				shippingSubrecord.setValue({fieldId: 'state', value: headerShipCounty});
-																				shippingSubrecord.setValue({fieldId: 'zip', value: headerShipPostCode});
-																				shippingSubrecord.setValue({fieldId: 'adressee', value: headerShipCompany});
-																				shippingSubrecord.setValue({fieldId: 'attention', value: headerShipAdressee});
+																				shippingSubrecord.setValue({fieldId: 'addr1', 		value: headerShipAddress1});
+																				shippingSubrecord.setValue({fieldId: 'addr2', 		value: headerShipAddress2});
+																				shippingSubrecord.setValue({fieldId: 'city', 		value: headerShipCity});
+																				shippingSubrecord.setValue({fieldId: 'state', 		value: headerShipCounty});
+																				shippingSubrecord.setValue({fieldId: 'zip', 		value: headerShipPostCode});
+																				shippingSubrecord.setValue({fieldId: 'adressee', 	value: headerShipCompany});
+																				shippingSubrecord.setValue({fieldId: 'attention', 	value: headerShipAdressee});
 																				
 																				//Billing Address
 																				//
 																				var billingSubrecord = salesOrderRecord.getSubrecord({fieldId: 'billingaddress'});
-																				billingSubrecord.setValue({fieldId: 'addr1', value: headerBillAddress1});
-																				billingSubrecord.setValue({fieldId: 'addr2', value: headerBillAddress2});
-																				billingSubrecord.setValue({fieldId: 'city', value: headerBillCity});
-																				billingSubrecord.setValue({fieldId: 'state', value: headerBillCounty});
-																				billingSubrecord.setValue({fieldId: 'zip', value: headerBillPostCode});
-																				billingSubrecord.setValue({fieldId: 'adressee', value: headerBillCompany});
-																				billingSubrecord.setValue({fieldId: 'attention', value: headerBillAdressee});
+																				billingSubrecord.setValue({fieldId: 'addr1', 		value: headerBillAddress1});
+																				billingSubrecord.setValue({fieldId: 'addr2', 		value: headerBillAddress2});
+																				billingSubrecord.setValue({fieldId: 'city', 		value: headerBillCity});
+																				billingSubrecord.setValue({fieldId: 'state', 		value: headerBillCounty});
+																				billingSubrecord.setValue({fieldId: 'zip', 			value: headerBillPostCode});
+																				billingSubrecord.setValue({fieldId: 'adressee', 	value: headerBillCompany});
+																				billingSubrecord.setValue({fieldId: 'attention', 	value: headerBillAdressee});
 																				
 																				//Line Processing
 																				//
