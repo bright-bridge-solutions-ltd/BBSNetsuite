@@ -29,16 +29,6 @@ function(search, sftp, file, format, record, runtime) {
      * @Since 2015.2
      */
     function beforeSubmit(scriptContext) {
-    	
-    	// check the PO is a special order
-    	if (scriptContext.type == scriptContext.UserEventType.SPECIALORDER)
-    		{
-    			// set the status to 'Pending Receipt'
-    			scriptContext.newRecord.setValue({
-    				fieldId: 'orderstatus',
-					value: 'B' // B = Pending Receipt
-				});
-    		}
 
     }
 
@@ -80,6 +70,8 @@ function(search, sftp, file, format, record, runtime) {
 		    	var sftpPortNumber		= sftpDetails.portNumber;
 		    	var sftpOutDirectory	= sftpDetails.outDirectory;
 		    	var sftpInDirectory		= sftpDetails.inDirectory;
+		    	var sftpUnitsOfQuantity	= sftpDetails.unitsOfQuantity;
+		    	var sftpFinalDepot		= sftpDetails.finalDepot;
 		    			
 		    	// if we have SFTP details for this supplier
 		    	if (sftpEndpoint)
@@ -146,7 +138,7 @@ function(search, sftp, file, format, record, runtime) {
 				    					}).split('#').pop();
 				    									
 				    					// start off the CSV
-				    					var CSV = '"HEAD",,"UKFD","UKFD",' + poNumber + ',' + orderDate + ',' + requiredDate + ',,,,,,,,,,"UKFD Warehouse","Unit H1","Pilgrims Walk","Prologis Park","Coventry","CV6 4QG",,,,,,,,' + soNumber + '\r\n';
+				    					var CSV = '"HEAD",,"UKFD","UKFD",' + poNumber + ',' + orderDate + ',' + requiredDate + ',,,,,,,,,,"UKFD Warehouse","Unit H1","Pilgrims Walk","Prologis Park","Coventry","CV6 4QG",,,,,,,,' + soNumber + ',' + sftpFinalDepot + '\r\n';
 				    							
 				    					// get count of lines on the PO
 				    					var lineCount = currentRecord.getLineCount({
@@ -161,7 +153,7 @@ function(search, sftp, file, format, record, runtime) {
 				    								sublistId: 	'item',
 				    								fieldId: 	'item',
 				    								line: 		i
-				    							});
+				    							}).split(" : ").pop(); // just keep the child part no
 				    									
 				    							var productDescription = currentRecord.getSublistValue({
 				    								sublistId: 	'item',
@@ -176,7 +168,7 @@ function(search, sftp, file, format, record, runtime) {
 				    							});
 				    									
 				    							// add the line details to the CSV
-				    							CSV += "LINE" + ',' + (i+1) + ',,,,,' + productCode + ',,,,' + productDescription + ',,,,,,,,,,,,,,,' + quantityRequired + ',"M"\r\n';		    									
+				    							CSV += "LINE" + ',' + (i+1) + ',,,,,' + productCode + ',,,,' + productDescription + ',,,,,,,,,,,,,,,' + quantityRequired + ',' + sftpUnitsOfQuantity + '\r\n';		    									
 				    						}
 				    								
 				    					// add a 'RECON' line to the CSV
@@ -280,10 +272,12 @@ function(search, sftp, file, format, record, runtime) {
     	var portNumber		= null;
     	var outDirectory	= null;
     	var inDirectory		= null;
+    	var unitsOfQuantity	= null;
+    	var finalDepot		= null;
     	
     	// search for Supplier SFTP Detail records
     	search.create({
-    		type: 'customrecord_bbs_supplier_sftp',
+    		type: 'customrecord_bbs_sftp',
     		
     		filters: [{
     			name: 'isinactive',
@@ -291,81 +285,96 @@ function(search, sftp, file, format, record, runtime) {
     			values: ['F']
     		},
     				{
-    			name: 'custrecord_bbs_supplier_sftp_supplier',
+    			name: 'custrecord_bbs_sftp_supplier',
     			operator: search.Operator.ANYOF,
     			values: [supplierID]
     		}],
     		
     		columns: [{
-    			name: 'custrecord_bbs_supplier_sftp_endpoint'
+    			name: 'custrecord_bbs_sftp_endpoint'
     		},
     				{
-    			name: 'custrecord_bbs_supplier_sftp_username'
+    			name: 'custrecord_bbs_sftp_username'
     		},
     				{
-    			name: 'custrecord_bbs_supplier_sftp_password'
+    			name: 'custrecord_bbs_sftp_password'
     		},
     				{
-    			name: 'custrecord_bbs_supplier_sftp_host_key'
+    			name: 'custrecord_bbs_sftp_host_key'
     		},
     				{
-    			name: 'custrecord_bbs_supplier_sftp_port_number'
+    			name: 'custrecord_bbs_sftp_port_number'
     		},
     				{
-    			name: 'custrecord_bbs_supplier_sftp_out_folder'
+    			name: 'custrecord_bbs_sftp_outbound_directory'
     		},
     				{
-    			name: 'custrecord_bbs_supplier_sftp_in_folder'
+    			name: 'custrecord_bbs_sftp_inbound_directory'
+    		},
+    				{
+    			name: 'custrecord_bbs_sftp_units_of_quantity'
+    		},
+    				{
+    			name: 'custrecord_bbs_sftp_final_depot'
     		}],
     		
     	}).run().each(function(result){
     		
     		// get the SFTP details from the search result
     		endpoint = result.getValue({
-    			name: 'custrecord_bbs_supplier_sftp_endpoint'
+    			name: 'custrecord_bbs_sftp_endpoint'
     		});
     		
     		username = result.getValue({
-    			name: 'custrecord_bbs_supplier_sftp_username'
+    			name: 'custrecord_bbs_sftp_username'
     		});
     		
     		password = result.getValue({
-    			name: 'custrecord_bbs_supplier_sftp_password'
+    			name: 'custrecord_bbs_sftp_password'
     		});
     		
     		hostKey = result.getValue({
-    			name: 'custrecord_bbs_supplier_sftp_host_key'
+    			name: 'custrecord_bbs_sftp_host_key'
     		});
     		
     		portNumber = result.getValue({
-    			name: 'custrecord_bbs_supplier_sftp_port_number'
+    			name: 'custrecord_bbs_sftp_port_number'
     		});
     		
     		outDirectory = result.getValue({
-    			name: 'custrecord_bbs_supplier_sftp_out_folder'
+    			name: 'custrecord_bbs_sftp_outbound_directory'
     		});
     		
     		inDirectory = result.getValue({
-    			name: 'custrecord_bbs_supplier_sftp_in_folder'
+    			name: 'custrecord_bbs_sftp_inbound_directory'
+    		});
+    		
+    		unitsOfQuantity = result.getText({
+    			name: 'custrecord_bbs_sftp_units_of_quantity'
+    		});
+    		
+    		finalDepot = result.getValue({
+    			name: 'custrecord_bbs_sftp_final_depot'
     		});
     		
     	});
     	
     	// return values to the main script function
     	return {
-    		endpoint:		endpoint,
-    		username:		username,
-    		password:		password,
-    		hostKey:		hostKey,
-    		portNumber:		portNumber,
-    		outDirectory:	outDirectory,
-    		inDirectory:	inDirectory
+    		endpoint:			endpoint,
+    		username:			username,
+    		password:			password,
+    		hostKey:			hostKey,
+    		portNumber:			portNumber,
+    		outDirectory:		outDirectory,
+    		inDirectory:		inDirectory,
+    		unitsOfQuantity:	unitsOfQuantity,
+    		finalDepot:			finalDepot
     	}
     	
     }
 
     return {
-    	beforeSubmit: beforeSubmit,
         afterSubmit: afterSubmit
     };
     

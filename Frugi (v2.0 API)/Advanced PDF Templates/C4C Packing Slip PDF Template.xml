@@ -190,8 +190,15 @@
 			</table>
 		</#if>
 		
+		<!-- Check if we have any item lines to follow -->
+		<#list salesorder.item as tranline>
+			<#if tranline.quantityremaining gt 0>
+				<#assign backOrderedItems += 1>
+			</#if>
+		</#list>
+			
 		<!-- If we have any backorder items -->
-		<#if record.custbody_c4c_items_to_follow?length gt 0> 
+		<#if backOrderedItems gt 0> 
 			
 			<hr/>
 			
@@ -204,29 +211,26 @@
 				</tr>
 			</table>
 			
-			<#assign backorder_summary = record.custbody_c4c_items_to_follow?eval>
-  			<#if backorder_summary?has_content>
-  				<table class="itemtable" style="width: 100%; margin-top: 10px;">
-					<#list backorder_summary as item><!-- start items -->
-						<#if item_index==0>
-							<thead>
-								<tr>
-									<th colspan="6">Stock Code</th>
-									<th colspan="16">Product Description</th>
-									<th colspan="6" align="right">Qty</th>
-									<th colspan="2">&nbsp;</th>
-								</tr>
-							</thead>
-						</#if>
+			<table class="itemtable" style="width: 100%; margin-top: 10px;">
+				<thead>
+					<tr>
+						<th colspan="6">Stock Code</th>
+						<th colspan="16">Product Description</th>
+						<th colspan="6" align="right">Qty</th>
+						<th colspan="2">&nbsp;</th>
+					</tr>
+				</thead>
+				<#list salesorder.item as tranline> <!-- start items -->
+					<#if tranline.quantityremaining gt 0>
 						<tr>
-							<td colspan="6">${item.itemName}</td>
-							<td colspan="16">${item.description}</td>
-							<td colspan="6" align="right">${item.backorderQty?string["0"]}</td>
+							<td colspan="6">${tranline.item}</td>
+							<td colspan="16">${tranline.description}</td>
+							<td colspan="6" align="right">${tranline.quantityremaining?string["0"]}</td>
 							<td colspan="2">&nbsp;</td>
 						</tr>
-					</#list><!-- end items -->
-				</table>
-  			</#if>
+					</#if>
+				</#list> <!-- end items -->
+			</table>
 			
 		</#if>
 	
@@ -362,7 +366,7 @@
 	</head>
 	<body header="nlheader" header-height="0pt" footer="nlfooter" footer-height="0pt" padding="0.0in 0.0in 0.0in 0.0in" size="A4-LANDSCAPE">
 	
-		<img src="https://6932997-sb1.app.netsuite.com/core/media/media.nl?id=3576&amp;c=6932997_SB1&amp;h=_eiFMgFC8QJPGx8x5aP5xZfctRqL7OIWt_dso12uXm_NCwn7" style="width:1020px; height:750px;"></img>
+		<img src="https://6932997-sb1.app.netsuite.com/core/media/media.nl?id=3576&amp;c=6932997_SB1&amp;h=_eiFMgFC8QJPGx8x5aP5xZfctRqL7OIWt_dso12uXm_NCwn7" style="width:1050px; height:720px;"></img>
 	
 	</body>
 	</pdf>
@@ -438,16 +442,16 @@
 								</tr>
 							</table>
 						</td>
-						<td>
+						<td align="right">
 							<table style="width: 100%;">
 								<tr>
-									<td colspan="10"><b>PLEASE DELIVER TO:</b></td>
-									<td colspan="6"><b>RETURN TO:</b></td>
-									<td colspan="4" rowspan="5"><img src="https://6932997-sb1.app.netsuite.com/core/media/media.nl?id=3578&amp;c=6932997_SB1&amp;h=GLwP02--jSikfGVOOE09b8bH2Xz2MppNfHia4CVS4lDUDcBW" style="width:75px; height:50px;"></img></td>
+									<td colspan="10" style="margin-left: 20px; margin-top: 20px;"><b>PLEASE DELIVER TO:</b></td>
+									<td colspan="6" style="margin-left: 20px; margin-top: 20px;"><b>RETURN TO:</b></td>
+									<td colspan="4" rowspan="5" style="margin-top: 20px;" align="right"><img src="https://6932997-sb1.app.netsuite.com/core/media/media.nl?id=3578&amp;c=6932997_SB1&amp;h=GLwP02--jSikfGVOOE09b8bH2Xz2MppNfHia4CVS4lDUDcBW" style="width:75px; height:50px;"></img></td>
 								</tr>
 								<tr>
-									<td colspan="10"><span style="font-size: 8pt;">Frugi, ${subsidiary.addr2}, ${subsidiary.city}, ${subsidiary.state}, ${subsidiary.zip}</span></td>
-									<td colspan="6">${subsidiary.addr2}<br/>${subsidiary.city}, ${subsidiary.state}<br/>${subsidiary.zip}</td>
+									<td colspan="10" style="margin-left: 20px;"><span style="font-size: 6pt;"><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>Frugi, ${subsidiary.addr2}, ${subsidiary.city}, ${subsidiary.state}, ${subsidiary.zip}</span></td>
+									<td colspan="6" style="margin-left: 20px;">${subsidiary.addr2}<br/>${subsidiary.city}, ${subsidiary.state}<br/>${subsidiary.zip}</td>
 								</tr>
 							</table>
 						</td>
@@ -505,6 +509,9 @@
 	        table.body td {
 	            padding-top: 2px;
 	        }
+	        table.itemtable td {
+	            font-size: 8pt;
+	        }
 	        table.total {
 	            page-break-inside: avoid;
 	        }
@@ -557,58 +564,64 @@
 	        }
 	</style>
 	</head>
-	<body header="nlheader" header-height="80pt" footer="nlfooter" footer-height="135pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4-LANDSCAPE">
-	
-		<table class="itemtable" style="width: 100%; margin-top: 10px;">
-			<#list record.item as item> <!-- start items -->
-				<#if item_index==0>
-					<thead>
+	<body header="nlheader" header-height="80pt" footer="nlfooter" footer-height="150pt" padding="0.2in 0.35in 0.4in 0.35in" size="A4-LANDSCAPE">
+		
+		<#if record.custbody_c4c_item_json?length gt 0> 
+  			<#assign item_summary = record.custbody_c4c_item_json?eval>
+  			<#assign total = 0>
+  				<#if item_summary?has_content>
+  					<table class="itemtable" style="width: 100%;">
+        				<#list item_summary as item>
+            				<#if item_index==0>
+                				<thead>
+									<tr>
+										<th align="center" colspan="50" style="background-color: #FFFFFF;">&nbsp;</th>
+										<th align="center" colspan="10" style="background-color: #585858; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">TICK ONE</th>
+										<th align="center" colspan="10" style="background-color: #FFFFFF;">&nbsp;</th>
+									</tr>
+									<tr style="border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">
+										<th align="center" colspan="6"><p align="center">PRODUCT<br/>CODE</p></th>
+										<th align="center" colspan="20">DESCRIPTION</th>
+										<th align="center" colspan="3">SIZE</th>
+										<th align="center" colspan="3">LOC</th>
+										<th align="center" colspan="2">QTY</th>
+										<th align="center" colspan="4"><p align="center">UNIT<br/>PRICE</p></th>
+										<th align="center" colspan="4"><p align="center">NET<br/>PRICE</p></th>
+										<th align="center" colspan="4">VAT</th>
+										<th align="center" colspan="4"><p align="center">TOTAL<br/>INC VAT</p></th>
+										<th align="center" colspan="5">REFUND</th>
+										<th align="center" colspan="5">EXCHANGE</th>
+										<th align="center" colspan="5">NEW SIZE</th>
+										<th align="center" colspan="5"><p align="center">REASON<br/>CODE</p></th>
+									</tr>
+								</thead>
+							</#if>
+							<tr>
+								<td align="center" colspan="6" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.item}</td>
+								<td align="center" colspan="20" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.description}</td>
+								<td align="center" colspan="3" style="border-left: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+								<td align="center" colspan="3" style="border-left: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+								<td align="center" colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.quantity?string["0"]}</td>
+								<td align="right" colspan="4" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.rate}</td>
+								<td align="right" colspan="4" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.netAmount}</td>
+								<td align="right" colspan="4" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.taxAmount}</td>
+								<td align="right" colspan="4" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.grossAmount}</td>
+								<td align="center" colspan="5" style="background-color: #ECECEC; border-left: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+								<td align="center" colspan="5" style="background-color: #ECECEC; border-left: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+								<td align="center" colspan="5" style="background-color: #ECECEC; border-left: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+								<td align="center" colspan="5" style="background-color: #ECECEC; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+							</tr>
+							<#assign total+= item.grossAmount>
+						</#list>
 						<tr>
-							<th align="center" colspan="42" style="background-color: #FFFFFF;">&nbsp;</th>
-							<th align="center" colspan="8" style="background-color: #585858;">TICK ONE</th>
-							<th align="center" colspan="8" style="background-color: #FFFFFF;">&nbsp;</th>
+							<td align="center" colspan="6" style="background-color: #3D3C3B; border-left: 1px solid black; border-bottom: 1px solid black;"><span style="color: #FFFFFF; font-weight: bold;">PACKED BY:</span></td>
+							<td align="center" colspan="26" style="border-left: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+							<td align="center" colspan="6" style="background-color: #3D3C3B; border-left: 1px solid black; border-bottom: 1px solid black;"><span style="color: #FFFFFF; font-weight: bold;">TOTAL:</span></td>
+							<td align="right" colspan="12" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${total}</td>
 						</tr>
-						<tr>
-							<th align="center" colspan="6">PRODUCT CODE</th>
-							<th align="center" colspan="10">DESCRIPTION</th>
-							<th align="center" colspan="4">SIZE</th>
-							<th align="center" colspan="4">LOC</th>
-							<th align="center" colspan="2">QTY</th>
-							<th align="center" colspan="4"><p align="center">UNIT<br/>PRICE</p></th>
-							<th align="center" colspan="4"><p align="center">NET<br/>PRICE</p></th>
-							<th align="center" colspan="4">VAT</th>
-							<th align="center" colspan="4"><p align="center">TOTAL<br/>INC VAT</p></th>
-							<th align="center" colspan="4">REFUND</th>
-							<th align="center" colspan="4">EXCHANGE</th>
-							<th align="center" colspan="4">NEW SIZE</th>
-							<th align="center" colspan="4"><p align="center">REASON<br/>CODE</p></th>
-						</tr>
-					</thead>
-				</#if>
-				<tr>
-					<td align="center" colspan="6" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.item}</td>
-					<td align="center" colspan="10" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.description}</td>
-					<td align="center" colspan="4" style="border-left: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-					<td align="center" colspan="4" style="border-left: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-					<td align="center" colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">${item.quantity?string["0"]}</td>
-					<td align="center" colspan="4" style="border-left: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-					<td align="center" colspan="4" style="border-left: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-					<td align="center" colspan="4" style="border-left: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-					<td align="center" colspan="4" style="border-left: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-					<td align="center" colspan="4" style="background-color: #ECECEC; border-left: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-					<td align="center" colspan="4" style="background-color: #ECECEC; border-left: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-					<td align="center" colspan="4" style="background-color: #ECECEC; border-left: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-					<td align="center" colspan="4" style="background-color: #ECECEC; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-				</tr>
-			</#list> <!-- end items -->
-			<tr>
-				<td align="center" colspan="6" style="background-color: #3D3C3B; color: #FFFFFF; border-left: 1px solid black; border-bottom: 1px solid black; font-weight: bold;">PACKED BY:</td>
-				<td align="center" colspan="20" style="border-left: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-				<td align="center" colspan="4" style="background-color: #3D3C3B; color: #FFFFFF; border-left: 1px solid black; border-bottom: 1px solid black; font-weight: bold;">TOTAL:</td>
-				<td align="center" colspan="12" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-				<td align="center" colspan="16">&nbsp;</td>
-			</tr>
-		</table>
+					</table>
+  				</#if>
+  		</#if>
 	
 	</body>
 	</pdf>

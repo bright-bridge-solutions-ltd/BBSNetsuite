@@ -49,7 +49,7 @@ function(ui, http, search, record, redirect)
     			
     			// run search to find SFTP detail records
     			search.create({
-    				type: 'customrecord_bbs_supplier_sftp',
+    				type: 'customrecord_bbs_sftp',
     				
     				filters: [{
     					name: 'isinactive',
@@ -58,18 +58,18 @@ function(ui, http, search, record, redirect)
     				}],
     				
     				columns: [{
-    					name: 'custrecord_bbs_supplier_sftp_supplier'
+    					name: 'custrecord_bbs_sftp_supplier'
     				}],
     				
     			}).run().each(function(result){
     				
     				// get the supplier ID and name
     				var supplierID = result.getValue({
-    					name: 'custrecord_bbs_supplier_sftp_supplier'
+    					name: 'custrecord_bbs_sftp_supplier'
     				});
     				
     				var supplierName = result.getText({
-    					name: 'custrecord_bbs_supplier_sftp_supplier'
+    					name: 'custrecord_bbs_sftp_supplier'
     				});
     				
     				// add a select option for the supplier
@@ -120,7 +120,7 @@ function(ui, http, search, record, redirect)
     					
     					// get the SFTP details for the selected supplier
     					search.create({
-    						type: 'customrecord_bbs_supplier_sftp',
+    						type: 'customrecord_bbs_sftp',
     				
 		    				filters: [{
 		    					name: 'isinactive',
@@ -128,20 +128,20 @@ function(ui, http, search, record, redirect)
 		    					values: ['F']
 		    				},
 		    						{
-		    					name: 'custrecord_bbs_supplier_sftp_supplier',
+		    					name: 'custrecord_bbs_sftp_supplier',
 		    					operator: search.Operator.ANYOF,
 		    					values: [selectedSupplier]
 		    				}],
 		    				
 		    				columns: [{
-		    					name: 'custrecord_bbs_supplier_sftp_endpoint'
+		    					name: 'custrecord_bbs_sftp_endpoint'
 		    				}],
 		    				
     					}).run().each(function(result){
     						
     						// get the endpoint from the search result
     						endpoint = result.getValue({
-    							name: 'custrecord_bbs_supplier_sftp_endpoint'
+    							name: 'custrecord_bbs_sftp_endpoint'
     						});
     						
     						// set the endpoint/record ID fields from the search result
@@ -155,7 +155,7 @@ function(ui, http, search, record, redirect)
     					    id: 					'sftppassword',
     					    label: 					'SFTP Password',
     					    restrictToDomains: 		endpoint,
-    					    restrictToScriptIds: 	['customscript_bbs_sftp_ue', 'customscript_bbs_sftp_sch'],
+    					    restrictToScriptIds: 	['customscript_bbs_sftp_purchase_order', 'customscript_bbs_sftp_process_order_ack', 'customscript_bbs_sftp_process_stock_file'],
     					    restrictToCurrentUser: 	false
     					}).setMandatory = true;
     					
@@ -177,12 +177,12 @@ function(ui, http, search, record, redirect)
     			
     			try
     				{
-    					// update fields on the SFTP details record
+    					// update fields on the supplier SFTP details record
     					record.submitFields({
-    						type: 'customrecord_bbs_supplier_sftp',
+    						type: 'customrecord_bbs_sftp',
     						id: recordID,
     						values: {
-    							custrecord_bbs_supplier_sftp_password:	sftpPassword
+    							custrecord_bbs_sftp_password:	sftpPassword
     						},
     						options: {
     							ignoreMandatoryFields:	true
@@ -190,14 +190,14 @@ function(ui, http, search, record, redirect)
     					});
     					
     					log.audit({
-    						title: 'SFTP Details Record Updated',
+    						title: 'Supplier SFTP Details Record Updated',
     						details: recordID
     					});
     				}
     			catch(e)
     				{
     					log.error({
-    						title: 'Error Updating SFTP Details Record',
+    						title: 'Error Updating Supplier SFTP Details Record',
     						details: 'Record ID: ' + recordID + '<br>Error: ' + e
     					});
     				}

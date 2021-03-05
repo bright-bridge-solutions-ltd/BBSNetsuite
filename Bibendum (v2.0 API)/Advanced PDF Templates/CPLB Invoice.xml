@@ -1,0 +1,493 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PDF PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+    <head>
+        <macrolist>
+            <macro id="nlheader">
+
+            </macro>
+            <macro id="nlfooter">
+				<#if record.custbody_sales_order_type=="Recharge">
+					<#if record.currency=="Sterling">
+                        <p style="font-size: 11px;margin:0;padding:0;color:#000000; font-weight:600">To pay your account via bank transfer, please quote your 
+
+account number as part of the payment reference.</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Bank Account: National Westminster Bank</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Sort Code: 60-04-09</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Account Number: 85637238</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">BIC: NWBKGB2L</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">IBAN: GB33NWBK60040985637238</p>
+					<#elseif record.currency=="Euro">
+                        <p style="font-size: 11px;margin:0;padding:0;color:#000000; font-weight:600">To pay your account via bank transfer, please quote your 
+
+account number as part of the payment reference.</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Bank Account: National Westminster Bank</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Sort Code: 60-04-09</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Account Number: 88507742</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">BIC: NWBKGB2L</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">IBAN: GB50NWBK60721188507742</p>
+					</#if>
+				<#elseif record.currency=="Sterling">
+                    <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600;">To pay your account via bank transfer, please quote your 
+
+account number as part of the payment reference.</p>
+                    <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Bank Account: National Westminster Bank</p>
+                    <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Sort Code: 60-04-09</p>
+                    <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Account Number: 85637238</p>
+                    <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">BIC: NWBKGB2L</p>
+                    <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">IBAN: GB33NWBK60040985637238</p>
+                    <#elseif record.currency=="Euro">
+                        <p style="font-size: 11px;margin:0;padding:0;color:#000000; font-weight:600">To pay your account via bank transfer, please quote your 
+
+account number as part of the payment reference.</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Bank Account: National Westminster Bank</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Sort Code: 60-04-09</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Account Number: 88507742</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">BIC: NWBKGB2L</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">IBAN: GB50NWBK60721188507742</p>
+						<#elseif record.currency=="US Dollar">
+                        <p style="font-size: 11px;margin:0;padding:0;color:#000000; font-weight:600">To pay your account via bank transfer, please quote your 
+
+account number as part of the payment reference.</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Bank Account: National Westminster Bank</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Sort Code: 60-04-09</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Account Number: 88507750</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">BIC: NWBKGB2L</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">IBAN: GB11NWBK60730188507750</p>
+						<#elseif record.currency=="Australian Dollar">
+                        <p style="font-size: 11px;margin:0;padding:0;color:#000000; font-weight:600">To pay your account via bank transfer, please quote your 
+
+account number as part of the payment reference.</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Bank Account: National Westminster Bank</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Sort Code: 60-04-09</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Account Number: 88507793</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">BIC: NWBKGB2L</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">IBAN: GB14NWBK60730188507793</p>
+						<#elseif record.currency=="New Zealand Dollar">
+                        <p style="font-size: 11px;margin:0;padding:0;color:#000000; font-weight:600">To pay your account via bank transfer, please quote your 
+
+account number as part of the payment reference.</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Bank Account: National Westminster Bank</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Sort Code: 60-04-09</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Account Number: 88507777</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">BIC: NWBKGB2L</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">IBAN: GB58NWBK60730188507777</p>
+						<#elseif record.currency=="Czech Koruna">
+                        <p style="font-size: 11px;margin:0;padding:0;color:#000000; font-weight:600">To pay your account via bank transfer, please quote your 
+
+account number as part of the payment reference.</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Bank Account: National Westminster Bank</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Sort Code: 60-04-09</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Account Number: 88507785</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">BIC: NWBKGB2L</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">IBAN: GB36NWBK60730188507785</p>
+						<#elseif record.currency=="South African Rand">
+                        <p style="font-size: 11px;margin:0;padding:0;color:#000000; font-weight:600">To pay your account via bank transfer, please quote your 
+
+account number as part of the payment reference.</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Bank Account: National Westminster Bank</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Sort Code: 60-04-09</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Account Number: 88507769</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">BIC: NWBKGB2L</p>
+                        <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">IBAN: GB80NWBK60730188507769</p>
+                </#if>
+                          <p style="font-size: 10px;margin:10px 0 0 0;padding:0;color:#000000; font-weight:300">All transactions are subject to the terms and 
+
+conditions set out overleaf.</p>
+                          <p style="font-size: 10px;margin:10px 0 0 0;padding:0;color:#000000; font-weight:300">Bibendum Off Trade Limited is registered in England and Wales with company number 01655729, with its registered office at 109a Regents Park Road, London NW1 8UR.</p>
+            </macro>
+        </macrolist>
+
+        <style type="text/css">
+            body {
+                font-family: sans-serif;
+                font-size: 12px;
+            }
+
+
+
+            .label {
+                font-weight: 600;
+            }
+
+            .val {
+                align: right;
+            }
+
+            #header-table {
+                border-collapse: collapse;
+                border-spacing: 0;
+                width: 100%;
+            }
+
+                #header-table td {
+                    /*border:1px solid black;*/
+                }
+
+                #header-table .left-side {
+                    width: 500px;
+                    /*border:1px solid blue;*/
+                }
+
+                    #header-table .left-side p {
+                        margin: 0;
+                        padding: 0;
+                    }
+
+                #header-table .right-side {
+                    width: 500px;
+                    /*border: 1px solid green;*/
+                }
+
+                    #header-table .right-side .label {
+                        width: 150px;
+                        font-weight: 600;
+                        /*border: 1px solid pink;*/
+                    }
+
+            #document-type {
+                margin-left: 120px;
+                margin-bottom: 10px;
+            }
+
+
+            #addresses {
+                margin-top: 10px;
+                width: 330px;
+                /*border: 1px solid red;*/
+            }
+
+            #item-table {
+                margin-top: 40px;
+                border-collapse: collapse;
+                border-spacing: 0;
+                width: 100%;
+                font-size: 11px;
+                
+
+                border-bottom:1px solid black;
+            }
+
+                #item-table td {
+                    /*border-left: 1px solid black;*/
+                    border-right: 1px solid black;
+                    border-bottom:0;
+                    padding-bottom:10px;
+                }
+
+                #item-table th {
+                    color: white;
+                    background-color: gray;
+                    padding-left: 5px;
+                    font-weight: 600px;
+                    padding-top: 4px;
+                    padding-bottom: 4px;
+                  
+                }
+
+            #item-table-footer {
+                width: 100%;
+                border-collapse: collapse;
+                border-spacing: 0;
+                font-size: 10px;
+            }
+
+                #item-table-footer .left {
+                    /*border:1px solid green;*/
+                    width: 555px;
+                }
+
+
+            #nlfooter p {
+                font-size: 10px;
+                margin: 0;
+                padding: 0;
+                color: #7e7e7e;
+            }
+			
+
+			#address-to {
+                
+                align:left;
+            }
+        </style>
+    </head>
+    <body footer="nlfooter" footer-height="80pt" padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
+        <table id="header-table">
+            <tr class="heade-row">
+                <td>
+                    <table>
+                        <!-- This section is where the Company address is loaded. -->
+                        <tr>
+                            <!-- This section is where the Company Logo is loaded -->
+                            <td class="left-side">
+                                <p class="logo">
+                                    <#if subsidiary.logo?length != 0><img src="${subsidiary.logo@url}" style="font-size: 13.3333px; float: left; margin-right: 0px; margin-left: 0px; width: 150px; height: 90px; background-color: rgb(255, 255, 255);"/></#if>
+                                </p>
+
+                                <!-- <h2>${record.custbodysubsidiary_name}</h2> -->
+                                <!-- This is for the address -->
+                              	<br />
+                                <p>109a Regents Park Road</p>
+        						<p>London NW1 8UR</p>
+        						<p>United Kingdom</p>
+                                <p>Tel: 02074 494110</p>
+                                <p>${record.custbodysubsidiary_web_address}</p>
+                                <p>VAT Registration: ${record.custbodysubsidiary_vat}</p>
+								<p>Company Reg. No.: 01655729</p>
+								<p>AWRS: ${subsidiary.custrecord_awrs_number}</p>
+                              
+
+                                <table id="addresses">
+                                    <tr>
+                                        <td class="left">
+                                            <p class="label">Invoice To</p>
+                                            <p class="" id="address-to">${record.billaddress}</p>
+                                        </td>
+
+
+                                        <td class="right">
+                                            <!--<p class="label">Deliver To:</p>
+                                            <p class="" id="address-to">${record.shipaddress}</p>-->
+
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <p>Customer VAT Registration: ${record.custbodysubsidiary_customer_vat_no}</p>
+
+
+
+
+
+
+
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td class="right-side">
+                                <h2 id="document-type">Sales Invoice</h2>
+
+                                <table id="transaction-details">
+                                    <tr>
+                                        <td class="label">Invoice Date</td>
+                                        <td class="value">${record.trandate}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">Invoice Number</td>
+                                        <td class="value">${record.tranid}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">Acct No.</td>
+                                        <td class="value">${record.custbodycustbody_customer_account_numb}</td>
+                                    </tr>
+                                    <tr>
+
+                                        <td class="label">Terms</td>
+                                        <td class="value">${record.terms}</td>
+                                    </tr>
+                                    <tr>
+
+
+                                        <td class="label">Due Date</td>
+                                        <td class="value">${record.duedate}</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="label">PO</td>
+                                        <td class="value">${record.otherrefnum}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">Currency</td>
+                                        <td class="value">${record.currency}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">Account Manager</td>
+                                        <td class="value">${record.salesrep}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">Ship Date</td>
+                                        <td class="value">${record.shipdate}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">Sales Order Type </td>
+                                        <td class="value">${record.custbody_sales_order_type}</td>
+                                    </tr>
+									<tr>
+                                        <td class="label">Sales Order Number </td>
+                                        <td class="value">${record.createdfrom}</td>
+
+
+                                    </tr>
+
+
+
+
+
+                                </table>
+										<table id="addresses" style="margin:35px 0 0 0;">
+                                   		 <tr>
+
+                                        <td class="left">
+                                            <span class="label">Deliver To</span><br/>
+                                            <span class="" id="address-to">${record.shipaddress}</span>
+                                        </td>
+
+
+
+
+
+
+
+
+
+
+
+
+</tr>
+									<!--<tr>
+                                        <td colspan="6" style="border:1px solid black;height:60px;margin:10px 0 -20px 0">
+                                            <p>Delivery Instructions:</p>
+											<p>${record.custbody_delivery_instructions}</p>
+                                        </td>
+                                    </tr>-->
+                                </table>
+
+
+
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <table id="item-table">
+            <thead>
+                <tr>
+                    <th>Item Code</th>
+                    <th>Item Description</th>
+                    <th width="20px">commodity_code</th>
+                    <th width="30px">ABV</th>
+                    <th>Quantity</th>
+                    <th>Units</th>
+                    <th>Unit Price</th>
+                    <th>Net Value</th>
+                    <th>Gross Value</th>
+                </tr>
+            </thead>
+            <tbody>
+
+
+                <#if record.item?has_content>
+                    <#assign itemSize=record.item?size>
+                        <#list record.item as item>
+                            <tr>
+                                <td style="border-left:1px solid black;">${item.item}</td>
+                                <td>
+
+
+                                    ${item.description}
+                                    <!--      <#if itemSize-1 == item_index>
+                                             <p>Tax Code Summary</p>
+                                             <p>Tax Code: ${item.taxcode}</p>
+                                         </#if> -->
+                                </td>
+                              <td class="val">
+
+                                    ${item.custcol_plb_commodity_code}
+                                    <!--   <#if itemSize-1 == item_index>
+                                          <p>Tax Rate</p>
+                                          <p>${item.taxrate1}</p>
+                                      </#if> -->
+                                </td>
+                              <td class="val">
+
+                                    ${item.custcol_plb_abv}
+                                    <!--   <#if itemSize-1 == item_index>
+                                          <p>Tax Rate</p>
+                                          <p>${item.taxrate1}</p>
+                                      </#if> -->
+                                </td>
+                                <td class="val">
+
+                                    ${item.quantity}
+                                    <!--   <#if itemSize-1 == item_index>
+                                          <p>Tax Rate</p>
+                                          <p>${item.taxrate1}</p>
+                                      </#if> -->
+                                </td>
+                                <td align="right">${item.units}</td>
+                                <td class="val">
+
+                                    ${item.rate}
+                                    <#if itemSize-1==item_index>
+                                        <!--      <p>Total Net</p>
+                                             <p>${record.subtotal}</p> -->
+                                    </#if>
+                                </td>
+                                <td class="val">
+
+                                    ${item.amount}
+                                    <#if itemSize-1==item_index>
+                                        <!--     <p>Total Tax</p>
+                                            <p>${record.taxtotal}</p> -->
+                                    </#if>
+                                </td>
+                                <td class="val">${item.grossamt}</td>
+                            </tr>
+                        </#list>
+                </#if>
+            </tbody>
+        </table>
+
+        <table id="item-table-footer">
+            <tr>
+                <td class="left"></td>
+                <td class="right" align="right">
+                    <table>
+                        <tr>
+                            <td colspan="5" class="label">
+                                Subtotal
+                            </td>
+                            <td colspan="5" class="val">
+                                ${record.subtotal}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" class="label">
+                                VAT Total
+                            </td>
+                            <td colspan="5" class="val">
+                                ${record.taxtotal}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" class="label">
+                                Total
+                            </td>
+                            <td colspan="5" class="val">
+                                ${record.total}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        
+        <table style="width: 100%;">
+        	<tr>
+        		<td><b>Customer Info</b></td>
+        	</tr>
+        	<tr>
+        		<td>${record.custbody_bbs_customer_info}</td>
+        	</tr>
+        </table>
+        
+<pbr  header="nlheader2" footer="nlfooter2" header-height="0pt" footer-height="0%" padding="0.4in 0.1in 0.5in 0.3in" margin="-0.3in 0 0 0" size="Letter"/>
+<div style="width:100%;">
+<img src="https://3824313.app.netsuite.com/core/media/media.nl?id=282701&amp;c=3824313&amp;h=d37e94eb9afce74dfe43&amp;amp;amp;whence=" dpi="315" >
+ </img>
+ </div>
+    </body>
+</pdf>

@@ -23,77 +23,82 @@ function(search, sftp, record, format, file, runtime) {
     	currentScript = runtime.getCurrentScript();
     	
     	folderID = currentScript.getParameter({
-    		name: 'custscript_bbs_supplier_sftp_folder_id'
+    		name: 'custscript_bbs_sftp_folder_id'
     	});
     	
     	// search for SFTP supplier detail records
     	search.create({
-    		type: 'customrecord_bbs_supplier_sftp',
+    		type: 'customrecord_bbs_sftp',
     		
     		filters: [{
     			name: 'isinactive',
     			operator: search.Operator.IS,
     			values: ['F']
+    		},
+    				{
+    			name: 'custrecord_bbs_sftp_order_ack_enabled',
+    			operator: search.Operator.IS,
+    			values: ['T']
     		}],
     		
     		columns: [{
-    			name: 'custrecord_bbs_supplier_sftp_endpoint'
+    			name: 'custrecord_bbs_sftp_endpoint'
     		},
     				{
-    			name: 'custrecord_bbs_supplier_sftp_username'
+    			name: 'custrecord_bbs_sftp_username'
     		},
     				{
-    			name: 'custrecord_bbs_supplier_sftp_password'
+    			name: 'custrecord_bbs_sftp_password'
     		},
     				{
-    			name: 'custrecord_bbs_supplier_sftp_host_key'
+    			name: 'custrecord_bbs_sftp_host_key'
     		},
     				{
-    			name: 'custrecord_bbs_supplier_sftp_port_number'
+    			name: 'custrecord_bbs_sftp_port_number'
     		},
     				{
-    			name: 'custrecord_bbs_supplier_sftp_out_folder'
+    			name: 'custrecord_bbs_sftp_outbound_directory'
     		},
     				{
-    			name: 'custrecord_bbs_supplier_sftp_in_folder'
+    			name: 'custrecord_bbs_sftp_inbound_directory'
     		},
     				{
-    			name: 'custrecord_bbs_supplier_sftp_file_types'
+    			name: 'custrecord_bbs_sftp_order_ack_format'
     		}],
     		
     	}).run().each(function(result){
     		
     		// get the SFTP details from the search result
     		var sftpEndpoint = result.getValue({
-    			name: 'custrecord_bbs_supplier_sftp_endpoint'
+    			name: 'custrecord_bbs_sftp_endpoint'
     		});
     		
     		var sftpUsername = result.getValue({
-    			name: 'custrecord_bbs_supplier_sftp_username'
+    			name: 'custrecord_bbs_sftp_username'
     		});
     		
     		var sftpPassword = result.getValue({
-    			name: 'custrecord_bbs_supplier_sftp_password'
+    			name: 'custrecord_bbs_sftp_password'
     		});
     		
     		var sftpHostKey = result.getValue({
-    			name: 'custrecord_bbs_supplier_sftp_host_key'
+    			name: 'custrecord_bbs_sftp_host_key'
     		});
     		
     		var sftpPortNumber = result.getValue({
-    			name: 'custrecord_bbs_supplier_sftp_port_number'
+    			name: 'custrecord_bbs_sftp_port_number'
     		});
     		
     		var sftpOutDirectory = result.getValue({
-    			name: 'custrecord_bbs_supplier_sftp_out_folder'
+    			name: 'custrecord_bbs_sftp_outbound_directory'
     		});
     		
     		var sftpInDirectory = result.getValue({
-    			name: 'custrecord_bbs_supplier_sftp_in_folder'
+    			name: 'custrecord_bbs_sftp_inbound_directory'
     		});
     		
     		var sftpFileType = result.getValue({
-    			name: 'custrecord_bbs_supplier_sftp_file_types'
+    			name: 'custrecord_bbs_sftp_order_ack_format'
     		});
     		
     		// call function to process files on the server
@@ -169,6 +174,11 @@ function(search, sftp, record, format, file, runtime) {
 								// check we have sufficient remaining usage
 								if (currentScript.getRemainingUsage() > 200)
 									{
+										log.audit({
+											title: 'Processing File',
+											details: i+1 + 'of' + fileList.length
+										});
+									
 										// declare and initialize variables
 										var downloadedFile = null;
 									
@@ -203,8 +213,11 @@ function(search, sftp, record, format, file, runtime) {
 												// process the HEAD line from the file
 												fileLines.each(function(line){
 													
-													// split the line so we can return info from it
-													var lineValues = line.value.split(',');
+													// remove "" from lineValues
+													var lineValues = line.value.replace(/"/g, '');
+													
+													// split lineValues so we can return info from it
+													lineValues = lineValues.split(',');
 													
 													// get values from the line
 													poNumber 	= lineValues[4];
@@ -236,8 +249,11 @@ function(search, sftp, record, format, file, runtime) {
 														// process the LINES lines from the file
 														fileLines.each(function(line){
 															
-															// split the line so we can return info from it
-															var lineValues = line.value.split(',');
+															// remove "" from lineValues
+															var lineValues = line.value.replace(/"/g, '');
+															
+															// split lineValues so we can return info from it
+															lineValues = lineValues.split(',');
 															
 															// get values from the line
 															var lineNumber 		= lineValues[1];
@@ -317,15 +333,9 @@ function(search, sftp, record, format, file, runtime) {
 												try
 													{
 														// save the file to the file cabinet
-														var fileObj = file.create({
-															fileType: 	file.Type.CSV,
-															name: 		fileName,
-															contents: 	downloadedFile.getContents()
-														});
-														
-														fileObj.folder = folderID;
-														
-														fileID = fileObj.save();
+														downloadedFile.name = fileName.replace('.dat', '.csv');
+														downloadedFile.folder = folderID;
+														fileID = downloadedFile.save();
 													}
 												catch(e)
 													{
@@ -392,7 +402,8 @@ function(search, sftp, record, format, file, runtime) {
 			}
 		
 		log.audit({
-			title: '*** END OF SCRIPT ***'
+			title: '*** END OF SCRIPT ***',
+			details: 'Units Used: ' + (10000 - currentScript.getRemainingUsage())
 		});
 		
     }

@@ -1,108 +1,652 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
 <pdf>
 <head>
-        <#assign regInfo>?????</#assign>
-        <#assign emailInfo>?????</#assign>
-        <#assign telInfo>?????</#assign>
-        <#assign vatInfo>?????</#assign>
-        <#assign logoInfo>?????</#assign>
-        <#assign subsidiary>${record.subsidiary.id}</#assign>
+    <#setting date_format="dd MMM yyyy"/>
   
-        <#if subsidiary=="4">
-              <#assign regInfo>Company Registration No: 99999999. Registered Office: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX, United Kingdom.</#assign>
-              <#assign emailInfo>sales@XXXXXXXXXX.co.uk</#assign>
-              <#assign telInfo>999999999999</#assign>
-              <#assign vatInfo>GB 999 999 999</#assign>
-              <#assign logoInfo>https://system.na2.netsuite.com/core/media/media.nl?id=600&amp;c=4810497&amp;h=7cff3197e0d67148de3d</#assign>
+        <#assign subsidiaryName>${record.subsidiary.name?keep_after(": ")}</#assign>
+        <#assign subsidiary>${record.subsidiary.id}</#assign>
+        <#assign regInfo>xxxxx</#assign>
+        <#assign emailInfo>xxxxx</#assign>
+        <#assign logoInfo>xxxxx</#assign>
+  		<#assign telInfo>xxxxx</#assign>
+        <#assign faxInfo>xxxxx</#assign>
+        <#assign vatInfo>xxxxx</#assign>
+        <#assign webInfo>xxxxx</#assign>
+  
+        <#if subsidiary=="5"> <!-- 5 is Ltd -->
+              <#assign regInfo>Company Registration No: 4915604. Registered Office: Charter House, Barrington Road, Orwell, Cambridge. SG8 5QP, United Kingdom.</#assign>
+              <#assign emailInfo>accounts@accora.care</#assign>
+              <#assign telInfo>+44 (0) 1223 206 100</#assign>
+              <#assign faxInfo>+44 (0) 1223 206 120</#assign>
+              <#assign vatInfo>GB 823 5324 47</#assign>
+          	  <#assign webInfo>www.accora.care</#assign>
+              <#assign logoInfo>https://4810497.app.netsuite.com/core/media/media.nl?id=5549264&amp;c=4810497&amp;h=bcf92a47f9d32288cdf5</#assign>
         </#if>
   
-
-    <macrolist>
+        <#if subsidiary=="1"> <!-- 1 is Inc-->
+              <#assign regInfo>Registered Office: 9210 Corporate Blvd. - Suite 120, Rockville, MD 20850. United States of America.</#assign>
+              <#assign emailInfo>billing@accora.care</#assign>
+              <#assign telInfo>301-560-2400</#assign>
+              <#assign faxInfo> </#assign>
+              <#assign vatInfo>81-5245319</#assign>
+              <#assign webInfo>www.accora.care</#assign>
+              <#assign logoInfo>https://4810497.app.netsuite.com/core/media/media.nl?id=5549264&amp;c=4810497&amp;h=bcf92a47f9d32288cdf5</#assign>
+        </#if>
+  
+  	    <#if subsidiary=="7"> <!-- 7 is Ireland-->
+              <#assign regInfo>Company Registration No.: 644783. Registered Office: Accora Limited, 38 Main Street, Swords, Co. Dublin, Ireland, K67 E0A2</#assign>
+              <#assign emailInfo>accounts@accora.care</#assign>
+              <#assign telInfo>01 695 0614</#assign>
+              <#assign faxInfo></#assign>
+              <#assign vatInfo>IE 3613478EH</#assign>
+              <#assign webInfo>www.accora.care</#assign>
+              <#assign logoInfo>https://4810497.app.netsuite.com/core/media/media.nl?id=5549264&amp;c=4810497&amp;h=bcf92a47f9d32288cdf5</#assign>
+        </#if>
+  
+      <macrolist>
         <macro id="nlheader">
-            <table class="header" style="width: 100%;">
-    <tr>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /></td>
-    </tr>
-    <!--<tr><td>&nbsp;</td></tr>-->
-    <tr>
-	<td><span style="font-size:24px;">${record@title}</span></td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	</tr>
-          </table>
-    <table class="header" style="width: 100%;">
+              <table class="header" style="width: 100%;">
+  				<tr>
+  					<td align="left" colspan="2" style="font-size:14pt"><#if subsidiary=="7"><b>Accora Limited (IE)</b><#else><b>${subsidiaryName}</b></#if></td>
+  					<td align="left" width="50" style="font-size:8pt">&nbsp;</td>
+  					<td align="left" width="150" style="padding-left: 5px;">&nbsp;</td>
+  					<td align="left">&nbsp;</td>
+  					<td rowspan="6" align="top-right"><img src="${logoInfo}" style="float:top-right; width:174px; height:45px; margin: 1px;"/></td>
+  				</tr>
+               
+  				<tr>
+  					<td align="left" colspan="2" rowspan="6" style="padding-bottom: 1em;"><span class="nameandaddress">${record.custbody_subsidiary_address}</span></td>
+  					<td align="left" width="35" style="font-size:9pt">Tel:</td>
+  					<td align="left" width="150" style="font-size:9pt">${telInfo}</td>
+  					<td align="left">&nbsp;</td>
+  				</tr>
+                <!-- <tr>
+  					 <td align="right" width="50" style="font-size:8pt">Fax:</td>
+  					<td align="left" width="150" style="padding-left: 5px; font-size:8pt;">${faxInfo}</td>
+  					<td align="left">&nbsp;</td>
+  				</tr>  -->
+                <tr>
+  					<td align="left" width="20" style="font-size:9pt">Email:</td>
+  					<td align="left" width="100" style="font-size:9pt;">${emailInfo}</td>
+  					<td align="left">&nbsp;</td>
+  				</tr>
+                <tr>
+  					<td align="left" width="35" style="font-size:9pt">Web:</td>
+  					<td align="left" width="150" style="font-size:9pt;">${webInfo}</td>
+  					<td align="left">&nbsp;</td>
+  				</tr>
+                <tr>
+                  <td align="left" width="35" style="font-size:9pt"><#if subsidiary=="7" || subsidiary=="5">VAT ID:<#else>Tax ID:</#if></td>
+  					<td align="left" width="150" style="font-size:9pt;">${vatInfo}</td>
+  					<td align="left">&nbsp;</td>
+  				</tr>
+                <tr>
+  					<td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                </tr>
+                <tr>
+  					<td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+  				</tr>
+			</table>
 
-	<tr>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	</tr>
-	<tr>
-        <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.vatregnum}</span></td>
-	<td align="right" style="font-size:10pt"></td>
-      
-    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custbody_subsidiary_address}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
-	</tr>
-          </table>
+			<table class="header" style="width: 100%;">
+            	<tr>
+                  <td align="left" colspan="2" ><b>Invoice To</b></td>
+					
+				</tr>
+
+				<tr>
+					<td align="left" colspan="2" rowspan="10">${record.billaddress}</td>
+    			
+					<td align="left" colspan="2" rowspan="10" style="padding-bottom: 1em;">
+                      	<table>
+                        	<tr style="border-top: 1px solid black;">
+                      			<td align="center" width="400px" style="vertical-align: middle; font-size:10px; BACKGROUND-COLOR:#008871; color:#ffffff; BORDER-LEFT: 1px solid black; border-right: 1px solid white; padding: 2px;">DATE</td>
+								<td align="center" width="400px" style="vertical-align: middle; font-size:10px; BACKGROUND-COLOR:#008871; color:#ffffff; border-right: 1px solid black;">INVOICE No.</td>
+							</tr>
+                          	<tr>
+								<td align="center"  style="vertical-align: middle; font-size:10px; border-right: 1px solid black; border-left: 1px solid black;">${record.trandate}</td>
+								<td align="center"  style="vertical-align: middle; font-size:10px; border-right: 1px solid black;">${record.tranid}</td>
+							</tr>
+              				<tr>
+								<td align="center" style="vertical-align: middle; font-size:10px; BACKGROUND-COLOR:#008871; color:#ffffff; BORDER-LEFT: 1px solid black; border-right: 1px solid white; padding: 2px;">ORDER No.</td>
+								<td align="center" style="vertical-align: middle; font-size:10px; BACKGROUND-COLOR:#008871; color:#ffffff; border-right: 1px solid black;">DUE DATE</td>
+							</tr>
+              				<tr>
+								<td align="center"  style="vertical-align: middle; font-size:10px; border-right: 1px solid black; border-left: 1px solid black;">${record.createdfrom}</td>
+								<td align="center"  style="vertical-align: middle; font-size:10px; border-right: 1px solid black;">${record.duedate}</td>
+							</tr>
+              				<tr>
+								<td align="center" style="vertical-align: middle; font-size:10px; BACKGROUND-COLOR:#008871; color:#ffffff; BORDER-LEFT: 1px solid black; border-right: 1px solid white; padding: 2px;">ACCOUNT No.</td>
+								<td align="center" style="vertical-align: middle; font-size:10px; BACKGROUND-COLOR:#008871; color:#ffffff; border-right: 1px solid black;">DELIVERY METHOD</td>
+							</tr>
+              				<tr>
+								<td align="center"  style="vertical-align: middle; font-size:10px; border-right: 1px solid black; border-left: 1px solid black;">${record.entity.entityid}</td>
+								<td align="center"  style="vertical-align: middle; font-size:10px; border-right: 1px solid black;">${record.shipmethod}</td>
+							</tr>
+                          	<tr>
+                             	<td align="center" style="vertical-align: middle; font-size:10px; BACKGROUND-COLOR:#008871; color:#ffffff; BORDER-LEFT: 1px solid black; border-right: 1px solid white; padding: 2px;">SETTLEMENT TERMS</td>
+								<td align="center" style="vertical-align: middle; font-size:10px; BACKGROUND-COLOR:#008871; color:#ffffff; border-right: 1px solid black;">ORDER REFERENCE</td>
+                            </tr>
+                     		<tr>
+                              	<#if record.entity.terms?has_content>
+                              		<td align="center"  style="vertical-align: middle; font-size:10px; border-right: 1px solid black; border-left: 1px solid black; border-bottom: 1px solid black;">${record.terms}</td>
+                                <#else>
+                                  	<td align="center"  style="vertical-align: middle; font-size:10px; border-right: 1px solid black; border-left: 1px solid black; border-bottom: 1px solid black;">Not Specified</td>
+                                </#if>
+								<td align="center"  style="vertical-align: middle; font-size:10px; border-right: 1px solid black; border-bottom: 1px solid black;">${record.otherrefnum}</td>
+                            </tr>
+                      	</table>
+                  </td>
+				</tr>
+             </table>
+      		<table class="header" style="width: 100%;">
+                <tr>
+					<td align="left" colspan="2" ><b>Ship To</b></td>
+				</tr>
+              	<tr>
+                  <td colspan="2" rowspan="8" class="address">${record.shipaddress}</td>
+                  <td align="center" colspan="2" style="font-size:30px;"><#if record.discountitem=="Partner Discount">&nbsp;<#elseif record.discountitem != "Partner Discount" && record.discountitem?has_content><b>${record.discountitem} Advice</b><#else><b>${record@title}</b></#if></td>
+				</tr>
+			</table>
         </macro>
-
+ 
         <macro id="nlfooter">
+     
 
-        <table style="width: 100%;">
-          <tr><td><b>Due Date: ${record.duedate?string["dd MMM yyyy"]}</b></td></tr>
-          <tr><td>Bank Details for payments in ${record.currency}:</td></tr>
-          <tr><td>${record.custbody_bbs_bank_account}</td><td align="right" rowspan="7"><img src="https://system.eu1.netsuite.com/core/media/media.nl?id=4256&amp;c=3865332_SB1&amp;h=97b82a0e8ff209b9bac3" style="float: none; width:200px; height:75px;" /></td></tr>
-          <tr><td>${record.custbody_bbs_bank_name}</td></tr>
-          <tr><td>Account Number: ${record.custbody_bbs_account_no}</td></tr>
-          <tr><td>Sort Code: ${record.custbody_bbs_sort_code}</td></tr>
-          <tr><td>IBAN: ${record.custbody_bbs_iban}</td></tr>
-          <tr><td>Swift Code: ${record.custbody_bbs_bic}</td></tr>
-          <tr><td>&nbsp;</td></tr>
-        </table>
-
-       <table style="width: 100%;">
-         <tr class="messagerow">
-              <td align="left" class="message"><b>Any queries or discrepancies must be reported within 3 days of dispatch date otherwise claims cannot be accepted.</b></td>
-		  </tr>
-         <tr class="messagerow">
-              <td align="left" class="message">&nbsp;</td>
-		  </tr>
+<!--<#if subsidiary =="7">
+      <table style="width: 100%; padding: 10px;">
+        <tr><td style="font-size:9pt; color:red;" align="center">Please note that as of Jan 1st 2020, Accora will be fulfilling all orders through our Irish company.</td></tr>
+        <tr><td style="font-size:9pt; color:red;" align="center">Please see updated address and bank details. Thank you.</td></tr>
+  </table></#if> -->
+  
+           <table style="width: 100%; padding: 2px;">
+  <tr><td align="center">All transactions are subject to our standard terms and conditions of sale, a copy of which is available on request or from our <#if subsidiary =="5"><a href ="https://accora.care/gb-en/wp-content/uploads/2020/05/Accora-Ltd-UK-Terms-of-Sale.pdf" target="_blank">website</a> <#elseif subsidiary =="7"><a href ="https://accora.care/ie-en/wp-content/uploads/2020/06/Accora-Ltd-IE-Terms-of-Sale.pdf" target="_blank">website</a><#else><a href="https://accora.care/us-en/wp-content/uploads/2020/06/Accora-Inc-Terms-of-Sale.pdf" target="_blank">website</a></#if></td></tr><tr><td style="padding: 2px;" align="center">Until payment has been received in full, title of the goods shall remain the property of Accora<#if subsidiary =="5" || subsidiary=="7"> Limited <#else> Inc</#if></td></tr>
+          <!--<tr><td align="left">SOP311-G REV 01</td></tr> -->
+          </table>
+          
+          
+        <table style="width: 100%; padding: 5px;">
           <tr class="messagerow">
-              <td align="left" class="message">${regInfo}</td>
-		  </tr>
+              <td align="center" class="message">${regInfo}</td>
+
+      </tr>
         </table>
 
-		<table class="footer" style="width: 100%;">
+    <table class="footer" style="width: 100%;">
           <tr>
-			<td align="right"><pagenumber/> of <totalpages/></td>
-		</tr>
+      <td align="right"><pagenumber/> of <totalpages/></td>
+    </tr>
         </table>
 
+          <#if subsidiary =="7">  
+<hr style="border: none; border-top: 1px dotted black; margin-left: -90px; width: 120%;"></hr>  
+<table style="width: 100%;">
+                  <tr>
+                    <td colspan="3" style="font-size:11pt;"><b>Remittance Slip</b></td>
+                  </tr>
+       		    <tr>
+                  <td style="font-size:9pt;" colspan="7">Please ensure the Document No. on your invoice is shown as a reference for your payment.</td>
+                  </tr>
+                    <tr>
+                      <td style="font-size:10pt; margin-top:5px;" colspan="7"><b>Wire Transfer Details:</b></td>
+  </tr>
+  <tr>
+                      <td style="font-size:10pt;" colspan="7">&nbsp;</td>
+  </tr>
+        </table>
+<table style="width: 100%; margin-top:5px;">
+                  <tr>
+                    <td colspan="2">Accora Limited</td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Bank Name: Bank of Ireland</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Customer: ${record.entity.entityid}</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="2">38 Main Street,</td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Account Name: Accora Limited</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Invoice #: ${record.tranid}</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="2">Swords,</td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Branch Code: 90-07-03 </b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Amount Due: ${record.total}</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="2">Co. Dublin,</td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Account Number: 44794842</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Amount Paid: ____________</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="2">Ireland K67 E0A2</td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>BIC: BOFIIE2D</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2">&nbsp;</td>
+  </tr>
+   				<tr>
+                    <td colspan="2">VAT ID: IE 3613478EH</td>
+                    <td>&nbsp;</td>
+                    <td colspan="4"><b>IBAN: IE36 BOFI 9007 0344 7948 42</b> </td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+ </table>
+
+<#elseif subsidiary =="1">  
+<hr style="border: none; border-top: 1px dotted black; margin-left: -90px; width: 120%;"></hr>  
+<table style="width: 100%;">
+                  <tr>
+                    <td colspan="3" style="font-size:11pt;"><b>Remittance Slip</b></td>
+                  </tr>
+       		    <tr>
+                  <td style="font-size:9pt;" colspan="7">Please ensure the Document No. on your invoice is shown as a reference for your payment.</td>
+                  </tr>
+                    <tr>
+                      <td style="font-size:10pt; margin-top:5px;" colspan="7"><b>Wire Transfer Details:</b></td>
+  </tr>
+  <tr>
+                      <td style="font-size:10pt;" colspan="7">&nbsp;</td>
+  </tr>
+        </table>
+<table style="width: 100%; margin-top:5px;">
+                  <tr>
+                    <td>Accora Inc.</td>
+                    <td>&nbsp;</td>
+                    <td><b>Bank Name: HSBC</b> </td>
+                    <td>&nbsp;</td>
+                    <td><b>Customer: ${record.entity.entityid}</b> </td>
+  </tr>
+                  <tr>
+                    <td>9210 Corporate Blvd.</td>
+                    <td>&nbsp;</td>
+                    <td><b>Account Name: Accora Inc</b> </td>
+                    <td>&nbsp;</td>
+                    <td><b>Invoice #: ${record.tranid}</b> </td>
+  </tr>
+                  <tr>
+                    <td>Suite 120</td>
+                    <td>&nbsp;</td>
+                    <td><b>BIC: MRMDUS33</b> </td>
+                    <td>&nbsp;</td>
+                    <td><b>Amount Due: ${record.total}</b> </td>
+  </tr>
+                  <tr>
+                    <td>Rockville MD 20850</td>
+                    <td>&nbsp;</td>
+                    <td><b>Account Number: 104015594</b> </td>
+                    <td>&nbsp;</td>
+                    <td><b>Amount Paid: ____________</b> </td>
+  </tr>
+                  <tr>
+                    <td>United States</td>
+  </tr>
+ </table>
+<#elseif subsidiary =="5" && record.currency == "GBP">
+<hr style="border: none; border-top: 1px dotted black; margin-left: -90px; width: 120%;"></hr>
+<table style="width: 100%;">
+                  <tr>
+                    <td colspan="3" style="font-size:11pt;"><b>Remittance Slip</b></td>
+                  </tr>
+       		    <tr>
+                  <td style="font-size:9pt;" colspan="7">Please ensure the Document No. on your invoice is shown as a reference for your payment.</td>
+                  </tr>
+                    <tr>
+                      <td style="font-size:10pt; margin-top:5px;" colspan="7"><b>Wire Transfer Details:</b></td>
+  </tr>
+  <tr>
+                      <td style="font-size:10pt;" colspan="7">&nbsp;</td>
+  </tr>
+        </table>
+<table style="width: 100%; margin-top:5px;">
+                  <tr>
+                    <td colspan="2">Accora Limited</td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Bank Name: HSBC</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Customer: ${record.entity.entityid}</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="2">Charter House</td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Account Name: Accora Limited</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Invoice #: ${record.tranid}</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="2">Barrington Road</td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Sort Code: 404301</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Amount Due: ${record.total}</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="2">Orwell</td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Account Number: 21558978</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Amount Paid: ____________</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="2">Cambridge</td>
+					<td>&nbsp;</td>
+                    <td colspan="2"><b>BIC: HBUKGB4B</b></td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+    <tr>
+                    <td colspan="2">United Kingdom</td>
+					<td>&nbsp;</td>
+                    <td colspan="2"><b>IBAN: GB09HBUK40430121558978</b></td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+  <tr>
+                    <td colspan="2">SG8 5QP</td>
+					<td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+    <tr>
+                    <td colspan="2">VAT ID: GB 823 5324 47</td>
+					<td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+ </table>
+ <#elseif subsidiary == "5" && record.currency == "EUR">
+<hr style="border: none; border-top: 1px dotted black; margin-left: -90px; width: 120%;"></hr>
+<table style="width: 100%;">
+                  <tr>
+                    <td colspan="3" style="font-size:11pt;"><b>Remittance Slip</b></td>
+                  </tr>
+       		    <tr>
+                  <td style="font-size:9pt;" colspan="7">Please ensure the document no. on your invoice is shown as a reference for your payment.</td>
+                  </tr>
+                    <tr>
+                      <td style="font-size:10pt; margin-top:5px;" colspan="7"><b>Wire Transfer Details:</b></td>
+  </tr>
+  <tr>
+                      <td style="font-size:10pt;" colspan="7">&nbsp;</td>
+  </tr>
+        </table>
+<table style="width: 100%; margin-top:5px;">
+                  <tr>
+                    <td colspan="2">Accora Limited</td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Bank Name: HSBC</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Customer: ${record.entity.entityid}</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="2">Charter House</td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Account Name: Accora Limited</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Invoice #: ${record.tranid}</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="2">Barrington Road</td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Sort Code: 401276</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Amount Due: ${record.total}</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="2">Orwell</td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Account Number: 73938028</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Amount Paid: ____________</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="2">Cambridge</td>
+					<td>&nbsp;</td>
+                    <td colspan="2"><b>BIC: HBUKGB4B</b></td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+    <tr>
+                    <td colspan="2">United Kingdom</td>
+					<td>&nbsp;</td>
+                    <td colspan="2"><b>IBAN: GB35HBUK40127673938028</b></td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+  <tr>
+                    <td colspan="2">SG8 5QP</td>
+					<td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+    <tr>
+                    <td colspan="2">VAT ID: GB 823 5324 47</td>
+					<td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+ </table>
+<#elseif subsidiary == "5" && record.currency == "USD">
+<hr style="border: none; border-top: 1px dotted black; margin-left: -90px; width: 120%;"></hr>
+<table style="width: 100%;">
+                  <tr>
+                    <td colspan="3" style="font-size:11pt;"><b>Remittance Slip</b></td>
+                  </tr>
+       		    <tr>
+                  <td style="font-size:9pt;" colspan="7">Please ensure the document no. on your invoice is shown as a reference for your payment.</td>
+                  </tr>
+                    <tr>
+                      <td style="font-size:10pt; margin-top:5px;" colspan="7"><b>Wire Transfer Details:</b></td>
+  </tr>
+  <tr>
+                      <td style="font-size:10pt;" colspan="7">&nbsp;</td>
+  </tr>
+        </table>
+<table style="width: 100%; margin-top:5px;">
+                  <tr>
+                    <td colspan="2">Accora Limited</td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Bank Name: HSBC</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Customer: ${record.entity.entityid}</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="2">Charter House</td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Account Name: Accora Limited</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Invoice #: ${record.tranid}</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="2">Barrington Road</td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Sort Code: 401276</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Amount Due: ${record.total}</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="2">Orwell</td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Account Number: 73936312</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b>Amount Paid: ____________</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="2">Cambridge</td>
+					<td>&nbsp;</td>
+                    <td colspan="2"><b>BIC: HBUKGB4B</b></td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+    <tr>
+                    <td colspan="2">United Kingdom</td>
+					<td>&nbsp;</td>
+                    <td colspan="2"><b>IBAN: GB98HBUK40127673936312</b></td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+  <tr>
+                    <td colspan="2">SG8 5QP</td>
+					<td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+    <tr>
+                    <td colspan="2">VAT ID: GB 823 5324 47</td>
+					<td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+ </table>
+<#else>
+<hr style="border: none; border-top: 1px dotted black; margin-left: -90px; width: 120%;"></hr>
+  
+   
+<table style="width: 100%;">
+                  <tr>
+                    <td colspan="3" style="font-size:11pt;"><b>Remittance Slip</b></td>
+                  </tr>
+       		    <tr>
+                  <td style="font-size:9pt;" colspan="7">Please ensure the document no. on your invoice is shown as a reference for your payment. If paying this invoice via bank transfer please pay into <#if record.currency== "GBP">GBP<#elseif record.currency= "EUR">EURO<#elseif record.currency= "USD">USD<#else>${record.currency}</#if> bank account </td>
+                  </tr>
+                    <tr>
+                      <td style="font-size:10pt; margin-top:5px;" colspan="7"><b>Bank Account Details:</b></td>
+  </tr>
+  <tr>
+                      <td style="font-size:10pt;" colspan="7">&nbsp;</td>
+  </tr>
+        </table>     
+ <table style="width: 100%; font-size:6pt; margin-top:5px;">
+                     <tr>
+                    <td colspan="3">&nbsp;</td>
+                    <td></td>
+                    <td colspan="5" style="font-size:8pt;"><b>GBP Bank Account:</b></td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:8pt;"><b>EURO Bank Account:</b></td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:8pt;"><b>USD Bank Account:</b></td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+                  <tr>
+                    <td colspan="3">Accora Ltd.</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Bank Name: HSBC</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Bank Name: HSBC</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Bank Name: HSBC</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;"><b>Customer: ${record.entity.entityid}</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="3">Charter House</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Act. Name: Accora Limited</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Act. Name: Accora Limited</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Act. Name: Accora Limited</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;"><b>Invoice #: ${record.tranid}</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="3">Barrington Road</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Sort Code: 404301</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Sort Code: 401276</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Sort Code: 401276</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;"><b>Amount Due: ${record.total}</b></td>
+  </tr>
+                  <tr>
+                    <td colspan="3">Orwell</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Act.No.: 21558978</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Act.No.: 73938028</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Act.No.: 73936312</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;"><b>Amount Paid: __________</b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="3">Cambridge</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">BIC: HBUKGB4B</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">BIC: HBUKGB4B</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">BIC: HBUKGB4B</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+                     <tr>
+                    <td colspan="3">SG8 5QP</td>
+                       <td>&nbsp;</td>
+                       <td colspan="5" style="font-size:6pt;">IBAN: GB09HBUK40430121558978</td>
+                       <td>&nbsp;</td>
+                       <td colspan="5" style="font-size:6pt;">IBAN: GB35HBUK40127673938028</td>
+                       <td>&nbsp;</td>
+                       <td colspan="5" style="font-size:6pt;">IBAN: GB98HBUK40127673936312</td>
+                       <td>&nbsp;</td>
+                       <td>&nbsp;</td>
+  </tr>
+                        <tr>
+                       <td colspan="3"></td>
+                       <td>&nbsp;</td>
+                       <td colspan="5"></td>
+                       <td>&nbsp;</td>
+                       <td>&nbsp;</td>
+                       <td>&nbsp;</td>
+                       <td>&nbsp;</td>
+                       <td>&nbsp;</td>
+                       <td>&nbsp;</td>
+  </tr>
+   </table> 
+</#if>   
         </macro>
     </macrolist>
 
     <style type="text/css">table {
             <!--font-family: sans-serif;-->
-      		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+          font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
             font-size: 9pt;
             table-layout: fixed;
         }
         th {
             font-weight: bold;
-            font-size: 8pt;
+            font-size: 9pt;
             padding: 0px;
             <!--background-color: #e3e3e3;-->
             border-bottom: 1px solid black;
-    		border-collapse: collapse;
+        border-collapse: collapse;
             <!--color: #333333;-->
         }
         td {
             padding: 0px;
             vertical-align: top;
-            font-size:10px;
+            font-size:9px;
         }
         b {
             font-weight: bold;
@@ -114,12 +658,12 @@
         }
         table.footer td {
             padding: 0;
-            font-size: 6pt;
+            font-size: 8pt;
         }
         table.itemtable th {
             padding-bottom: 0px;
             padding-top: 0px;
-
+			font-size: 10pt;
         }
         table.body td {
             padding-top: 0px;
@@ -157,7 +701,7 @@
         }
         td.totalcell {
           border-bottom: 1px solid black;
-    		border-collapse: collapse;
+        border-collapse: collapse;
         }
       td.message{
         font-size: 8pt;
@@ -167,7 +711,7 @@
             font-weight: bold;
         }
         span.title {
-            font-size: 28pt;
+            font-size: 24pt;
         }
         span.number {
             font-size: 16pt;
@@ -184,86 +728,96 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="26%" footer="nlfooter" footer-height="11%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+                  
+<body header="nlheader" header-height="410px" footer="nlfooter" footer-height="245px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 
-    <table style="width: 100%;">
-    <tr>
-	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
-	</tr>
-	<tr>
-	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
-	</tr>
-	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Number</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
-    </tr>
-	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
-    </tr>
-  <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Your Po #</b></td><td align="right" style="font-size:10pt">${record.otherrefnum}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No</b></td><td align="right" style="font-size:10pt">${record.entity.entityid}</td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
-    </tr>
-  </table>
+    
 <#if record.item?has_content>
 
 <table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
 <thead >
-	<tr >
-	<th colspan="12">Description</th>
-    <th align="center" colspan="2"><br/>Quantity</th>
-	<th align="right" colspan="2">Unit<br/>Price</th>
-    <th align="right" colspan="3">Net<br/>Amount</th>
-    <th align="center" colspan="3">VAT<br/>Code</th>
-    <th align="right" colspan="3">VAT<br/>Amount</th>
-	<th align="right" colspan="3">Gross<br/>Amount</th>
-	</tr>
+  <tr style="border-top: 1px solid black" >
+   <th align="left" colspan="3" style="font-size: 9px; background-color:#008871; color:#ffffff;border-left: 1px solid black; border-right: 1px solid white; padding: 3px; ">Item Code</th>
+  	<th align="left" colspan="7" style="font-size: 9px; background-color:#008871; color:#ffffff; border-right: 1px solid white; padding: 3px; ">Item Description</th>
+    <th align="center" colspan="3" style="font-size: 9px; background-color:#008871; color:#ffffff; border-right: 1px solid white; padding: 3px;">S/N or Lot No.</th>
+    <th align="center" colspan="2" style="font-size: 9px; background-color:#008871; color:#ffffff; border-right: 1px solid white; padding: 3px;">Qty.</th>
+  	<th align="center" colspan="2" style="font-size: 9px; background-color:#008871; color:#ffffff; border-right: 1px solid white; padding: 3px;">Unit Price</th>
+<#if subsidiary!="1">
+    <th align="center" colspan="3" style="font-size: 9px; background-color:#008871; color:#ffffff; border-right: 1px solid white; padding: 3px;">VAT</th>
+</#if>
+    <th align="center" colspan="3" style="font-size: 9px; background-color:#008871; color:#ffffff; border-right: 1px solid white; padding: 3px;">Net Amt.</th>
+<#if subsidiary!="1">
+  	<th align="right" colspan="3" style="font-size: 9px; background-color:#008871; color:#ffffff; border-right: 1px solid black; padding: 3px;">Gross Amt.</th>
+</#if>
+  </tr>
 </thead>
 </#if>
 
+  <#assign partNo>${item.custcol_item_code_for_print}</#assign>
+ <#if item.custcol_bbs_hide_on_pdf == true && item.amount == 0>
+<#else>
   <tr>
-	<td colspan="12">${item.description}</td>
-    <td align="center" colspan="2">${item.quantity}</td>
-	<td align="right" colspan="2">${item.rate}</td>
-    <td align="right" colspan="3">${item.amount}</td>
-    <td align="center" colspan="3">${item.taxcode}</td>
-	<td align="right" colspan="3">${item.tax1amt}</td>
-	<td align="right" colspan="3">${item.grossamt}</td>
-	</tr>
-	</#list><!-- end items --></table>
+<td align="left" colspan="3"  style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px;  padding-right: 5px; padding-bottom: 5px; padding-top: 5px; font-stretch: semi-condensed;"><b>${partNo}</b></td>
+  <td align="left" colspan="7"  style="border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px; padding-right: 5px; padding-bottom: 5px; padding-top: 5px;" >${item.description}</td>
+   <td align="center" colspan="3" style="border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px; padding-right: 5px; padding-bottom: 5px; padding-top: 5px;">${item.custcol_serial_numbers_udi}</td>
+   <td align="center" colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px; padding-right: 5px; padding-bottom: 5px; padding-top: 5px;">${item.quantity}</td>
+  <td align="right" colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black; padding-right: 5px; padding-left: 5px; padding-right: 5px; padding-bottom: 5px; padding-top: 5px;">${item.rate}</td>
+<#if subsidiary!="1">
+      <td align="right" colspan="3" style="border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px; padding-right: 5px; padding-bottom: 5px; padding-top: 5px;">${item.tax1amt}</td>
+</#if>
+      <td align="right" colspan="3" style="border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px; padding-right: 5px; padding-bottom: 5px; padding-top: 5px;">${item.amount}</td>
+<#if subsidiary!="1">
+  <td align="right" colspan="3" style="border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px; padding-right: 5px; padding-bottom: 5px; padding-top: 5px;">${item.grossamt}</td>
+</#if>
+  </tr>
+  
+</#if>
+   
+  </#list><!-- end items --></table>
+</#if>
+  
+<table class="total" style="width: 100%;">
+  <tr class="totalrow">
+  <td colspan="6">&nbsp;</td>
+  <td class="totalcell"  align="right"><b>Subtotal</b></td>
+  <td class="totalcell"  align="right" style="padding-right: 5px;">${record.subtotal}</td>
+  </tr>
+  </table>
+<#if record.discountitem?has_content>
+<table class="total" style="width: 100%;"><tr class="totalrow">
+  <td colspan="6">&nbsp;</td>
+  <td class="totalcell" align="right"><b>${record.discountitem}</b></td>
+  <td class="totalcell"  align="right" style="padding-right: 5px;">${record.discounttotal}</td>
+  </tr>
+</table>
+</#if>
+<#if record.shipmethod?has_content>
+<table class="total" style="width: 100%;"><tr class="totalrow">
+  <td colspan="6">&nbsp;</td>
+  <td class="totalcell" align="right"><b>Shipping</b></td>
+  <td class="totalcell"  align="right" style="padding-right: 5px;">${record.shippingcost} </td>
+  </tr>
+</table>
+</#if>
+<table class="total" style="width: 100%;"><tr class="totalrow">
+  <td colspan="6">&nbsp;</td>
+    <td class="totalcell" align="right"><#if subsidiary == "5" || subsidiary == "7"><b>VAT Total</b><#else><b>Tax Total</b></#if></td>
+  <td class="totalcell"  align="right" style="padding-right: 5px;">${record.taxtotal}</td>
+  </tr>
+</table>
+<table class="total" style="width: 100%;"><tr class="totalrow">
+  <td colspan="6">&nbsp;</td>
+  <td class="totalcell"  align="right"><b>Total (${record.currency})</b></td>
+  <td class="totalcell"  align="right" style="padding-right: 5px;">${record.total}</td>
+  </tr>
+  <tr>
+  <td>&nbsp;</td>
+  </tr>
+</table>
+
+<#if record.custbody_acc_proof_of_delivery?has_content>
+<a href="${record.custbody_acc_proof_of_delivery@url}">Click here to view proof of delivery</a>
 </#if>
 
-<hr />
-<table class="total" style="width: 100%;"><tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
-	<td class="totalcell" align="right"><b>Net Total</b></td>
-	<td class="totalcell" align="right">${record.subtotal}</td>
-	</tr>
-	<tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
-    <td class="totalcell" align="right"><b>VAT Total</b></td>
-	<td class="totalcell" align="right">${record.taxtotal}</td>
-	</tr>
-	<tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
-	<td class="totalcell" align="right"><b>Gross Total</b></td>
-	<td class="totalcell" align="right">${record.total}</td>
-	</tr>
-	<tr>
-	<td>&nbsp;</td>
-	</tr></table>
 </body>
 </pdf>

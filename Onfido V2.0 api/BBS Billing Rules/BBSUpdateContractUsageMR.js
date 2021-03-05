@@ -45,12 +45,6 @@ function(runtime, search, record, format, email) {
 				values: ['@NONE@']
     		},
     				{
-    			name: 'custrecord_bbs_contract_status',
-    			join: 'custbody_bbs_contract_record',
-    			operator: search.Operator.ANYOF,
-    			values: ['1'] // 1 = Approved
-    		},
-    				{
 				name: 'mainline',
 				operator: search.Operator.IS,
 				values: ['F']
@@ -175,7 +169,7 @@ function(runtime, search, record, format, email) {
 					{
 				name: 'formulatext',
 				summary: search.Summary.MAX,
-				formula: "REPLACE(NS_CONCAT({line}-1), ',',',')",
+				formula: "REPLACE(NS_CONCAT({linesequencenumber}-1), ',',',')",
 			},
 					{
 				name: 'fxrate',
@@ -202,8 +196,8 @@ function(runtime, search, record, format, email) {
     		var monthEnd		= result.getValue(result.columns[2]);
     		var lines			= result.getValue(result.columns[3]).split(','); // split on ',' as needs to be an array
     		var rate			= result.getValue(result.columns[4]);
-    		var quantity		= result.getValue(result.columns[5]);
-    		var amount			= result.getValue(result.columns[6]);
+    		var quantity		= parseInt(result.getValue(result.columns[5]));
+    		var amount			= parseFloat(result.getValue(result.columns[6]));
     		var contractRecord	= result.getValue(result.columns[7]);
     		
     		// call function to check if this product already exists on the contract record
