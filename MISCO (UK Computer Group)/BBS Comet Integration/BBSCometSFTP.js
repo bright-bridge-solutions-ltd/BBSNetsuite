@@ -481,7 +481,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																													details: 	err
 																													});
 																							
-																										emailMessage += 'Error creating new inventory item - ' + lineProduct + ' - ' + err.message + '\n\n';
+																										emailMessage += 'Error creating new inventory item - ' + lineProduct + ' - for order # '+ headerOrderNo + ' - ' + err.message + '\n\n';
 																									}
 																							
 																							}
@@ -585,7 +585,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																							}
 																						else
 																							{
-																								emailMessage += 'Unable to add product with code ' + lineProduct + ' for order # '+ headerOrderNo + '\n\n';
+																								emailMessage += 'Unable to add product with code ' + lineProduct + ' for order # ' + headerOrderNo + '\n\n';
 																							}
 																					}
 																				
@@ -644,7 +644,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																							details: 	err
 																						});
 																				
-																				emailMessage += 'Error creating sales order - ' + err.message + '\n\n';
+																				emailMessage += 'Error creating sales order for order # ' + headerOrderNo + ' - ' + err.message + '\n\n';
 																				
 																			}
 																		
@@ -1054,7 +1054,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																													details: 	err
 																													});
 																							
-																										emailMessage += 'Error creating new inventory item - ' + lineProduct + ' - ' + err.message + '\n\n';
+																										emailMessage += 'Error creating new inventory item - ' + lineProduct + ' - for order # ' + headerOrderNo + ' - ' + err.message + '\n\n';
 																									}
 																							
 																							}

@@ -63,30 +63,30 @@
 
 			<table class="header" style="width: 100%; margin-top: 10px;">
 				<tr>
-					<td align="left" style="font-size: 8pt; border-left: 1px solid black; border-top: 1px solid black; padding: 5px;"><b>Customer Name &amp; Address</b></td>
-					<td align="left" style="font-size: 8pt; border-top: 1px solid black;"></td>
-					<td align="left" style="font-size: 8pt; border-right: 1px solid black; border-top: 1px solid black; padding: 5px;"><b>Delivery Address</b></td>
-					<td align="center" style="font-size: 8pt; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; padding: 5px; margin-left: 3px;"><b>ACKNOWLEDGEMENT</b></td>
+					<td align="left" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff;"><b>Customer Name &amp; Address</b></td>
+					<td align="left" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff;">&nbsp;</td>
+					<td align="left" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff;"><b>Delivery Address</b></td>
+					<td align="center" style="font-size: 8pt; background-color: #00adef; color: #ffffff; padding: 5px; margin-left: 3px;"><b>ACKNOWLEDGEMENT</b></td>
               	</tr>
 				<tr>
-					<td align="left" rowspan="6" colspan="2" style="font-size: 8pt; border-left: 1px solid black; border-bottom: 1px solid black; padding: 5px;">${billAddress}</td>
-					<td align="left" rowspan="6" style="font-size: 8pt; border-bottom: 1px solid black; border-right: 1px solid black; padding: 5px;">${record.shipaddress}</td>
-					<td align="left" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>FAO:</b></td><td align="right" style="font-size: 7pt;">${record.entity.contact}</td></tr></table></td>
+					<td align="left" rowspan="6" colspan="2" style="font-size: 8pt; padding: 5px;">${billAddress}</td>
+					<td align="left" rowspan="6" style="font-size: 8pt; padding: 5px;">${record.shipaddress}</td>
+					<td align="left" style="font-size: 7pt;  padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>FAO:</b></td><td align="right" style="font-size: 7pt;">${record.entity.contact}</td></tr></table></td>
               	</tr>
 				<tr>
-					<td align="left" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Order Date:</b></td><td align="right" style="font-size: 7pt;">${record.trandate}</td></tr></table></td>
+					<td align="left" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt; "><b>Order Date:</b></td><td align="right" style="font-size: 7pt;">${record.trandate}</td></tr></table></td>
               	</tr>
 				<tr>
-					<td align="left" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Your Order No:</b></td><td align="right" style="font-size: 7pt;">${record.otherrefnum}</td></tr></table></td>
+					<td align="left" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt; "><b>Your Order No:</b></td><td align="right" style="font-size: 7pt;">${record.otherrefnum}</td></tr></table></td>
               	</tr>
 				<tr>
-					<td align="left" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Taken By:</b></td><td align="right" style="font-size: 7pt;">${record.salesrep?keep_before(" ")}</td></tr></table></td>
+					<td align="left" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt; "><b>Taken By:</b></td><td align="right" style="font-size: 7pt;">${record.salesrep?keep_before(" ")}</td></tr></table></td>
               	</tr>
 				<tr>
-					<td align="left" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; padding: 5px; margin-left: 3px;">&nbsp;</td>
+					<td align="left" style="font-size: 7pt; padding: 5px; margin-left: 3px;">&nbsp;</td>
               	</tr>
 				<tr>
-					<td align="left" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; border-top: 1px solid black;padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Our Order No:</b></td><td align="right" style="font-size: 10pt;"><b>${record.tranid}</b></td></tr></table></td>
+					<td align="left" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Our Order No:</b></td><td align="right" style="font-size: 10pt;"><b>${record.tranid}</b></td></tr></table></td>
               	</tr>
 			</table>
 		</macro>
@@ -209,12 +209,12 @@
         <#if item_index==0>
           <thead>
               <tr>
-              <th align="right" colspan="1"  style="font-size: 7pt; border-left: 1px solid black; border-bottom: 1px solid black; border-top: 1px solid black;" >Qty</th>
-              <th align="left"  colspan="3"  style="font-size: 7pt; border-bottom: 1px solid black; border-top: 1px solid black;" >Code</th>
-              <th align="left"  colspan="10" style="font-size: 7pt; border-bottom: 1px solid black; border-top: 1px solid black;" >Description</th>
-              <th align="right" colspan="2"  style="font-size: 7pt; border-bottom: 1px solid black; border-top: 1px solid black;" >Price Each</th>
-              <th align="right" colspan="2"  style="font-size: 7pt; border-bottom: 1px solid black; border-top: 1px solid black;" >Line Total</th>
-              <th align="right" colspan="2"  style="font-size: 7pt; border-right: 1px solid black; border-bottom: 1px solid black; border-top: 1px solid black;" >Line VAT</th>
+              <th align="right" colspan="1"  style="font-size: 7pt;  background-color: #00adef; color: #ffffff;" >Qty</th>
+              <th align="left"  colspan="3"  style="font-size: 7pt;  background-color: #00adef; color: #ffffff;" >Code</th>
+              <th align="left"  colspan="10" style="font-size: 7pt;  background-color: #00adef; color: #ffffff;" >Description</th>
+              <th align="right" colspan="2"  style="font-size: 7pt;  background-color: #00adef; color: #ffffff;" >Price Each</th>
+              <th align="right" colspan="2"  style="font-size: 7pt;  background-color: #00adef; color: #ffffff;" >Line Total</th>
+              <th align="right" colspan="2"  style="font-size: 7pt;  background-color: #00adef; color: #ffffff;" >Line VAT</th>
               </tr>
           </thead>
         </#if>
@@ -242,47 +242,44 @@
       <table style="width: 100%; margin-top: 10px;">
           <tr>
               <#if record.memo?length gt 0>
-              	<td colspan="14" align="left"  style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black;"><b>Special Instructions</b></td>
+              	<td colspan="14" align="left"  style="font-size: 7pt;  background-color: #00adef; color: #ffffff;"><b>Special Instructions</b></td>
               <#else>
                 <td colspan="14" align="left"  style="font-size: 7pt;">&nbsp;</td>
               </#if>
               <td colspan="2"  align="left"  style="font-size: 7pt;">&nbsp;</td>
-              <td colspan="2"  align="left"  style="font-size: 7pt; border-left: 1px solid black; border-top: 1px solid black;"><b>Goods Net:</b></td>
-              <td colspan="2"  align="right" style="font-size: 7pt; border-right: 1px solid black; border-top: 1px solid black;">${record.subtotal}</td>
+              <td colspan="2"  align="left"  style="font-size: 7pt; "><b>Goods Net:</b></td>
+              <td colspan="2"  align="right" style="font-size: 7pt; ">${record.subtotal}</td>
           </tr>
           <tr>
               <#if record.memo?length gt 0>
-              	<td rowspan="6" colspan="14" align="left"  style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.memo}</td>
+              	<td rowspan="6" colspan="14" align="left"  style="font-size: 7pt; ">${record.memo}</td>
               <#else>
                 <td rowspan="6" colspan="14" align="left"  style="font-size: 7pt;">&nbsp;</td>
               </#if>
               <td colspan="2"  align="left"  style="font-size: 7pt;">&nbsp;</td>
-              <td colspan="2"  align="left"  style="font-size: 7pt; border-left: 1px solid black;"><b>Delivery:</b></td>
-              <td colspan="2"  align="right" style="font-size: 7pt; border-right: 1px solid black;">${record.shippingcost}</td>
+              <td colspan="2"  align="left"  style="font-size: 7pt; "><b>Delivery:</b></td>
+              <td colspan="2"  align="right" style="font-size: 7pt; ">${record.shippingcost}</td>
           </tr>
           <tr>
               <td colspan="2"  align="left"  style="font-size: 7pt;">&nbsp;</td>
-              <td colspan="2"  align="left"  style="font-size: 7pt; border-left: 1px solid black;"><b>VAT:</b></td>
-              <td colspan="2"  align="right" style="font-size: 7pt; border-right: 1px solid black;">${record.taxtotal}</td>
+              <td colspan="2"  align="left"  style="font-size: 7pt; "><b>VAT:</b></td>
+              <td colspan="2"  align="right" style="font-size: 7pt; ">${record.taxtotal}</td>
           </tr>
           <tr>
               <td colspan="2"  align="left"  style="font-size: 7pt;">&nbsp;</td>
-              <td colspan="2"  align="left"  style="font-size: 7pt; border-left: 1px solid black;"><b>Total:</b></td>
-              <td colspan="2"  align="right" style="font-size: 7pt; border-right: 1px solid black;">${record.total}</td>
+              <td colspan="2"  align="left"  style="font-size: 7pt; "><b>Total:</b></td>
+              <td colspan="2"  align="right" style="font-size: 7pt; ">${record.total}</td>
           </tr>
           <tr>
               <td colspan="2"  align="left"  style="font-size: 7pt;">&nbsp;</td>
-              <td colspan="2"  align="left"  style="font-size: 7pt; border-left: 1px solid black;">&nbsp;</td>
-              <td colspan="2"  align="right" style="font-size: 7pt; border-right: 1px solid black;">&nbsp;</td>
+              <td colspan="2"  align="left"  style="font-size: 7pt; ">&nbsp;</td>
+              <td colspan="2"  align="right" style="font-size: 7pt; ">&nbsp;</td>
           </tr>
-          <tr>
-              <td colspan="2"  align="left"   style="font-size: 7pt;">&nbsp;</td>
-              <td colspan="4"  align="center" style="font-size: 7pt; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.currency}</td>
-          </tr>
+
 
       </table>
   
-      <table  style="width: 100%; margin-top: 5px; border: 1px solid black;">
+      <table  style="width: 100%; margin-top: 5px; ">
         <tr>
           <td align="center" style="font-size: 7pt; padding: 0px 0px 0px 0px;"><b>Thank you for your order</b></td>
         </tr>
@@ -291,7 +288,7 @@
         </tr>
       </table>
 
-      <table  style="width: 100%; margin-top: 5px; border: 1px solid black;">
+      <table  style="width: 100%; margin-top: 5px; ">
         <tr>
           <td align="center" style="font-size: 7pt; padding: 0px 0px 0px 0px;"><b>Our fully trained distribution team are preparing your order for despatch in accordance with the above.</b></td>
         </tr>
