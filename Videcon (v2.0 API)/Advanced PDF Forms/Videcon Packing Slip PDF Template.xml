@@ -22,7 +22,7 @@
 					<td align="right" colspan="3"><img src="${logoInfo}" style="float: right; width: ${logoWidth}px; height: ${logoHeight}px;" /></td>
     			</tr>
     			<tr>
-					<td><span style="font-size:24px;">${record@title}</span></td>
+					<td><span style="font-size:24px;">Delivery Note</span></td>
 					<td align="right">&nbsp;</td>
 					<td align="right">&nbsp;</td>
 				</tr>
