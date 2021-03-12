@@ -477,9 +477,6 @@ conditions set out overleaf.</p>
         
         <table style="width: 100%;">
         	<tr>
-        		<td><b>Customer Info</b></td>
-        	</tr>
-        	<tr>
         		<td>${record.custbody_bbs_customer_info}</td>
         	</tr>
         </table>

@@ -462,6 +462,10 @@ function(search, sftp, record, format, file, runtime) {
     			status = 1;
     			break;
     		
+    		case 'ALLOCATED':
+    			status = 7;
+    			break;
+    		
     		case 'CANCELLED':
     			status = 3;
     			break;

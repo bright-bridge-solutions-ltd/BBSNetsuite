@@ -70,9 +70,8 @@ function(search) {
 			amount 		= Number(scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'item', fieldId: 'amount'}));
 			rate 		= Number(scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'item', fieldId: 'rate'}));
 			quantity 	= Number(scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'item', fieldId: 'quantity'}));
-
     		
-    		if(itemId != null)
+    		if(itemId)
     			{
     				var itemData = search.lookupFields({
     													type:		search.Type.ITEM,

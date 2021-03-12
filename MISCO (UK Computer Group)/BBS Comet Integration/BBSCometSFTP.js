@@ -804,6 +804,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				var headerDateString 	= rawDateArray[2] + '/' + rawDateArray[1] + '/' + rawDateArray[0];
 																				var headerDate 			= format.parse({value: headerDateString, type: format.Type.DATE});
 																				var headerPaymentMethod	= getDataElement(output, 'output.Order.OrderHeader.ShipmentOptions.PaymentInformation.Payment.Provider');
+																				var headerShipMethod 	= findShippingItem(getDataElement(output, 'output.Order.OrderHeader.ShipmentOptions.Delivery'));
 																				
 																				// switch the headerPaymentMethod
 																				switch(headerPaymentMethod) {
@@ -879,6 +880,11 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																											fieldId:	'cseg_bbs_division',
 																											value:		integrationDivision					
 																											});
+																				
+																				salesOrderRecord.setValue({
+																											fieldId:	'shipmethod',
+																											value:		headerShipMethod					
+																											});
 
 																				//Shipping Address
 																				//
@@ -910,8 +916,8 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																						var lineDescription			= output.Order.OrderLines[int2].ProductLine.Label;
 																						var lineSupplierAricleNo	= output.Order.OrderLines[int2].ProductLine.SupplierArticleNo;
 																						var lineQuantity 			= output.Order.OrderLines[int2].ProductLine.Quantity;
-																				//		var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.Supplier;
-																						var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.SupplierExportId;
+																						var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.Supplier;
+																				//		var lineSupplier 			= output.Order.OrderLines[int2].ProductLine.SupplierExportId;
 																						var linePoNumber			= output.Order.OrderLines[int2].ProductLine.PurchaseOrderNumber;
 																				//		var linePoPrice 			= output.Order.OrderLines[int2].ProductLine.Price;
 																						var linePoPrice 			= output.Order.OrderLines[int2].ProductLine.CalculatedInprice;
@@ -2147,6 +2153,39 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 			    	
 			return supplierId;
     	}
+    
+    //Find the shipping item
+    //
+    function findShippingItem(shippingMethod) {
+    	
+    	// declare and initialize variables
+    	var shippingItem = null;
+    	
+    	// run search to find the correct shipping item
+    	search.create({
+    		type: search.Type.SHIP_ITEM,
+    		
+    		filters: [{
+    			name: 'itemid',
+    			operator: search.Operator.IS,
+    			values: [shippingMethod]
+    		}],
+    		
+    		columns: [{
+    			name: 'itemid'
+    		}],
+    		
+    	}).run().each(function(result){
+    		
+    		// get the shipping item from the search results
+    		shippingItem = result.id;
+    		
+    	});
+    	
+    	// return values to the main script function
+    	return shippingItem;
+    	
+    }
     
     //Get data elements from output object
     //

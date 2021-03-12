@@ -487,7 +487,7 @@ function(search, record, url, https)  {
     	// return returnValue to main script function
     	return returnValue;   	
     	
-    }    
+    }
     
     return {
     	

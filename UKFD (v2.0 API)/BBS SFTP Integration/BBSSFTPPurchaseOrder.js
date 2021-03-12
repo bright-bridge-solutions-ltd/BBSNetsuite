@@ -48,7 +48,7 @@ function(search, sftp, file, format, record, runtime) {
     		{
 	    		// retrieve script parameters
 	        	var folderID = runtime.getCurrentScript().getParameter({
-	        		name: 'custscript_bbs_supplier_sftp_folder_id'
+	        		name: 'custscript_bbs_sftp_folder_id'
 	        	});
     		
     			// get the current record
@@ -71,7 +71,6 @@ function(search, sftp, file, format, record, runtime) {
 		    	var sftpOutDirectory	= sftpDetails.outDirectory;
 		    	var sftpInDirectory		= sftpDetails.inDirectory;
 		    	var sftpUnitsOfQuantity	= sftpDetails.unitsOfQuantity;
-		    	var sftpFinalDepot		= sftpDetails.finalDepot;
 		    			
 		    	// if we have SFTP details for this supplier
 		    	if (sftpEndpoint)
@@ -133,12 +132,23 @@ function(search, sftp, file, format, record, runtime) {
 				    							});
 				    						}
 				    					
+				    					var warehouseAddress = currentRecord.getValue({
+				    						fieldId: 'custbody_warehouseaddress'
+				    					}).split('\r\n');
+				    					
+				    					var salesOrderID = currentRecord.getValue({
+				    						fieldId: 'createdfrom'
+				    					});
+				    					
 				    					var soNumber = currentRecord.getText({
 				    						fieldId: 'createdfrom'
 				    					}).split('#').pop();
+				    					
+				    					// call function to lookup the Menzies depot number on the sales order
+				    					var finalDepot = getMenziesDepot(salesOrderID);
 				    									
 				    					// start off the CSV
-				    					var CSV = '"HEAD",,"UKFD","UKFD",' + poNumber + ',' + orderDate + ',' + requiredDate + ',,,,,,,,,,"UKFD Warehouse","Unit H1","Pilgrims Walk","Prologis Park","Coventry","CV6 4QG",,,,,,,,' + soNumber + ',' + sftpFinalDepot + '\r\n';
+				    					var CSV = '"HEAD",,"UKFD","UKFD",' + poNumber + ',' + orderDate + ',' + requiredDate + ',,,,,,,,,,' + warehouseAddress[0] + ',' + warehouseAddress[1] + ',' + warehouseAddress[2] + ',' + warehouseAddress[3] + ',' + warehouseAddress[4] + ',' + warehouseAddress[6] + ',,,,,,,,' + soNumber + ',' + finalDepot + '\r\n';
 				    							
 				    					// get count of lines on the PO
 				    					var lineCount = currentRecord.getLineCount({
@@ -253,6 +263,18 @@ function(search, sftp, file, format, record, runtime) {
 		    								}
 		    						}
 		    				}
+		    			
+		    			// change the purchase order's approval status to Approved
+		    			record.submitFields({
+		    				type: record.Type.PURCHASE_ORDER,
+		    				id: currentRecord.id,
+		    				values: {
+		    					approvalstatus: 2 // 2 = Approved
+		    				},
+		    				enableSourcing: false,
+							ignoreMandatoryFields: true
+		    			});
+		    			
     				}
     		}
     	
@@ -273,7 +295,6 @@ function(search, sftp, file, format, record, runtime) {
     	var outDirectory	= null;
     	var inDirectory		= null;
     	var unitsOfQuantity	= null;
-    	var finalDepot		= null;
     	
     	// search for Supplier SFTP Detail records
     	search.create({
@@ -313,9 +334,6 @@ function(search, sftp, file, format, record, runtime) {
     		},
     				{
     			name: 'custrecord_bbs_sftp_units_of_quantity'
-    		},
-    				{
-    			name: 'custrecord_bbs_sftp_final_depot'
     		}],
     		
     	}).run().each(function(result){
@@ -353,10 +371,6 @@ function(search, sftp, file, format, record, runtime) {
     			name: 'custrecord_bbs_sftp_units_of_quantity'
     		});
     		
-    		finalDepot = result.getValue({
-    			name: 'custrecord_bbs_sftp_final_depot'
-    		});
-    		
     	});
     	
     	// return values to the main script function
@@ -368,11 +382,25 @@ function(search, sftp, file, format, record, runtime) {
     		portNumber:			portNumber,
     		outDirectory:		outDirectory,
     		inDirectory:		inDirectory,
-    		unitsOfQuantity:	unitsOfQuantity,
-    		finalDepot:			finalDepot
+    		unitsOfQuantity:	unitsOfQuantity
     	}
     	
     }
+    
+    // =====================================================================
+	// FUNCTION TO GET THE MENZIES DEPOT NUMBER FROM THE RELATED SALES ORDER
+	// =====================================================================
+	
+	function getMenziesDepot(salesOrderID) {
+		
+		// get the Menzies depot from the sales order and return to the main script function
+		return search.lookupFields({
+			type: search.Type.SALES_ORDER,
+			id: salesOrderID,
+			columns: ['custbody_bbs_menzies_depot_number']
+		}).custbody_bbs_menzies_depot_number;
+		
+	}
 
     return {
         afterSubmit: afterSubmit

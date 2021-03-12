@@ -20,7 +20,10 @@ function(runtime, search, dialog) {
     	// check the record is being created
     	if (scriptContext.mode == 'create')
     		{
-		    	// get the value of the customer field
+	    		// get the record type
+	    		var recordType = scriptContext.currentRecord.type;
+    		
+    			// get the value of the customer field
 		    	var customerID = scriptContext.currentRecord.getValue({
 		    		fieldId: 'entity'
 		    	});
@@ -28,14 +31,14 @@ function(runtime, search, dialog) {
 		    	// if we have a customer ID
 		    	if (customerID)
 		    		{
-		    			// call function to get the customer stage
-		    			var customerStage = getCustomerStage(customerID);
+		    			// call function to get customer info
+		    			var customerInfo = getCustomerInfo(customerID);
 		    					
-		    			// if the customer is a Prospect or Lead
-		    			if (customerStage != 'CUSTOMER')
+		    			// if the customer is a Prospect or Lead, OR they are a Customer and the legacyCustomer checkbox is NOT ticked
+		    			if (customerInfo.stage != 'CUSTOMER' || (customerInfo.stage == 'CUSTOMER' && customerInfo.legacyCustomer == false))
 		    				{
 		    					// call function to check if the customer fields have been populated
-		    					var customerOK = checkCustomer(customerID);
+		    					var customerOK = checkCustomer(customerID, recordType);
 		    					
 				    			// if the customerOK variable returns false
 				    			if (customerOK == false)
@@ -75,6 +78,9 @@ function(runtime, search, dialog) {
     	// if the customer field has been changed
     	if (scriptContext.fieldId == 'entity')
     		{
+	    		// get the record type
+    			var recordType = scriptContext.currentRecord.type;
+    		
     			// get the value of the customer field
     			var customerID = scriptContext.currentRecord.getValue({
     				fieldId: 'entity'
@@ -83,14 +89,14 @@ function(runtime, search, dialog) {
     			// if we have a customer ID
     			if (customerID)
     				{
-    					// call function to get the customer stage
-    					var customerStage = getCustomerStage(customerID);
-    					
-    					// if the customer is a Prospect or Lead
-    					if (customerStage != 'CUSTOMER')
-    						{
+	    				// call function to get customer info
+		    			var customerInfo = getCustomerInfo(customerID);
+		    					
+		    			// if the customer is a Prospect or Lead, OR they are a Customer and the legacyCustomer checkbox is NOT ticked
+		    			if (customerInfo.stage != 'CUSTOMER' || (customerInfo.stage == 'CUSTOMER' && customerInfo.legacyCustomer == false))
+		    				{
     							// call function to check if the customer fields have been populated
-    							var customerOK = checkCustomer(customerID);
+    							var customerOK = checkCustomer(customerID, recordType);
     					
 		    					// if the customerOK variable returns false
 		    					if (customerOK == false)
@@ -233,25 +239,47 @@ function(runtime, search, dialog) {
     // HELPER FUNCTIONS
     // ================
     
-    function getCustomerStage(customerID) {
+    function getCustomerInfo(customerID) {
     	
-    	return search.lookupFields({
+    	// declare and initialize variables
+    	var stage = null;
+    	var legacyCustomer = null;
+    	
+    	// lookup fields on the customer record
+    	var customerLookup = search.lookupFields({
     		type: search.Type.CUSTOMER,
     		id: customerID,
-    		columns: ['stage']
-    	}).stage[0].value;
+    		columns: ['stage', 'custentity_bbs_legacy_customer']
+    	});
+    	
+    	// return values to the main script function
+    	return {
+    		stage: customerLookup.stage[0].value,
+    		legacyCustomer:	customerLookup.custentity_bbs_legacy_customer
+    	};
     	
     }
     
-    function checkCustomer(customerID) {
+    function checkCustomer(customerID, recordType) {
     	
     	// declare and initialise variables
     	var customerOK = false;
     	
-    	// retrieve script parameters
-    	var savedSearchID = runtime.getCurrentScript().getParameter({
-    		name: 'custscript_bbs_customer_client_ss'
-    	});
+    	// if the record type is salesorder
+    	if (recordType == 'salesorder')
+    		{
+	    		// retrieve script parameters
+	        	var savedSearchID = runtime.getCurrentScript().getParameter({
+	        		name: 'custscript_bbs_cust_client_ss_sales_ord'
+	        	});
+    		}
+    	else
+    		{
+	    		// retrieve script parameters
+	        	var savedSearchID = runtime.getCurrentScript().getParameter({
+	        		name: 'custscript_bbs_cust_client_ss_quote_opp'
+	        	});
+    		}
     	
     	// run search to see if the customer meets the criteria
     	var customerSearch = search.load({

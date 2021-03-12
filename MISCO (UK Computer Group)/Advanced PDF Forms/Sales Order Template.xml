@@ -277,6 +277,11 @@
 				</tr>
 				<tr class="totalrow">
 					<td colspan="4">&nbsp;</td>
+				    <td class="totalcell" align="right"><b>Shipping</b></td>
+					<td class="totalcell" align="right">${currencySymbol}${record.shippingcost}</td>
+				</tr>
+				<tr class="totalrow">
+					<td colspan="4">&nbsp;</td>
 				    <td class="totalcell" align="right"><b>VAT Total</b></td>
 					<td class="totalcell" align="right">${currencySymbol}${record.taxtotal}</td>
 				</tr>
