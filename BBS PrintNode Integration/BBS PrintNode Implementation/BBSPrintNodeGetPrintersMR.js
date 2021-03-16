@@ -122,7 +122,7 @@ function(record, search, plugin)
 			    			
 		    				printerRecord.setValue({
 													fieldId:		'name',
-													value:			printerData.name
+													value:			printerData.computer.name + ' : ' + printerData.name
 													});
 		
 		    				printerRecord.setValue({

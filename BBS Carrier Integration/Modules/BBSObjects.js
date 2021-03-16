@@ -142,16 +142,19 @@ function()
 		}
 
 	
-	//Object to hold the item b ased info
+	//Object to hold the item based info
 	//
-	function _itemInfoObj(_itemText, _itemDesc, _itemCommodity, _itemCountry, _itemQty, _itemValue)
+	function _itemInfoObj(_itemText, _itemDesc, _itemCommodity, _itemCountry, _itemQty, _itemValue, _itemRate, _itemWeight, _itemType)
 		{
-			this.itemText		= _itemText;
-			this.itemDesc		= _itemDesc;
-			this.itemCommodity	= _itemCommodity;
-			this.itemCountry	= _itemCountry;
-			this.itemQty		= _itemQty;
-			this.itemValue		= _itemValue;
+			this.itemText		= _itemText;		//Item code
+			this.itemDesc		= _itemDesc;		//Item description
+			this.itemCommodity	= _itemCommodity;	//Commodity code
+			this.itemCountry	= _itemCountry;		//Country of origin
+			this.itemQty		= _itemQty;			//Item quantity
+			this.itemValue		= _itemValue;		//Item line value (quantity * rate)
+			this.itemUnitRate	= _itemRate;		//Item unit rate
+			this.itemUnitWeight	= _itemWeight;		//Item unit weight
+			this.itemType		= _itemType;		//Item type description e.g. 'Mobile Phones'
 		}
 
 	//=========================================================================

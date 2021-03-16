@@ -974,13 +974,15 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 					var itemData = search.lookupFields({
 														type:		search.Type.ITEM,
 														id:			ifItemId,
-														columns:	['countryofmanufacture', 'custitem_commodity_code']		
+														columns:	['countryofmanufacture', 'custitem_commodity_code','weight','custitem_code_of_supply']		
 														});
 					
 					var itemCountry 		= (itemData.hasOwnProperty('countryofmanufacture') ? itemData.countryofmanufacture : '');
 					var itemCommodityCode	= (itemData.hasOwnProperty('custitem_commodity_code') ? itemData.custitem_commodity_code : '');
+					var itemWeight			= (itemData.hasOwnProperty('weight') ? itemData.weight : '');
+					var itemType			= (itemData.hasOwnProperty('custitem_code_of_supply') &&  itemData.custitem_code_of_supply.length > 0 ? itemData.custitem_code_of_supply[0].text : '');
 					
-					itemInfoArray.push(new BBSObjects.itemInfoObj(soItemText, ifItemDesc, itemCommodityCode, itemCountry, ifItemQty, (ifItemQty * soItemRate)));
+					itemInfoArray.push(new BBSObjects.itemInfoObj(soItemText, ifItemDesc, itemCommodityCode, itemCountry, ifItemQty, (ifItemQty * soItemRate), soItemRate, itemWeight, itemType));
 				}
     		
     		return itemInfoArray;
