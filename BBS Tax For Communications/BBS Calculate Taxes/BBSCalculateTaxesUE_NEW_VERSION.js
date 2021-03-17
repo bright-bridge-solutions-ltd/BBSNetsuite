@@ -324,7 +324,7 @@ function(runtime, record, search, libraryModule, plugin)
 										
 										// check we have a transaction/service pair
 										//
-										if (transactionType != '' && serviceType != '')
+										if (transactionType != '' && serviceType != '' && transactionType != null && serviceType != null)
 											{
 												//Create a new invoice item object
 										        //
