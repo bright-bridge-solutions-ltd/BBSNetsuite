@@ -190,7 +190,7 @@ function(runtime, record, search, libraryModule, plugin)
 						
 						// get the configuration
 						//
-						var configuration = tfcPlugin.getTFCConfiguration();
+						var configuration = tfcPlugin.getTFCConfiguration(subsidiaryID);
 						
 						// if we have been unable to return the P Code from the subsidiary
 						//

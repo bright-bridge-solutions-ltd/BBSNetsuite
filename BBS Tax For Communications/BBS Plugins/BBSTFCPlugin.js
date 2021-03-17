@@ -283,13 +283,15 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 
 		//Get the current configuration
 		//
-		function getConfiguration()
+		function getConfiguration(subsidiaryID)
 			{
+				// declare and initialize variables
 				var config = null;
+				var subsidiaryRecord = null;
 				
-				//Search for an active configuration
+				//Create search to find an active configuration
 				//
-				var customrecord_bbstfc_configSearchObj = getResults(search.create({
+				var customrecord_bbstfc_configSearchObj = search.create({
 					   type: "customrecord_bbstfc_config",
 					   filters:
 					   [
@@ -332,11 +334,52 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 					      search.createColumn({name: "custrecord_bbstfc_address_incorporated", label: "Incorporated"}),
 					      search.createColumn({name: "custrecord_bbstfc_config_max_tax", label: "Max Tax Codes To Process"})
 					   ]
-					}));
+					});
+				
+				try
+					{
+						//Load the subsidiary record
+						//
+						subsidiaryRecord = record.load({
+							type: record.Type.SUBSIDIARY,
+							id: subsidiaryID
+						});
+					}
+				catch(e)
+					{
+						log.error({
+							title: 'Error Loading Subsidiary Record',
+							details: e
+						});
+					}
+				
+				//If we have been able to load the subsidiary record
+				//
+				if (subsidiaryRecord)
+					{
+						//Get the current search filters
+						//
+						var searchFilters = customrecord_bbstfc_configSearchObj.filters;
+	    			
+						//Add a new search filter using .push() method
+		    			//
+		    			searchFilters.push(
+		    									search.createFilter({
+		    										name: 'custrecord_bbstfc_config_subsidiaries',
+		    										operator: search.Operator.ANYOF,
+		    										values: [subsidiaryID]
+		    									})
+		    								
+		    								);
+					}
+				
+				//Run search and return results
+				//
+				customrecord_bbstfc_configSearchObj = getResults(customrecord_bbstfc_configSearchObj);
 				
 				//Found one?
 				//
-				if(customrecord_bbstfc_configSearchObj != null && customrecord_bbstfc_configSearchObj.length > 0)
+				if(customrecord_bbstfc_configSearchObj.length > 0)
 					{
 						config 						= new libraryModule.libConfigObj();
 						var processingMode 			= Number(customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_proc_mode'}));

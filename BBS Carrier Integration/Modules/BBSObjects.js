@@ -8,7 +8,7 @@ function()
 	
 	//Object to hold the connection configuration
 	//
-	function _configuration(_primaryCarrier, _username, _passsword, _url, _majorId, _minorId, _intermediateId, _labelFormat, _imageConvert)
+	function _configuration(_primaryCarrier, _username, _passsword, _url, _urlDelete, _majorId, _minorId, _intermediateId, _labelFormat, _imageConvert)
 		{
 			//Constructor
 			//
@@ -16,6 +16,7 @@ function()
 			this.username		= _username;
 			this.password		= _passsword;
 			this.url			= _url;
+			this.urlDelete		= _urlDelete;
 			this.majorId		= _majorId;
 			this.minorId		= _minorId;
 			this.intermediateId	= _intermediateId;

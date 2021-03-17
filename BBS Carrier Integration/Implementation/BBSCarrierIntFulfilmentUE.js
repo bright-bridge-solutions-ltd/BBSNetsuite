@@ -18,12 +18,13 @@ define([
         '../Modules/BBSCarrierGFS',				//GFS integration module
         '../Modules/BBSCarrierProCarrier',		//ProCarrier integration module
         '../Modules/BBSCarrierDPD',				//DPD integration module
-        '../Modules/BBSCarrierFedEx'			//FedEx integration module
+        '../Modules/BBSCarrierFedEx',			//FedEx integration module
+        '../Modules/BBSCarrierUPS'			//UPS integration module
         ],
 /**
  * @param {record} record
  */
-function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCarrierGFS, BBSCarrierProCarrier, BBSCarrierDPD, BBSCarrierFedEx) 
+function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCarrierGFS, BBSCarrierProCarrier, BBSCarrierDPD, BBSCarrierFedEx, BBSCarrierUPS) 
 {
 	
 	//=============================================================================================
@@ -517,6 +518,15 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 					    									processShipmentsResponse = BBSCarrierFedEx.carrierProcessShipments(processShipmentsRequest);	//Pass in the info gleaned from the IF record here
 					    									
 					    									break;
+					    									
+					    									
+					    								case 'UPS':
+					    									
+					    									//Send the request to the specific carrier
+					    									//
+					    									processShipmentsResponse = BBSCarrierUPS.carrierProcessShipments(processShipmentsRequest);	//Pass in the info gleaned from the IF record here
+					    									
+					    									break;
 			    									}
 			    								
 		    									//Check if we have got a success message back
@@ -805,6 +815,14 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 			    									//Send the request to the specific carrier
 			    									//
 			    									cancelShipmentResponse = BBSCarrierProCarrier.carrierCancelShipments(cancelShipmentRequest);	//Pass in the info gleaned from the IF record here
+			    									
+			    									break;
+			    									
+			    								case 'UPS':
+			    									
+			    									//Send the request to the specific carrier
+			    									//
+			    									cancelShipmentResponse = BBSCarrierUPS.carrierCancelShipments(cancelShipmentRequest);	//Pass in the info gleaned from the IF record here
 			    									
 			    									break;
 	    									}
