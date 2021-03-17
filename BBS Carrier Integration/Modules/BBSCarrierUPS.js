@@ -17,7 +17,7 @@ define(['N/encode', 'N/format', 'N/https', 'N/record', 'N/runtime', 'N/search', 
  * @param {BBSObjects} BBSObjects
  * @param {BBSCommon} BBSCommon
  */
-function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSCommon) 
+function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCommon) 
 {
 	//=========================================================================
 	//Main functions - This module implements the integration to UPS
@@ -29,108 +29,137 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 	//
 	function upsShipmentRequest(_processShipmentRequest)
 		{
-
-		}
-
-	
-	//Function to cancel a shipment from UPS
-	//
-	function upsVoidShipmentRequest(_cancelShipmentRequest)
-		{
+			//Declare and initialize variables
+			//
+			var headerObj 				= {};
+			var responseStatus			= '';
+			var responseBodyObj			= {};
+			var processShipmentResponse	= {};
+		
 			try
 				{
-					//Create a JSON object that represents the structure of the UPS void shipment request
+					//Set the headers for the request
 					//
-					var voidShipmentRequestObj = new _voidShipmentRequest();
+					headerObj['AccessLicenseNumber']	= '';
+					headerObj['Content-Type']			= 'text/json';
+					headerObj['Accept']					= 'text/json';
+					headerObj['Username']				= _processShipmentRequest.configuration.username;
+					headerObj['Password']				= _processShipmentRequest.configuration.password;
+					headerObj['transId']				= _processShipmentRequest.shippingReference;
+					headerObj['transactionSrc']			= 'NetSuite';
+				
+					//Create a JSON object that represents the structure of the UPS shipment request
+					//
+					var shipmentRequestObj = new _shipmentRequest();
 					
 					//Populate the object with the data from the incoming standard message
 					//
-					voidShipmentRequestObj.VoidShipmentRequest.Request.TransactionReference.CustomerContext = '';
-					voidShipmentRequestObj.VoidShipmentRequest.VoidShipment.ShipmentIdentificationNumber 	= _cancelShipmentRequest.consignmentNumber;
+					shipmentRequestObj.ShipmentRequest.Shipment.Description 												= "Goods"; // TODO
 					
-					//Create a JSON object that represents the structure of the UPS Security part of the message
-					//
-					var securityObj = new _upsSecurity();
+					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Name 												= _processShipmentRequest.senderAddress.addresse;
+					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.AttentionName 										= _processShipmentRequest.senderAddress.addresse;
+					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Phone.Number 										= _processShipmentRequest.senderContact.mobileNumber;
+					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.ShipperNumber										= _processShipmentRequest.shippingItemInfo.carrierContractNo;
+					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Address.AddressLine									= _processShipmentRequest.senderAddress.line1;
+					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Address.City										= _processShipmentRequest.senderAddress.town;
+					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Address.StateProvinceCode							= _processShipmentRequest.senderAddress.county;
+					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Address.PostalCode									= _processShipmentRequest.senderAddress.postCode;
+					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Address.CountryCode									= _processShipmentRequest.senderAddress.countryCode;
 					
-					//Populate the object with the data from the incoming standard message
-					//
-					securityObj.UPSSecurity.UsernameToken.Username 					= _cancelShipmentRequest.configuration.username;
-					securityObj.UPSSecurity.UsernameToken.Password 					= _cancelShipmentRequest.configuration.password;
-					securityObj.UPSSecurity.ServiceAccessToken.AccessLicenseNumber 	= '';
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Name													= _processShipmentRequest.address.addresse;
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.AttentionName										= _processShipmentRequest.address.addresse;
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Phone.Number 										= _processShipmentRequest.address.mobileNumber;
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Address.AddressLine									= _processShipmentRequest.address.line1;
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Address.City											= _processShipmentRequest.address.town;
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Address.StateProvinceCode							= _processShipmentRequest.address.county;
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Address.PostalCode									= _processShipmentRequest.address.postCode;
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Address.CountryCode									= _processShipmentRequest.address.countryCode;
 					
-					//Declare xmlRequest variable and set SOAP envelope
-					//
-					var xmlRequest = '<envr:Envelope xmlns:auth="http://www.ups.com/schema/xpci/1.0/auth" xmlns:envr="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:upss="http://www.ups.com/XMLSchema/XOLTWS/UPSS/v1.0" xmlns:common="http://www.ups.com/XMLSchema/XOLTWS/Common/v1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">';
-					xmlRequest += '<envr:Header>';
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Name 												= _processShipmentRequest.senderAddress.addresse;
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.AttentionName 										= _processShipmentRequest.senderAddress.addresse;
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Phone.Number 										= _processShipmentRequest.senderContact.mobileNumber;
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Address.AddressLine								= _processShipmentRequest.senderAddress.line1;
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Address.City										= _processShipmentRequest.senderAddress.town;
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Address.StateProvinceCode							= _processShipmentRequest.senderAddress.county;
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Address.PostalCode									= _processShipmentRequest.senderAddress.postCode;
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Address.CountryCode								= _processShipmentRequest.senderAddress.countryCode;
 					
-					//Convert the security header into xml
-					//
-					xmlRequest += BBSCommon.json2xml(securityObj,'','upss:');
+					shipmentRequestObj.ShipmentRequest.Shipment.PaymentInformation.ShipmentCharge.Type						= "01"; // 01 = Transportation
+					shipmentRequestObj.ShipmentRequest.Shipment.PaymentInformation.ShipmentCharge.BillShipper.AccountNumber	= _processShipmentRequest.shippingItemInfo.carrierContractNo;
 					
-					xmlRequest += '</envr:Header>';
-					xmlRequest += '<envr:Body>';
+					shipmentRequestObj.ShipmentRequest.Shipment.Service.Code												= _processShipmentRequest.shippingItemInfo.serviceCodes[0].serviceCode;
+					shipmentRequestObj.ShipmentRequest.Shipment.Service.Description											= _processShipmentRequest.shippingItemInfo.serviceCodes[0].serviceDescription;
 					
-					//Convert the UPS request object into xml.
-					//
-					var voidXml  = BBSCommon.json2xml(voidShipmentRequestObj,'','void:');
+					shipmentRequestObj.ShipmentRequest.Shipment.Package.Packaging.Code										= "02"; // 02 = Customer Supplied Package
+					shipmentRequestObj.ShipmentRequest.Shipment.Package.PackageWeight.UnitOfMeasurement.Code				= "KGS";
+					shipmentRequestObj.ShipmentRequest.Shipment.Package.PackageWeight.UnitOfMeasurement.Description			= "Kilograms";
+					shipmentRequestObj.ShipmentRequest.Shipment.Package.PackageWeight.Weight								= _processShipmentRequest.weight;
 					
-					voidXml = voidXml.replace('<void:VoidShipmentRequest>','<void:VoidShipmentRequest xmlns:void="http://www.ups.com/XMLSchema/XOLTWS/Void/v1.1">');
-					voidXml = voidXml.replace('<void:Request>','<common:Request>');
-					voidXml = voidXml.replace('<void:TransactionReference>','<common:TransactionReference>');
-					voidXml = voidXml.replace('<void:CustomerContext>','<common:CustomerContext>');
-					voidXml = voidXml.replace('</void:CustomerContext>','</common:CustomerContext>');
-					voidXml = voidXml.replace('</void:TransactionReference>','</common:TransactionReference>');
-					voidXml = voidXml.replace('</void:Request>','</common:Request>');
+					shipmentRequestObj.ShipmentRequest.LabelSpecification.LabelImageFormat.Code								= _processShipmentRequest.configuration.labelFormat;
+					shipmentRequestObj.ShipmentRequest.LabelSpecification.LabelImageFormat.Description						= _processShipmentRequest.configuration.labelFormat;
 					
-					xmlRequest += voidXml;
-					
-					//Add closing SOAP envelope tags
-					//
-					xmlRequest += '</envr:Body>';
-					xmlRequest += '</envr:Envelope>';
-					
-					//Send the request to UPS
-					//
-					var xmlResponse = http.post({
-											     url: 	_cancelShipmentRequest.configuration.url,
-											     body: 	xmlRequest
-												});
-					
-					//Parse the xmlResponse string and convert it to XML
-					//
-					xmlResponse = xml.Parser.fromString({
-														text: xmlResponse.body
-														});
-					
-					//Convert the xml response back into a JSON object so that it is easier to manipulate
-					//
-					var responseObject = BBSCommon.xml2Json(xmlResponse);
-					
-					//Get the status of the response from the responseObject
-					//
-					var responseStatus = responseObject['soap:Envelope']['soap:Body']['ProcessedDeleteShipments']['DeleteShipmentsResult']['Shipments']['Status']['Status']['#text'];
-					
-					//Check responseStatus to see whether a success or error/failure message was returned
-					//
-					if (responseStatus == 'SUCCESS')
+					try
 						{
-							//Convert the UPS response object to the standard commit shipments response object
+							//Make the request to UPS
 							//
-							var cancelShipmentResponse = new BBSObjects.cancelShipmentResponse(responseStatus, null);
-						}
-					else if (responseStatus == 'ERROR' || responseStatus == 'FAILURE')
-						{
-							//Get the error message from the responseObject
-							var responseMessage = responseObject['soap:Envelope']['soap:Body']['ProcessedDeleteShipments']['DeleteShipmentsResult']['Shipments']['Status']['StatusDescription']['#text'];
+							var response = https.post({
+								url:		_processShipmentRequest.configuration.url,
+								headers:	headerObj,
+								body:		JSON.stringify(shipmentRequestObj)
+							});
+
+							//Extract the http response code	
+							//
+							responseStatus = response.code;
 							
-							//Convert the UPS response object to the standard commit shipments response object
+							//Extract the http response body
 							//
-							var cancelShipmentResponse = new BBSObjects.cancelShipmentResponse(responseStatus, responseMessage);
+							if(response.body != null && response.body != '')
+								{
+									//Try to parse the response body into a JSON object
+									//
+									try
+										{
+											responseBodyObj = JSON.parse(response.body);
+										}
+									catch(err)
+										{
+											responseBodyObj = null;
+										}
+								}
+						}
+					catch(err)
+						{
+							responseStatus = err.message;
+						}
+					
+					//Check the responseObject to see whether a success or error/failure message was returned
+					//
+					if (responseStatus == '200')
+						{
+							//Declare and initialize variables
+							//
+							var message = '';
+						
+							//Convert the UPS response object to the standard process shipments response object
+							//
+							processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, message, '');
+						}
+					else
+						{
+							//Get the error message
+							//
+							var message = responseBodyObj.response.errors[0].message;
+							
+							//Convert the UPS response object to the standard process shipments response object
+							//
+							processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, message, '');
 						}
 					
 					//Return the response
 					//
-					return cancelShipmentResponse;
+					return processShipmentResponse;
+					
 				}
 			catch(e)
 				{
@@ -141,6 +170,102 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 					//Return the response
 					//
 					return processShipmentResponse;
+				}
+		}
+
+	
+	//Function to cancel a shipment from UPS
+	//
+	function upsVoidShipmentRequest(_cancelShipmentRequest)
+		{
+			//Declare and initialize variables
+			//
+			var headerObj 				= {};
+			var responseStatus			= '';
+			var responseBodyObj			= {};
+			var cancelShipmentResponse	= {};
+		
+			try
+				{
+					//Set the headers for the request
+					//
+					headerObj['AccessLicenseNumber']	= '';
+					headerObj['Content-Type']			= 'text/json';
+					headerObj['Accept']					= 'text/json';
+					headerObj['Username']				= _cancelShipmentRequest.configuration.username;
+					headerObj['Password']				= _cancelShipmentRequest.configuration.password;
+					
+					try
+						{
+							//Make the request to UPS
+							//
+							var response = https.delete({
+								url:		_cancelShipmentRequest.configuration.urlDelete + '/' + _cancelShipmentRequest.consignmentNumber,
+								headers:	headerObj
+							});
+							
+							//Extract the http response code	
+							//
+							responseStatus = response.code;
+							
+							//Extract the http response body
+							//
+							if(response.body != null && response.body != '')
+								{
+									//Try to parse the response body into a JSON object
+									//
+									try
+										{
+											responseBodyObj = JSON.parse(response.body);
+										}
+									catch(err)
+										{
+											responseBodyObj = null;
+										}
+								}
+						}
+					catch(err)
+						{
+							responseStatus = err.message;	
+						}
+					
+					//Check the responseObject to see whether a success or error/failure message was returned
+					//
+					if (responseStatus == '200')
+						{
+							//Declare and initialize variables
+							//
+							var message = '';
+						
+							//Convert the UPS response object to the standard process shipments response object
+							//
+							cancelShipmentResponse = new BBSObjects.cancelShipmentResponse(responseStatus, message, '');
+						}
+					else
+						{
+							//Get the error message
+							//
+							var message = responseBodyObj.moreInformation;
+							
+							//Convert the UPS response object to the standard process shipments response object
+							//
+							cancelShipmentResponse = new BBSObjects.cancelShipmentResponse(responseStatus, message, '');
+						}
+					
+					//Return the response
+					//
+					return cancelShipmentResponse;
+					
+				}
+			catch(e)
+				{
+					//Set the cancel shipment response using the error caught
+					//
+					var cancelShipmentResponse = new BBSObjects.cancelShipmentResponse('ERROR', e);
+					
+					//Return the response
+					//
+					return cancelShipmentResponse;
 				}
 
 		}
@@ -158,9 +283,10 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 	function _shipmentRequest()
 		{
 			this.ShipmentRequest = {};
-			this.ShipmentRequest.Request = {};
+			
+			/*this.ShipmentRequest.Request = {};
 			this.ShipmentRequest.Request.TransactionReference = {};
-			this.ShipmentRequest.Request.TransactionReference.CustomerContext = '';
+			this.ShipmentRequest.Request.TransactionReference.CustomerContext = '';*/
 			
 			this.ShipmentRequest.Shipment = {};
 			this.ShipmentRequest.Shipment.Description = '';
@@ -221,19 +347,19 @@ function(encode, format, http, record, runtime, search, xml, BBSObjects, BBSComm
 			this.ShipmentRequest.Shipment.Service.Description = '';
 			
 			this.ShipmentRequest.Shipment.Package = {};
-			this.ShipmentRequest.Shipment.Package.Description = '';
+			//this.ShipmentRequest.Shipment.Package.Description = '';
 			
 			this.ShipmentRequest.Shipment.Package.Packaging = {};
 			this.ShipmentRequest.Shipment.Package.Packaging.Code = '';
-			this.ShipmentRequest.Shipment.Package.Packaging.Description = '';
+			//this.ShipmentRequest.Shipment.Package.Packaging.Description = '';
 			
-			this.ShipmentRequest.Shipment.Package.Dimensions = {};
+			/*this.ShipmentRequest.Shipment.Package.Dimensions = {};
 			this.ShipmentRequest.Shipment.Package.Dimensions.UnitOfMeasurement = {};
 			this.ShipmentRequest.Shipment.Package.Dimensions.UnitOfMeasurement.Code = '';
 			this.ShipmentRequest.Shipment.Package.Dimensions.UnitOfMeasurement.Description = '';
 			this.ShipmentRequest.Shipment.Package.Dimensions.Length = '';
 			this.ShipmentRequest.Shipment.Package.Dimensions.Width = '';
-			this.ShipmentRequest.Shipment.Package.Dimensions.Height = '';
+			this.ShipmentRequest.Shipment.Package.Dimensions.Height = '';*/
 			
 			this.ShipmentRequest.Shipment.Package.PackageWeight = {};
 			this.ShipmentRequest.Shipment.Package.PackageWeight.UnitOfMeasurement = {};
