@@ -260,17 +260,31 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																		label:	'Processing'
 																		});
 								
-								//Add a field to display the carton number
+								//Add a field to display the customer info
 								//
-								var selectCartonNumberField = form.addField({
-														                id: 		'custpage_entry_carton_number',
+								var customerNameField = form.addField({
+														                id: 		'custpage_entry_cust_name',
 														                type: 		serverWidget.FieldType.TEXT,
-														                label: 		'Carton Number',
+														                label: 		'Customer Name',
 														                container:	'custpage_processing_group'
 													            		});
-								selectCartonNumberField.defaultValue 	= paramCartonNumber;
-								selectCartonNumberField.updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});
+								customerNameField.updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});
 								
+								var customerIdField = form.addField({
+														                id: 		'custpage_entry_cust_id',
+														                type: 		serverWidget.FieldType.TEXT,
+														                label: 		'Customer Id',
+														                container:	'custpage_processing_group'
+													            		});
+								customerIdField.updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});
+
+								var itemFulfimentField = form.addField({
+														                id: 		'custpage_entry_if_name',
+														                type: 		serverWidget.FieldType.TEXT,
+														                label: 		'Fulfilment Id',
+														                container:	'custpage_processing_group'
+													            		});
+								itemFulfimentField.updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});
 								
 								
 								//Add a subtab
@@ -302,6 +316,17 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																tab:	'custpage_tab_items'
 															});
 								
+								//Add a field to display the carton number
+								//
+								var selectCartonNumberField = form.addField({
+														                id: 		'custpage_entry_carton_number',
+														                type: 		serverWidget.FieldType.TEXT,
+														                label: 		'Carton Number',
+														                container:	'custpage_tab_items'
+													            		});
+								selectCartonNumberField.defaultValue 	= paramCartonNumber;
+								selectCartonNumberField.updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});
+								
 								//Add a field to the tab
 								//
 								var reverseField = form.addField({
@@ -314,7 +339,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								var qtyOverrideField = form.addField({
 															      id: 			'custpage_entry_qty_override',
 															      type: 		serverWidget.FieldType.INTEGER,
-															      label: 		'Scan Quantity Override',
+															      label: 		'Quantity Scanned',
 															      container:	'custpage_tab_items'
 														          });
 								
@@ -370,7 +395,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								subList.addField({
 													id:		'custpage_sl_item_qty_req',
 													label:	'Required Quantity',
-													type:	serverWidget.FieldType.FLOAT
+													type:	serverWidget.FieldType.TEXT
 												});		
 
 								subList.addField({
@@ -380,27 +405,46 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});		
 
 								var cartonlistField = subList.addField({
-													id:		'custpage_sl_item_carton',
-													label:	'Cartons',
-													type:	serverWidget.FieldType.TEXT
-												});		
+																		id:		'custpage_sl_item_carton',
+																		label:	'Cartons',
+																		type:	serverWidget.FieldType.TEXT
+																	});		
 
 								cartonlistField.updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});
-								cartonlistField.updateDisplaySize({height: 10, width: 50});
+								cartonlistField.updateDisplaySize({height: 10, width: 80});
 								
-								subList.addField({
-													id:		'custpage_sl_item_weight',
-													label:	'Weight Per Carton',
-													type:	serverWidget.FieldType.TEXT
-												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});		
+								/*
+								var cartonWeightField = subList.addField({
+																		id:		'custpage_sl_item_weight',
+																		label:	'Weight Per Carton',
+																		type:	serverWidget.FieldType.TEXT
+																		});		
 
-								subList.addField({
-													id:		'custpage_sl_item_qty',
-													label:	'Quantity Per Carton',
-													type:	serverWidget.FieldType.TEXT
-												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});		
-
+								cartonWeightField.updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});
+								cartonWeightField.updateDisplaySize({height: 10, width: 30});
+								
+								var cartonQuantityField = subList.addField({
+																			id:		'custpage_sl_item_qty',
+																			label:	'Quantity Per Carton',
+																			type:	serverWidget.FieldType.TEXT
+																			});
+								
+								cartonQuantityField.updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});
+								cartonQuantityField.updateDisplaySize({height: 10, width: 20});
+								*/
 				
+								//Field to show the combined carton quantity & weight
+								//
+								var cartonQuantityWeightField = subList.addField({
+																			id:		'custpage_sl_item_qty_weight',
+																			label:	'Quantity(Weight) Per Carton',
+																			type:	serverWidget.FieldType.TEXT
+																			});
+
+								cartonQuantityWeightField.updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});
+								cartonQuantityWeightField.updateDisplaySize({height: 10, width: 80});
+
+								
 								subList.addField({
 													id:		'custpage_sl_remove',
 													label:	'Remove Last Carton',
@@ -418,6 +462,22 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													label:	'Item Id',
 													type:	serverWidget.FieldType.TEXT
 												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});		
+
+								var cartonWeightField = subList.addField({
+																		id:		'custpage_sl_item_weight',
+																		label:	'Weight Per Carton',
+																		type:	serverWidget.FieldType.TEXT
+																		});		
+
+								cartonWeightField.updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});
+								
+								var cartonQuantityField = subList.addField({
+																		id:		'custpage_sl_item_qty',
+																		label:	'Quantity Per Carton',
+																		type:	serverWidget.FieldType.TEXT
+																		});
+
+								cartonQuantityField.updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});
 
 								
 								//Add a next carton button
@@ -456,12 +516,28 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 									            var ifLines							= ifRecord.getLineCount({sublistId: 'item'});
 									            lineCountField.defaultValue 		= ifLines;
 									            completedLinesField.defaultValue 	= Number(0);
+												itemFulfimentField.defaultValue 	= ifRecord.getValue({fieldId: 'tranid'});;
 												
+									            //Get the customer info
+									            //
+									            var customerId		= ifRecord.getValue({fieldId: 'entity'});
+									            
+									            var customerInfo 	= search.lookupFields({
+										            										type:		search.Type.CUSTOMER,
+										            										id:			customerId,
+										            										columns:	['entityid','companyname']
+									            											});
+									            
+									            customerNameField.defaultValue 	= customerInfo.companyname;
+									            customerIdField.defaultValue 	= customerInfo.entityid;
+									            
+									            //Process the IF lines
+									            //
 									            for (var ifLine = 0; ifLine < ifLines; ifLine++) 
 										            {
 										            	var ifLineItemId		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: ifLine});
 										            	var ifLineItem			= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'itemname', line: ifLine});
-										            	var ifLineItemQty		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: ifLine});
+										            	var ifLineItemQty		= Number(ifRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: ifLine}));
 										            	var ifLineItemDesc		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'description', line: ifLine});
 										            	var ifLineItemLine		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'line', line: ifLine});
 										            	var ifLineItemWeight	= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'itemweight', line: ifLine});
@@ -498,13 +574,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 										            	subList.setSublistValue({
 																					id:		'custpage_sl_item_qty_req',
 																					line:	ifLine,
-																					value:	ifLineItemQty
+																					value:	ifLineItemQty.toFixed(0)
 																					});	
 										            	
 										            	subList.setSublistValue({
 																					id:		'custpage_sl_item_qty_pack',
 																					line:	ifLine,
-																					value:	format.parse({value: 0, type: format.Type.FLOAT})
+																					value:	'0'
 																					});	
 				            	
 													}
@@ -763,8 +839,11 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 											{
 												ifRecord.selectNewLine({sublistId: 'package'});
 												ifRecord.setCurrentSublistValue({sublistId: 'package', fieldId: 'packagedescr', value: cartonSummary[cartonId].cartonName});
-												ifRecord.setCurrentSublistValue({sublistId: 'package', fieldId: 'packageweight', value: cartonSummary[cartonId].cartonWeight});
-												//ifRecord.setCurrentSublistValue({sublistId: 'package', fieldId: 'packagetrackingnumber', value: cartonSummary[cartonId].cartonId});
+												
+												var packageWeight 	= Number(cartonSummary[cartonId].cartonWeight);
+												packageWeight		= (packageWeight <= 0 ? 0.1 : packageWeight);
+													
+												ifRecord.setCurrentSublistValue({sublistId: 'package', fieldId: 'packageweight', value: packageWeight});
 												ifRecord.commitLine({sublistId: 'package', ignoreRecalc: false});
 											}
 										

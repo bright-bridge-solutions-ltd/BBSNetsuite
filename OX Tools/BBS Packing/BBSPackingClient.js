@@ -40,10 +40,10 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 	    		    		for (var int = 1; int <= lines; int++) 
 	    			    		{
 	    		    				document.getElementById('custpage_sl_item_carton' + int.toString()).disabled = true;
-	    		    				document.getElementById('custpage_sl_item_weight' + int.toString()).disabled = true;
-	    		    				document.getElementById('custpage_sl_item_qty' + int.toString()).disabled = true;
+	    		    			//	document.getElementById('custpage_sl_item_weight' + int.toString()).disabled = true;
+	    		    			//	document.getElementById('custpage_sl_item_qty' + int.toString()).disabled = true;
 	    		    				document.getElementById('custpage_sl_item_qty_pack' + int.toString()).disabled = true;
-	    		    				
+	    		    				document.getElementById('custpage_sl_item_qty_weight' + int.toString()).disabled = true;
 	    			    		}
 	    		    		
 	    		    		//Put the focus back on to the item input field
@@ -127,7 +127,7 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 				
 					for (var quantityIndex = 0; quantityIndex < qtyPerCartonArray.length; quantityIndex++) 
 						{
-							qtyPerCartonArray[quantityIndex] = Number(qtyPerCartonArray[quantityIndex]).numberFormat("0.0");
+							qtyPerCartonArray[quantityIndex] = Number(qtyPerCartonArray[quantityIndex]).numberFormat("0");
 						}
 					
 					//Set values
@@ -138,13 +138,22 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 					//scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton', value: null, ignoreFieldChange: true});						    					
 					//scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton_id', value: null, ignoreFieldChange: true});						    					
 					
-					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', value: newPackedQuantity.numberFormat("0.00"), ignoreFieldChange: true});						    					
+					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', value: newPackedQuantity.numberFormat("0"), ignoreFieldChange: true});						    					
 					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_weight', value: weightPerCartonArray.toString(), ignoreFieldChange: true});
 					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty', value: qtyPerCartonArray.toString(), ignoreFieldChange: true});
 					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton_id', value: cartonIdsArray.toString(), ignoreFieldChange: true});						    					
 					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton', value: cartonNamesArray.toString(), ignoreFieldChange: true});						    					
 					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_remove', value: false, ignoreFieldChange: true});						    					
 			    	
+					var displayString = '';
+					
+					for (var quantityIndex = 0; quantityIndex < qtyPerCartonArray.length; quantityIndex++) 
+    					{
+							displayString += Number(qtyPerCartonArray[quantityIndex]).numberFormat("0") + '(' + Number(weightPerCartonArray[quantityIndex]).numberFormat("0.00") + '), ';
+						}
+					
+					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_weight', value: displayString.slice(0,-2), ignoreFieldChange: true});						    					
+					
 					//Commit
 					//
 					scriptContext.currentRecord.commitLine({sublistId: 'custpage_sublist_items'});
@@ -216,7 +225,7 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 							    					
 							    					//Update the values & commit
 							    					//
-							    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', value: sublistQty.numberFormat("0.0"), ignoreFieldChange: true});						    					
+							    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', value: sublistQty.numberFormat("0"), ignoreFieldChange: true});						    					
 							    					
 							    					var lineCarton 		= scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton'});
 							    					var lineCartonId 	= scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton_id'});
@@ -248,7 +257,7 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 							    					
 							    					for (var quantityIndex = 0; quantityIndex < cartonArrayQuantity.length; quantityIndex++) 
 								    					{
-							    							cartonArrayQuantity[quantityIndex] = Number(cartonArrayQuantity[quantityIndex]).numberFormat("0.0");
+							    							cartonArrayQuantity[quantityIndex] = Number(cartonArrayQuantity[quantityIndex]).numberFormat("0");
 														}
 						    					
 							    					var  newCarton 		= cartonArray.toString();
@@ -261,6 +270,19 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 							    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_weight', value: newWeight, ignoreFieldChange: true});						    					
 							    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty', value: newQuantity, ignoreFieldChange: true});						    					
 							    					
+							    					//Display the quantity & weight together
+							    					//
+							    					var displayString = '';
+							    					
+							    					for (var quantityIndex = 0; quantityIndex < cartonArrayQuantity.length; quantityIndex++) 
+								    					{
+							    							displayString += Number(cartonArrayQuantity[quantityIndex]).numberFormat("0") + '(' + Number(cartonArrayWeight[quantityIndex]).numberFormat("0.00") + '), ';
+														}
+							    					
+							    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_weight', value: displayString.slice(0,-2), ignoreFieldChange: true});						    					
+							    					
+							    					//Blank out the entry fields
+							    					//
 							    					scriptContext.currentRecord.commitLine({sublistId: 'custpage_sublist_items'});
 							    					scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
 							    					scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: ''});
@@ -523,7 +545,7 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 	    	var trDom 		= document.getElementById('custpage_sublist_itemsrow' + rowNumber);
 	    	var trDomChild 	= trDom.children;
 	    	
-	    	for (var t=0; t < (trDomChild.length - 2); t+=1)
+	    	for (var t=0; t < (trDomChild.length - 4); t+=1)
 		    	{
 		    		//get the child TD DOM element
 		    		var tdDom = trDomChild[t];
