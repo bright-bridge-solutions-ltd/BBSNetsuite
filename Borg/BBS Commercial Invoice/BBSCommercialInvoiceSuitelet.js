@@ -91,6 +91,7 @@ function buildOutput(_fulfillmentId)
 								var ifTranDate 			= nlapiEscapeXML(fulfillmentRecord.getFieldValue('trandate'));
 								var ifShipMethod		= isNull(nlapiEscapeXML(fulfillmentRecord.getFieldText('shipmethod')),'');
 								var ifTranId 			= nlapiEscapeXML(fulfillmentRecord.getFieldValue('tranid'));
+								var ifTranShipCity	 	= nlapiEscapeXML(fulfillmentRecord.getFieldValue('shipcity'));
 								var ifTranShipAddress 	= nlapiEscapeXML(fulfillmentRecord.getFieldValue('shipaddress'));
 								ifTranShipAddress 		= ifTranShipAddress.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
 								var ifEORI				= isNull(nlapiEscapeXML(fulfillmentRecord.getFieldValue('custbody_bo_tran_eori_number')),'');
@@ -139,7 +140,7 @@ function buildOutput(_fulfillmentId)
 													companyLogo			= 'https://3976137.app.netsuite.com/core/media/media.nl?id=1897&amp;c=3976137_SB1&amp;h=a06e41069e3014da9368" style="width:136px; height: 63px;';
 													companyVatNo		= 'GB 788436081';
 													companyEori			= 'GB788436081000';
-													companyName			= 'Borg &amp; Overstrom - the trading name of Azure Uk';
+													companyName			= 'Borg &amp; Overström - the trading name of Azure Uk';
 													companyDeclaration	= 'Watercooler Dispensers for filtered water and related parts.';
 													signatory			= 'J. Dunn';
 													signatureImage		= 'https://3976137.app.netsuite.com/core/media/media.nl?id=4189690&amp;c=3976137&amp;h=CC1In69r7OobXEQbYe5jiIf4yuRvRoHHpVWIOkuR0bvgxBui" style="float: left; width:95px; height:40px;';
@@ -471,7 +472,7 @@ function buildOutput(_fulfillmentId)
 												xml += '    	<tr>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="9"  style="padding-left: 0px; font-size: 9px;">Shipping Terms: ' + soDeliveryTerms + '</td>';
+												xml += '          <td align="left"  colspan="9"  style="padding-left: 0px; font-size: 9px;">Shipping Terms: ' + soDeliveryTerms + ' ' + ifTranShipCity + '</td>';
 												xml += '          <td align="left"  colspan="8"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '        </tr>';
@@ -495,14 +496,14 @@ function buildOutput(_fulfillmentId)
 									 			xml += '        <tr style="margin-top: 10px;">';
 									 			xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="17" style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">05.01.2021 to 31.12.2021<br/>The exporter of the products covered by this document <b>(EORI No. ' + companyEori + ')</b> declares that,<br/>except where otherwise clearly indicated, these products are of ' + origin + ' preferential origin.</td>';
+												xml += '          <td align="left"  colspan="17" style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">05.01.2021 to 31.12.2021<br/>Borg &amp; Overström, the exporter of the products covered by this document <b>(EORI No. ' + companyEori + ')</b> declares that,<br/>except where otherwise clearly indicated, these products are of ' + origin + ' preferential origin.</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '		</tr>';
 				
 												xml += '        <tr>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="17"  style="padding-left: 0px; font-size: 9px;">Norwich, UK.</td>';
+												xml += '          <td align="left"  colspan="17" style="padding-left: 0px; font-size: 9px;">Norwich, UK. ' + ifTranDate + '</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '		</tr>';
 												

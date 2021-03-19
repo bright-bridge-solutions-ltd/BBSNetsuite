@@ -77,7 +77,7 @@
     <tr>
       <td class="address">&nbsp;</td>
       <td align="left" style="font-size:10pt"><b>Contact Email</b></td>
-      <td align="right" style="font-size:7pt">${record.custrecord_bbs_rvn_customer.email}</td>
+      <td align="right" style="font-size:6pt">${record.custrecord_bbs_rvn_customer.email}</td>
       </tr>
       <tr>
       <td class="address">&nbsp;</td>
@@ -295,21 +295,21 @@
       <tr style="line-height: 400%;">
         <td colspan="4" align="left"  	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_rvn_product1}</td>
         <td colspan="1" align="center" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_qty_1}</td>
-        <td colspan="8" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+        <td colspan="8" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_rvn_fault_1}</td>
         <td colspan="4" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_rvn_inv_1}</td>
         <td colspan="4" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_rvn_po_date_1}</td>
-        <td colspan="4" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+        <td colspan="4" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_rvn_action_1}</td>
 	  </tr>
     </#if>
  
     <#if record.custrecord_bbs_rvn_product2?length gt 0>
       <tr style="line-height: 400%;">
         <td colspan="4" align="left"  	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_rvn_product2}</td>
-        <td colspan="1" align="center" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_qty_2}</td>
-        <td colspan="8" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
-        <td colspan="4" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_rvn_inv_2}</td>
+        <td colspan="1" align="center" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_rvn_qty_2}</td>
+        <td colspan="8" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_rvn_fault_2}</td>
+        <td colspan="4" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_rvn_invoice_2}</td>
         <td colspan="4" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_rvn_po_date_2}</td>
-        <td colspan="4" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+        <td colspan="4" align="left" 	style="font-size: 10pt; padding-left: 5px; border-bottom: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custrecord_bbs_rvn_action_2}</td>
 	  </tr>
     </#if>
 
