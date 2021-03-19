@@ -18,9 +18,9 @@ Dear ${customer.entityId}
 <br />
 Total for ${transaction.tranid}: ${transaction.total}
 <br />
-Outstanding Balance: <strong>TODO</strong>
+Outstanding Balance: ${transaction.balance}
 <br />
-Total Payment Due: <strong>TODO</strong>
+Total Payment Due: ${transaction.balance}
 <br />
 <br />
 <strong>Payment Options:</strong>

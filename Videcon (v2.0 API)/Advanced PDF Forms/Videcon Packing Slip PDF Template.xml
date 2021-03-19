@@ -108,6 +108,21 @@
 		</macro>
 		
 		<macro id="nlfooter">
+			<table style="width: 100%;">
+	       		<tr class="messagerow">
+	              	<td align="left" class="message" style="border-top: 1px solid black;">Received in good condition</td>
+	              	<td align="left" class="message" style="border-top: 1px solid black;">Print Name</td>
+			  	</tr>
+			  	<tr class="messagerow">
+	              	<td align="left" class="message" style="margin-top: 15px;">&nbsp;</td>
+	              	<td align="left" class="message" style="margin-top: 15px;">Signature</td>
+			  	</tr>
+			  	<tr class="messagerow">
+	              	<td align="left" class="message" style="margin-top: 15px;">&nbsp;</td>
+	              	<td align="left" class="message" style="margin-top: 15px;">Date</td>
+			  	</tr>
+	      	</table>
+	      	
 			<table style="width: 100%; margin-top: 10px;">
 	       		<tr class="messagerow">
 	              	<td colspan="6" align="left" class="message">${record.custbody_bbs_branding.custrecord_bbs_branding_trade_name}.&nbsp;${regInfo}&nbsp;EU EORI Number:&nbsp;${eoriEuInfo}</td>
@@ -221,7 +236,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="340pt" footer="nlfooter" footer-height="30pt" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+<body header="nlheader" header-height="340pt" footer="nlfooter" footer-height="90pt" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 
   <#if record.item?has_content>
 	<table class="itemtable" style="width: 100%; margin-top: 10px;">

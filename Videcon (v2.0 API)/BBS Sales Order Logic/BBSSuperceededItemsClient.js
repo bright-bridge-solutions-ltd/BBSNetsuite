@@ -32,10 +32,21 @@ function(record, search, dialog, message)
     				var currentItem 	= currentRecord.getCurrentSublistValue({sublistId: 'item', fieldId: 'item'});
     				var currentItemText	= currentRecord.getCurrentSublistText({sublistId: 'item', fieldId: 'item'});
     				
-    				//Check to see if the item has been superceeded
+    				var mainLocation 	= currentRecord.getValue({fieldId: 'location'});
+    				mainLocation 		= (mainLocation == '' || mainLocation == null ? 1 : mainLocation);
+    				
+    				//Check to see if the item has been superceeded & also set the location
     				//
     				if(currentItem != null && currentItem != '')
     					{
+	    					currentRecord.setCurrentSublistValue({
+																sublistId: 			'item', 
+																fieldId: 			'inventorylocation', 
+																value: 				mainLocation,
+																ignoreFieldChange:	false,
+																forceSyncSourcing:	true
+																}); 
+	    					
 		    				var supercededBy	= search.lookupFields({
 		    															type:		search.Type.ITEM,
 		    															id:			currentItem,

@@ -1,0 +1,21 @@
+<img src="https://6932997-sb1.app.netsuite.com/core/media/media.nl?id=3313&amp;c=6932997_SB1&amp;h=0ENKaqyNfyAJGUY2_5PDn1ZV824d83by1O7jmrRF3gkFSaRL" style="width: 200px; height: 125px;" />
+<br />
+<br />
+<strong>Frugi Pre Order ${transaction.tranid} Cancellation of Order</strong>
+<br />
+<br />
+Dear ${customer.entityId}
+<br />
+<br />
+Further to our previous emails we note that payment has not been received to bring your account within your agreed credit terms so that we can release your lovely Frugi Pre Order ${transaction.tranid} to our warehouse.
+<br />
+<br />
+Unfortunately, as we have not received your payment, we have cancelled your order and released the stock so that it is available to other retailers. In line with our Terms and Conditions, this cancellation will be subject to a 20% cancellation fee.
+<br />
+<br />
+Naturally if you have any questions please contact <strong><a href="mailto:info@frugiwholesale.com">info@frugiwholesale.com</a></strong> and we will be happy to help.
+<br />
+<br />
+Best wishes
+<br />
+Team Frugi

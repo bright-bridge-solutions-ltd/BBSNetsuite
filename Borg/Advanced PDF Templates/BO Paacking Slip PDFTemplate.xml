@@ -18,13 +18,13 @@
             <table class="header" style="table-layout:fixed; width:100%; margin-top: 160px;">
             	<tr>
 					<td style="width: 20%; font-size: 10px;">&nbsp;</td>
-					<td style="width: 27%; font-size: 10px;"><b>Delivered To</b></td>
+					<td style="width: 27%; font-size: 12px;"><b>Delivered To</b></td>
 					<td style="width: 12%; font-size: 10px;" align="left">&nbsp;</td>
 					<td style="width: 41%; font-size: 10px;" align="left">${record.trandate}</td>
 				</tr>
 				<tr style="margin-top: 5px;">
 					<td style="width: 20%; font-size: 10px;">&nbsp;</td>
-					<td style="width: 27%; font-size: 10px;">${salesorder.shipaddress}</td>
+					<td style="width: 27%; font-size: 12px;">${salesorder.shipaddress}</td>
 					<td style="width: 12%; font-size: 10px;" align="left">&nbsp;</td>
 					<td style="width: 41%; font-size: 10px;" align="left">${record.tranid}</td>
 				</tr>
@@ -36,7 +36,7 @@
 				</tr>
 				<tr>
 					<td style="width: 20%; font-size: 10px;">&nbsp;</td>
-					<td style="width: 27%; font-size: 10px;">VAT No.:  ${record.entity.vatregnumber}</td>
+					<td style="width: 27%; font-size: 12px;">VAT No.:  ${record.entity.vatregnumber}</td>
 					<td style="width: 12%; font-size: 10px;" align="left">&nbsp;</td>
 					<td style="width: 41%; font-size: 10px;" align="left">&nbsp;</td>
 				</tr>
@@ -52,7 +52,7 @@
 					<td style="width: 20%; font-size: 10px;">&nbsp;</td>
 					<td style="width: 20%; font-size: 10px;">&nbsp;</td>
 					<td style="width: 20%; font-size: 10px;" align="left">&nbsp;</td>
-					<td style="width: 40%; font-size: 10px;" align="left" rowspan="6">${salesorder.billaddress}</td>
+					<td style="width: 40%; font-size: 12px;" align="left" rowspan="6">${salesorder.billaddress}</td>
 				</tr>
 				<tr>
 					<td style="width: 20%; font-size: 10px;">&nbsp;</td>
@@ -113,20 +113,20 @@
           	</table>
             <table class="header" style="table-layout:fixed; width: 100%; margin-top: 10px;">
             	<tr>
-					<td style="width: 15%; font-size: 10px; ">&nbsp;</td>
+					<td style="width: 15%; font-size: 8px; ">&nbsp;</td>
 					<td style="width: 85%; font-size: 8px; border-top: 1px solid #bfbfbf; padding: 5px 0px 0px 0px;" align="left"><b>Important Information</b></td>
 				</tr>
             	<tr>
-					<td style="width: 15%; font-size: 10px; padding: 0px 0px 0px 0px;">&nbsp;</td>
+					<td style="width: 15%; font-size: 8px; padding: 0px 0px 0px 0px;">&nbsp;</td>
 					<td style="width: 85%; font-size: 8px; padding: 0px 0px 0px 0px;" align="left">1. All shortages, discrepancies or damages must be reported within 24 hours of delivery.</td>
 				</tr>
             	<tr>
-					<td style="width: 15%; font-size: 10px; padding: 0px 0px 0px 0px;">&nbsp;</td>
+					<td style="width: 15%; font-size: 8px; padding: 0px 0px 0px 0px;">&nbsp;</td>
 					<td style="width: 85%; font-size: 8px; padding: 0px 0px 0px 0px;" align="left">2. To return an item please contact our Aftersales team on 01362 695006 and you will be advised of our returns procedure</td>
 				</tr>
             	<tr style="margin-top: 10px;">
-					<td style="width: 15%; font-size: 10px; padding: 0px 0px 0px 0px;">&nbsp;</td>
-					<td style="width: 85%; font-size: 10px; padding: 0px 0px 0px 0px;">Borg &amp; Overstrom - the trading name of Azure Uk</td>
+					<td style="width: 15%; font-size: 8px; padding: 0px 0px 0px 0px;">&nbsp;</td>
+					<td style="width: 85%; font-size: 8px; padding: 0px 0px 0px 0px;">Borg &amp; Overstrom - the trading name of Azure Uk</td>
 				</tr>
           	</table>
         </macro>
@@ -138,36 +138,34 @@
 		}
 	</style>
 </head>
-<body header="nlheader" header-height="500px" footer="nlfooter" footer-height="190px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">
+<body header="nlheader" header-height="520px" footer="nlfooter" footer-height="190px" padding="0.5cm 0.5cm 0.5cm 0.5cm" size="A4">
   
 <#if record.item?has_content>
   <table class="header" style="width: 100%;">
     <thead>
         <tr>
-          <th align="left"  colspan="2" style="font-size: 8px;">&nbsp;</th>
-          <th align="left"  colspan="2" style="font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Serial Number</th>
-          <th align="left"  colspan="2" style="font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Item</th>
-          <th align="left"  colspan="5" style="font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Description</th>
-          <th align="left"  colspan="2" style="font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">UOM</th>
-          <th align="left"  colspan="2" style="font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">No. Pcs</th>
-          <th align="right" colspan="2" style="font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Unit Kg</th>
-          <th align="right" colspan="2" style="font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Order Qty</th>
-          <th align="right" colspan="2" style="font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Shipped</th>
-          <th align="right" colspan="2" style="font-size: 8px; border-top: 1px solid #bfbfbf; padding-top: 5px;">To Follow</th>
+          <th align="left"  colspan="2" style="font-size: 10px;">&nbsp;</th>
+          <th align="left"  colspan="2" style="font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Serial Number</th>
+          <th align="left"  colspan="2" style="font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Item</th>
+          <th align="left"  colspan="5" style="font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Description</th>
+          <th align="left"  colspan="2" style="font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;">UOM</th>
+          <th align="right" colspan="2" style="font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Unit Kg</th>
+          <th align="right" colspan="2" style="font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Order Qty</th>
+          <th align="right" colspan="2" style="font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Shipped</th>
+          <th align="right" colspan="2" style="font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;">To Follow</th>
         </tr>
     </thead>
   <#list salesorder.item as tranline>
        <tr>
-          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 8px;">&nbsp;</td>
-          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 8px;">${tranline.custcol_bbs_if_serial_no}</td>
-          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 8px;">${tranline.item}</td>
-          <td align="left"  colspan="5" style="padding-left: 0px; font-size: 8px;">${tranline.description}</td>
-          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 8px;">${tranline.units}</td>
-          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 8px;">&nbsp;</td>
-          <td align="right" colspan="2" style="padding-left: 0px; font-size: 8px;">${tranline.custcol_bbs_item_weight}</td>
-          <td align="right" colspan="2" style="padding-left: 0px; font-size: 8px;">${tranline.quantityordered}</td>
-          <td align="right" colspan="2" style="padding-left: 0px; font-size: 8px;">${tranline.quantity}</td>
-          <td align="right" colspan="2" style="padding-left: 0px; font-size: 8px;">${tranline.quantityremaining}</td>
+          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">&nbsp;</td>
+          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.custcol_bbs_if_serial_no}</td>
+          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.item}</td>
+          <td align="left"  colspan="5" style="padding-left: 0px; font-size: 10px;">${tranline.description}</td>
+          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.units}</td>
+          <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.custcol_bbs_item_weight}</td>
+          <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.quantityordered}</td>
+          <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.quantity}</td>
+          <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.quantityremaining}</td>
         </tr>
   </#list>
     	

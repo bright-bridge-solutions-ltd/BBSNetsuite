@@ -15,12 +15,12 @@ In order to despatch your items we require the following payments:
 <br />
 Total for ${transaction.tranid}: ${transaction.total}
 <br />
-Outstanding Balance: <strong>TODO</strong>
+Outstanding Balance: ${transaction.balance}
 <br />
-Total Payment Due: <strong>TODO</strong>
+Total Payment Due: ${transaction.balance}
 <br />
 <br />
-<span style="color:#ff0000;"><u>Please can you arrange for payment to be made by <strong>TODO</strong>. If you are unable to pay by this date, please let us know.</u></span>
+<span style="color:#ff0000;"><u>Please can you arrange for payment to be made by ${transaction.custbody_c4c_due_date}. If you are unable to pay by this date, please let us know.</u></span>
 <br />
 <br />
 <strong>Payment Options:</strong>

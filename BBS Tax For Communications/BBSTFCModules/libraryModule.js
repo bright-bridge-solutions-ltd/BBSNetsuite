@@ -793,6 +793,17 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 		var transactionType		= null;
 		var serviceType			= null;
 		
+		var itemLookup = search.lookupFields({
+												type: 		search.Type.ITEM,
+												id: 		itemID,
+												columns: 	['custitem_bbstfc_tx_svc_pair.custrecord_bbstfc_txsvc_tx_type', 'custitem_bbstfc_tx_svc_pair.custrecord_bbstfc_txsvc_svc_type']
+											});
+											
+		// retrieve values from the itemLookup
+		transactionType = itemLookup["custitem_bbstfc_tx_svc_pair.custrecord_bbstfc_txsvc_tx_type"];
+		serviceType		= itemLookup["custitem_bbstfc_tx_svc_pair.custrecord_bbstfc_txsvc_svc_type"];
+		
+		/*
 		// if the itemType is 'InvtPart'
 		if (itemType == 'InvtPart')
 			{
@@ -820,6 +831,7 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 	    		transactionType = itemLookup["custitem_bbstfc_tx_svc_pair.custrecord_bbstfc_txsvc_tx_type"];
 	    		serviceType		= itemLookup["custitem_bbstfc_tx_svc_pair.custrecord_bbstfc_txsvc_svc_type"];
 			}
+		*/
 		
 		// push values to the returnArray
 		returnArray.push(transactionType);

@@ -16,7 +16,7 @@ Total Payment Due: ${transaction.total}
 Once payment is received and our stocks become available, your order will be sent to our warehouse for processing and will be despatched in due course. You will receive notification when your order has been processed and is ready to despatch.
 <br />
 <br />
-<span style="color:#ff0000;"><u>Please can you arrange for payment to be made by <strong>TODO</strong>. If you are unable to pay by this date, please let us know.</u></span>
+<span style="color:#ff0000;"><u>Please can you arrange for payment to be made by ${transaction.custbody_c4c_due_date}. If you are unable to pay by this date, please let us know.</u></span>
 <br />
 <br />
 <strong>Payment Options:</strong>
