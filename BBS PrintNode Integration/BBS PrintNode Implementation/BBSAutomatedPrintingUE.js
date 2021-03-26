@@ -25,14 +25,25 @@ function(https, record, search, plugin, render, file, encode, runtime)
     		//
     		//Function to automatically print IF documents (packing slip & carrier labels) via printnode
     		//
-    		if(scriptContext.type == 'edit' || scriptContext.type == 'pack')
+    		if(scriptContext.type == 'create' || scriptContext.type == 'edit' || scriptContext.type == 'pack')
     			{
-    				var oldRecord 			= scriptContext.oldRecord;
-    				var newRecord 			= scriptContext.newRecord;
-    				var oldShippingStatus 	= oldRecord.getValue({fieldId: 'shipstatus'});							// A=Picked, B=Packed, C=Shipped
+	    			var oldRecord 			= null;
+					var oldShippingStatus 	= null;
+					
+					var newRecord 			= scriptContext.newRecord;
     				var newShippingStatus 	= newRecord.getValue({fieldId: 'shipstatus'});							// A=Picked, B=Packed, C=Shipped
     				var packingStation	 	= newRecord.getValue({fieldId: 'custbody_bbs_printnode_workstation'});		
     				var recordId			= newRecord.id;
+    				
+					//If we are in edit mode then get the old record & the old status
+					//
+    				if(scriptContext.type != 'create')
+    					{
+    						oldRecord 			= scriptContext.oldRecord;
+    						oldShippingStatus 	= oldRecord.getValue({fieldId: 'shipstatus'});							// A=Picked, B=Packed, C=Shipped
+    					}
+    				
+    				
     				
     				//Get the current user
     				//
@@ -52,9 +63,9 @@ function(https, record, search, plugin, render, file, encode, runtime)
     				//
     				packingStation = (packingStation == null || packingStation == '' ? userWorkstation : packingStation);
     				
-    				//Has the IF changed from picked to packed?
+    				//Has the IF changed from picked to packed, or has it been created at packed
     				//
-    				if(oldShippingStatus == 'A' && newShippingStatus == 'B')
+    				if((oldShippingStatus == 'A' && newShippingStatus == 'B') || (scriptContext.type == 'create' && newShippingStatus == 'B'))
     					{
     						//Do we have a workstation assigned to the IF record
     						//

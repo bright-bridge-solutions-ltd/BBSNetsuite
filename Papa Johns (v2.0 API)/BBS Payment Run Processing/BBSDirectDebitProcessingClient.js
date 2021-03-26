@@ -11,7 +11,13 @@ function(currentRecord, format, dialog, url, runtime)
 	    {
 			debugger;
 			
-			scriptContext.currentRecord.getField({fieldId: 'custpage_entry_collect_qty'}).isDisplay = false;
+			var stage 	= Number(scriptContext.currentRecord.getValue({fieldId: 'custpage_param_stage'}));
+			
+			if(stage == 1)
+				{
+					scriptContext.currentRecord.getField({fieldId: 'custpage_entry_collect_qty'}).isDisplay = false;
+					scriptContext.currentRecord.getField({fieldId: 'custpage_entry_epos'}).isDisplay = false;
+				}
 	    }
 	
 	/**
@@ -30,56 +36,67 @@ function(currentRecord, format, dialog, url, runtime)
 	    {
     		debugger;
     		
-    		var fieldValue 	= scriptContext.currentRecord.getValue({fieldId: scriptContext.fieldId});
-    		var fieldText 	= scriptContext.currentRecord.getText({fieldId: scriptContext.fieldId});
-    		
-	    	switch(scriptContext.fieldId)
-	    		{
-			    	case 'custpage_entry_collection_date':
-			    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_collectiondate', value: format.format({value: fieldValue, type: format.Type.DATE})});
-			    		break;
-			    		
-			    	case 'custpage_entry_class':
-			    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_class', value: fieldValue});
-			    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_classname', value: fieldText});
-			    		
-			    		switch(Number(fieldValue))
-			    			{
-					    		case 1:
-					    		case 2:
-					    		case 3:
-					    			scriptContext.currentRecord.getField({fieldId: 'custpage_entry_collect_qty'}).isDisplay = true;
-					    			break;
-					    	
-					    		default:
-					    			scriptContext.currentRecord.getField({fieldId: 'custpage_entry_collect_qty'}).isDisplay = false;
-					    			break;
-			    			}
-			    		break;
-
-			    	case 'custpage_entry_epos':
-			    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_epos', value: fieldValue});
-			    		break;
-
-			    	case 'custpage_entry_customer':
-			    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_customer', value: fieldValue});
-			    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_customername', value: fieldText});
-			    		break;
-
-			    	case 'custpage_entry_franchisee':
-			    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_franchisee', value: fieldValue});
-			    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_franchiseename', value: fieldText});
-			    		break;
-
-			    	case 'custpage_entry_asofdate':
-			    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_asofdate', value: format.format({value: fieldValue, type: format.Type.DATE})});
-			    		break;
-			    		
-			    	case 'custpage_entry_collect_qty':
-			    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_collection_qty', value: fieldValue});
-			    		break;
-
-	    		}
+    		var stage 	= Number(scriptContext.currentRecord.getValue({fieldId: 'custpage_param_stage'}));
+			
+			if(stage == 1)
+				{
+		    		var fieldValue 	= scriptContext.currentRecord.getValue({fieldId: scriptContext.fieldId});
+		    		var fieldText 	= scriptContext.currentRecord.getText({fieldId: scriptContext.fieldId});
+		    		
+			    	switch(scriptContext.fieldId)
+			    		{
+					    	case 'custpage_entry_collection_date':
+					    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_collectiondate', value: format.format({value: fieldValue, type: format.Type.DATE})});
+					    		break;
+					    		
+					    	case 'custpage_entry_class':
+					    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_class', value: fieldValue});
+					    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_classname', value: fieldText});
+					    		
+					    		switch(Number(fieldValue))
+					    			{
+							    		case 2:		//Food
+							    			scriptContext.currentRecord.getField({fieldId: 'custpage_entry_epos'}).isDisplay = true;
+							    			scriptContext.currentRecord.getField({fieldId: 'custpage_entry_collect_qty'}).isDisplay = true;
+							    			break;
+							    			
+							    		case 1:		//Royalty
+								    	case 3:		//Loan
+								    		scriptContext.currentRecord.getField({fieldId: 'custpage_entry_epos'}).isDisplay = false;
+							    			scriptContext.currentRecord.getField({fieldId: 'custpage_entry_collect_qty'}).isDisplay = true;
+							    			break;
+							    	
+							    		default:	//Property, Misc, Turnkey
+							    			scriptContext.currentRecord.getField({fieldId: 'custpage_entry_epos'}).isDisplay = false;
+						    				scriptContext.currentRecord.getField({fieldId: 'custpage_entry_collect_qty'}).isDisplay = false;
+							    			break;
+					    			}
+					    		break;
+		
+					    	case 'custpage_entry_epos':
+					    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_epos', value: fieldValue});
+					    		break;
+		
+					    	case 'custpage_entry_customer':
+					    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_customer', value: fieldValue});
+					    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_customername', value: fieldText});
+					    		break;
+		
+					    	case 'custpage_entry_franchisee':
+					    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_franchisee', value: fieldValue});
+					    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_franchiseename', value: fieldText});
+					    		break;
+		
+					    	case 'custpage_entry_asofdate':
+					    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_asofdate', value: format.format({value: fieldValue, type: format.Type.DATE})});
+					    		break;
+					    		
+					    	case 'custpage_entry_collect_qty':
+					    		scriptContext.currentRecord.setValue({fieldId: 'custpage_param_collectionqty', value: fieldValue});
+					    		break;
+		
+			    		}
+				}
 	    }
 
     return 	{
