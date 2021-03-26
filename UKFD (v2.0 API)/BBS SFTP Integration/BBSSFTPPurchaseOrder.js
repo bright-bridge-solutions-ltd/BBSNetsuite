@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/search', 'N/sftp', 'N/file', 'N/format', 'N/record', 'N/runtime'],
-function(search, sftp, file, format, record, runtime) {
+define(['./BBSSFTPLibrary', 'N/search', 'N/sftp', 'N/file', 'N/format', 'N/record', 'N/runtime'],
+function(sftpLibrary, search, sftp, file, format, record, runtime) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -43,10 +43,12 @@ function(search, sftp, file, format, record, runtime) {
      */
     function afterSubmit(scriptContext) {
     	
-    	// check the PO is a special order
-    	if (scriptContext.type == scriptContext.UserEventType.SPECIALORDER)
+    	if (scriptContext.type == scriptContext.UserEventType.SPECIALORDER) // if the PO is being created and is a special order
     		{
-	    		// retrieve script parameters
+	    		// declare and initialize variables
+    			var requiredDeliveryDate = null;
+    		
+    			// retrieve script parameters
 	        	var folderID = runtime.getCurrentScript().getParameter({
 	        		name: 'custscript_bbs_sftp_folder_id'
 	        	});
@@ -59,8 +61,8 @@ function(search, sftp, file, format, record, runtime) {
 		    		fieldId: 'entity'
 		    	});
 		    			
-		    	// see if we have a matching SFTP record for the supplier
-		    	var sftpDetails = getSftpDetails(supplierID);
+		    	// call library function to see if we have a matching SFTP record for the supplier
+		    	var sftpDetails = sftpLibrary.getSftpDetails(supplierID);
 		    			
 		    	// retrieve the SFTP details
 		    	var sftpEndpoint 		= sftpDetails.endpoint;
@@ -71,6 +73,8 @@ function(search, sftp, file, format, record, runtime) {
 		    	var sftpOutDirectory	= sftpDetails.outDirectory;
 		    	var sftpInDirectory		= sftpDetails.inDirectory;
 		    	var sftpUnitsOfQuantity	= sftpDetails.unitsOfQuantity;
+		    	var sftpLeadTime		= sftpDetails.leadTime;
+		    	var sftpProcessingDays	= sftpDetails.processingDays;
 		    			
 		    	// if we have SFTP details for this supplier
 		    	if (sftpEndpoint)
@@ -118,20 +122,6 @@ function(search, sftp, file, format, record, runtime) {
 		    								value: 	orderDate
 		    							});
 				    							
-				    					var requiredDate = currentRecord.getValue({
-				    						fieldId: 'custbody_bbs_requested_collection_date'
-				    					});
-				    							
-				    					// if we have a required date
-				    					if (requiredDate)
-				    						{
-				    							// format as a date string
-				    							requiredDate = format.format({
-				    								type: 	format.Type.DATE,
-				    								value: 	requiredDate
-				    							});
-				    						}
-				    					
 				    					var warehouseAddress = currentRecord.getValue({
 				    						fieldId: 'custbody_warehouseaddress'
 				    					}).split('\r\n');
@@ -144,11 +134,18 @@ function(search, sftp, file, format, record, runtime) {
 				    						fieldId: 'createdfrom'
 				    					}).split('#').pop();
 				    					
-				    					// call function to lookup the Menzies depot number on the sales order
-				    					var finalDepot = getMenziesDepot(salesOrderID);
+				    					// call library function to lookup details on the sales order
+				    					var salesOrderInfo = sftpLibrary.getSalesOrderInfo(salesOrderID);
+				    					
+				    					// if we have a ship date on the sales order
+				    					if (salesOrderInfo.shipDate)
+				    						{
+					    						// call library function to calculate the required delivery date
+				    							requiredDeliveryDate = sftpLibrary.calculateDeliveryDate(salesOrderInfo.shipDate, sftpLeadTime, sftpProcessingDays);
+				    						}
 				    									
 				    					// start off the CSV
-				    					var CSV = '"HEAD",,"UKFD","UKFD",' + poNumber + ',' + orderDate + ',' + requiredDate + ',,,,,,,,,,' + warehouseAddress[0] + ',' + warehouseAddress[1] + ',' + warehouseAddress[2] + ',' + warehouseAddress[3] + ',' + warehouseAddress[4] + ',' + warehouseAddress[6] + ',,,,,,,,' + soNumber + ',' + finalDepot + '\r\n';
+				    					var CSV = '"HEAD",,"UKFD","UKFD",' + poNumber + ',' + orderDate + ',' + requiredDeliveryDate + ',,,,,,,,,,' + warehouseAddress[0] + ',' + warehouseAddress[1] + ',' + warehouseAddress[2] + ',' + warehouseAddress[3] + ',' + warehouseAddress[4] + ',' + warehouseAddress[6] + ',,,,,,,,' + soNumber + ',' + salesOrderInfo.menziesDepot + '\r\n';
 				    							
 				    					// get count of lines on the PO
 				    					var lineCount = currentRecord.getLineCount({
@@ -264,12 +261,13 @@ function(search, sftp, file, format, record, runtime) {
 		    						}
 		    				}
 		    			
-		    			// change the purchase order's approval status to Approved
+		    			// change the purchase order's approval status to Approved and set the required delivery date
 		    			record.submitFields({
 		    				type: record.Type.PURCHASE_ORDER,
 		    				id: currentRecord.id,
 		    				values: {
-		    					approvalstatus: 2 // 2 = Approved
+		    					approvalstatus: 2, // 2 = Approved
+		    					custbody_bbs_requested_delivery_date : requiredDeliveryDate
 		    				},
 		    				enableSourcing: false,
 							ignoreMandatoryFields: true
@@ -277,130 +275,33 @@ function(search, sftp, file, format, record, runtime) {
 		    			
     				}
     		}
+    	else if (scriptContext.type == scriptContext.UserEventType.XEDIT) // if the PO is being edited by the BBS Suitelet
+    		{
+	    		// get the old/new images of the record
+				var oldRecord = scriptContext.oldRecord;
+				var newRecord = scriptContext.newRecord;
+				
+				// get the Furlong required delivery date from the old/new images of the record
+				var oldDate = oldRecord.getValue({
+					fieldId: 'custbody_bbs_requested_delivery_date'
+				});
+				
+				var newDate = newRecord.getValue({
+					fieldId: 'custbody_bbs_requested_delivery_date'
+				});
+				
+				// if the Furlong required delivery date has been changed
+				if (oldDate.getTime() != newDate.getTime())
+					{
+						log.debug({
+							title: '*** Furlong Required Delivery Date Has Been Changed ***'
+						});
+						
+						//TODO - Code to generate further CSV file to Furlong
+					}
+    		}
     	
     }
-    
-    // ===========================================
-    // FUNCTION TO GET THE SFTP CONNECTION DETAILS
-    // ===========================================
-    
-    function getSftpDetails(supplierID) {
-    	
-    	// declare and initialize variables
-    	var endpoint 		= null;
-    	var username 		= null;
-    	var password 		= null;
-    	var hostKey			= null;
-    	var portNumber		= null;
-    	var outDirectory	= null;
-    	var inDirectory		= null;
-    	var unitsOfQuantity	= null;
-    	
-    	// search for Supplier SFTP Detail records
-    	search.create({
-    		type: 'customrecord_bbs_sftp',
-    		
-    		filters: [{
-    			name: 'isinactive',
-    			operator: search.Operator.IS,
-    			values: ['F']
-    		},
-    				{
-    			name: 'custrecord_bbs_sftp_supplier',
-    			operator: search.Operator.ANYOF,
-    			values: [supplierID]
-    		}],
-    		
-    		columns: [{
-    			name: 'custrecord_bbs_sftp_endpoint'
-    		},
-    				{
-    			name: 'custrecord_bbs_sftp_username'
-    		},
-    				{
-    			name: 'custrecord_bbs_sftp_password'
-    		},
-    				{
-    			name: 'custrecord_bbs_sftp_host_key'
-    		},
-    				{
-    			name: 'custrecord_bbs_sftp_port_number'
-    		},
-    				{
-    			name: 'custrecord_bbs_sftp_outbound_directory'
-    		},
-    				{
-    			name: 'custrecord_bbs_sftp_inbound_directory'
-    		},
-    				{
-    			name: 'custrecord_bbs_sftp_units_of_quantity'
-    		}],
-    		
-    	}).run().each(function(result){
-    		
-    		// get the SFTP details from the search result
-    		endpoint = result.getValue({
-    			name: 'custrecord_bbs_sftp_endpoint'
-    		});
-    		
-    		username = result.getValue({
-    			name: 'custrecord_bbs_sftp_username'
-    		});
-    		
-    		password = result.getValue({
-    			name: 'custrecord_bbs_sftp_password'
-    		});
-    		
-    		hostKey = result.getValue({
-    			name: 'custrecord_bbs_sftp_host_key'
-    		});
-    		
-    		portNumber = result.getValue({
-    			name: 'custrecord_bbs_sftp_port_number'
-    		});
-    		
-    		outDirectory = result.getValue({
-    			name: 'custrecord_bbs_sftp_outbound_directory'
-    		});
-    		
-    		inDirectory = result.getValue({
-    			name: 'custrecord_bbs_sftp_inbound_directory'
-    		});
-    		
-    		unitsOfQuantity = result.getText({
-    			name: 'custrecord_bbs_sftp_units_of_quantity'
-    		});
-    		
-    	});
-    	
-    	// return values to the main script function
-    	return {
-    		endpoint:			endpoint,
-    		username:			username,
-    		password:			password,
-    		hostKey:			hostKey,
-    		portNumber:			portNumber,
-    		outDirectory:		outDirectory,
-    		inDirectory:		inDirectory,
-    		unitsOfQuantity:	unitsOfQuantity
-    	}
-    	
-    }
-    
-    // =====================================================================
-	// FUNCTION TO GET THE MENZIES DEPOT NUMBER FROM THE RELATED SALES ORDER
-	// =====================================================================
-	
-	function getMenziesDepot(salesOrderID) {
-		
-		// get the Menzies depot from the sales order and return to the main script function
-		return search.lookupFields({
-			type: search.Type.SALES_ORDER,
-			id: salesOrderID,
-			columns: ['custbody_bbs_menzies_depot_number']
-		}).custbody_bbs_menzies_depot_number;
-		
-	}
 
     return {
         afterSubmit: afterSubmit

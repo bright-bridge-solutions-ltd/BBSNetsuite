@@ -326,12 +326,7 @@ function(libraryScript, suiteCentricLibrary, search, record, runtime, url, https
 						   if (paymentMethod == 16 && paymentApproval == true && passedBusinessRules == true)
 						   		{
 									// call SuiteCentric library function
-									var suiteCentricStatus = suiteCentricLibrary.convert(currentRecordID);
-									
-									log.audit({
-										title: 'SuiteCentric Status',
-										details: suiteCentricStatus
-									});
+									suiteCentricLibrary.convert(currentRecordID);
 								}
     				}
     		}

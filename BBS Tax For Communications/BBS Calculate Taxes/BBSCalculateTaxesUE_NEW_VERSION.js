@@ -21,9 +21,7 @@ function(runtime, record, search, libraryModule, plugin)
 	     */
 	    function calculateTaxesAS(scriptContext) 
 		    {
-	    		debugger;
-	    		
-		    	//Get the plugin implementation
+	    		//Get the plugin implementation
 				//
 				var  tfcPlugin = plugin.loadImplementation({
 															type: 'customscript_bbstfc_plugin',
@@ -106,6 +104,11 @@ function(runtime, record, search, libraryModule, plugin)
 						var billToIncorporated	= 	_transactionRecord.getSubrecord({fieldId: 'billingaddress'}).getValue({fieldId: 'custrecord_bbstfc_incorporated'});
 						var lineCount			=	_transactionRecord.getLineCount({sublistId: 'item'});
 						
+						log.debug({
+							title: 'Subsidiary ID',
+							details: subsidiaryID
+						});
+						
 						// check the record is not a standalone transaction
 						//
 						if (createdFrom)
@@ -175,6 +178,11 @@ function(runtime, record, search, libraryModule, plugin)
 						var subsidiaryClientProfileID	= subsidiaryLookup[0];
 						var subsidiaryPCode				= subsidiaryLookup[1];
 						var subsidiaryIncorporated		= subsidiaryLookup[2];
+						
+						log.debug({
+							title: 'subsidiaryLookup',
+							details: subsidiaryLookup
+						});
 						
 						// call function to return/lookup fields on the address record
 						//

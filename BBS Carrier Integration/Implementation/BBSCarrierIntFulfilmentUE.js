@@ -415,7 +415,7 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    								
 	    								// create an address object
 	    								//
-	    								var shippingAddress = new BBSObjects.addressObject(addresse, addressLine1, addressLine2, city, county, postcode, country);
+	    								var shippingAddress = new BBSObjects.addressObject(addresse, addressLine1, addressLine2, city, county, postcode, country, addressPhone);
 	    								
 	    								
 	    								//Get the subsidiary field value from the IF record (if present)

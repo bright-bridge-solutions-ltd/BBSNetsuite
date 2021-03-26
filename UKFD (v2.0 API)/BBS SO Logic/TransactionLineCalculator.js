@@ -270,7 +270,14 @@ define(['N'],
                         case 'roll':
                         case 'rug':
                         	this.custcol_bbs_length = (this.quantity / 100);
-                        	break;
+                        	this.quantity = parseInt(this.quantity);
+                            this.getCoverage();
+                            this.rate = this.getShedRate();
+                            this.custcol_adjustrate = this.rate;
+                            this.custcol_adjustmetresquared = this.getAreaUnitPrice();
+                            this.custcol_adjustgrossprofit = this.getGrossProfit();
+                            this.amount = (this.quantity * this.custcol_adjustrate).toFixed(2);
+                            break;
                         case 'board':
                         case 'unit':
                             this.quantity = parseInt(this.quantity);
@@ -305,8 +312,13 @@ define(['N'],
                         case 'roll':
                         case 'rug':
                         	this.quantity = (this.custcol_bbs_length * 100);
-                        	this.amount = (this.quantity * this.rate).toFixed(2);
-                        	break;
+                        	this.getCoverage();
+                            this.rate = this.getShedRate();
+                            this.custcol_adjustrate = this.rate;
+                            this.custcol_adjustmetresquared = this.getAreaUnitPrice();
+                            this.custcol_adjustgrossprofit = this.getGrossProfit();
+                            this.amount = (this.quantity * this.custcol_adjustrate).toFixed(2);
+                            break;
                         case 'board':
                         case 'unit':
                         case 'sample':
@@ -338,6 +350,10 @@ define(['N'],
                             this.quantity = 1;
                             break;
                         case 'rug':
+                        	this.custcol_adjustrate = 0;
+                            this.quantity = Math.ceil(this.custcol_coverage / this.custcol_sqmperpack);
+                            this.setQuantity();
+                            break;
                         case 'unit':
                             this.custcol_coverage = 0;
                             break;

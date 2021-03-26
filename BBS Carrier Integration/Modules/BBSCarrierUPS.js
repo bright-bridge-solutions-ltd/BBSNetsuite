@@ -40,13 +40,18 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 				{
 					//Set the headers for the request
 					//
-					headerObj['AccessLicenseNumber']	= '';
+					headerObj['AccessLicenseNumber']	= _processShipmentRequest.configuration.clientId;
 					headerObj['Content-Type']			= 'text/json';
 					headerObj['Accept']					= 'text/json';
 					headerObj['Username']				= _processShipmentRequest.configuration.username;
 					headerObj['Password']				= _processShipmentRequest.configuration.password;
 					headerObj['transId']				= _processShipmentRequest.shippingReference;
 					headerObj['transactionSrc']			= 'NetSuite';
+					
+					log.debug({
+						title: 'headerObj',
+						details: headerObj
+					});
 				
 					//Create a JSON object that represents the structure of the UPS shipment request
 					//
@@ -62,16 +67,16 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.ShipperNumber										= _processShipmentRequest.shippingItemInfo.carrierContractNo;
 					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Address.AddressLine									= _processShipmentRequest.senderAddress.line1;
 					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Address.City										= _processShipmentRequest.senderAddress.town;
-					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Address.StateProvinceCode							= _processShipmentRequest.senderAddress.county;
+					//shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Address.StateProvinceCode							= _processShipmentRequest.senderAddress.county;
 					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Address.PostalCode									= _processShipmentRequest.senderAddress.postCode;
 					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Address.CountryCode									= _processShipmentRequest.senderAddress.countryCode;
 					
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Name													= _processShipmentRequest.address.addresse;
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.AttentionName										= _processShipmentRequest.address.addresse;
-					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Phone.Number 										= _processShipmentRequest.address.mobileNumber;
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Phone.Number 										= _processShipmentRequest.address.phone;
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Address.AddressLine									= _processShipmentRequest.address.line1;
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Address.City											= _processShipmentRequest.address.town;
-					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Address.StateProvinceCode							= _processShipmentRequest.address.county;
+					//shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Address.StateProvinceCode							= _processShipmentRequest.address.county;
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Address.PostalCode									= _processShipmentRequest.address.postCode;
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Address.CountryCode									= _processShipmentRequest.address.countryCode;
 					
@@ -80,7 +85,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Phone.Number 										= _processShipmentRequest.senderContact.mobileNumber;
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Address.AddressLine								= _processShipmentRequest.senderAddress.line1;
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Address.City										= _processShipmentRequest.senderAddress.town;
-					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Address.StateProvinceCode							= _processShipmentRequest.senderAddress.county;
+					//shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Address.StateProvinceCode							= _processShipmentRequest.senderAddress.county;
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Address.PostalCode									= _processShipmentRequest.senderAddress.postCode;
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Address.CountryCode								= _processShipmentRequest.senderAddress.countryCode;
 					
@@ -93,10 +98,15 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 					shipmentRequestObj.ShipmentRequest.Shipment.Package.Packaging.Code										= "02"; // 02 = Customer Supplied Package
 					shipmentRequestObj.ShipmentRequest.Shipment.Package.PackageWeight.UnitOfMeasurement.Code				= "KGS";
 					shipmentRequestObj.ShipmentRequest.Shipment.Package.PackageWeight.UnitOfMeasurement.Description			= "Kilograms";
-					shipmentRequestObj.ShipmentRequest.Shipment.Package.PackageWeight.Weight								= _processShipmentRequest.weight;
+					shipmentRequestObj.ShipmentRequest.Shipment.Package.PackageWeight.Weight								= parseFloat(_processShipmentRequest.weight).toFixed(2);
 					
 					shipmentRequestObj.ShipmentRequest.LabelSpecification.LabelImageFormat.Code								= _processShipmentRequest.configuration.labelFormat;
 					shipmentRequestObj.ShipmentRequest.LabelSpecification.LabelImageFormat.Description						= _processShipmentRequest.configuration.labelFormat;
+					
+					log.debug({
+						title: 'Shipment Request',
+						details: JSON.stringify(shipmentRequestObj)
+					});
 					
 					try
 						{
@@ -303,7 +313,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			this.ShipmentRequest.Shipment.Shipper.Address = {};
 			this.ShipmentRequest.Shipment.Shipper.Address.AddressLine = '';
 			this.ShipmentRequest.Shipment.Shipper.Address.City = '';
-			this.ShipmentRequest.Shipment.Shipper.Address.StateProvinceCode = '';
+			//this.ShipmentRequest.Shipment.Shipper.Address.StateProvinceCode = '';
 			this.ShipmentRequest.Shipment.Shipper.Address.PostalCode = '';
 			this.ShipmentRequest.Shipment.Shipper.Address.CountryCode = '';
 			
@@ -317,7 +327,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			this.ShipmentRequest.Shipment.ShipTo.Address = {};
 			this.ShipmentRequest.Shipment.ShipTo.Address.AddressLine = '';
 			this.ShipmentRequest.Shipment.ShipTo.Address.City = '';
-			this.ShipmentRequest.Shipment.ShipTo.Address.StateProvinceCode = '';
+			//this.ShipmentRequest.Shipment.ShipTo.Address.StateProvinceCode = '';
 			this.ShipmentRequest.Shipment.ShipTo.Address.PostalCode = '';
 			this.ShipmentRequest.Shipment.ShipTo.Address.CountryCode = '';
 			
@@ -331,7 +341,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			this.ShipmentRequest.Shipment.ShipFrom.Address = {};
 			this.ShipmentRequest.Shipment.ShipFrom.Address.AddressLine = '';
 			this.ShipmentRequest.Shipment.ShipFrom.Address.City = '';
-			this.ShipmentRequest.Shipment.ShipFrom.Address.StateProvinceCode = '';
+			//this.ShipmentRequest.Shipment.ShipFrom.Address.StateProvinceCode = '';
 			this.ShipmentRequest.Shipment.ShipFrom.Address.PostalCode = '';
 			this.ShipmentRequest.Shipment.ShipFrom.Address.CountryCode = '';
 			

@@ -8,11 +8,12 @@ function()
 	
 	//Object to hold the connection configuration
 	//
-	function _configuration(_primaryCarrier, _username, _passsword, _url, _urlDelete, _majorId, _minorId, _intermediateId, _labelFormat, _imageConvert)
+	function _configuration(_primaryCarrier, _clientId, _username, _passsword, _url, _urlDelete, _majorId, _minorId, _intermediateId, _labelFormat, _imageConvert)
 		{
 			//Constructor
 			//
 			this.primaryCarrier	= _primaryCarrier;
+			this.clientId		= _clientId;
 			this.username		= _username;
 			this.password		= _passsword;
 			this.url			= _url;
@@ -176,7 +177,7 @@ function()
 			this.packageDescription			= _packageDescription;
 		}
 
-	function _addressObject(_addresse, _line1, _line2, _town, _county, _postCode, _countryCode)
+	function _addressObject(_addresse, _line1, _line2, _town, _county, _postCode, _countryCode, _phone)
 		{
 			this.addresse		= _addresse;
 			this.line1			= _line1;
@@ -185,6 +186,7 @@ function()
 			this.county			= _county;
 			this.postCode		= _postCode;
 			this.countryCode	= _countryCode;
+			this.phone			= _phone;
 		}
 	
 	function _contactObject(_mobileNumber, _emailaddress, _vatNo, _eori)

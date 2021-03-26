@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/record'],
-function(record) {
+define(['N/runtime', 'N/record'],
+function(runtime, record) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -74,6 +74,16 @@ function(record) {
     
     function createCustomerRefund(customerID, tranID, tranDate) {
     	
+    	// retrieve script parameters
+    	var defaultAccount = runtime.getCurrentScript().getParameter({
+    		name: 'custscript_bbs_customer_refund_def_acc'
+    	});
+    	
+    	log.debug({
+    		title: "Script Check",
+    		details: defaultAccount
+    	});
+    	
     	try
     		{
     			// create a customer refund
@@ -91,6 +101,11 @@ function(record) {
     			customerRefund.setValue({
     				fieldId: 'trandate',
     				value: tranDate
+    			});
+    			
+    			customerRefund.setValue({
+    				fieldId: 'account',
+    				value: defaultAccount
     			});
     			
     			// get count of lines in the 'Apply' sublist

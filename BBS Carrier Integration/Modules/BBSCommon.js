@@ -313,9 +313,10 @@ function(record, search, xml, config, https, encode, BBSObjects, secret, oauth, 
 																	      search.createColumn({name: "custrecord_bbs_config_label_format", label: "Label Format"}),
 																	      search.createColumn({name: "custrecord_bbs_config_major", label: "Major Version Id"}),
 																	      search.createColumn({name: "custrecord_bbs_config_minor", label: "Minor Version Id"}),
+																	      search.createColumn({name: "custrecord_bbs_config_client_id", label: "Client ID"}),
+																	      search.createColumn({name: "custrecord_bbs_config_username", label: "User Name"}),
 																	      search.createColumn({name: "custrecord_bbs_config_password", label: "Password / API Key"}),
 																	      search.createColumn({name: "custrecord_bbs_config_carrier", label: "Primary Carrier/Integrator"}),
-																	      search.createColumn({name: "custrecord_bbs_config_username", label: "User Name"}),
 																	      search.createColumn({name: "custrecord_bbs_config_url", label: "Shipping URL"}),
 																	      search.createColumn({name: "custrecord_bbs_config_url_delete", label: "Delete URL"}),
 																	      search.createColumn({name: "custrecord_bbs_config_use_image_convert", label: "Use Image Converter"})
@@ -325,6 +326,7 @@ function(record, search, xml, config, https, encode, BBSObjects, secret, oauth, 
 			if(customrecord_bbs_carrier_configSearchObj != null && customrecord_bbs_carrier_configSearchObj.length == 1)
 				{
 					var configCarrier 		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_carrier"});
+					var clientId			= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_client_id"});
 					var configUser 			= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_username"});
 					var configPassword 		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_password"});
 					var configUrl 			= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_url"});
@@ -335,7 +337,7 @@ function(record, search, xml, config, https, encode, BBSObjects, secret, oauth, 
 					var configLabelFormat	= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_label_format"});
 					var configImageConvert	= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_use_image_convert"});
 					
-					carrierConfig = new BBSObjects.carrierConfiguration(configCarrier, configUser, configPassword, configUrl, configUrlDelete, configMajor, configMinor, configIntermediate, configLabelFormat, configImageConvert);
+					carrierConfig = new BBSObjects.carrierConfiguration(configCarrier, clientId, configUser, configPassword, configUrl, configUrlDelete, configMajor, configMinor, configIntermediate, configLabelFormat, configImageConvert);
 				}
 			
 			return carrierConfig;

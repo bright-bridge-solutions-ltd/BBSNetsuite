@@ -11,8 +11,46 @@ define(['N/currentRecord', 'N/record', 'N/search', 'N/ui/dialog'],
  */
 function(currentRecord, record, search, dialog) 
 {   
+	/**
+     * Function to be executed when field is changed.
+     *
+     * @param {Object} scriptContext
+     * @param {Record} scriptContext.currentRecord - Current form record
+     * @param {string} scriptContext.sublistId - Sublist name
+     * @param {string} scriptContext.fieldId - Field name
+     * @param {number} scriptContext.lineNum - Line number. Will be undefined if not a sublist or matrix field
+     * @param {number} scriptContext.columnNum - Line number. Will be undefined if not a matrix field
+     *
+     * @since 2015.2
+     */
+    function fieldChanged(scriptContext) {
+    	
+    	// if the Department field has been changed
+    	if (scriptContext.fieldId == 'department')
+    		{
+    			// get the value of the Department field
+    			var department = scriptContext.currentRecord.getValue({
+    				fieldId: 'department'
+    			});
+    			
+    			// get the value of the Subsidiary field
+    			var subsidiary = scriptContext.currentRecord.getValue({
+    				fieldId: 'subsidiary'
+    			});
+    			
+    			// call function to return the approval table
+    			var approvalTable = getApprovalTable(department, subsidiary);
+    			
+    			// set the Approval Table field
+    			scriptContext.currentRecord.setValue({
+    				fieldId: 'custbody_bbs_po_approval_table',
+    				value: approvalTable
+    			});		
+    		}
 
-     /**
+    }
+	
+	/**
      * Function to be executed when field is slaved.
      *
      * @param {Object} scriptContext
@@ -117,8 +155,58 @@ function(currentRecord, record, search, dialog)
 	    	return results;
 	    }
     
+    // =====================================
+    // FUNCTION TO RETURN THE APPROVAL TABLE
+    // =====================================
+    
+    function getApprovalTable(department, subsidiary) {
+    	
+    	// declare and initialize variables
+    	var approvalTable = '';
+    	
+    	// check we have a department and a subsidiary
+    	if (department && subsidiary)
+    		{
+		    	// run search to find the approval table
+		    	search.create({
+		    		type: 'customrecord_bbs_bill_approval_table',
+		    		
+		    		filters: [{
+		    			name: 'isinactive',
+		    			operator: search.Operator.IS,
+		    			values: ['F']
+		    		},
+		    				{
+		    			name: 'custrecord_bbs_department',
+		    			operator: search.Operator.ANYOF,
+		    			values: [department]
+		    		},
+		    				{
+		    			name: 'custrecord_bbs_subsidiary',
+		    			operator: search.Operator.ANYOF,
+		    			values: [subsidiary]
+		    		}],
+		    		
+		    		columns: [{
+		    			name: 'name'
+		    		}],
+		    		
+		    	}).run().each(function(result){
+		    		
+		    		// get the internal ID of the approval table
+		    		approvalTable = result.id;
+		    		
+		    	});
+    		}
+    	
+    	// return values to the main script function
+    	return approvalTable;
+    	
+    }
+    
     return 	{
-	        postSourcing: 	postSourcing
+	        	fieldChanged:	fieldChanged,
+    			postSourcing: 	postSourcing
     		};
     
 });

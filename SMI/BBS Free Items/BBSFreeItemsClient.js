@@ -9,18 +9,19 @@
  * 1.40			26 Sep 2019		sambatten		Removed if statement to check order status as this wasn't working correctly when order is created (only working on edit)
  * 1.50			31 Oct 2019		sambatten		Amended script parameters
  * 1.60			15 Feb 2021		sambatten		Re-added if statement to check order status
+ * 1.70			22 Mar 2021		sambatten		Re-moved type argument from if statement as doesn't exist on saveRecord function. Replaced with check to see if status returns null
  */
 
-function saveRecord(type)
+function saveRecord()
 	{
 		// get the internal ID of the form being used
 		var customForm = nlapiGetFieldValue('customform');
 		
 		// get the order status
-		var status = nlapiGetFieldValue('status')
+		var status = nlapiGetFieldValue('status');
 		
-		// only continue with script when the custom form is 103 'SMI Standard Sales Order' AND record is being created OR record is being edited AND status is Pending Approval or Pending Fulfilment
-		if (customForm == 103 && (type == 'create' || (type == 'edit' && (status == 'Pending Approval' || status == 'Pending Fulfilment'))))
+		// only continue with script when the custom form is 103 'SMI Standard Sales Order' AND status is null (record being created) or is Pending Approval or Pending Fulfillment
+		if (customForm == 103 && (status == null || status == 'Pending Approval' || status == 'Pending Fulfillment'))
 			{
 				// retrieve script parameters
 				var biscuits = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_biscuits_item');

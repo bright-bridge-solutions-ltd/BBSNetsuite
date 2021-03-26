@@ -1,4 +1,4 @@
-/**
+ /**
  * @NApiVersion 2.x
  * @NModuleScope Public
  */
@@ -26,24 +26,24 @@ function(search, record, url, https)  {
     	// loop through item lines
     	for (var i = 0; i < itemCount; i++)
     		{
-	    		// get the value of the 'Create PO' field for the line
-				var createPO = currentRecord.getSublistValue({
-					sublistId: 'item',
-					fieldId: 'createpo',
-					line: i
-				});
-				
-				// if this is a special order line
-				if (createPO == 'SpecOrd')
-					{
+    			// get the value of the 'Create PO' field for the line
+    			var createPO = currentRecord.getSublistValue({
+    				sublistId: 'item',
+    				fieldId: 'createpo',
+    				line: i
+    			});
+    			
+    			// if this is a special order line
+    			if (createPO == 'SpecOrd')
+    				{
 	    				// set passedRules variable to false
 						passedRules = false;
 								
 						// break the loop
 						break;
-					}
-				else // not a special order line
-					{
+    				}
+    			else // not a special order line
+    				{
 		    			// get the item name
 		    			var itemName = currentRecord.getSublistText({
 		    				sublistId: 'item',
@@ -98,7 +98,7 @@ function(search, record, url, https)  {
 		    								}
 		    						}
 		    				}
-					}
+    				}
     		}
     	
     	// return passedRules variable to main script function
@@ -143,8 +143,8 @@ function(search, record, url, https)  {
     				line: i
     			});
     			
-    			// if the type is Authorization and the result is Accept
-    			if (type == 'Authorization' && result == 'Accept')
+    			// if the type is Sale and the result is Accept
+    			if (type == 'Sale' && result == 'Accept')
     				{
     					// return values from the line
     					avsStreet = convertToBoolean(
@@ -338,6 +338,40 @@ function(search, record, url, https)  {
     	
     }
     
+    // =====================================================================
+    // FUNCTION TO CHECK THE BILLING/SHIPPING ADDRESS POSTCODES ARE THE SAME
+    // =====================================================================
+    
+    function checkPostcodes(currentRecord) {
+    	
+    	// declare and initialize variables
+    	var samePostcode = true;
+    	
+    	// get the postcode from the billing/shipping addresses
+    	var billingPostcode = currentRecord.getSubrecord({
+		    fieldId: 'billingaddress'
+		}).getValue({
+			fieldId: 'zip'
+		});
+    	
+    	var shippingPostcode = currentRecord.getSubrecord({
+		    fieldId: 'shippingaddress'
+		}).getValue({
+			fieldId: 'zip'
+		});
+    	
+    	// check if billing and shipping postcodes are different
+    	if (billingPostcode != shippingPostcode)
+    		{
+    			// set samePostcode variable to false
+    			samePostcode = false;
+    		}
+    	
+    	// return samePostcode to main script function
+    	return samePostcode;
+    	
+    }
+    
     // =======================================
     // FUNCTION TO RETURN THE ON HAND QUANTITY
     // =======================================
@@ -472,13 +506,14 @@ function(search, record, url, https)  {
     	// return returnValue to main script function
     	return returnValue;   	
     	
-    }    
+    }
     
     return {
     	
     	checkUniversalBusinessRules:	checkUniversalBusinessRules,
     	return3DSecureResults:			return3DSecureResults,
     	getPaymentResponseDetails:		getPaymentResponseDetails,
+    	checkPostcodes:					checkPostcodes,
     	checkStockLevels:				checkStockLevels,
     	getOnHandQuantity:				getOnHandQuantity,
     	transformToCashSale:			transformToCashSale,

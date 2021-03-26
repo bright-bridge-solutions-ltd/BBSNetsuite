@@ -1,0 +1,83 @@
+<img src="https://6932997-sb1.app.netsuite.com/core/media/media.nl?id=3313&amp;c=6932997_SB1&amp;h=0ENKaqyNfyAJGUY2_5PDn1ZV824d83by1O7jmrRF3gkFSaRL" style="width: 200px; height: 125px;" />
+<br />
+<br />
+<strong>2nd Reminder</strong>
+<br />
+<br />
+Hi ${customer.entityId},
+<br />
+<br />
+Account Balance Outstanding: ${customer.overdueBalance}
+<br />
+<br />
+As at today’s date, we have not received a payment for the outstanding amount or received a response to our email dated ${customer.custentity_c4c_last_reminder_email_date}; the account is now considerably overdue.
+<br />
+<br />
+Please arrange payment within the next 7 days, as we make no provision for extended credit terms in our pricing structure.
+<br />
+<br />
+Please find the appropriate bank details below for you to process your payment.
+<br />
+<br />
+If there is any reason why payment has not been made please advise us immediately or confirm when payment has been made.
+<br />
+<br />
+<strong>Payment Options:</strong>
+<br />
+<br />
+<table cellpadding="1" cellspacing="1" style="border: 1px solid black;">
+<tbody>
+	<tr>
+	<td style="height: 15px;"><strong>Online Card Payment:</strong></td>
+	<td style="height: 15px;"><strong>BACS Payment:</strong></td>
+	</tr>
+	<tr>
+	<td>If you have a Frugi Website account click here to make a payment: <a href="https://www.frugiwholesale.com/account/make_payment" target="_blank">Pay through Frugi Website</a></td>
+	<td>Please use the following bank details, use your registered company name as the payment reference:</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>Bank Name: ${customer.custentity_c4c_bank_account.custrecord_c4c_bank_name}</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>IBAN Number: ${customer.custentity_c4c_bank_account.custrecord_c4c_ba_iban}</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>Branch Identifier Code: ${customer.custentity_c4c_bank_account.custrecord_c4c_branch_identifier_code}</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>Sort Code: ${customer.custentity_c4c_bank_account.custrecord_c4c_ba_sort_code}</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>Account Number: ${customer.custentity_c4c_bank_account.custrecord_c4c_ba_account_number}</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>Account Name: ${customer.custentity_c4c_bank_account.name}</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>Please make all payments in ${customer.currency.symbol}, and NET of all charges, including bank charges.</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr>
+</tbody>
+</table>
+<br />
+Kind Regards
+<br />
+Team Frugi
