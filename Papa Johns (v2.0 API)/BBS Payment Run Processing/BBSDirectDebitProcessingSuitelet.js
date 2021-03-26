@@ -112,7 +112,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					createField(form, 'custpage_param_customername','Customer Name', 	parameterFieldsDisplayMode,	serverWidget.FieldType.TEXT,	'custpage_parameter_group', paramCustomerName);				//Customer name
 					createField(form, 'custpage_param_asofdate', 	'As Of Date', 		parameterFieldsDisplayMode,	serverWidget.FieldType.TEXT,	'custpage_parameter_group', paramAsOfDate);					//As of date
 					createField(form, 'custpage_param_franchisee', 	'Franchisee', 		parameterFieldsDisplayMode,	serverWidget.FieldType.TEXT,	'custpage_parameter_group', paramFranchisee);				//Franchisee
-					createField(form, 'custpage_param_franchiseename','Customer', 		parameterFieldsDisplayMode,	serverWidget.FieldType.TEXT,	'custpage_parameter_group', paramFranchiseeName);			//Franchisee name
+					createField(form, 'custpage_param_franchiseename','Franchisee Name',parameterFieldsDisplayMode,	serverWidget.FieldType.TEXT,	'custpage_parameter_group', paramFranchiseeName);			//Franchisee name
 					createField(form, 'custpage_param_collectiondate','Collection Date',parameterFieldsDisplayMode,	serverWidget.FieldType.TEXT,	'custpage_parameter_group', paramCollectionDate);			//Collection date
 					createField(form, 'custpage_param_collectionqty','Collection Qty',	parameterFieldsDisplayMode,	serverWidget.FieldType.TEXT,	'custpage_parameter_group', paramCollectionQty);			//Collection date
 					
@@ -157,13 +157,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													                label: 		'# Invoice To Collect',
 													                container:	'custpage_selection_group'
 												            		});
-								//formField.updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});
 								formField.defaultValue 	= 1;
 								
 								var formField = form.addField({
 													                id: 		'custpage_entry_epos',
 													                type: 		serverWidget.FieldType.CHECKBOX,
-													                label: 		'Include EPOS',
+													                label: 		'EPOS Invoices',
 													                container:	'custpage_selection_group'
 												            		});
 
@@ -226,24 +225,25 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								formField.updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});
 								formField.defaultValue = paramClassName;
 								
-								var formField = form.addField({
-														                id: 		'custpage_entry_collect_qty',
-														                type: 		serverWidget.FieldType.INTEGER,
-														                label: 		'# Invoice To Collect',
-														                container:	'custpage_selection_group'
-													            		});
-								formField.updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});
-								formField.defaultValue = paramCollectionQty;
+								
 								
 								var formField = form.addField({
 														                id: 		'custpage_entry_eops',
 														                type: 		serverWidget.FieldType.CHECKBOX,
-														                label: 		'Include EPOS',
+														                label: 		'EPOS',
 														                container:	'custpage_selection_group'
 													            		});
 								formField.updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});
 								formField.defaultValue = paramEpos;
 
+								var formField = form.addField({
+														                id: 		'custpage_entry_collect_qty',
+														                type: 		serverWidget.FieldType.TEXT,
+														                label: 		'Invoices To Collect',
+														                container:	'custpage_selection_group'
+													            		});
+								formField.updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});
+								formField.defaultValue = paramCollectionQty;
 
 								var formField = form.addField({
 																	    id: 		'custpage_entry_customername',
@@ -271,11 +271,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																	    container:	'custpage_selection_group'
 																		});
 								formField.updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});
-								formField.defaultValue = format.parse({value: paramAsOfDate, type: format.Type.DATE});
-
-
-
 								
+								if(paramAsOfDate != null && paramAsOfDate != '')
+									{
+										formField.defaultValue = format.parse({value: paramAsOfDate, type: format.Type.DATE});
+									}
+
 								//Add a subtab
 								//
 								var tab = form.addTab({
@@ -295,14 +296,14 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												                container:	'custpage_tab_dummy'
 											            		});
 								
-
 								//Add a sublist
 								//
 								var subList = form.addSublist({
 																id:		'custpage_sublist_items', 
 																type:	serverWidget.SublistType.LIST, 
 																label:	'Transactions',
-																tab:	'custpage_tab_items'
+																tab:	'custpage_tab_items',
+																type:	serverWidget.SublistType.INLINEEDITOR
 															});
 								
 								
@@ -310,44 +311,112 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 		
 								//Add columns to sublist
 								//
-								subList.addField({
-													id:		'custpage_sl_line_no',
-													label:	'Line #',
-													type:	serverWidget.FieldType.INTEGER
-												});		
-								
-								subList.addField({
-													id:		'custpage_sl_item_text',
-													label:	'Item Name',
-													type:	serverWidget.FieldType.TEXT
-												});		
+								//subList.addField({
+								//					id:		'custpage_line_select',
+								//					label:	'Select',
+								//					type:	serverWidget.FieldType.CHECKBOX
+								//				});		
 				
 								subList.addField({
-													id:		'custpage_sl_item_description',
-													label:	'Item Description',
+													id:		'custpage_line_store_name',
+													label:	'Store Name',
 													type:	serverWidget.FieldType.TEXT
-												});		
-
-								subList.addField({
-													id:		'custpage_sl_item_qty_req',
-													label:	'Required Quantity',
-													type:	serverWidget.FieldType.TEXT
-												});		
-
-								subList.addField({
-													id:		'custpage_sl_item_qty_pack',
-													label:	'Packed Quantity',
-													type:	serverWidget.FieldType.TEXT
-												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});		
-
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});		
 								
 								subList.addField({
-													id:		'custpage_sl_item_id',
-													label:	'Item Id',
+													id:		'custpage_line_company_namne',
+													label:	'Company Name',
+													type:	serverWidget.FieldType.TEXT
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});		
+				
+								subList.addField({
+													id:		'custpage_line_franchisee',
+													label:	'Franchisee',
+													type:	serverWidget.FieldType.TEXT
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});		
+
+								subList.addField({
+													id:		'custpage_line_doc_no',
+													label:	'Document Number',
+													type:	serverWidget.FieldType.TEXT
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});		
+
+								subList.addField({
+													id:		'custpage_line_type',
+													label:	'Type',
+													type:	serverWidget.FieldType.TEXT
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});		
+
+								subList.addField({
+													id:		'custpage_line_class',
+													label:	'Invoice Class',
+													type:	serverWidget.FieldType.TEXT
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});		
+
+								subList.addField({
+													id:		'custpage_line_date',
+													label:	'Date',
+													type:	serverWidget.FieldType.DATE
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});		
+
+								subList.addField({
+													id:		'custpage_line_due_date',
+													label:	'Due Date',
+													type:	serverWidget.FieldType.DATE
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});		
+
+								subList.addField({
+													id:		'custpage_line_memo',
+													label:	'Memo',
+													type:	serverWidget.FieldType.TEXT
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});		
+
+								subList.addField({
+													id:		'custpage_line_amount',
+													label:	'Total Amount',
+													type:	serverWidget.FieldType.CURRENCY
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});		
+								
+								subList.addField({
+													id:		'custpage_line_paid_amount',
+													label:	'Amount Paid',
+													type:	serverWidget.FieldType.CURRENCY
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});		
+
+								subList.addField({
+													id:		'custpage_line_future_amount',
+													label:	'Future Payment Amount',
+													type:	serverWidget.FieldType.CURRENCY
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});		
+
+								subList.addField({
+													id:		'custpage_line_remaining_amount',
+													label:	'Remaining Amount',
+													type:	serverWidget.FieldType.CURRENCY
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});		
+
+								subList.addField({
+													id:		'custpage_line_installment_amount',
+													label:	'Installment Amount',
+													type:	serverWidget.FieldType.CURRENCY
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});		
+
+								subList.addField({
+													id:		'custpage_line_claim_amount',
+													label:	'Amount To Claim',
+													type:	serverWidget.FieldType.CURRENCY
+												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.ENTRY});		
+
+								subList.addField({
+													id:		'custpage_line_internalid',
+													label:	'Internal Id',
 													type:	serverWidget.FieldType.TEXT
 												}).updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});		
 
 								
+								//Add the mark all buttons
+								//
+								//subList.addMarkAllButtons();
 								
 								//Add a submit button
 					            //
@@ -357,10 +426,368 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					            
 					            //Find data for the sublist
 					            //
+					            var filterObj = 	[
+					                            	 	["type","anyof","CustCred","CustInvc"], 			//Credit Note or Invoice
+					                            	 	"AND", 
+					                            	 	["mainline","is","T"], 								//Mainline
+					                            	 	"AND", 
+					                            	 	["status","anyof","CustCred:A","CustInvc:A"], 		//Open credit note or open invoice
+					                            	 	"AND", 
+					                            	 	["customer.custentity_2663_direct_debit","is","T"],	//Customer is a direct debit customer
+					                            	 	"AND", 
+					                            	    ["custbody_dd_in_query","is","F"],					//Transaction is not in query
+					                            	    "AND", 
+					                            	    ["formulanumeric: NVL({amountremaining},0) - NVL({custbody_dd_future_payments},0)","greaterthan","0"]	//Amount remaining minus amount on future payment runs > 0
+							            	      	];
 					            
+					            if(paramClass != null && paramClass != '')
+					            	{
+					            		filterObj.push("AND", ["class","anyof",paramClass]);
+					            		
+					            		if(paramClass == 2)		//Food
+					            			{
+					            				if(paramEpos == 'T')
+					            					{
+					            						filterObj.push("AND", ["memo","contains","EPOS"]);
+					            					}
+					            				else
+					            					{
+					            						filterObj.push("AND", ["memo","doesnotcontain","EPOS"]);
+					            					}
+					            			}
+					            	}
 					            
+					            if(paramCustomer != null && paramCustomer != '')
+					            	{
+					            		filterObj.push("AND", ["name","anyof",paramCustomer]);
+					            	}
+					            
+					            if(paramFranchisee != null && paramFranchisee != '')
+					            	{
+					            		filterObj.push("AND", ["customer.custentity_bbs_franchise_owner","anyof",paramFranchisee]);
+					            	}
+			            
+					            if(paramAsOfDate != null && paramAsOfDate != '')
+					            	{
+					            		filterObj.push("AND", ["duedate","onorbefore",paramAsOfDate]);
+					            	}
+		            
+							            	     
+							            	   
+							            	
+					            
+					            var transactionSearchObj = getResults(search.create({
+					            	   									type:			"transaction",
+					            	   									filters:		filterObj,
+					            	   									columns:
+					            	   													[
+					            	   													search.createColumn({name: "entity",sort: search.Sort.ASC,label: "Name"}),
+					            	   													search.createColumn({name: "trandate",sort: search.Sort.ASC,label: "Date"}),
+					            	   													search.createColumn({name: "type", label: "Type"}),
+					            	   													search.createColumn({name: "tranid", label: "Document Number"}),
+					            	   													search.createColumn({name: "memo", label: "Memo"}),
+					            	   													search.createColumn({name: "amount", label: "Amount"}),
+					            	   													search.createColumn({name: "companyname", join: "customer", label: "Comapny Name"}),
+					            	   													search.createColumn({name: "entityid", join: "customer", label: "Company Id"}),
+					            	   													search.createColumn({name: "custentity_bbs_franchise_owner", join: "customer", label: "Franchisee"}),
+					            	   													search.createColumn({name: "duedate", label: "Due Date"}),
+					            	   													search.createColumn({name: "internalid", label: "Internal Id"}),
+					            	   													search.createColumn({name: "class", label: "Class"}),
+					            	   													search.createColumn({name: "custbody_dd_future_payments", label: "Future Payment Run"}),
+					            	   													search.createColumn({name: "amountpaid", label: "Amount Paid"}),
+					            	   													search.createColumn({name: "amountremaining", label: "Amount Remaining"}),
+					            	   													search.createColumn({name: "custbody_bbs_install_amount", label: "Installment Amount"})
+					            	   													]
+					            										}));
+					            	
+					            if(transactionSearchObj != null && transactionSearchObj.length > 0)
+					            	{
+					            		var sublistLineNo 			= -1;
+					            		var currentCustomer			= transactionSearchObj[0].getValue({name: "entity"});
+					            		var invoiceCount			= Number(0);
+					            		var periodData				= getPeriodData(format.format({value: new Date(), type: format.Type.DATE}));		//What should this be?
+					            		var invoiceCountFirstWeek	= Number(0);
+					            		var invoiceCountLastWeek	= Number(0);
+					            		var invoiceCountMiddleWeek	= Number(0);
+					            		
+					            		for (var searchLine = 0; searchLine < transactionSearchObj.length; searchLine++) 
+						            		{
+					            				//Get values from search
+					            				//
+					            				var lineEntityId			= transactionSearchObj[searchLine].getValue({name: "entity"});
+												var lineInternalId			= transactionSearchObj[searchLine].getValue({name: "internalid"});
+												var lineCompanyId			= transactionSearchObj[searchLine].getValue({name: "entityid", join: "customer"});
+												var lineCompanyName			= transactionSearchObj[searchLine].getValue({name: "companyname", join: "customer"});
+												var lineFranchisee			= transactionSearchObj[searchLine].getText({ name: "custentity_bbs_franchise_owner", join: "customer"});
+												var lineDate				= transactionSearchObj[searchLine].getValue({name: "trandate"});
+												var lineDueDate				= transactionSearchObj[searchLine].getValue({name: "duedate"});
+												var lineType				= transactionSearchObj[searchLine].getText({ name: "type"});
+												var lineClass				= transactionSearchObj[searchLine].getText({ name: "class"});
+												var lineClassId				= transactionSearchObj[searchLine].getValue({name: "class"});
+												var lineMemo				= transactionSearchObj[searchLine].getValue({name: "memo"});
+												var lineDocumentNo			= transactionSearchObj[searchLine].getValue({name: "tranid"});
+												var lineAmount				= transactionSearchObj[searchLine].getValue({name: "amount"});
+												var lineFuturePaymentValue	= transactionSearchObj[searchLine].getValue({name: "custbody_dd_future_payments"});
+												var lineAmountPaid			= transactionSearchObj[searchLine].getValue({name: "amountpaid"});
+												var lineAmountRemaining		= transactionSearchObj[searchLine].getValue({name: "amountremaining"});
+												var lineInstallmentAmount	= transactionSearchObj[searchLine].getValue({name: "custbody_bbs_install_amount"});
+												
+												//Set amount remaining to include amount on future payment runs
+												//
+												lineAmountRemaining = Number(lineAmountRemaining) - Number(lineFuturePaymentValue)
+												lineAmountRemaining = lineAmountRemaining * (lineType == 'Credit Memo' ? -1.0 : 1.0);
+												
+												//
+												//Work out if we want to display an invoice based on class & quantity to display
+												//
+												
+												//Changed customer?
+												//
+												if(lineEntityId != currentCustomer)
+													{
+														currentCustomer 		= lineEntityId;		//Save the current customer
+														invoiceCount			= Number(0);		//Reset the count of invoices displayed
+														invoiceCountFirstWeek	= Number(0);
+									            		invoiceCountLastWeek	= Number(0);
+									            		invoiceCountMiddleWeek	= Number(0);
+									            		
+													}
+												
+												//Only concerned with invoices
+												//
+												if(lineType == 'Invoice')
+													{
+														//If the remaining amount is less than zero, we need to skip it
+														//
+														if(lineAmountRemaining < 0)
+															{
+																continue;
+															}
+														
+														//Royalty (1), Food - EPOS (2), Loan (3)
+														//
+														if(lineClassId == 1 || (lineClassId == 2 && paramEpos == 'T')  || lineClassId == 3)
+															{
+																//Have we reached the limit?
+																//
+																if(invoiceCount == Number(paramCollectionQty))
+																	{
+																		continue;	//Skip on to the next iteration of the loop
+																	}
+																else
+																	{
+																		invoiceCount++;
+																	}
+															}
+														
+														//Property (5), Misc (6), Turnkey (4)
+														//
+														if(lineClassId == 5 || lineClassId == 6 || lineClassId == 4)
+															{
+																//Do nothing, no limit on these classes of invoices
+																//
+															}
+														
+														//Food - NOT EPOS (2)
+														//
+														if(lineClassId == 2 && paramEpos != 'T')
+															{
+																//Have we reached the limit for the invoices from the first week of the period
+																//
+																if(isDateBetween(format.parse({value: lineDate, type: format.Type.DATE}), periodData.periodFirstWeekStart, periodData.periodFirstWeekEnd))
+																	{
+																		if(invoiceCountFirstWeek == 2)
+																			{
+																				continue;	//Skip on to the next iteration of the loop
+																			}
+																		else
+																			{
+																				invoiceCountFirstWeek++;
+																			}
+																	}
+																
+																//Have we reached the limit for the invoices from the middle weeks of the period
+																//
+																if(isDateBetween(format.parse({value: lineDate, type: format.Type.DATE}), periodData.periodMiddleWeeksStart, periodData.periodMiddleWeeksEnd))
+																	{
+																		if(invoiceCountMiddleWeek == 3)
+																			{
+																				continue;	//Skip on to the next iteration of the loop
+																			}
+																		else
+																			{
+																			invoiceCountMiddleWeek++;
+																			}
+																	}
+																
+																//Have we reached the limit for the invoices from the last week of the period
+																//
+																if(isDateBetween(format.parse({value: lineDate, type: format.Type.DATE}), periodData.periodLastWeekStart, periodData.periodLastWeekEnd))
+																	{
+																		if(invoiceCountLastWeek == 2)
+																			{
+																				continue;	//Skip on to the next iteration of the loop
+																			}
+																		else
+																			{
+																				invoiceCountLastWeek++;
+																			}
+																	}
+																
+															}
+													}
+												
+												
+												
+												//Populate sublist
+												//
+												sublistLineNo++;
+												
+												if(lineCompanyId != null && lineCompanyId != '')
+													{
+														subList.setSublistValue({id : 'custpage_line_store_name', line : sublistLineNo, value : lineCompanyId});
+													}
+											
+												if(lineCompanyName != null && lineCompanyName != '')
+													{
+														subList.setSublistValue({id : 'custpage_line_company_namne', line : sublistLineNo, value : lineCompanyName});
+													}
+											
+												if(lineFranchisee != null && lineFranchisee != '')
+													{
+														subList.setSublistValue({id : 'custpage_line_franchisee', line : sublistLineNo, value : lineFranchisee});
+													}
+												
+												if(lineType != null && lineType != '')
+													{
+														subList.setSublistValue({id : 'custpage_line_type', line : sublistLineNo, value : lineType});
+													}
+											
+												if(lineDocumentNo != null && lineDocumentNo != '')
+													{
+														subList.setSublistValue({id : 'custpage_line_doc_no', line : sublistLineNo, value : lineDocumentNo});
+													}
+												
+												if(lineClass != null && lineClass != '')
+													{
+														subList.setSublistValue({id : 'custpage_line_class', line : sublistLineNo, value : lineClass});
+													}
+												
+												if(lineDate != null && lineDate != '')
+													{
+														subList.setSublistValue({id : 'custpage_line_date', line : sublistLineNo, value : lineDate});
+													}
+												
+												if(lineDueDate != null && lineDueDate != '')
+													{
+														subList.setSublistValue({id : 'custpage_line_due_date', line : sublistLineNo, value : lineDueDate});
+													}
+												
+												if(lineMemo != null && lineMemo != '')
+													{
+														subList.setSublistValue({id : 'custpage_line_memo', line : sublistLineNo, value : lineMemo});
+													}
+												
+												if(lineAmount != null && lineAmount != '')
+													{
+														subList.setSublistValue({id : 'custpage_line_amount', line : sublistLineNo, value : format.parse({value: lineAmount, type: format.Type.CURRENCY}) });
+													}
+												
+												if(lineFuturePaymentValue != null && lineFuturePaymentValue != '')
+													{
+														subList.setSublistValue({id : 'custpage_line_future_amount', line : sublistLineNo, value : format.parse({value: lineFuturePaymentValue, type: format.Type.CURRENCY}) });
+													}
+												else
+													{
+														subList.setSublistValue({id : 'custpage_line_future_amount', line : sublistLineNo, value : format.parse({value: '0', type: format.Type.CURRENCY}) });
+													}
+											
+												if(lineAmountPaid != null && lineAmountPaid != '')
+													{
+														subList.setSublistValue({id : 'custpage_line_paid_amount', line : sublistLineNo, value : format.parse({value: lineAmountPaid, type: format.Type.CURRENCY}) });
+													}
+												
+												if(lineAmountRemaining != null && lineAmountRemaining != '')
+													{
+														subList.setSublistValue({id : 'custpage_line_remaining_amount', line : sublistLineNo, value : format.parse({value: lineAmountRemaining, type: format.Type.CURRENCY}) });
+													}
+												
+												if(lineInstallmentAmount != null && lineInstallmentAmount != '')
+													{
+														subList.setSublistValue({id : 'custpage_line_installment_amount', line : sublistLineNo, value : format.parse({value: lineInstallmentAmount, type: format.Type.CURRENCY}) });
+													}
+												else
+													{
+														subList.setSublistValue({id : 'custpage_line_installment_amount', line : sublistLineNo, value : format.parse({value: '0', type: format.Type.CURRENCY}) });
+													}
+											
+												if(lineInternalId != null && lineInternalId != '')
+													{
+														subList.setSublistValue({id : 'custpage_line_internalid', line : sublistLineNo, value : lineInternalId});
+													}
+											
+												//Work out how much to claim
+												//
+												var claimAmount 		= Number(0);
+												var installmentAmount 	= Number(lineInstallmentAmount);
+												var remainingAmount 	= Number(lineAmountRemaining);
+												
+												if(lineType == 'Invoice')
+													{
+														//If the installment is zero then we need to use the remaining amount
+														//
+														if(installmentAmount == 0)
+															{
+																claimAmount = remainingAmount;
+															}
+													
+														//If the installment is more than the remaining amount then we need to use the remaining amount, so as not to over claim
+														//
+														if(installmentAmount > remainingAmount)
+															{
+																claimAmount = remainingAmount;
+															}
+														
+														//If the installment is not zero & less than the remaining amount, the use the installment amount
+														//
+														if(installmentAmount != 0 && installmentAmount < remainingAmount)
+															{
+																claimAmount = installmentAmount;
+															}
+														
+														//If the installment is not zero & the difference between the installment amount & the remaining amount is less than 1, then use the remaining amount
+														//
+														if(installmentAmount != 0 && Math.abs(installmentAmount - remainingAmount) <= 1.0) 
+															{
+																claimAmount = remainingAmount;
+															}
+														
+														subList.setSublistValue({id : 'custpage_line_claim_amount', line : sublistLineNo, value : format.parse({value: claimAmount, type: format.Type.CURRENCY}) });
+													}
+												else
+													{	
+														//Credit notes - claim amount will always be the amount remaining
+														//
+														subList.setSublistValue({id : 'custpage_line_claim_amount', line : sublistLineNo, value : format.parse({value: remainingAmount, type: format.Type.CURRENCY}) });
+													}
+											}
+					            	}
 
-					            
+								break;
+								
+							case 3:
+								//Add a message field 
+								//
+								var formField = form.addField({
+															    id: 		'custpage_message',
+															    type: 		serverWidget.FieldType.TEXTAREA,
+															    label: 		'Message'
+																});
+								
+								formField.updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});
+								formField.defaultValue = 'Payment Run Creation In Progress';
+								formField.updateDisplaySize({height: 10, width: 120});
+								
 								break;
 						}
 		            
@@ -384,7 +811,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 		    		var paramCollectionDate = request.parameters['custpage_param_collectiondate'];       
 		    		var paramFranchisee     = request.parameters['custpage_param_franchisee'];       
 		    		var paramFranchiseeName	= request.parameters['custpage_param_franchiseename']; 
-		    		var paramCollectionQty	= request.parameters['custpage_param_collection_qty']; 
+		    		var paramCollectionQty	= request.parameters['custpage_param_collectionqty']; 
 		    		
 					//Process based on stage
 					//
@@ -420,217 +847,53 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								
 							case 2:
 								
-								//Delete the session data
-								//
-								//BBSPackingLibrary.libClearSessionData(session);
 								
-								//Get the fulfillment id from the field 
+								//Loop through all of the lines in the sublist
 								//
-								var fulfillmentId = request.parameters['custpage_entry_if_id'];
+								var invoices 			= [];
+								var paymentDate 		= request.parameters['custpage_entry_if_id'];
 								
-								//Load the IF record
-								//
-								var ifRecord = BBSPackingLibrary.loadItemFulfillment(fulfillmentId);
-					            
-								//Did we get the IF record ok?
-								//
-								if(ifRecord != null)
+								var sublistLineCount 	= request.getLineCount({group: 'custpage_sublist_items'});
+										
+								for (var int = 0; int < sublistLineCount; int++) 
 									{
-										var cartonSummary = {};
-										
-										//Loop through all of the lines in the sublist
-										//
-										var sublistLineCount = request.getLineCount({group: 'custpage_sublist_items'});
-										
-										for (var int = 0; int < sublistLineCount; int++) 
-								    		{
-								    			var itemLineNumber = request.getSublistValue({
-																		    			    group: 	'custpage_sublist_items',
-																		    			    name: 	'custpage_sl_line_no',
-																		    			    line: 	int
-																	    					});
-								    			
-								    			var itemLinePacked = Number(request.getSublistValue({
-																		    			    group: 	'custpage_sublist_items',
-																		    			    name: 	'custpage_sl_item_qty_pack',
-																		    			    line: 	int
-																	    					}));
-		
-								    			var itemLineWeight = request.getSublistValue({
-																		    			    group: 	'custpage_sublist_items',
-																		    			    name: 	'custpage_sl_item_weight',
-																		    			    line: 	int
-																	    					});
-		
-								    			var itemLineCarton = request.getSublistValue({
-																		    			    group: 	'custpage_sublist_items',
-																		    			    name: 	'custpage_sl_item_carton',
-																		    			    line: 	int
-																	    					});
-		
-								    			var itemLineCartonId = request.getSublistValue({
-																		    			    group: 	'custpage_sublist_items',
-																		    			    name: 	'custpage_sl_item_carton_id',
-																		    			    line: 	int
-																	    					});
-		
-								    			//Update the IF line
-								    			//Find the relevant line & update the carton to it as well as the quantity
-								    			//
-								    			var ifLines		= ifRecord.getLineCount({sublistId: 'item'});
-									            
-									            for (var ifLine = 0; ifLine < ifLines; ifLine++) 
-										            {
-										            	var ifLineItemQty		= Number(ifRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: ifLine}));
-										            	var ifLineItemLine		= ifRecord.getSublistValue({sublistId: 'item', fieldId: 'line', line: ifLine});
-										            	
-										            	//Have we found the correct line number
-										            	//
-										            	if(ifLineItemLine == itemLineNumber)
-										            		{
-										            			//Select the line
-										            			//
-										            			ifRecord.selectLine({sublistId: 'item', line: ifLine});
-										            		
-										            			//Set the carton(s) on the line
-										            			//
-										            			ifRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_packing_carton', value: itemLineCarton});
-										            			
-										            			//Is the quantity packed different - if so change the line
-										            			//
-										            			if(ifLineItemQty != itemLinePacked)
-										            				{
-										            					if(itemLinePacked != 0)
-										            						{
-												            					//Set the line quantity
-												            					//
-												            					ifRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'quantity', value: itemLinePacked});
-												            					
-												            					//Set the inventory status sub-record
-												            					//
-												            					var inventoryDetail = ifRecord.getCurrentSublistSubrecord({sublistId: 'item',fieldId: 'inventorydetail'});
-																				
-												            					if(inventoryDetail != null)
-																					{
-																						var inventoryAssignments = inventoryDetail.getLineCount({sublistId: 'inventoryassignment'});
-																							    			
-																						for (var inventoryAssignment = 0; inventoryAssignment < inventoryAssignments; inventoryAssignment++) 
-																							{		
-																								inventoryDetail.selectLine({sublistId: 'inventoryassignment', line: inventoryAssignment});
-																								inventoryDetail.setCurrentSublistValue({sublistId: 'inventoryassignment', fieldId: 'quantity', value: itemLinePacked});	
-																								inventoryDetail.commitLine({sublistId: 'inventoryassignment', ignoreRecalc: false});
-																							}
-																					}
-												            					
-												            					//Commit the line
-														            			//
-														            			ifRecord.commitLine({sublistId: 'item', ignoreRecalc: false});
-														            			
-										            						}
-										            					else
-										            						{
-										            							//Zero quantity packed, so remove the line from the IF
-										            							//
-										            							ifRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'itemreceive', value: false});
-										            						}
-										            				}
-										            			
-										            			
-										            			break;
-										            		}
-										            }
+										var itemLineClaim = request.getSublistValue({
+								  														group: 	'custpage_sublist_items',
+								  														name: 	'custpage_line_claim_amount',
+																		    		    line: 	int
+																	    			});
 
-									            //Extract the carton ids from the sublist field
-									            //
-									            if(itemLineCartonId != null)
-									            	{
-											            var cartonIdArray 		= itemLineCartonId.split(',');
-											            var cartonNameArray 	= itemLineCarton.split(',');
-											            var cartonWeightArray 	= itemLineWeight.split(',');
-											            
-											            for (var cartonIndex = 0; cartonIndex < cartonIdArray.length; cartonIndex++) 
-												            {
-												            	//Accumulate the carton info
-												    			//
-												    			if(!(cartonIdArray[cartonIndex] in cartonSummary))
-												    				{
-												    					cartonSummary[cartonIdArray[cartonIndex]] = new cartonSummaryObj(cartonIdArray[cartonIndex], cartonNameArray[cartonIndex], Number(cartonWeightArray[cartonIndex]));
-												    				}
-												    			else
-												    				{
-												    					cartonSummary[cartonIdArray[cartonIndex]].cartonWeight += Number(cartonWeightArray[cartonIndex]);
-												    				}
-															}
-									            	}
-								    		}
-								
-										//Mark as packed
-										//
-										ifRecord.setValue({fieldId: 'shipstatus', value: 'B'});		//Mark as packed
-										
-										//Update the printnode workstation id on the IF for use in the carrier integration
-										//
-										ifRecord.setValue({fieldId: 'custbody_bbs_printnode_workstation', value: workstn});
-											
-										//Remove the default package lines
-										//
-										var ifPackages = ifRecord.getLineCount({sublistId: 'package'});
-							            
-										for(var packLine = ifPackages - 1; packLine >= 0; packLine--)
-											{
-												ifRecord.removeLine({sublistId: 'package', line: 0});
-											}
-										
-										//Add the cartons to the IF
-										//
-										for ( var cartonId in cartonSummary) 
-											{
-												ifRecord.selectNewLine({sublistId: 'package'});
-												ifRecord.setCurrentSublistValue({sublistId: 'package', fieldId: 'packagedescr', value: cartonSummary[cartonId].cartonName});
-												
-												var packageWeight 	= Number(cartonSummary[cartonId].cartonWeight);
-												packageWeight		= (packageWeight <= 0 ? 0.1 : packageWeight);
-													
-												ifRecord.setCurrentSublistValue({sublistId: 'package', fieldId: 'packageweight', value: packageWeight});
-												ifRecord.commitLine({sublistId: 'package', ignoreRecalc: false});
-											}
-										
-										//Save the IF record
-										//
-										try
-											{
-												ifRecord.save({enableSourcing: true, ignoreMandatoryFields: true});
-											}
-										catch(err)
-											{
-												
-											}
-										
-										//Update the cartons
-										//
-										for ( var cartonId in cartonSummary) 
-											{
-												try
-													{
-														record.submitFields({
-																			type:		'customrecord_bbs_carton',
-																			id:			cartonId,
-																			values:		{
-																						custrecord_bbs_carton_weight: 			cartonSummary[cartonId].cartonWeight,
-																						custrecord_bbs_carton_item_fulfillment:	fulfillmentId
-																						},
-																			options:	{
-																						ignoreMandatoryFields:	true
-																						}
-																			});
-													}
-												catch(err)
-													{
-													
-													}
-											}
+										var itemLineId = request.getSublistValue({
+																						group: 	'custpage_sublist_items',
+																						name: 	'custpage_line_internalid',
+																						line: 	int
+																    				});
+	
+								  		var invoice 			= new Object();
+								 		invoice.line 			= int;
+								 		invoice.data 			= {};
+								 		invoice.data.invoiceID 	= itemLineId;
+								 		invoice.data.amount 	= itemLineClaim;
+								 		invoice.data.inquery 	= 'F';
+								 		invoice.data.date 		= paramCollectionDate;
+								 		invoice.data.sender 	= runtime.getCurrentUser().id;
+								 		invoices.push(invoice);     
 									}
 
+								//Call the map/reduce script to process the data
+								//
+								var invoicesData 			= JSON.stringify(invoices);
+						 		var mapReduceTask 			= task.create({taskType: task.TaskType.MAP_REDUCE});
+						 		
+						 		mapReduceTask.scriptId 		= 'customscript_mr_create_payment_run';
+						 		mapReduceTask.deploymentId 	= 'customdeploy_mr_create_payment_run';
+						 		mapReduceTask.params 		= {custscript_invoice_data: invoicesData};
+						 		
+						// 		var mapReduceTaskId 		= mapReduceTask.submit();
+						 		
+								//Increment the stage
+								//
+								paramStage++;
 								
 								//Call the suitelet again
 								//
@@ -639,8 +902,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 														identifier: 	runtime.getCurrentScript().id, 
 														id: 			runtime.getCurrentScript().deploymentId, 
 														parameters:		{
-																			stage: 			1,
-																			wsid:			workstn						//Internal id of the workstation
+																			stage: 			paramStage
 																		}
 														});
 								
@@ -650,6 +912,83 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 		        }
 	    }
     
+    //Is a date between two other dates
+    //
+    function isDateBetween(_date, _startDate, _endDate)
+    	{
+    		var result = false;
+    		
+    		if(_date.getTime() >= _startDate.getTime() && _date.getTime() <= _endDate.getTime())
+    			{
+    				result = true;
+    			}
+    		
+    		return result;
+    	}
+    
+    //Find the relevant period info
+    //
+    function getPeriodData(_periodDate)
+    	{
+    		var periodData = {};
+    		
+    		//Find the period record for the passed in date
+    		//
+    		var accountingperiodSearchObj = getResults(search.create({
+    																	type: 		"accountingperiod",
+    																	filters:
+    																				[
+    																				 	["isinactive","is","F"], 
+    																				 	"AND", 
+    																				 	["isquarter","is","F"], 
+    																				 	"AND", 
+    																				 	["isyear","is","F"], 
+    																				 	"AND", 
+    																				 	["startdate","onorbefore",_periodDate], 
+    																				 	"AND", 
+    																				 	["enddate","onorafter",_periodDate]
+    																				 ],
+    																	columns:
+    																				[
+    																				 	search.createColumn({name: "periodname", sort: search.Sort.ASC,label: "Name"}),
+    																				 	search.createColumn({name: "startdate", label: "Start Date"}),
+    																				 	search.createColumn({name: "enddate", label: "End Date"})
+    																				 ]
+    																	}));
+    			
+    		if(accountingperiodSearchObj != null && accountingperiodSearchObj.length > 0)
+    			{
+    				var periodStart	= format.parse({value: accountingperiodSearchObj[0].getValue({name: "startdate"}), type: format.Type.DATE});
+    				var periodEnd	= format.parse({value: accountingperiodSearchObj[0].getValue({name: "enddate"}), type: format.Type.DATE});
+    				
+    				var periodFirstWeekStart	= new Date(periodStart.getFullYear(), periodStart.getMonth(), periodStart.getDate());
+    				var periodFirstWeekEnd		= new Date(periodStart.getFullYear(), periodStart.getMonth(), periodStart.getDate());
+    				periodFirstWeekEnd.setDate(periodFirstWeekEnd.getDate() + 6);
+    				
+    				var periodMiddleWeeksStart	= new Date(periodStart.getFullYear(), periodStart.getMonth(), periodStart.getDate());
+    				periodMiddleWeeksStart.setDate(periodMiddleWeeksStart.getDate() + 7);
+    				
+    				var periodMiddleWeeksEnd	= new Date(periodStart.getFullYear(), periodStart.getMonth(), periodStart.getDate());
+    				periodMiddleWeeksEnd.setDate(periodMiddleWeeksEnd.getDate() + 20);
+    				
+    				var periodLastWeekStart	= new Date(periodStart.getFullYear(), periodStart.getMonth(), periodStart.getDate());
+    				periodLastWeekStart.setDate(periodLastWeekStart.getDate() + 21);
+    				
+    				var periodLastWeekEnd	= new Date(periodStart.getFullYear(), periodStart.getMonth(), periodStart.getDate());
+    				periodLastWeekEnd.setDate(periodLastWeekEnd.getDate() + 27);
+    				
+    				periodData.periodStart 				= periodStart;
+    				periodData.periodEnd 				= periodEnd;
+    				periodData.periodFirstWeekStart 	= periodFirstWeekStart;
+    				periodData.periodFirstWeekEnd 		= periodFirstWeekEnd;
+    				periodData.periodMiddleWeeksStart 	= periodMiddleWeeksStart;
+    				periodData.periodMiddleWeeksEnd 	= periodMiddleWeeksEnd;
+    				periodData.periodLastWeekStart		= periodLastWeekStart;
+    				periodData.periodLastWeekEnd		= periodLastWeekEnd;
+    			}
+    		
+    		return periodData;
+    	}
     
     //Create a field on the form
     //
