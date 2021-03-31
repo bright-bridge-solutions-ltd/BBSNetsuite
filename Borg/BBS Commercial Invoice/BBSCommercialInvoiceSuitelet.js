@@ -95,6 +95,7 @@ function buildOutput(_fulfillmentId)
 								var ifTranShipAddress 	= nlapiEscapeXML(fulfillmentRecord.getFieldValue('shipaddress'));
 								ifTranShipAddress 		= ifTranShipAddress.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
 								var ifEORI				= isNull(nlapiEscapeXML(fulfillmentRecord.getFieldValue('custbody_bo_tran_eori_number')),'');
+								var ifPurposeOfShipment	= isNull(nlapiEscapeXML(fulfillmentRecord.getFieldText('custbody_purpose_of_shipment')),'');
 								
 								var soBillAddress 		= nlapiEscapeXML(salesOrderRecord.getFieldValue('billaddress'));
 								soBillAddress 			= soBillAddress.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
@@ -130,7 +131,8 @@ function buildOutput(_fulfillmentId)
 										var signatory			= '';
 										var signatureImage		= '';
 										var origin				= '';
-										
+										var exporterName        = '';
+                                      
 										switch(soSubsidiary)
 											{
 												case 1:	//Borg
@@ -145,6 +147,7 @@ function buildOutput(_fulfillmentId)
 													signatory			= 'J. Dunn';
 													signatureImage		= 'https://3976137.app.netsuite.com/core/media/media.nl?id=4189690&amp;c=3976137&amp;h=CC1In69r7OobXEQbYe5jiIf4yuRvRoHHpVWIOkuR0bvgxBui" style="float: left; width:95px; height:40px;';
 													origin				= 'UK/EU';
+													exporterName        = 'Azure Uk t/a Borg &amp; Overström';
 													break;
 
 												case 7:	//FreshGround
@@ -159,6 +162,7 @@ function buildOutput(_fulfillmentId)
 													signatory			= 'R. Cowley';
 													signatureImage		= 'https://3976137.app.netsuite.com/core/media/media.nl?id=4253534&amp;c=3976137&amp;h=Ht0bgi4wdXKrBqGYXHpT23ol9pW4KXw1RwzVI-HoGD311en_" style="float: left; width:95px; height:40px;';
 													origin				= 'UK';
+													exporterName        = 'Freshground Coffee Service LLP';
 													break;
 
 												case 8:	//Sterizen
@@ -173,6 +177,7 @@ function buildOutput(_fulfillmentId)
 													signatory			= 'J. Dunn';
 													signatureImage		= 'https://3976137.app.netsuite.com/core/media/media.nl?id=4189690&amp;c=3976137&amp;h=CC1In69r7OobXEQbYe5jiIf4yuRvRoHHpVWIOkuR0bvgxBui" style="float: left; width:95px; height:40px;';
 													origin				= 'UK';
+													exporterName        = 'Azure Corporate t/a Sterizen';
 													break;
 
 											}
@@ -493,10 +498,18 @@ function buildOutput(_fulfillmentId)
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '        </tr>';
 
+												xml += '    	<tr>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="9"  style="padding-left: 0px; font-size: 9px;">Purpose of Shipment : ' + ifPurposeOfShipment + '</td>';
+												xml += '          <td align="left"  colspan="8"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '        </tr>';
+
 									 			xml += '        <tr style="margin-top: 10px;">';
 									 			xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
-												xml += '          <td align="left"  colspan="17" style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">05.01.2021 to 31.12.2021<br/>Borg &amp; Overström, the exporter of the products covered by this document <b>(EORI No. ' + companyEori + ')</b> declares that,<br/>except where otherwise clearly indicated, these products are of ' + origin + ' preferential origin.</td>';
+												xml += '          <td align="left"  colspan="17" style="padding-left: 0px; font-size: 9px; border-top: 1px solid #bfbfbf; padding-top: 5px;">05.01.2021 to 31.12.2021<br/>The exporter of the products covered by this document <b>(EORI No. ' + companyEori + ')</b> declares that,<br/>except where otherwise clearly indicated, these products are of UK preferential origin.</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '		</tr>';
 				
@@ -507,6 +520,13 @@ function buildOutput(_fulfillmentId)
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '		</tr>';
 												
+												xml += '        <tr>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="17" style="padding-left: 0px; font-size: 9px;">Name of the Exporter: ' + exporterName + '</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '		</tr>';
+								
 												xml += '            	<tr>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';

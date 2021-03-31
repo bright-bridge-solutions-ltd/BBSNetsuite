@@ -19,14 +19,46 @@ function(runtime, record)
      */
     function afterSubmit(scriptContext) 
 	    {
+	    	//Get the current record
+			//
+	    	var currentRecord 		= scriptContext.newRecord;
+	    	var currentRecordType	= currentRecord.type;
+	    	var currentRecordId		= currentRecord.id;
+	    	
+	    	if (scriptContext.type == 'create' || scriptContext.type == 'edit')
+				{
+	    			var invoiceRemaining = Number(currentRecord.getValue({fieldId: 'amountremaining'}));
+	    			var futurePaymentRun = Number(currentRecord.getValue({fieldId: 'custbody_dd_future_payments'}));
+	    			
+	    			if(invoiceRemaining > 0 && invoiceRemaining - futurePaymentRun <= 0)
+	    				{
+		    				record.submitFields({
+					    						type:					currentRecordType,
+					    						id:						currentRecordId,
+					    						enableSourcing:			false,
+					    						ignoreMandatoryFields:	true,
+					    						values:					{
+					    												custbody_bbs_covered_by_payment_run:	true
+					    												}
+					    						});
+	    				}
+	    			else
+	    				{
+		    				record.submitFields({
+					    						type:					currentRecordType,
+					    						id:						currentRecordId,
+					    						enableSourcing:			false,
+					    						ignoreMandatoryFields:	true,
+					    						values:					{
+					    												custbody_bbs_covered_by_payment_run:	false
+					    												}
+					    						});
+	    				}
+				}
+	    	
 	    	if (scriptContext.type == 'create')
 				{
-		    		//Get the current record
-	    			//
-			    	var currentRecord 		= scriptContext.newRecord;
-			    	var currentRecordType	= currentRecord.type;
-			    	var currentRecordId		= currentRecord.id;
-			    	
+		    		
 			    	//Get the total value of the invoice
 			    	//
 			    	var invoiceTotal = Number(currentRecord.getValue({fieldId: 'total'}));

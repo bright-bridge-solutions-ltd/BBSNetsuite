@@ -281,13 +281,25 @@
 
 <table style="width:100%">
 	<tr>
-		<td colspan="2">&nbsp;</td>
-		<td colspan="2">
+		<td colspan="3">&nbsp;</td>
+		<td colspan="3">
 			<table class="total" style="width: 100%;">
 				<tr class="totalrow">
 					<td colspan="4">&nbsp;</td>
 					<td class="totalcell" align="right"><b>Net Total</b></td>
 					<td class="totalcell" align="right">${record.subtotal}</td>
+				</tr>
+              	<#if record.discounttotal?length gt 0>
+                  <tr class="totalrow">
+                      <td colspan="4">&nbsp;</td>
+                      <td class="totalcell" align="right"><b>Discount</b></td>
+                      <td class="totalcell" align="right">${record.discounttotal}</td>
+                  </tr>
+				</#if>
+              <tr class="totalrow">
+					<td colspan="4">&nbsp;</td>
+					<td class="totalcell" align="right"><b>Shipping</b></td>
+					<td class="totalcell" align="right">${record.shippingcost}</td>
 				</tr>
 				<tr class="totalrow">
 					<td colspan="4">&nbsp;</td>
@@ -298,6 +310,11 @@
 					<td colspan="4">&nbsp;</td>
 					<td class="totalcell" align="right"><b>Gross Total</b></td>
 					<td class="totalcell" align="right">${record.total}</td>
+				</tr>
+              <tr class="totalrow">
+					<td colspan="4">&nbsp;</td>
+					<td class="totalcell" align="right"><b>Due Total</b></td>
+					<td class="totalcell" align="right">${record.amountremaining}</td>
 				</tr>
 			</table>
 		</td>

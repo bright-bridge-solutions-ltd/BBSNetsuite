@@ -336,6 +336,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 														      container:	'custpage_tab_items'
 													          }).updateDisplayType({displayType: serverWidget.FieldDisplayType.HIDDEN});	//.updateLayoutType({layoutType: serverWidget.FieldLayoutType.OUTSIDEABOVE});
 								
+								var itemField = form.addField({
+															      id: 			'custpage_entry_item',
+															      type: 		serverWidget.FieldType.TEXT,
+															      label: 		'Item Code',
+															      container:	'custpage_tab_items'
+														          });
+		
 								var qtyOverrideField = form.addField({
 															      id: 			'custpage_entry_qty_override',
 															      type: 		serverWidget.FieldType.INTEGER,
@@ -343,14 +350,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 															      container:	'custpage_tab_items'
 														          });
 								
-								var itemField = form.addField({
-														      id: 			'custpage_entry_item',
-														      type: 		serverWidget.FieldType.TEXT,
-														      label: 		'Item Code',
-														      container:	'custpage_tab_items'
-													          });
 								
-		
 								//Add line count fields to the subtab
 								//
 								var lineCountField = form.addField({
@@ -483,6 +483,10 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								//Add a next carton button
 								//
 								subList.addButton({id: 'custbutton_new_carton', label: 'New Carton', functionName: 'newCarton()'});
+								
+								//Add a update item line button
+								//
+								subList.addButton({id: 'custbutton_update_line', label: 'Update Item Line', functionName: 'updateItemLine()'});
 								
 								//Add a submit button
 					            //

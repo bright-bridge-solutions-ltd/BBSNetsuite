@@ -48,30 +48,30 @@
 
 			<table class="header" style="width: 100%; margin-top: 10px;">
 				<tr>
-					<td align="left"   colspan="3" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff;"><b>Customer Name &amp; Address</b></td>
-					<td align="left"   colspan="3" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff; margin-left: 3px;"><b>Delivery Address</b></td>
-					<td align="center" colspan="2" style="font-size: 8pt; background-color: #00adef; color: #ffffff; padding: 5px; margin-left: 3px;"><b>ACKNOWLEDGEMENT</b></td>
+					<td align="left"   colspan="6" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff;"><b>Customer Name &amp; Address</b></td>
+					<td align="left"   colspan="5" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff; margin-left: 3px;"><b>Delivery Address</b></td>
+					<td align="center" colspan="5" style="font-size: 8pt; background-color: #00adef; color: #ffffff; padding: 5px; margin-left: 3px;"><b>ACKNOWLEDGEMENT</b></td>
               	</tr>
 				<tr>
-					<td align="left" colspan="3" rowspan="5" style="font-size: 8pt; padding: 5px;">${billAddress}</td>
-					<td align="left" colspan="3" rowspan="5" style="font-size: 8pt; padding: 5px;">${record.shipaddress}</td>
-					<td align="left" colspan="2" style="font-size: 7pt;  padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Order Date:</b></td><td align="right" style="font-size: 7pt;">${record.trandate}</td></tr></table></td>
+					<td align="left" colspan="6" rowspan="5" style="font-size: 8pt; padding: 5px;">${billAddress}</td>
+					<td align="left" colspan="5" rowspan="5" style="font-size: 8pt; padding: 5px;">${record.shipaddress}</td>
+					<td align="left" colspan="5" style="font-size: 7pt;  padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Order Date:</b></td><td align="right" style="font-size: 7pt;">${record.trandate}</td></tr></table></td>
               	</tr>
 				<tr>
-					<td align="left" colspan="2" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt; "><b>Order No:</b></td><td align="right" style="font-size: 7pt;">${record.otherrefnum}</td></tr></table></td>
+					<td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt; "><b>Order No:</b></td><td align="right" style="font-size: 7pt;">${record.otherrefnum}</td></tr></table></td>
               	</tr>
 				<tr>
-					<td align="left" colspan="2" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt; "><b>Ordered By:</b></td><td align="right" style="font-size: 7pt;">${record.custbody_bbs_ordered_by?keep_after(" : ")}</td></tr></table></td>
+					<td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt; "><b>Ordered By:</b></td><td align="right" style="font-size: 7pt;">${record.custbody_bbs_ordered_by.entityid}</td></tr></table></td>
               	</tr>
 				<tr>
-					<td align="left" colspan="2" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt; "><b>Payment Terms:</b></td><td align="right" style="font-size: 7pt;">${record.terms}</td></tr></table></td>
+					<td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt; "><b>Payment Terms:</b></td><td align="right" style="font-size: 7pt;">${record.terms}</td></tr></table></td>
               	</tr>
 				<tr>
-					<td align="left" colspan="2" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>OX Order No:</b></td><td align="right" style="font-size: 7pt;"><b>${record.tranid}</b></td></tr></table></td>
+					<td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>OX Order No:</b></td><td align="right" style="font-size: 7pt;"><b>${record.tranid}</b></td></tr></table></td>
               	</tr>
 
               	<tr>
-                  	<td align="left" colspan="8" style="font-size: 7pt; padding: 5px;">
+                  	<td align="left" colspan="16" style="font-size: 7pt; padding: 5px;">
                       	<#if record.entity.entityid?index_of(" : ") gt 0>
       						Cust ID: ${record.entity.entityid?keep_after(" : ")}
     					<#else>         
@@ -219,6 +219,26 @@
           <td align="right" colspan="2"  style="font-size: 7pt;" >${item.amount}</td>
           <td align="right" colspan="2"  style="font-size: 7pt;" >${item.tax1amt}</td>
         </tr>
+        
+        <#if record.shipcountry != "GB" || record.shipzip?starts_with("BT")>
+			<tr>
+                <td align="left" colspan="1"  style="font-size: 7pt; padding-top: 0px; padding-bottom: 0px;" >&nbsp;</td>
+                <td align="left" colspan="8"  style="font-size: 7pt; padding-top: 0px; padding-bottom: 0px; color: #A9A9A9" >Commodity Code: ${item.custcol_bbs_commodity_code}</td>
+                <td align="left" colspan="5"  style="font-size: 7pt; padding-top: 0px; padding-bottom: 0px; color: #A9A9A9" >Country: ${item.custcol_manufacturer_country}</td>
+                <td align="left" colspan="2"  style="font-size: 7pt; padding-top: 0px; padding-bottom: 0px;" >&nbsp;</td>
+                <td align="left" colspan="2"  style="font-size: 7pt; padding-top: 0px; padding-bottom: 0px;" >&nbsp;</td>
+                <td align="left" colspan="2"  style="font-size: 7pt; padding-top: 0px; padding-bottom: 0px;" >&nbsp;</td>
+        	</tr>
+          	<tr>
+                <td align="left" colspan="1"  style="font-size: 7pt; padding-top: 0px; padding-bottom: 0px;" >&nbsp;</td>
+                <td align="left" colspan="8"  style="font-size: 7pt; padding-top: 0px; padding-bottom: 0px; color: #A9A9A9" >Customs Description: ${item.custcol_bbs_customs_description}</td>
+                <td align="left" colspan="5"  style="font-size: 7pt; padding-top: 0px; padding-bottom: 0px; color: #A9A9A9" >Commodity Weight: ${item.custcol_bbs_commodity_weight} Kg</td>
+                <td align="left" colspan="2"  style="font-size: 7pt; padding-top: 0px; padding-bottom: 0px;" >&nbsp;</td>
+                <td align="left" colspan="2"  style="font-size: 7pt; padding-top: 0px; padding-bottom: 0px;" >&nbsp;</td>
+                <td align="left" colspan="2"  style="font-size: 7pt; padding-top: 0px; padding-bottom: 0px;" >&nbsp;</td>
+        	</tr>
+        </#if>
+        
         <#if record.shipcomplete || item.quantitycommitted?number gt 0>
           <tr>
             <td align="right" colspan="4"  style="font-size: 7pt;" >&nbsp;</td>
