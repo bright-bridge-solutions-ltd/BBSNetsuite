@@ -68,7 +68,7 @@
 			<td></td>
 		</tr>
 		<tr>
-			<td colspan="2" rowspan="8" class="address">&nbsp;</td>
+			<td colspan="2" rowspan="4" class="address">&nbsp;</td>
 			<td></td>
 			<td></td>
 			<td></td>
@@ -88,20 +88,12 @@
 			<td align="left" style="font-size:10pt"><b>Sales Person</b></td>
 			<td align="right" style="font-size:10pt">${record.salesrep}</td>
 	    </tr>
-	  	<tr>
-			<td class="address">&nbsp;</td>
-			<td></td>
-			<td></td>
-    	</tr>
-      	<tr>
-			<td class="address">&nbsp;</td>
-			<td></td>
-			<td></td>
-    	</tr>
-    	<tr>
-			<td class="address">&nbsp;</td>
-			<td></td>
-			<td></td>
+	  	
+        <tr>
+          	<td colspan="2"><barcode codetype="code128" value="${record.tranid}"/></td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
     	</tr>
   	</table>
   	
@@ -236,7 +228,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="340pt" footer="nlfooter" footer-height="70pt" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+<body header="nlheader" header-height="320pt" footer="nlfooter" footer-height="70pt" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 
 
 <#if record.item?has_content>

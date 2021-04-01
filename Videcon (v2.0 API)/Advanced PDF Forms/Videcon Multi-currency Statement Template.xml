@@ -10,7 +10,21 @@
     <#assign logoInfo 			= "https://6765982-sb1.app.netsuite.com/c.6765982_SB1/suitebundle372819/PDF%20Videcon%20Logo.jpg">
     <#assign logoHeight 		= "42">
     <#assign logoWidth 			= "200">
-    
+
+	<#assign bankName 			= "HSBC">
+	<#assign bankSortCode		= "40-19-17">
+	<#assign bankAccount 		= "81746812">
+	<#assign bankBic 			= "HBUK GB4B">
+	<#assign bankIban 			= "GB07HBUK40191781746812">
+   	
+    <#if customer.custentity_bbs_credit_type == "CASH">
+      <#assign bankName 		= "HSBC">
+      <#assign bankSortCode		= "40-19-17">
+      <#assign bankAccount 		= "71849220">
+      <#assign bankBic 			= "HBUK GB4B">
+      <#assign bankIban 		= "GB88HBUK40191771849220">
+    </#if>
+
     <macrolist>
       
               <macro id="nlheader">
@@ -114,19 +128,19 @@
             </tr>
             <tr>
                 <td colspan="4" class="bankdetails"><b>Bank Name</b></td>
-                <td colspan="10" class="bankdetails"></td>
+                <td colspan="10" class="bankdetails">${bankName}</td>
             </tr>
             <tr>
                 <td colspan="4" class="bankdetails"><b>Account Number</b></td>
-                <td colspan="8" class="bankdetails">15694267</td>
+                <td colspan="8" class="bankdetails">${bankAccount}</td>
                 <td colspan="4" class="bankdetails"><b>Sort Code</b></td>
-                <td colspan="8" class="bankdetails">60-05-07</td>
+                <td colspan="8" class="bankdetails">${bankSortCode}</td>
             </tr>
             <tr>
                 <td colspan="4" class="bankdetails"><b>IBAN</b></td>
-                <td colspan="8" class="bankdetails">GB80NWBK60050715694267</td>
+                <td colspan="8" class="bankdetails">${bankIban}</td>
                 <td colspan="4" class="bankdetails"><b>BIC/SWIFT</b></td>
-                <td colspan="8" class="bankdetails">NWBK GB2L</td>
+                <td colspan="8" class="bankdetails">${bankBic}</td>
             </tr>
   		</table>
           
