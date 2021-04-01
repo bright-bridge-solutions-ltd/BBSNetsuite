@@ -145,7 +145,7 @@
     <thead>
         <tr>
           <th align="left"  colspan="2" style="font-size: 10px;">&nbsp;</th>
-          <th align="left"  colspan="2" style="font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Serial Number</th>
+          <th align="left"  colspan="2" style="font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Serial Number(s)</th>
           <th align="left"  colspan="2" style="font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Item</th>
           <th align="left"  colspan="5" style="font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;">Description</th>
           <th align="left"  colspan="2" style="font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;">UOM</th>
@@ -155,7 +155,40 @@
           <th align="right" colspan="2" style="font-size: 10px; border-top: 1px solid #bfbfbf; padding-top: 5px;">To Follow</th>
         </tr>
     </thead>
+    
   <#list salesorder.item as tranline>
+     <#if tranline.custcol_bbs_if_serial_no?length gt 0>
+    	<#list tranline.custcol_bbs_if_serial_no?split("<br />") as serials>
+          <#if serials_index == 0>
+            <tr>
+              <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">&nbsp;</td>
+              <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">${serials}</td>
+              <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.item}</td>
+              <td align="left"  colspan="5" style="padding-left: 0px; font-size: 10px;">${tranline.description}</td>
+              <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.units}</td>
+              <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.custcol_bbs_item_weight}</td>
+              <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.quantityordered}</td>
+              <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.quantity}</td>
+              <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.quantityremaining}</td>
+        	</tr>
+          <#else>
+            <tr>
+              <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">&nbsp;</td>
+              <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">${serials}</td>
+              <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">&nbsp;</td>
+              <td align="left"  colspan="5" style="padding-left: 0px; font-size: 10px;">&nbsp;</td>
+              <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">&nbsp;</td>
+              <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">&nbsp;</td>
+              <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">&nbsp;</td>
+              <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">&nbsp;</td>
+              <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">&nbsp;</td>
+          	</tr>
+          </#if>
+          
+
+		</#list>
+      <#else>
+    
        <tr>
           <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">&nbsp;</td>
           <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.custcol_bbs_if_serial_no}</td>
@@ -167,6 +200,7 @@
           <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.quantity}</td>
           <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.quantityremaining}</td>
         </tr>
+   </#if>
   </#list>
     	
 

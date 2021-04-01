@@ -3,7 +3,7 @@
  * 
  * Version    Date            Author           Remarks
  * 1.00       15 Dec 2020     cedricgriffiths
- *
+ * 2.00		  18 Dec 2020	  markanderson
  */
 
 /**
@@ -17,58 +17,57 @@
  *                      paybills (vendor payments)
  * @returns {Void}
  */
-function salesOrderShipCostAS(type)
-{
-	if(type == 'edit')
-		{
-			var oldRecord 	= nlapiGetOldRecord();
-			var newRecord 	= nlapiGetNewRecord();
-			var recordId 	= nlapiGetRecordId();
-			
-			var oldshipcost = oldRecord.getFieldValue('shippingcost');
-			var newshipcost = newRecord.getFieldValue('shippingcost');
-			
-			if(oldshipcost != newshipcost)
-				{
-					var itemfulfillmentSearch = getResults(nlapiCreateSearch("itemfulfillment",
-							[
-							   ["type","anyof","ItemShip"], 
-							   "AND", 
-							   ["mainline","is","T"], 
-							   "AND", 
-							   ["createdfrom","anyof",recordId]
-							], 
-							[
-							   new nlobjSearchColumn("tranid"), 
-							   new nlobjSearchColumn("shippingcost"), 
-							   new nlobjSearchColumn("internalid")
-							]
-							));
-					
-					if(itemfulfillmentSearch != null && itemfulfillmentSearch.length > 0)
-						{
-							for (var int = 0; int < itemfulfillmentSearch.length; int++) 
-								{
-									var ifInternalId = itemfulfillmentSearch[int].getValue('internalid');
-									
-									try
-										{
-											nlapiSubmitField('itemfulfillment', ifInternalId, 'shippingcost', newshipcost, true);
-										}
-									catch(err)
-										{
-											nlapiLogExecution('ERROR', 'Error updating shipping cost on IF with id = ' + ifInternalId, '');
-										}
-								}
-						}
-				}
+function salesOrderShipCostAS(type) {
+	if (type == 'edit') {
+		var oldRecord = nlapiGetOldRecord();
+		var newRecord = nlapiGetNewRecord();
+		var recordId = nlapiGetRecordId();
+
+		var oldshipcost = oldRecord.getFieldValue('shippingcost');
+		var newshipcost = newRecord.getFieldValue('shippingcost');
+		var oldshipmethod = oldRecord.getFieldValue('shipmethod');
+		var newshipmethod = newRecord.getFieldValue('shipmethod');
+
+		//If shipmethod or cost are different then run the following
+		if (oldshipcost != newshipcost || oldshipmethod != newshipmethod) {
+			var itemfulfillmentSearch = getResults(nlapiCreateSearch("itemfulfillment",
+				[
+					["type", "anyof", "ItemShip"],
+					"AND",
+					["mainline", "is", "T"],
+					"AND",
+					["createdfrom", "anyof", recordId]
+				],
+				[
+					new nlobjSearchColumn("trandate").setSort(true),
+                    new nlobjSearchColumn("internalid").setSort(true),
+                    new nlobjSearchColumn("tranid"),
+					new nlobjSearchColumn("shippingcost"),
+					new nlobjSearchColumn("shipmethod")
+				]
+			));
+
+			if (itemfulfillmentSearch != null && itemfulfillmentSearch.length > 0) {
+				
+					var ifInternalId = itemfulfillmentSearch[0].getValue('internalid');
+
+					try {
+						//Shipmethod must set before shipcost, as this sets cost to 0
+						nlapiSubmitField('itemfulfillment', ifInternalId, 'shipmethod', newshipmethod, true);
+						nlapiSubmitField('itemfulfillment', ifInternalId, 'shippingcost', newshipcost, true);
+					}
+					catch (err) {
+						nlapiLogExecution('ERROR', 'Error updating shipping on IF with id = ' + ifInternalId, '');
+					}
+
+			}
 		}
+	}
 }
 
-function getResults(search)
-{
+function getResults(search) {
 	var searchResult = search.runSearch();
-	
+
 	//Get the initial set of results
 	//
 	var start = 0;
@@ -78,25 +77,22 @@ function getResults(search)
 
 	//If there is more than 1000 results, page through them
 	//
-	while (resultlen == 1000) 
-		{
-				start += 1000;
-				end += 1000;
+	while (resultlen == 1000) {
+		start += 1000;
+		end += 1000;
 
-				var moreSearchResultSet = searchResult.getResults(start, end);
-				
-				if(moreSearchResultSet == null)
-					{
-						resultlen = 0;
-					}
-				else
-					{
-						resultlen = moreSearchResultSet.length;
-						searchResultSet = searchResultSet.concat(moreSearchResultSet);
-					}
-				
-				
+		var moreSearchResultSet = searchResult.getResults(start, end);
+
+		if (moreSearchResultSet == null) {
+			resultlen = 0;
 		}
-	
+		else {
+			resultlen = moreSearchResultSet.length;
+			searchResultSet = searchResultSet.concat(moreSearchResultSet);
+		}
+
+
+	}
+
 	return searchResultSet;
 }

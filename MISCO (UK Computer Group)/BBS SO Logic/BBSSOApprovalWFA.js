@@ -15,24 +15,17 @@ function(runtime, search, record) {
      */
     function onAction(scriptContext) {
     	
-    	// retrieve script parameters. Parameters are global variables so can be accessed throughout the script
-    	var currentScript = runtime.getCurrentScript();
-    	
-    	highValueOrderLimit = currentScript.getParameter({
-    		name: 'custscript_bbs_high_value_order_limit'
-    	});
-    	
-    	daysOverdue = currentScript.getParameter({
-    		name: 'custscript_bbs_so_approval_invoice_days'
-    	});
+    	// call function to retrieve script parameters
+    	var scriptParameters = getScriptParameters();
     	
     	// declare and initialize variables
-    	var creditLimitExceeded = false;
-    	var highValueOrder = false;
-    	var vatExempt = false;
-    	var unverifiedAddress = null;
+    	var creditLimitExceeded 	= false;
+    	var stripeFloorExceeded		= false;
+    	var highValueOrder 			= false;
+    	var vatExempt 				= false;
+    	var unverifiedAddress 		= null;
     	var marginBelowThreePercent = false;
-    	var marginBelowSixPercent = false;
+    	var marginBelowSixPercent 	= false;
     	
     	// get the current record
     	var currentRecord = scriptContext.newRecord;
@@ -48,6 +41,10 @@ function(runtime, search, record) {
     	
     	var taxTotal = currentRecord.getValue({
     		fieldId: 'taxtotal'
+    	});
+    	
+    	var paymentMethod = currentRecord.getValue({
+    		fieldId: 'custbody_bbs_payment_method'
     	});
     	
     	var profitPercent = parseFloat(
@@ -92,10 +89,16 @@ function(runtime, search, record) {
     	var firstThreeOrders = checkNumberOfOrders(customerID);
     	
     	// call function to check if the customer has any overdue invoices
-    	var overdueInvoices = checkAgeOfInvoices(customerID);
+    	var overdueInvoices = checkAgeOfInvoices(customerID, scriptParameters.daysOverdue);
     	
     	// call function to check if the order contains zero value lines
     	var zeroValueLine = checkZeroValueLines(currentRecord);
+    	
+    	if (paymentMethod == 8 && (orderTotal > scriptParameters.stripeFloor)) // payment method 8 = Stripe
+    		{
+    			// set stripeFloorExceeded to true
+    			stripeFloorExceeded = true;
+    		}
     	
     	if (orderTotal > availableBalance)
     		{
@@ -103,7 +106,7 @@ function(runtime, search, record) {
     			creditLimitExceeded = true;
     		}
     	
-    	if (orderTotal > highValueOrderLimit)
+    	if (orderTotal > scriptParameters.highValueOrderLimit)
     		{
     			// set highValueOrder variable to true
     			highValueOrder = true;
@@ -165,6 +168,11 @@ function(runtime, search, record) {
     		fieldId: 'custbody_bbs_unverified_address',
     		value: unverifiedAddress
     	});
+    	
+    	currentRecord.setValue({
+    		fieldId: 'custbody_bbs_stripe_floor_exceeded',
+    		value: stripeFloorExceeded
+    	});
 
     }
     
@@ -172,6 +180,32 @@ function(runtime, search, record) {
     // HELPER FUNCTIONS
     // ================
     
+    function getScriptParameters() {
+    	
+    	// retrieve script parameters
+    	var currentScript = runtime.getCurrentScript();
+    	
+    	var highValueOrderLimit = currentScript.getParameter({
+    		name: 'custscript_bbs_high_value_order_limit'
+    	});
+    	
+    	var daysOverdue = currentScript.getParameter({
+    		name: 'custscript_bbs_so_approval_invoice_days'
+    	});
+    	
+    	var stripeFloor = currentScript.getParameter({
+    		name: 'custscript_bbs_so_approval_stripe_floor'
+    	});
+    	
+    	// return values to the main script function
+    	return {
+    		highValueOrderLimit:	highValueOrderLimit,
+    		daysOverdue:			daysOverdue,
+    		stripeFloor:			stripeFloor
+    	}
+    	
+    }
+     
     function getCustomerInfo(customerID) {
     	
     	// declare and initialize variables
@@ -284,7 +318,7 @@ function(runtime, search, record) {
     	
     }
     
-    function checkAgeOfInvoices(customerID) {
+    function checkAgeOfInvoices(customerID, daysOverdue) {
     	
     	// declare and initialize variables
     	var numberOfInvoices = 0;
@@ -370,6 +404,8 @@ function(runtime, search, record) {
     	return zeroValueLine;
     	
     }
+    
+    
 
     return {
         onAction : onAction

@@ -104,11 +104,6 @@ function(runtime, record, search, libraryModule, plugin)
 						var billToIncorporated	= 	_transactionRecord.getSubrecord({fieldId: 'billingaddress'}).getValue({fieldId: 'custrecord_bbstfc_incorporated'});
 						var lineCount			=	_transactionRecord.getLineCount({sublistId: 'item'});
 						
-						log.debug({
-							title: 'Subsidiary ID',
-							details: subsidiaryID
-						});
-						
 						// check the record is not a standalone transaction
 						//
 						if (createdFrom)
@@ -178,11 +173,6 @@ function(runtime, record, search, libraryModule, plugin)
 						var subsidiaryClientProfileID	= subsidiaryLookup[0];
 						var subsidiaryPCode				= subsidiaryLookup[1];
 						var subsidiaryIncorporated		= subsidiaryLookup[2];
-						
-						log.debug({
-							title: 'subsidiaryLookup',
-							details: subsidiaryLookup
-						});
 						
 						// call function to return/lookup fields on the address record
 						//
@@ -260,8 +250,8 @@ function(runtime, record, search, libraryModule, plugin)
 						        //Fill in the invoice line object properties (details about the invoice/sales order we are processing)
 								//
 								taxReqInvObj.cmmt			=	commitTaxes;
-								taxReqInvObj.bill.pcd		=	billToPCode;
-								taxReqInvObj.bill.int		= 	billToIncorporated;
+								taxReqInvObj.bill.pcd		=	addressData.pcode;
+								taxReqInvObj.bill.int		= 	addressData.incorporated;
 								taxReqInvObj.cust			=	customerType;
 								taxReqInvObj.lfln			=	lifeline;
 								taxReqInvObj.date			=	tranDate;
@@ -341,8 +331,8 @@ function(runtime, record, search, libraryModule, plugin)
 										        //Fill in the invoice item object properties
 												//
 												taxReqItemObj.ref		=	i;
-												taxReqItemObj.from.pcd	=	subsidiaryPCode;
-												taxReqItemObj.from.int	= 	subsidiaryIncorporated;
+												taxReqItemObj.from.pcd	=	addressData.pcode;
+												taxReqItemObj.from.int	= 	addressData.incorporated;
 												taxReqItemObj.to.pcd	=	addressData.pcode;
 												taxReqItemObj.to.int	=	addressData.incorporated;
 												taxReqItemObj.chg		=	itemRate;
@@ -359,8 +349,8 @@ function(runtime, record, search, libraryModule, plugin)
 												taxReqItemObj.adjm		=	0;
 												taxReqItemObj.disc		=	discountType;
 												taxReqItemObj.prop		=	0;
-												taxReqItemObj.bill.pcd	=	billToPCode;
-												taxReqItemObj.bill.int	=	billToIncorporated;
+												taxReqItemObj.bill.pcd	=	addressData.pcode;
+												taxReqItemObj.bill.int	=	addressData.incorporated;
 												taxReqItemObj.cust		=	customerType;
 												taxReqItemObj.lfln		=	lifeline;
 												taxReqItemObj.date		=	tranDate;

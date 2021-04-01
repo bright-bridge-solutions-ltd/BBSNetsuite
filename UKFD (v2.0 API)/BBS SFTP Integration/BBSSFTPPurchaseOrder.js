@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['./BBSSFTPLibrary', 'N/search', 'N/sftp', 'N/file', 'N/format', 'N/record', 'N/runtime'],
-function(sftpLibrary, search, sftp, file, format, record, runtime) {
+define(['./BBSSFTPLibrary', 'N/search', 'N/record', 'N/runtime'],
+function(sftpLibrary, search, record, runtime) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -16,6 +16,49 @@ function(sftpLibrary, search, sftp, file, format, record, runtime) {
      * @Since 2015.2
      */
     function beforeLoad(scriptContext) {
+    	
+    	// check that the record is being viewed or edited
+    	if (scriptContext.type == scriptContext.UserEventType.VIEW) // if the PO is being viewed
+    		{
+		    	// get the current record
+    			var currentRecord = scriptContext.newRecord;
+    			
+    			// get the purchase order's status
+    			var status = currentRecord.getValue({
+    				fieldId: 'status'
+    			});
+    			
+    			// get the value of the specord field
+    			var isSpecialOrder = currentRecord.getValue({
+    				fieldId: 'specord'
+    			});
+    			
+    			// if the purchase order is not close and is a special order
+    			if (status != 'Closed' && isSpecialOrder == 'T')
+    				{
+		    			// get the close button
+    					var closeButton = scriptContext.form.getButton({
+				    		id: 'closeremaining'
+				    	});
+    					
+    					// if we have been able to get the close button
+    					if (closeButton)
+    						{
+		    					// set the close button to be hidden
+						    	closeButton.isHidden = true;
+			    						
+					    		// set a client script to fun on the form
+						    	scriptContext.form.clientScriptFileId = 11036851;
+					    						
+					    		// add button to the form
+							    scriptContext.form.addButton({
+							    	id: 'custpage_bbs_close_po',
+							    	label: 'Close',
+							    	functionName: "closePo(" + currentRecord.id + ")" // call client script when button is clicked. Pass recordID to client script
+							    });
+    						}
+    				}
+    		}
 
     }
 
@@ -29,6 +72,7 @@ function(sftpLibrary, search, sftp, file, format, record, runtime) {
      * @Since 2015.2
      */
     function beforeSubmit(scriptContext) {
+
 
     }
 
@@ -46,12 +90,8 @@ function(sftpLibrary, search, sftp, file, format, record, runtime) {
     	if (scriptContext.type == scriptContext.UserEventType.SPECIALORDER) // if the PO is being created and is a special order
     		{
 	    		// declare and initialize variables
-    			var requiredDeliveryDate = null;
-    		
-    			// retrieve script parameters
-	        	var folderID = runtime.getCurrentScript().getParameter({
-	        		name: 'custscript_bbs_sftp_folder_id'
-	        	});
+    			var requiredDeliveryDate 	= null;
+    			var orderStatus				= '';
     		
     			// get the current record
     			var currentRecord = scriptContext.newRecord;
@@ -79,184 +119,33 @@ function(sftpLibrary, search, sftp, file, format, record, runtime) {
 		    	// if we have SFTP details for this supplier
 		    	if (sftpEndpoint)
 		    		{
-		    			// declare and initialize variables
-		    			var sftpConnection 	= null;
-		    			var csvFile			= null;
-		    				
-		    			try
-							{
-								// make a connection to the SFTP site
-								var sftpConnection = sftp.createConnection({
-									url: 			sftpEndpoint,
-									username:		sftpUsername,
-									passwordGuid:	sftpPassword,
-									hostKey:		sftpHostKey,
-									directory:		sftpInDirectory
-								});
-							}
-		    			catch(e)
-		    				{
-		    					log.error({
-		    						title: 'SFTP Connection Error',
-		    						details: e
-		    					});
-		    				}
+		    			// call library function to make a connection to the SFTP site
+		    			var sftpConnection = sftpLibrary.createSftpConnection(sftpEndpoint, sftpUsername, sftpPassword, sftpHostKey, sftpInDirectory);
 		    					
 		    			// if we have been able to successfully make a connection
 		    			if (sftpConnection)
-		    				{
-		    					try
-		    						{
-				    					// get details from the record header
-				    					var poNumber = currentRecord.getValue({
-				    						fieldId: 'tranid'
-				    					});
-				    							
-				    					var orderDate = currentRecord.getValue({
-				    						fieldId: 'trandate'
-				    					});
-				    							
-				    					// format orderDate as a date string
-				    					orderDate = format.format({
-		    								type: 	format.Type.DATE,
-		    								value: 	orderDate
-		    							});
-				    							
-				    					var warehouseAddress = currentRecord.getValue({
-				    						fieldId: 'custbody_warehouseaddress'
-				    					}).split('\r\n');
-				    					
-				    					var salesOrderID = currentRecord.getValue({
-				    						fieldId: 'createdfrom'
-				    					});
-				    					
-				    					var soNumber = currentRecord.getText({
-				    						fieldId: 'createdfrom'
-				    					}).split('#').pop();
-				    					
-				    					// call library function to lookup details on the sales order
-				    					var salesOrderInfo = sftpLibrary.getSalesOrderInfo(salesOrderID);
-				    					
-				    					// if we have a ship date on the sales order
-				    					if (salesOrderInfo.shipDate)
-				    						{
-					    						// call library function to calculate the required delivery date
-				    							requiredDeliveryDate = sftpLibrary.calculateDeliveryDate(salesOrderInfo.shipDate, sftpLeadTime, sftpProcessingDays);
-				    						}
-				    									
-				    					// start off the CSV
-				    					var CSV = '"HEAD",,"UKFD","UKFD",' + poNumber + ',' + orderDate + ',' + requiredDeliveryDate + ',,,,,,,,,,' + warehouseAddress[0] + ',' + warehouseAddress[1] + ',' + warehouseAddress[2] + ',' + warehouseAddress[3] + ',' + warehouseAddress[4] + ',' + warehouseAddress[6] + ',,,,,,,,' + soNumber + ',' + salesOrderInfo.menziesDepot + '\r\n';
-				    							
-				    					// get count of lines on the PO
-				    					var lineCount = currentRecord.getLineCount({
-				    						sublistId: 'item'
-				    					});
-				    							
-				    					// loop through line count
-				    					for (var i = 0; i < lineCount; i++)
-				    						{
-				    							// retrieve details from the line
-				    							var productCode = currentRecord.getSublistText({
-				    								sublistId: 	'item',
-				    								fieldId: 	'item',
-				    								line: 		i
-				    							}).split(" : ").pop(); // just keep the child part no
-				    									
-				    							var productDescription = currentRecord.getSublistValue({
-				    								sublistId: 	'item',
-				    								fieldId: 	'description',
-				    								line: 		i
-				    							});
-				    									
-				    							var quantityRequired = currentRecord.getSublistValue({
-				    								sublistId: 	'item',
-				    								fieldId: 	'quantity',
-				    								line: 		i
-				    							});
-				    									
-				    							// add the line details to the CSV
-				    							CSV += "LINE" + ',' + (i+1) + ',,,,,' + productCode + ',,,,' + productDescription + ',,,,,,,,,,,,,,,' + quantityRequired + ',' + sftpUnitsOfQuantity + '\r\n';		    									
-				    						}
-				    								
-				    					// add a 'RECON' line to the CSV
-				    					CSV += '"RECON",,"UKFD",' + poNumber + ',' + lineCount + '\r\n';
-				    							
-				    					// create the CSV file
-				    					csvFile = file.create({
-				    					fileType: 	file.Type.CSV,
-				    						name: 		poNumber + '.csv',
-				    						contents: 	CSV
-				    					});
-		    						}
-		    					catch(e)
-		    						{
-		    							log.error({
-		    								title: 'Error Generating CSV File',
-		    								details: e
-		    							});
-		    						}
+		    				{	    				
+		    					// call library function to create the CSV file
+		    					var createCsvFileResult = sftpLibrary.createCsvFile(currentRecord, sftpUnitsOfQuantity, sftpLeadTime, sftpProcessingDays, orderStatus);
+		    					
+		    					// return values from the createCsvFileResult
+		    					var csvFile 			= createCsvFileResult.csvFile;
+		    					requiredDeliveryDate 	= createCsvFileResult.requiredDeliveryDate;
 		    					
 		    					// if we have been able to successfully generate the CSV file
 		    					if (csvFile)
 		    						{
-		    							try
-		    								{
-		    									// upload the file to the SFTP site
-		    									sftpConnection.upload({
-		    										file: 				csvFile,
-		    										replaceExisting: 	true
-		    									});
-		    								}
-		    							catch(e)
-		    								{
-		    									log.error({
-		    										title: 'SFTP Upload Error',
-		    										details: e
-		    									});
-		    								}
-		    							
-		    							// declare and initialize variables
-		    							var fileID = null;
-		    							
-		    							try
-		    								{
-		    									// save the CSV file to the file cabinet
-		    									csvFile.folder = folderID;
-		    									
-		    									fileID = csvFile.save();
-		    								}
-		    							catch(e)
-		    								{
-		    									log.error({
-		    										title: 'Error Saving File',
-		    										details: e
-		    									});
-		    								}
-		    							
-		    							// if we have been able to save the file
+			    						// call library function to upload the CSV file to the SFTP site
+										sftpLibrary.uploadCsvFile(sftpConnection, csvFile);
+										
+										// call library function to save the CSV file to the file cabinet
+										var fileID = sftpLibrary.saveCsvFile(csvFile);
+										
+										// if we have been able to save the file
 		    							if (fileID)
 		    								{
-			    								try
-			    									{
-				    									// attach the file to the PO
-														record.attach({
-															record: {
-														        type: 'file',
-														        id: fileID
-														    },
-														    to: {
-														        type: record.Type.PURCHASE_ORDER,
-														        id: currentRecord.id
-														    }
-														});
-			    									}
-			    								catch(e)
-			    									{
-			    										log.error({
-			    											title: 'Error Attaching File to PO',
-			    											details: 'File ID: ' + fileID + '<br>Error: ' + e
-			    										});
-			    									}
+		    									// call library function to attach the CSV file to the purchase order
+												sftpLibrary.attachCsvFile(fileID, currentRecord.id);	
 		    								}
 		    						}
 		    				}
@@ -267,7 +156,7 @@ function(sftpLibrary, search, sftp, file, format, record, runtime) {
 		    				id: currentRecord.id,
 		    				values: {
 		    					approvalstatus: 2, // 2 = Approved
-		    					custbody_bbs_requested_delivery_date : requiredDeliveryDate
+		    					custbody_bbs_requested_delivery_date: requiredDeliveryDate
 		    				},
 		    				enableSourcing: false,
 							ignoreMandatoryFields: true
@@ -275,7 +164,7 @@ function(sftpLibrary, search, sftp, file, format, record, runtime) {
 		    			
     				}
     		}
-    	else if (scriptContext.type == scriptContext.UserEventType.XEDIT) // if the PO is being edited by the BBS Suitelet
+    	else if (scriptContext.type == scriptContext.UserEventType.XEDIT && runtime.executionContext == runtime.ContextType.SUITELET) // if the PO is being edited by the Suitelet
     		{
 	    		// get the old/new images of the record
 				var oldRecord = scriptContext.oldRecord;
@@ -293,17 +182,90 @@ function(sftpLibrary, search, sftp, file, format, record, runtime) {
 				// if the Furlong required delivery date has been changed
 				if (oldDate.getTime() != newDate.getTime())
 					{
-						log.debug({
-							title: '*** Furlong Required Delivery Date Has Been Changed ***'
-						});
-						
-						//TODO - Code to generate further CSV file to Furlong
+						// declare and initialize variables
+	    				var orderStatus	= 'CHANGE';
+	    				var poRecord	= null;
+	    		
+		    			try
+		    				{
+		    					// reload the purchase order
+		    					poRecord = record.load({
+		    						type: record.Type.PURCHASE_ORDER,
+		    						id: newRecord.id
+		    					});
+		    				}
+		    			catch(e)
+		    				{
+		    					log.error({
+		    						title: 'Error Loading Purchase Order ' + newRecord.id,
+		    						details: e
+		    					});
+		    				}
+		    			
+		    			// if we have been able to load the purchase order
+		    			if (poRecord)
+		    				{
+			    				// get the supplier ID
+						    	var supplierID = poRecord.getValue({
+						    		fieldId: 'entity'
+						    	});
+					    			
+						    	// call library function to see if we have a matching SFTP record for the supplier
+						    	var sftpDetails = sftpLibrary.getSftpDetails(supplierID);
+						    			
+						    	// retrieve the SFTP details
+						    	var sftpEndpoint 		= sftpDetails.endpoint;
+						    	var sftpUsername		= sftpDetails.username;
+						    	var sftpPassword		= sftpDetails.password;
+						    	var sftpHostKey			= sftpDetails.hostKey;
+						    	var sftpPortNumber		= sftpDetails.portNumber;
+						    	var sftpOutDirectory	= sftpDetails.outDirectory;
+						    	var sftpInDirectory		= sftpDetails.inDirectory;
+						    	var sftpUnitsOfQuantity	= sftpDetails.unitsOfQuantity;
+						    	var sftpLeadTime		= sftpDetails.leadTime;
+						    	var sftpProcessingDays	= sftpDetails.processingDays;
+						    			
+						    	// if we have SFTP details for this supplier
+						    	if (sftpEndpoint)
+						    		{
+						    			// call library function to make a connection to the SFTP site
+						    			var sftpConnection = sftpLibrary.createSftpConnection(sftpEndpoint, sftpUsername, sftpPassword, sftpHostKey, sftpInDirectory);
+						    					
+						    			// if we have been able to successfully make a connection
+						    			if (sftpConnection)
+						    				{	    				
+						    					// call library function to create the CSV file
+						    					var createCsvFileResult = sftpLibrary.createCsvFile(poRecord, sftpUnitsOfQuantity, sftpLeadTime, sftpProcessingDays, orderStatus);
+						    					
+						    					// return values from the createCsvFileResult
+						    					var csvFile = createCsvFileResult.csvFile;
+						    					
+						    					// if we have been able to successfully generate the CSV file
+						    					if (csvFile)
+						    						{
+							    						// call library function to upload the CSV file to the SFTP site
+														sftpLibrary.uploadCsvFile(sftpConnection, csvFile);
+														
+														// call library function to save the CSV file to the file cabinet
+														var fileID = sftpLibrary.saveCsvFile(csvFile);
+													
+														// if we have been able to save the file
+						    							if (fileID)
+						    								{
+						    									// call library function to attach the CSV file to the purchase order
+																sftpLibrary.attachCsvFile(fileID, newRecord.id);	
+						    								}
+						    						}	
+						    				}
+						    		}
+		    				}
 					}
     		}
     	
     }
 
     return {
+    	beforeLoad: beforeLoad,
         afterSubmit: afterSubmit
     };
     

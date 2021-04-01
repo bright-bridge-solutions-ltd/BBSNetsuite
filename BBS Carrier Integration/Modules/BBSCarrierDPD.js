@@ -195,10 +195,24 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 								}
 							else
 								{
-									message += responseBodyObj.error.errorCode + '\n';
-									message += responseBodyObj.error.obj + '\n';
-									message += responseBodyObj.error.errorType + '\n';
-									message += responseBodyObj.error.errorMessage;
+									if(responseBodyObj.error != null && responseBodyObj.error.length > 0)
+										{
+											for (var errline = 0; errline < responseBodyObj.error.length; errline++) 
+												{
+													message += responseBodyObj.error[errline].errorCode + '\n';
+													message += responseBodyObj.error[errline].obj + '\n';
+													message += responseBodyObj.error[errline].errorType + '\n';
+													message += responseBodyObj.error[errline].errorMessage + '\n';
+												}
+										}
+									else
+										{
+											message += responseBodyObj.error.errorCode + '\n';
+											message += responseBodyObj.error.obj + '\n';
+											message += responseBodyObj.error.errorType + '\n';
+											message += responseBodyObj.error.errorMessage;
+										}
+									
 								
 									//Convert the ProCarrier response object to the standard process shipments response object
 									//

@@ -319,25 +319,27 @@ function(record, search, xml, config, https, encode, BBSObjects, secret, oauth, 
 																	      search.createColumn({name: "custrecord_bbs_config_carrier", label: "Primary Carrier/Integrator"}),
 																	      search.createColumn({name: "custrecord_bbs_config_url", label: "Shipping URL"}),
 																	      search.createColumn({name: "custrecord_bbs_config_url_delete", label: "Delete URL"}),
+																	      search.createColumn({name: "custrecord_bbs_config_url_label_recovery", label: "Label Recovery URL"}),
 																	      search.createColumn({name: "custrecord_bbs_config_use_image_convert", label: "Use Image Converter"})
 																	   ]
 																	}));
 			
 			if(customrecord_bbs_carrier_configSearchObj != null && customrecord_bbs_carrier_configSearchObj.length == 1)
 				{
-					var configCarrier 		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_carrier"});
-					var clientId			= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_client_id"});
-					var configUser 			= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_username"});
-					var configPassword 		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_password"});
-					var configUrl 			= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_url"});
-					var configUrlDelete		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_url_delete"});
-					var configMajor 		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_major"});
-					var configMinor 		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_minor"});
-					var configIntermediate 	= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_intermediate"});
-					var configLabelFormat	= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_label_format"});
-					var configImageConvert	= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_use_image_convert"});
+					var configCarrier 			= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_carrier"});
+					var clientId				= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_client_id"});
+					var configUser 				= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_username"});
+					var configPassword 			= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_password"});
+					var configUrl 				= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_url"});
+					var configUrlDelete			= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_url_delete"});
+					var configUrlLabelRecovery	= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_url_label_recovery"});
+					var configMajor 			= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_major"});
+					var configMinor 			= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_minor"});
+					var configIntermediate 		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_intermediate"});
+					var configLabelFormat		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_label_format"});
+					var configImageConvert		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_use_image_convert"});
 					
-					carrierConfig = new BBSObjects.carrierConfiguration(configCarrier, clientId, configUser, configPassword, configUrl, configUrlDelete, configMajor, configMinor, configIntermediate, configLabelFormat, configImageConvert);
+					carrierConfig = new BBSObjects.carrierConfiguration(configCarrier, clientId, configUser, configPassword, configUrl, configUrlDelete, configUrlLabelRecovery, configMajor, configMinor, configIntermediate, configLabelFormat, configImageConvert);
 				}
 			
 			return carrierConfig;

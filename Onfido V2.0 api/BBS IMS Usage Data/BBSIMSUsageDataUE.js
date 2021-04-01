@@ -189,7 +189,7 @@ function(format, search, record) {
 			    			"AND",
 			    			["custrecord_bbs_contract_sales_force_id","is",salesForceID],
 			    			"AND",
-			    			["custrecord_bbs_contract_customer.subsidiary","anyof",subsidiary],
+			    			["custrecord_bbs_contract_subsidiary","anyof",subsidiary],
 			    			"AND",
 			    			["custrecord_bbs_contract_start_date","onorbefore",searchDate],
 			    			"AND",

@@ -155,7 +155,7 @@ function(ui, http, search, record, redirect)
     					    id: 					'sftppassword',
     					    label: 					'SFTP Password',
     					    restrictToDomains: 		endpoint,
-    					    restrictToScriptIds: 	['customscript_bbs_sftp_purchase_order', 'customscript_bbs_sftp_process_order_ack', 'customscript_bbs_sftp_process_stock_file'],
+    					    restrictToScriptIds: 	['customscript_bbs_sftp_purchase_order', 'customscript_bbs_sftp_process_order_ack', 'customscript_bbs_sftp_process_stock_file', 'customscript_bbs_sftp_close_purchase_ord'],
     					    restrictToCurrentUser: 	false
     					}).setMandatory = true;
     					

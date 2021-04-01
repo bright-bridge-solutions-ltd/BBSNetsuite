@@ -4,11 +4,11 @@
  * @NModuleScope SameAccount
  */
 
-define(['N/search', 'N/sftp', 'N/record', 'N/format', 'N/file', 'N/runtime'],
+define(['./BBSSFTPLibrary', 'N/search', 'N/record', 'N/format', 'N/runtime'],
 /**
  * @param {sftp, file, search, xml, record, runtime, email} 
  */
-function(search, sftp, record, format, file, runtime) {
+function(sftpLibrary, search, record, format, runtime) {
    
     /**
      * Definition of the Scheduled script trigger point.
@@ -19,13 +19,6 @@ function(search, sftp, record, format, file, runtime) {
      */
     function execute(scriptContext) {
     		
-    	// retrieve script parameters. Script parameters are global parameters so can be accessed throughout the script
-    	currentScript = runtime.getCurrentScript();
-    	
-    	folderID = currentScript.getParameter({
-    		name: 'custscript_bbs_sftp_folder_id'
-    	});
-    	
     	// search for SFTP supplier detail records
     	search.create({
     		type: 'customrecord_bbs_sftp',
@@ -116,50 +109,15 @@ function(search, sftp, record, format, file, runtime) {
     
     function processFiles(sftpEndpoint, sftpUsername, sftpPassword, sftpHostKey, sftpPortNumber, sftpDirectory, sftpFileType) {
     	
-    	// declare and initialize variables
-    	var sftpConnection = null;
-    	
-    	try
-			{
-				// make a connection to the SFTP site
-				sftpConnection = sftp.createConnection({
-					url: 			sftpEndpoint,
-					username:		sftpUsername,
-					passwordGuid:	sftpPassword,
-					hostKey:		sftpHostKey,
-					directory:		sftpDirectory
-				});
-			}
-		catch(e)
-			{
-				log.error({
-					title: 'SFTP Connection Error',
-					details: e
-				});
-			}
-		
-		// if we have been able to successfully connect to the SFTP site
+    	// call library function to make a connection to the SFTP site
+		var sftpConnection = sftpLibrary.createSftpConnection(sftpEndpoint, sftpUsername, sftpPassword, sftpHostKey, sftpDirectory);
+				
+		// if we have been able to successfully make a connection
 		if (sftpConnection)
 			{
-				// declare and initialize variables
-				var fileList = null;
-				
-				try
-					{
-						// get a list of files from the SFTP site
-						fileList = sftpConnection.list({
-							path: 	'./' + sftpFileType, 
-							sort: 	sftp.Sort.DATE
-						});
-					}
-				catch(e)
-					{
-						log.error({
-							title: 'Error Retrieving SFTP File List',
-							details: e
-						});
-					}
-				
+				// call library function to get a list of files from the SFTP site
+				var fileList = sftpLibrary.getFileList(sftpConnection, sftpFileType);
+    	
 				log.audit({
 					title: 'Number of Files to Process',
 					details: fileList.length
@@ -185,20 +143,8 @@ function(search, sftp, record, format, file, runtime) {
 										// get the file name
 										var fileName = fileList[i].name;
 										
-										try
-											{
-												// download the file from the SFTP site
-												downloadedFile = sftpConnection.download({
-													filename: fileName
-												});
-											}
-										catch(e)
-											{
-												log.error({
-													title: 'Error Downloading File',
-													details: 'File Name: ' + fileName + '<br>Error: ' + e
-												});
-											}
+										// call library function to download the file from the SFTP site
+										var downloadedFile = sftpLibrary.downloadFile(sftpConnection, fileName);
 										
 										// if we have been able to successfully download the file
 										if (downloadedFile)
@@ -327,65 +273,22 @@ function(search, sftp, record, format, file, runtime) {
 														});
 													}
 												
-												// declare and initialize variables
-												var fileID = null;
+												// change the file extension
+												downloadedFile.name = fileName.replace('.dat', '.csv');
 												
-												try
-													{
-														// save the file to the file cabinet
-														downloadedFile.name = fileName.replace('.dat', '.csv');
-														downloadedFile.folder = folderID;
-														fileID = downloadedFile.save();
-													}
-												catch(e)
-													{
-														log.error({
-															title: 'Error Creating File',
-															details: e
-														});
-													}
+												// call library function to save the downloaded file to the file cabinet
+												var fileID = sftpLibrary.saveCsvFile(downloadedFile);
 												
 												// if we have been able to create the file
 												if (fileID)
 													{
-														try
-															{
-																// attach the file to the PO
-																record.attach({
-																	record: {
-																        type: 'file',
-																        id: fileID
-																    },
-																    to: {
-																        type: record.Type.PURCHASE_ORDER,
-																        id: poID
-																    }
-																});
-															}
-														catch(e)
-															{
-																log.error({
-																	title: 'Error Attaching File to PO',
-																	details: 'PO ID: ' + poID + '<br>Error: ' + e
-																});
-															}
+														// call library function to attach the CSV file to the purchase order
+														sftpLibrary.attachCsvFile(fileID, poID);
 													}
 												
-												try
-													{										
-														// finally, delete the file from the SFTP site
-														sftpConnection.removeFile({
-															path: fileName
-														});
-													}
-												catch(e)
-													{
-														log.error({
-															title: 'Error Deleting File from SFTP Site',
-															details: 'File Name: ' + fileName + '<br>Error: ' + e
-														});
-													}
-											}										
+												// call library function to delete the file from the SFTP site
+												sftpLibrary.deleteFile(sftpConnection, fileName);
+											}									
 									}
 								else
 									{

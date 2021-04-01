@@ -37,21 +37,14 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			var processShipmentResponse	= {};
 		
 			try
-				{
+				{				
 					//Set the headers for the request
 					//
-					headerObj['AccessLicenseNumber']	= _processShipmentRequest.configuration.clientId;
 					headerObj['Content-Type']			= 'text/json';
-					headerObj['Accept']					= 'text/json';
+					headerObj['Accept']					= '*/*';
 					headerObj['Username']				= _processShipmentRequest.configuration.username;
 					headerObj['Password']				= _processShipmentRequest.configuration.password;
-					headerObj['transId']				= _processShipmentRequest.shippingReference;
-					headerObj['transactionSrc']			= 'NetSuite';
-					
-					log.debug({
-						title: 'headerObj',
-						details: headerObj
-					});
+					headerObj['AccessLicenseNumber']	= _processShipmentRequest.configuration.clientId;
 				
 					//Create a JSON object that represents the structure of the UPS shipment request
 					//
@@ -59,8 +52,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 					
 					//Populate the object with the data from the incoming standard message
 					//
-					shipmentRequestObj.ShipmentRequest.Shipment.Description 												= "Goods"; // TODO
-					
+					shipmentRequestObj.ShipmentRequest.Shipment.Description 												= "Goods"; // TODO					
 					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Name 												= _processShipmentRequest.senderAddress.addresse;
 					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.AttentionName 										= _processShipmentRequest.senderAddress.addresse;
 					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Phone.Number 										= _processShipmentRequest.senderContact.mobileNumber;
@@ -69,8 +61,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Address.City										= _processShipmentRequest.senderAddress.town;
 					//shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Address.StateProvinceCode							= _processShipmentRequest.senderAddress.county;
 					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Address.PostalCode									= _processShipmentRequest.senderAddress.postCode;
-					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Address.CountryCode									= _processShipmentRequest.senderAddress.countryCode;
-					
+					shipmentRequestObj.ShipmentRequest.Shipment.Shipper.Address.CountryCode									= _processShipmentRequest.senderAddress.countryCode;					
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Name													= _processShipmentRequest.address.addresse;
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.AttentionName										= _processShipmentRequest.address.addresse;
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Phone.Number 										= _processShipmentRequest.address.phone;
@@ -78,8 +69,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Address.City											= _processShipmentRequest.address.town;
 					//shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Address.StateProvinceCode							= _processShipmentRequest.address.county;
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Address.PostalCode									= _processShipmentRequest.address.postCode;
-					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Address.CountryCode									= _processShipmentRequest.address.countryCode;
-					
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipTo.Address.CountryCode									= _processShipmentRequest.address.countryCode;					
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Name 												= _processShipmentRequest.senderAddress.addresse;
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.AttentionName 										= _processShipmentRequest.senderAddress.addresse;
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Phone.Number 										= _processShipmentRequest.senderContact.mobileNumber;
@@ -87,21 +77,25 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Address.City										= _processShipmentRequest.senderAddress.town;
 					//shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Address.StateProvinceCode							= _processShipmentRequest.senderAddress.county;
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Address.PostalCode									= _processShipmentRequest.senderAddress.postCode;
-					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Address.CountryCode								= _processShipmentRequest.senderAddress.countryCode;
-					
+					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Address.CountryCode								= _processShipmentRequest.senderAddress.countryCode;					
 					shipmentRequestObj.ShipmentRequest.Shipment.PaymentInformation.ShipmentCharge.Type						= "01"; // 01 = Transportation
-					shipmentRequestObj.ShipmentRequest.Shipment.PaymentInformation.ShipmentCharge.BillShipper.AccountNumber	= _processShipmentRequest.shippingItemInfo.carrierContractNo;
-					
+					shipmentRequestObj.ShipmentRequest.Shipment.PaymentInformation.ShipmentCharge.BillShipper.AccountNumber	= _processShipmentRequest.shippingItemInfo.carrierContractNo;					
 					shipmentRequestObj.ShipmentRequest.Shipment.Service.Code												= _processShipmentRequest.shippingItemInfo.serviceCodes[0].serviceCode;
-					shipmentRequestObj.ShipmentRequest.Shipment.Service.Description											= _processShipmentRequest.shippingItemInfo.serviceCodes[0].serviceDescription;
+					shipmentRequestObj.ShipmentRequest.Shipment.Service.Description											= _processShipmentRequest.shippingItemInfo.serviceCodes[0].serviceDescription;									
+					shipmentRequestObj.ShipmentRequest.Shipment.LabelSpecification.LabelImageFormat.Code					= _processShipmentRequest.configuration.labelFormat;
+					shipmentRequestObj.ShipmentRequest.Shipment.LabelSpecification.LabelImageFormat.Description				= _processShipmentRequest.configuration.labelFormat;
 					
-					shipmentRequestObj.ShipmentRequest.Shipment.Package.Packaging.Code										= "02"; // 02 = Customer Supplied Package
-					shipmentRequestObj.ShipmentRequest.Shipment.Package.PackageWeight.UnitOfMeasurement.Code				= "KGS";
-					shipmentRequestObj.ShipmentRequest.Shipment.Package.PackageWeight.UnitOfMeasurement.Description			= "Kilograms";
-					shipmentRequestObj.ShipmentRequest.Shipment.Package.PackageWeight.Weight								= parseFloat(_processShipmentRequest.weight).toFixed(2);
+					//Get count of packages from the incoming message
+					//
+					var packageCount = _processShipmentRequest.packages.length;
 					
-					shipmentRequestObj.ShipmentRequest.LabelSpecification.LabelImageFormat.Code								= _processShipmentRequest.configuration.labelFormat;
-					shipmentRequestObj.ShipmentRequest.LabelSpecification.LabelImageFormat.Description						= _processShipmentRequest.configuration.labelFormat;
+					//Loop through packages
+					for (var i = 0; i < packageCount; i++)
+						{
+							//Push a new package object to the shipmentRequestObj
+							//
+							shipmentRequestObj.ShipmentRequest.Shipment.Package.push(new _upsPackageObj(_processShipmentRequest.packages[i].weight));
+						}
 					
 					log.debug({
 						title: 'Shipment Request',
@@ -143,17 +137,112 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 							responseStatus = err.message;
 						}
 					
+					log.debug({
+						title: 'Shipment Response',
+						details: responseBodyObj
+					});
+					
 					//Check the responseObject to see whether a success or error/failure message was returned
 					//
 					if (responseStatus == '200')
 						{
 							//Declare and initialize variables
 							//
-							var message = '';
-						
-							//Convert the UPS response object to the standard process shipments response object
+							var consignmentNumber 	= '';
+							var shipmentId		 	= '';
+							var message 			= '';
+							var labelImage 			= '';
+							var labelType			= '';
+							
+							//Get the UPS response status
 							//
-							processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, message, '');
+							var upsResponseStatus = responseBodyObj['ShipmentResponse']['Response']['ResponseStatus']['Description'];
+							
+							//If we have a successful response
+							//
+							if (upsResponseStatus == 'Success')
+								{
+									//Get the consignment number
+									//
+									consignmentNumber = responseBodyObj['ShipmentResponse']['ShipmentResults']['ShipmentIdentificationNumber'];
+									
+									//Convert the UPS response object to the standard process shipments response object
+									//
+									processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, null, consignmentNumber);
+									
+									//Get the package results
+									//
+									var packageResults = responseBodyObj['ShipmentResponse']['ShipmentResults']['PackageResults'];
+									
+									if (typeof packageResults == 'array')
+										{
+											//Loop through packages
+											//
+											for (var i = 0; i < packageResults.length; i++)
+												{
+													//Get the tracking number
+													//
+													var trackingNumber = packageResults[i].TrackingNumber;
+													
+													//Call function to return the label image
+													var labelRecoveryRequest = upsLabelRecoveryRequest(headerObj, _processShipmentRequest.configuration.urlLabelRecovery, _processShipmentRequest.configuration.labelFormat, trackingNumber);
+													
+													//Check the labelRecoveryRequest response to see whether a success or error/failure message was returned
+													//
+													if (labelRecoveryRequest.responseStatus == '200')
+														{
+															//Get the label image and type
+															//
+															labelImage 	= labelRecoveryRequest['responseBody']['LabelRecoveryResponse']['LabelResults']['LabelImage']['GraphicImage'];
+															labelType	= _processShipmentRequest.configuration.labelFormat;
+															
+															//Add packages to processShipmentResponse
+															//
+															processShipmentResponse.addPackage(i, trackingNumber, labelImage, labelType);
+														}
+													else
+														{
+															//Convert the UPS response object to the standard process shipments response object
+															//
+															processShipmentResponse = new BBSObjects.processShipmentResponse(labelRecoveryRequest.responseStatus, labelRecoveryRequest.responseBody.response.errors[0].message, consignmentNumber);
+															
+															//Don't make any further label recovery requests
+															//
+															break;
+														}												
+												}
+										}
+									else if (typeof packageResults == 'object')
+										{
+											//Get the tracking number
+											//
+											var trackingNumber = packageResults.TrackingNumber;
+											
+											//Call function to return the label image
+											//
+											var labelRecoveryRequest = upsLabelRecoveryRequest(headerObj, _processShipmentRequest.configuration.urlLabelRecovery, _processShipmentRequest.configuration.labelFormat, trackingNumber);
+											
+											//Check the labelRecoveryRequest response to see whether a success or error/failure message was returned
+											//
+											if (labelRecoveryRequest.responseStatus == '200')
+												{
+													//Get the label image and type
+													//
+													labelImage 	= labelRecoveryRequest['responseBody']['LabelRecoveryResponse']['LabelResults']['LabelImage']['GraphicImage'];
+													labelType	= _processShipmentRequest.configuration.labelFormat;
+													
+													//Add packages to processShipmentResponse
+													//
+													processShipmentResponse.addPackage(i, trackingNumber, labelImage, labelType);
+												}
+											else
+												{
+													//Convert the UPS response object to the standard process shipments response object
+													//
+													processShipmentResponse = new BBSObjects.processShipmentResponse(labelRecoveryRequest.responseStatus, labelRecoveryRequest.responseBody.response.errors[0].message, consignmentNumber);
+												}											
+										}
+								}
 						}
 					else
 						{
@@ -182,7 +271,70 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 					return processShipmentResponse;
 				}
 		}
-
+	
+	//Function to return the UPS shipping label
+	//
+	function upsLabelRecoveryRequest(_headerObj, _labelRecoveryURL, _labelFormat, _trackingNumber)
+		{
+			//Declare and initialize variables
+			//
+			var responseStatus 			= '';
+			var responseBodyObj			= {};
+		
+			//Create a JSON object that represents the structure of the UPS label recovery request
+			//
+			var labelRecoveryRequestObj = new _labelRecoveryRequest();
+			
+			//Populate the object with the data from the incoming standard message
+			//
+			labelRecoveryRequestObj.LabelRecoveryRequest.LabelSpecification.LabelImageFormat.Code 			= _labelFormat;
+			labelRecoveryRequestObj.LabelRecoveryRequest.LabelSpecification.LabelImageFormat.Description	= _labelFormat;
+			labelRecoveryRequestObj.LabelRecoveryRequest.LabelSpecification.LabelStockSize.Height			= "6";
+			labelRecoveryRequestObj.LabelRecoveryRequest.LabelSpecification.LabelStockSize.Width 			= "4";
+			labelRecoveryRequestObj.LabelRecoveryRequest.TrackingNumber										= _trackingNumber;
+			
+			try
+				{
+					//Make the request to UPS
+					//
+					var response = https.post({
+						url:		_labelRecoveryURL,
+						headers:	_headerObj,
+						body:		JSON.stringify(labelRecoveryRequestObj)
+					});
+	
+					//Extract the http response code	
+					//
+					responseStatus = response.code;
+					
+					//Extract the http response body
+					//
+					if(response.body != null && response.body != '')
+						{
+							//Try to parse the response body into a JSON object
+							//
+							try
+								{
+									responseBodyObj = JSON.parse(response.body);
+								}
+							catch(err)
+								{
+									responseBodyObj = null;
+								}
+						}
+				}
+			catch(err)
+				{
+					responseStatus = err.message;
+				}
+			
+			// return values to the main script function
+			return {
+				responseStatus:	responseStatus,
+				responseBody:	responseBodyObj
+			}
+			
+		}
 	
 	//Function to cancel a shipment from UPS
 	//
@@ -194,16 +346,16 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			var responseStatus			= '';
 			var responseBodyObj			= {};
 			var cancelShipmentResponse	= {};
-		
+			
 			try
 				{
 					//Set the headers for the request
 					//
-					headerObj['AccessLicenseNumber']	= '';
 					headerObj['Content-Type']			= 'text/json';
-					headerObj['Accept']					= 'text/json';
+					headerObj['Accept']					= '*/*';
 					headerObj['Username']				= _cancelShipmentRequest.configuration.username;
 					headerObj['Password']				= _cancelShipmentRequest.configuration.password;
+					headerObj['AccessLicenseNumber']	= _cancelShipmentRequest.configuration.clientId;
 					
 					try
 						{
@@ -232,7 +384,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 										{
 											responseBodyObj = null;
 										}
-								}
+								}							
 						}
 					catch(err)
 						{
@@ -255,7 +407,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 						{
 							//Get the error message
 							//
-							var message = responseBodyObj.moreInformation;
+							var message = responseBodyObj.response.errors[0].message;
 							
 							//Convert the UPS response object to the standard process shipments response object
 							//
@@ -287,7 +439,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 	
 	
 	//=========================================================================
-	//FedEx Specific Objects
+	//UPS Specific Objects
 	//=========================================================================
 	//
 	function _shipmentRequest()
@@ -356,32 +508,29 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			this.ShipmentRequest.Shipment.Service.Code = '';
 			this.ShipmentRequest.Shipment.Service.Description = '';
 			
-			this.ShipmentRequest.Shipment.Package = {};
-			//this.ShipmentRequest.Shipment.Package.Description = '';
+			this.ShipmentRequest.Shipment.Package = [];
 			
-			this.ShipmentRequest.Shipment.Package.Packaging = {};
-			this.ShipmentRequest.Shipment.Package.Packaging.Code = '';
-			//this.ShipmentRequest.Shipment.Package.Packaging.Description = '';
+			this.ShipmentRequest.Shipment.LabelSpecification = {};
+			this.ShipmentRequest.Shipment.LabelSpecification.LabelImageFormat = {};
+			this.ShipmentRequest.Shipment.LabelSpecification.LabelImageFormat.Code = '';
+			this.ShipmentRequest.Shipment.LabelSpecification.LabelImageFormat.Description = '';
+			//this.ShipmentRequest.LabelSpecification.HTTPUserAgent = '';
+		}
+	
+	function _labelRecoveryRequest()
+		{
+			this.LabelRecoveryRequest = {};
 			
-			/*this.ShipmentRequest.Shipment.Package.Dimensions = {};
-			this.ShipmentRequest.Shipment.Package.Dimensions.UnitOfMeasurement = {};
-			this.ShipmentRequest.Shipment.Package.Dimensions.UnitOfMeasurement.Code = '';
-			this.ShipmentRequest.Shipment.Package.Dimensions.UnitOfMeasurement.Description = '';
-			this.ShipmentRequest.Shipment.Package.Dimensions.Length = '';
-			this.ShipmentRequest.Shipment.Package.Dimensions.Width = '';
-			this.ShipmentRequest.Shipment.Package.Dimensions.Height = '';*/
+			this.LabelRecoveryRequest.LabelSpecification = {};
+			this.LabelRecoveryRequest.LabelSpecification.LabelImageFormat = {};
+			this.LabelRecoveryRequest.LabelSpecification.LabelImageFormat.Code = '';
+			this.LabelRecoveryRequest.LabelSpecification.LabelImageFormat.Description = '';
+			this.LabelRecoveryRequest.LabelSpecification.LabelStockSize = {};
+			this.LabelRecoveryRequest.LabelSpecification.LabelStockSize.Height = '';
+			this.LabelRecoveryRequest.LabelSpecification.LabelStockSize.Width = '';
 			
-			this.ShipmentRequest.Shipment.Package.PackageWeight = {};
-			this.ShipmentRequest.Shipment.Package.PackageWeight.UnitOfMeasurement = {};
-			this.ShipmentRequest.Shipment.Package.PackageWeight.UnitOfMeasurement.Code = '';
-			this.ShipmentRequest.Shipment.Package.PackageWeight.UnitOfMeasurement.Description = '';
-			this.ShipmentRequest.Shipment.Package.PackageWeight.Weight = '';
+			this.LabelRecoveryRequest.TrackingNumber = '';
 			
-			this.ShipmentRequest.LabelSpecification = {};
-			this.ShipmentRequest.LabelSpecification.LabelImageFormat = {};
-			this.ShipmentRequest.LabelSpecification.LabelImageFormat.Code = '';
-			this.ShipmentRequest.LabelSpecification.LabelImageFormat.Description = '';
-			this.ShipmentRequest.LabelSpecification.HTTPUserAgent = '';
 		}
 	
 	function _voidShipmentRequest()
@@ -403,6 +552,17 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			this.UPSSecurity.UsernameToken.Password = '';
 			this.UPSSecurity.ServiceAccessToken = {};
 			this.UPSSecurity.ServiceAccessToken.AccessLicenseNumber = '';
+		}
+	
+	function _upsPackageObj(_packageWeight)
+		{
+			this.Packaging = {};
+			this.Packaging.Code = "02"; // 02 = Customer Supplied Package
+			this.PackageWeight = {};
+			this.PackageWeight.UnitOfMeasurement = {};
+			this.PackageWeight.UnitOfMeasurement.Code = "KGS";
+			this.PackageWeight.Weight = _packageWeight;
+			
 		}
 	
 

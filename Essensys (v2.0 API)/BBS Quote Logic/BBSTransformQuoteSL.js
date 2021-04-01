@@ -48,9 +48,9 @@ function(record) {
     		}
     	
     	if (salesOrderID) // if a sales order has been created successfully
-    		{
-    			try
-    				{
+			{
+				try
+					{
 		    			// update the sales estimate
 		    			record.submitFields({
 		    				type: record.Type.ESTIMATE,
@@ -62,15 +62,15 @@ function(record) {
 		    				enableSourcing: false,
 							ignoreMandatoryFields: true
 		    			});
-    				}
-    			catch(e)
-    				{
-    					log.error({
-    						title: 'Error Updating Estimate',
-    						details: 'Record ID: ' + recordID + ' | Error: ' + e
-    					});
-    				}
-    		}
+					}
+				catch(e)
+					{
+						log.error({
+							title: 'Error Updating Estimate',
+							details: 'Record ID: ' + recordID + ' | Error: ' + e
+						});
+					}
+			}
 
     }
 

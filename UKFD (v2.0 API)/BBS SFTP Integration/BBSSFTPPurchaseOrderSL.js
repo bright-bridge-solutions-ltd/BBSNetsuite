@@ -42,7 +42,7 @@ function(sftpLibrary, record) {
 		    	if (sftpDetails.endpoint)
 		    		{
 		    			// call library function to calculate the required delivery date
-						var requiredDeliveryDate = sftpLibrary.calculateDeliveryDate(purchaseOrderInfo.soShipDate, sftpDetails.leadTime, sftpDetails.processingDays);
+						var requiredDeliveryDate = sftpLibrary.calculateDate(purchaseOrderInfo.soFulfilDate, sftpDetails.leadTime, sftpDetails.processingDays);
 						
 						try
 							{

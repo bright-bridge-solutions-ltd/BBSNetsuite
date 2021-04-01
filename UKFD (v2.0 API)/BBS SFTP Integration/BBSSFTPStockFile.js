@@ -4,11 +4,11 @@
  * @NModuleScope SameAccount
  */
 
-define(['N/search', 'N/sftp', 'N/record', 'N/runtime'],
+define(['./BBSSFTPLibrary', 'N/search', 'N/record', 'N/runtime'],
 /**
  * @param {sftp, file, search, xml, record, runtime, email} 
  */
-function(search, sftp, record, runtime) {
+function(sftpLibrary, search, record, runtime) {
    
     /**
      * Definition of the Scheduled script trigger point.
@@ -109,49 +109,14 @@ function(search, sftp, record, runtime) {
     
     function processFiles(sftpEndpoint, sftpUsername, sftpPassword, sftpHostKey, sftpPortNumber, sftpDirectory, sftpFileType) {
     	
-    	// declare and initialize variables
-    	var sftpConnection = null;
-    	
-    	try
-			{
-				// make a connection to the SFTP site
-				sftpConnection = sftp.createConnection({
-					url: 			sftpEndpoint,
-					username:		sftpUsername,
-					passwordGuid:	sftpPassword,
-					hostKey:		sftpHostKey,
-					directory:		sftpDirectory
-				});
-			}
-		catch(e)
-			{
-				log.error({
-					title: 'SFTP Connection Error',
-					details: e
-				});
-			}
-		
-		// if we have been able to successfully connect to the SFTP site
+    	// call library function to make a connection to the SFTP site
+		var sftpConnection = sftpLibrary.createSftpConnection(sftpEndpoint, sftpUsername, sftpPassword, sftpHostKey, sftpDirectory);
+				
+		// if we have been able to successfully make a connection
 		if (sftpConnection)
 			{
-				// declare and initialize variables
-				var fileList = null;
-				
-				try
-					{
-						// get a list of files from the SFTP site
-						fileList = sftpConnection.list({
-							path: 	'./' + sftpFileType, 
-							sort: 	sftp.Sort.DATE
-						});
-					}
-				catch(e)
-					{
-						log.error({
-							title: 'Error Retrieving SFTP File List',
-							details: e
-						});
-					}
+				// call library function to get a list of files from the SFTP site
+				var fileList = sftpLibrary.getFileList(sftpConnection, sftpFileType);
 				
 				log.audit({
 					title: 'Number of Files to Process',
@@ -175,20 +140,8 @@ function(search, sftp, record, runtime) {
 								// get the file name
 								var fileName = fileList[i].name;
 										
-								try
-									{
-										// download the file from the SFTP site
-										downloadedFile = sftpConnection.download({
-											filename: fileName
-										});
-									}
-								catch(e)
-									{
-										log.error({
-											title: 'Error Downloading File',
-											details: 'File Name: ' + fileName + '<br>Error: ' + e
-										});
-									}
+								// call library function to download the file from the SFTP site
+								var downloadedFile = sftpLibrary.downloadFile(sftpConnection, fileName);
 										
 								// if we have been able to successfully download the file
 								if (downloadedFile)
@@ -295,20 +248,8 @@ function(search, sftp, record, runtime) {
 										// check we have sufficient remaining usage
 										if (runtime.getCurrentScript().getRemainingUsage() > 10)
 											{
-												try
-													{										
-														// finally, delete the file from the SFTP site
-														sftpConnection.removeFile({
-															path: fileName
-														});
-													}
-												catch(e)
-													{
-														log.error({
-															title: 'Error Deleting File from SFTP Site',
-															details: 'File Name: ' + fileName + '<br>Error: ' + e
-														});
-													}
+												// call library function to delete the file from the SFTP site
+												sftpLibrary.deleteFile(sftpConnection, fileName);
 											}
 										else
 											{

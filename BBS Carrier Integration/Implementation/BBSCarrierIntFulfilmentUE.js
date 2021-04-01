@@ -333,7 +333,6 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    								var packageCount 		= itemFulfillmentRecord.getValue({fieldId: 'custbody_bbs_number_of_packages'});
 	    								var createdFrom 		= itemFulfillmentRecord.getValue({fieldId: 'createdfrom'});
 	    								
-	    								
 	    								//Load the related sales order
 	    								//
 	    								var salesOrderRecord = null;
@@ -360,42 +359,6 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    								
 	    									}
 	    								
-	    								// check if totalWeight and packageCount are empty
-	    								if (totalWeight == '' && packageCount == '')
-	    									{
-	    										// set totalWeight to 0
-	    										totalWeight = 0;
-	    									
-	    										// get count of lines on the package sublist
-	    										packageCount = itemFulfillmentRecord.getLineCount({sublistId: 'package'});
-	    										
-	    										// where packageCount is not 0
-	    										if (packageCount > 0)
-	    											{
-			    										// loop through package sublist lines
-			    										for (var i = 0; i < packageCount; i++)
-			    											{
-			    												// get the weight for the line
-			    												var weight = itemFulfillmentRecord.getSublistValue({
-															    													sublistId: 	'package',
-															    													fieldId: 	'packageweight',
-															    													line: 		i
-															    													});
-			    												
-			    												// add the weight to the totalWeight variable
-			    												totalWeight += weight;
-			    											}
-	    											}
-	    										else
-	    											{
-	    												// set totalWeight to 1
-	    												totalWeight = 1;
-	    												
-	    												// set packageCount to 1
-	    												packageCount = 1;
-	    											}
-	    									}
-	    								
 	    								var customerID = itemFulfillmentRecord.getValue({fieldId: 'entity'});
 	    								
 	    								//Get the shipping address subrecord
@@ -416,7 +379,6 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    								// create an address object
 	    								//
 	    								var shippingAddress = new BBSObjects.addressObject(addresse, addressLine1, addressLine2, city, county, postcode, country, addressPhone);
-	    								
 	    								
 	    								//Get the subsidiary field value from the IF record (if present)
 	    								//
@@ -469,8 +431,54 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
                                   
 	    								//Build up the process shipments request object
 	    								//
-	    								var processShipmentsRequest = new BBSObjects.processShipmentRequest(integrationDetails, shippingCarrierInfo, shipmentReference, shippingAddress, contactInfo, despatchDate, totalWeight, packageCount, isSaturday, senderAddress, subsidiaryContactInfo, itemLineInfo);
+	    								var processShipmentsRequest = new BBSObjects.processShipmentRequest(integrationDetails, shippingCarrierInfo, shipmentReference, shippingAddress, contactInfo, despatchDate, isSaturday, senderAddress, subsidiaryContactInfo, itemLineInfo);
 	    								
+	    								// check if totalWeight and packageCount are empty
+	    								if (totalWeight == '' && packageCount == '')
+	    									{
+	    										// set totalWeight to 0
+	    										totalWeight = 0;
+	    									
+	    										// get count of lines on the package sublist
+	    										packageCount = itemFulfillmentRecord.getLineCount({sublistId: 'package'});
+	    										
+	    										// where packageCount is not 0
+	    										if (packageCount > 0)
+	    											{
+			    										// loop through package sublist lines
+			    										for (var i = 0; i < packageCount; i++)
+			    											{
+			    												// get the weight for the line
+			    												var weight = itemFulfillmentRecord.getSublistValue({
+															    													sublistId: 	'package',
+															    													fieldId: 	'packageweight',
+															    													line: 		i
+															    													});
+			    												
+			    												// add the weight to the totalWeight variable
+			    												totalWeight += weight;
+			    												
+			    												// push a new package object to the packages array within the shipping request
+			    												processShipmentsRequest.packages.push(new BBSObjects.shippingPackageObj(weight));
+			    											}
+	    											}
+	    										else
+	    											{
+	    												// set totalWeight to 1
+	    												totalWeight = 1;
+	    												
+	    												// set packageCount to 1
+	    												packageCount = 1;
+	    												
+	    												// push a new package object to the packages array within the shipping request with a weight of 1
+	    												processShipmentsRequest.packages.push(new BBSObjects.shippingPackageObj(1));
+	    											}
+	    									}
+	    								
+	    								// set the total weight and package count fields on the processShipmentRequest object
+	    								processShipmentsRequest.weight			= parseFloat(totalWeight).toFixed(2);
+	    								processShipmentsRequest.packageCount 	= packageCount;
+	  
 	    								//
 							    		//LICENCE CHECK
 							    		//
@@ -559,19 +567,20 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 		    													
 		    													switch(labelFileType)
 		    														{
-				    													case 'PNG':
+		    															case 'GIF':
+		    																fileTypeIdentifier = file.Type.GIFIMAGE;
+		    																break;
+		    														
+		    															case 'PNG':
 				    														fileTypeIdentifier = file.Type.PNGIMAGE;
-				    														
 				    														break;
 				    												
 				    													case 'PDF':
 				    														fileTypeIdentifier = file.Type.PDF;
-				    														
 				    														break;
 				    										
 				    													default:
 				    														fileTypeIdentifier = file.Type.PLAINTEXT;
-				    														
 				    														break;
 				    										
 		    														}

@@ -91,8 +91,13 @@ function(runtime, record) {
     								}
     						}
     					
-    					// if the customer has a default shipping address
-    					if (hasDefaultShippingAddress == true)
+    					// get the global subscription status
+    					var globalSubscriptionStatus = currentRecord.getValue({
+    						fieldId: 'globalsubscriptionstatus'
+    					});
+    					
+    					// if the customer has a default shipping address and globalSubscriptionStatus is 1 (Soft Opt-In) or 3 (Confirmed Opt-In) 
+    					if (hasDefaultShippingAddress == true && (globalSubscriptionStatus == 1 || globalSubscriptionStatus == 3))
     						{
     							// call function to create a sales order to send out a price list/brochure
     							createSalesOrder(currentRecord.id);
@@ -122,6 +127,11 @@ function(runtime, record) {
     			
     			// set header fields on the sales order
     			salesOrder.setValue({
+    				fieldId: 'orderstatus',
+    				value: 'B' // B = Pending Fulfillment
+    			});
+    			
+    			salesOrder.setValue({
     				fieldId: 'location',
     				value: scriptParameters.location
     			});
@@ -129,6 +139,16 @@ function(runtime, record) {
     			salesOrder.setValue({
     				fieldId: 'shipmethod',
     				value: scriptParameters.shippingmethod
+    			});
+    			
+    			salesOrder.setValue({
+    				fieldId: 'paymentmethod',
+    				value: 18 // 18 = Free Sample
+    			});
+    			
+    			salesOrder.setValue({
+    				fieldId: 'custbody_expecteddeliverydate',
+    				value: getTomorrowsDate()
     			});
     			
     			// select a new line in the item sublist
@@ -208,6 +228,23 @@ function(runtime, record) {
     		shippingmethod:		shippingMethod,
     		item:				item
     	}
+    	
+    }
+    
+    // ===============================
+    // FUNCTION TO GET TOMORROW'S DATE
+    // ===============================
+    
+    function getTomorrowsDate() {
+    	
+    	// get today's date
+    	var dateObj = new Date();
+    	
+    	// add a day to the date to get tomorrow's date
+    	dateObj.setDate(dateObj.getDate() + 1);
+    	
+    	// return the date to the main script function
+    	return dateObj;
     	
     }
     

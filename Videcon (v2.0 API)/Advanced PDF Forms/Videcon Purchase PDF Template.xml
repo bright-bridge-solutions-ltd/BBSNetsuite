@@ -3,7 +3,7 @@
 <head>
 	
 	<#assign regInfo 			= "Company Registration No: " + record.custbody_bbs_branding.custrecord_bbs_branding_co_reg + ".">
-   	<#assign emailInfo 			= record.custbody_bbs_branding.custrecord_bbs_branding_email_acc>
+   	<#assign emailInfo 			= record.custbody_bbs_branding.custrecord_bbs_branding_email_purch>
    	<#assign telInfo 			= record.custbody_bbs_branding.custrecord_bbs_branding_phone>
     <#assign vatInfo 			= record.custbody_bbs_branding.custrecord_bbs_branding_vat>
     <#assign eoriInfo 			= record.custbody_bbs_branding.custrecord_bbs_branding_eori>
@@ -68,7 +68,7 @@
 			<td></td>
 		</tr>
 		<tr>
-			<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td>
+			<td colspan="2" rowspan="8" class="address">${record.custbody_bbs_branding.custrecord_bbs_branding_trade_name}<br/>${record.shipaddress}</td>
 			<td></td>
 			<td></td>
 			<td></td>
@@ -230,7 +230,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="340pt" footer="nlfooter" footer-height="50pt" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+<body header="nlheader" header-height="300pt" footer="nlfooter" footer-height="50pt" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 
 
 <#if record.item?has_content>
@@ -240,6 +240,7 @@
             <thead>
                 <tr>
                     <th colspan="12"><br/>Description</th>
+                    <th align="center" colspan="2">Expected<br/>Receipt</th>
                     <th align="center" colspan="2"><br/>Quantity</th>
                     <th align="right" colspan="2">Unit<br/>Price</th>
                     <th align="right" colspan="3">Net<br/>Amount</th>
@@ -249,7 +250,8 @@
             </thead>
 			</#if>
           <tr>
-              <td colspan="12">${item.description}</td>
+              <td colspan="12"><b>${item.Item}</b><br/>${item.description}<br/>Supplier Name : ${item.vendorname}</td>
+              <td align="center" colspan="2">${item.expectedreceiptdate}</td>
               <td align="center" colspan="2">${item.quantity?string["0"]}</td>
               <td align="right" colspan="2">${item.rate}</td>
               <td align="right" colspan="3">${item.amount}</td>

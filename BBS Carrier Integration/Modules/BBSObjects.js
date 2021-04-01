@@ -8,21 +8,22 @@ function()
 	
 	//Object to hold the connection configuration
 	//
-	function _configuration(_primaryCarrier, _clientId, _username, _passsword, _url, _urlDelete, _majorId, _minorId, _intermediateId, _labelFormat, _imageConvert)
+	function _configuration(_primaryCarrier, _clientId, _username, _passsword, _url, _urlDelete, _urlLabelRecovery, _majorId, _minorId, _intermediateId, _labelFormat, _imageConvert)
 		{
 			//Constructor
 			//
-			this.primaryCarrier	= _primaryCarrier;
-			this.clientId		= _clientId;
-			this.username		= _username;
-			this.password		= _passsword;
-			this.url			= _url;
-			this.urlDelete		= _urlDelete;
-			this.majorId		= _majorId;
-			this.minorId		= _minorId;
-			this.intermediateId	= _intermediateId;
-			this.labelFormat	= _labelFormat;
-			this.imageConvert	= _imageConvert;
+			this.primaryCarrier		= _primaryCarrier;
+			this.clientId			= _clientId;
+			this.username			= _username;
+			this.password			= _passsword;
+			this.url				= _url;
+			this.urlDelete			= _urlDelete;
+			this.urlLabelRecovery	= _urlLabelRecovery;
+			this.majorId			= _majorId;
+			this.minorId			= _minorId;
+			this.intermediateId		= _intermediateId;
+			this.labelFormat		= _labelFormat;
+			this.imageConvert		= _imageConvert;
 		}
 	
 	
@@ -62,14 +63,15 @@ function()
 	
 	//Object to hold the request to create a shipment
 	//
-	function _processShipmentRequest(_configuration, _shippingItemInfo, _shippingReference, _address, _contact, _shippingDate, _weight, _packageCount, _isSaturday, _senderAddress, _senderContactInfo, _itemDetails)
+	function _processShipmentRequest(_configuration, _shippingItemInfo, _shippingReference, _address, _contact, _shippingDate, _isSaturday, _senderAddress, _senderContactInfo, _itemDetails)
 		{
 			this.configuration		= _configuration;		//Configuration object
 			this.shippingItemInfo	= _shippingItemInfo;	//Shipping info object
 			this.shippingReference	= _shippingReference;
 			this.shippingDate		= _shippingDate;
-			this.weight				= _weight;
-			this.packageCount		= _packageCount;
+			this.weight				= '';
+			this.packageCount		= '';
+			this.packages		 	= [];
 			this.address			= _address;				//Address object
 			this.contact			= _contact;				//Contact object
 			this.isSaturday			= _isSaturday;
@@ -77,8 +79,7 @@ function()
 			this.senderContact		= _senderContactInfo;	//Contact object
 			this.itemDetails		= _itemDetails;			//Array of item details
 		}
-	
-	
+
 	//Object to hold the response from requesting a shipment
 	//
 	function _processShipmentResponse(_status, _message, _consignmentNumber)
@@ -205,6 +206,10 @@ function()
 			this.labelType		= _labelType;
 		}
 	
+	function _shippingPackageObj(_weight)
+		{
+			this.weight	= parseFloat(_weight).toFixed(2);
+		}	
 	
 	//=========================================================================
 	//Return objects that are available in this module 
@@ -221,7 +226,8 @@ function()
         		processShipmentResponse:	_processShipmentResponse,
         		addressObject:				_addressObject,
         		contactObject:				_contactObject,
-        		itemInfoObj:				_itemInfoObj
+        		itemInfoObj:				_itemInfoObj,
+        		shippingPackageObj:			_shippingPackageObj,
     		};
     
 });

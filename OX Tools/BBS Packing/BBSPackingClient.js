@@ -168,9 +168,82 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 				}
 	    	
 	    	
-    		//Selection of an item
-    		//
+	    	//Upon entry of the item
+	    	//
 	    	if(scriptContext.fieldId == 'custpage_entry_item' && scriptContext.sublistId == null)
+				{
+			    	//Get the value of the entered item
+			    	//
+			    	var selectionValue = scriptContext.currentRecord.getValue({fieldId: 'custpage_entry_item'});
+			    	
+			    	//Check to see if we have entered something
+			    	//
+			    	if(selectionValue != null && selectionValue != '')
+			    		{
+				    		//Find the item based on the item name, upc code or item alias
+			    			//
+			    			var itemInfo = BBSPackingLibrary.findItem(selectionValue);
+			    			
+			    			if(itemInfo != null)
+			    				{
+				    				//Get the line count of the sublist
+					    			//
+					    			var lines = scriptContext.currentRecord.getLineCount({sublistId: 'custpage_sublist_items'});
+					    			
+					    			//Loop through the sublist lines
+					    			//
+					    			for (var int = 0; int < lines; int++) 
+						    			{
+					    					//Get the item id & quantity
+					    					//
+						    				var sublistRequired = Number(scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_req', line: int}));
+						    				var sublistItem = scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_id', line: int});
+
+						    				//Does the item id on the line match the one we are searching for?
+						    				//
+						    				if(sublistItem == itemInfo.itemId)
+						    					{
+						    						scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: sublistRequired, ignoreFieldChange: true});
+						    					}
+						    			}
+			    				}
+			    			else
+			    				{
+				    				var warnings = 'Item code not found - ' + selectionValue + '<br/><br/>';
+				        			warnings += '<p style="color:Red;">Click \"Ok\" to Continue<p/>';
+				        			var titleText = '❗Alert';
+				    	      		var options = 	{
+				    		      					title: 		titleText,
+				    		      					message: 	warnings
+				    		      					};
+				    		  
+				    	      		//Function that is called when the dialogue box completes
+				    	      		//
+				    		      	function success(result) 
+					    		      	{ 
+					    		      		//See if we have clicked ok in the dialogue
+					    		      		//
+					    		      		if (result)
+					    		      			{
+						    		      			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
+						    		      			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: ''});
+					    		      				document.getElementById("custpage_entry_item").focus();
+					    		      			}
+					    		      	}
+	
+				    		      	//Display the dialogue box
+				    		      	//
+				    		      	dialog.alert(options).then(success);
+				    		      	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
+				    		      	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: ''});
+				    		      	document.getElementById("custpage_entry_item").focus();
+			    				}
+			    		}
+				}
+	    	
+    		//Upon entry of the item quantity
+    		//
+	    	if(scriptContext.fieldId == 'custpage_entry_qty_override' && scriptContext.sublistId == null)
 				{
 			    	//Get the value of the entered item
 			    	//
@@ -526,6 +599,226 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
     		window.open(redirect, '_self', 'Packing');
 		}
 
+    function updateItemLine()
+	    {
+	    	//Get the value of the entered item
+	    	//
+	    	var selectionValue = scriptContext.currentRecord.getValue({fieldId: 'custpage_entry_item'});
+	    	
+	    	//Get the quantity override value
+	    	//
+	    	var overrideValue = Number(scriptContext.currentRecord.getValue({fieldId: 'custpage_entry_qty_override'}));
+	
+	    	//Check to see if we have entered something
+	    	//
+	    	if(selectionValue != null && selectionValue != '')
+	    		{
+	    			//Get the value of the current carton from the form
+	    			//
+	    			var currentCartonName 	= scriptContext.currentRecord.getValue({fieldId: 'custpage_entry_carton_number'});
+	    			var currentCartonId 	= scriptContext.currentRecord.getValue({fieldId: 'custpage_entry_carton_id'});
+	    				
+	    			//Find the item based on the item name, upc code or item alias
+	    			//
+	    			var itemInfo = BBSPackingLibrary.findItem(selectionValue);
+	    			
+	    			if(itemInfo != null)
+	    				{
+	    					var lineUpdated = false;
+	    					
+			    			//Get the line count of the sublist
+			    			//
+			    			var lines = scriptContext.currentRecord.getLineCount({sublistId: 'custpage_sublist_items'});
+			    			
+			    			//Loop through the sublist lines
+			    			//
+			    			for (var int = 0; int < lines; int++) 
+				    			{
+			    					//Get the item id & quantity
+			    					//
+				    				var sublistItem = scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_id', line: int});
+				    				var sublistRequired = Number(scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_req', line: int}));
+				    				var sublistQty = Number(scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', line: int}));
+				    				
+				    				//Does the item id on the line match the one we are searching for?
+				    				//
+				    				if(sublistItem == itemInfo.itemId && sublistQty < sublistRequired)
+				    					{
+				    						//Select the line
+				    						//
+					    					scriptContext.currentRecord.selectLine({sublistId: 'custpage_sublist_items', line: int});
+					    					
+					    					//Increment the line quantity by the uom factor (defaults to 1)
+					    					//
+					    					sublistQty += (overrideValue > 0 ? overrideValue: itemInfo.itemUomFactor);
+					    					
+					    					//Update the values & commit
+					    					//
+					    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', value: sublistQty.numberFormat("0"), ignoreFieldChange: true});						    					
+					    					
+					    					var lineCarton 		= scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton'});
+					    					var lineCartonId 	= scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton_id'});
+					    					var lineWeight 		= scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_weight'});
+					    					var lineQuantity	= scriptContext.currentRecord.getCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty'});
+						    				
+					    					var cartonArray 		= (lineCarton == '' ? [] : lineCarton.split(','));
+					    					var cartonArrayId 		= (lineCartonId == '' ? [] : lineCartonId.split(','));
+					    					var cartonArrayWeight	= (lineWeight == '' ? [] : lineWeight.split(','));
+					    					var cartonArrayQuantity	= (lineQuantity == '' ? [] : lineQuantity.split(','));
+					    					
+					    					if(cartonArray.indexOf(currentCartonName) == -1)
+					    						{
+					    							cartonArray.push(currentCartonName);
+					    							cartonArrayId.push(currentCartonId);
+					    							cartonArrayWeight.push((Number(itemInfo.itemWeight) * Number((overrideValue > 0 ? overrideValue: itemInfo.itemUomFactor))));
+					    							cartonArrayQuantity.push((Number(1.0) * Number((overrideValue > 0 ? overrideValue: itemInfo.itemUomFactor))));
+					    						}
+					    					else
+					    						{
+					    							cartonArrayWeight[cartonArray.indexOf(currentCartonName)] = Number(cartonArrayWeight[cartonArray.indexOf(currentCartonName)]) + (Number(itemInfo.itemWeight) * Number((overrideValue > 0 ? overrideValue: itemInfo.itemUomFactor)));
+					    							cartonArrayQuantity[cartonArray.indexOf(currentCartonName)] = Number(cartonArrayQuantity[cartonArray.indexOf(currentCartonName)]) + (Number(1.0) * Number((overrideValue > 0 ? overrideValue: itemInfo.itemUomFactor)));
+					    						}
+					    					
+					    					for (var weightIndex = 0; weightIndex < cartonArrayWeight.length; weightIndex++) 
+						    					{
+					    							cartonArrayWeight[weightIndex] = Number(cartonArrayWeight[weightIndex]).numberFormat("0.00");
+												}
+					    					
+					    					for (var quantityIndex = 0; quantityIndex < cartonArrayQuantity.length; quantityIndex++) 
+						    					{
+					    							cartonArrayQuantity[quantityIndex] = Number(cartonArrayQuantity[quantityIndex]).numberFormat("0");
+												}
+				    					
+					    					var  newCarton 		= cartonArray.toString();
+					    					var  newCartonId 	= cartonArrayId.toString();
+					    					var  newWeight 		= cartonArrayWeight.toString();
+					    					var  newQuantity	= cartonArrayQuantity.toString();
+					    					
+					    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton', value: newCarton, ignoreFieldChange: true});						    					
+					    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_carton_id', value: newCartonId, ignoreFieldChange: true});						    					
+					    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_weight', value: newWeight, ignoreFieldChange: true});						    					
+					    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty', value: newQuantity, ignoreFieldChange: true});						    					
+					    					
+					    					//Display the quantity & weight together
+					    					//
+					    					var displayString = '';
+					    					
+					    					for (var quantityIndex = 0; quantityIndex < cartonArrayQuantity.length; quantityIndex++) 
+						    					{
+					    							displayString += Number(cartonArrayQuantity[quantityIndex]).numberFormat("0") + '(' + Number(cartonArrayWeight[quantityIndex]).numberFormat("0.00") + '), ';
+												}
+					    					
+					    					scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_weight', value: displayString.slice(0,-2), ignoreFieldChange: true});						    					
+					    					
+					    					//Blank out the entry fields
+					    					//
+					    					scriptContext.currentRecord.commitLine({sublistId: 'custpage_sublist_items'});
+					    					scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
+					    					scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: ''});
+					    					scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: ''});
+					    					
+									    	//Set the colour
+									    	//
+									    	if(sublistQty == sublistRequired)
+									    		{
+									    			setRowColour(int, '#B2FF33');
+									    		}
+									    	
+									    	if(sublistQty > sublistRequired)
+									    		{
+									    			setRowColour(int, '#ff9999');
+									    		}
+								    	
+									    	if(sublistQty < sublistRequired)
+									    		{
+									    			setRowColour(int, '#FFFFFF');
+									    		}
+							    	
+									    	recalculateCompletedLines(scriptContext);
+											
+									    	//We have updated a line
+									    	//
+									    	lineUpdated = true;
+									    	
+									    	break;
+				    					}
+				    			}
+			    			
+			    			//Check to see if we found the item on the sublist, if not send a message
+			    			//
+			    			if(!lineUpdated)
+			    				{
+			    					var warnings = 'Item code "' + selectionValue + '"not availaible on any line<br/><br/>';
+				        			warnings += '<p style="color:Red;">Click \"Ok\" to Continue<p/>';
+				        			var titleText = '❗Alert';
+				    	      		var options = 	{
+				    		      					title: 		titleText,
+				    		      					message: 	warnings
+				    		      					};
+				    		  
+				    	      		//Function that is called when the dialogue box completes
+				    	      		//
+				    		      	function success(result) 
+					    		      	{ 
+					    		      		//See if we have clicked ok in the dialogue
+					    		      		//
+					    		      		if (result)
+					    		      			{
+						    		      			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
+						    		      			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: ''});
+					    		      				document.getElementById("custpage_entry_item").focus();
+					    		      			}
+					    		      		
+					    		      	}
+	
+				    		      	//Display the dialogue box
+				    		      	//
+				    		      	dialog.alert(options).then(success);
+				    		      	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
+				    		      	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: ''});
+				    		      	document.getElementById("custpage_entry_item").focus();
+			    			
+			    				}
+	    				}
+	    			else
+	    				{
+		    				var warnings = 'Item code not found - ' + selectionValue + '<br/><br/>';
+		        			warnings += '<p style="color:Red;">Click \"Ok\" to Continue<p/>';
+		        			var titleText = '❗Alert';
+		    	      		var options = 	{
+		    		      					title: 		titleText,
+		    		      					message: 	warnings
+		    		      					};
+		    		  
+		    	      		//Function that is called when the dialogue box completes
+		    	      		//
+		    		      	function success(result) 
+			    		      	{ 
+			    		      		//See if we have clicked ok in the dialogue
+			    		      		//
+			    		      		if (result)
+			    		      			{
+				    		      			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
+				    		      			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: ''});
+			    		      				document.getElementById("custpage_entry_item").focus();
+			    		      			}
+			    		      	}
+	
+		    		      	//Display the dialogue box
+		    		      	//
+		    		      	dialog.alert(options).then(success);
+		    		      	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
+		    		      	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: ''});
+		    		      	document.getElementById("custpage_entry_item").focus();
+	    				}
+	    		}	
+	    	
+	    	//Put the focus back on to the item input field
+	    	//
+	    	document.getElementById("custpage_entry_item").focus();
+	    }
+    
+    
     function newCarton()
     	{
     		var cartonDetails 	= BBSPackingLibrary.libCreateNewCarton();

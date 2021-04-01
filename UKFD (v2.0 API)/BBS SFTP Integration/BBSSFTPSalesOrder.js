@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/url', 'N/https'],
-function(url, https) {
+define(['./BBSSFTPLibrary', 'N/record', 'N/url', 'N/https'],
+function(sftpLibrary, record, url, https) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -29,6 +29,68 @@ function(url, https) {
      * @Since 2015.2
      */
     function beforeSubmit(scriptContext) {
+    	
+    	// check if the record is being created or edited
+    	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
+    		{
+    			// declare and intialize variables
+    			var packDate = null;
+    			var fulfilDate = null;
+    		
+    			// get the current record
+    			var currentRecord = scriptContext.newRecord;
+    			
+    			// get the expected delivery date
+    			var expDelDate = currentRecord.getValue({
+    				fieldId: 'custbody_expecteddeliverydate'
+    			});
+    			
+    			// if we have an expected delivery date
+    			if (expDelDate)
+    				{
+    					// get the Menzies depot
+    					var menziesDepot = currentRecord.getValue({
+    						fieldId: 'custbody_bbs_menzies_depot'
+    					});
+    					
+    					// if we have a Menzies depot
+    					if (menziesDepot)
+    						{
+    							// call library function to return the lead time from the Menzies depot record
+    							var leadTime = sftpLibrary.getMenziesDepotLeadTime(menziesDepot);
+    							
+    							// if we have a lead time
+    							if (leadTime)
+    								{
+	    								// get the subsidiary ID
+	    		    					var subsidiaryID = currentRecord.getValue({
+	    		    						fieldId: 'subsidiary'
+	    		    					});
+	    		    				
+	    		    					// call library function to return the UKFD processing days
+	    		    					var processingDays = sftpLibrary.getUKFDProcessingDays(subsidiaryID);
+	    		    					
+	    		    					// call library function to calculate the pack date
+	    		    					packDate = sftpLibrary.calculateDate(expDelDate, leadTime, processingDays);
+	    		    					
+	    		    					// now we have calculated the pack date, call library function to calculate the pack date
+	    		    					fulfilDate = sftpLibrary.calculateDate(new Date(packDate.getFullYear(), packDate.getMonth(), packDate.getDate()), 1, processingDays);
+	 
+    								}
+    						}
+    				}
+    			
+    			// update the pack/fulfil dates on the record
+    			currentRecord.setValue({
+    				fieldId: 'custbody_bbs_pack_date',
+    				value: packDate
+    			});
+    			
+    			currentRecord.setValue({
+    				fieldId: 'custbody_bbs_fulfil_date',
+    				value: fulfilDate
+    			});  			
+    		}
 
     }
 
@@ -50,13 +112,13 @@ function(url, https) {
     			var oldRecord = scriptContext.oldRecord;
     			var newRecord = scriptContext.newRecord;
     			
-    			// get the ship date from the old/new images of the record
+    			// get the fulfil date from the old/new images of the record
     			var oldDate = oldRecord.getValue({
-    				fieldId: 'shipdate'
+    				fieldId: 'custbody_bbs_fulfil_date'
     			});
     			
     			var newDate = newRecord.getValue({
-    				fieldId: 'shipdate'
+    				fieldId: 'custbody_bbs_fulfil_date'
     			});
     			
     			// if the ship date has been changed
@@ -134,6 +196,7 @@ function(url, https) {
     }
 
     return {
+    	beforeSubmit: beforeSubmit,
         afterSubmit: afterSubmit
     };
     
