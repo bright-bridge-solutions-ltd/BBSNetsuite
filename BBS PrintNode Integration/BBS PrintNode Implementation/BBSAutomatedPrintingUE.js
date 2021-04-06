@@ -3,14 +3,61 @@
  * @NScriptType UserEventScript
  * @NModuleScope Public
  */
-define(['N/https', 'N/record', 'N/search', 'N/plugin', 'N/render', 'N/file', 'N/encode', 'N/runtime'],
+define(['N/https', 'N/record', 'N/search', 'N/plugin', 'N/render', 'N/file', 'N/encode', 'N/runtime', 'N/url'],
 /**
  * @param {https} https
  * @param {record} record
  * @param {search} search
  */
-function(https, record, search, plugin, render, file, encode, runtime) 
+function(https, record, search, plugin, render, file, encode, runtime, url) 
 {
+	
+	/**
+     * Function definition to be triggered before record is loaded.
+     *
+     * @param {Object} scriptContext
+     * @param {Record} scriptContext.newRecord - New record
+     * @param {string} scriptContext.type - Trigger type
+     * @param {Form} scriptContext.form - Current form
+     * @Since 2015.2
+     */
+    function automatedPrintingBL(scriptContext) 
+	    {
+	    	// check that the record is being viewed
+	    	if (scriptContext.type == 'view')
+	    		{
+		    		// get the current record
+	    			var currentRecord = scriptContext.newRecord;
+	    			
+	    			// get the value of the BBS [CI] CONSIGNMENT NUMBER field
+	    			var consignmentNumber = currentRecord.getValue({fieldId: 'custbody_bbs_ci_consignment_number'});
+	    			
+	    			// check if the consignmentNumber variable returns a value
+	    			if (consignmentNumber)
+	    				{
+		    				// get the internal ID of the current record
+		    	        	var currentRecordID = currentRecord.id;
+		    	        	
+		    	        	// define URL of Suitelet
+							var suiteletURL = url.resolveScript({
+																scriptId: 		'customscript_bbs_reprint_label_su',
+																deploymentId: 	'customdeploy_bbs_reprint_label_su',
+																params: 		{
+																				'id': 	currentRecordID
+																				}
+																});
+		    	        	
+		    	        	// add button to the form
+		    	    		scriptContext.form.addButton({
+								    	    			id: 			'custpage_reprint_labels',
+								    	    			label: 			'Reprint Thermal Labels',
+								    	    			functionName: 	"window.open('" + suiteletURL + "');" // call Suitelet when button is clicked
+								    	    			});
+	    				}
+	    		}
+	    	
+	    }
+    
     /**
      * Function definition to be triggered before record is loaded.
      *
@@ -241,7 +288,8 @@ function(https, record, search, plugin, render, file, encode, runtime)
 		}
     
     return 	{
-    		afterSubmit: 	automatedPrintingAS
+    		afterSubmit: 	automatedPrintingAS,
+    		beforeLoad:		automatedPrintingBL
     		};
     
 });
