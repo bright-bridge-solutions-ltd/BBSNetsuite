@@ -3,12 +3,12 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['./BBSSFTPLibrary', 'N/record'],
+define(['./BBSSFTPLibrary', 'N/record', 'N/redirect'],
 /**
  * @param {ui} ui
  * @param {serverWidget} serverWidget
  */
-function(sftpLibrary, record) {
+function(sftpLibrary, record, redirect) {
    
     /**
      * Definition of the Suitelet script trigger point.
@@ -20,11 +20,9 @@ function(sftpLibrary, record) {
      */
     function onRequest(context) {
     	
-    	// get the purchase orders to update
-    	var purchaseOrders = context.request.body;
-    	
-    	// remove characters from the list of purchase orders and create an array
-    	purchaseOrders = purchaseOrders.replace('{', '').replace('}', '').split(',');
+    	// retrieve script parameters
+    	var salesOrder		= context.request.parameters.salesorder;
+    	var purchaseOrders 	= JSON.parse(context.request.parameters.purchaseorders);
     	
     	// loop through purchase orders
     	for (var i = 0; i < purchaseOrders.length; i++)
@@ -64,6 +62,12 @@ function(sftpLibrary, record) {
 							}
 		    		}
     		}
+    	
+    	// redirect the user back to the sales order
+    	redirect.toRecord({
+    	    type: record.Type.SALES_ORDER,
+    	    id: salesOrder
+    	});
     	
     }
     

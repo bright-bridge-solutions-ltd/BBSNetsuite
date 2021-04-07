@@ -130,7 +130,7 @@ function(sftpLibrary, search, record, format, runtime) {
 						for (var i = 0; i < fileList.length; i++)
 							{
 								// check we have sufficient remaining usage
-								if (currentScript.getRemainingUsage() > 200)
+								if (runtime.getCurrentScript().getRemainingUsage() > 200)
 									{
 										log.audit({
 											title: 'Processing File',
@@ -294,7 +294,7 @@ function(sftpLibrary, search, record, format, runtime) {
 									{
 										log.error({
 											title: 'Insufficient Script Usage Remaining',
-											details: 'Units Remaining: ' + currentScript.getRemainingUsage()
+											details: 'Units Remaining: ' + runtime.getCurrentScript().getRemainingUsage()
 										});
 										
 										// break loop
@@ -306,7 +306,7 @@ function(sftpLibrary, search, record, format, runtime) {
 		
 		log.audit({
 			title: '*** END OF SCRIPT ***',
-			details: 'Units Used: ' + (10000 - currentScript.getRemainingUsage())
+			details: 'Units Used: ' + (10000 - runtime.getCurrentScript().getRemainingUsage())
 		});
 		
     }

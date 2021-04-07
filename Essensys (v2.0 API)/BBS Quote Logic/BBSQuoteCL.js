@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/ui/dialog', 'N/url', 'N/https'],
-function(dialog, url, https) {
+define(['N/ui/dialog', 'N/url', 'N/search'],
+function(dialog, url, search) {
     
     /**
      * Function to be executed after page is initialized.
@@ -181,13 +181,24 @@ function(dialog, url, https) {
     							}
     						});
     						
-    						// call a backend Suitelet to update the SO with the rejection reason
-    						https.get({
-    							url: suiteletURL
-    						});
+    						Ext.Ajax.timeout = (60000*5);
     						
-    						// reload the current record to display the changes to the user
-    						location.reload();
+    						var myMask = new Ext.LoadMask(Ext.getBody(), {msg:'<span style="font-size: 10pt;">The Estimate is being rejected<br><br>Please Wait...</span>'});
+    						myMask.show();
+    						
+    						// call a backend Suitelet to update the PO with the rejection reason
+    						Ext.Ajax.request({
+    											url: suiteletURL,
+    											method: 'GET',
+    											success: function (response, result) {
+    												myMask.hide();
+    												location.reload();
+    											},
+    											failure: function (response, result) {
+    												myMask.hide();
+    												alert("Error Rejecting the Estimate");
+    											}
+    										});
     					}
     				else // user clicked ok but did not enter a rejection reason
     					{
@@ -202,24 +213,67 @@ function(dialog, url, https) {
     	
     }
     
-    function transformToSalesOrder(recordID) {
+    function transformToSalesOrder(recordID, orderType, productType, customerID, project) {
     	
-    	// define URL of Suitelet
-		var suiteletURL = url.resolveScript({
-			scriptId: 'customscript_bbs_transform_quote_sl',
-			deploymentId: 'customdeploy_bbs_transform_quote_sl',
-			params: {
-				'id': recordID
-			}
-		});
-		
-		// call a backend Suitelet to update the estimate
-		https.get({
-			url: suiteletURL
-		});
-		
-		// reload the current record to display the changes to the user
-		location.reload();
+    	console.log(arguments);
+    	
+    	// get the primary signer from the customer record
+    	var primarySigner = search.lookupFields({
+    		type: search.Type.CUSTOMER,
+    		id: customerID,
+    		columns: ['custentity_bbs_hellosign_primary_email']
+    	}).custentity_bbs_hellosign_primary_email;
+    	
+    	console.log(primarySigner);
+    	
+    	// if we do NOT have a primary signer on the customer
+    	if (!primarySigner)
+    		{
+    			// display an alert to the user
+    			dialog.alert({
+    				title: '⚠️ Error',
+    				message: 'You may not convert this estimate to sales order as there is no authorised signer on the customer.<br><br>Please ensure an authorised signer has been selected on the customer before converting the estimate to a sales order.<br><br><a href="https://essensysuk.sharepoint.com/sites/businessoperations/SitePages/NS-Create-Customer,-Contact,-Site-&-Sales-Order-records.aspx" target="_blank">https://essensysuk.sharepoint.com/sites/businessoperations/SitePages/NS-Create-Customer,-Contact,-Site-&-Sales-Order-records.aspx</a>'
+    			});
+    		}
+    	// if productType is Connect (1), Operate (2) or Onboarding(3), orderType is NOT Renewal (6) and a project has NOT been selected on the quote
+    	else if ((productType == 1 || productType == 2 || productType == 3) && orderType != 6 && !project)
+    		{
+	    		// display an alert to the user
+				dialog.alert({
+					title: '⚠️ Error',
+					message: 'A Project needs to be assigned to this record before it can be approved, prior to converting into a Sales Order.<br><br><a href="https://essensysuk.sharepoint.com/sites/businessoperations/SitePages/NS-Create-Customer,-Contact,-Site-&-Sales-Order-records.aspx" target="_blank">https://essensysuk.sharepoint.com/sites/businessoperations/SitePages/NS-Create-Customer,-Contact,-Site-&-Sales-Order-records.aspx</a>'
+				});
+    		}
+    	else
+    		{
+    			// define URL of Suitelet
+				var suiteletURL = url.resolveScript({
+					scriptId: 'customscript_bbs_transform_quote_sl',
+					deploymentId: 'customdeploy_bbs_transform_quote_sl',
+					params: {
+						'id': recordID
+					}
+				});
+				
+				Ext.Ajax.timeout = (60000*5);
+				
+				var myMask = new Ext.LoadMask(Ext.getBody(), {msg:'<span style="font-size: 10pt;">The Estimate is being transformed into a Sales Order<br><br>Please Wait...</span>'});
+				myMask.show();
+				
+				// call a backend Suitelet to transform the quote into a sales order
+				Ext.Ajax.request({
+									url: suiteletURL,
+									method: 'GET',
+									success: function (response, result) {
+										myMask.hide();
+										location.reload();
+									},
+									failure: function (response, result) {
+										myMask.hide();
+										alert("Error Transforming the Estimate");
+									}
+								});
+    		}
     	
     }
 

@@ -171,7 +171,7 @@ function(record, search, sftp, file, format, runtime)  {
     // FUNCTION TO GET A LIST OF FILES FROM THE SFTP SITE
     // ==================================================
     
-    function getSftpFileList(sftpConnection, fileType) {
+    function getFileList(sftpConnection, fileType) {
     	
     	// declare and initialize variables
     	var fileList = null;
@@ -191,6 +191,9 @@ function(record, search, sftp, file, format, runtime)  {
 	    			details: e
 	    		});
 	    	}
+	    
+	    // return values to the main script function
+		return fileList;
     	
     }
     
@@ -782,7 +785,7 @@ function(record, search, sftp, file, format, runtime)  {
     return {
     	getSftpDetails:				getSftpDetails,
     	createSftpConnection:		createSftpConnection,
-    	getSftpFileList:			getSftpFileList,
+    	getFileList:				getFileList,
     	createCsvFile:				createCsvFile,
     	downloadFile:				downloadFile,
     	deleteFile:					deleteFile,

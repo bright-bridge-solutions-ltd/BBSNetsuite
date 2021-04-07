@@ -361,7 +361,7 @@ function(runtime, record, search, libraryModule, plugin)
 												//
 												if (privateLineSplit)
 													{
-														// fill in the private line splut property in the item object
+														// fill in the private line split property in the item object
 														//
 														taxReqItemObj.plsp = privateLineSplit;
 													}

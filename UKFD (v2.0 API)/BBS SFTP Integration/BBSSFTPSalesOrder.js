@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['./BBSSFTPLibrary', 'N/record', 'N/url', 'N/https'],
-function(sftpLibrary, record, url, https) {
+define(['./BBSSFTPLibrary', 'N/record', 'N/redirect'],
+function(sftpLibrary, record, redirect) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -164,22 +164,17 @@ function(sftpLibrary, record, url, https) {
     						{
     							try
 		    						{
-		    							// ==========================================================================================
-		    							// CALL A SUITELET TO UPDATE THE RECALCULATE THE REQUIRED DELIVERY DATE ON THE PURCHASE ORDER
-		    							// ==========================================================================================
-		    						
-		    							// get the URL of the Suitelet
-		    							var suiteletURL = url.resolveScript({
-		    							    scriptId: 'customscript_bbs_sftp_purchase_order_sl',
-		    							    deploymentId: 'customdeploy_bbs_sftp_purchase_order_sl',
-		    							    returnExternalUrl: true
-		    							});
-		    							
-		    							// call the Suitelet
-		    							https.post({
-		    								url: suiteletURL,
-		    								body: '{' + purchaseOrders + '}'
-		    							});
+		    							// =======================================================================================
+		    							// CALL A BACKEND SUITELET TO RECALCULATE THE REQUIRED DELIVERY DATE ON THE PURCHASE ORDER
+		    							// =======================================================================================    						
+	    								redirect.toSuitelet({
+	    								    scriptId: 'customscript_bbs_sftp_purchase_order_sl',
+	    								    deploymentId: 'customdeploy_bbs_sftp_purchase_order_sl',
+	    								    parameters: {
+	    								    	'salesorder': newRecord.id,
+	    								        'purchaseorders': JSON.stringify(purchaseOrders)
+	    								    }
+	    								});
 		    						}
 		    					catch(e)
 		    						{

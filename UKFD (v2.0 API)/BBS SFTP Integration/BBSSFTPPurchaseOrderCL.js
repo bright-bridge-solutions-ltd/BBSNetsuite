@@ -164,7 +164,7 @@ function(url) {
     	
     	Ext.Ajax.timeout = (60000*5);
 		
-		var myMask = new Ext.LoadMask(Ext.getBody(), {msg:'<span style="font-size: 12pt;">Closing Purchase Order and Sending Cancellation File<br><br>Please Wait...</span>'});
+		var myMask = new Ext.LoadMask(Ext.getBody(), {msg:'<span style="font-size: 10pt;">Closing Purchase Order and Sending Cancellation File<br><br>Please Wait...</span>'});
 		myMask.show();
 		
 		Ext.Ajax.request({

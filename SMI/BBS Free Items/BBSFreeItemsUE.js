@@ -9,19 +9,17 @@
  * 1.40			26 Sep 2019		sambatten		Removed if statement to check order status as this wasn't working correctly when order is created (only working on edit)
  * 1.50			31 Oct 2019		sambatten		Removed execution context as 2019.2 now allows this to be set on the deployment record and amended script parameters
  * 1.60			15 Feb 2021		sambatten		Re-added if statement to check order status and changed function to after submit
- * 1.70			04 Mar 2021		sambatten		Amended if order status check to only happen if record is being edited
+ * 1.70			04 Mar 2021		sambatten		Amended order status check to only happen if record is being edited
+ * 1.80			07 Apr 2021		sambatten		Amended if statement as script only needs to run on create and changed script to fire on before submit
  */
 
-function afterSubmit(type)
+function beforeSubmit(type)
 	{
-		// get the order status
-		var status = nlapiGetFieldValue('status')
-			
 		// get the internal ID of the form being used
 		var customForm = nlapiGetFieldValue('customform');
 		              
-		// only continue with script when the custom form is 103 'SMI Standard Sales Order' AND the record is being created, or the record is being edited AND the status is Pending Approval or Pending Fulfilment
-		if (customForm == 103 && (type == 'create' || (type == 'edit' && (status == 'Pending Approval' || status == 'Pending Fulfilment'))))
+		// only continue with script when the custom form is 103 'SMI Standard Sales Order' AND the record is being created
+		if (customForm == 103 && type == 'create')
 			{					
 				// retrieve script parameters
 				var biscuits = nlapiGetContext().getSetting('SCRIPT', 'custscript_free_biscuits_item');
@@ -41,7 +39,7 @@ function afterSubmit(type)
 				var freeChocolates = nlapiLookupField('customer', customerID, 'custentity_freechoco');
 										
 				// get the sales order total from the current record
-				var total = nlapiGetFieldValue('subtotal');						
+				var total = parseFloat(nlapiGetFieldValue('subtotal'));						
 										
 				// get a count of lines in the item sublist
 				var itemCount = nlapiGetLineItemCount('item');

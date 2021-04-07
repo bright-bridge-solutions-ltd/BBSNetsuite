@@ -55,13 +55,13 @@ function(runtime, search, url) {
 	    			  	var recordID = scriptContext.newRecord.id;
 	    			        	
 	    			  	// set client script to run on the form
-	    			  	scriptContext.form.clientScriptFileId = 183766;
+	    			  	scriptContext.form.clientScriptFileId = 270003;
 	    			  	
 	    			  	// add button to the form
 	    			  	scriptContext.form.addButton({
 	    			  		id: 'custpage_reject',
 	    			  		label: 'Reject',
-	    			  		functionName: "reject(" + recordID + ")" // call client script when button is clicked. Pass recordID and userID to client script
+	    			  		functionName: "reject(" + recordID + ")" // call client script when button is clicked. Pass recordID to client script
 	    			    });
     				}
     			else if (approvalStatus == 6) // if approvalStatus = 6 (Approved)
@@ -70,13 +70,30 @@ function(runtime, search, url) {
 	    			  	var recordID = scriptContext.newRecord.id;
 	    			  	
 	    			  	// set client script to run on the form
-	    			  	scriptContext.form.clientScriptFileId = 183766;
+	    			  	scriptContext.form.clientScriptFileId = 270003;
+	    			  	
+	    			  	// retrieve field values from the record
+	    			  	var orderType = currentRecord.getValue({
+	    			  		fieldId: 'custbody_order_type'
+	    			  	});
+	    			  	
+	    			  	var productType = currentRecord.getValue({
+	    			  		fieldId: 'custbody_bbs_order_type'
+	    			  	});
+	    			  	
+	    			  	var customerID = currentRecord.getValue({
+	    			  		fieldId: 'entity'
+	    			  	});
+	    			  	
+	    			  	var project = currentRecord.getValue({
+	    			  		fieldId: 'job'
+	    			  	});
 	    			  	
 	    			  	// add button to the form
 	    			  	scriptContext.form.addButton({
 	    			  		id: 'custpage_transform_to_sales_order',
 	    			  		label: 'Agreed with Customer',
-	    			  		functionName: "transformToSalesOrder(" + recordID + ")" // call client script when button is clicked. Pass recordID and userID to client script
+	    			  		functionName: "transformToSalesOrder(" + recordID + "," + orderType + "," + productType + "," + customerID + "," + project + ")" // call client script when button is clicked
 	    			    });
     				}
     			
