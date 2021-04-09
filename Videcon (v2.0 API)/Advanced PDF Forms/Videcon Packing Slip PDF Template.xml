@@ -101,8 +101,13 @@
 	    </tr>
     	<tr>
 			<td class="address">&nbsp;</td>
-			<td></td>
-			<td></td>
+			<td align="left" style="font-size:10pt"><b>Customer Id</b></td>
+			<td align="right" style="font-size:10pt">${salesorder.entity.externalid}</td>
+    	</tr>
+        <tr>
+			<td class="address">&nbsp;</td>
+			<td align="left" style="font-size:10pt"><b>Shipping Method</b></td>
+			<td align="right" style="font-size:10pt">${record.shipmethod}</td>
     	</tr>
   	</table>
   	

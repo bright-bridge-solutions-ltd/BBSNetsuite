@@ -95,8 +95,8 @@
 	    </tr>
       	<tr>
 			<td class="address">&nbsp;</td>
-			<td></td>
-			<td></td>
+			<td align="left" style="font-size:10pt"><b>Supplier Id</b></td>
+			<td align="right" style="font-size:10pt">${record.entity.entityid?keep_before(" ")}</td>
     	</tr>
     	<tr>
 			<td class="address">&nbsp;</td>

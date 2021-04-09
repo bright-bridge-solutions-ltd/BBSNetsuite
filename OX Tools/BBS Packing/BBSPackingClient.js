@@ -160,7 +160,7 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 			    	
 					setRowColour(sublistLine, '#FFFFFF');
 					
-					recalculateCompletedLines(scriptContext);
+					recalculateCompletedLines(scriptContext.currentRecord);
 					
 					//Put the focus back on to the item input field
 			    	//
@@ -172,6 +172,8 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 	    	//
 	    	if(scriptContext.fieldId == 'custpage_entry_item' && scriptContext.sublistId == null)
 				{
+	    			var lineUpdated = false;
+	    			
 			    	//Get the value of the entered item
 			    	//
 			    	var selectionValue = scriptContext.currentRecord.getValue({fieldId: 'custpage_entry_item'});
@@ -196,16 +198,56 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 						    			{
 					    					//Get the item id & quantity
 					    					//
-						    				var sublistRequired = Number(scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_req', line: int}));
-						    				var sublistItem = scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_id', line: int});
-
+						    				var sublistRequired 	= Number(scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_req', line: int}));
+						    				var sublistPacked 		= Number(scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', line: int}));
+						    				var sublistItem 		= scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_id', line: int});
+						    				var sublistRemaining 	= sublistRequired - sublistPacked;
+						    				
 						    				//Does the item id on the line match the one we are searching for?
 						    				//
-						    				if(sublistItem == itemInfo.itemId)
+						    				if(sublistItem == itemInfo.itemId && sublistRemaining > 0)
 						    					{
-						    						scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: sublistRequired, ignoreFieldChange: true});
+						    						scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: sublistRemaining, ignoreFieldChange: true});
+						    						lineUpdated = true;
+						    						break;
 						    					}
 						    			}
+					    			
+					    			//Check to see if we found the item on the sublist, if not send a message
+					    			//
+					    			if(!lineUpdated)
+					    				{
+					    					var warnings = 'Item code "' + selectionValue + '"not availaible on any line<br/><br/>';
+						        			warnings += '<p style="color:Red;">Click \"Ok\" to Continue<p/>';
+						        			var titleText = '❗Alert';
+						    	      		var options = 	{
+						    		      					title: 		titleText,
+						    		      					message: 	warnings
+						    		      					};
+						    		  
+						    	      		//Function that is called when the dialogue box completes
+						    	      		//
+						    		      	function success(result) 
+							    		      	{ 
+							    		      		//See if we have clicked ok in the dialogue
+							    		      		//
+							    		      		if (result)
+							    		      			{
+								    		      			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
+								    		      			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: ''});
+							    		      				document.getElementById("custpage_entry_item").focus();
+							    		      			}
+							    		      		
+							    		      	}
+
+						    		      	//Display the dialogue box
+						    		      	//
+						    		      	dialog.alert(options).then(success);
+						    		      	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_item', value: null});
+						    		      	scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_qty_override', value: ''});
+						    		      	document.getElementById("custpage_entry_item").focus();
+					    			
+					    				}
 			    				}
 			    			else
 			    				{
@@ -280,13 +322,14 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 						    			{
 					    					//Get the item id & quantity
 					    					//
-						    				var sublistItem = scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_id', line: int});
-						    				var sublistRequired = Number(scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_req', line: int}));
-						    				var sublistQty = Number(scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', line: int}));
+						    				var sublistItem 		= scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_id', line: int});
+						    				var sublistRequired 	= Number(scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_req', line: int}));
+						    				var sublistQty 			= Number(scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', line: int}));
+						    				var sublistRemaining 	= sublistRequired - sublistQty;
 						    				
 						    				//Does the item id on the line match the one we are searching for?
 						    				//
-						    				if(sublistItem == itemInfo.itemId && sublistQty < sublistRequired)
+						    				if(sublistItem == itemInfo.itemId && sublistRemaining > 0)
 						    					{
 						    						//Select the line
 						    						//
@@ -378,7 +421,7 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 											    			setRowColour(int, '#FFFFFF');
 											    		}
 									    	
-											    	recalculateCompletedLines(scriptContext);
+											    	recalculateCompletedLines(scriptContext.currentRecord);
 													
 											    	//We have updated a line
 											    	//
@@ -555,11 +598,11 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
     			}
 	    }
     
-    function recalculateCompletedLines(scriptContext)
+    function recalculateCompletedLines(currentRecord)
     	{
 	    	//Get the line count of the sublist
 			//
-			var lines 		= scriptContext.currentRecord.getLineCount({sublistId: 'custpage_sublist_items'});
+			var lines 		= currentRecord.getLineCount({sublistId: 'custpage_sublist_items'});
 			var completed	= Number(0);
 			
 			//Loop through the sublist lines
@@ -568,8 +611,8 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 				{
 					//Get the quantities
 					//
-					var sublistRequired = Number(scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_req', line: int}));
-					var sublistQty 		= Number(scriptContext.currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', line: int}));
+					var sublistRequired = Number(currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_req', line: int}));
+					var sublistQty 		= Number(currentRecord.getSublistValue({sublistId: 'custpage_sublist_items', fieldId: 'custpage_sl_item_qty_pack', line: int}));
 					
 					if(sublistRequired == sublistQty)
 						{
@@ -577,9 +620,9 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 						}
 				}
 			
-			var currRec = currentRecord.get();
-    		
-    		currRec.setValue({fieldId: 'custpage_entry_lines_complete', value: completed});
+			//var currRec = currentRecord.get();
+			//currRec.setValue({fieldId: 'custpage_entry_lines_complete', value: completed});
+			currentRecord.setValue({fieldId: 'custpage_entry_lines_complete', value: completed});
     	}
 	
     function abandonButton(workstation, scriptId, deploymentId)
@@ -738,7 +781,8 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 									    			setRowColour(int, '#FFFFFF');
 									    		}
 							    	
-									    	recalculateCompletedLines(scriptContext);
+									    	//recalculateCompletedLines(scriptContext);
+									    	recalculateCompletedLines(currRec);
 											
 									    	//We have updated a line
 									    	//
