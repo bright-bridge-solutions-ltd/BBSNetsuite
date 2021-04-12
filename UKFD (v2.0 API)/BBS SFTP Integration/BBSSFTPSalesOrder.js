@@ -121,70 +121,74 @@ function(sftpLibrary, record, redirect) {
     				fieldId: 'custbody_bbs_fulfil_date'
     			});
     			
-    			// if the ship date has been changed
-    			if (oldDate.getTime() != newDate.getTime())
+    			// if we have an old and a new date
+    			if (oldDate && newDate)
     				{
-    					// declare and initialize variables
-    					var purchaseOrders = new Array();
-    					
-    					// get count of related records
-    					var relatedRecords = newRecord.getLineCount({
-    						sublistId: 'links'
-    					});
-    					
-    					// loop through related records
-    					for (var i = 0; i < relatedRecords; i++)
-    						{
-    							// get the link URL
-    							var linkURL = newRecord.getSublistValue({
-    								sublistId: 'links',
-    								fieldId: 'linkurl',
-    								line: i
-    							});
-    							
-    							// keep the part of the link URL after the last ? and split on the text ".nl" to keep the first part of the returned string
-    							var linkType = linkURL.substring(linkURL.lastIndexOf("/") +1).split(".nl").shift();
-    							
-    							// if this is a purchase order
-    							if (linkType == 'purchord')
-    								{
-    									// get the ID of the purchase order and push it to the purchaseOrders array
-    									purchaseOrders.push(
-    															newRecord.getSublistValue({
-    																sublistId: 'links',
-    																fieldId: 'id',
-    																line: i
-    															})
-    														);
-    								}
-    						}
-    					
-    					// if we have any purchase orders to update
-    					if (purchaseOrders.length > 0)
-    						{
-    							try
+		    			// if the ship date has been changed
+		    			if (oldDate.getTime() != newDate.getTime())
+		    				{
+		    					// declare and initialize variables
+		    					var purchaseOrders = new Array();
+		    					
+		    					// get count of related records
+		    					var relatedRecords = newRecord.getLineCount({
+		    						sublistId: 'links'
+		    					});
+		    					
+		    					// loop through related records
+		    					for (var i = 0; i < relatedRecords; i++)
 		    						{
-		    							// =======================================================================================
-		    							// CALL A BACKEND SUITELET TO RECALCULATE THE REQUIRED DELIVERY DATE ON THE PURCHASE ORDER
-		    							// =======================================================================================    						
-	    								redirect.toSuitelet({
-	    								    scriptId: 'customscript_bbs_sftp_purchase_order_sl',
-	    								    deploymentId: 'customdeploy_bbs_sftp_purchase_order_sl',
-	    								    parameters: {
-	    								    	'salesorder': newRecord.id,
-	    								        'purchaseorders': JSON.stringify(purchaseOrders)
-	    								    }
-	    								});
-		    						}
-		    					catch(e)
-		    						{
-		    							log.error({
-		    								title: 'Error Calling Suitelet',
-		    								details: e
+		    							// get the link URL
+		    							var linkURL = newRecord.getSublistValue({
+		    								sublistId: 'links',
+		    								fieldId: 'linkurl',
+		    								line: i
 		    							});
+		    							
+		    							// keep the part of the link URL after the last ? and split on the text ".nl" to keep the first part of the returned string
+		    							var linkType = linkURL.substring(linkURL.lastIndexOf("/") +1).split(".nl").shift();
+		    							
+		    							// if this is a purchase order
+		    							if (linkType == 'purchord')
+		    								{
+		    									// get the ID of the purchase order and push it to the purchaseOrders array
+		    									purchaseOrders.push(
+		    															newRecord.getSublistValue({
+		    																sublistId: 'links',
+		    																fieldId: 'id',
+		    																line: i
+		    															})
+		    														);
+		    								}
 		    						}
-    						}
-    					
+		    					
+		    					// if we have any purchase orders to update
+		    					if (purchaseOrders.length > 0)
+		    						{
+		    							try
+				    						{
+				    							// =======================================================================================
+				    							// CALL A BACKEND SUITELET TO RECALCULATE THE REQUIRED DELIVERY DATE ON THE PURCHASE ORDER
+				    							// =======================================================================================    						
+			    								redirect.toSuitelet({
+			    								    scriptId: 'customscript_bbs_sftp_purchase_order_sl',
+			    								    deploymentId: 'customdeploy_bbs_sftp_purchase_order_sl',
+			    								    parameters: {
+			    								    	'salesorder': newRecord.id,
+			    								        'purchaseorders': JSON.stringify(purchaseOrders)
+			    								    }
+			    								});
+				    						}
+				    					catch(e)
+				    						{
+				    							log.error({
+				    								title: 'Error Calling Suitelet',
+				    								details: e
+				    							});
+				    						}
+		    						}
+		    					
+		    				}
     				}
     		}
     	

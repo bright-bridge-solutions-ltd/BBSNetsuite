@@ -3,14 +3,33 @@
  * @NScriptType UserEventScript
  * @NModuleScope Public
  */
-define(['N/runtime', 'N/record', 'N/search', './libraryModule', 'N/plugin'],
+define(['N/runtime', 'N/record', 'N/search', './libraryModule', 'N/plugin', 'N/ui/serverWidget'],
 /**
  * @param {record} record
  * @param {search} search
  */
-function(runtime, record, search, libraryModule, plugin)
+function(runtime, record, search, libraryModule, plugin, ui)
 	{
-	    /**
+		/**
+	     * Function definition to be triggered before record is loaded.
+	     *
+	     * @param {Object} scriptContext
+	     * @param {Record} scriptContext.newRecord - New record
+	     * @param {string} scriptContext.type - Trigger type
+	     * @param {Form} scriptContext.form - Current form
+	     * @Since 2015.2
+	     */
+	    function beforeLoad(scriptContext) {
+	    	
+	    	//Check that the record is being created or edited
+	    	//
+	    	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
+	    		{
+	    			
+	    		}
+	    }
+	
+		/**
 	     * Function definition to be triggered before record is loaded.
 	     *
 	     * @param {Object} scriptContext
@@ -21,6 +40,8 @@ function(runtime, record, search, libraryModule, plugin)
 	     */
 	    function calculateTaxesAS(scriptContext) 
 		    {
+	    		debugger;
+	    	
 	    		//Get the plugin implementation
 				//
 				var  tfcPlugin = plugin.loadImplementation({
@@ -33,7 +54,7 @@ function(runtime, record, search, libraryModule, plugin)
 					{
 						try
 							{
-								// get the current record
+								//Get the current record
 								var newRecord 			= 	scriptContext.newRecord;
 								var oldRecord 			= 	scriptContext.oldRecord;
 								var currentRecordType	=	newRecord.type;
@@ -74,41 +95,34 @@ function(runtime, record, search, libraryModule, plugin)
 	
 	    function calculateTaxes(tfcPlugin, _transactionRecord, _transactionRecordType, _transactionRecordId, _adjustmentFlag)
 		    {
-		    	// reload the transaction record
-				// var transactionRecord = record.load({type: currentRecordType, id: currentRecordID, isDynamic: true});
-				
-				// get the transaction status
+		    	//Get the transaction status
 	    		//
 				var transactionStatus = _transactionRecord.getValue({fieldId: 'status'});
 				
-				// if the transactionStatus is not Closed
+				//If the transactionStatus is not Closed
 				//
 				if (transactionStatus != 'Closed')
 					{
-						// return values from the transaction record to gather required info to populate request
+						//Return values from the transaction record to gather required info to populate request
 						//
 						var tranID = search.lookupFields({
 														type: 		_transactionRecordType,
 														id: 		_transactionRecordId,
 														columns: 	'tranid'
-														})['tranid'];										//Get the document number as the record on a new transaction will have "To Be Generated" in the tranid field
+														})['tranid'];									//Get the document number as the record on a new transaction will have "To Be Generated" in the tranid field
 
-						//var tranID				=	_transactionRecord.getValue({fieldId: 'tranid'});
-						
 						var tranDate			=	_transactionRecord.getValue({fieldId: 'trandate'});
 						var createdFrom			=	_transactionRecord.getValue({fieldId: 'createdfrom'});
 						var customerID			=	_transactionRecord.getValue({fieldId: 'entity'});
 						var currency			=	_transactionRecord.getValue({fieldId: 'currency'});
 						var subsidiaryID		=	_transactionRecord.getValue({fieldId: 'subsidiary'});
-						var billToPCode			=	_transactionRecord.getSubrecord({fieldId: 'billingaddress'}).getValue({fieldId: 'custrecord_bbstfc_address_pcode'});
-						var billToIncorporated	= 	_transactionRecord.getSubrecord({fieldId: 'billingaddress'}).getValue({fieldId: 'custrecord_bbstfc_incorporated'});
 						var lineCount			=	_transactionRecord.getLineCount({sublistId: 'item'});
 						
-						// check the record is not a standalone transaction
+						//Check the record is not a standalone transaction
 						//
 						if (createdFrom)
 							{
-								// call function to return/lookup the transaction date on the related transaction
+								//Call function to return/lookup the transaction date on the related transaction
 								//
 								tranDate = libraryModule.getCreatedFromTransactionInfo(createdFrom);	
 							}
@@ -158,8 +172,7 @@ function(runtime, record, search, libraryModule, plugin)
 									break;
 							}
 						
-						
-						// call function to return/lookup fields on the customer record
+						//Call function to return/lookup fields on the customer record
 						//
 						var customerLookup 		= 	libraryModule.getCustomerInfo(customerID);
 						var customerName		=	customerLookup[0];
@@ -167,44 +180,31 @@ function(runtime, record, search, libraryModule, plugin)
 						var defaultSalesType	=	customerLookup[2];
 						var lifeline			=	customerLookup[3];
 						
-						// call function to return/lookup fields on the subsidiary record
+						//Call function to return/lookup fields on the subsidiary record
 						//
-						var subsidiaryLookup			= libraryModule.getSubsidiaryInfo(subsidiaryID);
-						var subsidiaryClientProfileID	= subsidiaryLookup[0];
-						var subsidiaryPCode				= subsidiaryLookup[1];
-						var subsidiaryIncorporated		= subsidiaryLookup[2];
+						var subsidiaryClientProfileID = libraryModule.getSubsidiaryInfo(subsidiaryID);
 						
-						// call function to return/lookup fields on the address record
+						//Call function to return/lookup fields on the address record
 						//
 						var addressData	= libraryModule.libGetDestinationPcode(_transactionRecord);
 						
-						// call function to return any exemptions for the customer
+						//Call function to return any exemptions for the customer
 						//
 						var customerExemptions = libraryModule.getCustomerExemptions(customerID, tranDate);
 						
-						// call function to return/lookup fields on the currency record
+						//Call function to return/lookup fields on the currency record
 						//
 						var ISOCode = libraryModule.getISOCode(currency);
 						
-						// get the configuration
+						//Get the configuration
 						//
 						var configuration = tfcPlugin.getTFCConfiguration(subsidiaryID);
-						
-						// if we have been unable to return the P Code from the subsidiary
-						//
-						if (subsidiaryPCode == null || subsidiaryPCode == '')
-							{
-								// get the P Code and incorporated flag from the configuration object
-								//
-								subsidiaryPCode 		= configuration.pCode;
-								subsidiaryIncorporated 	= configuration.incorporated;
-							}
 						
 						//Construct a tax request
 						//
 						var taxReqObj = new libraryModule.libCalcTaxesRequestObj();
 						
-						// have we got a configuration object
+						//Have we got a configuration object
 						//
 						if (configuration != null)
 							{
@@ -266,15 +266,13 @@ function(runtime, record, search, libraryModule, plugin)
 								taxReqInvObj.bpd.month		=	tranDate.getMonth() + 1;
 								taxReqInvObj.bpd.year		=	tranDate.getFullYear();
 								taxReqInvObj.ccycd			=	ISOCode;
-								taxReqInvObj.doc 			= 	documentNumber;
-								
+								taxReqInvObj.doc 			= 	documentNumber;	
 								
 								//Loop through each item line to process
 								//
-								//
 								for (var i = 0; i < lineCount; i++)
 									{
-								        // retrieve line item values
+								        //Retrieve line item values
 										//
 										var itemID				=	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: i});
 										var itemType			=	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'itemtype', line: i});
@@ -283,44 +281,46 @@ function(runtime, record, search, libraryModule, plugin)
 										var salesType			=	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_tfc_sales_type', line: i});
 										var discountType		=	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_tfc_discount_type', line: i});
 										var privateLineSplit	=	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_tfc_private_line_split', line: i});
+										var fromAddress			= 	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: configuration.fromAddressFieldId, line: i});
+										var toAddress			=	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: configuration.toAddressFieldId, line: i});
 										
-										// do we have a salesType
+										//Do we have a salesType
 										//
 										if (salesType)
 											{
-												// call function to return the AFC sales type code
+												//Call function to return the AFC sales type code
 												//
 												salesType = libraryModule.getSalesTypeCode(salesType);
 											}
 										else
 											{
-												// set the salesType variable using defaultSalesType
+												//Set the salesType variable using defaultSalesType
 												//
 												salesType = defaultSalesType;
 											}
 										
-										// do we have a discountType
+										//Do we have a discountType
 										//
 										if (discountType)
 											{
-												// call function to return the AFC discount type code
+												//Call function to return the AFC discount type code
 												//
 												discountType = libraryModule.getDiscountTypeCode(discountType);
 											}
 										else
 											{
-												// set the discountType variable to 0 (None)
+												//Set the discountType variable to 0 (None)
 												//
 												discountType = 0;
 											}
 										
-										// call function to return/lookup fields on the item record
+										//Call function to return/lookup fields on the item record
 										//
 										var itemLookup 			= 	libraryModule.getTransactionServicePair(itemType, itemID);
 										var transactionType		=	itemLookup[0];
 										var serviceType			=	itemLookup[1];
 										
-										// check we have a transaction/service pair
+										//Check we have a transaction/service pair
 										//
 										if (transactionType != '' && serviceType != '' && transactionType != null && serviceType != null)
 											{
@@ -331,10 +331,6 @@ function(runtime, record, search, libraryModule, plugin)
 										        //Fill in the invoice item object properties
 												//
 												taxReqItemObj.ref		=	i;
-												taxReqItemObj.from.pcd	=	addressData.pcode;
-												taxReqItemObj.from.int	= 	addressData.incorporated;
-												taxReqItemObj.to.pcd	=	addressData.pcode;
-												taxReqItemObj.to.int	=	addressData.incorporated;
 												taxReqItemObj.chg		=	itemRate;
 												taxReqItemObj.line		=	quantity;
 												taxReqItemObj.loc		=	1;
@@ -357,13 +353,43 @@ function(runtime, record, search, libraryModule, plugin)
 												taxReqItemObj.qty		=	1;
 												taxReqItemObj.glref		=	i;
 												
-												// have we got a private line split
+												//Have we got a private line split
 												//
 												if (privateLineSplit)
 													{
-														// fill in the private line split property in the item object
+														//Fill in the private line split property in the item object
 														//
 														taxReqItemObj.plsp = privateLineSplit;
+													}
+												
+												//Have we got a from address
+												//
+												if (fromAddress)
+													{
+														//Call library function to return data for the selected address
+														//
+														var fromAddressData = libraryModule.getAddressData(fromAddress);
+													
+														//Fill in the from properties in the item object
+														//
+														taxReqItemObj.from		= new libraryModule.libLocationObj();
+														taxReqItemObj.from.pcd 	= fromAddressData.pCode;
+														taxReqItemObj.from.int	= fromAddressData.incorporated;
+													}
+												
+												//Have we got a to address
+												//
+												if (toAddress)
+													{
+														//Call library function to return data for the selected address
+														//
+														var toAddressData = libraryModule.getAddressData(fromAddress);
+													
+														//Fill in the to properties in the item object
+														//
+														taxReqItemObj.to		= new libraryModule.libLocationObj();
+														taxReqItemObj.to.pcd	= toAddressData.pCode;
+														taxReqItemObj.to.int 	= toAddressData.incorporated;
 													}
 										        
 										        //Add the item object to the invoice line object array
@@ -398,18 +424,18 @@ function(runtime, record, search, libraryModule, plugin)
 										var taxSummary 		= {};
 										var outputArray 	= new Array();
 										
-										// call function to delete existing Calculated Taxes records
+										//Call function to delete existing Calculated Taxes records
 										//
 										libraryModule.deleteCalculatedTaxes(_transactionRecordId);
 										
-										// call function to update the tax total on the record
+										//Call function to update the tax total on the record
 										//
 										libraryModule.updateTaxTotal(_transactionRecordType, _transactionRecordId, linesToUpdate, linesExceededMsg, outputArray, totalTaxes);
 										
 							    	}
 							    else
 							    	{
-								    	// declare and initialize variables
+								    	//Declare and initialize variables
 										//
 										var totalTaxes 		= 0;
 										var linesToUpdate 	= new Array();
@@ -417,8 +443,7 @@ function(runtime, record, search, libraryModule, plugin)
 										var taxSummary 		= {};
 										var outputArray 	= new Array();
 										
-										//
-							    		//LICENCE CHECK
+										//LICENCE CHECK
 							    		//
 							    		var licenceResponse = libraryModule.doLicenceCheck();
 							    		
@@ -428,11 +453,11 @@ function(runtime, record, search, libraryModule, plugin)
 												//
 												var taxResult = tfcPlugin.getTaxCalculation(taxReqObj, subsidiaryClientProfileID);
 												
-												// call function to create AFC Call Log records
+												//Call function to create AFC Call Log records
 												//
 												libraryModule.createAFCCallLogRecords(_transactionRecordId, taxReqObj, taxResult);
 												
-												// call function to delete existing Calculated Taxes records
+												//Call function to delete existing Calculated Taxes records
 												//
 												libraryModule.deleteCalculatedTaxes(_transactionRecordId);
 												
@@ -441,33 +466,33 @@ function(runtime, record, search, libraryModule, plugin)
 												//
 												if(taxResult != null && taxResult.httpResponseCode == '200')
 													{
-														// call functions to return the tax categories, levels and types
+														//Call functions to return the tax categories, levels and types
 														//
 														var taxCategories 	= libraryModule.getTaxCategories();
 														var taxLevels		= libraryModule.getTaxLevels();
 														var taxTypes		= libraryModule.getTaxTypes();
 														
-														// get the API response body
+														//Get the API response body
 														//
 														var taxResultDetails = taxResult.apiResponse;
 														
-														// get the invoices
+														//Get the invoices
 														//
 														var invoices = taxResultDetails['inv'];
 																
-														// loop through invoices
+														//Loop through invoices
 														//
 														for (var i = 0; i < invoices.length; i++)
 															{
-																// get the errors
+																//Get the errors
 																//
 																var errors = invoices[i]['err'];
 																		
-																// have we got any errors?
+																//Have we got any errors?
 																//
 																if (errors)
 																	{
-																		// process errors
+																		//Process errors
 																		//
 																		for (var int2 = 0; int2 < errors.length; int2++)
 																			{
@@ -476,34 +501,34 @@ function(runtime, record, search, libraryModule, plugin)
 																					details: errors[int2].msg
 																				});
 																				
-																				// add the error to the errorMessages string
+																				//Add the error to the errorMessages string
 																				//
 																				errorMessages += errors[int2].msg;
 																				errorMessages += '<br>';
 																			}
 																	}
 																
-																// get the tax summary
+																//Get the tax summary
 																//
 																var taxes = invoices[i]['summ'];
 																
-																// do we have any taxes
+																//Do we have any taxes
 																//
 																if (taxes)
 																	{
-																		// loop through taxes
+																		//Loop through taxes
 																		//
 																		for (var int3 = 0; int3 < taxes.length; int3++)
 																			{
-																				// get the errors
+																				//Get the errors
 																				//
 																				var errors = taxes[int3]['err'];
 																							
-																				// have we got any errors
+																				//Have we got any errors
 																				//
 																				if (errors)
 																					{
-																						// process errors
+																						//Process errors
 																						//
 																						for (var int4 = 0; int4 < errors.length; int4++)
 																							{
@@ -512,7 +537,7 @@ function(runtime, record, search, libraryModule, plugin)
 																									details: errors[int4].msg
 																								});
 																											
-																								// add the error to the errorMessages string
+																								//Add the error to the errorMessages string
 																								//
 																								errorMessages += errors[int4].msg;
 																								errorMessages += '<br>';
@@ -520,7 +545,7 @@ function(runtime, record, search, libraryModule, plugin)
 																					}
 																				else
 																					{
-																						// get the tax name, tax category, tax level, tax type and tax amount
+																						//Get the tax name, tax category, tax level, tax type and tax amount
 																						//
 																						var taxName		= 	taxes[int3].name;
 																						var taxCategory	=	libraryModule.getTaxCategory(taxCategories, taxes[int3].cid);
@@ -528,27 +553,28 @@ function(runtime, record, search, libraryModule, plugin)
 																						var taxType		=	libraryModule.getTaxType(taxTypes, taxes[int3].tid);
 																						var taxAmount	= 	parseFloat(taxes[int3].tax);
 																						
-																						// build up the key for the summary
-																						// taxName + taxLevel
+																						//Build up the key for the summary
+																						//TaxName + taxLevel
+																						//
 																						var key = libraryModule.padding_left(taxName, '0', 6) + 
 																						libraryModule.padding_left(taxLevel.name, '0', 6);
 																								
-																						// does the taxName exist in the tax summary, if not create a new entry
+																						//Does the taxName exist in the tax summary, if not create a new entry
 																						//
 																						if (!taxSummary[key])
 																							{
 																								taxSummary[key] = new libraryModule.libTaxSummaryObj(taxName, taxLevel.name);
 																							}
 																									
-																						// update the tax amount in the summary
+																						//Update the tax amount in the summary
 																						//
 																						taxSummary[key].taxAmount += taxAmount;
 																						
-																						// add the tax amount to the totalTaxes variable
+																						//Add the tax amount to the totalTaxes variable
 																						//
 																						totalTaxes += taxAmount;
 																						
-																						// call function to create a new Calculated Taxes record
+																						//Call function to create a new Calculated Taxes record
 																						//
 																						libraryModule.createCalculatedTaxes(_transactionRecordId, null, taxes[int3], taxCategory.internalID, taxLevel.internalID, taxType.internalID);
 																						
@@ -557,27 +583,27 @@ function(runtime, record, search, libraryModule, plugin)
 																	}
 																else
 																	{
-																		// get the items
+																		//Get the items
 																		//
 																		var items = invoices[i]['itms'];
 																				
-																		// do we have any items
+																		//Do we have any items
 																		//
 																		if (items)
 																			{
-																				// loop through items
+																				//Loop through items
 																				//
 																				for (var int5 = 0; int5 < items.length; int5++)
 																					{
-																						// get the errors
+																						//Get the errors
 																						//
 																						var errors = items[int5]['err'];
 																									
-																						// have we got any errors
+																						//Have we got any errors
 																						//
 																						if (errors)
 																							{
-																								// process errors
+																								//Process errors
 																								//
 																								for (var int6 = 0; int6 < errors.length; int6++)
 																									{
@@ -586,7 +612,7 @@ function(runtime, record, search, libraryModule, plugin)
 																											details: errors[int6].msg
 																										});
 																													
-																										// add the error to the errorMessages string
+																										//Add the error to the errorMessages string
 																										//
 																										errorMessages += errors[int6].msg;
 																										errorMessages += '<br>';
@@ -594,19 +620,19 @@ function(runtime, record, search, libraryModule, plugin)
 																							}
 																						else
 																							{
-																								// get the taxes
+																								//Get the taxes
 																								//
 																								var taxes = items[int5]['txs'];
 																										
-																								// do we have any taxes
+																								//Do we have any taxes
 																								//
 																								if (taxes)
 																									{
-																										// loop through taxes
+																										//Loop through taxes
 																										//
 																										for (var int7 = 0; int7 < taxes.length; int7++)
 																											{
-																												// get the tax name, tax category, tax level, tax type and tax amount
+																												//Get the tax name, tax category, tax level, tax type and tax amount
 																												//
 																												var taxName		= 	taxes[int7].name;
 																												var taxCategory	=	libraryModule.getTaxCategory(taxCategories, taxes[int7].cid);
@@ -614,27 +640,28 @@ function(runtime, record, search, libraryModule, plugin)
 																												var taxType		=	libraryModule.getTaxType(taxTypes, taxes[int7].tid);
 																												var taxAmount	= 	parseFloat(taxes[int7].tax);
 																														
-																												// build up the key for the summary
-																												// taxName + taxLevel
+																												//Build up the key for the summary
+																												//TaxName + taxLevel
+																												//
 																												var key = libraryModule.padding_left(taxName, '0', 6) + 
 																												libraryModule.padding_left(taxLevel.name, '0', 6);
 																														
-																												// does the taxName exist in the tax summary, if not create a new entry
+																												//Does the taxName exist in the tax summary, if not create a new entry
 																												//
 																												if (!taxSummary[key])
 																													{
 																														taxSummary[key] = new libraryModule.libTaxSummaryObj(taxName, taxLevel.name);
 																													}
 																															
-																												// update the tax amount in the summary
+																												//Update the tax amount in the summary
 																												//
 																												taxSummary[key].taxAmount += taxAmount;
 																												
-																												// add the tax amount to the totalTaxes variable
+																												//Add the tax amount to the totalTaxes variable
 																												//
 																												totalTaxes += taxAmount;
 																														
-																												// call function to create a new Calculated Taxes record
+																												//Call function to create a new Calculated Taxes record
 																												//
 																												libraryModule.createCalculatedTaxes(_transactionRecordId, lineNumber, taxes[int7], taxCategory.internalID, taxLevel.internalID, taxType.internalID);
 																											}
@@ -644,31 +671,31 @@ function(runtime, record, search, libraryModule, plugin)
 																			}
 																	}
 																
-																// get the items
+																//Get the items
 																//
 																var items = invoices[i]['itms'];
 																		
-																// do we have any items
+																//Do we have any items
 																//
 																if (items)
 																	{
-																		// loop through items
+																		//Loop through items
 																		//
 																		for (var int8 = 0; int8 < items.length; int8++)
 																			{
-																				// get the errors
+																				//Get the errors
 																				//
 																				var errors = items[int8]['err'];
 																							
-																				// have we got NOT got any errors
+																				//Have we got NOT got any errors
 																				//
 																				if (!errors)
 																					{
-																						// get the line number
+																						//Get the line number
 																						//
 																						var lineNumber = items[int8].ref;
 																						
-																						// push the line number to the linesToUpdate array
+																						//Push the line number to the linesToUpdate array
 																						//
 																						linesToUpdate.push(lineNumber);	
 																					}
@@ -679,7 +706,8 @@ function(runtime, record, search, libraryModule, plugin)
 													}
 												else
 													{	
-														// add the response code and api response to the error messages
+														//Add the response code and API response to the error messages
+														//
 														errorMessages += 'httpResponseCode: ' + taxResult.httpResponseCode;
 														errorMessages += '<br>';
 														errorMessages += 'responseMessage: ' + taxResult.responseMessage;
@@ -696,7 +724,7 @@ function(runtime, record, search, libraryModule, plugin)
 							    		 * now we have done all summarising, we need to generate the output format
 							    		 */
 										
-										// sort outputSummary
+										//Sort outputSummary
 										//
 										var sortedSummary = {};
 								                  
@@ -709,11 +737,11 @@ function(runtime, record, search, libraryModule, plugin)
 											sortedSummary[key] = taxSummary[key];
 										});
 											      
-										// loop through the summaries
+										//Loop through the summaries
 										//
 										for (var key in sortedSummary)
 											{
-												// push a new instance of the output summary object onto the output array
+												//Push a new instance of the output summary object onto the output array
 												//
 												outputArray.push(new libraryModule.libOutputSummary(
 																										taxSummary[key].taxName,
@@ -722,7 +750,7 @@ function(runtime, record, search, libraryModule, plugin)
 																									));
 											}
 
-										// call function to update the tax total on the record
+										//Call function to update the tax total on the record
 										libraryModule.updateTaxTotal(_transactionRecordType, _transactionRecordId, linesToUpdate, errorMessages, outputArray, totalTaxes);
 							    	}
 							}
@@ -730,7 +758,8 @@ function(runtime, record, search, libraryModule, plugin)
 		    }
 	    
 	    return 	{
-					afterSubmit: calculateTaxesAS
+	    			beforeLoad:	beforeLoad,
+	    			afterSubmit: calculateTaxesAS
 	    		};
 	    
 	});

@@ -77,14 +77,14 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 	function libLineItemObj()
 		{
 			this.ref		= null;						//string	Reference ID for line item
-			this.from		= new libLocationObj();		//object	Location data used to determine taxing jurisdiction.
-			this.to			= new libLocationObj();		//object	Location data used to determine taxing jurisdiction.
+			//this.from		= new libLocationObj();		//object	Location data used to determine taxing jurisdiction.
+			//this.to		= new libLocationObj();		//object	Location data used to determine taxing jurisdiction.
 			this.chg		= null;						//number	Charge amount. 
 			this.line		= null;						//integer	Number of lines
 			this.loc		= null;						//integer	Number of locations
 			this.min		= null;						//number	Number of minutes
 			this.sale		= null;						//integer	0 - Wholesale : Indicates that the item was sold to a wholeseller. 1 - Retail : Indicates that the item was sold to an end user - a retail sale. 2 - Consumed : Indicates that the item was consumed directly (SAU products only). 3 - VendorUse : Indicates that the item is subject to vendor use tax (SAU products only).
-			this.plsp		= null;						//number	Split for private-line transactions. Remove the key from the line item if you don't want to use the Private Line functionality.
+			//this.plsp		= null;						//number	Split for private-line transactions. Remove the key from the line item if you don't want to use the Private Line functionality.
 			this.incl		= null;						//boolean	Indicates if the charge for this line item is tax-inclusive.
 			this.pror		= null;						//number	For pro-rated tax calculations. Percentage to pro-rate.
 			this.proadj		= null;						//integer	For pro-rated credit or adjustment calculations. 0 = default 1 = do not return non-proratable fixed taxes in response 2 = return non-proratable fixed taxes in response
@@ -173,9 +173,9 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 			this.taxCalculationAddress		= '';
 			this.taxCustomAddressRecType	= '';
 			this.taxCustomAddressIdFrom		= '';
+			this.fromAddressFieldId			= '';
+			this.toAddressFieldId			= '';
 			this.subsidiariesEnabled		= [];
-			this.pCode						= '';
-			this.incorporated				= '';
 			this.maxTaxLinesToProcess		= '';
 		}
 	
@@ -548,6 +548,55 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 				}
 		}
 	
+	function getAddressData(_addressID) {
+		
+		// declare and initialize variables
+		var pCode 			= null;
+		var incorporated 	= null;
+		
+		// run search to find the customer address for the given ID
+		search.create({
+			type: search.Type.CUSTOMER,
+			
+			filters: [{
+				name: 'formulatext',
+				formula: '{address.addressinternalid}',
+				operator: search.Operator.IS,
+				values: [_addressID]
+			}],
+			
+			columns: [{
+				name: 'custrecord_bbstfc_address_pcode',
+				join: 'address'
+			},
+					{
+				name: 'custrecord_bbstfc_incorporated',
+				join: 'address'
+			}],
+			
+		}).run().each(function(result){
+			
+			// get the P code and incorporated flag from the search result
+			pCode = result.getValue({
+				name: 'custrecord_bbstfc_address_pcode',
+				join: 'address'
+			});
+			
+			incorporated = result.getValue({
+				name: 'custrecord_bbstfc_incorporated',
+				join: 'address'
+			});
+			
+		});
+		
+		// return values to the main script function
+		return {
+			pCode:			pCode,
+			incorporated:	incorporated
+		}
+		
+	}
+	
 	function getCreatedFromTransactionInfo(transactionID) {
 		
 		// lookup the trandate on the transaction
@@ -803,36 +852,6 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 		transactionType = itemLookup["custitem_bbstfc_tx_svc_pair.custrecord_bbstfc_txsvc_tx_type"];
 		serviceType		= itemLookup["custitem_bbstfc_tx_svc_pair.custrecord_bbstfc_txsvc_svc_type"];
 		
-		/*
-		// if the itemType is 'InvtPart'
-		if (itemType == 'InvtPart')
-			{
-				// lookup fields on the item record
-	    		var itemLookup = search.lookupFields({
-	    			type: search.Type.INVENTORY_ITEM,
-	    			id: itemID,
-	    			columns: ['custitem_bbstfc_tx_svc_pair.custrecord_bbstfc_txsvc_tx_type', 'custitem_bbstfc_tx_svc_pair.custrecord_bbstfc_txsvc_svc_type']
-	    		});
-	    		
-	    		// retrieve values from the itemLookup
-	    		transactionType = itemLookup["custitem_bbstfc_tx_svc_pair.custrecord_bbstfc_txsvc_tx_type"];
-	    		serviceType		= itemLookup["custitem_bbstfc_tx_svc_pair.custrecord_bbstfc_txsvc_svc_type"];
-			}
-		else if (itemType == 'NonInvtPart') // if the itemType is 'NonInvtPart'
-			{
-				// lookup fields on the item record
-	    		var itemLookup = search.lookupFields({
-	    			type: search.Type.NON_INVENTORY_ITEM,
-	    			id: itemID,
-	    			columns: ['custitem_bbstfc_tx_svc_pair.custrecord_bbstfc_txsvc_tx_type', 'custitem_bbstfc_tx_svc_pair.custrecord_bbstfc_txsvc_svc_type']
-	    		});
-	    		
-	    		// retrieve values from the itemLookup
-	    		transactionType = itemLookup["custitem_bbstfc_tx_svc_pair.custrecord_bbstfc_txsvc_tx_type"];
-	    		serviceType		= itemLookup["custitem_bbstfc_tx_svc_pair.custrecord_bbstfc_txsvc_svc_type"];
-			}
-		*/
-		
 		// push values to the returnArray
 		returnArray.push(transactionType);
 		returnArray.push(serviceType);
@@ -843,11 +862,8 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 	
 	function getSubsidiaryInfo(subsidiaryID) {
 		
-		// declare array to hold return values
-		var returnArray 	= new Array();
+		// declare and initialize variables
 		var clientProfileID = null;
-		var pCode 			= null;
-		var incorporated	= null;
 		
 		try
 			{
@@ -861,20 +877,6 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 				clientProfileID = subsidiaryRecord.getValue({
 					fieldId: 'custrecord_bbstfc_subsid_profile_id'
 				});
-				
-				// get the address subrecord
-				var addressSubrecord = subsidiaryRecord.getSubrecord({
-					fieldId: 'mainaddress'
-				});
-				
-				// get the P Code and incorportated flag
-				pCode = addressSubrecord.getValue({
-					fieldId: 'custrecord_bbstfc_address_pcode'
-				});
-				
-				incorporated = addressSubrecord.getValue({
-					fieldId: 'custrecord_bbstfc_incorporated'
-				});
 			}
 		catch(e) // error because of Non-OneWorld account
 			{
@@ -884,12 +886,8 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 				});
 			}
 		
-		// push values to the returnArray
-		returnArray.push(clientProfileID);
-		returnArray.push(pCode);
-		returnArray.push(incorporated);
-		
-		return returnArray;
+		// return values to the returnArray
+		return clientProfileID;
 		
 	}
 	
@@ -1960,7 +1958,7 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 	    						//Retrieve all the mapped columns
 								//
 								var currentCountryCode 	= (sourceCountryCode != '' && sourceCountryCode != null ? currentRecord.getValue({fieldId: sourceCountryCode}) : '');
-								var currentStateCode 	= (sourceStateCode != '' && sourceStateCode != null ? currentRecord.getValue({fieldId: sourceStateCode}) : '');
+								var currentStateCode 	= (sourceStateCode != '' && sourceStateCode != null ? currentRecord.getText({fieldId: sourceStateCode}) : '');
 								var currentCountyCode 	= (sourceCountyCode != '' && sourceCountyCode != null ? currentRecord.getValue({fieldId: sourceCountyCode}) : '');
 								var currentCityCode 	= (sourceCityCode != '' && sourceCityCode != null ? currentRecord.getValue({fieldId: sourceCityCode}) : '');
 								var currentZipCode 		= (sourceZipCode != '' && sourceZipCode != null ? currentRecord.getValue({fieldId: sourceZipCode}) : '');
@@ -2110,6 +2108,7 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
     		libConfigObj:					libConfigObj,
     		libGenericResponseObj:			libGenericResponseObj,
     		libGetDestinationPcode:			getDestinationPcode,
+    		getAddressData:					getAddressData,
     		getCreatedFromTransactionInfo:	getCreatedFromTransactionInfo,
 			getCustomerInfo:				getCustomerInfo,
     		getCustomerExemptions:			getCustomerExemptions,

@@ -197,7 +197,7 @@
         <tr>
   			<td class="address">&nbsp;</td>
   			<td align="left" style="font-size:10pt"><b>Account No</b></td>
-  			<td align="right" style="font-size:10pt">${record.entity.entityid}</td>
+  			<td align="right" style="font-size:10pt">${record.entity.accountnumber}</td>
     	</tr>
       	<#if record.duedate?has_content>
       		<tr>

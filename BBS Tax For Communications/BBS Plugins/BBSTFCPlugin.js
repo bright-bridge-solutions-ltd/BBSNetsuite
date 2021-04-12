@@ -323,34 +323,39 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 					      search.createColumn({name: "custrecord_bbstfc_conf_own_facilities", label: "Own Facilities"}),
 					      search.createColumn({name: "custrecord_bbstfc_conf_franchise", label: "Franchise"}),
 					      search.createColumn({name: "custrecord_bbstfc_conf_regulated", label: "Regulated"}),
-					      search.createColumn({name: "custrecord_bbstfc_bus_class_code",join: "CUSTRECORD_BBSTFC_CONF_BUS_CLASS",label: "Class Code"}),
-					      search.createColumn({name: "custrecord_bbstfc_svc_class_code",join: "CUSTRECORD_BBSTFC_CONF_SVC_CLASS",label: "Class Code"}),
+					      search.createColumn({name: "custrecord_bbstfc_bus_class_code", join: "CUSTRECORD_BBSTFC_CONF_BUS_CLASS", label: "Class Code"}),
+					      search.createColumn({name: "custrecord_bbstfc_svc_class_code", join: "CUSTRECORD_BBSTFC_CONF_SVC_CLASS", label: "Class Code"}),
 					      search.createColumn({name: "custrecord_bbstfc_conf_tax_code", label: "Tax Code"}),
 					      search.createColumn({name: "custrecord_bbstfc_conf_address_type", label: "Address Type"}),
 					      search.createColumn({name: "custrecord_bbstfc_config_custom_type", label: "Custom Address Record Type"}),
 					      search.createColumn({name: "custrecord_bbstfc_custom_source_from", label: "Source From"}),
 					      search.createColumn({name: "custrecord_bbstfc_config_subsidiaries", label: "Subsidiaries"}),
-					      search.createColumn({name: "custrecord_bbstfc_address_p_code", label: "P Code"}),
-					      search.createColumn({name: "custrecord_bbstfc_address_incorporated", label: "Incorporated"}),
-					      search.createColumn({name: "custrecord_bbstfc_config_max_tax", label: "Max Tax Codes To Process"})
+					      search.createColumn({name: "custrecord_bbstfc_config_max_tax", label: "Max Tax Codes To Process"}),
+					      search.createColumn({name: "custrecord_bbstfc_from_address_field", label: "From Address Field"}),
+					      search.createColumn({name: "custrecord_bbstfc_to_address_field", label: "To Address Field"})
 					   ]
 					});
 				
-				try
+				//If we have a subsidiary ID
+				//
+				if (subsidiaryID)
 					{
-						//Load the subsidiary record
-						//
-						subsidiaryRecord = record.load({
-							type: record.Type.SUBSIDIARY,
-							id: subsidiaryID
-						});
-					}
-				catch(e)
-					{
-						log.error({
-							title: 'Error Loading Subsidiary Record',
-							details: e
-						});
+						try
+							{
+								//Load the subsidiary record
+								//
+								subsidiaryRecord = record.load({
+									type: record.Type.SUBSIDIARY,
+									id: subsidiaryID
+								});
+							}
+						catch(e)
+							{
+								log.error({
+									title: 'Error Loading Subsidiary Record',
+									details: e
+								});
+							}
 					}
 				
 				//If we have been able to load the subsidiary record
@@ -402,12 +407,12 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 							}
 						
 						config.maxTaxLinesToProcess			= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_config_max_tax'});
-						config.pCode						= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_address_p_code'});
-						config.incorporated					= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_address_incorporated'});
 						config.subsidiariesEnabled			= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_config_subsidiaries'}).split(',');
 						config.taxCalculationAddress		= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_address_type'});
 						config.taxCustomAddressRecType		= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_config_custom_type'});
 						config.taxCustomAddressIdFrom		= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_custom_source_from'});
+						config.fromAddressFieldId			= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_from_address_field'});
+						config.toAddressFieldId				= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_to_address_field'});
 						config.businessClass				= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_bus_class_code', join: "CUSTRECORD_BBSTFC_CONF_BUS_CLASS"});
 						config.serviceClass					= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_svc_class_code', join: "CUSTRECORD_BBSTFC_CONF_SVC_CLASS"});
 						config.ownFacilities				= customrecord_bbstfc_configSearchObj[0].getValue({name: 'custrecord_bbstfc_conf_own_facilities'});

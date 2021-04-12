@@ -32,12 +32,6 @@ function() {
      * @since 2015.2
      */
     function fieldChanged(scriptContext) {
-    	
-    	if (scriptContext.fieldId == 'custcol_otdn_so_porate') // if the PO Rate field has been changed
-    		{
-    			// call function to set the 'Est Extended Cost/Est Unit Cost' fields
-        		poRateChanged(scriptContext.currentRecord);
-    		}
 
     }
 
@@ -52,16 +46,6 @@ function() {
      * @since 2015.2
      */
     function postSourcing(scriptContext) {
-    	
-    	if (scriptContext.fieldId == 'item') // if the Item field has been changed
-			{
-	    		// set the 'Price Level' field to custom
-				scriptContext.currentRecord.setCurrentSublistValue({
-					sublistId: 'item',
-					fieldId: 'price',
-					value: -1
-				});
-			}
 
     }
 
@@ -121,11 +105,6 @@ function() {
      * @since 2015.2
      */
     function validateLine(scriptContext) {
-    	
-    	// call function to set the 'Est Extended Cost/Est Unit Cost' fields
-    	poRateChanged(scriptContext.currentRecord);
-		
-		return true;
 
     }
 
@@ -171,43 +150,18 @@ function() {
     function saveRecord(scriptContext) {
 
     }
-    
-    // =============================================================
-    // FUNCTION TO PERFORM ACTIONS WHEN THE PO RATE HAS BEEN CHANGED
-    // =============================================================
-    
-    function poRateChanged(currentRecord) {
-    	
-    	// get the PO rate
-		var poRate = currentRecord.getCurrentSublistValue({
-			sublistId: 'item',
-			fieldId: 'custcol_otdn_so_porate',
-		});
-		
-		var quantity = currentRecord.getCurrentSublistValue({
-			sublistId: 'item',
-			fieldId: 'quantity',
-		});
-	
-		// set the 'Est Extended Cost/Est Unit Cost' fields
-		currentRecord.setCurrentSublistValue({
-			sublistId: 'item',
-			fieldId: 'costestimaterate',
-			value: poRate
-		});
-		
-		currentRecord.setCurrentSublistValue({
-			sublistId: 'item',
-			fieldId: 'costestimate',
-			value: (poRate * quantity)
-		});
-    	
-    }
 
     return {
+        pageInit: pageInit,
         fieldChanged: fieldChanged,
         postSourcing: postSourcing,
-        validateLine: validateLine
+        sublistChanged: sublistChanged,
+        lineInit: lineInit,
+        validateField: validateField,
+        validateLine: validateLine,
+        validateInsert: validateInsert,
+        validateDelete: validateDelete,
+        saveRecord: saveRecord
     };
     
 });

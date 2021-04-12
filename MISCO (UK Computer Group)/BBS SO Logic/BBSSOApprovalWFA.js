@@ -320,6 +320,11 @@ function(runtime, search, record) {
     
     function checkAgeOfInvoices(customerID, daysOverdue) {
     	
+    	log.debug({
+    		title: 'Argument Check',
+    		details: arguments
+    	});
+    	
     	// declare and initialize variables
     	var numberOfInvoices = 0;
     	var overdueInvoices = false;
