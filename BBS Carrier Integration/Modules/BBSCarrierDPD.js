@@ -589,7 +589,7 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 																			shippingRequestData.address.countryCode, 
 																			shippingRequestData.address.postCode.toUpperCase(), 
 																			shippingRequestData.address.line1, 
-																			shippingRequestData.address.line1, 
+																			shippingRequestData.address.line2, 
 																			shippingRequestData.address.town, 
 																			shippingRequestData.address.county
 																			);

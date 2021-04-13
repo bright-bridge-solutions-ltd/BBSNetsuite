@@ -285,7 +285,7 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 	    	
     		//Upon entry of the item quantity
     		//
-	    	if(scriptContext.fieldId == 'custpage_entry_qty_override' && scriptContext.sublistId == null)
+/*	    	if(scriptContext.fieldId == 'custpage_entry_qty_override' && scriptContext.sublistId == null)
 				{
 			    	//Get the value of the entered item
 			    	//
@@ -503,7 +503,7 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
 			    	//Put the focus back on to the item input field
 			    	//
 			    	document.getElementById("custpage_entry_item").focus();
-				}
+				}*/
 	    }
 
     
@@ -525,6 +525,19 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
     		
     		if(stage == 2)
     			{
+    				//Intercept CR and if we have values in the item code & scanned quantity then trigger the "Update Item Line" button
+    				//
+	    			var currentItemCode = scriptContext.currentRecord.getValue({fieldId: 'custpage_entry_item'})
+	    			var currentItemQty 	= scriptContext.currentRecord.getValue({fieldId: 'custpage_entry_qty_override'})
+    			
+    				if(currentItemCode != null && currentItemCode != '' && currentItemQty != null && currentItemQty != '')
+    					{
+    						document.getElementById("custbutton_update_line").click();
+    						return false;
+    					}
+    			
+    			
+    			
 		    		var lines 			= scriptContext.currentRecord.getLineCount({sublistId: 'custpage_sublist_items'});
 		    		var completedCount	= Number(0);
 		    		var missingProducts	= [];

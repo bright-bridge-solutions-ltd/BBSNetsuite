@@ -149,40 +149,78 @@ function(search, record)
     		
     		var ifRecordId = null;
     		
-    		//Search transactions (sales orders & IF's) by document number
-    		//
-    		var initialSearch = searchTransactionsByNumber(salesOrderItemFulfillment);
+    		var cartonSearch = searchTransactionsByPickingCarton(salesOrderItemFulfillment);
     		
-    		//Did we find a match
-    		//
-    		if(initialSearch != null && initialSearch.length > 0)
+    		if(cartonSearch != null && cartonSearch.length > 0)
+				{
+    				ifRecordId = cartonSearch[0].getValue({name: "internalid",summary: "GROUP"});	
+				}
+    		else
     			{
-	    			var initialTransType 	= initialSearch[0].getValue({name: "type"});
-	    			var initialTransId 		= initialSearch[0].getValue({name: "internalid"});
-				
-	    			//Did we find an IF record
-	    			//
-	    			if(initialTransType == 'ItemShip')
-	    				{
-	    					ifRecordId = initialTransId;
-	    				}
-	    			else
-	    				{
-	    					//If not, find IF record by sales order id
-	    					//
-	    					var secondSearch = searchIfBySalesOrder(initialTransId);
-	    					
-	    					//Did we find a match
-	    		    		//
-	    		    		if(secondSearch != null && secondSearch.length > 0)
-	    		    			{
-	    			    			var secondTransId 	= secondSearch[0].getValue({name: "internalid"});
-	    			    			ifRecordId 			= secondTransId;
-	    		    			}
-	    				}
+		    		//Search transactions (sales orders & IF's) by document number
+		    		//
+		    		var initialSearch = searchTransactionsByNumber(salesOrderItemFulfillment);
+		    		
+		    		//Did we find a match
+		    		//
+		    		if(initialSearch != null && initialSearch.length > 0)
+		    			{
+			    			var initialTransType 	= initialSearch[0].getValue({name: "type"});
+			    			var initialTransId 		= initialSearch[0].getValue({name: "internalid"});
+						
+			    			//Did we find an IF record
+			    			//
+			    			if(initialTransType == 'ItemShip')
+			    				{
+			    					ifRecordId = initialTransId;
+			    				}
+			    			else
+			    				{
+			    					//If not, find IF record by sales order id
+			    					//
+			    					var secondSearch = searchIfBySalesOrder(initialTransId);
+			    					
+			    					//Did we find a match
+			    		    		//
+			    		    		if(secondSearch != null && secondSearch.length > 0)
+			    		    			{
+			    			    			var secondTransId 	= secondSearch[0].getValue({name: "internalid"});
+			    			    			ifRecordId 			= secondTransId;
+			    		    			}
+			    				}
+		    			}
     			}
     		
     		return ifRecordId;
+    	}
+    
+    function searchTransactionsByPickingCarton(cartonNumber)
+    	{
+	    	var itemfulfillmentSearchObj = getResults(search.create({
+													    		   type: "itemfulfillment",
+													    		   filters:
+													    		   [
+													    		      ["type","anyof","ItemShip"], 
+													    		      "AND", 
+													    		      ["mainline","is","T"], 
+													    		      "AND", 
+													    		      ["taxline","is","F"], 
+													    		      "AND", 
+													    		      ["cogs","is","F"], 
+													    		      "AND", 
+													    		      ["shipping","is","F"], 
+													    		      "AND", 
+													    		      ["status","anyof","ItemShip:A"], 	//Picked
+													    		      "AND", 
+													    		      ["inventorydetail.pickcarton","is",cartonNumber]
+													    		   ],
+													    		   columns:
+													    		   [
+													    		      search.createColumn({name: "internalid",summary: "GROUP",label: "Internal ID"})
+													    		   ]
+													    		}));
+	    	
+    		return itemfulfillmentSearchObj;
     	}
     
     function searchTransactionsByNumber(doumentNumber)
