@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/record', 'N/ui/serverWidget', 'N/search'],
-function(record, ui, search) 
+define(['N/record', 'N/ui/serverWidget', 'N/search', 'N/plugin'],
+function(record, ui, search, plugin) 
 {
    
     /**
@@ -139,7 +139,7 @@ function(record, ui, search)
 																    						line: 		i
 																    						});
 			    					
-			    					var selectedtoAddress = currentRecord.getSublistValue({
+			    					var selectedToAddress = currentRecord.getSublistValue({
 																    						sublistId: 	'item',
 																    						fieldId: 	'packagetrackingnumber',
 																    						line: 		i
@@ -160,26 +160,9 @@ function(record, ui, search)
 		    		}
 			}
     }
-
-    function getResults(_searchObject)
-	    {
-	    	var results = [];
-	
-	    	var pageData = _searchObject.runPaged({pageSize: 1000});
-	
-	    	for (var int = 0; int < pageData.pageRanges.length; int++) 
-	    		{
-	    			var searchPage = pageData.fetch({index: int});
-	    			var data = searchPage.data;
-	    			
-	    			results = results.concat(data);
-	    		}
-	
-	    	return results;
-	    }
 	    
     /**
-     * Function definition to be triggered before record is loaded.
+     * Function definition to be triggered before record is saved.
      *
      * @param {Object} scriptContext
      * @param {Record} scriptContext.newRecord - New record
@@ -188,11 +171,25 @@ function(record, ui, search)
      * @Since 2015.2
      */
     function beforeSubmit(scriptContext) {
+    	
+    	// get the current record
+    	var currentRecord = scriptContext.newRecord;
+    	
+    	// get line count
+    	var lineCount = currentRecord.getLineCount({
+    		sublistId: 'item'
+    	});
+    	
+    	// loop through line count
+    	for (var i = 0; i < lineCount; i++)
+    		{
+    			
+    		}
 
     }
 
     /**
-     * Function definition to be triggered before record is loaded.
+     * Function definition to be triggered after record is saved.
      *
      * @param {Object} scriptContext
      * @param {Record} scriptContext.newRecord - New record
@@ -205,11 +202,30 @@ function(record, ui, search)
     
     }
     
+    // ================
+    // HELPER FUNCTIONS
+    // ================
     
-    
+    function getResults(_searchObject) {
+    	
+    	var results = [];
+
+    	var pageData = _searchObject.runPaged({pageSize: 1000});
+
+    	for (var int = 0; int < pageData.pageRanges.length; int++) 
+    		{
+    			var searchPage = pageData.fetch({index: int});
+    			var data = searchPage.data;
+    			
+    			results = results.concat(data);
+    		}
+
+    	return results;
+    }
 
     return 	{
-        	beforeLoad: beforeLoad
-    		};
+    	beforeLoad: 	beforeLoad,
+    	beforeSubmit: 	beforeSubmit
+    };
     
 });

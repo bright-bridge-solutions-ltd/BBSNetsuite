@@ -3,32 +3,13 @@
  * @NScriptType UserEventScript
  * @NModuleScope Public
  */
-define(['N/runtime', 'N/record', 'N/search', './libraryModule', 'N/plugin', 'N/ui/serverWidget'],
+define(['N/runtime', 'N/record', 'N/search', './libraryModule', 'N/plugin'],
 /**
  * @param {record} record
  * @param {search} search
  */
-function(runtime, record, search, libraryModule, plugin, ui)
-	{
-		/**
-	     * Function definition to be triggered before record is loaded.
-	     *
-	     * @param {Object} scriptContext
-	     * @param {Record} scriptContext.newRecord - New record
-	     * @param {string} scriptContext.type - Trigger type
-	     * @param {Form} scriptContext.form - Current form
-	     * @Since 2015.2
-	     */
-	    function beforeLoad(scriptContext) {
-	    	
-	    	//Check that the record is being created or edited
-	    	//
-	    	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
-	    		{
-	    			
-	    		}
-	    }
-	
+function(runtime, record, search, libraryModule, plugin)
+	{	
 		/**
 	     * Function definition to be triggered before record is loaded.
 	     *
@@ -758,7 +739,6 @@ function(runtime, record, search, libraryModule, plugin, ui)
 		    }
 	    
 	    return 	{
-	    			beforeLoad:	beforeLoad,
 	    			afterSubmit: calculateTaxesAS
 	    		};
 	    
