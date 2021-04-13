@@ -34,48 +34,74 @@ function(runtime, search, file, email) {
     function sendWorkOrderReport() {
     	
     	// declare and initialize variables
-    	var CSV 		= '"Reference Code","Description","Product Reference Code","Product Description","Unit Of Measure","Order Quantity","Workflow Type Reference Code","Destination","Release Date","Internal Due Date","Quoted Due Date","Is Using Buffer Slack","Pre-Release Days","Despatching Days","Buffer","Parent Work Order Reference Code","High Touch Time Hours","CCR Buffer Peneration Percentage","Notes 1","Notes 2","Notes 3","Notes 4","Notes 5","Notes 6","Notes 7","Notes 8","Notes 9","Notes 10","Production Resource Reference Code","Operation Number","Operation Descrioption","Setup Hours","Production Hours REVIEW"\r\n';
+    	var CSV 		= '"Reference Code","Description","Product Reference Code","Product Description","Unit Of Measure","Order Quantity","Workflow Type Reference Code","Destination","Release Date","Internal Due Date","Quoted Due Date","Is Using Buffer Slack","Pre-Release Days","Despatching Days","Buffer","Parent Work Order Reference Code","High Touch Time Hours","CCR Buffer Peneration Percentage","Notes 1","Notes 2","Notes 3","Notes 4","Notes 5","Notes 6","Notes 7","Notes 8","Notes 9","Notes 10","Production Resource Reference Code","Operation Number","Operation Descrioption","Setup Hours","Production Hours"\r\n';
     	var fileObj		= null;
     	var fileName	= 'workorder.csv';
     	
     	// run search to find records to be processed
     	search.create({
-    		type: search.Type.WORK_ORDER,
+    		type: search.Type.ASSEMBLY_ITEM,
     		
     		filters: [{
+    			name: 'type',
+    			join: 'transaction',
+    			operator: search.Operator.ANYOF,
+    			values: ['WorkOrd']
+    		},
+    				{
+    			name: 'status',
+    			join: 'transaction',
+    			operator: search.Operator.ANYOF,
+    			values: ['WorkOrd:D', 'WorkOrd:A', 'WorkOrd:B'] // Work Order:In Process, Work Order:Planned, Work Order:Released
+    		},
+    				{
     			name: 'mainline',
+    			join: 'transaction',
     			operator: search.Operator.IS,
     			values: ['T']
     		},
     				{
-    			name: 'status',
+    			name: 'name',
+    			join: 'memberitem',
+    			operator: search.Operator.HASKEYWORDS,
+    			values: ['Labour']
+    		},
+    				{
+    			name: 'isphantom',
     			operator: search.Operator.IS,
-    			values: ['WorkOrd:D', 'WorkOrd:A', 'WorkOrd:B'] // Work Order:In Process, Work Order:Planned, Work Order:Released
+    			values: ['F']
     		}],
     		
     		columns: [{
-    			name: 'tranid'
+    			name: 'tranid',
+    			join: 'transaction'
     		},
     				{
-    			name: 'item'
+    			name: 'itemid'
     		},
     				{
-    			name: 'salesdescription',
-    			join: 'item'
-    		},
-    				{
-    			name: 'quantity'
+    			name: 'salesdescription'
     		},
     				{
     			name: 'formulatext',
-    			formula: "CONCAT(TO_CHAR({enddate},'yyyy-mm-dd'),' 00:00:00')"
+    			formula: '{transaction.quantity}-{transaction.quantityshiprecv}'
+    			
     		},
     				{
     			name: 'formulatext',
-    			formula: "CONCAT(TO_CHAR({enddate},'yyyy-mm-dd'),' 00:00:00')"
+    			formula: "CONCAT(TO_CHAR({transaction.enddate},'yyyy-mm-dd'),' 00:00:00')"
     		},
     				{
-    			name: 'createdfrom'
+    			name: 'formulatext',
+    			formula: "CONCAT(TO_CHAR({transaction.enddate},'yyyy-mm-dd'),' 00:00:00')"
+    		},
+    				{
+    			name: 'createdfrom',
+    			join: 'transaction'
+    		},
+    				{
+    			name: 'formulanumeric',
+    			formula: 'ROUND((({transaction.quantity}-{transaction.quantityshiprecv})*{memberquantity})/60, 2)'
     		}],	
     			
     			
@@ -83,15 +109,16 @@ function(runtime, search, file, email) {
     		
     		// retrieve search results. Using column numbers to return formula values
 			var referenceCode 			= result.getValue(result.columns[0]);
-			var productReferenceCode	= result.getText(result.columns[1]);
+			var productReferenceCode	= result.getValue(result.columns[1]);
 			var productDescription		= result.getValue(result.columns[2]).replace(/,/g, ''); // remove all commas
 			var orderQuantity			= result.getValue(result.columns[3]);
 			var internalDueDate			= result.getValue(result.columns[4]);
 			var quotedDueDate			= result.getValue(result.columns[5]);
 			var notes1					= result.getText(result.columns[6]);
+			var productionHours			= result.getValue(result.columns[7]);
 			
 			// add the work order details to the CSV
-			CSV += referenceCode + ',' + ',' + productReferenceCode + ',' + productDescription + ',' + 'Each' + ',' + orderQuantity + ',' + 'MTO' + ',' + ',' + ',' + internalDueDate + ',' + quotedDueDate + ',' + '0' + ',' + '0' + ',' + '0' + ',' + 'A' + ',' + ',' + '0' + ',' + ',' + notes1 + ',' + ',' + ',' + ',' + ',' + ',' + ',' + ',' + ',' + ',' + 'ASSEMBLY' + ',' + '10' + ',' + ',' + '0' + ',';
+			CSV += referenceCode + ',' + ',' + productReferenceCode + ',' + productDescription + ',' + 'Each' + ',' + orderQuantity + ',' + 'MTO' + ',' + ',' + ',' + internalDueDate + ',' + quotedDueDate + ',' + '0' + ',' + '0' + ',' + '0' + ',' + 'A' + ',' + ',' + '0' + ',' + ',' + notes1 + ',' + ',' + ',' + ',' + ',' + ',' + ',' + ',' + ',' + ',' + 'ASSEMBLY' + ',' + '10' + ',' + ',' + '0' + ',' + productionHours;
  			CSV += '\r\n';
     		
     		// continue processing search results
@@ -124,21 +151,41 @@ function(runtime, search, file, email) {
     	
     	// run search to find records to be processed
     	search.create({
-    		type: search.Type.WORK_ORDER,
+    		type: search.Type.ASSEMBLY_ITEM,
     		
     		filters: [{
+    			name: 'type',
+    			join: 'transaction',
+    			operator: search.Operator.ANYOF,
+    			values: ['WorkOrd']
+    		},
+    				{
+    			name: 'status',
+    			join: 'transaction',
+    			operator: search.Operator.ANYOF,
+    			values: ['WorkOrd:D', 'WorkOrd:A', 'WorkOrd:B'] // Work Order:In Process, Work Order:Planned, Work Order:Released
+    		},
+    				{
     			name: 'mainline',
+    			join: 'transaction',
     			operator: search.Operator.IS,
     			values: ['T']
     		},
     				{
-    			name: 'status',
+    			name: 'name',
+    			join: 'memberitem',
+    			operator: search.Operator.HASKEYWORDS,
+    			values: ['Labour']
+    		},
+    				{
+    			name: 'isphantom',
     			operator: search.Operator.IS,
-    			values: ['WorkOrd:D', 'WorkOrd:A', 'WorkOrd:B'] // Work Order:In Process, Work Order:Planned, Work Order:Released
+    			values: ['F']
     		}],
     		
     		columns: [{
-    			name: 'tranid'
+    			name: 'tranid',
+    			join: 'transaction'
     		}],	
     			
     			
@@ -146,7 +193,8 @@ function(runtime, search, file, email) {
     		
     		// retrieve search results
 			var woReferenceCode = result.getValue({
-				name: 'tranid'
+				name: 'tranid',
+				join: 'transaction'
 			});
 			
 			// add the work order details to the CSV

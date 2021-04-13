@@ -7,7 +7,7 @@
 Dear ${customer.entityId}
 <br />
 <br />
-Many thanks indeed for your Frugi Pre Order ${transaction.tranid} as per the attached proforma invoice. Unfortunately there was an issue with your card payment, we kindly ask that you log on to the wholesale website <a href="www.frugiwholesale.com">www.frugiwholesale.com</a> and make a payment on your account via the payments page.
+Many thanks indeed for your Frugi Pre Order ${transaction.tranid} as per the attached proforma invoice. Unfortunately there was an issue with your card payment, we kindly ask that you pop on to the wholesale website <a href="www.frugiwholesale.com">www.frugiwholesale.com</a> and make a payment on your account via the payments page.
 <br />
 <br />
 Alternatively should you wish to pay by BACS we require the following payments:
@@ -20,7 +20,7 @@ Outstanding Balance: ${transaction.balance}
 Total Payment Due: ${transaction.balance}
 <br />
 <br />
-<span style="color:#ff0000;"><u>Please can you arrange for payment to be made by <strong>TODO</strong>. If you are unable to pay by this date, please let us know.</u></span>
+<span style="color:#ff0000;"><u>Please can you arrange for payment to be made by ${transaction.custbody_c4c_due_date}. If you are unable to pay by this date, please let us know.</u></span>
 <br />
 <br />
 <strong>Payment Options:</strong>

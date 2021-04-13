@@ -1,22 +1,23 @@
 <img src="https://6932997-sb1.app.netsuite.com/core/media/media.nl?id=3313&amp;c=6932997_SB1&amp;h=0ENKaqyNfyAJGUY2_5PDn1ZV824d83by1O7jmrRF3gkFSaRL" style="width: 200px; height: 125px;" />
 <br />
 <br />
-<strong>Frugi Zahlungsaufforderung - Nachbestellung ${transaction.tranid}</strong>
+<strong>Frugi Vorbestellung Zahlungserinnerung - Bestellung ${transaction.tranid}</strong>
 <br />
 <br />
 Hallo ${customer.entityId}
 <br />
 <br />
-Vielen Dank für Ihre Frugi Nachbestellung ${transaction.tranid} gemäß der beigefügten Auftragsbestätigung. Wir weisen darauf hin, dass derzeit das Kreditlimit auf Ihrem Konto übersschritten wurde. Damit wir Ihre Bestellung freigeben können, müssen Sie die folgende Zahlung leisten:
+Wir haben Sie kürzlich kontaktiert, um Ihnen mitzuteilen, dass Ihre Frugi-Vorbestellung ${transaction.tranid} gemäß der beigefügten Proforma-Rechnung zum Verpacken an unser Lager gesendet werden kann. Wir haben jedoch noch keine Zahlung erhalten. Wenn Sie in den letzten Tagen eine Zahlung getätigt haben, ignorieren Sie diese E-Mail, da die Aktualisierung Ihres Kontos manchmal einige Tage dauert.
 <br />
 <br />
-Fälliger Gesamtbetrag: ${transaction.total}
+Wenn Sie noch nicht bezahlt haben und Ihre Bestellung dennoch erhalten möchten, müssen Sie die Zahlung so schnell wie möglich vornehmen. Wenn Sie aus irgendeinem Grund keine Zahlung leisten können, teilen Sie uns dies bitte mit. Andernfalls werden wir Ihre Bestellung stornieren und den Lagerbestand freigeben, damit er anderen Kunden zur Verfügung steht. Gemäß unseren Allgemeinen Geschäftsbedingungen wird für jede Stornierung eine Stornogebühr von 20% erhoben.
 <br />
 <br />
-Sobald die Zahlung eingegangen ist und unsere Lagerbestände verfügbar sind, wird Ihre Bestellung zur Bearbeitung an unser Lager gesendet und zu gegebener Zeit versandt. Sie werden eine Benachrichtigung erhalten, wenn Ihre Bestellung bearbeitet wurde und versandbereit ist.
+Gesamtbetrag für ${transaction.tranid}: ${transaction.total}
 <br />
+Habensaldo / Schuldsaldo: ${transaction.balance}
 <br />
-<span style="color:#ff0000;"><u>Bitte veranlassen Sie, dass die Zahlung bis zum ${transaction.custbody_c4c_due_date} erfolgt. Wenn Sie bis zu diesem Datum nicht zahlen können, teilen Sie uns dies bitte mit.</u></span>
+Fälliger Gesamtbetrag: ${transaction.balance}
 <br />
 <br />
 <strong>Zahlungsmöglichkeiten:</strong>
@@ -26,11 +27,11 @@ Sobald die Zahlung eingegangen ist und unsere Lagerbestände verfügbar sind, wi
 <tbody>
 	<tr>
 	<td style="height: 15px;"><strong>Online- Kreditkarte Zahlung:</strong></td>
-	<td style="height: 15px;"><strong>BACS Payment:</strong></td>
+	<td style="height: 15px;"><strong>Zahlung per BACS:</strong></td>
 	</tr>
 	<tr>
 	<td>Wenn Sie ein Frugi-Website-Konto haben, klicken Sie hier, um eine Zahlung vorzunehmen: <a href="https://www.frugiwholesale.com/account/make_payment" target="_blank">Zahlung durch die Frugi Website</a></td>
-	<td>Bitte verwenden Sie die folgenden Bankdaten und vermerken Sie lhren registrierten Firmennamen als Zahlungsreferenz:</td>
+	<td>Bitte verwenden Sie die folgende Bankdaten und vermerken Sie lhren registrierten Firmennamen als Zahlungsreferenz:</td>
 	</tr>
 	<tr>
 	<td>&nbsp;</td>
@@ -58,7 +59,7 @@ Sobald die Zahlung eingegangen ist und unsere Lagerbestände verfügbar sind, wi
 	</tr>
 	<tr>
 	<td>&nbsp;</td>
-	<td>Bitte leisten Sie alle Zahlungen in ${transaction.currency.symbol} einschließlich aller Bankgebühren.</td>
+	<td>Bitte machen Sie alle Zahlungen in ${transaction.currency.symbol} einschließlich aller Bankgebühren.</td>
 	</tr>
 	<tr>
 	<td>&nbsp;</td>

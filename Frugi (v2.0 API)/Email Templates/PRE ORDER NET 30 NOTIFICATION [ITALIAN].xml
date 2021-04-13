@@ -1,0 +1,24 @@
+<img src="https://6932997-sb1.app.netsuite.com/core/media/media.nl?id=3313&amp;c=6932997_SB1&amp;h=0ENKaqyNfyAJGUY2_5PDn1ZV824d83by1O7jmrRF3gkFSaRL" style="width: 200px; height: 125px;" />
+<br />
+<br />
+<strong>Pre-ordine Frugi - ${transaction.tranid}</strong>
+<br />
+<br />
+Gentile ${customer.entityId}
+<br />
+<br />
+Il tuo Frugi Pre-Ordine ${transaction.tranid} deve essere spedito a breve come dalla conferma d'ordine allegata.
+<br />
+<br />
+Una volta che la merce sarà disponibile, il tuo ordine verrà inviato al nostro magazzino per la preparazione e verrà spedito a tempo debito. Riceverai una notifica quando il tuo ordine è pronto per la spedizione.
+<br />
+<br />
+Se desideri annullare tutto o una parte dell’ordine, la cancellazione sarà soggetta ad una penale di 20% del valore della parte cancellata, secondo i nostri Termini e Condizioni di vendità.
+<br />
+<br />
+Si prega di controllare tutti i dettagli dell’ordine in allegato, compreso l'indirizzo di consegna. In caso di domande, si prega di contattarci a: <strong><a href="mailto:info@frugiwholesale.com">info@frugiwholesale.com</a></strong>
+<br />
+<br />
+Cordiali saluti,
+<br />
+Team Frugi

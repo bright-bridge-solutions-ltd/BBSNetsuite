@@ -1,0 +1,24 @@
+<img src="https://6932997-sb1.app.netsuite.com/core/media/media.nl?id=3313&amp;c=6932997_SB1&amp;h=0ENKaqyNfyAJGUY2_5PDn1ZV824d83by1O7jmrRF3gkFSaRL" style="width: 200px; height: 125px;" />
+<br />
+<br />
+<strong>Frugi Vorbestellung Benachrichtigung über Kartenzahlung - Bestellung ${transaction.tranid}</strong>
+<br />
+<br />
+Hallo ${customer.entityId}
+<br />
+<br />
+Ihre Frugi-Vorbestellung ${transaction.tranid} wird in Kürze gemäß der beigefügten Auftragsbestätigung versandt werden.
+<br />
+<br />
+Bitte beachten Sie, dass Ihre Bestellung zum Verpacken an unser Lager gesendet wird, sobald Lagerbestände verfügbar sind und Ihre Karte automatisch belastet werden wird, wenn wir Ihre Bestellung versenden.
+<br />
+<br />
+Wenn Sie Ihre Bestellung gemäß unseren Allgemeinen Geschäftsbedingungen ganz oder teilweise stornieren möchten, wird bei jeder Stornierung eine Stornierungsgebühr von 20% erhoben.
+<br/>
+<br />
+Bitte überprüfen Sie alle beigefügten Details Ihrer Bestellung einschließlich der Lieferadresse, bevor Sie die Zahlung vornehmen. Bei Fragen wenden Sie sich bitte an <strong><a href="mailto:info@frugiwholesale.com">info@frugiwholesale.com</a></strong>
+<br />
+<br />
+Mit freundlichen Grüßen
+<br />
+Team Frugi

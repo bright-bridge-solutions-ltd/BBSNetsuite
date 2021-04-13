@@ -1,0 +1,21 @@
+<img src="https://6932997-sb1.app.netsuite.com/core/media/media.nl?id=3313&amp;c=6932997_SB1&amp;h=0ENKaqyNfyAJGUY2_5PDn1ZV824d83by1O7jmrRF3gkFSaRL" style="width: 200px; height: 125px;" />
+<br />
+<br />
+<strong>Frugi Vorbestellung ${transaction.tranid} - Stornierung der Bestellung</strong>
+<br />
+<br />
+Hallo ${customer.entityId}
+<br />
+<br />
+Im Anschluss an unsere vorherigen E-Mails stellen wir fest, dass keine Zahlung eingegangen ist, um Ihr Konto in den Rahmen der vereinbarten Kreditbedingungen zu bringen, damit wir Ihre schöne Frugi-Vorbestellung ${transaction.tranid} in unserem Lager freigeben können.
+<br />
+<br />
+Da wir Ihre Zahlung nicht erhalten haben, haben wir Ihre Bestellung storniert und den Lagerbestand freigegeben, damit er anderen Einzelhändlern zur Verfügung steht. Gemäß unseren Allgemeinen Geschäftsbedingungen wird für diese Stornierung eine Stornogebühr von 20% erhoben.
+<br />
+<br />
+Bei Fragen wenden Sie sich bitte an <strong><a href="mailto:info@frugiwholesale.com">info@frugiwholesale.com</a></strong> und wir helfen Ihnen gerne weiter.
+<br />
+<br />
+Mit freundlichen Grüßen
+<br />
+Team Frugi

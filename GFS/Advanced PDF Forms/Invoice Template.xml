@@ -15,16 +15,25 @@
               <#assign emailInfo>accounts@gfsdeliver.com</#assign>
               <#assign telInfo>01635 565000</#assign>
               <#assign vatInfo>GB 642 3131 76</#assign>
-              <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=924&amp;c=5352096&amp;h=f2e4582389b18f604542</#assign>
+              <#assign logoInfo>https://5352096.app.netsuite.com/core/media/media.nl?id=924&amp;c=5352096&amp;h=f2e4582389b18f604542</#assign>
               <#assign logoStyle>float: right; width:660px; height:55px;</#assign>
         </#if>
-
+  
   	<#if subsidiary=="16">
               <#assign regInfo>Company Registration No: 04144492. Registered Office: Century House, 100 Station Road, Horsham, West Sussex, RH13 5UZ, United Kingdom.</#assign>
               <#assign emailInfo>accounts@gfsdeliver.com</#assign>
               <#assign telInfo>08456 044 011</#assign>
               <#assign vatInfo>GB 777 3903 87</#assign>
-              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=928&amp;c=5352096_SB1&amp;h=56dcb07b95f650cb1662</#assign>
+              <#assign logoInfo>https://5352096.app.netsuite.com/core/media/media.nl?id=928&amp;c=5352096&amp;h=c78cd42655b24403bff7</#assign>
+        	  <#assign logoStyle>float: right; width:250px; height:75px;</#assign>
+        </#if>
+  
+  	<#if subsidiary=="22">
+              <#assign regInfo>Company Registration No: 04144492. Registered Office: Century House, 100 Station Road, Horsham, West Sussex, RH13 5UZ, United Kingdom.</#assign>
+              <#assign emailInfo>accounts@gfsdeliver.com</#assign>
+              <#assign telInfo>08456 044 011</#assign>
+              <#assign vatInfo>GB 777 3903 87</#assign>
+              <#assign logoInfo>https://5352096.app.netsuite.com/core/media/media.nl?id=928&amp;c=5352096&amp;h=c78cd42655b24403bff7</#assign>
         	  <#assign logoStyle>float: right; width:250px; height:75px;</#assign>
         </#if>
 
@@ -247,7 +256,7 @@
 </#if>
 
   <tr>
-	<td colspan="12">${item.description}</td>
+	<td colspan="12" style="margin-bottom: 3px;">${item.description}<#if item.custcol_bbs_desc2?length gt 0><br/>${item.custcol_bbs_desc2}</#if><#if item.custcol_bbs_desc3?length gt 0><br/>${item.custcol_bbs_desc3}</#if></td>
     <td align="center" colspan="2">${item.quantity}</td>
 	<td align="right" colspan="2">${item.rate}</td>
     <td align="right" colspan="3">${item.amount}</td>
@@ -259,23 +268,39 @@
 </#if>
 
 <hr />
-<table class="total" style="width: 100%;"><tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
-	<td class="totalcell" align="right"><b>Net Total</b></td>
-	<td class="totalcell" align="right">${record.subtotal}</td>
-	</tr>
-	<tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
-    <td class="totalcell" align="right"><b>VAT Total</b></td>
-	<td class="totalcell" align="right">${record.taxtotal}</td>
-	</tr>
-	<tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
-	<td class="totalcell" align="right"><b>Gross Total</b></td>
-	<td class="totalcell" align="right">${record.total}</td>
-	</tr>
-	<tr>
-	<td>&nbsp;</td>
-	</tr></table>
+	
+	<table class="total" style="width: 100%;">
+		<tr class="totalrow">
+			<td colspan="4">&nbsp;</td>
+			<td class="totalcell" align="right"><b>Net Total</b></td>
+			<td class="totalcell" align="right">${record.subtotal}</td>
+		</tr>
+		<tr class="totalrow">
+			<td colspan="4">&nbsp;</td>
+		    <td class="totalcell" align="right"><b>VAT Total</b></td>
+			<td class="totalcell" align="right">${record.taxtotal}</td>
+		</tr>
+		<tr class="totalrow">
+			<td colspan="4">&nbsp;</td>
+			<td class="totalcell" align="right"><b>Gross Total</b></td>
+			<td class="totalcell" align="right">${record.total}</td>
+		</tr>
+		<#if record.custbody_bbs_show_payment_on_account == true && record.amountpaid gt 0> <!-- If the "Show Payment on Account" checkbox is ticked and we have had any payments -->
+			<tr>
+				<td colspan="6">&nbsp;</td>
+			</tr>
+			<tr class="totalrow">
+				<td colspan="4">&nbsp;</td>
+				<td class="totalcell" align="right"><b>Payment on Account</b></td>
+				<td class="totalcell" align="right">${record.amountpaid}</td>
+			</tr>
+			<tr class="totalrow">
+				<td colspan="4">&nbsp;</td>
+				<td class="totalcell" align="right"><b>Balance to Pay</b></td>
+				<td class="totalcell" align="right">${record.amountremaining}</td>
+			</tr>
+		</#if>
+	</table>
+
 </body>
 </pdf>

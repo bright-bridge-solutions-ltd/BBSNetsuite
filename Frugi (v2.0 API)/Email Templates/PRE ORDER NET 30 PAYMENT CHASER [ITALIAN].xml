@@ -1,0 +1,86 @@
+<img src="https://6932997-sb1.app.netsuite.com/core/media/media.nl?id=3313&amp;c=6932997_SB1&amp;h=0ENKaqyNfyAJGUY2_5PDn1ZV824d83by1O7jmrRF3gkFSaRL" style="width: 200px; height: 125px;" />
+<br />
+<br />
+<strong>Promemoria Pagamento Pre-ordine Frugi - Ordine ${transaction.tranid}</strong>
+<br />
+<br />
+Gentile ${customer.entityId}
+<br />
+<br />
+Oltre alle nostre e-mail precedenti, notiamo che il pagamento non è stato ricevuto per rendere il tuo account entro i termini di credito concordati in modo di poter passare il tuo bello Frugi Pre-Order ${transaction.tranid} al nostro magazzino.
+<br />
+<br />
+Il pagamento è ora molto urgente come segue:
+<br />
+<br />
+Pagamento totale dovuto: ${transaction.total}
+<br />
+<br />
+Se hai effettuato il pagamento negli ultimi giorni, ignora questa email poiché a volte occorrono alcuni giorni per aggiornare il tuo account.
+<br />
+<br />
+Se non hai ancora pagato e desideri comunque ricevere il tuo ordine, avremo bisogno del pagamento il prima possibile. Se per qualsiasi motivo non sei in grado di effettuare il pagamento, faccelo sapere o purtroppo annulleremo il tuo ordine e libereremo lo stock in modo che sia disponibile per altri clienti. La cancellazione sarà soggetta ad una penale di 20% del valore della parte cancellata, secondo i nostri Termini e Condizioni di vendità.
+<br />
+<br />
+<strong>Opzioni di pagamento:</strong>
+<br />
+<br />
+<table cellpadding="1" cellspacing="1" style="border: 1px solid black;">
+<tbody>
+	<tr>
+	<td style="height: 15px;"><strong>Con carta di credito nel sito:</strong></td>
+	<td style="height: 15px;"><strong>Bonifico bancario:</strong></td>
+	</tr>
+	<tr>
+	<td>Per pagare nel sito di Frugi Wholesale, bisogna cliccare qui: <a href="https://www.frugiwholesale.com/account/make_payment" target="_blank">Pay through Frugi Website</a></td>
+	<td>Si prega di usare i dati seguenti notando il nome della tua società come riferimento:</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>Bank Name: ${transaction.custbody_c4c_bank_account.custrecord_c4c_bank_name}</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>IBAN Number: ${transaction.custbody_c4c_bank_account.custrecord_c4c_ba_iban}</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>Branch Identifier Code: ${transaction.custbody_c4c_bank_account.custrecord_c4c_branch_identifier_code}</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>Codice di ordinamento bancario: ${transaction.custbody_c4c_bank_account.custrecord_c4c_ba_sort_code}</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>Numero di conto: ${transaction.custbody_c4c_bank_account.custrecord_c4c_ba_account_number}</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>Intestazione del conto: ${transaction.custbody_c4c_bank_account.name}</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>I pagamenti devono essere in ${transaction.currency.symbol} comprese tutte le spese della banca.</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr>
+</tbody>
+</table>
+<br />
+Si prega di controllare tutti i dettagli dell’ordine in allegato, compreso l'indirizzo di consegna. In caso di domande, si prega di contattarci a: <strong><a href="mailto:info@frugiwholesale.com">info@frugiwholesale.com</a></strong>
+<br />
+<br />
+Cordaili saluti,
+<br />
+Team Frugi
