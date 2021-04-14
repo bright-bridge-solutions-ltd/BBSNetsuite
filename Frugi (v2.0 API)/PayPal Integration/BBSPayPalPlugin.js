@@ -134,14 +134,18 @@ function(email, encode, file, https, record, runtime, search)
 				return config;
 			}
 
-		//Get account information
+		
+		//Get information about a payment authorisation
+		//Parameters;
+		//	_transactionId		The transaction id of the PayPal authorisation 
 		//
-		function getPaymnentDetails()
+		function getPaymnentDetails(_transactionId)
 			{
 				var headerObj 			= {};
-				var serviceInfoObj 		= new genericResponseObj();
+				var paymentDetailsObj 	= new genericResponseObj();
 				var responseBodyObj 	= null;
 				var configurationObj	= null;
+				var tokenObj			= null;
 				
 				//Get the current configuration
 				//
@@ -151,72 +155,177 @@ function(email, encode, file, https, record, runtime, search)
 					{
 						//Get an access token
 						//
-						getAccessToken(configurationObj);
+						tokenObj = getAccessToken(configurationObj);
 						
-						//Build up the headers for the get request
-						//
-						headerObj['Accept']				= '*/*';
-						headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
-						
-						//Execute the request
-						//
-						try
+						if(tokenObj.httpResponseCode == '200')
 							{
-								var response = https.get({	
-															url:		configurationObj.endpointWhoAmI,
-															headers:	headerObj
-															});
-						
-								//Extract the http response code	
-								//
-								serviceInfoObj.httpResponseCode = response.code;
-								
-								//Extract the http response body
-								//
-								if(response.body != null && response.body != '')
+								if(tokenObj.apiResponse.hasOwnProperty('access_token') && tokenObj.apiResponse.hasOwnProperty('token_type'))
 									{
-										//Try to parse the response body into a JSON object
+										var accessToken = tokenObj.apiResponse.access_token;
+										var tokenType	= tokenObj.apiResponse.token_type;
+
+										//Build up the headers for the get request
+										//
+										headerObj['Accept']				= '*/*';
+										headerObj['Content-Type'] 		= 'application/json';
+										headerObj['Authorization'] 		= tokenType + ' ' + accessToken;
+										
+										var actualUrl = configurationObj.endpointGetAuthDetails.replace('{authorization_id}',_transactionId);
+										
+										//Execute the request
 										//
 										try
 											{
-												responseBodyObj = JSON.parse(response.body);
+												var response = https.get({	
+																			url:		actualUrl,
+																			headers:	headerObj
+																			});
+										
+												//Extract the http response code	
+												//
+												paymentDetailsObj.httpResponseCode = response.code;
+												
+												//Extract the http response body
+												//
+												if(response.body != null && response.body != '')
+													{
+														//Try to parse the response body into a JSON object
+														//
+														try
+															{
+																responseBodyObj = JSON.parse(response.body);
+															}
+														catch(err)
+															{
+																responseBodyObj = null;
+															}
+														
+														//Process the converted JSON object
+														//
+														if(responseBodyObj != null)
+															{
+																paymentDetailsObj.apiResponse 		= responseBodyObj;
+															}
+													}
 											}
 										catch(err)
 											{
-												responseBodyObj = null;
-											}
-										
-										//Process the converted JSON object
-										//
-										if(responseBodyObj != null)
-											{
-												serviceInfoObj.apiResponse 		= responseBodyObj;
+												paymentDetailsObj.responseMessage = err.message;
 											}
 									}
-							}
-						catch(err)
-							{
-								serviceInfoObj.responseMessage = err.message;
+								else
+									{
+										paymentDetailsObj.responseMessage = 'No valid configuration found';
+									}
+								
 							}
 					}
-				else
+				
+				return paymentDetailsObj;
+			}
+		
+		
+		//Get information about a payment capture
+		//Parameters;
+		//	_transactionId		The transaction id of the PayPal capture 
+		//
+		function getCaptureDetails(_transactionId)
+			{
+				var headerObj 			= {};
+				var captureDetailsObj 	= new genericResponseObj();
+				var responseBodyObj 	= null;
+				var configurationObj	= null;
+				var tokenObj			= null;
+				
+				//Get the current configuration
+				//
+				configurationObj = getConfiguration();
+				
+				if(configurationObj != null)
 					{
-						serviceInfoObj.responseMessage = 'No valid configuration found';
+						//Get an access token
+						//
+						tokenObj = getAccessToken(configurationObj);
+						
+						if(tokenObj.httpResponseCode == '200')
+							{
+								if(tokenObj.apiResponse.hasOwnProperty('access_token') && tokenObj.apiResponse.hasOwnProperty('token_type'))
+									{
+										var accessToken = tokenObj.apiResponse.access_token;
+										var tokenType	= tokenObj.apiResponse.token_type;
+
+										//Build up the headers for the get request
+										//
+										headerObj['Accept']				= '*/*';
+										headerObj['Content-Type'] 		= 'application/json';
+										headerObj['Authorization'] 		= tokenType + ' ' + accessToken;
+										
+										var actualUrl = configurationObj.endpointGetCatureDetails.replace('{capture_id}',_transactionId);
+										
+										//Execute the request
+										//
+										try
+											{
+												var response = https.get({	
+																			url:		actualUrl,
+																			headers:	headerObj
+																			});
+										
+												//Extract the http response code	
+												//
+												captureDetailsObj.httpResponseCode = response.code;
+												
+												//Extract the http response body
+												//
+												if(response.body != null && response.body != '')
+													{
+														//Try to parse the response body into a JSON object
+														//
+														try
+															{
+																responseBodyObj = JSON.parse(response.body);
+															}
+														catch(err)
+															{
+																responseBodyObj = null;
+															}
+														
+														//Process the converted JSON object
+														//
+														if(responseBodyObj != null)
+															{
+																captureDetailsObj.apiResponse 		= responseBodyObj;
+															}
+													}
+											}
+										catch(err)
+											{
+												captureDetailsObj.responseMessage = err.message;
+											}
+									}
+								else
+									{
+										captureDetailsObj.responseMessage = 'No valid configuration found';
+									}
+								
+							}
 					}
 				
-				return serviceInfoObj;
-				
+				return captureDetailsObj;
 			}
 		
 	
-		//Get list of printers available
+		//Get information about a payment refund
+		//Parameters;
+		//	_transactionId		The transaction id of the PayPal refund 
 		//
-		function getPrinters()
+		function getRefundDetails(_transactionId)
 			{
 				var headerObj 			= {};
-				var serviceInfoObj 		= new BBSPrintNodeLibraryModule.libGenericResponseObj();
+				var refundDetailsObj 	= new genericResponseObj();
 				var responseBodyObj 	= null;
 				var configurationObj	= null;
+				var tokenObj			= null;
 				
 				//Get the current configuration
 				//
@@ -224,69 +333,96 @@ function(email, encode, file, https, record, runtime, search)
 				
 				if(configurationObj != null)
 					{
-						//Build up the headers for the get request
+						//Get an access token
 						//
-						headerObj['Accept']				= '*/*';
-						headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
+						tokenObj = getAccessToken(configurationObj);
 						
-						//Execute the request
-						//
-						try
+						if(tokenObj.httpResponseCode == '200')
 							{
-								var response = https.get({	
-															url:		configurationObj.endpointGetPrinters,
-															headers:	headerObj
-															});
-						
-								//Extract the http response code	
-								//
-								serviceInfoObj.httpResponseCode = response.code;
-								
-								//Extract the http response body
-								//
-								if(response.body != null && response.body != '')
+								if(tokenObj.apiResponse.hasOwnProperty('access_token') && tokenObj.apiResponse.hasOwnProperty('token_type'))
 									{
-										//Try to parse the response body into a JSON object
+										var accessToken = tokenObj.apiResponse.access_token;
+										var tokenType	= tokenObj.apiResponse.token_type;
+
+										//Build up the headers for the get request
+										//
+										headerObj['Accept']				= '*/*';
+										headerObj['Content-Type'] 		= 'application/json';
+										headerObj['Authorization'] 		= tokenType + ' ' + accessToken;
+										
+										var actualUrl = configurationObj.endpointGetRefundDetails.replace('{refund_id}',_transactionId);
+										
+										//Execute the request
 										//
 										try
 											{
-												responseBodyObj = JSON.parse(response.body);
+												var response = https.get({	
+																			url:		actualUrl,
+																			headers:	headerObj
+																			});
+										
+												//Extract the http response code	
+												//
+												refundDetailsObj.httpResponseCode = response.code;
+												
+												//Extract the http response body
+												//
+												if(response.body != null && response.body != '')
+													{
+														//Try to parse the response body into a JSON object
+														//
+														try
+															{
+																responseBodyObj = JSON.parse(response.body);
+															}
+														catch(err)
+															{
+																responseBodyObj = null;
+															}
+														
+														//Process the converted JSON object
+														//
+														if(responseBodyObj != null)
+															{
+																refundDetailsObj.apiResponse 		= responseBodyObj;
+															}
+													}
 											}
 										catch(err)
 											{
-												responseBodyObj = null;
-											}
-										
-										//Process the converted JSON object
-										//
-										if(responseBodyObj != null)
-											{
-												serviceInfoObj.apiResponse 		= responseBodyObj;
+												refundDetailsObj.responseMessage = err.message;
 											}
 									}
-							}
-						catch(err)
-							{
-								serviceInfoObj.responseMessage = err.message;
+								else
+									{
+										refundDetailsObj.responseMessage = 'No valid configuration found';
+									}
+								
 							}
 					}
-				else
-					{
-						serviceInfoObj.responseMessage = 'No valid configuration found';
-					}
 				
-				return serviceInfoObj;
-				
+				return refundDetailsObj;
 			}
-
-		//Send a print to the api
+	
+		
+		//Capture a payment
 		//
-		function sendPrint(_printRequest)
+		//Parameters;
+		//	_transactionId		The transaction id of the PayPal authorisation 
+		//	_nsTransactionId	The transaction id of the associated NetSuite transaction e.g. the cash sale record
+		//	_amountObj			The amount object from the response of the getPaymnentDetails call e.g.
+		//						"amount": 	{
+        //									"currency_code": "GBP",
+		//									"value": "16.90"
+    	//									}
+		//
+		function capturePayment(_transactionId, _nsTransactionId, _amountObj)	
 			{
 				var headerObj 			= {};
-				var serviceInfoObj 		= new BBSPrintNodeLibraryModule.libGenericResponseObj();
+				var captureObj 			= new genericResponseObj();
 				var responseBodyObj 	= null;
 				var configurationObj	= null;
+				var tokenObj			= null;
 				
 				//Get the current configuration
 				//
@@ -294,62 +430,275 @@ function(email, encode, file, https, record, runtime, search)
 				
 				if(configurationObj != null)
 					{
-						//Build up the headers for the get request
+						//Get an access token
 						//
-						headerObj['Accept']				= '*/*';
-						headerObj['Authorization'] 		= configurationObj.credentialsEncoded;
+						tokenObj = getAccessToken(configurationObj);
 						
-						//Execute the request
-						//
-						try
+						if(tokenObj.httpResponseCode == '200')
 							{
-								var response = https.post({	
-															url:		configurationObj.endpointPrintJob,
-															headers:	headerObj
-															
-															});
-						
-								//Extract the http response code	
-								//
-								serviceInfoObj.httpResponseCode = response.code;
-								
-								//Extract the http response body
-								//
-								if(response.body != null && response.body != '')
+								if(tokenObj.apiResponse.hasOwnProperty('access_token') && tokenObj.apiResponse.hasOwnProperty('token_type'))
 									{
-										//Try to parse the response body into a JSON object
+										var accessToken = tokenObj.apiResponse.access_token;
+										var tokenType	= tokenObj.apiResponse.token_type;
+
+										//Build up the headers for the get request
+										//
+										headerObj['Accept']				= '*/*';
+										headerObj['Content-Type'] 		= 'application/json';
+										headerObj['Authorization'] 		= tokenType + ' ' + accessToken;
+										headerObj['Prefer'] 			= 'return=representation';
+										
+										var bodyObj 					= {};
+										bodyObj.amount					= _amountObj;
+										bodyObj.final_capture			= true;
+										bodyObj.invoice_id				= _nsTransactionId;
+										
+										var actualUrl = configurationObj.endpointCapturePayment.replace('{authorization_id}',_transactionId);
+										
+										//Execute the request
 										//
 										try
 											{
-												responseBodyObj = JSON.parse(response.body);
+												var response = https.post({	
+																			url:		actualUrl,
+																			headers:	headerObj,
+																			body:		JSON.stringify(_amountObj)
+																			});
+										
+												//Extract the http response code	
+												//
+												captureObj.httpResponseCode = response.code;
+												
+												//Extract the http response body
+												//
+												if(response.body != null && response.body != '')
+													{
+														//Try to parse the response body into a JSON object
+														//
+														try
+															{
+																responseBodyObj = JSON.parse(response.body);
+															}
+														catch(err)
+															{
+																responseBodyObj = null;
+															}
+														
+														//Process the converted JSON object
+														//
+														if(responseBodyObj != null)
+															{
+																captureObj.apiResponse 		= responseBodyObj;
+															}
+													}
 											}
 										catch(err)
 											{
-												responseBodyObj = null;
-											}
-										
-										//Process the converted JSON object
-										//
-										if(responseBodyObj != null)
-											{
-												serviceInfoObj.apiResponse 		= responseBodyObj;
+												captureObj.responseMessage = err.message;
 											}
 									}
-							}
-						catch(err)
-							{
-								serviceInfoObj.responseMessage = err.message;
+								else
+									{
+										captureObj.responseMessage = 'No valid configuration found';
+									}
+								
 							}
 					}
-				else
+				
+				return captureObj;
+			}
+	
+		
+		//Re-authorise a payment
+		//
+		//Parameters;
+		//	_transactionId		The transaction id of the PayPal authorisation 
+		//
+		function reauthorisePayment(_transactionId)	
+			{
+				var headerObj 			= {};
+				var reauthoriseObj 		= new genericResponseObj();
+				var responseBodyObj 	= null;
+				var configurationObj	= null;
+				var tokenObj			= null;
+				
+				//Get the current configuration
+				//
+				configurationObj = getConfiguration();
+				
+				if(configurationObj != null)
 					{
-						serviceInfoObj.responseMessage = 'No valid configuration found';
+						//Get an access token
+						//
+						tokenObj = getAccessToken(configurationObj);
+						
+						if(tokenObj.httpResponseCode == '200')
+							{
+								if(tokenObj.apiResponse.hasOwnProperty('access_token') && tokenObj.apiResponse.hasOwnProperty('token_type'))
+									{
+										var accessToken = tokenObj.apiResponse.access_token;
+										var tokenType	= tokenObj.apiResponse.token_type;
+
+										//Build up the headers for the get request
+										//
+										headerObj['Accept']				= '*/*';
+										headerObj['Content-Type'] 		= 'application/json';
+										headerObj['Authorization'] 		= tokenType + ' ' + accessToken;
+										
+										var actualUrl = configurationObj.endpointReauthorizePayment.replace('{authorization_id}',_transactionId);
+										
+										//Execute the request
+										//
+										try
+											{
+												var response = https.post({	
+																			url:		actualUrl,
+																			headers:	headerObj
+																			});
+										
+												//Extract the http response code	
+												//
+												reauthoriseObj.httpResponseCode = response.code;
+												
+												//Extract the http response body
+												//
+												if(response.body != null && response.body != '')
+													{
+														//Try to parse the response body into a JSON object
+														//
+														try
+															{
+																responseBodyObj = JSON.parse(response.body);
+															}
+														catch(err)
+															{
+																responseBodyObj = null;
+															}
+														
+														//Process the converted JSON object
+														//
+														if(responseBodyObj != null)
+															{
+																reauthoriseObj.apiResponse 		= responseBodyObj;
+															}
+													}
+											}
+										catch(err)
+											{
+												reauthoriseObj.responseMessage = err.message;
+											}
+									}
+								else
+									{
+										reauthoriseObj.responseMessage = 'No valid configuration found';
+									}
+								
+							}
 					}
 				
-				return serviceInfoObj;
-				
+				return reauthoriseObj;
 			}
 
+
+		//Refund a captured payment
+		//
+		//	_transactionId		The transaction id of the PayPal authorisation 
+		//	_nsTransactionId	The transaction id of the associated NetSuite transaction e.g. the refund record
+		//	_amountObj			The amount object from the response of the getPaymnentDetails call e.g.
+		//						"amount": 	{
+        //									"currency_code": "GBP",
+		//									"value": "16.90"
+    	//									}
+		//
+		function refundPayment(_transactionId, _nsTransactionId, _amountObj)	
+			{
+				var headerObj 			= {};
+				var refundObj 			= new genericResponseObj();
+				var responseBodyObj 	= null;
+				var configurationObj	= null;
+				var tokenObj			= null;
+				
+				//Get the current configuration
+				//
+				configurationObj = getConfiguration();
+				
+				if(configurationObj != null)
+					{
+						//Get an access token
+						//
+						tokenObj = getAccessToken(configurationObj);
+						
+						if(tokenObj.httpResponseCode == '200')
+							{
+								if(tokenObj.apiResponse.hasOwnProperty('access_token') && tokenObj.apiResponse.hasOwnProperty('token_type'))
+									{
+										var accessToken = tokenObj.apiResponse.access_token;
+										var tokenType	= tokenObj.apiResponse.token_type;
+
+										//Build up the headers for the get request
+										//
+										headerObj['Accept']				= '*/*';
+										headerObj['Content-Type'] 		= 'application/json';
+										headerObj['Authorization'] 		= tokenType + ' ' + accessToken;
+										
+										var bodyObj 					= {};
+										bodyObj.amount					= _amountObj;
+										bodyObj.invoice_id				= _nsTransactionId;
+										
+										var actualUrl = configurationObj.endpointRefundPayment.replace('{capture_id}',_transactionId);
+										
+										//Execute the request
+										//
+										try
+											{
+												var response = https.post({	
+																			url:		actualUrl,
+																			headers:	headerObj
+																			});
+										
+												//Extract the http response code	
+												//
+												refundObj.httpResponseCode = response.code;
+												
+												//Extract the http response body
+												//
+												if(response.body != null && response.body != '')
+													{
+														//Try to parse the response body into a JSON object
+														//
+														try
+															{
+																responseBodyObj = JSON.parse(response.body);
+															}
+														catch(err)
+															{
+																responseBodyObj = null;
+															}
+														
+														//Process the converted JSON object
+														//
+														if(responseBodyObj != null)
+															{
+																refundObj.apiResponse 		= responseBodyObj;
+															}
+													}
+											}
+										catch(err)
+											{
+												refundObj.responseMessage = err.message;
+											}
+									}
+								else
+									{
+										refundObj.responseMessage = 'No valid configuration found';
+									}
+								
+							}
+					}
+				
+				return refundObj;
+			}
+		
 		
 		//Get an access token based on the user name & password
 		//
@@ -445,10 +794,14 @@ function(email, encode, file, https, record, runtime, search)
 		//Return exposed functions
 		//
 		return {
-	        		doPing:					doPing,
-	        		getAccountInfo:			getAccountInfo,
-	        		getPrinters:			getPrinters,
-	        		sendPrint:				sendPrint
+					getAccessToken:			getAccessToken,
+					getConfiguration:		getConfiguration,
+					getPaymnentDetails:		getPaymnentDetails,
+					getCaptureDetails:		getCaptureDetails,
+					getRefundDetails:		getRefundDetails,
+					capturePayment:			capturePayment,
+					reauthorisePayment:		reauthorisePayment,
+					refundPayment:			refundPayment
 	    		};
 	    
 	});
