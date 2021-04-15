@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define([],
-function() {
+define(['N/record'],
+function(record) {
     
     /**
      * Function to be executed after page is initialized.
@@ -32,6 +32,34 @@ function() {
      * @since 2015.2
      */
     function fieldChanged(scriptContext) {
+    	
+    	// if the tax code has been changed
+    	if (scriptContext.sublistId == 'expense' && scriptContext.fieldId == 'custcol_bbs_tax_code')
+    		{
+    			// get the current record
+    			var currentRecord = scriptContext.currentRecord;
+    		
+    			// get the tax code
+    			var taxCode = currentRecord.getCurrentSublistValue({
+    				sublistId: 'expense',
+    				fieldId: 'custcol_bbs_tax_code'
+    			});
+    			
+    			// load the tax code record and get the tax rate the tax rate from the tax code record
+    			var taxRate = record.load({
+    				type: record.Type.SALES_TAX_ITEM,
+    				id: taxCode
+    			}).getValue({
+    				fieldId: 'custrecord_ste_taxcode_taxrate'
+    			});
+    			
+    			// set the tax rate on the current line
+    			currentRecord.setCurrentSublistValue({
+    				sublistId: 'expense',
+    				fieldId: 'custcol_bbs_tax_rate',
+    				value: taxRate
+    			});
+    		}
 
     }
 
@@ -152,16 +180,7 @@ function() {
     }
 
     return {
-        pageInit: pageInit,
-        fieldChanged: fieldChanged,
-        postSourcing: postSourcing,
-        sublistChanged: sublistChanged,
-        lineInit: lineInit,
-        validateField: validateField,
-        validateLine: validateLine,
-        validateInsert: validateInsert,
-        validateDelete: validateDelete,
-        saveRecord: saveRecord
+    	fieldChanged: fieldChanged
     };
     
 });

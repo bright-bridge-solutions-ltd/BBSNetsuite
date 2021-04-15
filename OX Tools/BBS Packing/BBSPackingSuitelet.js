@@ -193,12 +193,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																		label:	'Selection'
 																		});
 								
-								//Add a field for the so / if number
+								//Add a field for the picking carton number / if number / so number
 								//
 								var selectSoIfField = form.addField({
 													                id: 		'custpage_entry_so_if',
 													                type: 		serverWidget.FieldType.TEXT,
-													                label: 		'Sales Order/Fulfillment',
+													                label: 		'Pick Carton / Fulfillment / Sales Order',
 													                container:	'custpage_selection_group'
 												            		});
 								

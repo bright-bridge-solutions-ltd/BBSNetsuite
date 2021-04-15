@@ -1,9 +1,13 @@
 /**
  * @NApiVersion 2.x
  * @NScriptType UserEventScript
- * @NModuleScope SameAccount
+ * @NModuleScope Public
  */
+<<<<<<< HEAD
 define(['N/record', 'N/ui/serverWidget', 'N/search', 'N/plugin'],
+=======
+define(['N/record', 'N/ui/serverWidget', 'N/search','N/plugin'],
+>>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite
 function(record, ui, search, plugin) 
 {
    
@@ -25,46 +29,40 @@ function(record, ui, search, plugin)
     		
     		//Read the AFC config record
     		//
-    		try
-				{
-					//Get the plugin implementation
-					//
-					var  tfcPlugin = plugin.loadImplementation({
-																type: 'customscript_bbstfc_plugin'
-																});
-					
-					if(tfcPlugin != null)
-						{
-							//Get the current config 
-							//
-							configObject = tfcPlugin.getTFCConfiguration();
-						}
-				}
-			catch(err)
-				{
-					log.error({
-								title:		'Unexpected error when trying to get config record',
-								details:	err
-								});
-					
-					configObject = null;
-				}
-			
+    		var customrecord_bbstfc_configSearchObj = getResults(search.create({
+				   type: "customrecord_bbstfc_config",
+				   filters:
+				   [
+				      ["isinactive","is","F"]
+				   ],
+				   columns:
+				   [
+				      search.createColumn({name: "custrecord_bbstfc_from_address_field"}),
+				      search.createColumn({name: "custrecord_bbstfc_to_address_field"})
+				   ]
+				}));
+    		
+
     		//Check we can get the sublist & we have the config object
 			//
-    		if (itemSublist != null && configObject != null)
+    		if (itemSublist != null && customrecord_bbstfc_configSearchObj != null && customrecord_bbstfc_configSearchObj.length > 0)
 				{
+    				//Get the 'real' fields from the config object
+    				//
+	    			var realFromAddress = customrecord_bbstfc_configSearchObj[0].getValue({name: "custrecord_bbstfc_from_address_field"});
+	    			var realToAddress 	= customrecord_bbstfc_configSearchObj[0].getValue({name: "custrecord_bbstfc_to_address_field"});
+					
 					// add new fields to the sublist
 					var fromAddressField = itemSublist.addField({
-																id: 	'custpage_from_address',
+																id: 	'custpage_bbstfc_endpoint_from',
 																type: 	ui.FieldType.SELECT,
-																label: 'EndPoint "A" Address'
+																label: 'EndPoint From Address'
 																});
 			
 					var toAddressField = itemSublist.addField({
-																id: 	'custpage_to_address',
+																id: 	'custpage_bbstfc_endpoint_to',
 																type: 	ui.FieldType.SELECT,
-																label: 'EndPoint "Z" Address'
+																label: 'EndPoint To Address'
 																});
 		    		
 					//Get the customer id
@@ -86,7 +84,7 @@ function(record, ui, search, plugin)
 								   columns:
 								   [
 								      search.createColumn({name: "addresslabel", join: "Address", label: "Address Label"}),
-								      search.createColumn({name: "internalid", join: "Address", label: "Internal ID"})
+								      search.createColumn({name: "addressinternalid", join: "Address", label: "Internal ID"})
 								   ]
 								}));
 					
@@ -95,13 +93,13 @@ function(record, ui, search, plugin)
 							fromAddressField.addSelectOption({
 														    value: 			'',
 														    text: 			'',
-														    isSelected: 	true
+													//	    isSelected: 	true
 															});
 							
 							toAddressField.addSelectOption({
 														    value: 			'',
 														    text: 			'',
-														    isSelected: 	true
+													//	    isSelected: 	true
 															});
 
 							//Populate the select fields with options
@@ -111,7 +109,7 @@ function(record, ui, search, plugin)
 									for (var int = 0; int < customerSearchObj.length; int++) 
 										{
 											var addressLabel 	= customerSearchObj[int].getValue({name: "addresslabel", join: "Address"});
-											var addressId 		= customerSearchObj[int].getValue({name: "internalid", join: "Address"});
+											var addressId 		= customerSearchObj[int].getValue({name: "addressinternalid", join: "Address"});
 											
 											fromAddressField.addSelectOption({
 																				value: 	addressId,
@@ -135,27 +133,29 @@ function(record, ui, search, plugin)
 			    					//
 			    					var selectedFromAddress = currentRecord.getSublistValue({
 																    						sublistId: 	'item',
-																    						fieldId: 	'packagetrackingnumber',
+																    						fieldId: 	realFromAddress,
 																    						line: 		i
 																    						});
 			    					
 			    					var selectedToAddress = currentRecord.getSublistValue({
 																    						sublistId: 	'item',
-																    						fieldId: 	'packagetrackingnumber',
+																    						fieldId: 	realToAddress,
 																    						line: 		i
 																    						});
 
 			    					//Set the selected value on the to/from address fields
 			    					//
+			    					
 			    					if(selectedFromAddress != '')
 			    						{
-			    							
-			    						}
+				    						currentRecord.setSublistValue({sublistId: 'item', fieldId: 'custpage_bbstfc_endpoint_from', line: i, value: selectedFromAddress});
+				    					}
 			    					
 			    					if(selectedToAddress != '')
 			    						{
-			    							
+			    							currentRecord.setSublistValue({sublistId: 'item', fieldId: 'custpage_bbstfc_endpoint_to', line: i, value: selectedToAddress});
 			    						}
+			    					
 			    				}
 		    		}
 			}
@@ -170,23 +170,60 @@ function(record, ui, search, plugin)
      * @param {string} scriptContext.type - Trigger type
      * @Since 2015.2
      */
-    function beforeSubmit(scriptContext) {
-    	
-    	// get the current record
-    	var currentRecord = scriptContext.newRecord;
-    	
-    	// get line count
-    	var lineCount = currentRecord.getLineCount({
-    		sublistId: 'item'
-    	});
-    	
-    	// loop through line count
-    	for (var i = 0; i < lineCount; i++)
-    		{
-    			
-    		}
+    
+    function beforeSubmit(scriptContext) 
+	    {
+    		var currentRecord 	= scriptContext.newRecord;
+		
+    		var customrecord_bbstfc_configSearchObj = getResults(search.create({
+				   type: "customrecord_bbstfc_config",
+				   filters:
+				   [
+				      ["isinactive","is","F"]
+				   ],
+				   columns:
+				   [
+				      search.createColumn({name: "custrecord_bbstfc_from_address_field"}),
+				      search.createColumn({name: "custrecord_bbstfc_to_address_field"})
+				   ]
+				}));
+ 		
+ 		if (customrecord_bbstfc_configSearchObj != null && customrecord_bbstfc_configSearchObj.length > 0)
+				{
+	 				//Get the 'real' fields from the config object
+	 				//
+	    			var realFromAddress = customrecord_bbstfc_configSearchObj[0].getValue({name: "custrecord_bbstfc_from_address_field"});
+	    			var realToAddress 	= customrecord_bbstfc_configSearchObj[0].getValue({name: "custrecord_bbstfc_to_address_field"});
+					
+	    			//Loop through the item sublist
+					//
+					var itemCount = currentRecord.getLineCount({sublistId: 'item'});
+	    			
+	    			for (var i = 0; i < itemCount; i++)
+	    				{
+	    					//Get field values from the line
+	    					//
+	    					var selectedFromAddress = currentRecord.getSublistValue({
+														    						sublistId: 	'item',
+														    						fieldId: 	'custpage_bbstfc_endpoint_from',
+														    						line: 		i
+														    						});
+	    					
+	    					var selectedToAddress = currentRecord.getSublistValue({
+														    						sublistId: 	'item',
+														    						fieldId: 	'custpage_bbstfc_endpoint_to',
+														    						line: 		i
+														    						});
 
-    }
+	    					//Set the selected value on the to/from address fields
+	    					//
+	    					
+		    				currentRecord.setSublistValue({sublistId: 'item', fieldId: realFromAddress, line: i, value: selectedFromAddress});
+	    					currentRecord.setSublistValue({sublistId: 'item', fieldId: realToAddress, line: i, value: selectedToAddress});
+	    					
+	    				}
+				}
+	    }
 
     /**
      * Function definition to be triggered after record is saved.
@@ -197,6 +234,7 @@ function(record, ui, search, plugin)
      * @param {string} scriptContext.type - Trigger type
      * @Since 2015.2
      */
+<<<<<<< HEAD
     function afterSubmit(scriptContext) {
     	
     
@@ -222,10 +260,23 @@ function(record, ui, search, plugin)
 
     	return results;
     }
+=======
+    function afterSubmit(scriptContext) 
+    	{
+	    	
+    	}
+    
+>>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite
 
     return 	{
+<<<<<<< HEAD
     	beforeLoad: 	beforeLoad,
     	beforeSubmit: 	beforeSubmit
     };
+=======
+        	beforeLoad: 	beforeLoad,
+        	beforeSubmit:	beforeSubmit
+    		};
+>>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite
     
 });

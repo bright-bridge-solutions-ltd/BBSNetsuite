@@ -3,15 +3,257 @@
  * @NScriptType UserEventScript
  * @NModuleScope Public
  */
-define(['N/runtime', 'N/record', 'N/search', './libraryModule', 'N/plugin'],
+define(['N/runtime', 'N/record', 'N/search', './libraryModule', 'N/plugin', 'N/ui/serverWidget'],
 /**
  * @param {record} record
  * @param {search} search
  */
-function(runtime, record, search, libraryModule, plugin)
+function(runtime, record, search, libraryModule, plugin, ui)
 	{	
+	
 		/**
 	     * Function definition to be triggered before record is loaded.
+	     *
+	     * @param {Object} scriptContext
+	     * @param {Record} scriptContext.newRecord - New record
+	     * @param {string} scriptContext.type - Trigger type
+	     * @param {Form} scriptContext.form - Current form
+	     * @Since 2015.2
+	     */
+	    function calculateTaxesBL(scriptContext) {
+    		
+	    	var form 			= scriptContext.form;
+    		var itemSublist 	= form.getSublist({id: 'item'});
+    		var currentRecord 	= scriptContext.newRecord;
+    		
+    		//Get the plugin implementation
+			//
+			var tfcPlugin = plugin.loadImplementation({
+														type: 'customscript_bbstfc_plugin',
+														});
+			
+			//Have we been able to call the plugin
+			//
+			if (tfcPlugin)
+				{
+					//Get the configuration
+					//
+					var configuration = tfcPlugin.getTFCConfiguration();
+					
+					//If we have a configuration object and we have been able to get the item sublist
+					//
+					if (configuration && itemSublist)
+						{
+							//Get the 'real' fields from the config object
+		    				//
+			    			var realFromAddress = configuration.fromAddressFieldId;
+			    			var realToAddress 	= configuration.toAddressFieldId;
+						
+							// add new fields to the sublist
+							var fromAddressField = itemSublist.addField({
+																		id: 	'custpage_bbstfc_endpoint_from',
+																		type: 	ui.FieldType.SELECT,
+																		label: 'EndPoint From Address'
+																		});
+					
+							var toAddressField = itemSublist.addField({
+																		id: 	'custpage_bbstfc_endpoint_to',
+																		type: 	ui.FieldType.SELECT,
+																		label: 'EndPoint To Address'
+																		});
+			    		
+							//Get the customer id
+							//
+				    		var customerId = currentRecord.getValue({
+				    			fieldId: 'entity'
+				    		});
+				    			
+				    		//Is the customer populated?
+				    		//
+				    		if(customerId)
+				    			{
+				    				//Find the customer addresses
+				    				//
+									var customerSearchObj = libraryModule.getResults(search.create({
+										   type: "customer",
+										   filters:
+										   [
+										      ["internalid","anyof",customerId]
+										   ],
+										   columns:
+										   [
+										      search.createColumn({name: "addresslabel", join: "Address", label: "Address Label"}),
+										      search.createColumn({name: "addressinternalid", join: "Address", label: "Internal ID"})
+										   ]
+										}));
+							
+									//Set a blank option
+									//
+									fromAddressField.addSelectOption({
+																    value: 			'',
+																    text: 			'',
+															//	    isSelected: 	true
+																	});
+									
+									toAddressField.addSelectOption({
+																    value: 			'',
+																    text: 			'',
+															//	    isSelected: 	true
+																	});
+
+									//Populate the select fields with options
+									//
+									if(customerSearchObj != null && customerSearchObj.length > 0)
+										{
+											for (var int = 0; int < customerSearchObj.length; int++) 
+												{
+													var addressLabel 	= customerSearchObj[int].getValue({name: "addresslabel", join: "Address"});
+													var addressId 		= customerSearchObj[int].getValue({name: "addressinternalid", join: "Address"});
+													
+													fromAddressField.addSelectOption({
+																						value: 	addressId,
+																					    text: 	addressLabel
+																					});
+													
+													toAddressField.addSelectOption({
+																						value: 	addressId,
+																					    text: 	addressLabel
+																					});
+												}
+										}
+								
+									//Loop through the item sublist
+									//
+									var itemCount = currentRecord.getLineCount({
+										sublistId: 'item'
+									});
+					    			
+					    			for (var i = 0; i < itemCount; i++)
+					    				{
+					    					//Get field values from the line
+					    					//
+					    					var selectedFromAddress = currentRecord.getSublistValue({
+																		    						sublistId: 	'item',
+																		    						fieldId: 	realFromAddress,
+																		    						line: 		i
+																		    						});
+					    					
+					    					var selectedToAddress = currentRecord.getSublistValue({
+																		    						sublistId: 	'item',
+																		    						fieldId: 	realToAddress,
+																		    						line: 		i
+																		    						});
+	
+					    					//Set the selected value on the to/from address fields
+					    					//
+					    					if(selectedFromAddress)
+					    						{
+						    						currentRecord.setSublistValue({
+						    							sublistId: 'item',
+						    							fieldId: 'custpage_bbstfc_endpoint_from',
+						    							line: i,
+						    							value: selectedFromAddress
+						    						});
+						    					}
+					    					
+					    					if(selectedToAddress)
+					    						{
+					    							currentRecord.setSublistValue({
+					    								sublistId: 'item',
+					    								fieldId: 'custpage_bbstfc_endpoint_to',
+					    								line: i,
+					    								value: selectedToAddress
+					    							});
+					    						}
+					    					
+					    				}
+				    			}
+						}
+					
+				}
+	    }
+	    
+	    /**
+	     * Function definition to be triggered before record is saved.
+	     *
+	     * @param {Object} scriptContext
+	     * @param {Record} scriptContext.newRecord - New record
+	     * @param {Record} scriptContext.oldRecord - Old record
+	     * @param {string} scriptContext.type - Trigger type
+	     * @Since 2015.2
+	     */
+	    function calculateTaxesBS(scriptContext) {
+	    	
+	    	// get the current record
+	    	var currentRecord = scriptContext.newRecord;
+
+	    	//Get the plugin implementation
+			//
+			var tfcPlugin = plugin.loadImplementation({
+														type: 'customscript_bbstfc_plugin',
+														});
+			
+			//Have we been able to call the plugin
+			//
+			if (tfcPlugin)
+				{
+					//Get the configuration
+					//
+					var configuration = tfcPlugin.getTFCConfiguration();
+					
+					//If we have a configuration object and we have been able to get the item sublist
+					//
+					if (configuration)
+						{
+							//Get the 'real' fields from the config object
+		    				//
+			    			var realFromAddress = configuration.fromAddressFieldId;
+			    			var realToAddress 	= configuration.toAddressFieldId;
+	    	
+			    			//Loop through the item sublist
+							//
+							var itemCount = currentRecord.getLineCount({
+								sublistId: 'item'
+							});
+	    			
+			    			for (var i = 0; i < itemCount; i++)
+			    				{
+			    					//Get field values from the line
+			    					//
+			    					var selectedFromAddress = currentRecord.getSublistValue({
+																    						sublistId: 	'item',
+																    						fieldId: 	'custpage_bbstfc_endpoint_from',
+																    						line: 		i
+																    						});
+			    					
+			    					var selectedToAddress = currentRecord.getSublistValue({
+																    						sublistId: 	'item',
+																    						fieldId: 	'custpage_bbstfc_endpoint_to',
+																    						line: 		i
+																    						});
+		
+			    					//Set the selected value on the to/from address fields
+			    					//
+				    				currentRecord.setSublistValue({
+				    					sublistId: 'item',
+				    					fieldId: realFromAddress,
+				    					line: i,
+				    					value: selectedFromAddress
+				    				});
+			    					
+				    				currentRecord.setSublistValue({
+				    					sublistId: 'item',
+				    					fieldId: realToAddress,
+				    					line: i,
+				    					value: selectedToAddress
+				    				});
+			    				}
+						}
+				}
+	    }
+	
+		/**
+	     * Function definition to be triggered after record is saved.
 	     *
 	     * @param {Object} scriptContext
 	     * @param {Record} scriptContext.newRecord - New record
@@ -364,7 +606,7 @@ function(runtime, record, search, libraryModule, plugin)
 													{
 														//Call library function to return data for the selected address
 														//
-														var toAddressData = libraryModule.getAddressData(fromAddress);
+														var toAddressData = libraryModule.getAddressData(toAddress);
 													
 														//Fill in the to properties in the item object
 														//
@@ -739,7 +981,9 @@ function(runtime, record, search, libraryModule, plugin)
 		    }
 	    
 	    return 	{
-	    			afterSubmit: calculateTaxesAS
+	    			beforeLoad:		calculateTaxesBL,
+	    			beforeSubmit:	calculateTaxesBS,
+	    			afterSubmit: 	calculateTaxesAS
 	    		};
 	    
 	});

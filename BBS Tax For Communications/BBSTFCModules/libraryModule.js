@@ -2137,7 +2137,8 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 			libTaxSummaryObj:				libTaxSummaryObj,
 			libOutputSummary:				libOutputSummary,
 			padding_left:					padding_left,
-			doLicenceCheck:					doLicenceCheck
+			doLicenceCheck:					doLicenceCheck,
+			getResults:						getResults
     		};
     
 });

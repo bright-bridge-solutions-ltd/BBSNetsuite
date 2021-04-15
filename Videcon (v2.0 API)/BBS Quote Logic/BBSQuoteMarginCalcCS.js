@@ -83,15 +83,17 @@ function(search) {
     				var itemCost 		= Number(itemData.cost);
     				var lineCost 		= (itemAverageCost === 0 ? itemCost : itemAverageCost);	//If average cost is 0 then use purchase price
     				
-    				lineCost 			= lineCost * quantity;
+    				var newLineCost 		= lineCost * quantity;
     				
     				var lineMargin 		= amount - lineCost;
     				var lineMarginPc	= Number(((lineMargin / (amount == 0 ? 0.01 : amount)) * 100.00).toFixed(2));
     				
-    				scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_line_cost_net',     value: lineCost, ignoreFieldChange: true});
+    				scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_line_cost_net',     value: newLineCost, ignoreFieldChange: true});
     				scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_line_profit_net',   value: lineMargin, ignoreFieldChange: true});
     				scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_lineprofitpercent', value: lineMarginPc, ignoreFieldChange: true});
     				
+    				scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'costestimaterate', value: lineCost, ignoreFieldChange: false});
+    				scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'costestimate', value: newLineCost, ignoreFieldChange: false});
     			}
     	}
 
