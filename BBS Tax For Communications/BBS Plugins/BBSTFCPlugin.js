@@ -338,7 +338,7 @@ function(email, encode, file, https, record, runtime, search, libraryModule)
 				
 				//If we have a subsidiary ID
 				//
-				if (subsidiaryID)
+				if (subsidiaryID != null && subsidiaryID != '')
 					{
 						try
 							{

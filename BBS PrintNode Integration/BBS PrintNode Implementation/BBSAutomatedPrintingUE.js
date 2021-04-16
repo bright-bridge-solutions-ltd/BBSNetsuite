@@ -90,21 +90,28 @@ function(https, record, search, plugin, render, file, encode, runtime, url)
     						oldShippingStatus 	= oldRecord.getValue({fieldId: 'shipstatus'});							// A=Picked, B=Packed, C=Shipped
     					}
     				
+    				var userWorkstation	= null;
     				
-    				
-    				//Get the current user
-    				//
-    				var currentUser			= runtime.getCurrentUser().id;
-    				
-    				//See if the current user has a printnode workstation assigned
-    				//
-    				var userWorkstation	=	search.lookupFields({
-						    									type:		search.Type.EMPLOYEE,
-						    									id:			currentUser,
-						    									columns:	'custentity_bbs_default_workstation'
-						    									}).custentity_bbs_default_workstation;		
-    				
-    				userWorkstation = (userWorkstation.length > 0 ? userWorkstation[0].value : null);
+    				try
+    					{
+		    				//Get the current user
+		    				//
+		    				var currentUser			= runtime.getCurrentUser().id;
+		    				
+		    				//See if the current user has a printnode workstation assigned
+		    				//
+		    				userWorkstation	=	search.lookupFields({
+								    									type:		search.Type.EMPLOYEE,
+								    									id:			currentUser,
+								    									columns:	'custentity_bbs_default_workstation'
+								    									}).custentity_bbs_default_workstation;		
+		    				
+		    				userWorkstation = (userWorkstation.length > 0 ? userWorkstation[0].value : null);
+		    			}
+    				catch(err)
+    					{
+    						userWorkstation	= null;
+    					}
     				
     				//If the packing station from the IF is empty then try and use the default printnode workstation from the employee record
     				//
