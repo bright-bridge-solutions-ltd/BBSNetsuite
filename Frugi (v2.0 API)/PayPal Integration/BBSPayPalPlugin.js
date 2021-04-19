@@ -74,10 +74,9 @@ function(email, encode, file, https, record, runtime, search)
 					      search.createColumn({name: "custrecord_bbs_paypal_config_show_captur", 	label: "Show Captured Payment Details"}),
 					      search.createColumn({name: "custrecord_bbs_paypal_config_auth_pay", 		label: "Show Details For Authorized Payments"}),
 					      search.createColumn({name: "custrecord_bbs_paypal_config_show_refund", 	label: "Show Refunded Details"}),
-					      search.createColumn({name: "custrecord_bbs_paypal_config_auth_field", 	label: "Transaction Field For Authorization Id"}),
-					      search.createColumn({name: "custrecord_bbs_paypal_config_cap_field", 		label: "Transaction Field For Capture Id"}),
-					      search.createColumn({name: "custrecord_bbs_paypal_config_refun_field", 	label: "Transaction Field For Refund Id"}),
-					      search.createColumn({name: "custrecord_bbs_paypal_config_get_token", 		label: "Get Access Token"})
+					      search.createColumn({name: "custrecord_bbs_paypal_config_tran_field", 	label: "Transaction Field Id"}),
+					      search.createColumn({name: "custrecord_bbs_paypal_config_get_token", 		label: "Get Access Token"}),
+					      search.createColumn({name: "custrecord_bbs_paypal_config_msg_field", 		label: "Message Field Id"})
 					   ]
 					}));
 
@@ -125,10 +124,8 @@ function(email, encode, file, https, record, runtime, search)
 						
 						//Transaction Fields
 						//
-						config.fieldAuthorizationId			= customrecord_bbs_paypal_configSearchObj[0].getValue({name: 'custrecord_bbs_paypal_config_auth_field'});
-						config.fieldCaptureId				= customrecord_bbs_paypal_configSearchObj[0].getValue({name: 'custrecord_bbs_paypal_config_cap_field'});
-						config.fieldRefundId				= customrecord_bbs_paypal_configSearchObj[0].getValue({name: 'custrecord_bbs_paypal_config_refun_field'});
-						
+						config.fieldTransactionId			= customrecord_bbs_paypal_configSearchObj[0].getValue({name: 'custrecord_bbs_paypal_config_tran_field'});
+						config.fieldMessage					= customrecord_bbs_paypal_configSearchObj[0].getValue({name: 'custrecord_bbs_paypal_config_msg_field'});
 					}
 				
 				return config;
@@ -513,8 +510,13 @@ function(email, encode, file, https, record, runtime, search)
 		//
 		//Parameters;
 		//	_transactionId		The transaction id of the PayPal authorisation 
+		//	_amountObj			The amount object from the response of the getPaymnentDetails call e.g.
+		//						"amount": 	{
+        //									"currency_code": "GBP",
+		//									"value": "16.90"
+    	//									}
 		//
-		function reauthorisePayment(_transactionId)	
+		function reauthorisePayment(_transactionId, _amountObj)	
 			{
 				var headerObj 			= {};
 				var reauthoriseObj 		= new genericResponseObj();
@@ -545,7 +547,9 @@ function(email, encode, file, https, record, runtime, search)
 										headerObj['Content-Type'] 		= 'application/json';
 										headerObj['Authorization'] 		= tokenType + ' ' + accessToken;
 										
-										var actualUrl = configurationObj.endpointReauthorizePayment.replace('{authorization_id}',_transactionId);
+										var actualUrl 	= configurationObj.endpointReauthorizePayment.replace('{authorization_id}',_transactionId);
+										var bodyObj 	= {};
+										bodyObj.amount	= _amountObj;
 										
 										//Execute the request
 										//
@@ -553,7 +557,8 @@ function(email, encode, file, https, record, runtime, search)
 											{
 												var response = https.post({	
 																			url:		actualUrl,
-																			headers:	headerObj
+																			headers:	headerObj,
+																			body:		JSON.stringify(bodyObj)
 																			});
 										
 												//Extract the http response code	
@@ -786,9 +791,8 @@ function(email, encode, file, https, record, runtime, search)
 				this.endpointGetCatureDetails	= '';
 				this.endpointRefundPayment		= '';
 				this.endpointGetRefundDetails	= '';
-				this.fieldAuthorizationId		= '';
-				this.fieldCaptureId				= '';
-				this.fieldRefundId				= '';				
+				this.fieldTransactionId			= '';
+				this.fieldMessage				= '';
 			}
 		
 		//Return exposed functions

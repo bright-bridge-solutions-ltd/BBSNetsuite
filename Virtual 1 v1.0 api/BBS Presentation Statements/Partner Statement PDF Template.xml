@@ -4,17 +4,17 @@
 
   	<link name="Montserrat" type="font" subtype="opentype" src="https://5117415.app.netsuite.com/core/media/media.nl?id=1584&amp;c=5117415&amp;h=d46afab9ee121fec6e06&amp;_xt=.otf" src-bold="https://5117415.app.netsuite.com/core/media/media.nl?id=1583&amp;c=5117415&amp;h=fdacc0a916a00c7eea35&amp;_xt=.otf"  bytes="2" />
 	<link name="OpenSans"   type="font" subtype="opentype" src="https://5117415.app.netsuite.com/core/media/media.nl?id=1582&amp;c=5117415&amp;h=eb77997d14dfd9a18810&amp;_xt=.ttf" bytes="2" />
-	
+	<link name="Arial"   	type="font" subtype="opentype" src="https://5117415.app.netsuite.com/core/media/media.nl?id=77974&amp;c=5117415&amp;h=wx_VLZSkXKA0T3yOpq8saebJ5PkKCuGR4gRag6pGuKOGh2s1&amp;_xt=.ttf" src-bold="https://5117415.app.netsuite.com/core/media/media.nl?id=77975&amp;c=5117415&amp;h=9IBTdiYcQGR7GN9uzgysjazFOlfk39kKW_h5OqEjkOPFNr4u&amp;_xt=.ttf" bytes="2" />
 	<#assign todaysDate = .now>
 	
 	<macrolist>
         <macro id="nlfooter">		
             <table class="footer" style="width: 100%; margin-top: 20px;">
             <tr>
-			<td align="center" style="font-family: OpenSans; font-size: 7pt; color: #393939;">Registered Office: Virtual1 Ltd. 6th Floor Alphabeta, 14-18 Finsbury Square, London, EC2A 1BR</td>
+			<td align="center" style="font-family: Arial; font-size: 8pt; color: #393939;">Registered Office: Virtual1 Ltd. 6th Floor Alphabeta, 14-18 Finsbury Square, London, EC2A 1BR</td>
 			</tr>
 			<tr>
-			<td align="center" style="font-family: OpenSans; font-size: 7pt; color: #393939;">Company Registration Number: 6177891. VAT No: GB 911828429</td>
+			<td align="center" style="font-family: Arial; font-size: 8pt; color: #393939;">Company Registration Number: 6177891. VAT No: GB 911828429</td>
 			</tr>
 			</table>
         </macro>
@@ -22,47 +22,47 @@
         <macro id="nlheader">
             <table class="header" style="width: 100%;">
 			<tr>
-				<td align="right"><img src="https://5117415.app.netsuite.com/core/media/media.nl?id=737&amp;c=5117415&amp;h=171a5fc472e678688b27" style="float: left; width:131px; height:75px;" /></td>
+				<td align="right"><img src="https://5117415.app.netsuite.com/core/media/media.nl?id=77973&amp;c=5117415&amp;h=0tnGA8U7Bsp1AF2Nt4a08G9YDLpkFo1So2EGpDjULMOz3UBV" style="float: left; width:150px; height:110px;" /></td>
 			</tr>
 			</table>
 
 			<table style="width: 100%; margin-top: 20px;">
 			<tr>
-				<td align="left" colspan="2" 	style="font-family: Montserrat; font-size: 10pt; font-weight: bold; color: #1d1b45;">${partner.entityid}</td>
-				<td align="right" 				style="font-family: Montserrat; font-size: 10pt; font-weight: bold; color: #ee2d4b;">Statement</td>
+				<td align="left" colspan="2" 	style="font-family: Arial; font-size: 10pt; font-weight: bold; color: #030014;">${partner.entityid}</td>
+				<td align="right" 				style="font-family: Arial; font-size: 10pt; font-weight: bold; color: #00C9FF;">Statement</td>
 			</tr>
 			<tr>
-				<td align="left" colspan="2" rowspan="6" style="font-family: OpenSans; font-size: 10pt; color: #393939;">${partner.defaultaddress}</td>
-				<td align="right" style="font-family: OpenSans; font-size: 10pt;  color: #393939;">Date: ${todaysDate?string["dd MMM yyyy"]}</td>
+				<td align="left" colspan="2" rowspan="6" style="font-family: Arial; font-size: 10pt; color: #030014;">${partner.defaultaddress}</td>
+				<td align="right" style="font-family: Arial; font-size: 10pt;  color: #030014;">Date: ${todaysDate?string["dd MMM yyyy"]}</td>
 			</tr>
 			<tr>
-				<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 4px 6px 0px 0px;">Virtual1 Ltd</td>
+				<td align="right" style="font-family: Arial; font-size: 10pt; color: #030014; padding: 4px 6px 0px 0px;">Virtual1 Ltd</td>
 			</tr>
 			<tr>
-				<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px;">6th Floor Alphabeta</td>
+				<td align="right" style="font-family: Arial; font-size: 10pt; color: #030014; padding: 0px 6px 0px 0px;">6th Floor Alphabeta</td>
 			</tr>
 			<tr>
-				<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px">14-18 Finsbury Square</td>
+				<td align="right" style="font-family: Arial; font-size: 10pt; color: #030014; padding: 0px 6px 0px 0px">14-18 Finsbury Square</td>
 			</tr>
 			<tr>
-				<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px">London</td>
+				<td align="right" style="font-family: Arial; font-size: 10pt; color: #030014; padding: 0px 6px 0px 0px">London</td>
 			</tr>
 			<tr>
-				<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939; padding: 0px 6px 0px 0px">EC2A 1BR</td>
+				<td align="right" style="font-family: Arial; font-size: 10pt; color: #030014; padding: 0px 6px 0px 0px">EC2A 1BR</td>
 			</tr>
 			<tr>
 				<td >&nbsp;</td>
 				<td >&nbsp;</td>
-				<td align="right" style="font-family: OpenSans; font-size: 10pt; color: #393939;">accounts@virtual1.com</td>
+				<td align="right" style="font-family: Arial; font-size: 10pt; color: #030014;">accounts@virtual1.com</td>
 			</tr>
 			</table>
 
 			<table class="header" style="width: 100%; margin-top: 20px;">
 			<tr>
-				<td align="center" style="font-family: Montserrat; font-size: 10pt; font-weight: bold; color: #ee2d4b;">Delayed payment of invoices could result in additional interest charges</td>
+				<td align="center" style="font-family: Arial; font-size: 10pt; font-weight: bold; color: #00C9FF;">Delayed payment of invoices could result in additional interest charges</td>
 			</tr>
 			<tr>
-				<td align="center" style="font-family: Montserrat; font-size: 10pt; font-weight: bold; color: #ee2d4b;">and/or suspension of services</td>
+				<td align="center" style="font-family: Arial; font-size: 10pt; font-weight: bold; color: #00C9FF;">and/or suspension of services</td>
 			</tr>
 			</table>
 			
@@ -160,13 +160,13 @@
 	<table style="width: 100%;">	
 	<thead>
 		<tr>
-			<th align="left"  style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Document<br/>Date</th>
-			<th align="left"  style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;">Document<br/>Reference</th>
-			<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;"><p style="text-align: right;">Document<br/>Amount</p></th>
-			<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;"><p style="text-align: right;">Open<br/>Balance</p></th>
-			<th align="left"  style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b; padding-left:30px;">Due<br/>Date</th>
-			<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;"><p style="text-align: right;">Days<br/>Past Due</p></th>
-			<th align="right" style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-bottom: 1px; border-color: #ee2d4b;"><p style="text-align: right;">Overdue<br/>Amount</p></th>
+			<th align="left"  style="font-family: Arial; font-size: 8pt; color: #030014; font-weight: bold; border-bottom: 1px; border-color: #00C9FF;">Document<br/>Date</th>
+			<th align="left"  style="font-family: Arial; font-size: 8pt; color: #030014; font-weight: bold; border-bottom: 1px; border-color: #00C9FF;">Document<br/>Reference</th>
+			<th align="right" style="font-family: Arial; font-size: 8pt; color: #030014; font-weight: bold; border-bottom: 1px; border-color: #00C9FF;"><p style="text-align: right;">Document<br/>Amount</p></th>
+			<th align="right" style="font-family: Arial; font-size: 8pt; color: #030014; font-weight: bold; border-bottom: 1px; border-color: #00C9FF;"><p style="text-align: right;">Open<br/>Balance</p></th>
+			<th align="left"  style="font-family: Arial; font-size: 8pt; color: #030014; font-weight: bold; border-bottom: 1px; border-color: #00C9FF; padding-left:30px;">Due<br/>Date</th>
+			<th align="right" style="font-family: Arial; font-size: 8pt; color: #030014; font-weight: bold; border-bottom: 1px; border-color: #00C9FF;"><p style="text-align: right;">Days<br/>Past Due</p></th>
+			<th align="right" style="font-family: Arial; font-size: 8pt; color: #030014; font-weight: bold; border-bottom: 1px; border-color: #00C9FF;"><p style="text-align: right;">Overdue<br/>Amount</p></th>
 		</tr>
 	</thead>
 	
@@ -186,47 +186,47 @@
 				<#if line.custrecord_bbs_pr_type == "Invoice">
 					<tr>
 						<#if line.custrecord_bbs_sage_date?has_content>
-							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_sage_date?string["dd/MM/yyyy"]}</td>
+							<td align="left"  style="font-family: Arial; font-size: 8pt; color: #030014;">${line.custrecord_bbs_sage_date?string["dd/MM/yyyy"]}</td>
 						<#else>
-							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_presentation_record_date?string["dd/MM/yyyy"]}</td>
+							<td align="left"  style="font-family: Arial; font-size: 8pt; color: #030014;">${line.custrecord_bbs_presentation_record_date?string["dd/MM/yyyy"]}</td>
 						</#if>
 						
 						<#if line.custrecord_bbs_sage_ref?has_content>
-							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_sage_ref}</td>
+							<td align="left"  style="font-family: Arial; font-size: 8pt; color: #030014;">${line.custrecord_bbs_sage_ref}</td>
 						<#else>
-							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.name}</td>
+							<td align="left"  style="font-family: Arial; font-size: 8pt; color: #030014;">${line.name}</td>
 						</#if>
 						
-						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_pr_inv_total}</td>
-						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_pr_inv_outstanding}</td>
-						<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E; padding-left:30px;">${line.custrecord_bbs_pr_inv_due_date}</td>
-						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.formulanumeric}</td>
-					<!-- 	<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_pr_inv_outstanding}</td> -->
+						<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">${line.custrecord_bbs_pr_inv_total}</td>
+						<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">${line.custrecord_bbs_pr_inv_outstanding}</td>
+						<td align="left"  style="font-family: Arial; font-size: 8pt; color: #030014; padding-left:30px;">${line.custrecord_bbs_pr_inv_due_date}</td>
+						<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">${line.formulanumeric}</td>
+					<!-- 	<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">${line.custrecord_bbs_pr_inv_outstanding}</td> -->
 					 	<#if line.formulanumeric gt 0>
-							<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_pr_inv_outstanding}</td> 
+							<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">${line.custrecord_bbs_pr_inv_outstanding}</td> 
 					   	<#else>
-							<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">&nbsp;</td>
+							<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">&nbsp;</td>
 						</#if> 
 					</tr>
 				<#else>
 					<tr>
 						<#if line.custrecord_bbs_sage_date?has_content>
-							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_sage_date?string["dd/MM/yyyy"]}</td>
+							<td align="left"  style="font-family: Arial; font-size: 8pt; color: #030014;">${line.custrecord_bbs_sage_date?string["dd/MM/yyyy"]}</td>
 						<#else>
-							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_presentation_record_date?string["dd/MM/yyyy"]}</td>
+							<td align="left"  style="font-family: Arial; font-size: 8pt; color: #030014;">${line.custrecord_bbs_presentation_record_date?string["dd/MM/yyyy"]}</td>
 						</#if>
 						
 						<#if line.custrecord_bbs_sage_ref?has_content>
-							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.custrecord_bbs_sage_ref}</td>
+							<td align="left"  style="font-family: Arial; font-size: 8pt; color: #030014;">${line.custrecord_bbs_sage_ref}</td>
 						<#else>
-							<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${line.name}</td>
+							<td align="left"  style="font-family: Arial; font-size: 8pt; color: #030014;">${line.name}</td>
 						</#if>
 						
-						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">(${line.custrecord_bbs_pr_cn_total})</td>
-						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">(${line.custrecord_bbs_pr_cn_unapplied})</td>
-						<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E; padding-left:30px;">&nbsp;</td>
-						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">&nbsp;</td>
-						<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">(${line.custrecord_bbs_pr_cn_unapplied})</td>
+						<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">(${line.custrecord_bbs_pr_cn_total})</td>
+						<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">(${line.custrecord_bbs_pr_cn_unapplied})</td>
+						<td align="left"  style="font-family: Arial; font-size: 8pt; color: #030014; padding-left:30px;">&nbsp;</td>
+						<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">&nbsp;</td>
+						<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">(${line.custrecord_bbs_pr_cn_unapplied})</td>
 					</tr>
 				</#if>
 		</#list>
@@ -238,13 +238,13 @@
 			</tr>
 			<#list payments as pays>
 				<tr>
-					<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${pays.documentDate}</td>
-					<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${pays.documentName}</td>
-					<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${pays.documentAmount}</td>
-					<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${pays.documentBalance}</td>
-					<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">&nbsp;</td>
-					<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">&nbsp;</td>
-					<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">${pays.documentBalance}</td>
+					<td align="left"  style="font-family: Arial; font-size: 8pt; color: #030014;">${pays.documentDate}</td>
+					<td align="left"  style="font-family: Arial; font-size: 8pt; color: #030014;">${pays.documentName}</td>
+					<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">${pays.documentAmount}</td>
+					<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">${pays.documentBalance}</td>
+					<td align="left"  style="font-family: Arial; font-size: 8pt; color: #030014;">&nbsp;</td>
+					<td align="left"  style="font-family: Arial; font-size: 8pt; color: #030014;">&nbsp;</td>
+					<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">${pays.documentBalance}</td>
 				</tr>
 			</#list>
 		</#if>
@@ -253,22 +253,22 @@
 	<!-- Totals table -->	
 		<table style="width: 100%; margin-top: 10px; page-break-inside: avoid;">			
 			<tr>
-				<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">&nbsp;</td>
-				<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">&nbsp;</td>
-				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">&nbsp;</td>
-				<td align="right" style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-top: 1px; border-bottom: 1px; border-color: #ee2d4b; ">${statement.custrecord_bbs_pr_statement_open}</td>
-				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">&nbsp;</td>
-				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">&nsbp;</td>
-				<td align="right" style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-top: 1px; border-bottom: 1px; border-color: #ee2d4b; ">${statement.custrecord_bbs_pr_statement_overdue}</td>
+				<td align="left"  style="font-family: Arial; font-size: 8pt; color: #030014;">&nbsp;</td>
+				<td align="left"  style="font-family: Arial; font-size: 8pt; color: #030014;">&nbsp;</td>
+				<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">&nbsp;</td>
+				<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014; font-weight: bold; border-top: 1px; border-bottom: 1px; border-color: #00C9FF; ">${statement.custrecord_bbs_pr_statement_open}</td>
+				<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">&nbsp;</td>
+				<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">&nsbp;</td>
+				<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014; font-weight: bold; border-top: 1px; border-bottom: 1px; border-color: #00C9FF; ">${statement.custrecord_bbs_pr_statement_overdue}</td>
 			</tr>
 <tr>
-				<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">&nbsp;</td>
-				<td align="left"  style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">&nbsp;</td>
-				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">&nbsp;</td>
-				<td align="right" style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-top: 1px; border-color: #ee2d4b; margin-top: 1px;">&nbsp;</td>
-				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">&nbsp;</td>
-				<td align="right" style="font-family: OpenSans; font-size: 7pt; color: #003E5E;">&nsbp;</td>
-				<td align="right" style="font-family: Montserrat; font-size: 7pt; color: #003E5E; font-weight: bold; border-top: 1px;  border-color: #ee2d4b; margin-top: 1px">&nbsp;</td>
+				<td align="left"  style="font-family: Arial; font-size: 8pt; color: #030014;">&nbsp;</td>
+				<td align="left"  style="font-family: Arial; font-size: 8pt; color: #030014;">&nbsp;</td>
+				<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">&nbsp;</td>
+				<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014; font-weight: bold; border-top: 1px; border-color: #00C9FF; margin-top: 1px;">&nbsp;</td>
+				<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">&nbsp;</td>
+				<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014;">&nsbp;</td>
+				<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014; font-weight: bold; border-top: 1px;  border-color: #00C9FF; margin-top: 1px">&nbsp;</td>
 			</tr>
 		</table>
 

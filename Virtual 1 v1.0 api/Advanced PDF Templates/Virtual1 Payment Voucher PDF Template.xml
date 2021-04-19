@@ -3,51 +3,56 @@
 <head>
 
   	<link name="Montserrat" type="font" subtype="opentype" src="https://5117415.app.netsuite.com/core/media/media.nl?id=1056&amp;c=5117415&amp;h=ad351ab8b2e8d1f95b4c&amp;_xt=.ttff" src-bold="https://5117415.app.netsuite.com/core/media/media.nl?id=1055&amp;c=5117415&amp;h=ffd4a85025eb08527793&amp;_xt=.ttf"  bytes="2" />
-	<#assign todaysDate = .now>
+	<link name="Arial"   	type="font" subtype="opentype" src="https://5117415.app.netsuite.com/core/media/media.nl?id=77974&amp;c=5117415&amp;h=wx_VLZSkXKA0T3yOpq8saebJ5PkKCuGR4gRag6pGuKOGh2s1&amp;_xt=.ttf" src-bold="https://5117415.app.netsuite.com/core/media/media.nl?id=77975&amp;c=5117415&amp;h=9IBTdiYcQGR7GN9uzgysjazFOlfk39kKW_h5OqEjkOPFNr4u&amp;_xt=.ttf" bytes="2" />
+  
+  <#assign todaysDate = .now>
 	
 	<macrolist>
         <macro id="nlfooter">		
             <table class="footer" style="width: 100%; margin-top: 20px;">
             <tr>
-			<td align="center" style="font-size: 7pt; color: #393939;">Registered Office: Virtual1 Ltd. 6th Floor Alphabeta, 14-18 Finsbury Square, London, EC2A 1BR</td>
+			<td align="center" style="font-size: 8pt; color: #030014;">Registered Office: Virtual1 Ltd. 6th Floor Alphabeta, 14-18 Finsbury Square, London, EC2A 1BR</td>
 			</tr>
 			<tr>
-			<td align="center" style="font-size: 7pt; color: #393939;">Company Registration Number: 6177891. VAT No: GB 911828429</td>
+			<td align="center" style="font-size: 8pt; color: #030014;">Company Registration Number: 6177891. VAT No: GB 911828429</td>
 			</tr>
 			</table>
         </macro>
         
         <macro id="nlheader">
-            <table class="header" style="width: 100%;">
+             <table class="header" style="width: 100%;">
 			<tr>
-				<td align="left"><img src="https://5117415.app.netsuite.com/core/media/media.nl?id=737&amp;c=5117415&amp;h=171a5fc472e678688b27" style="float: left; width:131px; height:75px;" /></td>
+				<td align="right"><img src="https://5117415.app.netsuite.com/core/media/media.nl?id=77973&amp;c=5117415&amp;h=0tnGA8U7Bsp1AF2Nt4a08G9YDLpkFo1So2EGpDjULMOz3UBV" style="float: left; width:150px; height:110px;" /></td>
 			</tr>
 			</table>
 
-			<table style="width: 100%; margin-top: 20px;">
+
+			<table style="width: 100%; margin-top: 10px;">
 			<tr>
-				<td align="left" colspan="2" style="font-size: 10pt; font-weight: bold; color: #393939;">${record.entity}</td>
-				<td align="left" style="font-size: 10pt; font-weight: bold; color: #0090d8;">Remittance Advice</td>
+				<td align="left" style="font-size: 10pt; font-weight: bold; color: #030014;">${record.entity}</td>
+				<td align="right" style="font-size: 10pt; font-weight: bold; color: #00C9FF;">Remittance Advice</td>
 			</tr>
 			<tr style="margin-top: 20px;">
-				<td align="left" style="font-size: 10pt; font-weight: bold; color: #393939;">FAO ${record.entity.contact}</td>
-				<td>&nbsp;</td>
-				<td align="left" style="font-size: 10pt;  color: #393939;">Date: ${record.trandate?string["dd MMM yyyy"]}</td>
+				<td align="left"  rowspan="7" style="font-size: 10pt; color: #030014;">${record.address}</td>
+				<td align="right" style="font-size: 10pt;  color: #030014;">Date: ${record.trandate?string["dd MMM yyyy"]}</td>
 			</tr>
 			<tr>
-				<td align="left"  style="font-size: 10pt; color: #393939;">${record.address}</td>
-				<td >&nbsp;</td>
-				<td align="left"  style="font-size: 10pt; color: #393939;">Virtual1 Ltd<br/>6th Floor Alphabeta<br/>14-18 Finsbury Square<br/>London<br/>EC2A 1BR</td>
+              	<td align="right" style="font-family: Arial; font-size: 10pt; color: #030014; padding: 4px 6px 0px 0px;">Virtual1 Ltd</td>
 			</tr>
 			<tr>
-				<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-				<td >&nbsp;</td>
-				<td align="left" style="font-size: 10pt; color: #393939;">(t) 0344 884 0800</td>
+				<td align="right" style="font-family: Arial; font-size: 10pt; color: #030014; padding: 0px 6px 0px 0px;">6th Floor Alphabeta</td>
 			</tr>
 			<tr>
-				<td align="left" style="font-size: 10pt; color: #393939;">&nbsp;</td>
-				<td >&nbsp;</td>
-				<td align="left" style="font-size: 10pt; color: #393939;">finance@virtual1.com</td>
+				<td align="right" style="font-family: Arial; font-size: 10pt; color: #030014; padding: 0px 6px 0px 0px">14-18 Finsbury Square</td>
+			</tr>
+			<tr>
+				<td align="right" style="font-family: Arial; font-size: 10pt; color: #030014; padding: 0px 6px 0px 0px">London</td>
+			</tr>
+			<tr>
+				<td align="right" style="font-family: Arial; font-size: 10pt; color: #030014; padding: 0px 6px 0px 0px">EC2A 1BR</td>
+			</tr>
+			<tr>
+				<td align="right" style="font-size: 10pt; color: #030014;">accounts@virtual1.com</td>
 			</tr>
 			</table>
 
@@ -57,7 +62,7 @@
     </macrolist>
     
     <style type="text/css">* {
-			font-family: Montserrat;
+			font-family: Arial;
 		}
 		table {
 			font-size: 9pt;
@@ -148,20 +153,20 @@
 <thead>
 	<tr>
     <th>&nbsp;</th>
-	<th colspan="3" align="center" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;"><b>Document Date</b></th>
-	<th colspan="3" align="center" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;"><b>Document Ref.</b></th>
-	<th colspan="3" align="center" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;"><b>Amount Outstanding</b></th>
-	<th colspan="3" align="center" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;"><b>Payment Amount</b></th>
+	<th colspan="3" align="center" style="font-size: 8pt; color: #030014; font-weight: bold; border-bottom: 1px; border-color: #00C9FF;"><b>Document Date</b></th>
+	<th colspan="3" align="center" style="font-size: 8pt; color: #030014; font-weight: bold; border-bottom: 1px; border-color: #00C9FF;"><b>Document Ref.</b></th>
+	<th colspan="3" align="center" style="font-size: 8pt; color: #030014; font-weight: bold; border-bottom: 1px; border-color: #00C9FF;"><b>Amount Outstanding</b></th>
+	<th colspan="3" align="center" style="font-size: 8pt; color: #030014; font-weight: bold; border-bottom: 1px; border-color: #00C9FF;"><b>Payment Amount</b></th>
     <th>&nbsp;</th>
 	</tr>
 </thead>
 </#if>
 <tr>
   	<td>&nbsp;</td>
-	<td colspan="3" align="center" line-height="150%" style="font-size: 7pt; color: #393939;">${apply.applydate}</td>
-	<td colspan="3" align="center" style="font-size: 7pt; color: #393939;">${apply.refnum}</td>
-	<td colspan="3" align="center" style="font-size: 7pt; color: #393939;">${apply.due}</td>
-	<td colspan="3" align="right" style="font-size: 7pt; color: #393939;">${apply.amount}</td>
+	<td colspan="3" align="center" line-height="150%" style="font-size: 8pt; color: #030014;">${apply.applydate}</td>
+	<td colspan="3" align="center" style="font-size: 8pt; color: #030014;">${apply.refnum}</td>
+	<td colspan="3" align="center" style="font-size: 8pt; color: #030014;">${apply.due}</td>
+	<td colspan="3" align="right" style="font-size: 8pt; color: #030014;">${apply.amount}</td>
 	<td>&nbsp;</td>
 </tr>
 	</#list><!-- end apply --></table>
@@ -172,10 +177,10 @@
 <table style="width: 100%; margin-top: 10px;">
 	<tr>
 		<td>&nbsp;</td>
-		<td colspan="3" align="center" line-height="150%" style="font-size: 7pt; color: #393939;">&nbsp;</td>
-		<td colspan="3" align="center" style="font-size: 7pt; color: #393939;">&nbsp;</td>
-		<td colspan="3" align="center" style="font-size: 7pt; color: #393939; border-top: 1px; border-color: #0090d8;"><b>Payment Total</b></td>
-		<td colspan="3" align="right" style="font-size: 7pt; color: #393939; border-top: 1px; border-color: #0090d8;"><b>${record.total}</b></td>
+		<td colspan="3" align="center" line-height="150%" style="font-size: 8pt; color: #393939;">&nbsp;</td>
+		<td colspan="3" align="center" style="font-size: 8pt; color: #030014;">&nbsp;</td>
+		<td colspan="3" align="center" style="font-size: 8pt; color: #030014; border-top: 1px; border-color: #00C9FF;"><b>Payment Total</b></td>
+		<td colspan="3" align="right" style="font-size: 8pt; color: #030014; border-top: 1px; border-color: #00C9FF;"><b>${record.total}</b></td>
 		<td>&nbsp;</td>
 	</tr>
 </table>
@@ -185,7 +190,7 @@
 	<table class="itemtable" style="width: 100%; margin-top: 10px;">
       <tr>
         <td>&nbsp;</td>
-        <td colspan="12" align="center" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;"><b>Credits Applied</b></td>
+        <td colspan="12" align="center" style="font-size: 8pt; color: #030014; font-weight: bold; border-bottom: 1px; border-color: #0090d8;"><b>Credits Applied</b></td>
         <td>&nbsp;</td>
       </tr>
 	</table>
@@ -196,20 +201,20 @@
 			<thead>
 				<tr>
 			    <th>&nbsp;</th>
-				<th colspan="3" align="center" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;"><b>Credit Date</b></th>
-				<th colspan="3" align="center" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;"><b>Document Ref.</b></th>
-				<th colspan="3" align="center" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;"><b>Applied To</b></th>
-				<th colspan="3" align="center" style="font-size: 7pt; color: #393939; font-weight: bold; border-bottom: 1px; border-color: #0090d8;"><b>Credit Amount</b></th>
+				<th colspan="3" align="center" style="font-size: 8pt; color: #030014; font-weight: bold; border-bottom: 1px; border-color: #00C9FF;"><b>Credit Date</b></th>
+				<th colspan="3" align="center" style="font-size: 8pt; color: #030014; font-weight: bold; border-bottom: 1px; border-color: #00C9FF;"><b>Document Ref.</b></th>
+				<th colspan="3" align="center" style="font-size: 8pt; color: #030014; font-weight: bold; border-bottom: 1px; border-color: #00C9FF;"><b>Applied To</b></th>
+				<th colspan="3" align="center" style="font-size: 8pt; color: #030014; font-weight: bold; border-bottom: 1px; border-color: #00C9FF;"><b>Credit Amount</b></th>
 			    <th>&nbsp;</th>
 				</tr>
 			</thead>
 		</#if>
 	  <tr>
 	    <td>&nbsp;</td>
-		<td colspan="3" align="center" line-height="150%" style="font-size: 7pt; color: #393939;">${credit.creditdate}</td>
-		<td colspan="3" align="center" style="font-size: 7pt; color: #393939;">${credit.refnum}</td>
-		<td colspan="3" align="center" style="font-size: 7pt; color: #393939;">${credit.appliedto}</td>
-		<td colspan="3" align="right" style="font-size: 7pt; color: #393939;">${credit.amount}</td>
+		<td colspan="3" align="center" line-height="150%" style="font-size: 8pt; color: #030014;">${credit.creditdate}</td>
+		<td colspan="3" align="center" style="font-size: 8pt; color: #030014;">${credit.refnum}</td>
+		<td colspan="3" align="center" style="font-size: 8pt; color: #030014;">${credit.appliedto}</td>
+		<td colspan="3" align="right" style="font-size: 8pt; color: #030014;">${credit.amount}</td>
 		<td>&nbsp;</td>
 	    </tr>
 	</#list><!-- end credit-->

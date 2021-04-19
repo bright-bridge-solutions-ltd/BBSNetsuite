@@ -567,31 +567,31 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 			this.parcel									= [];
 			this.collectionDetails						= {};
 			this.collectionDetails.contactDetails		= new _contactDetailsDPD(
-																				shippingRequestData.senderAddress.addresse, 
-																				shippingRequestData.senderContact.mobileNumber
+																				shippingRequestData.senderAddress.addresse.substring(0,25), 
+																				shippingRequestData.senderContact.mobileNumber.substring(0,15)
 																				);
 			this.collectionDetails.address				= new _addressDPD(
-																			shippingRequestData.senderAddress.addresse, 
+																			shippingRequestData.senderAddress.addresse.substring(0,35), 
 																			shippingRequestData.senderAddress.countryCode, 
-																			shippingRequestData.senderAddress.postCode.toUpperCase(), 
-																			shippingRequestData.senderAddress.line1, 
-																			shippingRequestData.senderAddress.line2, 
-																			shippingRequestData.senderAddress.town, 
-																			shippingRequestData.senderAddress.county
+																			shippingRequestData.senderAddress.postCode.toUpperCase().substring(0,8), 
+																			shippingRequestData.senderAddress.line1.substring(0,35), 
+																			shippingRequestData.senderAddress.line2.substring(0,35), 
+																			shippingRequestData.senderAddress.town.substring(0,35), 
+																			shippingRequestData.senderAddress.county.substring(0,35)
 																			);
 			this.deliveryDetails						= {};
 			this.deliveryDetails.contactDetails			= new _contactDetailsDPD(
-																				shippingRequestData.address.addresse, 
-																				shippingRequestData.contact.mobileNumber
+																				shippingRequestData.address.addresse.substring(0,25), 
+																				shippingRequestData.contact.mobileNumber.substring(0,15)
 																				);
 			this.deliveryDetails.address				= new _addressDPD(
-																			shippingRequestData.address.addresse, 
+																			shippingRequestData.address.addresse.substring(0,35), 
 																			shippingRequestData.address.countryCode, 
-																			shippingRequestData.address.postCode.toUpperCase(), 
-																			shippingRequestData.address.line1, 
-																			shippingRequestData.address.line2, 
-																			shippingRequestData.address.town, 
-																			shippingRequestData.address.county
+																			shippingRequestData.address.postCode.toUpperCase().substring(0,8), 
+																			shippingRequestData.address.line1.substring(0,35), 
+																			shippingRequestData.address.line2.substring(0,35), 
+																			shippingRequestData.address.town.substring(0,35), 
+																			shippingRequestData.address.county.substring(0,35)
 																			);
 			
 			this.deliveryDetails.notificationDetails	= new _notificationDetailsDPD(
