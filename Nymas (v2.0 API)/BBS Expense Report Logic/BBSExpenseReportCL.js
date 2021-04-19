@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/record'],
-function(record) {
+define(['N/record', 'N/ui/dialog'],
+function(record, dialog) {
     
     /**
      * Function to be executed after page is initialized.
@@ -133,6 +133,31 @@ function(record) {
      * @since 2015.2
      */
     function validateLine(scriptContext) {
+    	
+    	// check if we are working with the expense sublist
+    	if (scriptContext.sublistId == 'expense')
+    		{
+    			// get the value of the expense category field for the current line
+    			var expenseCategory = scriptContext.currentRecord.getCurrentSublistValue({
+    				sublistId: 'expense',
+    				fieldId: 'category'
+    			});
+    			
+    			// if an expense category has not been selected
+    			if (!expenseCategory)
+    				{
+    					// throw an error
+    					dialog.alert({
+    						title: '⚠️ Error',
+    						message: 'You must enter an expense category before you can save this line'
+    					});
+    				}
+    			else
+    				{
+    					// allow the line to be saved
+    					return true;
+    				}
+    		}
 
     }
 
@@ -180,7 +205,8 @@ function(record) {
     }
 
     return {
-    	fieldChanged: fieldChanged
+    	fieldChanged: fieldChanged,
+    	validateLine: validateLine
     };
     
 });
