@@ -677,8 +677,6 @@ function(record, search, xml, config, https, encode, BBSObjects, secret, oauth, 
 	   
 	   		return tab ? xml.replace(/\t/g, tab) : xml.replace(/\t|\n/g, "");
 		}
-
-
 	
 	//=========================================================================
 	//Helper functions
@@ -700,7 +698,6 @@ function(record, search, xml, config, https, encode, BBSObjects, secret, oauth, 
 	
 			return results;
 		}
-	
 	
 	//=========================================================================
 	//Return functions that are available in this module 

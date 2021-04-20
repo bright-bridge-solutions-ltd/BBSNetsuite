@@ -3,7 +3,11 @@
  * @NScriptType UserEventScript
  * @NModuleScope Public
  */
+<<<<<<< HEAD
+define(['N/record', 'N/ui/serverWidget', 'N/search', 'N/plugin'],
+=======
 define(['N/record', 'N/ui/serverWidget', 'N/search','N/plugin'],
+>>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite
 function(record, ui, search, plugin) 
 {
    
@@ -156,26 +160,9 @@ function(record, ui, search, plugin)
 		    		}
 			}
     }
-
-    function getResults(_searchObject)
-	    {
-	    	var results = [];
-	
-	    	var pageData = _searchObject.runPaged({pageSize: 1000});
-	
-	    	for (var int = 0; int < pageData.pageRanges.length; int++) 
-	    		{
-	    			var searchPage = pageData.fetch({index: int});
-	    			var data = searchPage.data;
-	    			
-	    			results = results.concat(data);
-	    		}
-	
-	    	return results;
-	    }
 	    
     /**
-     * Function definition to be triggered before record is loaded.
+     * Function definition to be triggered before record is saved.
      *
      * @param {Object} scriptContext
      * @param {Record} scriptContext.newRecord - New record
@@ -183,6 +170,7 @@ function(record, ui, search, plugin)
      * @param {string} scriptContext.type - Trigger type
      * @Since 2015.2
      */
+    
     function beforeSubmit(scriptContext) 
 	    {
     		var currentRecord 	= scriptContext.newRecord;
@@ -238,7 +226,7 @@ function(record, ui, search, plugin)
 	    }
 
     /**
-     * Function definition to be triggered before record is loaded.
+     * Function definition to be triggered after record is saved.
      *
      * @param {Object} scriptContext
      * @param {Record} scriptContext.newRecord - New record
@@ -246,15 +234,49 @@ function(record, ui, search, plugin)
      * @param {string} scriptContext.type - Trigger type
      * @Since 2015.2
      */
+<<<<<<< HEAD
+    function afterSubmit(scriptContext) {
+    	
+    
+    }
+    
+    // ================
+    // HELPER FUNCTIONS
+    // ================
+    
+    function getResults(_searchObject) {
+    	
+    	var results = [];
+
+    	var pageData = _searchObject.runPaged({pageSize: 1000});
+
+    	for (var int = 0; int < pageData.pageRanges.length; int++) 
+    		{
+    			var searchPage = pageData.fetch({index: int});
+    			var data = searchPage.data;
+    			
+    			results = results.concat(data);
+    		}
+
+    	return results;
+    }
+=======
     function afterSubmit(scriptContext) 
     	{
 	    	
     	}
     
+>>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite
 
     return 	{
+<<<<<<< HEAD
+    	beforeLoad: 	beforeLoad,
+    	beforeSubmit: 	beforeSubmit
+    };
+=======
         	beforeLoad: 	beforeLoad,
         	beforeSubmit:	beforeSubmit
     		};
+>>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite
     
 });

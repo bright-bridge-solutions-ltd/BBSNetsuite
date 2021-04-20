@@ -2,7 +2,7 @@
  * @NApiVersion 2.x
  * @NModuleScope Public
  */
-define(['N/encode', 'N/format', 'N/https', 'N/record', 'N/runtime', 'N/search', 'N/xml',
+define(['N/encode', 'N/format', 'N/encode', 'N/https', 'N/record', 'N/runtime', 'N/search', 'N/xml',
         './BBSObjects',								//Objects used to pass info back & forth
         './BBSCommon'								//Common code
         ],
@@ -17,7 +17,7 @@ define(['N/encode', 'N/format', 'N/https', 'N/record', 'N/runtime', 'N/search', 
  * @param {BBSObjects} BBSObjects
  * @param {BBSCommon} BBSCommon
  */
-function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCommon) 
+function(encode, format, encode, https, record, runtime, search, xml, BBSObjects, BBSCommon) 
 {
 	//=========================================================================
 	//Main functions - This module implements the integration to UPS
@@ -82,8 +82,9 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 					shipmentRequestObj.ShipmentRequest.Shipment.PaymentInformation.ShipmentCharge.BillShipper.AccountNumber	= _processShipmentRequest.shippingItemInfo.carrierContractNo;					
 					shipmentRequestObj.ShipmentRequest.Shipment.Service.Code												= _processShipmentRequest.shippingItemInfo.serviceCodes[0].serviceCode;
 					shipmentRequestObj.ShipmentRequest.Shipment.Service.Description											= _processShipmentRequest.shippingItemInfo.serviceCodes[0].serviceDescription;									
-					shipmentRequestObj.ShipmentRequest.Shipment.LabelSpecification.LabelImageFormat.Code					= _processShipmentRequest.configuration.labelFormat;
-					shipmentRequestObj.ShipmentRequest.Shipment.LabelSpecification.LabelImageFormat.Description				= _processShipmentRequest.configuration.labelFormat;
+					shipmentRequestObj.ShipmentRequest.LabelSpecification.LabelImageFormat.Code								= _processShipmentRequest.configuration.labelFormat;
+					shipmentRequestObj.ShipmentRequest.LabelSpecification.LabelStockSize.Height								= "6";
+					shipmentRequestObj.ShipmentRequest.LabelSpecification.LabelStockSize.Width								= "4";
 					
 					//Get count of packages from the incoming message
 					//
@@ -96,11 +97,6 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 							//
 							shipmentRequestObj.ShipmentRequest.Shipment.Package.push(new _upsPackageObj(_processShipmentRequest.packages[i].weight));
 						}
-					
-					log.debug({
-						title: 'Shipment Request',
-						details: JSON.stringify(shipmentRequestObj)
-					});
 					
 					try
 						{
@@ -137,11 +133,6 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 							responseStatus = err.message;
 						}
 					
-					log.debug({
-						title: 'Shipment Response',
-						details: responseBodyObj
-					});
-					
 					//Check the responseObject to see whether a success or error/failure message was returned
 					//
 					if (responseStatus == '200')
@@ -151,97 +142,63 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 							var consignmentNumber 	= '';
 							var shipmentId		 	= '';
 							var message 			= '';
-							var labelImage 			= '';
-							var labelType			= '';
 							
-							//Get the UPS response status
+							//Get the consignment number
 							//
-							var upsResponseStatus = responseBodyObj['ShipmentResponse']['Response']['ResponseStatus']['Description'];
+							consignmentNumber = responseBodyObj['ShipmentResponse']['ShipmentResults']['ShipmentIdentificationNumber'];
+									
+							//Convert the UPS response object to the standard process shipments response object
+							//
+							processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, null, consignmentNumber);
+									
+							//Get the package results
+							//
+							var packageResults = responseBodyObj['ShipmentResponse']['ShipmentResults']['PackageResults'];
 							
-							//If we have a successful response
+							//If we have an array of packages
 							//
-							if (upsResponseStatus == 'Success')
+							if (packageResults.length > 0)
 								{
-									//Get the consignment number
+									//Loop through packages
 									//
-									consignmentNumber = responseBodyObj['ShipmentResponse']['ShipmentResults']['ShipmentIdentificationNumber'];
-									
-									//Convert the UPS response object to the standard process shipments response object
-									//
-									processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, null, consignmentNumber);
-									
-									//Get the package results
-									//
-									var packageResults = responseBodyObj['ShipmentResponse']['ShipmentResults']['PackageResults'];
-									
-									if (typeof packageResults == 'array')
+									for (var i = 0; i < packageResults.length; i++)
 										{
-											//Loop through packages
+											//Get the tracking number, label image and label type
 											//
-											for (var i = 0; i < packageResults.length; i++)
-												{
-													//Get the tracking number
-													//
-													var trackingNumber = packageResults[i].TrackingNumber;
+											var trackingNumber 	= packageResults[i].TrackingNumber;
+											var labelImage		= packageResults[i].ShippingLabel.GraphicImage;
+											var labelType		= 'txt';
 													
-													//Call function to return the label image
-													var labelRecoveryRequest = upsLabelRecoveryRequest(headerObj, _processShipmentRequest.configuration.urlLabelRecovery, _processShipmentRequest.configuration.labelFormat, trackingNumber);
-													
-													//Check the labelRecoveryRequest response to see whether a success or error/failure message was returned
-													//
-													if (labelRecoveryRequest.responseStatus == '200')
-														{
-															//Get the label image and type
-															//
-															labelImage 	= labelRecoveryRequest['responseBody']['LabelRecoveryResponse']['LabelResults']['LabelImage']['GraphicImage'];
-															labelType	= _processShipmentRequest.configuration.labelFormat;
-															
-															//Add packages to processShipmentResponse
-															//
-															processShipmentResponse.addPackage(i, trackingNumber, labelImage, labelType);
-														}
-													else
-														{
-															//Convert the UPS response object to the standard process shipments response object
-															//
-															processShipmentResponse = new BBSObjects.processShipmentResponse(labelRecoveryRequest.responseStatus, labelRecoveryRequest.responseBody.response.errors[0].message, consignmentNumber);
-															
-															//Don't make any further label recovery requests
-															//
-															break;
-														}												
-												}
+											// convert the label image to UTF-8 format
+											labelImage = encode.convert({
+												string: labelImage,
+												inputEncoding: encode.Encoding.BASE_64,
+												outputEncoding: encode.Encoding.UTF_8
+											});
+												
+											//Add packages to processShipmentResponse
+											//
+											processShipmentResponse.addPackage(0, trackingNumber, labelImage, labelType);
 										}
-									else if (typeof packageResults == 'object')
-										{
-											//Get the tracking number
-											//
-											var trackingNumber = packageResults.TrackingNumber;
+								}
+							else //We just have the one package returned
+								{
+									//Get the tracking number, label image and label type
+									//
+									var trackingNumber 	= packageResults.TrackingNumber;
+									var labelImage		= packageResults.ShippingLabel.GraphicImage;
+									var labelType		= 'txt';
 											
-											//Call function to return the label image
-											//
-											var labelRecoveryRequest = upsLabelRecoveryRequest(headerObj, _processShipmentRequest.configuration.urlLabelRecovery, _processShipmentRequest.configuration.labelFormat, trackingNumber);
+									// convert the label image to UTF-8 format
+									labelImage = encode.convert({
+										string: labelImage,
+										inputEncoding: encode.Encoding.BASE_64,
+										outputEncoding: encode.Encoding.UTF_8
+									});
 											
-											//Check the labelRecoveryRequest response to see whether a success or error/failure message was returned
-											//
-											if (labelRecoveryRequest.responseStatus == '200')
-												{
-													//Get the label image and type
-													//
-													labelImage 	= labelRecoveryRequest['responseBody']['LabelRecoveryResponse']['LabelResults']['LabelImage']['GraphicImage'];
-													labelType	= _processShipmentRequest.configuration.labelFormat;
-													
-													//Add packages to processShipmentResponse
-													//
-													processShipmentResponse.addPackage(i, trackingNumber, labelImage, labelType);
-												}
-											else
-												{
-													//Convert the UPS response object to the standard process shipments response object
-													//
-													processShipmentResponse = new BBSObjects.processShipmentResponse(labelRecoveryRequest.responseStatus, labelRecoveryRequest.responseBody.response.errors[0].message, consignmentNumber);
-												}											
-										}
+									//Add packages to processShipmentResponse
+									//
+									processShipmentResponse.addPackage(0, trackingNumber, labelImage, labelType);										
 								}
 						}
 					else
@@ -272,71 +229,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 				}
 		}
 	
-	//Function to return the UPS shipping label
-	//
-	function upsLabelRecoveryRequest(_headerObj, _labelRecoveryURL, _labelFormat, _trackingNumber)
-		{
-			//Declare and initialize variables
-			//
-			var responseStatus 			= '';
-			var responseBodyObj			= {};
-		
-			//Create a JSON object that represents the structure of the UPS label recovery request
-			//
-			var labelRecoveryRequestObj = new _labelRecoveryRequest();
-			
-			//Populate the object with the data from the incoming standard message
-			//
-			labelRecoveryRequestObj.LabelRecoveryRequest.LabelSpecification.LabelImageFormat.Code 			= _labelFormat;
-			labelRecoveryRequestObj.LabelRecoveryRequest.LabelSpecification.LabelImageFormat.Description	= _labelFormat;
-			labelRecoveryRequestObj.LabelRecoveryRequest.LabelSpecification.LabelStockSize.Height			= "6";
-			labelRecoveryRequestObj.LabelRecoveryRequest.LabelSpecification.LabelStockSize.Width 			= "4";
-			labelRecoveryRequestObj.LabelRecoveryRequest.TrackingNumber										= _trackingNumber;
-			
-			try
-				{
-					//Make the request to UPS
-					//
-					var response = https.post({
-						url:		_labelRecoveryURL,
-						headers:	_headerObj,
-						body:		JSON.stringify(labelRecoveryRequestObj)
-					});
-	
-					//Extract the http response code	
-					//
-					responseStatus = response.code;
-					
-					//Extract the http response body
-					//
-					if(response.body != null && response.body != '')
-						{
-							//Try to parse the response body into a JSON object
-							//
-							try
-								{
-									responseBodyObj = JSON.parse(response.body);
-								}
-							catch(err)
-								{
-									responseBodyObj = null;
-								}
-						}
-				}
-			catch(err)
-				{
-					responseStatus = err.message;
-				}
-			
-			// return values to the main script function
-			return {
-				responseStatus:	responseStatus,
-				responseBody:	responseBodyObj
-			}
-			
-		}
-	
-	//Function to cancel a shipment from UPS
+	//Function to cancel a UPS shipment
 	//
 	function upsVoidShipmentRequest(_cancelShipmentRequest)
 		{
@@ -446,10 +339,6 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 		{
 			this.ShipmentRequest = {};
 			
-			/*this.ShipmentRequest.Request = {};
-			this.ShipmentRequest.Request.TransactionReference = {};
-			this.ShipmentRequest.Request.TransactionReference.CustomerContext = '';*/
-			
 			this.ShipmentRequest.Shipment = {};
 			this.ShipmentRequest.Shipment.Description = '';
 			
@@ -510,27 +399,13 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			
 			this.ShipmentRequest.Shipment.Package = [];
 			
-			this.ShipmentRequest.Shipment.LabelSpecification = {};
-			this.ShipmentRequest.Shipment.LabelSpecification.LabelImageFormat = {};
-			this.ShipmentRequest.Shipment.LabelSpecification.LabelImageFormat.Code = '';
-			this.ShipmentRequest.Shipment.LabelSpecification.LabelImageFormat.Description = '';
-			//this.ShipmentRequest.LabelSpecification.HTTPUserAgent = '';
-		}
-	
-	function _labelRecoveryRequest()
-		{
-			this.LabelRecoveryRequest = {};
+			this.ShipmentRequest.LabelSpecification = {};
+			this.ShipmentRequest.LabelSpecification.LabelImageFormat = {};
+			this.ShipmentRequest.LabelSpecification.LabelImageFormat.Code = '';
 			
-			this.LabelRecoveryRequest.LabelSpecification = {};
-			this.LabelRecoveryRequest.LabelSpecification.LabelImageFormat = {};
-			this.LabelRecoveryRequest.LabelSpecification.LabelImageFormat.Code = '';
-			this.LabelRecoveryRequest.LabelSpecification.LabelImageFormat.Description = '';
-			this.LabelRecoveryRequest.LabelSpecification.LabelStockSize = {};
-			this.LabelRecoveryRequest.LabelSpecification.LabelStockSize.Height = '';
-			this.LabelRecoveryRequest.LabelSpecification.LabelStockSize.Width = '';
-			
-			this.LabelRecoveryRequest.TrackingNumber = '';
-			
+			this.ShipmentRequest.LabelSpecification.LabelStockSize = {};
+			this.ShipmentRequest.LabelSpecification.LabelStockSize.Height = '';
+			this.ShipmentRequest.LabelSpecification.LabelStockSize.Width = '';
 		}
 	
 	function _voidShipmentRequest()

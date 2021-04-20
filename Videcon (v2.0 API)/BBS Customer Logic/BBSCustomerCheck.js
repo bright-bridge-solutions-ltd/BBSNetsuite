@@ -311,11 +311,6 @@ function(search, record, dialog) {
 		    				{
 		    					missingInformation.push('Default Billing Address Postcode');
 		    				}
-		    			
-		    			// deselect the line
-		    			customerRecord.cancelLine({
-		    				sublistId: 'addressbook'
-		    			});
 		    							
 		    			// break the loop
 		    			break;

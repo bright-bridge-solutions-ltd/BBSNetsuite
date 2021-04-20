@@ -29,8 +29,7 @@ function(search, render, xml) {
     	
     	// build up the XML
     	var xmlString = "<?xml version=\"1.0\"?>\n<!DOCTYPE pdf PUBLIC \"-//big.faceless.org//report\" \"report-1.1.dtd\">\n";
-    	xmlString += "<pdf>"
-    	xmlString += "<body padding=\"20px 20px 20px 20px\" size=\"A4\">";
+    	xmlString += "<pdfset>";
     	
     	// create search to find courier labels attached to the item fulfilment
     	var fileSearch = search.create({
@@ -51,6 +50,7 @@ function(search, render, xml) {
     			name: 'url',
     			join: 'file'
     		}],
+    	
     	});
     	
     	// run search and process results
@@ -66,7 +66,11 @@ function(search, render, xml) {
     		imageURL = xml.escape({xmlText: imageURL});  // replace the & symbol with &amp;
     		
     		// add image to the xml
-    		xmlString += '<img src="' + imageURL + '" style="height: 1024px; width: 682px;"/>'
+    		xmlString += "<pdf>";
+        	xmlString += "<body padding=\"5px 5px 5px 5px\" width=\"101.6mm\" height=\"152.4mm\">";
+    		xmlString += '<img src="' + imageURL + '" style="height: 530px; width: 348px;"/>';
+    		xmlString += "</body>";
+    		xmlString += "</pdf>";
     		
     		// continue processing search results
     		return true;
@@ -74,8 +78,7 @@ function(search, render, xml) {
     	});
     	
     	// add closing xml tags
-    	xmlString += "</body>";
-    	xmlString += "</pdf>";
+    	xmlString += "</pdfset>";
     	
     	// return the PDF to the user
     	context.response.renderPdf(xmlString);
