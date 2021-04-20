@@ -40,9 +40,9 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 																		    			   [
 																		    			      ["isinactive","is","F"], 
 																		    			      "AND", 
-																		    			      ["custrecord_bbs_end_q1","onorafter",startOfYearString],
+																		    			      ["custrecord_bbs_start_date","onorafter",startOfYearString],
 																		    			      "AND", 
-																		    			      ["custrecord_bbs_end_q1","onorbefore",endOfYearString],
+																		    			      ["custrecord_bbs_end_date","onorbefore",endOfYearString],
 																		    			      "AND",
 																		    			      ["custrecord_bbs_status","anyof","1"]		//Status = In Progress
 																		    			   ],
@@ -50,11 +50,7 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 																		    			   [
 																		    			      search.createColumn({name: "name",sort: search.Sort.ASC,  label: "ID"}),
 																		    			      search.createColumn({name: "internalid", label: "Internal Id"}),
-																		    			      search.createColumn({name: "custrecord_bbs_customer", label: "Customer"}),
-																		    			      search.createColumn({name: "custrecord_bbs_end_q1", label: "End of Q1"}),
-																		    			      search.createColumn({name: "custrecord_bbs_end_q2", label: "End of Q2"}),
-																		    			      search.createColumn({name: "custrecord_bbs_end_q3", label: "End of Q3"}),
-																		    			      search.createColumn({name: "custrecord_bbs_rebate_item_type", label: "Rebate Item Types"})
+																		    			      search.createColumn({name: "custrecord_bbs_customer", label: "Customer"})
 																		    			   ]
 															    			}));
 		    		
@@ -103,13 +99,16 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    				//Get rebate targets & values
 		    				//
 		    				var rebateTargetInfo = new BBSRebateProcessingLibrary.rebateTargetInfoObj(
-									    															BBSRebateProcessingLibrary.getGroupRebateTargets(rebateRecord),					//Key=Target Amount, Value=Rebate Percentage
-									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_target_frequency'}), 			//1=Quarterly 2=Annually 3=Monthly
-									    															rebateRecord.getValue({fieldId: 'custrecord_guaranteed_percentage'}),
-									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_pay_frequency'}),				//1=Quarterly 2=Annually 3=Monthly
-									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_marketing_percent'}),
-									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_market_percent_frequency'}),	//1=Quarterly 2=Annually 3=Monthly
-									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_rebate_item_type'})
+									    															BBSRebateProcessingLibrary.getGroupRebateTargets(rebateRecord),							//Target Rebate Percentages Key=Target Amount, Value=Rebate Percentage
+									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_target_frequency'}), 					//Target Rebate Frequency 	1=Quarterly 2=Annually 3=Monthly
+									    															Number(rebateRecord.getValue({fieldId: 'custrecord_guaranteed_percentage'})),			//Guaranteed Rebate Percentage
+									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_pay_frequency'}),						//Guaranteed Rebate Frequency 1=Quarterly 2=Annually 3=Monthly
+									    															Number(rebateRecord.getValue({fieldId: 'custrecord_bbs_marketing_percent'})),			//Marketing Rebate Percentage
+									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_market_percent_frequency'}),			//Marketing Rebate Frequency 1=Quarterly 2=Annually 3=Monthly
+									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_rebate_item_type'}),					//Guaranteed Rebate Item Types
+									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_rebate_item_type_g_market'}),			//Marketing Rebate Item Types
+									    															rebateRecord.getValue({fieldId: 'custrecord_bbs_rebate_item_type_g_target'}),			//Target Rebate Item Type
+									    															Number(rebateRecord.getValue({fieldId: 'custrecord_bbs_rebate_g_fixed_marketing'}))		//Marketing fixed amount
 		    																						);
 		    				//Get rebate dates
 		    				//
@@ -166,11 +165,11 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    						
 		    						//Now get a value of all the invoices that match the customers
 		    						//
-		    						var invoiceValue 	= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, rebateTargetInfo.rebateItemTypes, startDateString, endDateString);
+		    						var invoiceValue 	= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, rebateTargetInfo.rebateGuaranteedItemTypes, startDateString, endDateString);
 		    						
 		    						//Now get the breakdown of invoice values by customer, but only for the customers that are still in the buying group
 		    						//
-		    						var invoiceValueByCustomer = BBSRebateProcessingLibrary.findInvoiceValueByCustomer(currentCustomerArray, rebateTargetInfo.rebateItemTypes, startDateString, endDateString);
+		    						var invoiceValueByCustomer = BBSRebateProcessingLibrary.findInvoiceValueByCustomer(currentCustomerArray, rebateTargetInfo.rebateGuaranteedItemTypes, startDateString, endDateString);
 		    						
 		    						//Calculate the rebate value
 		    						//
@@ -236,11 +235,11 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    						
 		    						//Now get a value of all the invoices that match the customers
 		    						//
-		    						var invoiceValue 	= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, rebateTargetInfo.rebateItemTypes, startDateString, endDateString);
+		    						var invoiceValue 	= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, rebateTargetInfo.rebateMarketingItemTypes, startDateString, endDateString);
 		    						
 		    						//Now get the breakdown of invoice values by customer, but only for the customers that are still in the buying group
 		    						//
-		    						var invoiceValueByCustomer = BBSRebateProcessingLibrary.findInvoiceValueByCustomer(currentCustomerArray, rebateTargetInfo.rebateItemTypes, startDateString, endDateString);
+		    						var invoiceValueByCustomer = BBSRebateProcessingLibrary.findInvoiceValueByCustomer(currentCustomerArray, rebateTargetInfo.rebateMarketingItemTypes, startDateString, endDateString);
 		    						
 		    						//Calculate the rebate value
 		    						//
@@ -305,11 +304,11 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 									
 									//Now get a value of all the invoices that match the customers
 									//
-									var invoiceValue 	= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, rebateTargetInfo.rebateItemTypes, startDateString, endDateString);
+									var invoiceValue 	= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, rebateTargetInfo.rebateTargetItemTypes, startDateString, endDateString);
 									
 									//Now get the breakdown of invoice values by customer, but only for the customers that are still in the buying group
 									//
-									var invoiceValueByCustomer = BBSRebateProcessingLibrary.findInvoiceValueByCustomer(currentCustomerArray, rebateTargetInfo.rebateItemTypes, startDateString, endDateString);
+									var invoiceValueByCustomer = BBSRebateProcessingLibrary.findInvoiceValueByCustomer(currentCustomerArray, rebateTargetInfo.rebateTargetItemTypes, startDateString, endDateString);
 									
 									//Calculate the rebate value
 									//
@@ -342,15 +341,6 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 																										);
 										}
 								}
-							
-							//=====================================================================================
-		    				//Update the totals on the rebate record
-		    				//=====================================================================================
-		    				//
-							
-							//TODO
-							
-							
 		    			}
     			}
     		catch(err)

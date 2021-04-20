@@ -38,25 +38,24 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 															    			   type: 		"customrecord_bbs_cust_group_rebate",
 															    			   filters:
 																		    			   [
-																		    			      ["isinactive","is","F"], 
+																		    			      ["isinactive","is","F"], 														//Not inactive
 																		    			      "AND", 
-																		    			      ["custrecord_bbs_end_q1","onorafter",startOfYearString],
+																		    			      ["custrecord_bbs_start_date","onorafter",startOfYearString],					//Start of rebate in on or after the start of this current year
 																		    			      "AND", 
-																		    			      ["custrecord_bbs_end_q1","onorbefore",endOfYearString],
+																		    			      ["custrecord_bbs_end_date","onorbefore",endOfYearString],						//End of rebate is on or before the end of this year
 																		    			      "AND",
-																		    			      ["custrecord_bbs_status","anyof","1"]		//Status = In Progress
+																		    			      ["custrecord_bbs_status","anyof","1"]											//Status = In Progress
 																		    			   ],
 															    			   columns:
 																		    			   [
 																		    			      search.createColumn({name: "name",sort: search.Sort.ASC,  label: "ID"}),
 																		    			      search.createColumn({name: "internalid", label: "Internal Id"}),
 																		    			      search.createColumn({name: "custrecord_bbs_customer", label: "Customer"}),
-																		    			      search.createColumn({name: "custrecord_bbs_end_q1", label: "End of Q1"}),
-																		    			      search.createColumn({name: "custrecord_bbs_end_q2", label: "End of Q2"}),
-																		    			      search.createColumn({name: "custrecord_bbs_end_q3", label: "End of Q3"}),
+																		    			      search.createColumn({name: "custrecord_bbs_rebate_item_type", label: "Guaranteed Rebate Item Type"}),
+																		    			      search.createColumn({name: "custrecord_bbs_rebate_item_type_g_market", label: "Marketing Rebate Item Type"}),
+																		    			      search.createColumn({name: "custrecord_bbs_rebate_item_type_g_target", label: "Target Rebate Item Type"}),
 																		    			      search.createColumn({name: "custrecord_bbs_start_date", label: "Start Date"}),
-																		    			      search.createColumn({name: "custrecord_bbs_end_date", label: "End Date"}),
-																		    			      search.createColumn({name: "custrecord_bbs_rebate_item_type", label: "Rebate Item Types"})
+																		    			      search.createColumn({name: "custrecord_bbs_end_date", label: "End Date"})
 																		    			   ]
 															    			}));
 		    		
@@ -85,28 +84,53 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
     			{
 		    		//Rehydrate the search result & get values
 		    		//
-		    		var searchResult 			= JSON.parse(context.value);
-		    		var searchDateStartString	= searchResult.values['custrecord_bbs_start_date'];
-		    		var searchDateEndString		= searchResult.values['custrecord_bbs_end_date'];
-		    		var searchId	 			= searchResult.values['internalid'][0].value;
-		    		var searchItemTypes			= searchResult.values['custrecord_bbs_rebate_item_type'];
-		    		var itemTypesArray 			= [];
-		    		
-		    		log.debug({title: 'searchId (Group rebate record)', details: searchId});
-		    		
-		    		for (var int = 0; int < searchItemTypes.length; int++) 
-			    		{
-		    				itemTypesArray.push(searchItemTypes[int].value);
-						}
-		    		
+		    		var searchResult 				= JSON.parse(context.value);
+		    		var searchDateStartString		= searchResult.values['custrecord_bbs_start_date'];
+		    		var searchDateEndString			= searchResult.values['custrecord_bbs_end_date'];
+		    		var searchId	 				= searchResult.values['internalid'][0].value;
+		    		var searchGuaranteedItemTypes	= searchResult.values['custrecord_bbs_rebate_item_type'];
+		    		var searchMarketingItemTypes	= searchResult.values['custrecord_bbs_rebate_item_type'];
+		    		var searchTargetItemTypes		= searchResult.values['custrecord_bbs_rebate_item_type'];
+		    		var itemTypesArray 				= null;
+		    		var invoiceValue				= Number(0);
 		    		
 		    		//Now find all of the individual rebate records that have this particular group record linked to them
 		    		//
 		    		var customerArray = BBSRebateProcessingLibrary.findGroupMembers(searchDateStartString, searchDateEndString, searchId);
 		    		
-					//Get the total of the invoices
+		    		
+					//Get the total of the invoices for the guaranteed item types
 		    		//
-					totalInvoiceValue = BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString);
+		    		itemTypesArray		= [];
+		    		
+		    		for (var int = 0; int < searchGuaranteedItemTypes.length; int++) 
+			    		{
+		    				itemTypesArray.push(searchGuaranteedItemTypes[int].value);
+						}
+	    		
+		    		invoiceValue += BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString);
+					
+		    		//Get the total of the invoices for the marketing item types
+		    		//
+		    		itemTypesArray		= [];
+		    		
+		    		for (var int = 0; int < searchMarketingItemTypes.length; int++) 
+			    		{
+		    				itemTypesArray.push(searchMarketingItemTypes[int].value);
+						}
+	    		
+		    		invoiceValue += BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString);
+					
+		    		//Get the total of the invoices for the marketing item types
+		    		//
+		    		itemTypesArray		= [];
+		    		
+		    		for (var int = 0; int < searchTargetItemTypes.length; int++) 
+			    		{
+		    				itemTypesArray.push(searchTargetItemTypes[int].value);
+						}
+	    		
+		    		invoiceValue += BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString);
 					
 		    		//Update the group rebate record
 		    		//
@@ -118,14 +142,12 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    							type:		'customrecord_bbs_cust_group_rebate',
 		    							id:			searchId,
 		    							values:		{
-		    										custrecord_bbs_actual_sales_value: 	totalInvoiceValue
+		    										custrecord_bbs_actual_sales_value: 	invoiceValue
 		    										},
 		    							options:	{
 		    										ignoreMandatoryFields: 	true
 		    										}
 		    							});
-		    		
-		    		
     			}
     		catch(err)
 				{
@@ -158,8 +180,6 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 	    {
 	    	//Submit the next map/reduce job 
 			//
-    	
-			/*
 			try
 				{
 					var mrTask = task.create({
@@ -177,7 +197,6 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 								details: 	err
 								});	
 				}
-			*/
 	    }
 
     return {

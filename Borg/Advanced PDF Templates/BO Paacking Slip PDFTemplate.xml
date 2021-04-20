@@ -156,20 +156,43 @@
         </tr>
     </thead>
     
-  <#list salesorder.item as tranline>
+  <#list record.item as tranline>
+    <#assign qtyOrdered="">
+    <#assign qtyRemaining="">
+    <#list salesorder.item as item>
+       <#if tranline.orderline==item.line>
+          	<#assign qtyOrdered=item.quantity>
+            <#assign qtyRemaining=item.quantityremaining>
+       </#if>
+     </#list>
      <#if tranline.custcol_bbs_if_serial_no?length gt 0>
     	<#list tranline.custcol_bbs_if_serial_no?split("<br />") as serials>
           <#if serials_index == 0>
             <tr>
               <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">&nbsp;</td>
               <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">${serials}</td>
-              <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.item}</td>
-              <td align="left"  colspan="5" style="padding-left: 0px; font-size: 10px;">${tranline.description}</td>
-              <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.units}</td>
+              	
+              <#if tranline.itemtype == "Kit">
+                <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;"><i>${tranline.item}</i></td>
+              <#else>
+              	<td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.item}</td>
+              </#if>
+                
+              <#if tranline.kitlevel?length gt 0>
+            	<td align="left"  colspan="5" style="padding-left: 10px; font-size: 10px;">${tranline.description}</td>
+          	  <#else>
+                <#if tranline.itemtype == "Kit">
+            		<td align="left"  colspan="5" style="padding-left: 0px; font-size: 10px;"><i>${tranline.description}:</i></td>
+                <#else> 
+                  	<td align="left"  colspan="5" style="padding-left: 0px; font-size: 10px;">${tranline.description}</td>
+                </#if>
+              </#if>
+                
+              <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.unitsdisplay}</td>
               <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.custcol_bbs_item_weight}</td>
-              <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.quantityordered}</td>
+              <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${qtyOrdered}</td>
               <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.quantity}</td>
-              <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.quantityremaining}</td>
+              <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${qtyRemaining}</td>
         	</tr>
           <#else>
             <tr>
@@ -192,13 +215,27 @@
        <tr>
           <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">&nbsp;</td>
           <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.custcol_bbs_if_serial_no}</td>
-          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.item}</td>
-          <td align="left"  colspan="5" style="padding-left: 0px; font-size: 10px;">${tranline.description}</td>
-          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.units}</td>
+         
+          <#if tranline.itemtype == "Kit">
+                <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;"><i>${tranline.item}</i></td>
+          <#else>
+              	<td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.item}</td>
+          </#if>
+            
+          <#if tranline.kitlevel?length gt 0>
+            <td align="left"  colspan="5" style="padding-left: 10px; font-size: 10px;">${tranline.description}</td>
+          <#else>
+            <#if tranline.itemtype == "Kit">
+            		<td align="left"  colspan="5" style="padding-left: 0px; font-size: 10px;"><i>${tranline.description}:</i></td>
+                <#else> 
+                  	<td align="left"  colspan="5" style="padding-left: 0px; font-size: 10px;">${tranline.description}</td>
+                </#if>
+          </#if>
+          <td align="left"  colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.unitsdisplay}</td>
           <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.custcol_bbs_item_weight}</td>
-          <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.quantityordered}</td>
+          <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${qtyOrdered}</td>
           <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.quantity}</td>
-          <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${tranline.quantityremaining}</td>
+          <td align="right" colspan="2" style="padding-left: 0px; font-size: 10px;">${qtyRemaining}</td>
         </tr>
    </#if>
   </#list>

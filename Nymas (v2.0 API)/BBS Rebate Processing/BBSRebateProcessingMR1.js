@@ -38,20 +38,26 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 															    			   type: 		"customrecord_bbs_cust_individ_rebate",
 															    			   filters:
 																		    			   [
-																		    			      ["isinactive","is","F"], 
+																		    			      ["isinactive","is","F"], 														//Not inactive
 																		    			      "AND", 
-																		    			      ["custrecord_bbs_end_q1_ind","onorafter",startOfYearString],
+																		    			      ["custrecord_individual_rebate_start_date","onorafter",startOfYearString],	//Start of rebate in on or after the start of this current year
 																		    			      "AND", 
-																		    			      ["custrecord_bbs_end_q1_ind","onorbefore",endOfYearString]
+																		    			      ["custrecord_individual_rebate_end_date","onorbefore",endOfYearString],		//End of rebate is on or before the end of this year
+																		    			      "AND",
+																		    			      ["custrecord_bbs_parent_group_rebate","anyof","@NONE@"],						//There is no link to a group rebate record
+																		    			      "AND",
+																		    			      ["custrecord_bbs_status","anyof","1"]											//Status = In Progress
 																		    			   ],
 															    			   columns:
 																		    			   [
 																		    			      search.createColumn({name: "name",sort: search.Sort.ASC,  label: "ID"}),
 																		    			      search.createColumn({name: "internalid", label: "Internal Id"}),
 																		    			      search.createColumn({name: "custrecord_bbs_ind_customer", label: "Customer"}),
-																		    			      search.createColumn({name: "custrecord_bbs_end_q1_ind", label: "End of Q1"}),
-																		    			      search.createColumn({name: "custrecord_bbs_end_q2_ind", label: "End of Q2"}),
-																		    			      search.createColumn({name: "custrecord_bbs_end_q3_ind", label: "End of Q3"})
+																		    			      search.createColumn({name: "custrecord_bbs_rebate_i_guaranteed_type", label: "Guaranteed Rebate Item Type"}),
+																		    			      search.createColumn({name: "custrecord_bbs_rebate_i_marketing_type", label: "Marketing Rebate Item Type"}),
+																		    			      search.createColumn({name: "custrecord_bbs_rebate_i_targeted_type", label: "Targeted Rebate Item Type"}),
+																		    			      search.createColumn({name: "custrecord_individual_rebate_start_date", label: "Start Date"}),
+																		    			      search.createColumn({name: "custrecord_individual_rebate_end_date", label: "End Date"})
 																		    			   ]
 															    			}));
     			}
@@ -76,54 +82,56 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
     			{
 		    		//Rehydrate the search result & get values
 		    		//
-		    		var searchResult 			= JSON.parse(context.value);
-		    		var searchCustomer			= searchResult.values['custrecord_bbs_ind_customer'];
-		    		var searchCustomerId		= searchCustomer[0].value;
-		    		var searchId	 			= searchResult.values['internalid'][0].value;
+		    		var searchResult 				= JSON.parse(context.value);
+		    		var searchCustomer				= searchResult.values['custrecord_bbs_ind_customer'];
+		    		var searchCustomerId			= searchCustomer[0].value;
+		    		var searchId	 				= searchResult.values['internalid'][0].value;
 		    		
-		    		//Get the end of the first quarter
+		    		var searchDateStartString		= searchResult.values['custrecord_individual_rebate_start_date'];
+		    		var searchDateEndString			= searchResult.values['custrecord_individual_rebate_end_date'];
+		    		var searchGuaranteedItemTypes	= searchResult.values['custrecord_bbs_rebate_i_guaranteed_type'];
+		    		var searchMarketingTypes		= searchResult.values['custrecord_bbs_rebate_i_marketing_type'];
+		    		var searchTargetedItemTypes		= searchResult.values['custrecord_bbs_rebate_i_targeted_type'];
+		    		
+		    		var invoiceValue				= Number(0);
+		    		var itemTypesArray 				= null;
+		    		var customerArray				= [searchCustomerId];
+		    		
+		    		//Get the total of the invoices for the guaranteed item types
 		    		//
-		    		var q1EndDate				= format.parse({type: format.Type.DATE, value: searchResult.values['custrecord_bbs_end_q1_ind']});
+		    		itemTypesArray 				= [];
 		    		
-		    		//Work out the first day of the quarter end month
-					//
-					var startOfLastMonthInQuarter = new Date(q1EndDate.getFullYear(), q1EndDate.getMonth(), 1);
-					
-					//Now subtract 3 months from it to get the start of the first month in the quarter
-					//
-					startOfLastMonthInQuarter.setMonth(startOfLastMonthInQuarter.getMonth() - 2);
-					
-					//Now construct the start date as a string
-					//
-					var searchDateStartString	= format.format({value: startOfLastMonthInQuarter, type: format.Type.DATE});
+		    		for (var int = 0; int < searchGuaranteedItemTypes.length; int++) 
+			    		{
+		    				itemTypesArray.push(searchGuaranteedItemTypes[int].value);
+						}
 		    		
-					//Get the end of the third quarter
-					//
-					var q3EndDate				= format.parse({type: format.Type.DATE, value: searchResult.values['custrecord_bbs_end_q3_ind']});
-		    		
-					//Add one day to this date to get the start of the fourth quarter
-					//
-					var q4StartDate				= new Date(q3EndDate.getFullYear(), q3EndDate.getMonth(), q3EndDate.getDate());
-					q4StartDate.setDate(q4StartDate.getDate() + 1);
-					
-					//Now add two months to get us into the last month of the quarter
-					//
-					q4StartDate.setMonth(q4StartDate.getMonth() + 2);
-					
-					//Now move to the last day of this month
-					//
-					var q4EndDate = new Date(q4StartDate.getFullYear(), q4StartDate.getMonth() + 1, 0)
-					
-					//Now construct the end date as a string
-					//
-					var searchDateEndString	= format.format({value: q4EndDate, type: format.Type.DATE});
-		    		
-					
-		    		//Get the total of the invoices
+		    		var invoiceValue			= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString);	//Customer, Array of item types, Start date, End date
+		    		invoiceValue				+= parseFloat(invoiceValue);
+
+		    		//Get the total of the invoices for the marketing item types
 		    		//
-		    		var customerArray			= [searchCustomerId];
-		    		var invoiceValue			= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, [], searchDateStartString, searchDateEndString);
-		    		invoiceValue				= parseFloat(invoiceValue);
+		    		itemTypesArray 				= [];
+		    		
+		    		for (var int = 0; int < searchMarketingTypes.length; int++) 
+			    		{
+		    				itemTypesArray.push(searchMarketingTypes[int].value);
+						}
+		    		
+		    		var invoiceValue			= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString);	//Customer, Array of item types, Start date, End date
+		    		invoiceValue				+= parseFloat(invoiceValue);
+
+		    		//Get the total of the invoices for the targeted item types
+		    		//
+		    		itemTypesArray 				= [];
+		    		
+		    		for (var int = 0; int < searchTargetedItemTypes.length; int++) 
+			    		{
+		    				itemTypesArray.push(searchTargetedItemTypes[int].value);
+						}
+		    		
+		    		var invoiceValue			= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString);	//Customer, Array of item types, Start date, End date
+		    		invoiceValue				+= parseFloat(invoiceValue);
 
 		    		//Update the rebate record
 		    		//
