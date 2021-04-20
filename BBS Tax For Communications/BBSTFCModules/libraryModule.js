@@ -1575,6 +1575,30 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 					title: 'Error Updating ' + recordType + ' ' + recordID,
 					details: e
 				});
+				
+				//If we failed to update the transaction record for some reason, then we need to try to log that failure on the transaction record if we can
+				//
+				try
+					{
+						record.submitFields({
+											type:		recordType,
+											id:			recordID,
+											options:	{
+														ignoreMandatoryFields:	true,
+														enableSourcing: 		false
+														},
+											values:		{
+														custbody_bbs_tfc_errors:	JSON.stringify(e)
+														}		
+											});
+					}
+				catch(err)
+					{
+						log.error({
+									title: 'Error Updating ' + recordType + ' ' + recordID,
+									details: e
+									});
+					}
 			}
 
 	}
