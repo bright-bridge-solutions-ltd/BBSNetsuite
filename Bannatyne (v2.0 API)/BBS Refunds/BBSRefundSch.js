@@ -97,8 +97,8 @@ function(runtime, record, search) {
     	// declare and initialize variables
     	var creditGLAccount = null;
     	
-    	// if the refund type is NOT 3 (SagePay) OR 5 (Secure Trading)
-    	if (refundType != 3 && refundType != 5)
+    	// if the refund type is NOT 3 (SagePay) OR 5 (Secure Trading) OR 6 (Klarna)
+    	if (refundType != 3 && refundType != 5 && refundType != 6)
     		{
     			// switch the refund type
     			switch(refundType) {

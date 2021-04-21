@@ -33,12 +33,16 @@ function() {
      */
     function fieldChanged(scriptContext) {
     	
-    	if (scriptContext.fieldId == 'custcol_otdn_so_porate') // if the PO Rate field has been changed
+    	if (scriptContext.fieldId == 'custcol_otdn_so_porate')
     		{
-    			// call function to set the 'Est Extended Cost/Est Unit Cost' fields
+    			// call function to set the 'Est Extended Cost/PO Rate/Est Unit Cost' fields
         		poRateChanged(scriptContext.currentRecord);
     		}
-
+    	else if (scriptContext.fieldId == 'custcol_otdn_so_povendor')
+    		{
+	    		// call function to set the 'PO Vendor' fields
+	    		poVendorChanged(scriptContext.currentRecord);
+    		}
     }
 
     /**
@@ -122,8 +126,9 @@ function() {
      */
     function validateLine(scriptContext) {
     	
-    	// call function to set the 'Est Extended Cost/Est Unit Cost' fields
+    	// call functions to set the 'Est Extended Cost/PO Rate/Est Unit Cost' and 'PO Vendor' fields
     	poRateChanged(scriptContext.currentRecord);
+    	poVendorChanged(scriptContext.currentRecord);
 		
 		return true;
 
@@ -172,9 +177,9 @@ function() {
 
     }
     
-    // =============================================================
-    // FUNCTION TO PERFORM ACTIONS WHEN THE PO RATE HAS BEEN CHANGED
-    // =============================================================
+    // ============================================================================
+    // FUNCTIONS TO PERFORM ACTIONS WHEN THE PO RATE OR PO VENDOR HAVE BEEN CHANGED
+    // ============================================================================
     
     function poRateChanged(currentRecord) {
     	
@@ -189,10 +194,16 @@ function() {
 			fieldId: 'quantity',
 		});
 	
-		// set the 'Est Extended Cost/Est Unit Cost' fields
+		// set the 'Est Extended Cost/PO Rate/Est Unit Cost' fields
 		currentRecord.setCurrentSublistValue({
 			sublistId: 'item',
 			fieldId: 'costestimaterate',
+			value: poRate
+		});
+		
+		currentRecord.setCurrentSublistValue({
+			sublistId: 'item',
+			fieldId: 'porate',
 			value: poRate
 		});
 		
@@ -203,6 +214,29 @@ function() {
 		});
     	
     }
+    
+    function poVendorChanged(currentRecord) {
+    	
+    	// set the standard PO vendor and PO Rate fields
+    	currentRecord.setCurrentSublistValue({
+			sublistId: 'item',
+			fieldId: 'povendor',
+			value: currentRecord.getCurrentSublistValue({
+				sublistId: 'item',
+				fieldId: 'custcol_otdn_so_povendor',
+			})
+		});
+    	
+    	currentRecord.setCurrentSublistValue({
+			sublistId: 'item',
+			fieldId: 'porate',
+			value: currentRecord.getCurrentSublistValue({
+				sublistId: 'item',
+				fieldId: 'custcol_otdn_so_porate',
+			})
+		});
+    	
+    } 
 
     return {
         fieldChanged: fieldChanged,

@@ -18,7 +18,7 @@
       				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.tranid}</b></td>
       			</tr>
       			<tr>
-      				<td colspan="2" style="border-left: 1px solid black;"><b>Project Reference</b></td>
+      				<td colspan="2" style="border-left: 1px solid black;"><b>Your Reference</b></td>
       				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.title}</b></td>
       			</tr>
       			<tr>
@@ -165,7 +165,7 @@
         					<td align="center"><b>IMPORTANT NOTES TO CUSTOMER:</b></td>
         				</tr>
         				<tr>
-        					<td align="center"><b>This quotation is valid for 60 days</b></td>
+        					<td align="center"><b>This quotation is valid until ${record.duedate}</b></td>
         				</tr>
         				<tr>
         					<td><p align="center"><b>Once manufactured, special order items cannot be cancelled or returned</b></p></td>

@@ -22,8 +22,12 @@
       				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.createdfrom.custbody_bbs_cust_po_number}</b></td>
       			</tr>
       			<tr>
-      				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Sales Order No.</b></td>
-      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${record.createdfrom?keep_after('#')}</b></td>
+      				<td colspan="2" style="border-left: 1px solid black;"><b>Sales Order No.</b></td>
+      				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.createdfrom?keep_after('#')}</b></td>
+      			</tr>
+      			<tr>
+      				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Account No.</b></td>
+      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${record.custbody_bbs_customer_account_number}</b></td>
       			</tr>
       		</table>
         </macro>
@@ -44,10 +48,9 @@
         			<td colspan="12">
         				<table style="width: 100%; margin-top: 10px;">
         					<tr>
-			        			<td align="left" colspan="4" class="footer">Printed : ${.now?datetime?string["EEE dd MMM yyyy HH:mm"]}</td>
-			        			<td align="center" colspan="4" class="footer">Company Reg.No.: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_company_reg}</td>
-			        			<td align="center" colspan="3" class="footer">VAT Reg. No.: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_vat_number}</td>
-			        			<td align="right" colspan="2" class="footer"><p align="right">Page <pagenumber/> of <totalpages/></p></td>
+			        			<td align="left" class="footer">Printed : ${.now?datetime?string["EEE dd MMM yyyy HH:mm"]}</td>
+			        			<td align="center" class="footer">VAT Reg. No.: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_vat_number}</td>
+			        			<td align="right" class="footer"><p align="right">Page <pagenumber/> of <totalpages/></p></td>
         					</tr>
         				</table>
         			</td>
@@ -98,7 +101,7 @@
 		}
 </style>
 </head>
-<body header="nlheader" header-height="150pt" footer="nlfooter" footer-height="120pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="165pt" footer="nlfooter" footer-height="120pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
     
     <table style="width: 100%; margin-bottom: 5px;">
     	<tr>
@@ -144,7 +147,7 @@
 	    		</#if>
 	    			<tr>
 	    				<td align="left" colspan="8">${tranline.item}</td>
-	    				<td align="left" colspan="12">${tranline.description}<br/>Cust P/N: </td>
+	    				<td align="left" colspan="12">${tranline.description}</td>
 	    				<td align="right" colspan="4">${tranline.quantityordered?string["0.00"]}</td>
 	    				<td align="right" colspan="4">${tranline.quantityremaining?string["0.00"]}</td>
 	    				<td align="right" colspan="5">${tranline.quantity?string["0.00"]}</td>

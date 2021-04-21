@@ -320,11 +320,6 @@ function(runtime, search, record) {
     
     function checkAgeOfInvoices(customerID, daysOverdue) {
     	
-    	log.debug({
-    		title: 'Argument Check',
-    		details: arguments
-    	});
-    	
     	// declare and initialize variables
     	var numberOfInvoices = 0;
     	var overdueInvoices = false;
@@ -342,6 +337,11 @@ function(runtime, search, record) {
     			name: 'mainname',
     			operator: search.Operator.ANYOF,
     			values: [customerID]
+    		},
+    				{
+    			name: 'status',
+    			operator: search.Operator.ANYOF,
+    			values: ['CustInvc:A'] // Invoice:Open
     		},
     				{
     			name: 'daysoverdue',

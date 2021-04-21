@@ -239,11 +239,16 @@
 			</#if>
   			<tr>
   				<td align="left" colspan="8" margin-right="5px">${item.item} ${item.description}</td>
-  				<td align="center" colspan="1">${item.quantity?string("0")}</td>
+  				<td align="center" colspan="1" line-height="150%">${item.quantity?string("0")}</td>
   				<td align="right" colspan="2">${currencySymbol}${item.rate}</td>
   				<td align="right" colspan="2">${currencySymbol}${item.taxamount}</td>
   				<td align="right" colspan="2">${currencySymbol}${item.amount}</td>
   			</tr>
+  			<#if item.custcol_otdn_sellernotes?has_content>
+	  			<tr style="margin-bottom: 10px;">
+	  				<td align="left" colspan="15"><b>Notes to Supplier:</b><br/>${item.custcol_otdn_sellernotes}</td>
+	  			</tr>
+  			</#if>
   			</#list><!-- end items -->
   		</table>
 	</#if>

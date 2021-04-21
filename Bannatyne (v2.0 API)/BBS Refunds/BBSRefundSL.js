@@ -29,7 +29,7 @@ function(ui, search, file, runtime, task) {
 	            });
 	    		
 	    		// set client script to run on the page
-				form.clientScriptFileId = 409640;
+				form.clientScriptFileId = 862227;
 	    		
 	    		// add fields to the form
 	    		form.addField({
@@ -549,7 +549,49 @@ function(ui, search, file, runtime, task) {
 	    				contents: CSV,
 	    				folder:	runtime.getCurrentScript().getParameter({name: 'custscript_bbs_refund_reports_folder_id'})
 	    			});
+	    			
+	    			break;
 				
+				case 6: //	Klarna
+					
+					// start off the CSV
+					var CSV = '"Name","Date of Transaction","Amount","Email Address"\r\n';
+					
+					// get count of lines on the sublist
+	    			var lineCount = context.request.getLineCount('refundsublist');
+					
+					// loop through line count
+	    			for (var i = 0; i < lineCount; i++)
+	    				{
+	    					// get the value of the 'Refund' checkbox
+	    					var refund = context.request.getSublistValue({
+	    						group: 'refundsublist',
+	    						name: 'refund',
+	    						line: i
+	    					});
+	    					
+	    					// only process lines where the refund checkbox is ticked
+	    					if (refund == 'T')
+	    						{
+	    							// add the line to the CSV
+	    							CSV += context.request.getSublistValue({group: 'refundsublist', name: 'customername', line: i}) + ',';
+	    							CSV += context.request.getSublistValue({group: 'refundsublist', name: 'originaltransactiondate', line: i}) + ',';
+	    							CSV += context.request.getSublistValue({group: 'refundsublist', name: 'refundamount', line: i}) + ',';
+	    							CSV += context.request.getSublistValue({group: 'refundsublist', name: 'emailaddress', line: i}) + ',';
+	    							
+	    							// push the internal ID of the refund request to the refundRequests array
+		    						refundRequests.push(context.request.getSublistValue({group: 'refundsublist', name: 'internalid', line: i}));
+	    						}
+	    				}
+	    					
+	    			// generate the CSV file
+	    			fileObj = file.create({
+	    				name: 'Klarna_' + new Date().format('c') + '.csv',
+	    				fileType: file.Type.CSV,
+	    				contents: CSV,
+	    				folder:	runtime.getCurrentScript().getParameter({name: 'custscript_bbs_refund_reports_folder_id'})
+	    			});
+			
 				}
 				
 				// save the file to the file cabinet

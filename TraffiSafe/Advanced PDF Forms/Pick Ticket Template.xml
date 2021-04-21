@@ -1,0 +1,457 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+  
+<#assign subsidiary>${record.subsidiary.id}</#assign>
+<#assign regInfo>${record.subsidiary.custrecord_sw_reg_info}</#assign>
+<#assign emailInfo>${record.subsidiary.custrecord_sw_form_email_info}</#assign>
+<#assign telInfo>${record.subsidiary.custrecord_sw_form_tel_no}</#assign>
+<#assign vatInfo>${record.subsidiary.custrecord_sw_form_tax_no}</#assign>
+<#assign logoInfo>${record.subsidiary.custrecord_sw_form_image}</#assign>
+<#assign coname>${record.subsidiary.custrecord_sw_form_co_name}</#assign>
+<#assign footerMsg>${record.subsidiary.custrecord_sw_form_footer_message}</#assign>
+<#assign footerMsg2>${record.subsidiary.custrecord_sw_form_footer_message_2}</#assign>
+<#assign AllMonies>${record.subsidiary.custrecord_sw_all_monies_clause}</#assign>
+<#assign RefName>${record.subsidiary.custrecord_sw_form_ref_name}</#assign>
+<#assign CreditLogo>${record.subsidiary.custrecord_sw_form_credit_logo}</#assign>
+
+<#if record.custbody_sw_language?has_content>
+<#if record.custbody_sw_language=="English (UK)">
+<#assign SOName>Sales Order Confirmation</#assign>
+<#assign SONo>Sales Order Number</#assign>
+<#assign DelName>Delivery Note</#assign>
+<#assign DelNo>Delivery Note Number</#assign>
+<#assign InvName>Invoice</#assign>
+<#assign InvNo>Invoice Number</#assign>
+<#assign PicName>Picking Ticket</#assign>
+<#assign StaName>Statement</#assign>
+<#assign PurName>Purchase Order</#assign>
+<#assign Date>Date</#assign>
+<#assign CustRef>Customer Reference</#assign>
+<#assign AltRef>Alt ref</#assign>
+<#assign CuAcc>Account No</#assign>
+<#assign SuAcc>Account No</#assign>
+<#assign Cont>Contact</#assign>
+<#assign Email>Email</#assign>
+<#assign Tel>Tel</#assign>
+<#assign DelAdd>Delivery Address</#assign>
+<#assign InvAdd>Invoice Address</#assign>
+<#assign SupAdd>Supplier Address</#assign>
+<#assign ShIng>Shipping Method</#assign>
+<#assign ShMent>Shipment Method</#assign>
+<#assign Track>Tracking Info</#assign>
+<#assign Item>Item</#assign>
+<#assign SupItem>Supplier Code</#assign>
+<#assign ExFac>Ex-Factory Date</#assign>
+<#assign QtyOrd>Qty<br/>Ordered</#assign>
+<#assign QtyShip>Qty<br/>Shipped</#assign>
+<#assign QtyBack>Qty<br/>BackOrdered</#assign>
+<#assign Qty>Quantity</#assign>
+<#assign UP>Unit<br/>Price</#assign>
+<#assign NetAm>Net<br/>Amount</#assign>
+<#if subsidiary=="8"><#assign TaxAm>Federal Tax<br/>ID 61-1845595</#assign><#else><#assign TaxAm>VAT<br/>Amount</#assign></#if>
+<#assign GroAm>Gross<br/>Amount</#assign>
+<#assign SubT>Subtotal</#assign>
+<#assign ManP>Manpack<br/>Name</#assign>
+<#assign Comp>Company</#assign>
+<#assign Pick>Pick</#assign>
+<#assign Check>Check</#assign>
+<#assign Pack>Pack</#assign>
+<#assign Terms>Payment Terms</#assign>
+<#assign BankD>Bank details for payments in</#assign>
+<#assign Creg>Company registration Number</#assign>
+<#assign RegOff>Registered Office</#assign>
+<#assign AccNo>Account Number</#assign>
+<#assign Page>Page</#assign>
+<#assign PagOf>of</#assign>
+<#assign NetTot>Net Total</#assign>
+<#assign CarChar>Carriage Charge</#assign>
+<#if subsidiary=="8"><#assign TaxTot>Sales Tax Total</#assign><#else><#assign TaxTot>VAT Total</#assign></#if>
+<#assign GroTot>Gross Total</#assign>
+<#assign Gross>Gross</#assign>
+<#assign Nett>Nett</#assign>
+<#assign Total>Total</#assign>
+<#assign PayDue>Payment Due</#assign>
+<#assign TaxNo>VAT No</#assign>
+<#assign Sort>Sort Code</#assign>
+<#assign Iban>Iban</#assign>
+<#assign Swift>Swift No</#assign>
+<#assign DiscAv>Discount available if paid within</#assign>
+<#assign EUCom>EU Commodity Code</#assign>
+<#assign USCom>US Commodity Code</#assign>
+<#assign COfO>Country of Origin</#assign>
+<#assign Sample>***Sample Order***</#assign>
+<#assign CustIt>Cust Item</#assign>
+<#assign PrintTime>Printed Date/Time</#assign>
+<#assign Notes>Notes</#assign>
+<#assign ShipMeth>Shipping Method</#assign>
+<#assign QtyPic>Pick<br/>Qty</#assign>
+<#assign Pick>Pick</#assign>
+<#assign Unit>Units</#assign>
+<#assign PicBin>Picking<br/>Bin</#assign>
+<#assign Check>Check</#assign>
+<#assign LineNo>Line</#assign>
+<#assign PicNo>No of Items to Pick</#assign>
+</#if>
+ <#if record.custbody_sw_language=="Italian">
+<#assign SOName>Conferma<br/>d'Ordine</#assign>
+<#assign SONo>N. Ordine</#assign>
+<#assign DelName>Documento di Trasporto</#assign>
+<#assign DelNo>N. DDT</#assign>
+<#assign InvName>Fattura</#assign>
+<#assign InvNo>Numero Fattura</#assign>
+<#assign PicName>Lista di Stock Picking</#assign>
+<#assign StaName>Estratto Conto</#assign>
+<#assign PurName>Ordine D'Acquisto</#assign>
+<#assign Date>Data</#assign>
+<#assign CustRef>Ordine Acquisto Cliente</#assign>
+<#assign AltRef>Altro Riferimento</#assign>
+<#assign CuAcc>Codice Cliente</#assign>
+<#assign SuAcc>Codice Fornitore</#assign>
+<#assign Cont>Referente</#assign>
+<#assign Email>Email</#assign>
+<#assign Tel>Tel</#assign>
+<#assign DelAdd>Indirizzo di Consegna</#assign>
+<#assign InvAdd>Indirizzo di Fatturazione</#assign>
+<#assign SupAdd>Indirizzo Fornitore</#assign>
+<#assign ShIng>Modalità di Trasporto</#assign>
+<#assign ShMent>Modalità di Trasporto</#assign>
+<#assign Track>Vettore - Conducente</#assign>
+<#assign Item>Articoli</#assign>
+<#assign SupItem>Codici del Fornitore</#assign>
+<#assign ExFac>Data di Consegna</#assign>
+<#assign QtyOrd>Quantità<br/>ordinata</#assign>
+<#assign QtyShip>Quantità<br/>spedita</#assign>
+<#assign QtyBack>Quantità<br/>inevasa</#assign>
+<#assign Qty>Quantità</#assign>
+<#assign UP>Prezzo<br/>Unitario</#assign>
+<#assign NetAm>Totale<br/>Netto</#assign>
+<#assign TaxAm>Totale<br/>IVA</#assign>
+<#assign GroAm>Totale<br/>Lordo</#assign>
+<#assign SubT>Totale</#assign>
+<#assign ManP>Responsabile<br/>Confezionamento</#assign>
+<#assign Comp>Azienda</#assign>
+<#assign Pick>Pick</#assign>
+<#assign Check>Controllo</#assign>
+<#assign Pack>Confezionamento</#assign>
+<#assign Terms>Termini di Pagamento</#assign>
+<#assign BankD>Coordinate bancarie per pagamenti in </#assign>
+<#assign Creg>P. IVA</#assign>
+<#assign RegOff>Sede Legale</#assign>
+<#assign AccNo></#assign>
+<#assign Page>Pagina</#assign>
+<#assign PagOf>di</#assign>
+<#assign NetTot>Totale Netto</#assign>
+<#assign CarChar>Costi di Trasporto</#assign>
+<#assign TaxTot>Totale IVA</#assign>
+<#assign GroTot>Totale Lordo</#assign>
+<#assign Gross>Lordo</#assign>
+<#assign Nett>Netto</#assign>
+<#assign Total>Totale</#assign>
+<#assign PayDue></#assign>
+<#assign TaxNo>IVA No</#assign>
+<#assign Sort></#assign>
+<#assign Iban></#assign>
+<#assign Swift></#assign>
+<#assign DiscAv> </#assign>
+<#assign EUCom>EU Commodity Code</#assign>
+<#assign USCom>US Commodity Code</#assign>
+<#assign COfO>Country of Origin</#assign>
+<#assign Sample>***Sample Order***</#assign>
+<#assign CustIt>Cust Item</#assign>
+<#assign PrintTime>Data/ora di stampa</#assign>
+<#assign Notes>Notes</#assign>
+<#assign ShipMeth>Metodo di spedizione</#assign>
+<#assign QtyPic>Quantità<br/>picking</#assign>
+<#assign Pick>Pick</#assign>
+<#assign Pack>Confezionamento</#assign>
+<#assign Unit>Units</#assign>
+<#assign PicBin>Picking<br/>Bin</#assign>
+<#assign Check>Controllo</#assign>
+<#assign LineNo>Line</#assign>
+<#assign PicNo>No of Items to Pick</#assign>
+</#if>
+<#else>
+<#assign SOName>Sales Order<br/>Confirmation</#assign>
+<#assign SONo>Sales Order Number</#assign>
+<#assign DelName>Delivery Note</#assign>
+<#assign DelNo>Delivery Note Number</#assign>
+<#assign InvName>Invoice</#assign>
+<#assign InvNo>Invoice Number</#assign>
+<#assign PicName>Picking Ticket</#assign>
+<#assign StaName>Statement</#assign>
+<#assign PurName>Purchase Order</#assign>
+<#assign Date>Date</#assign>
+<#assign CustRef>Customer Reference</#assign>
+<#assign AltRef>Alt ref</#assign>
+<#assign CuAcc>Account No</#assign>
+<#assign SuAcc>Account No</#assign>
+<#assign Cont>Contact</#assign>
+<#assign Email>Email</#assign>
+<#assign Tel>Tel</#assign>
+<#assign DelAdd>Delivery Address</#assign>
+<#assign InvAdd>Invoice Address</#assign>
+<#assign SupAdd>Supplier Address</#assign>
+<#assign ShIng>Shipping Method</#assign>
+<#assign ShMent>Shipment Method</#assign>
+<#assign Track>Tracking Info</#assign>
+<#assign Item>Item</#assign>
+<#assign SupItem>Supplier Code</#assign>
+<#assign ExFac>Ex-Factory Date</#assign>
+<#assign QtyOrd>Qty<br/>Ordered</#assign>
+<#assign QtyShip>Qty<br/>Shipped</#assign>
+<#assign QtyBack>Qty<br/>BackOrdered</#assign>
+<#assign Qty>Quantity</#assign>
+<#assign UP>Unit<br/>Price</#assign>
+<#assign NetAm>Net<br/>Amount</#assign>
+<#assign TaxAm>VAT<br/>Amount</#assign>
+<#assign GroAm>Gross<br/>Amount</#assign>
+<#assign SubT>Subtotal</#assign>
+<#assign ManP>Manpack<br/>Name</#assign>
+<#assign Comp>Company</#assign>
+<#assign Pick>Pick</#assign>
+<#assign Check>Check</#assign>
+<#assign Pack>Pack</#assign>
+<#assign Terms>Payment Terms</#assign>
+<#assign BankD>Bank details for payments in</#assign>
+<#assign Creg>Company registration Number</#assign>
+<#assign RegOff>Registered Office</#assign>
+<#assign AccNo>Account Number</#assign>
+<#assign Page>Page</#assign>
+<#assign PagOf>of</#assign>
+<#assign NetTot>Net Total</#assign>
+<#assign CarChar>Carriage Charge</#assign>
+<#if subsidiary=="8"><#assign TaxTot>Sales Tax Total</#assign><#else><#assign TaxTot>VAT Total</#assign></#if>
+<#assign GroTot>Gross Total</#assign>
+<#assign Gross>Gross</#assign>
+<#assign Nett>Nett</#assign>
+<#assign Total>Total</#assign>
+<#assign PayDue>Payment Due</#assign>
+<#assign TaxNo>VAT No</#assign>
+<#assign Sort>Sort Code</#assign>
+<#assign Iban>Iban</#assign>
+<#assign Swift>Swift No</#assign>
+<#assign DiscAv>Discount available if paid within</#assign>
+<#assign EUCom>EU Commodity Code</#assign>
+<#assign USCom>US Commodity Code</#assign>
+<#assign COfO>Country of Origin</#assign>
+<#assign Sample>Sample Order</#assign>
+<#assign CustIt>Cust Item</#assign>
+<#assign PrintTime>Printed Date/Time</#assign>
+<#assign Notes>Notes</#assign>
+<#assign ShipMeth>Shipping Method</#assign>
+<#assign QtyPic>Pick<br/>Qty</#assign>
+<#assign Pick>Pick</#assign>
+<#assign Pack>Pack</#assign>
+<#assign Unit>Units</#assign>
+<#assign PicBin>Picking<br/>Bin</#assign>
+<#assign Check>Check</#assign>
+<#assign LineNo>Line</#assign>
+<#assign PicNo>No of Items to Pick</#assign>
+</#if>
+  
+<#if .locale == "ru_RU">
+    <link name="verdana" type="font" subtype="opentype" src="${nsfont.verdana}" src-bold="${nsfont.verdana_bold}" bytes="2" />
+</#if>
+    <macrolist>
+        <macro id="nlheader">
+          <table>
+            <tr>
+     <td align="left" margin-left="500px" style="font-size:15pt">${Page} <pagenumber/> ${PagOf} <totalpages/></td>
+	</tr>
+          </table> 
+     <table class="header" style="width: 100%;">
+       <#if record.custbody_bbs_manpack_info == "MANPACK 0 (0)" ><#else><tr>
+    <td align="left" margin_left="20px" src-bold="${nsfont.verdana_bold}" style="font-size:25pt" >${record.custbody_bbs_manpack_info}</td>
+       	<td align="left">&nbsp;</td></tr></#if><tr>
+    <td align="left" margin_left="20px" src-bold="${nsfont.verdana_bold}" style="font-size:25pt" >${PicName}</td>
+
+    <td align="right" style="font-size:20pt">${Comp}: ${record.entity.custentity_bbs_customer_sub_group}</td>
+	</tr>
+    <tr><td align="left" margin_left="20px" src-bold="${nsfont.verdana_bold}" style="font-size:15pt" >${record.entity}</td></tr>
+	<tr>
+      <td align="left" style="font-size:15pt" margin-left="1px">${record.tranid}</td> </tr>
+       <tr>
+    <td><barcode align="left" style="width:100%"  codetype="code39" showtext="False" value="${record.tranid}"/></td>
+    </tr>
+    <tr>
+	<td align="left" style="font-size:10pt" margin-top="10px" margin-left="1px">${PrintTime}: ${.now?datetime}</td>
+	</tr>
+     </table>
+     <#if record.custbodysomarkassample == true>
+    <table style="width: 100%;"><tr class="messagerow">
+	<td  align="Left" style="font-size:15pt">***${Sample}***</td>
+	</tr>
+	</table>
+    </#if>
+    <#if record.custbodycnotesonpick==true>
+    <table style="width: 100%;"><tr class="messagerow">
+	<td  align="left" style="font-size:15pt">***${Notes}: ${record.custbody_sw_order_notes}***</td>
+	</tr>
+	</table>
+    </#if>
+    <#if record.entity.custentity21 == 'Yes'>
+    <table style="border: 2px solid red;">
+		<tr>
+			<td><span style="color:#FF0000; font-weight: bold; font-size: 14pt;">PRIORITY</span></td>
+		</tr>
+	</table>
+    </#if>
+    
+        </macro>
+        <macro id="nlfooter">
+       <table footer-height="100pt" style="width: 100%;">
+      <tr border="1px solid">
+        <th>${Pick}:</th>
+        <th>${Date}:</th></tr>
+        <tr border="1px solid">
+        <th>${Check}:</th>
+        <th>${Date}:</th></tr>
+        <tr border="1px solid">
+        <th>${Pack}:</th>
+        <th>${Date}:</th></tr> 
+    </table>
+     <table><tr>
+	<td align="right"><pagenumber/> ${PagOf} <totalpages/></td>
+	</tr></table>
+        </macro>
+    </macrolist>
+    <style type="text/css">table {
+			<#if .locale == "zh_CN">
+			  font-family: stsong, sans-serif;
+    <#elseif .locale == "zh_TW">
+      font-family: msung, sans-serif;
+    <#elseif .locale == "ja_JP">
+      font-family: heiseimin, sans-serif;
+    <#elseif .locale == "ko_KR">
+      font-family: hygothic, sans-serif;
+    <#elseif .locale == "ru_RU">
+      font-family: verdana;
+    <#else>
+      font-family: sans-serif;
+    </#if>
+			font-size: 9pt;
+			table-layout: fixed;
+		}
+		th {
+			font-weight: bold;
+			font-size: 8pt;
+			vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #e3e3e3;
+			color: #333333;
+		}
+		td {
+            padding: 4px 6px;
+        }
+		b {
+			font-weight: bold;
+			color: #333333;
+		}
+		table.header td {
+			padding: 0;
+			font-size: 10pt;
+		}
+		table.footer td {
+			padding: 0;
+			font-size: 8pt;
+		}
+      	table.Info td {
+		padding-top: 10px;
+        padding-bottom: 10px;
+		font-size: 15pt;
+		}
+		table.itemtable th {
+			padding-bottom: 10px;
+			padding-top: 10px;
+		}
+		table.body td {
+			padding-top: 2px;
+		}
+		td.addressheader {
+			font-size: 8pt;
+			padding-top: 6px;
+			padding-bottom: 2px;
+		}
+		td.address {
+			padding-top: 0;
+		}
+		span.title {
+			font-size: 28pt;
+		}
+		span.number {
+			font-size: 16pt;
+		}
+		span.itemname {
+			font-weight: bold;
+			line-height: 150%;
+		}
+		hr {
+			width: 100%;
+			color: #d3d3d3;
+			background-color: #d3d3d3;
+			height: 1px;
+		}
+</style>
+</head>
+<body header="nlheader" header-height="30%" footer="nlfooter" footer-height="50pt" padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
+    <table style="width: 110%; margin-top: 10px; margin-left: 400px"><tr>
+	<td class="addressheader"><b>${DelAdd}</b></td>
+	</tr>
+	<tr>
+	<td class="address">${record.shipaddress}</td>
+	</tr></table>
+
+<table class="body" style="width: 100%; margin-top: 10px;"><tr>
+	<th>${ShipMeth}</th>
+    <th>Ticket Type</th>
+	</tr>
+	<tr>
+	<td>${record.shipmethod}</td>
+    <td>${record.custbody_sw_ticket_type}</td>
+	</tr></table>
+<#if record.item?has_content>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px; border-bottom: 1px solid #000"><!-- start items --><#list record.item as item><#if item_index==0>
+<thead>
+	<tr>
+	<th colspan="1">${LineNo}</th>
+	<th colspan="6">${item}</th>
+    <th colspan="2">${QtyPic}</th>
+    <th>${Pick}</th>  
+	<th>${Unit}</th>
+    <th colspan="2">${PicBin}</th>
+    <th colspan="2">${Check}</th>   
+	</tr>
+</thead>
+</#if>
+  
+          <#if subsidiary=="6">
+      <#assign itemInfo>${item.item}</#assign>
+    <#else>
+      <#if item.custcol_sw_alt_item_number?has_content>
+        <#assign itemInfo>${item.custcol_sw_alt_item_number}</#assign>
+      <#else>
+        <#assign itemInfo>${item.item}</#assign>
+      </#if>
+    </#if>
+      
+      <#if record.custbody_sw_ticket_type == "Mixed Ticket"><#if item.custcol_sw_manpack_entity?has_content><#assign Bulk></#assign><#else><#assign Bulk>Bulk</#assign></#if><#else>${item.item.binnumber}</#if>
+      
+  <tr style="border-bottom: 1px solid #000">
+	<td colspan="1">${item.line}</td>
+	<td colspan="6"><span class="itemname">${itemInfo}</span><br />${item.description}</td>
+  	<td colspan="2">${item.quantitycommitted}</td>
+  	<td style="font-size:3px; border: 1px solid black" height="1px" width="3px" align="center">&nbsp;<br/>&nbsp;</td>
+	<#if item.units?has_content><td>${item.units}</td><#else><td>**KIT**</td></#if> 
+      <#if record.custbody_sw_ticket_type == "Mixed Ticket"><td colspan="2"><span font-size="7pt">${Bulk}</span></td><#else><td colspan="2"><span font-size="7pt">${item.item.binnumber}</span></td></#if>
+	<td style="font-size:3px; border: 1px solid black" height="1px" width="3px" align="center">&nbsp;<br/>&nbsp;</td>
+	</tr>
+	</#list><!-- end items --></table>
+            <table align="right" font-size="25pt" margin-left="300px" padding-top="6px" padding-bottom="2px">
+          <tr colspan="4" >
+         <th>${PicNo} </th><th>${record.custbody_sw_no_of_items_commited}</th></tr>
+          </table>
+</#if>
+</body>
+</pdf>

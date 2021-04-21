@@ -14,27 +14,31 @@
       				<td colspan="2" style="border-right: 1px solid black; border-top: 1px solid black;"><b>: ${record.trandate}</b></td>
       			</tr>
       			<tr>
-      				<td colspan="2" style="border-left: 1px solid black;"><b>Date Due</b></td>
-      				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.duedate}</b></td>
-      			</tr>
-      			<tr>
-      				<td colspan="2" style="border-left: 1px solid black;"><b>RMA Number</b></td>
+      				<td colspan="2" style="border-left: 1px solid black;"><b>RA Number</b></td>
       				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.tranid}</b></td>
       			</tr>
       			<tr>
-      				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Customer A/c No.</b></td>
-      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${record.entity.accountnumber}</b></td>
+      				<td colspan="2" style="border-left: 1px solid black;"><b>Customer A/c No.</b></td>
+      				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.entity.accountnumber}</b></td>
+      			</tr>
+      			<tr>
+      				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
       			</tr>
       		</table>
         </macro>
         <macro id="nlfooter">
-        	<hr/> <!-- HORIZONTAL LINE -->
-			<table style="width: 100%; margin-top: 10px;">
+        	<table style="width: 100%;">
         		<tr>
-			        <td align="left" colspan="4" class="footer">Printed : ${.now?datetime?string["EEE dd MMM yyyy HH:mm"]}</td>
-			        <td align="center" colspan="4" class="footer">Company Reg.No.: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_company_reg}</td>
-			        <td align="center" colspan="3" class="footer">VAT Reg. No.: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_vat_number}</td>
-			        <td align="right" colspan="2" class="footer"><p align="right">Page <pagenumber/> of <totalpages/></p></td>
+        			<td colspan="3" align="center"><barcode codetype="code128" showtext="true" value="${record.tranid}"/></td>
+        		</tr>
+        		<tr>
+        			<td colspan="3"><hr/><!-- HORIZONTAL LINE --></td>
+        		</tr>
+        		<tr style="margin-top: 10px;">
+			        <td align="left" class="footer">Printed : ${.now?datetime?string["EEE dd MMM yyyy HH:mm"]}</td>
+			        <td align="center" class="footer">VAT Reg. No.: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_vat_number}</td>
+			        <td align="right" class="footer"><p align="right">Page <pagenumber/> of <totalpages/></p></td>
         		</tr>
         	</table>
         </macro>
@@ -82,7 +86,7 @@
 		}
 </style>
 </head>
-<body header="nlheader" header-height="145pt" footer="nlfooter" footer-height="40pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="145pt" footer="nlfooter" footer-height="65pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
     
     <table style="width: 100%; margin-bottom: 5px;">
     	<tr>
@@ -91,7 +95,7 @@
       	</tr>
       	<tr>
       		<td colspan="4" style="padding-left: 50px; border-left: 1px solid black; border-right: 1px solid black;">${record.billaddress}</td>
-      		<td colspan="4" style="margin-left: 10px;"><p align="center"><b><u>Important Note</u></b><br/>Please ensure that all products are returned in original packaging.<br/>If this is not possible use suitable packaging so goods arrive back to NYMAS secure.<br/>This RMA document must accompany all returned items.</p></td>
+      		<td colspan="4" style="margin-left: 10px;"><p align="center"><b><u>Important Note</u></b><br/>Please ensure that all products are returned in original packaging.<br/>If this is not possible use suitable packaging so goods arrive back to NYMAS secure.<br/>This RA document must accompany all returned items.</p></td>
       	</tr>
       	<tr>
         	<td colspan="4" style="padding-left: 50px; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
@@ -108,20 +112,16 @@
 				<thead>
 					<tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
 						<th align="left" colspan="8">Product</th>
-						<th align="left" colspan="10">Description</th>
+						<th align="left" colspan="18">Description</th>
 						<th align="right" colspan="4">Quantity</th>
-						<th align="left" colspan="4" style="padding-left: 20px;">UOM</th>
-						<th align="center" colspan="6">Lot Number</th>
-						<th align="center" colspan="6">Reason Code</th>
+						<th align="center" colspan="6">Reason</th>
 					</tr>
     			</thead>
     		</#if>
     			<tr>
     				<td align="left" colspan="8">${item.item}</td>
-    				<td align="left" colspan="10">${item.description}</td>
+    				<td align="left" colspan="18">${item.description}</td>
     				<td align="right" colspan="4">${item.quantity}</td>
-    				<td align="left" colspan="4" style="padding-left: 20px;">${item.units}</td>
-    				<td align="center" colspan="6"><span style="color:#FF0000;">TODO</span></td>
     				<td align="center" colspan="6">${item.custcol_bbs_return_reason}</td>
     			</tr>
     	</#list>

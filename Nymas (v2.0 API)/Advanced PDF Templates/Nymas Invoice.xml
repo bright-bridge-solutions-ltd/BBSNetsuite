@@ -19,11 +19,15 @@
       			</tr>
       			<tr>
 	      			<td colspan="2" style="border-left: 1px solid black;"><b>Your Reference</b></td>
-	      			<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.otherrefnum}</b></td>
+	      			<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.createdfrom.custbody_bbs_cust_po_number}</b></td>
       			</tr>
       			<tr>
-	      			<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>VAT Reg. No.</b></td>
-	      			<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${record.entitytaxregnum}</b></td>
+	      			<td colspan="2" style="border-left: 1px solid black;"><b>VAT Reg. No.</b></td>
+	      			<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.entitytaxregnum}</b></td>
+      			</tr>
+      			<tr>
+	      			<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Account Number</b></td>
+	      			<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${record.entity.accountnumber}</b></td>
       			</tr>
       		</table>
         </macro>
@@ -96,7 +100,7 @@
 		}
 </style>
 </head>
-<body header="nlheader" header-height="150pt" footer="nlfooter" footer-height="100pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="165pt" footer="nlfooter" footer-height="100pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
     
     <table style="width: 100%; margin-bottom: 5px;">
     	<tr>
@@ -120,7 +124,7 @@
   	 <table style="width: 100%; margin-bottom: 5px; border: 1px solid black;">
     	<tr>
     		<td colspan="4"><b>Due Date</b></td>
-    		<td colspan="4"><b>: ${record.duedate?string["dd MMM yyyy"]}</b></td>
+    		<td colspan="4"><b>: <#if record.duedate?has_content>${record.duedate?string["dd MMM yyyy"]}</#if></b></td>
     		<td colspan="4"><b>Sales Order</b></td>
     		<td colspan="4"><b>: ${record.createdfrom?keep_after("#")}</b></td>
     		<td colspan="4"><b>Shipment</b></td>

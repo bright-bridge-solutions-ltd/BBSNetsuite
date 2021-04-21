@@ -142,7 +142,7 @@
     		</#if>
     			<tr>
     				<td align="left" colspan="8">${item.item}</td>
-    				<td align="left" colspan="10">${item.description}<br/><i>Despatch Date: ${item.custcol_bbs_despatch_date}</i></td>
+    				<td align="left" colspan="10">${item.description}<#if record.custbody_bbs_pro_forma_invoice == false><br/><i>Despatch Date: ${item.expectedshipdate}</i></#if></td>
     				<td align="right" colspan="4">${item.quantity}</td>
     				<td align="left" colspan="4" style="padding-left: 20px;">${item.units}</td>
     				<td align="right" colspan="4">${record.custbody_bbs_currency_symbol}${item.rate?string["#,##0.00"]}</td>
@@ -158,7 +158,7 @@
     	<#if record.shippingcost gt 0> <!-- If we have a delivery charge -->
     		<tr>
     			<td align="left" colspan="8">Delivery Charge</td>
-    			<td align="left" colspan="10">Delivery To Site Charge<br/><i>Despatch Date: ${record.shipdate}</i></td>
+    			<td align="left" colspan="10">Delivery To Site Charge</td>
     			<td align="right" colspan="4">1</td>
     			<td align="left" colspan="4" style="padding-left: 20px;">&nbsp;</td>
     			<td align="right" colspan="4">${record.custbody_bbs_currency_symbol}${record.shippingcost?string["#,##0.00"]}</td>

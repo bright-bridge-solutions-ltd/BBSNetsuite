@@ -9,7 +9,7 @@ define(['N/search', 'N/record', 'N/url', 'N/https'],
  */
 function(search, record, url, https)  {
 
-    // ==========================================
+	// ==========================================
     // FUNCTION TO CHECK UNIVERSAL BUSINESS RULES
     // ==========================================
     
@@ -26,60 +26,79 @@ function(search, record, url, https)  {
     	// loop through item lines
     	for (var i = 0; i < itemCount; i++)
     		{
-    			// get the item name
-    			var itemName = currentRecord.getSublistText({
-    				sublistId: 'item',
-    				fieldId: 'item',
-    				line: i
-    			});
-    					
-    			// if the itemName contains 'VIN'
-    			if (itemName.indexOf('VIN') > -1)
-    				{
-    					// loop through the items again
-    					for (var x = 0; x < itemCount; x++)
-    						{
-    							// get the item name
-	    						var itemName = currentRecord.getSublistText({
-	    		    				sublistId: 'item',
-	    		    				fieldId: 'item',
-	    		    				line: x
-	    		    			});
-	    								
-	    						// if part code matches to one of these products
-	    						if (itemName == 'ACC-UN-NO-008' || itemName == 'ACC-UN-NO-005' || itemName == 'ACC-UN-NO-004' || itemName == 'ACC-UN-NO-002' || itemName == 'ACC-UN-FB-55' || itemName == 'ACC-UN-FF-001' || itemName.indexOf('S-VIN') > -1 || itemName.indexOf('S-SOL') > -1)
-	    							{
-	    								// set passedRules variable to false
-	    								passedRules = false;
-	    										
-	    								// break the loop
-	    								break;
-	    							}
-    						}
-    				}
-    			else if (itemName.indexOf('SOL') > -1) // if the itemName contain 'SOL'
-    				{
-    					// loop through the items again
-    					for (var x = 0; x < itemCount; x++)
-    						{
-    							// get the item name
-    							var itemID = currentRecord.getSublistText({
-    								sublistId: 'item',
-    								fieldId: 'item',
-    								line: x
-    							});
-    									
-    							// if part code matches to one of these products
-    							if (itemName == 'ACC-UN-NO-008' || itemName == 'ACC-UN-NO-005' || itemName == 'ACC-UN-NO-004' || itemName == 'ACC-UN-NO-002' || itemName == 'ACC-UN-FB-55' || itemName == 'ACC-UN-LC-03' || itemName.indexOf('S-VIN') > -1 || itemName.indexOf('S-SOL') > -1)
-    								{
-	    								// set passedRules variable to false
-	    								passedRules = false;
-	    										
-	    								// break the loop
-	    								break;
-    								}
-    						}
-    				}
+	    		// get the value of the 'Create PO' field for the line
+				var createPO = currentRecord.getSublistValue({
+					sublistId: 'item',
+					fieldId: 'createpo',
+					line: i
+				});
+				
+				// if this is a special order line
+				if (createPO == 'SpecOrd')
+					{
+	    				// set passedRules variable to false
+						passedRules = false;
+								
+						// break the loop
+						break;
+					}
+				else // not a special order line
+					{
+		    			// get the item name
+		    			var itemName = currentRecord.getSublistText({
+		    				sublistId: 'item',
+		    				fieldId: 'item',
+		    				line: i
+		    			});
+		    					
+		    			// if the itemName contains 'VIN'
+		    			if (itemName.indexOf('VIN') > -1)
+		    				{
+		    					// loop through the items again
+		    					for (var x = 0; x < itemCount; x++)
+		    						{
+		    							// get the item name
+			    						var itemName = currentRecord.getSublistText({
+			    		    				sublistId: 'item',
+			    		    				fieldId: 'item',
+			    		    				line: x
+			    		    			});
+			    								
+			    						// if part code matches to one of these products
+			    						if (itemName == 'ACC-UN-NO-008' || itemName == 'ACC-UN-NO-005' || itemName == 'ACC-UN-NO-004' || itemName == 'ACC-UN-NO-002' || itemName == 'ACC-UN-FB-55' || itemName == 'ACC-UN-FF-001' || itemName.indexOf('S-VIN') > -1 || itemName.indexOf('S-SOL') > -1)
+			    							{
+			    								// set passedRules variable to false
+			    								passedRules = false;
+			    										
+			    								// break the loop
+			    								break;
+			    							}
+		    						}
+		    				}
+		    			else if (itemName.indexOf('SOL') > -1) // if the itemName contain 'SOL'
+		    				{
+		    					// loop through the items again
+		    					for (var x = 0; x < itemCount; x++)
+		    						{
+		    							// get the item name
+		    							var itemID = currentRecord.getSublistText({
+		    								sublistId: 'item',
+		    								fieldId: 'item',
+		    								line: x
+		    							});
+		    									
+		    							// if part code matches to one of these products
+		    							if (itemName == 'ACC-UN-NO-008' || itemName == 'ACC-UN-NO-005' || itemName == 'ACC-UN-NO-004' || itemName == 'ACC-UN-NO-002' || itemName == 'ACC-UN-FB-55' || itemName == 'ACC-UN-LC-03' || itemName.indexOf('S-VIN') > -1 || itemName.indexOf('S-SOL') > -1)
+		    								{
+			    								// set passedRules variable to false
+			    								passedRules = false;
+			    										
+			    								// break the loop
+			    								break;
+		    								}
+		    						}
+		    				}
+					}
     		}
     	
     	// return passedRules variable to main script function
