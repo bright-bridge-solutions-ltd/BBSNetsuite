@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/record', 'N/ui/dialog'],
-function(record, dialog) {
+define(['N/search', 'N/ui/message'],
+function(search, message) {
     
     /**
      * Function to be executed after page is initialized.
@@ -16,6 +16,33 @@ function(record, dialog) {
      * @since 2015.2
      */
     function pageInit(scriptContext) {
+    	
+    	// get the internal ID of the customer
+    	var customerID = scriptContext.currentRecord.getValue({
+    		fieldId: 'entity'
+    	});
+    			
+    	// if we have a customer ID
+    	if (customerID)
+    		{
+    			// lookup fields on the customer record
+    			var customerAlerts = search.lookupFields({
+    				type: search.Type.CUSTOMER,
+    				id: customerID,
+    				columns: ['custentity_bbs_customer_alerts']
+    			}).custentity_bbs_customer_alerts;
+    					
+    			// if we have any customer alerts
+    			if (customerAlerts)
+    				{
+    					// add a message at the top of the page
+	    				message.create({
+				    		type: message.Type.INFORMATION,
+				    		title: 'Customer Alerts',
+				    		message: customerAlerts
+				    	}).show();
+    				}
+    		}
 
     }
 
@@ -33,36 +60,35 @@ function(record, dialog) {
      */
     function fieldChanged(scriptContext) {
     	
-    	// if the tax code has been changed
-    	if (scriptContext.sublistId == 'expense' && scriptContext.fieldId == 'custcol_bbs_tax_code')
+    	// if the Customer field has been changed
+    	if (scriptContext.fieldId == 'entity')
     		{
-    			// get the current record
-    			var currentRecord = scriptContext.currentRecord;
-    		
-    			// get the tax code
-    			var taxCode = currentRecord.getCurrentSublistValue({
-    				sublistId: 'expense',
-    				fieldId: 'custcol_bbs_tax_code'
-    			});
-    			
-    			// if we have a tax code
-    			if (taxCode)
-    				{
-		    			// load the tax code record and get the tax rate the tax rate from the tax code record
-		    			var taxRate = record.load({
-		    				type: record.Type.SALES_TAX_ITEM,
-		    				id: taxCode
-		    			}).getValue({
-		    				fieldId: 'custrecord_ste_taxcode_taxrate'
-		    			});
-		    			
-		    			// set the tax rate on the current line
-		    			currentRecord.setCurrentSublistValue({
-		    				sublistId: 'expense',
-		    				fieldId: 'custcol_bbs_tax_rate',
-		    				value: taxRate
-		    			});
-    				}
+	    		// get the internal ID of the customer
+	        	var customerID = scriptContext.currentRecord.getValue({
+	        		fieldId: 'entity'
+	        	});
+	        			
+	        	// if we have a customer ID
+	        	if (customerID)
+	        		{
+	        			// lookup fields on the customer record
+	        			var customerAlerts = search.lookupFields({
+	        				type: search.Type.CUSTOMER,
+	        				id: customerID,
+	        				columns: ['custentity_bbs_customer_alerts']
+	        			}).custentity_bbs_customer_alerts;
+	        					
+	        			// if we have any customer alerts
+	        			if (customerAlerts)
+	        				{
+	        					// add a message at the top of the page
+	    	    				message.create({
+	    				    		type: message.Type.INFORMATION,
+	    				    		title: 'Customer Alerts',
+	    				    		message: customerAlerts
+	    				    	}).show();
+	        				}
+	        		}
     		}
 
     }
@@ -137,31 +163,6 @@ function(record, dialog) {
      * @since 2015.2
      */
     function validateLine(scriptContext) {
-    	
-    	// check if we are working with the expense sublist
-    	if (scriptContext.sublistId == 'expense')
-    		{
-    			// get the value of the expense category field for the current line
-    			var expenseCategory = scriptContext.currentRecord.getCurrentSublistValue({
-    				sublistId: 'expense',
-    				fieldId: 'category'
-    			});
-    			
-    			// if an expense category has not been selected
-    			if (!expenseCategory)
-    				{
-    					// throw an error
-    					dialog.alert({
-    						title: '⚠️ Error',
-    						message: 'You must enter an expense category before you can save this line'
-    					});
-    				}
-    			else
-    				{
-    					// allow the line to be saved
-    					return true;
-    				}
-    		}
 
     }
 
@@ -209,8 +210,8 @@ function(record, dialog) {
     }
 
     return {
-    	fieldChanged: fieldChanged,
-    	validateLine: validateLine
+        pageInit: pageInit,
+    	fieldChanged: fieldChanged
     };
     
 });

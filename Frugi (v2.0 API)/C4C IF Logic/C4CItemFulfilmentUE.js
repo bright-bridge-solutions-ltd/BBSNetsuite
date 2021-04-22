@@ -47,7 +47,8 @@ function(record) {
     	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
     		{
     			// declare and initialize variables
-				var itemSummary = {};
+				var itemSummary = new Array();
+				var total = 0;
     		
     			// get the current record
     			var itemFulfilment = scriptContext.newRecord;
@@ -131,43 +132,18 @@ function(record) {
     	    								line: x
     	    							}) / soLineQuantity) * quantity);
     									
-    									// build up the key for the summary
-    									var key = padding_left(item, '0', 6)
-    										
-    									// create a new itemSummary object
-    									itemSummary[key] = new itemSummaryObj(item, description, quantity, rate, taxAmount);
+    									// add the gross amount to the total variable
+    									total += (rate * quantity) + taxAmount;
     									
-    									// now we have done all summarising, we need to generate the output format
-    									var outputArray = null;
-    									outputArray = [];
-    		
-    									// sort outputSummary
-    									var sortedSummary = {};
-    							                  
-    									for (key in sortedSummary)
-    										{
-    											delete sortedSummary[key]
-    										}
-    										      
-    									Object.keys(itemSummary).sort().forEach(function(key) {
-    										sortedSummary[key] = itemSummary[key];
-    									});
-    										      
-    									// loop through the summaries
-    									for (var key in sortedSummary)
-    										{
-    											// push a new instance of the output summary object onto the output array
-    											outputArray.push(new outputSummary(
-    																					itemSummary[key].item,
-    																					itemSummary[key].description,
-    																					itemSummary[key].quantity,
-    																					itemSummary[key].rate,
-    																					itemSummary[key].netAmount,
-    																					itemSummary[key].taxAmount,
-    																					itemSummary[key].grossAmount
-    																			)
-    															);
-    										}
+    									// push a new instance of the output summary object onto the output array
+    									itemSummary.push(new outputSummary(
+    																			item,
+    																			description,
+    																			quantity,
+    																			rate,
+    																			taxAmount
+    																		)
+    													);
     								
     									// break the loop
     									break;
@@ -180,7 +156,8 @@ function(record) {
 					type: record.Type.ITEM_FULFILLMENT,
 					id: itemFulfilment.id,
 					values: {
-						custbody_c4c_item_json: JSON.stringify(outputArray)
+						custbody_c4c_item_json: JSON.stringify(itemSummary),
+						custbody_c4c_if_total: total
 					}
 				});
 
@@ -192,46 +169,17 @@ function(record) {
     // HELPER FUNCTIONS
     // ================
     
-    function itemSummaryObj(item, description, quantity, rate, taxAmount) {
+    function outputSummary(item, description, quantity, rate, taxAmount) {
     	
     	this.item 			= 	item;
     	this.description	=	description;
     	this.quantity		=	quantity;
     	this.rate			= 	rate;
-    	this.netAmount		=	quantity * rate;
+    	this.netAmount		=	(rate * quantity);
     	this.taxAmount		=	taxAmount;
-    	this.grossAmount	=	(quantity * rate) + taxAmount;
+    	this.grossAmount	=	(rate * quantity) + taxAmount;
 	
     }
-	
-    function outputSummary(item, description, quantity, rate, netAmount, taxAmount, grossAmount) {
-    	
-    	this.item 			= 	item;
-    	this.description	=	description;
-    	this.quantity		=	quantity;
-    	this.rate			= 	rate;
-    	this.netAmount		=	netAmount;
-    	this.taxAmount		=	taxAmount;
-    	this.grossAmount	=	grossAmount;
-	
-    }
-    
-    function padding_left(s, c, n)  {
-		
-    	if (! s || ! c || s.length >= n) 
-			{
-				return s;
-			}
-		
-		var max = (n - s.length)/c.length;
-		
-		for (var i = 0; i < max; i++) 
-			{
-				s = c + s;
-			}
-		
-		return s;
-	}
 
     return {
         afterSubmit: afterSubmit

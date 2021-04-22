@@ -1045,7 +1045,8 @@ function productionBatchSuitelet(request, response)
 							   new nlobjSearchColumn("custitem_bbs_matrix_item_seq","item",null),
 							   new nlobjSearchColumn("custitemfinish_type","item",null),
 							   new nlobjSearchColumn("formulatext", null, null).setFormula("CASE WHEN {createdfrom.custbody_bbs_notes_on_wo} = 'T' THEN SUBSTR({createdfrom.custbody_sw_order_notes}, 0, 250) END"),
-							   new nlobjSearchColumn("custbodycust_bw_promised_dispatch_date", "createdfrom", null)
+							   new nlobjSearchColumn("custbodycust_bw_promised_dispatch_date", "createdfrom", null),
+							   new nlobjSearchColumn("custentity21","customer",null),
 							]
 							);
 
@@ -1077,6 +1078,7 @@ function productionBatchSuitelet(request, response)
 					var thisEntity = '';
 					var orderNotes = '';
 					var promisedDispatchDate = '';
+					var priority = '';
 					
 					//If we are linked to sales orders, then read the first w/o to get the customer and order notes from the w/o & then get the sub group
 					//
@@ -1102,6 +1104,7 @@ function productionBatchSuitelet(request, response)
 						{
 							orderNotes 				= searchResultSet[0].getValue("formulatext");
 							promisedDispatchDate 	= searchResultSet[0].getValue("custbodycust_bw_promised_dispatch_date", "createdfrom");
+							priority				= searchResultSet[0].getValue("custentity21", "customer");
 						}
 					
 					if(thisEntity !=  null && thisEntity != '')
@@ -1180,10 +1183,20 @@ function productionBatchSuitelet(request, response)
 					xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
 					xmlPb += "</tr>";
 					
-					xmlPb += "<tr>";
-					xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlPb += "</tr>";
+					if (priority == 1)
+						{
+							xmlPb += "<tr style=\"margin-top:10px;\">";
+							xmlPb += "<td align=\"right\" colspan=\"16\" style=\"font-size:20px;\"><table style=\"border: 2px solid red;\"><tr><td><span style=\"color:#FF0000; font-weight: bold; font-size: 14pt;\">PRIORITY</span></td></tr></table></td>";
+							xmlPb += "</tr>";
+						}
+					else
+						{
+							xmlPb += "<tr>";
+							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlPb += "</tr>";
+						}
 					
 					//If we have order notes
 					//
@@ -1477,10 +1490,20 @@ function productionBatchSuitelet(request, response)
 					xmlCb += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
 					xmlCb += "</tr>";
 					
-					xmlCb += "<tr>";
-					xmlCb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlCb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlCb += "</tr>";
+					if (priority == 1)
+						{
+							xmlCb += "<tr style=\"margin-top:10px;\">";
+							xmlCb += "<td align=\"right\" colspan=\"16\" style=\"font-size:20px;\"><table style=\"border: 2px solid red;\"><tr><td><span style=\"color:#FF0000; font-weight: bold; font-size: 14pt;\">PRIORITY</span></td></tr></table></td>";
+							xmlCb += "</tr>";
+						}
+					else
+						{
+							xmlCb += "<tr>";
+							xmlCb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlCb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlCb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlCb += "</tr>";
+						}
 					
 					//If we have order notes
 					//
@@ -1674,10 +1697,20 @@ function productionBatchSuitelet(request, response)
 					xmlCf += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
 					xmlCf += "</tr>";
 					
-					xmlCf += "<tr>";
-					xmlCf += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlCf += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlCf += "</tr>";
+					if (priority == 1)
+						{
+							xmlCf += "<tr style=\"margin-top:10px;\">";
+							xmlCf += "<td align=\"right\" colspan=\"16\" style=\"font-size:20px;\"><table style=\"border: 2px solid red;\"><tr><td><span style=\"color:#FF0000; font-weight: bold; font-size: 14pt;\">PRIORITY</span></td></tr></table></td>";
+							xmlCf += "</tr>";
+						}
+					else
+						{
+							xmlCf += "<tr>";
+							xmlCf += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlCf += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlCf += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlCf += "</tr>";
+						}
 					
 					//If we have order notes
 					//

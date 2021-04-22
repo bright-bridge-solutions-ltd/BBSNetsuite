@@ -122,35 +122,41 @@
        	</tr>
   	</table>
   	
+  	<!-- Initialize totalWeight variable -->
+  	<#assign totalWeight = 0>
+  	
+  	<!-- Loop through items and add item weight to totalWeight variable -->
+  	<#if record.item?has_content>
+  		<#list record.item as item>
+  			<#assign totalWeight += (item.custcol_bbs_product_weight * item.quantity)>
+  		</#list>
+  	</#if>
+  	
   	<table style="width: 100%; margin-bottom: 5px; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">
   		<tr style="margin-bottom: 20px;">
   			<td colspan="6">Delivery Method: ${record.shipmethod}</td>
   			<td colspan="3" style="padding-left: 10px;">Shipment Weight</td>
-  			<td colspan="3">: kg</td>
+  			<td colspan="3">: ${totalWeight?string["0.00"]} kg</td>
   		</tr>
   	</table>
 	
 	<!-- ITEMS TABLE -->
-    <#if salesorder.item?has_content>
+    <#if record.item?has_content>
 	    <table style="width: 100%;">
-	    	<#list salesorder.item as tranline>
-	    		<#if tranline_index==0>
+	    	<#list record.item as item>
+	    		<#if item_index==0>
 					<thead>
 						<tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
 							<th align="left" colspan="8">Product</th>
 							<th align="left" colspan="12">Description</th>
-							<th colspan="4"><p align="right">Quantity<br/>Required</p></th>
-							<th colspan="4"><p align="right">Quantity<br/>Shipped</p></th>
-							<th colspan="5"><p align="right">Quantity<br/>Outstanding</p></th>
+							<th colspan="5"><p align="right">Quantity<br/>Shipped</p></th>
 						</tr>
 	    			</thead>
 	    		</#if>
 	    			<tr>
-	    				<td align="left" colspan="8">${tranline.item}</td>
-	    				<td align="left" colspan="12">${tranline.description}</td>
-	    				<td align="right" colspan="4">${tranline.quantityordered?string["0.00"]}</td>
-	    				<td align="right" colspan="4">${tranline.quantityremaining?string["0.00"]}</td>
-	    				<td align="right" colspan="5">${tranline.quantity?string["0.00"]}</td>
+	    				<td align="left" colspan="8">${item.item}</td>
+	    				<td align="left" colspan="12">${item.description}</td>
+	    				<td align="right" colspan="5">${item.quantity?string["0.00"]}</td>
 	    			</tr>
 	    	</#list>
 	  	</table>

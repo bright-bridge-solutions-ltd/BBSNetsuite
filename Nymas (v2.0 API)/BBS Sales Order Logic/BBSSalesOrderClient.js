@@ -122,7 +122,7 @@ function(search, message, dialog, currentRecord) {
 		    		fieldId: 'custbody_bbs_cust_po_number'
 		    	});
 		    	
-		    	// check we have a Customer PO Number
+		    	// check we have a Customer PO Number and a customer selected
 		    	if (customerPO)
 		    		{
 				    	// create search to find existing sales orders for this sales order where this customer PO number has been used
@@ -215,13 +215,26 @@ function(search, message, dialog, currentRecord) {
     			// call function to reset line level ship dates
     			resetExpectedShipDates();
     		}
+    	else if (scriptContext.fieldId == 'custbodyny_ca_srdheader')
+    		{
+    			// call function to reset line level required by dates
+    			resetRequiredByDates();
+    		}
     	else if (scriptContext.sublistId == 'item' && scriptContext.fieldId == 'item')
 			{
-				// initialize the expected ship date field on the current line using today's date
+				// initialize fields on the current line
 				scriptContext.currentRecord.setCurrentSublistValue({
 					sublistId: 'item',
 					fieldId: 'expectedshipdate',
 					value: new Date() // today
+				});
+    			
+    			scriptContext.currentRecord.setCurrentSublistValue({
+					sublistId: 'item',
+					fieldId: 'requesteddate',
+					value: scriptContext.currentRecord.getValue({
+						fieldId: 'custbodyny_ca_srdheader'
+					})
 				});
 			}
     }
@@ -296,6 +309,16 @@ function(search, message, dialog, currentRecord) {
      * @since 2015.2
      */
     function validateLine(scriptContext) {
+    	
+    	// set the order priority field on the line being added
+    	scriptContext.currentRecord.setCurrentSublistValue({
+			sublistId: 'item',
+			fieldId: 'orderpriority',
+			value: 5
+		});
+    	
+    	// allow the line to be saved
+    	return true;
 
     }
 
@@ -382,12 +405,48 @@ function(search, message, dialog, currentRecord) {
     		}
     	
     }
+    
+    function resetRequiredByDates() {
+    	
+    	// get the current record
+    	var currRec = currentRecord.get();
+    	
+    	// get the value of the supply required by date field
+    	var requiredDate = currRec.getValue({
+    		fieldId: 'custbodyny_ca_srdheader'
+    	});
+    	
+    	// get count of item lines
+    	var lineCount = currRec.getLineCount({
+    		sublistId: 'item'
+    	});
+    	
+    	// loop through item lines
+    	for (var i = 0; i < lineCount; i++)
+    		{
+    			// set the supply required by date field on the line
+    			currRec.selectLine({
+    				sublistId: 'item',
+    				line: i
+    			});
+    			
+    			currRec.setCurrentSublistValue({
+    				sublistId: 'item',
+    				fieldId: 'custbodyny_ca_srdheader',
+    				value: shipDate
+    			});
+    			
+    			currRec.commitLine({
+    				sublistId: 'item'
+    			});
+    		}
+    	
+    }
 
     return {
         pageInit: pageInit,
     	fieldChanged: fieldChanged,
-    	lineInit: lineInit,
-    	resetExpectedShipDates: resetExpectedShipDates
+    	validateLine: validateLine
     };
     
 });
