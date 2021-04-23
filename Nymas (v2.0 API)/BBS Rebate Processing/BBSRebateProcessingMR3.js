@@ -46,7 +46,7 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 																		    			      "AND",
 																		    			      ["custrecord_bbs_parent_group_rebate","anyof","@NONE@"],						//There is no link to a group rebate record
 																		    			      "AND",
-																		    			      ["custrecord_bbs_status","anyof","1"]											//Status = In Progress
+																		    			      ["custrecord_bbs_rebate_i_status","anyof","1"]											//Status = In Progress
 																		    			   ],
 															    			   columns:
 																		    			   [

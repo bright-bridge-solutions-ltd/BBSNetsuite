@@ -22,108 +22,111 @@ function(currentRecord, record, search) {
      */
     function itemfulfilmentAS(scriptContext) 
 	    {
-    		//Initialise variables
-    		//
-    		var currentRecord 		= scriptContext.newRecord;
-    		var currentType			= currentRecord.type;
-    		var currentId			= currentRecord.id;
-    		var fulfilmentRecord	= null;
-    		var packageData			= {};
-    		var totalWeight			= Number(0);
-    		
-    		//Try to load the fulfilment record
-    		//
-    		try
-				{
-					fulfilmentRecord = record.load({
-													type:		currentType,
-													id:			currentId
-													});
-				}
-			catch(err)
-				{
-	    			log.error({
-								title:		'Error loading fulfilment record with id = ' + currentId,
-								details:	err
-								});
-	    			
-	    			fulfilmentRecord	= null;
-				}
-			
-			//Did the record load ok
-			//
-			if(fulfilmentRecord != null)
-				{
-					//Loop round the item lines
-					//
-					var itemCount = fulfilmentRecord.getLineCount({sublistId: 'item'});
-					
-					for (var items = 0; items < itemCount; items++) 
+    		if(scriptContext.type == 'create')
+    			{
+		    		//Initialise variables
+		    		//
+		    		var currentRecord 		= scriptContext.newRecord;
+		    		var currentType			= currentRecord.type;
+		    		var currentId			= currentRecord.id;
+		    		var fulfilmentRecord	= null;
+		    		var packageData			= {};
+		    		var totalWeight			= Number(0);
+		    		
+		    		//Try to load the fulfilment record
+		    		//
+		    		try
 						{
-							//Get the item line quantity, item & weight
-							//
-							var lineQty 		= Number(fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: items}));	
-							var lineItem 		= fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: items});	
-							var lineUnitWeight	= getItemWeight(lineItem);
-							
-							//Total weight
-							//
-							totalWeight += (lineUnitWeight * lineQty);
-							
-							//Get the inventory detail sub-record
-							//
-							var inventoryDetail = fulfilmentRecord.getSublistSubrecord({
-																			    	    sublistId: 	'item',
-																			    	    fieldId: 	'inventorydetail',
-																			    	    line: 		items
-																						});
-							
-							//Did we get the inv detail ok?
-							//
-							if(inventoryDetail != null)
-								{
-									//Loop though the inventory assignments
-									//
-									var inventoryAssignments = inventoryDetail.getLineCount({sublistId: 'inventoryassignment'});
-									
-									for (var inventoryAssignment = 0; inventoryAssignment < inventoryAssignments; inventoryAssignment++) 
-										{
-											var packageName = inventoryDetail.getSublistValue({sublistId: 'inventoryassignment', fieldId: 'pickcarton', line: inventoryAssignment});		
-											
-											//Accumulate the packages
-											//
-											packageData[packageName] = packageName;
-										}
-								}
-						}
-					
-					//Update the IF record with the total weight & packages
-					//
-					try
-						{
-							record.submitFields({
-												type:		currentType,
-												id:			currentId,
-												options:	{
-															enableSourcing:			false,
-															ignoreMandatoryFields:	true
-															},
-												values:		{
-															custbody_bbs_total_weight:			totalWeight.toFixed(2),
-															custbody_bbs_number_of_packages:	Object.keys(packageData).length
-															}
-												});
+							fulfilmentRecord = record.load({
+															type:		currentType,
+															id:			currentId
+															});
 						}
 					catch(err)
 						{
-							log.error({
-										title:		'Error updating fulfilment record with id = ' + currentId,
+			    			log.error({
+										title:		'Error loading fulfilment record with id = ' + currentId,
 										details:	err
 										});
-						
+			    			
+			    			fulfilmentRecord	= null;
 						}
 					
-				}
+					//Did the record load ok
+					//
+					if(fulfilmentRecord != null)
+						{
+							//Loop round the item lines
+							//
+							var itemCount = fulfilmentRecord.getLineCount({sublistId: 'item'});
+							
+							for (var items = 0; items < itemCount; items++) 
+								{
+									//Get the item line quantity, item & weight
+									//
+									var lineQty 		= Number(fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: items}));	
+									var lineItem 		= fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: items});	
+									var lineUnitWeight	= getItemWeight(lineItem);
+									
+									//Total weight
+									//
+									totalWeight += (lineUnitWeight * lineQty);
+									
+									//Get the inventory detail sub-record
+									//
+									var inventoryDetail = fulfilmentRecord.getSublistSubrecord({
+																					    	    sublistId: 	'item',
+																					    	    fieldId: 	'inventorydetail',
+																					    	    line: 		items
+																								});
+									
+									//Did we get the inv detail ok?
+									//
+									if(inventoryDetail != null)
+										{
+											//Loop though the inventory assignments
+											//
+											var inventoryAssignments = inventoryDetail.getLineCount({sublistId: 'inventoryassignment'});
+											
+											for (var inventoryAssignment = 0; inventoryAssignment < inventoryAssignments; inventoryAssignment++) 
+												{
+													var packageName = inventoryDetail.getSublistValue({sublistId: 'inventoryassignment', fieldId: 'pickcarton', line: inventoryAssignment});		
+													
+													//Accumulate the packages
+													//
+													packageData[packageName] = packageName;
+												}
+										}
+								}
+							
+							//Update the IF record with the total weight & packages
+							//
+							try
+								{
+									record.submitFields({
+														type:		currentType,
+														id:			currentId,
+														options:	{
+																	enableSourcing:			false,
+																	ignoreMandatoryFields:	true
+																	},
+														values:		{
+																	custbody_bbs_total_weight:			totalWeight.toFixed(2),
+																	custbody_bbs_number_of_packages:	Object.keys(packageData).length
+																	}
+														});
+								}
+							catch(err)
+								{
+									log.error({
+												title:		'Error updating fulfilment record with id = ' + currentId,
+												details:	err
+												});
+								
+								}
+							
+						}
+    			}
 			
 	    }
 

@@ -108,7 +108,7 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    				itemTypesArray.push(searchGuaranteedItemTypes[int].value);
 						}
 	    		
-		    		invoiceValue += BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString);
+		    		invoiceValue += parseFloat(BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString));
 					
 		    		//Get the total of the invoices for the marketing item types
 		    		//
@@ -119,9 +119,9 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    				itemTypesArray.push(searchMarketingItemTypes[int].value);
 						}
 	    		
-		    		invoiceValue += BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString);
+		    		invoiceValue += parseFloat(BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString));
 					
-		    		//Get the total of the invoices for the marketing item types
+		    		//Get the total of the invoices for the targeted item types
 		    		//
 		    		itemTypesArray		= [];
 		    		
@@ -130,14 +130,10 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    				itemTypesArray.push(searchTargetItemTypes[int].value);
 						}
 	    		
-		    		invoiceValue += BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString);
+		    		invoiceValue += parseFloat(BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString));
 					
 		    		//Update the group rebate record
 		    		//
-		    		totalInvoiceValue = parseFloat(totalInvoiceValue);
-		    		
-		    		log.debug({title: 'totalInvoiceValue', details: totalInvoiceValue});
-		    		
 		    		record.submitFields({
 		    							type:		'customrecord_bbs_cust_group_rebate',
 		    							id:			searchId,

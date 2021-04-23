@@ -15,6 +15,20 @@
     <#assign currencySymbol 	= record.custbody_bbs_currency_symbol>
     <#assign documentTitle		= "Sales Order">
              
+    <#assign bankName 			= record.custbody_bbs_branding.custrecord_bbs_branding_bank>
+	<#assign bankSortCode		= record.custbody_bbs_branding.custrecord_bbs_branding_sort_code>
+	<#assign bankAccount 		= record.custbody_bbs_branding.custrecord_bbs_branding_bank_account>
+	<#assign bankBic 			= record.custbody_bbs_branding.custrecord_bbs_branding_bic>
+	<#assign bankIban 			= record.custbody_bbs_branding.custrecord_bbs_branding_iban>
+   	
+    <#if record.entity.custentity_bbs_credit_type == "CASH">
+      <#assign bankName 		= record.custbody_bbs_branding.custrecordbbs_branding_bank_cash>
+      <#assign bankSortCode		= record.custbody_bbs_branding.custrecordbbs_branding_sort_code_cash>
+      <#assign bankAccount 		= record.custbody_bbs_branding.custrecordbbs_branding_bank_account_cash>
+      <#assign bankBic 			= record.custbody_bbs_branding.custrecordbbs_branding_bic_cash>
+      <#assign bankIban 		= record.custbody_bbs_branding.custrecordbbs_branding_iban_cash>
+    </#if>
+        
     <#if record.terms == "100% On Order" || record.terms == "">
       <#assign documentTitle		= "Proforma Invoice">
     </#if>
@@ -122,19 +136,19 @@
             </tr>
             <tr>
                 <td colspan="4" class="bankdetails"><b>Bank Name</b></td>
-                <td colspan="10" class="bankdetails">${record.custbody_bbs_branding.custrecord_bbs_branding_bank}</td>
+                <td colspan="10" class="bankdetails">${bankName}</td>
             </tr>
             <tr>
                 <td colspan="4" class="bankdetails"><b>Account Number</b></td>
-                <td colspan="8" class="bankdetails">${record.custbody_bbs_branding.custrecord_bbs_branding_bank_account}</td>
+                <td colspan="8" class="bankdetails">${bankAccount}</td>
                 <td colspan="4" class="bankdetails"><b>Sort Code</b></td>
-                <td colspan="8" class="bankdetails">${record.custbody_bbs_branding.custrecord_bbs_branding_sort_code}</td>
+                <td colspan="8" class="bankdetails">${bankSortCode}</td>
             </tr>
             <tr>
                 <td colspan="4" class="bankdetails"><b>IBAN</b></td>
-                <td colspan="8" class="bankdetails">${record.custbody_bbs_branding.custrecord_bbs_branding_iban}</td>
+                <td colspan="8" class="bankdetails">${bankIban}</td>
                 <td colspan="4" class="bankdetails"><b>BIC/SWIFT</b></td>
-                <td colspan="8" class="bankdetails">${record.custbody_bbs_branding.custrecord_bbs_branding_bic}</td>
+                <td colspan="8" class="bankdetails">${bankBic}</td>
             </tr>
   		</table>
           

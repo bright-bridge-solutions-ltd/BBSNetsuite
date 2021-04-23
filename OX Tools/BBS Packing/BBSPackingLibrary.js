@@ -228,13 +228,20 @@ function(search, record)
 	    	var transactionSearchObj = getResults(search.create({
 												    		   type: "transaction",
 												    		   filters:
-												    		   [
+												    			   [
+												    			      ["mainline","is","T"], 
+												    			      "AND", 
+												    			      ["numbertext","is",doumentNumber], 
+												    			      "AND", 
+												    			      [["type","anyof","SalesOrd"],"OR",[["type","anyof","ItemShip"],"AND",["status","anyof","ItemShip:A"]]]
+												    			   ],
+										/*		    		   [
 												    		      ["type","anyof","ItemShip","SalesOrd"], 
 												    		      "AND", 
 												    		      ["mainline","is","T"], 
 												    		      "AND", 
 												    		      ["numbertext","is",doumentNumber]
-												    		   ],
+												    		   ],		*/
 												    		   columns:
 												    		   [
 												    		      search.createColumn({name: "type", label: "Type"}),

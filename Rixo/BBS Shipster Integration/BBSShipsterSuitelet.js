@@ -40,7 +40,6 @@ function(file, record, search, http, xml, format, runtime)
 	        		var itemsArray			= [];
 	        		var shippingCarriers	= getShippingCarriers();	//Get a list of the carriers available
 	        		var manufacturersObject	= {};
-	        		var itemDataArray 		= getItemDataInfo();		//Get all the item information up front so we don't have to look them up for each line
 	        		
 	        		
 	        		//Load the item fulfilment (10GU's)
@@ -64,10 +63,12 @@ function(file, record, search, http, xml, format, runtime)
 
 	        		if(fulfilmentRecord != null)
 	        			{
-	        				customerID 		= fulfilmentRecord.getValue({fieldId: 'entity'});
-	        				createdFromID	= fulfilmentRecord.getValue({fieldId: 'createdfrom'});
-	        				createdFromType	= fulfilmentRecord.getText({fieldId: 'createdfrom'}).split(" #").shift();
-	        				tranId			= fulfilmentRecord.getValue({fieldId: 'tranid'});
+	        				var itemDataArray 	= getItemDataInfo(fulfilmentRecord);		//Get all the item information up front so we don't have to look them up for each line
+		        		
+	        				customerID 			= fulfilmentRecord.getValue({fieldId: 'entity'});
+	        				createdFromID		= fulfilmentRecord.getValue({fieldId: 'createdfrom'});
+	        				createdFromType		= fulfilmentRecord.getText({fieldId: 'createdfrom'}).split(" #").shift();
+	        				tranId				= fulfilmentRecord.getValue({fieldId: 'tranid'});
 	        				
 	        				// get value of the 'Created PO' field from the first item line of lines on the fulfilment
 	        				var dropShipPO = fulfilmentRecord.getSublistValue({
@@ -149,21 +150,11 @@ function(file, record, search, http, xml, format, runtime)
 						        			var salesOrderTotal				= Number(transactionRecord.getValue({fieldId: 'total'})).toFixed(2);
 						        			var salesOrderSubTotal			= Number(transactionRecord.getValue({fieldId: 'subtotal'})).toFixed(2);
 						        			var subsidiaryDetails			= getSubsidiaryInfo(transactionRecord.getValue({fieldId: 'subsidiary'}));
+						        			var shippedTotal				= Number(0);
+						        			var shippedVat					= Number(0);
 						        			
 						        			if (createdFromType == 'Transfer Order')
 						        				{
-						        					/*
-						        					//Read the location info (1GU's)
-						        					var locationLookup = search.lookupFields({
-															        						type: 		search.Type.LOCATION,
-															        						id: 		fulfilmentRecord.getValue({fieldId: 'transferlocation'}),
-															        						columns: 	['custrecord_bbs_location_email', 'custrecord_bbs_location_phone']
-						        															});
-						        					
-						        					var customerEmail 			= locationLookup.custrecord_bbs_location_email;
-						        					var customerPhone 			= locationLookup.custrecord_bbs_location_phone;
-								        			var customerMobile 			= locationLookup.custrecord_bbs_location_phone;
-								        			*/
 						        				
 						        					//Read in the location record
 						        					//
@@ -266,9 +257,12 @@ function(file, record, search, http, xml, format, runtime)
 					        				xmlString += '<CustomerReference>' 			+ xml.escape({xmlText: salesOrderCustRef}) 							+ '</CustomerReference>\n';
 					        				xmlString += '<CustomerPhone>' 				+ xml.escape({xmlText: customerPhone}) 								+ '</CustomerPhone>\n';
 					        				xmlString += '<CustomerMobile>' 			+ xml.escape({xmlText: customerMobile}) 							+ '</CustomerMobile>\n';
-					        				xmlString += '<TotalSale>' 					+ xml.escape({xmlText: salesOrderTotal}) 							+ '</TotalSale>\n';
+					        		//		xmlString += '<TotalSale>' 					+ xml.escape({xmlText: salesOrderTotal}) 							+ '</TotalSale>\n';
+					        				xmlString += '<TotalSale>' 					+ '{shiptotal}'														+ '</TotalSale>\n';
 					        				xmlString += '<Discount>' 					+ xml.escape({xmlText: salesOrderDiscount}) 						+ '</Discount>\n';
-					        				xmlString += '<TaxPaid>' 					+ xml.escape({xmlText: salesOrderTax}) 								+ '</TaxPaid>\n';
+					        		//		xmlString += '<TaxPaid>' 					+ xml.escape({xmlText: salesOrderTax}) 								+ '</TaxPaid>\n';
+					        				xmlString += '<TaxPaid>' 					+ '{vattotal}' 														+ '</TaxPaid>\n';
+					        				
 					        				xmlString += '<CreatedDate>' 				+ xml.escape({xmlText: fulfilmentDate}) 							+ '</CreatedDate>\n';
 					        				xmlString += '<ChannelName>' 				+ xml.escape({xmlText: salesOrderChannel}) 							+ '</ChannelName>\n';
 					        				
@@ -288,13 +282,7 @@ function(file, record, search, http, xml, format, runtime)
 					        				xmlString += '<ShippingAddressCountry>' 	+ xml.escape({xmlText: fulfilmentCountry.substring(0,35)}) 			+ '</ShippingAddressCountry>\n';
 					        				xmlString += '<DespatchNumber>' 			+ xml.escape({xmlText: fulfilmentReference}) 						+ '</DespatchNumber>\n';
 					        				xmlString += '<DespatchDate>' 				+ xml.escape({xmlText: fulfilmentShippedDate}) 						+ '</DespatchDate>\n';
-					        				
-					        				
-					        				log.debug({
-						        				title:		'Remaining Usage before items',
-												details:	runtime.getCurrentScript().getRemainingUsage()
-											});
-					        				
+					        									        				
 					        				//Items
 					        				//
 					        				xmlString += '<Items>\n';
@@ -314,6 +302,7 @@ function(file, record, search, http, xml, format, runtime)
 						        					var itemSoRate			= Number(0);
 						        					var itemSoCost			= Number(0);
 						        					var itemSoVat			= Number(0);
+						        					var itemSoVatRate		= Number(0);
 						        					
 						        					//Get additional info from the item record (commodity code, country of manufacture, item group name & prefered supplier address)
 						        					//
@@ -341,11 +330,17 @@ function(file, record, search, http, xml, format, runtime)
 										        					itemSoRate			= Number(transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'rate', line: soLine}));
 										        					itemSoCost			= Number(transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'costestimaterate', line: soLine}));
 										        					itemSoVat			= Number(transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'tax1amt', line: soLine}));
+										        					itemSoVatRate		= Number(transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'taxrate1', line: soLine}));
 										        					
 										        					break;
 						        								}
 							        					}
 						        					
+						        					//Calculate the shipped value & vat
+						        					//
+						        					shippedTotal 	+= (itemSoRate * itemQuantity);
+						        					shippedVat		+= ((itemSoRate * itemQuantity) / 100.00) * itemSoVatRate;
+						        						
 						        					//Save info about the item & what packages it belongs to
 						        					//
 						        					itemsArray.push(new itemInfo(itemName, 
@@ -380,10 +375,6 @@ function(file, record, search, http, xml, format, runtime)
 						        					
 						        					xmlString += '</Item>\n';
 						        					
-						        					log.debug({
-								        				title:		'Remaining Usage after item ' + items,
-														details:	runtime.getCurrentScript().getRemainingUsage()
-													});
 					        					}
 					        				
 					        				xmlString += '</Items>\n';
@@ -465,41 +456,24 @@ function(file, record, search, http, xml, format, runtime)
 					        				//Fill in the manufacturers details if any
 					        				//
 					        				xmlString += '<Attribute2>';
-					        //				xmlString += '<![CDATA[';
-					        //				xmlString += '<Manufacturers>';
 					        				
 					        				for (var manufacturer in manufacturersObject) 
 						        				{
-					        //						xmlString += '<Manufacturer>';
-					        
-					        						
 						    						xmlString += (manufacturersObject[manufacturer].address1 != '' 	? xml.escape({xmlText: manufacturersObject[manufacturer].address1}) + '&#10;' : '');
 							        				xmlString += (manufacturersObject[manufacturer].address2 != '' 	? xml.escape({xmlText: manufacturersObject[manufacturer].address2}) + '&#10;' : '');
 							        				xmlString += (manufacturersObject[manufacturer].town != ''     	? xml.escape({xmlText: manufacturersObject[manufacturer].town}) + '&#10;' : '');
 							        				xmlString += (manufacturersObject[manufacturer].county != '' 	? xml.escape({xmlText: manufacturersObject[manufacturer].county}) + '&#10;' : '');
 							        				xmlString += (manufacturersObject[manufacturer].postCode != '' 	? xml.escape({xmlText: manufacturersObject[manufacturer].postCode}) + '&#10;' : '');
 							        				xmlString += (manufacturersObject[manufacturer].country != '' 	? xml.escape({xmlText: manufacturersObject[manufacturer].country}) + '&#10;&#10;' : '');
-							
-					        //						xmlString += '<CountryOfManufacture>' 	+ xml.escape({xmlText: manufacturer}) 									+ '</CountryOfManufacture>';
-					        //						xmlString += '<ManuAddressLine1>' 		+ xml.escape({xmlText: manufacturersObject[manufacturer].address1})		+ '</ManuAddressLine1>';
-							//       				xmlString += '<ManuAddressLine2>' 		+ xml.escape({xmlText: manufacturersObject[manufacturer].address2})		+ '</ManuAddressLine2>';
-							//        				xmlString += '<ManuAddressTownCity>' 	+ xml.escape({xmlText: manufacturersObject[manufacturer].town}) 		+ '</ManuAddressTownCity>';
-							//        				xmlString += '<ManuAddressRegion>' 		+ xml.escape({xmlText: manufacturersObject[manufacturer].county}) 		+ '</ManuAddressRegion>';
-							//        				xmlString += '<ManuAddressPostCode>' 	+ xml.escape({xmlText: manufacturersObject[manufacturer].postCode})		+ '</ManuAddressPostCode>';
-							//        				xmlString += '<ManuAddressCountry>' 	+ xml.escape({xmlText: manufacturersObject[manufacturer].country})		+ '</ManuAddressCountry>';
-							        				
-					        //						xmlString += '</Manufacturer>';
-												}		        				
+					        					}		        				
 					        				
-					        //				xmlString += '</Manufacturers>';
-					        //				xmlString += ']]>';
 					        				xmlString += '</Attribute2>\n';
-					        			
-					        				
+					        						        				
 					        				//Custom attributes
 					        				//
 					        				xmlString += '<Attribute3>' 				+ xml.escape({xmlText: salesOrderDiscountCode}) 	+ '</Attribute3>\n';
-					        				xmlString += '<Attribute4>' 				+ xml.escape({xmlText: salesOrderSubTotal}) 		+ '</Attribute4>\n';
+					        		//		xmlString += '<Attribute4>' 				+ xml.escape({xmlText: salesOrderSubTotal}) 		+ '</Attribute4>\n';
+					        				xmlString += '<Attribute4>' 				+ shippedTotal.toFixed(2)							+ '</Attribute4>\n';
 					        				
 					        				// if we have a supplierID
 					        				if (supplierID)
@@ -520,13 +494,19 @@ function(file, record, search, http, xml, format, runtime)
 					        				xmlString += '<PaymentMethod/>\n';
 					        				xmlString += '<PropertyName/>\n';
 					        				xmlString += '<TotalGrossWeight></TotalGrossWeight>\n';
-					        				xmlString += '<TotalPrice>' 			+ xml.escape({xmlText: salesOrderTotal}) 					+ '</TotalPrice>\n';
+					        			//	xmlString += '<TotalPrice>' 			+ xml.escape({xmlText: salesOrderTotal}) 					+ '</TotalPrice>\n';
+					        				xmlString += '<TotalPrice>' 			+ (shippedTotal + shippedVat).toFixed(2)					+ '</TotalPrice>\n';
 					        				xmlString += '<CurrencyCode>' 			+ xml.escape({xmlText: fulfilmentCurrency}) 				+ '</CurrencyCode>\n';
 					        				xmlString += '<WeightType>KG</WeightType>\n';
 					        				xmlString += '<MeasureType>CM</MeasureType>\n';
 					        				xmlString += '<ImportFormat>SHP</ImportFormat>\n';
 					        				xmlString += '<ImportFileFormat>XML</ImportFileFormat>\n';
 					        				xmlString += '</Despatch>\n';
+					        				
+					        				//Update the placeholders for the sales & vat totals
+					        				//
+					        				xmlString = xmlString.replace("{shiptotal}", (shippedTotal + shippedVat).toFixed(2));
+					        				xmlString = xmlString.replace("{vattotal}",  shippedVat.toFixed(2));
 					        				
 					        				
 					        				//Create a file to hold the results (0GU's)
@@ -541,27 +521,19 @@ function(file, record, search, http, xml, format, runtime)
 					        				//
 					        				try
 					        					{
-						        					// load the IF record (10GU's)
-					        						var fulfilmentRecord = record.load({
-													        							type: 	record.Type.ITEM_FULFILLMENT,
-													        							id: 	recordID
-													        							});
-					        						
-					        						// set fields on the IF record
-					        						fulfilmentRecord.setValue({
-											        							fieldId: 	'shipstatus',
-											        							value: 		'C' // C = Shipped
-											        							});
-					        						
-					        						fulfilmentRecord.setValue({
-											        							fieldId: 	'custbody_bbs_exported_to_shipster',
-											        							value: 		true
-											        							});
-					        						
-					        						// save the changes to the IF record (20GU's)
-					        						fulfilmentRecord.save({
-					        												ignoreMandatoryFields:	true
-					        												});
+					        						record.submitFields({
+					        											type:		record.Type.ITEM_FULFILLMENT,
+					        											id:			recordID,
+					        											values:		{
+					        															shipstatus:							'C',
+					        															custbody_bbs_exported_to_shipster:	true
+					        														},
+					        											options:	{
+					        														enablesourcing:			false,
+					        														ignoreMandatoryFields:	true
+					        														}
+					        											});
+
 					        					}
 					        				catch(err)
 					        					{
@@ -637,111 +609,6 @@ function(file, record, search, http, xml, format, runtime)
 			var displayName				= '';
 			var size					= '';
 			
-			/*
-    		try
-    			{
-    				//Load the item record (5GU's)
-	    			itemRecord = record.load({
-												type:		getItemRecordType(_itemType),
-												id:			_itemId
-												});
-    			}
-    		catch(err)
-    			{
-    				itemRecord = null;
-    				
-    				log.error({
-								title:		'Error loading item record with id = ' + _itemId + ' type = ' + _itemType,
-								details:	err
-								});
-    			}
-    		
-    		if(itemRecord != null)
-    			{
-	    			commodityCode 			= itemRecord.getValue({fieldId: 'custitem_commodity_code'});
-	        		countryOfManufacture 	= itemRecord.getValue({fieldId: 'countryofmanufacture'});
-	        		displayName				= itemRecord.getValue({fieldId: 'displayname'});
-	        		size					= itemRecord.getText({fieldId: 'custitem_bbs_matrix_size'});
-	        		
-	        		try
-	        			{
-	        				groupName		= itemRecord.getText({fieldId: 'custitem_bbs_matrix_cat'})[0];
-	        			}
-	        		catch(err)
-	        			{
-	        				groupName		= '';
-	        			}
-	        		
-	        		if(countryOfManufacture != null && countryOfManufacture != '')
-		    			{
-		    				countryOfManufacture = _countries_list[countryOfManufacture];
-		    			}
-	    			
-	        		var suppliers = itemRecord.getLineCount({sublistId: 'itemvendor'});
-	        		
-	        		for (var supplier = 0; supplier < suppliers; supplier++) 
-	        			{
-	        				var supplierId = itemRecord.getSublistValue({sublistId: 'itemvendor', fieldId: 'vendor', line: supplier});
-	        				
-	        				//Read in the supplier (5GU's)
-	        				//
-	        				var supplierRecord = null;
-	        				
-	        				try
-	        					{
-		        					supplierRecord = record.load({
-																	type:		record.Type.VENDOR,
-																	id:			supplierId
-																	});
-	        					}
-	        				catch(err)
-	        					{
-	        						supplierRecord = null;
-	        					}
-	        				
-	        				if(supplierRecord != null)
-	        					{
-	        						//Read the address subrecord
-	        						//
-		        					var addressLines = supplierRecord.getLineCount({sublistId: 'addressbook'}); 
-									
-									for (var addressLine = 0; addressLine < addressLines; addressLine++) 
-										{
-											var addressSubRecord = supplierRecord.getSublistSubrecord({
-															    									    sublistId: 	'addressbook',
-															    									    fieldId: 	'addressbookaddress',
-															    									    line: 		addressLine
-															    										});
-											
-											addr1 	= addressSubRecord.getValue({fieldId: 'addr1'});
-											addr2 	= addressSubRecord.getValue({fieldId: 'addr2'});
-											city 	= addressSubRecord.getValue({fieldId: 'city'});
-											state 	= addressSubRecord.getValue({fieldId: 'state'});
-											zip 	= addressSubRecord.getValue({fieldId: 'zip'});
-											country = addressSubRecord.getValue({fieldId: 'country'});
-												
-											if(country != null && country != '')
-								    			{
-													country = _countries_list[country];
-								    			}
-											
-											break;
-										}
-	        					}
-	        			}
-    			}
-    		
-    		additionalInfoObj = new itemAdditionalInfo(
-    													commodityCode, 
-    													countryOfManufacture, 
-    													groupName,
-    													displayName,
-    													size,
-    													new addressObject(addr1, addr2, city, state, zip, country)
-    													); 
-    		
-    		*/
-    	
 			try
 				{
 					commodityCode 			= _itemDataArray[_itemId].itemCommodityCode;
@@ -803,26 +670,7 @@ function(file, record, search, http, xml, format, runtime)
 		    			 		details: err
     			 			});
     			}
-    		/*
-    		//Get the item weight (1GU's)
-    		var searchResult = search.lookupFields({
-	    											type:		search.Type.ITEM,
-	    											id:			_itemId,
-	    											columns:	['weight', 'weightunit']
-	    											});
-    		
-    		var itemWeight 		= Number(searchResult.weight);
-    		
-    		
-    		try
-    			{
-    				itemWeightUnit 	= Number(searchResult.weightunit[0].value);
-    			}
-    		catch(err)
-    			{
-    				itemWeightUnit 	= null;
-    			}
-    		*/
+
     		
     		switch(itemWeightUnit)
     			{
@@ -913,22 +761,28 @@ function(file, record, search, http, xml, format, runtime)
 	    	return shipppingItemObj;
     	}
     
-    function getItemDataInfo()
+    function getItemDataInfo(_fulfilmentRecord)
     	{
-    		var itemData = {};
+	    	var itemCount 	= _fulfilmentRecord.getLineCount({sublistId: 'item'});
+	    	var itemData 	= {};
+	    	var itemIds		= [];
+    		
+			for (var items = 0; items < itemCount; items++) 
+				{
+					var itemId = _fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: items});
+					itemIds.push(itemId);
+				}
+			
     		    		
     		var itemSearchObj = getResults(search.create({
     			   type: "item",
     			   filters:
     			   [
+    			    	["internalid","anyof",itemIds]
     			   ],
     			   columns:
     			   [
-    			      search.createColumn({
-    			         name: "itemid",
-    			         sort: search.Sort.ASC,
-    			         label: "Name"
-    			      }),
+    			      search.createColumn({name: "itemid",sort: search.Sort.ASC,label: "Name"}),
     			      search.createColumn({name: "internalid", label: "Internal ID"}),
     			      search.createColumn({name: "custitem_commodity_code", label: "Commodity Code"}),
     			      search.createColumn({name: "countryofmanufacture", label: "Manufacturer Country"}),
@@ -937,91 +791,23 @@ function(file, record, search, http, xml, format, runtime)
     			      search.createColumn({name: "weightunit", label: "Weight Units"}),
     			      search.createColumn({name: "custitem_bbs_matrix_cat", label: "01-CAT"}),
     			      search.createColumn({name: "custitem_bbs_matrix_size", label: "05-Size"}),
-    			      search.createColumn({
-    			         name: "entityid",
-    			         join: "preferredVendor",
-    			         label: "Preferred Supplier Name"
-    			      }),
-    			      search.createColumn({
-    			         name: "billaddress1",
-    			         join: "preferredVendor",
-    			         label: "Billing Address 1"
-    			      }),
-    			      search.createColumn({
-    			         name: "billaddress2",
-    			         join: "preferredVendor",
-    			         label: "Billing Address 2"
-    			      }),
-    			      search.createColumn({
-    			         name: "billaddress3",
-    			         join: "preferredVendor",
-    			         label: "Billing Address 3"
-    			      }),
-    			      search.createColumn({
-    			         name: "billcity",
-    			         join: "preferredVendor",
-    			         label: "Billing City"
-    			      }),
-    			      search.createColumn({
-    			         name: "billcountry",
-    			         join: "preferredVendor",
-    			         label: "Billing Country"
-    			      }),
-    			      search.createColumn({
-    			         name: "billzipcode",
-    			         join: "preferredVendor",
-    			         label: "Billing Zip"
-    			      }),
-    			      search.createColumn({
-    			         name: "billstate",
-    			         join: "preferredVendor",
-    			         label: "Billing State/Province"
-    			      }),
-    			      search.createColumn({
-    			         name: "billcountrycode",
-    			         join: "preferredVendor",
-    			         label: "Billing Country Code"
-    			      }),
-    			      search.createColumn({
-    			          name: "shipaddress1",
-    			          join: "preferredVendor",
-    			          label: "Shipping Address 1"
-    			       }),
-    			       search.createColumn({
-    			          name: "shipaddress2",
-    			          join: "preferredVendor",
-    			          label: "Shipping Address 2"
-    			       }),
-    			       search.createColumn({
-    			          name: "shipaddress3",
-    			          join: "preferredVendor",
-    			          label: "Shipping Address 3"
-    			       }),
-    			       search.createColumn({
-    			          name: "shipcity",
-    			          join: "preferredVendor",
-    			          label: "Shipping City"
-    			       }),
-    			       search.createColumn({
-    			          name: "shipcountry",
-    			          join: "preferredVendor",
-    			          label: "Shipping Country"
-    			       }),
-    			       search.createColumn({
-    			          name: "shipcountrycode",
-    			          join: "preferredVendor",
-    			          label: "Shipping Country Code"
-    			       }),
-    			       search.createColumn({
-    			          name: "shipstate",
-    			          join: "preferredVendor",
-    			          label: "Shipping State/Province"
-    			       }),
-    			       search.createColumn({
-    			          name: "shipzip",
-    			          join: "preferredVendor",
-    			          label: "Shipping Zip"
-    			       })
+    			      search.createColumn({name: "entityid",join: "preferredVendor",label: "Preferred Supplier Name"}),
+    			      search.createColumn({name: "billaddress1",join: "preferredVendor",label: "Billing Address 1"}),
+    			      search.createColumn({name: "billaddress2",join: "preferredVendor",label: "Billing Address 2"}),
+    			      search.createColumn({name: "billaddress3",join: "preferredVendor",label: "Billing Address 3"}),
+    			      search.createColumn({name: "billcity",join: "preferredVendor",label: "Billing City"}),
+    			      search.createColumn({name: "billcountry",join: "preferredVendor",label: "Billing Country"}),
+    			      search.createColumn({name: "billzipcode",join: "preferredVendor",label: "Billing Zip"}),
+    			      search.createColumn({name: "billstate",join: "preferredVendor",label: "Billing State/Province"}),
+    			      search.createColumn({name: "billcountrycode",join: "preferredVendor",label: "Billing Country Code"}),
+    			       search.createColumn({name: "shipaddress1",join: "preferredVendor",label: "Shipping Address 1"}),
+    			       search.createColumn({name: "shipaddress2",join: "preferredVendor",label: "Shipping Address 2"}),
+    			       search.createColumn({name: "shipaddress3",join: "preferredVendor",label: "Shipping Address 3"}),
+    			       search.createColumn({name: "shipcity",join: "preferredVendor",label: "Shipping City"}),
+    			       search.createColumn({name: "shipcountry",join: "preferredVendor",label: "Shipping Country"}),
+    			       search.createColumn({name: "shipcountrycode",join: "preferredVendor",label: "Shipping Country Code"}),
+    			       search.createColumn({name: "shipstate",join: "preferredVendor",label: "Shipping State/Province"}),
+    			       search.createColumn({name: "shipzip",join: "preferredVendor",label: "Shipping Zip"})
     			   ]
     			}));
     			

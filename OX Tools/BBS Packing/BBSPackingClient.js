@@ -82,10 +82,43 @@ function(BBSPackingLibrary, currentRecord, format, dialog, url, runtime)
     		//
 	    	if(scriptContext.fieldId == 'custpage_entry_so_if')
 	    		{
-		    		//Spoof pressing the save button on the form
-	  				//
-	    			document.getElementById("custpage_entry_so_if").focus();
-	    			document.getElementById('submitter').click();
+	    			//Get the entered value
+	    			//
+	    			var eneteredSoIf = scriptContext.currentRecord.getValue({fieldId: 'custpage_entry_so_if'});
+	    			
+	    			if(eneteredSoIf != '')
+	    				{
+			    			//Search for the IF record by either Picking Carton, Sales Order or Item Fulfilment number
+			    			//
+			    			var ifRecordId = BBSPackingLibrary.libFindIfRecord(eneteredSoIf);
+			    			
+			    			//If the IF record was found then move on to the next stage
+			    			//
+			    			if(ifRecordId != null)
+			    				{
+				    				//Spoof pressing the save button on the form
+					  				//
+					    			document.getElementById("custpage_entry_so_if").focus();
+					    			document.getElementById('submitter').click();
+			    				}
+			    			else
+			    				{
+			    					//Clear out the entered field and try again
+			    					//
+				    				scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_so_if', value: null});
+			    					document.getElementById("custpage_entry_so_if").focus();
+		    					
+			    					alert('No Record Found...');
+			    					
+			    			//		Ext.Ajax.timeout = (2000);
+			        				
+			        		//		var myMask = new Ext.LoadMask(Ext.getBody(), {msg:'No Record Found...'});
+			        		//		myMask.show();
+			        				
+			        				
+			    					
+			    				}
+	    				}
 	    		}
     	
 	    	//Remove from carton

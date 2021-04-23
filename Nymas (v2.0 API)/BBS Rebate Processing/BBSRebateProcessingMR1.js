@@ -46,7 +46,7 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 																		    			      "AND",
 																		    			      ["custrecord_bbs_parent_group_rebate","anyof","@NONE@"],						//There is no link to a group rebate record
 																		    			      "AND",
-																		    			      ["custrecord_bbs_status","anyof","1"]											//Status = In Progress
+																		    			      ["custrecord_bbs_rebate_i_status","anyof","1"]											//Status = In Progress
 																		    			   ],
 															    			   columns:
 																		    			   [
@@ -106,9 +106,8 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    				itemTypesArray.push(searchGuaranteedItemTypes[int].value);
 						}
 		    		
-		    		var invoiceValue			= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString);	//Customer, Array of item types, Start date, End date
-		    		invoiceValue				+= parseFloat(invoiceValue);
-
+		    		invoiceValue			+= parseFloat(BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString));	//Customer, Array of item types, Start date, End date
+		    		
 		    		//Get the total of the invoices for the marketing item types
 		    		//
 		    		itemTypesArray 				= [];
@@ -118,9 +117,8 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    				itemTypesArray.push(searchMarketingTypes[int].value);
 						}
 		    		
-		    		var invoiceValue			= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString);	//Customer, Array of item types, Start date, End date
-		    		invoiceValue				+= parseFloat(invoiceValue);
-
+		    		invoiceValue			+= parseFloat(BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString));	//Customer, Array of item types, Start date, End date
+		    		
 		    		//Get the total of the invoices for the targeted item types
 		    		//
 		    		itemTypesArray 				= [];
@@ -130,9 +128,8 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    				itemTypesArray.push(searchTargetedItemTypes[int].value);
 						}
 		    		
-		    		var invoiceValue			= BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString);	//Customer, Array of item types, Start date, End date
-		    		invoiceValue				+= parseFloat(invoiceValue);
-
+		    		invoiceValue			+= parseFloat(BBSRebateProcessingLibrary.findInvoiceValue(customerArray, itemTypesArray, searchDateStartString, searchDateEndString));	//Customer, Array of item types, Start date, End date
+		    		
 		    		//Update the rebate record
 		    		//
 		    		record.submitFields({

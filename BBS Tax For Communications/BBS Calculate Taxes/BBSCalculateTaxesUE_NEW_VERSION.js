@@ -598,6 +598,15 @@ function(runtime, record, search, libraryModule, plugin, ui)
 														taxReqItemObj.from		= new libraryModule.libLocationObj();
 														taxReqItemObj.from.pcd 	= fromAddressData.pCode;
 														taxReqItemObj.from.int	= fromAddressData.incorporated;
+														
+														//If we are using VOIP services (trans type 19/59) we should put the from address in as the billing address
+														//as these services a billed at point of primary use
+														//
+														if(transactionType == '19' || transactionType == '59')
+															{
+																taxReqItemObj.bill.pcd	=	fromAddressData.pCode;
+																taxReqItemObj.bill.int	=	fromAddressData.incorporated;
+															}
 													}
 												
 												//Have we got a to address
