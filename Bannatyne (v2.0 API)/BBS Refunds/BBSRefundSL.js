@@ -509,7 +509,7 @@ function(ui, search, file, runtime, task) {
 					
 					break;
 					
-				case 5: //	Secure Trading
+				case 4: //	Secure Trading
 					
 					// start off the CSV
 					var CSV = '"Bank Reference","Name","Date of Transaction","Amount","Last 4 Digits"\r\n';
@@ -552,7 +552,7 @@ function(ui, search, file, runtime, task) {
 	    			
 	    			break;
 				
-				case 6: //	Klarna
+				case 5: //	Klarna
 					
 					// start off the CSV
 					var CSV = '"Name","Date of Transaction","Amount","Email Address"\r\n';

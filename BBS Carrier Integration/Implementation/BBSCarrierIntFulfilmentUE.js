@@ -15,16 +15,17 @@ define([
         'N/email',
         '../Modules/BBSObjects',				//Objects used to pass info back & forth
         '../Modules/BBSCommon',					//Common code
-        '../Modules/BBSCarrierGFS',				//GFS integration module
-        '../Modules/BBSCarrierProCarrier',		//ProCarrier integration module
+        '../Modules/BBSCarrierDHL',				//DHL integration module
         '../Modules/BBSCarrierDPD',				//DPD integration module
         '../Modules/BBSCarrierFedEx',			//FedEx integration module
-        '../Modules/BBSCarrierUPS'			//UPS integration module
+        '../Modules/BBSCarrierGFS',				//GFS integration module
+        '../Modules/BBSCarrierProCarrier',		//ProCarrier integration module
+        '../Modules/BBSCarrierUPS'				//UPS integration module
         ],
 /**
  * @param {record} record
  */
-function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCarrierGFS, BBSCarrierProCarrier, BBSCarrierDPD, BBSCarrierFedEx, BBSCarrierUPS) 
+function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommon, BBSCarrierDHL, BBSCarrierDPD, BBSCarrierFedEx, BBSCarrierGFS, BBSCarrierProCarrier, BBSCarrierUPS) 
 {
 	
 	//=============================================================================================
@@ -221,7 +222,6 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
      * @Since 2015.2
      */
     function carrierIntFulfilmentBL(scriptContext) {
-    	
     	
     	// check that the record is being viewed
     	if (scriptContext.type == 'view')
@@ -495,19 +495,11 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 							    			
 			    								switch(shippingCarrierInfo.primaryCarrierName)
 			    									{
-					    								case 'GFS':
-					    								
-					    									//Send the request to the specific carrier
-					    									//
-					    									processShipmentsResponse = BBSCarrierGFS.carrierProcessShipments(processShipmentsRequest);	//Pass in the info gleaned from the IF record here
-					    								
-					    									break;
-					    								
-					    								case 'ProCarrier':
+					    								case 'DHL':
 					    									
 					    									//Send the request to the specific carrier
 					    									//
-					    									processShipmentsResponse = BBSCarrierProCarrier.carrierProcessShipments(processShipmentsRequest);	//Pass in the info gleaned from the IF record here
+					    									processShipmentsResponse = BBSCarrierDHL.carrierProcessShipments(processShipmentsRequest);	//Pass in the info gleaned from the IF record here
 					    									
 					    									break;
 					    									
@@ -527,6 +519,21 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 					    									
 					    									break;
 					    									
+					    								case 'GFS':
+						    								
+					    									//Send the request to the specific carrier
+					    									//
+					    									processShipmentsResponse = BBSCarrierGFS.carrierProcessShipments(processShipmentsRequest);	//Pass in the info gleaned from the IF record here
+					    								
+					    									break;
+					    									
+					    								case 'ProCarrier':
+					    									
+					    									//Send the request to the specific carrier
+					    									//
+					    									processShipmentsResponse = BBSCarrierProCarrier.carrierProcessShipments(processShipmentsRequest);	//Pass in the info gleaned from the IF record here
+					    									
+					    									break;
 					    									
 					    								case 'UPS':
 					    									

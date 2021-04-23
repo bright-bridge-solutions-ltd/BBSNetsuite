@@ -228,10 +228,10 @@ function(runtime, record, search) {
 				// if this line has a backorder quantity
 				if (backorderQty > 0)
 					{
-						// set the expected ship date on the line
+						// set the supply required by date on the line
 						salesOrder.setCurrentSublistValue({
 							sublistId: 'item',
-							fieldId: 'expectedshipdate',
+							fieldId: 'requesteddate',
 							value: latestDueDate
 						});
 						
