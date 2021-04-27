@@ -131,8 +131,8 @@
     </#if>
     
     <#list record.item as item> <!-- start items -->
-    	<#if item.custcol_bbs_requires_brochure == true>
-    		<span style="font-family:arial,helvetica,sans-serif; font-weight: bold;">Please include Laminate Leaflet</span><br/><br/>
+    	<#if item.custcol_bbs_requires_product_leaflet == true>
+    		<span style="font-family:arial,helvetica,sans-serif; font-weight: bold;">Include New Product Leaflet</span><br/><br/>
     		<#break><!-- break loop -->
     	</#if>
     </#list><!-- end items -->

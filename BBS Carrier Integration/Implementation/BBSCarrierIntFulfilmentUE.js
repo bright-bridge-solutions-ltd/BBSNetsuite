@@ -546,7 +546,7 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 			    								
 		    									//Check if we have got a success message back
 			    								//
-		    									if (processShipmentsResponse['status'] == 'SUCCESS' || processShipmentsResponse['status'] == '200')
+		    									if (processShipmentsResponse['status'] == 'SUCCESS' || processShipmentsResponse['status'] == '200' || processShipmentsResponse['status'] == '201')
 		    										{
 		    											// get the company URL
 		    											var companyURL = getCompanyUrl();
@@ -572,147 +572,151 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 		    													var packageNumber 		= packages[i]['packageNumber'];
 		    													var fileTypeIdentifier	= '';
 		    													
-		    													switch(labelFileType)
+		    													// do we have a label image
+		    													if (labelImage)
 		    														{
-		    															case 'GIF':
-		    																fileTypeIdentifier = file.Type.GIFIMAGE;
-		    																break;
-		    														
-		    															case 'PNG':
-				    														fileTypeIdentifier = file.Type.PNGIMAGE;
-				    														break;
-				    												
-				    													case 'PDF':
-				    														fileTypeIdentifier = file.Type.PDF;
-				    														break;
-				    										
-				    													default:
-				    														fileTypeIdentifier = file.Type.PLAINTEXT;
-				    														break;
-				    										
-		    														}
-		    													
-		    													// create a PNG of the courier label and store in the file cabinet
-								    							var courierLabel = file.create({
-															    								fileType: 	fileTypeIdentifier,
-															    								name: 		packageNumber + '.' + labelFileType,
-															    								contents: 	labelImage,
-															    								folder: 	fileCabinetFolder,
-															    								isOnline: 	true
-															    								});
-		    													
-						    									
-						    									// save the file in the file cabinet and get the file's ID
-						    									var courierLabelFileID = courierLabel.save();
-						    									
-						    									// attach the file to the item fulfilment
-				    											record.attach({
-							    												record: {
-							    														type: 	'file',
-							    														id: 	courierLabelFileID
-							    														},
-							    												to: 	{
-							    														type: 	record.Type.ITEM_FULFILLMENT,
-							    														id: 	recordID
-							    														}
-							    												});
-				    											
-				    											// reload the file
-						    									courierLabel = file.load({id: courierLabelFileID});
-		    												
-		    													// build up the file's URL
-						    									var courierLabelFileURL  = 'https://';
-						    									courierLabelFileURL 	+= companyURL;
-						    									courierLabelFileURL 	+= courierLabel.url;
-
-						    									// check if this is the first package, in which case update the IF record with the url of the first label
-				    											if (i == 0)
-				    												{
-						    											// update the item fulfilment record
-								    									itemFulfillmentRecord.setValue({
-															    										fieldId: 	'custbody_bbs_ci_consignment_number',
-															    										value: 		consignmentNumber
-															    										});
-								    									
-								    									itemFulfillmentRecord.setValue({
-															    										fieldId: 	'custbody_bbs_ci_consignment_error',
-															    										value: 		null
-															    										});
-								    									
-								    									itemFulfillmentRecord.setValue({
-															    										fieldId: 	'custbody_bbs_ci_label_image',
-															    										value: 		courierLabelFileURL
-															    										});
-				    												}
-
-		    													// select the line on the packages sublist on the item record
-		    													itemFulfillmentRecord.selectLine({
-									    														sublistId: 	'package',
-									    														line: 		i
-		    																					});
-		    													
-		    													// get the weight for the current line
-		    													var packageWeight = itemFulfillmentRecord.getCurrentSublistValue({
-																		    														sublistId: 	'package',
-																		    														fieldId: 	'packageweight'
-																		    													});
-		    													
-		    													// if there is no weight on the line
-		    													if (!packageWeight)
-		    														{
-		    															// set the package weight to 1
-		    															itemFulfillmentRecord.setCurrentSublistValue({
-												    																sublistId: 	'package',
-												    																fieldId: 	'packageweight',
-												    																value: 		1
-												    																});
-		    														}
-		    													
-		    													// set the tracking number field on the sublist line to hold the url of the label image
-		    													var labelUrlArray = courierLabel.url.replace('?','&').split('&');
-		    													var labelUrlString = '?' + labelUrlArray[1] + '&' + labelUrlArray[3]
-		    													
-		    													itemFulfillmentRecord.setCurrentSublistValue({
-												    														sublistId: 	'package',
-												    														fieldId: 	'packagetrackingnumber',
-												    														value: 		labelUrlString		//packageNumber
-												    														});
-		    													
-		    													// commit the changes to the sublist line
-		    													itemFulfillmentRecord.commitLine({sublistId: 'package'});
-		    													
-		    													//Create the data required to generate the hyperlink to tracking info
-						    									//
-						    									try
-						    										{
-						    											var customRecord = record.create({
-						    																				type:		'customrecord_bbs_if_additional_fields',
-						    																				isDynamic:	true
-						    																			});
-						    											customRecord.setValue({
-						    																	fieldId:	'custrecord_bbs_if_fulfilment',
-						    																	value:		recordID
-						    																	});
-						    											
-						    											customRecord.setValue({
-						    																	fieldId:	'custrecord_bbs_if_package_key',
-						    																	value:		labelUrlString	//packageNumber
-						    																	});
-						    											
-						    											customRecord.setValue({
-						    																	fieldId:	'custrecord_bbs_if_package_track_no',
-						    																	value:		packageNumber
-						    																	});
-						    											
-						    											customRecord.save({
-						    																enableSourcing: 		false,
-						    																ignoreMandatoryFields:	true
-						    																});
-						    										}
-						    									catch(err)
-						    										{
+				    													switch(labelFileType)
+				    														{
+				    															case 'GIF':
+				    																fileTypeIdentifier = file.Type.GIFIMAGE;
+				    																break;
+				    														
+				    															case 'PNG':
+						    														fileTypeIdentifier = file.Type.PNGIMAGE;
+						    														break;
+						    												
+						    													case 'PDF':
+						    														fileTypeIdentifier = file.Type.PDF;
+						    														break;
 						    										
-						    										}
+						    													default:
+						    														fileTypeIdentifier = file.Type.PLAINTEXT;
+						    														break;
+						    										
+				    														}
+				    													
+				    													// create a PNG of the courier label and store in the file cabinet
+										    							var courierLabel = file.create({
+																	    								fileType: 	fileTypeIdentifier,
+																	    								name: 		packageNumber + '.' + labelFileType,
+																	    								contents: 	labelImage,
+																	    								folder: 	fileCabinetFolder,
+																	    								isOnline: 	true
+																	    								});
+				    													
+								    									
+								    									// save the file in the file cabinet and get the file's ID
+								    									var courierLabelFileID = courierLabel.save();
+								    									
+								    									// attach the file to the item fulfilment
+						    											record.attach({
+									    												record: {
+									    														type: 	'file',
+									    														id: 	courierLabelFileID
+									    														},
+									    												to: 	{
+									    														type: 	record.Type.ITEM_FULFILLMENT,
+									    														id: 	recordID
+									    														}
+									    												});
+						    											
+						    											// reload the file
+								    									courierLabel = file.load({id: courierLabelFileID});
+				    												
+				    													// build up the file's URL
+								    									var courierLabelFileURL  = 'https://';
+								    									courierLabelFileURL 	+= companyURL;
+								    									courierLabelFileURL 	+= courierLabel.url;
+		
+								    									// check if this is the first package, in which case update the IF record with the url of the first label
+						    											if (i == 0)
+						    												{
+								    											// update the item fulfilment record
+										    									itemFulfillmentRecord.setValue({
+																	    										fieldId: 	'custbody_bbs_ci_consignment_number',
+																	    										value: 		consignmentNumber
+																	    										});
+										    									
+										    									itemFulfillmentRecord.setValue({
+																	    										fieldId: 	'custbody_bbs_ci_consignment_error',
+																	    										value: 		null
+																	    										});
+										    									
+										    									itemFulfillmentRecord.setValue({
+																	    										fieldId: 	'custbody_bbs_ci_label_image',
+																	    										value: 		courierLabelFileURL
+																	    										});
+						    												}
+		
+				    													// select the line on the packages sublist on the item record
+				    													itemFulfillmentRecord.selectLine({
+											    														sublistId: 	'package',
+											    														line: 		i
+				    																					});
+				    													
+				    													// get the weight for the current line
+				    													var packageWeight = itemFulfillmentRecord.getCurrentSublistValue({
+																				    														sublistId: 	'package',
+																				    														fieldId: 	'packageweight'
+																				    													});
+				    													
+				    													// if there is no weight on the line
+				    													if (!packageWeight)
+				    														{
+				    															// set the package weight to 1
+				    															itemFulfillmentRecord.setCurrentSublistValue({
+														    																sublistId: 	'package',
+														    																fieldId: 	'packageweight',
+														    																value: 		1
+														    																});
+				    														}
+				    													
+				    													// set the tracking number field on the sublist line to hold the url of the label image
+				    													var labelUrlArray = courierLabel.url.replace('?','&').split('&');
+				    													var labelUrlString = '?' + labelUrlArray[1] + '&' + labelUrlArray[3]
+				    													
+				    													itemFulfillmentRecord.setCurrentSublistValue({
+														    														sublistId: 	'package',
+														    														fieldId: 	'packagetrackingnumber',
+														    														value: 		labelUrlString		//packageNumber
+														    														});
+				    													
+				    													// commit the changes to the sublist line
+				    													itemFulfillmentRecord.commitLine({sublistId: 'package'});
+				    													
+				    													//Create the data required to generate the hyperlink to tracking info
+								    									//
+								    									try
+								    										{
+								    											var customRecord = record.create({
+								    																				type:		'customrecord_bbs_if_additional_fields',
+								    																				isDynamic:	true
+								    																			});
+								    											customRecord.setValue({
+								    																	fieldId:	'custrecord_bbs_if_fulfilment',
+								    																	value:		recordID
+								    																	});
+								    											
+								    											customRecord.setValue({
+								    																	fieldId:	'custrecord_bbs_if_package_key',
+								    																	value:		labelUrlString	//packageNumber
+								    																	});
+								    											
+								    											customRecord.setValue({
+								    																	fieldId:	'custrecord_bbs_if_package_track_no',
+								    																	value:		packageNumber
+								    																	});
+								    											
+								    											customRecord.save({
+								    																enableSourcing: 		false,
+								    																ignoreMandatoryFields:	true
+								    																});
+								    										}
+								    									catch(err)
+								    										{
+								    										
+								    										}
+		    														}
 		    												}
 		    										}
 		    									else

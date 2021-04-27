@@ -494,7 +494,7 @@ function(search, message, dialog, currentRecord) {
     			currRec.setCurrentSublistValue({
     				sublistId: 'item',
     				fieldId: 'custbodyny_ca_srdheader',
-    				value: shipDate
+    				value: requiredDate
     			});
     			
     			currRec.commitLine({
@@ -508,7 +508,8 @@ function(search, message, dialog, currentRecord) {
         pageInit: 		pageInit,
     	fieldChanged: 	fieldChanged,
     	validateLine: 	validateLine,
-    	saveRecord: 	saveRecord
+    	saveRecord: 	saveRecord,
+    	resetExpectedShipDates: resetExpectedShipDates
     };
     
 });

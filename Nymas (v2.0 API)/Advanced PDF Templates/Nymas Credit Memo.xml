@@ -6,38 +6,35 @@
     	<macro id="nlheader">
       		<table style="width: 100%; font-size: 10pt;">
       			<tr>
-      				<td colspan="4"><span style="font-size: 16pt; font-weight: bold;"><#if record.custbody_bbs_pro_forma_invoice == true>PROFORMA INVOICE<#else>ORDER ACKNOWLEDGEMENT</#if></span></td>
+      				<td colspan="4"><span style="font-size: 16pt; font-weight: bold;">Credit Note</span></td>
       				<td colspan="4" rowspan="5"><p align="center"><img src="${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_logo@url}" style="float: center; width:150px; height:75px;"/><br/><br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_legal_name}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_1}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_2}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_3}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_city}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_county}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_postcode}<br/>Tel: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_telephone}<#if record.custbody_bbs_output_logo.custrecord_bbs_output_logo_fax?has_content> Fax: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_fax}</#if><br/>Email: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_sales_email}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_website}</p></td>
       			</tr>
       			<tr>
-      				<td colspan="2" style="border-left: 1px solid black; border-top: 1px solid black;"><b>Order Date</b></td>
+      				<td colspan="2" style="border-left: 1px solid black; border-top: 1px solid black;"><b>Date</b></td>
       				<td colspan="2" style="border-right: 1px solid black; border-top: 1px solid black;"><b>: ${record.trandate}</b></td>
       			</tr>
       			<tr>
       				<td colspan="2" style="border-left: 1px solid black;"><b>Our Reference</b></td>
       				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.tranid}</b></td>
       			</tr>
-      			<#if record.custbody_bbs_pro_forma_invoice == true>
-	      			<tr>
-	      				<td colspan="2" style="border-left: 1px solid black;"><b>Your Reference</b></td>
-	      				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.custbody_bbs_cust_po_number}</b></td>
-      				</tr>
-	      			<tr>
-	      				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>VAT Reg. No.</b></td>
-	      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${record.entitytaxregnum}</b></td>
-	      			</tr>
-	      		<#else>
-	      			<tr>
-	      				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Your Reference</b></td>
-	      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${record.custbody_bbs_cust_po_number}</b></td>
-      				</tr>
-	      		</#if>
+      			<tr>
+	      			<td colspan="2" style="border-left: 1px solid black;"><b>Related Invoice</b></td>
+	      			<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.createdfrom?keep_after("#")}</b></td>
+      			</tr>
+      			<tr>
+	      			<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>VAT Reg. No.</b></td>
+	      			<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${record.entitytaxregnum}</b></td>
+      			</tr>
       		</table>
         </macro>
         <macro id="nlfooter">
         	<table>
 	           	<tr>
-	           		<td align="center" colspan="12"><span style="font-size: 10pt; font-weight: bold;">All orders are placed on our terms and conditions of sale and purchase which can be viewed here [<a href="nymas.co.uk/terms-conditions">nymas.co.uk/terms-conditions</a>]</span></td>
+	           		<#if record.custbody_bbs_output_logo.id == '1'> <!-- Fitzroy of London -->
+						<td align="center" colspan="12"><span style="font-size: 10pt; font-weight: bold;">Fitzroy of London is Part of Nymas Group</span></td>
+		        	<#else>
+		        		<td colspan="12">&nbsp;</td>
+		        	</#if>
 		        </tr>
 	     		<tr>
         			<td colspan="12"><span style="font-size: 6pt;">${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_disclaimer}</span></td>
@@ -103,22 +100,37 @@
     
     <table style="width: 100%; margin-bottom: 5px;">
     	<tr>
-    		<td colspan="4" style="border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"><b>INVOICE TO</b></td>
-      		<td colspan="4" style="margin-left: 10px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"><b>DELIVER TO</b></td>
+    		<td colspan="4" style="border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"><b>CREDIT TO</b></td>
+      		<td colspan="4">&nbsp;</td>
       	</tr>
       	<tr>
       		<td colspan="4" style="padding-left: 50px; border-left: 1px solid black; border-right: 1px solid black;">${record.billaddress}</td>
-      		<td colspan="4" style="margin-left: 10px; padding-left:50px; border-left: 1px solid black; border-right: 1px solid black;">${record.shipaddress}</td>
+      		<td colspan="4">&nbsp;</td>
       	</tr>
       	<tr>
         	<td colspan="4" style="padding-left: 50px; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
-            <td colspan="4" style="margin-left: 10px; padding-left:50px; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
+            <td colspan="4">&nsbp;</td>
         </tr>
       	<tr>
      		<td colspan="4" style="padding-left: 50px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
-         	<td colspan="4" style="margin-left: 10px; padding-left:50px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
+         	<td colspan="4">&nsbp;</td>
        	</tr>
   	</table>
+  	
+  	 <table style="width: 100%; margin-bottom: 5px; border: 1px solid black;">
+    	<tr>
+    		<td colspan="4"><b>Account Number</b></td>
+    		<td colspan="4"><b>: ${record.entity.accountnumber}</b></td>
+    		<td colspan="4">&nbsp;</td>
+    		<td colspan="4">&nbsp;</td>
+    	</tr>
+    	<tr>
+    		<td colspan="4"><b>Payment Terms</b></td>
+    		<td colspan="4"><b>: ${record.entity.custentity_bbs_entity_payment_term_days} Days ${record.entity.custentity_bbs_entity_payment_terms}</b></td>
+    		<td colspan="4">&nbsp;</td>
+    		<td colspan="4">&nbsp;</td>
+    	</tr>
+    </table>
     
     <!-- ITEMS TABLE -->
     <table style="width: 100%;">
@@ -138,7 +150,7 @@
     		</#if>
     			<tr>
     				<td align="left" colspan="8">${item.item}</td>
-    				<td align="left" colspan="10">${item.description}<#if record.custbody_bbs_pro_forma_invoice == false><br/><i>Despatch Date: ${item.expectedshipdate}</i></#if></td>
+    				<td align="left" colspan="10">${item.description}</td>
     				<td align="right" colspan="4">${item.quantity}</td>
     				<td align="left" colspan="4" style="padding-left: 20px;">${item.units}</td>
     				<td align="right" colspan="4">${record.custbody_bbs_currency_symbol}${item.rate?string["#,##0.00"]}</td>
@@ -154,7 +166,7 @@
     	<#if record.shippingcost gt 0> <!-- If we have a delivery charge -->
     		<tr>
     			<td align="left" colspan="8">Delivery Charge</td>
-    			<td align="left" colspan="10">Delivery To Site Charge</td>
+    			<td align="left" colspan="10">Delivery To Site Charge<br/><i>Despatch Date: ${record.shipdate}</i></td>
     			<td align="right" colspan="4">1</td>
     			<td align="left" colspan="4" style="padding-left: 20px;">&nbsp;</td>
     			<td align="right" colspan="4">${record.custbody_bbs_currency_symbol}${record.shippingcost?string["#,##0.00"]}</td>

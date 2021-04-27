@@ -7,7 +7,7 @@
       		<table style="width: 100%; font-size: 10pt;">
       			<tr>
       				<td colspan="4"><span style="font-size: 16pt; font-weight: bold;">PURCHASE ORDER</span></td>
-      				<td colspan="4" rowspan="5"><p align="center"><img src="${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_logo@url}" style="float: center; width:100px; height:50px;"/><br/><br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_legal_name}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_1}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_2}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_3}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_city}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_county}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_postcode}<br/>Tel: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_telephone}<#if record.custbody_bbs_output_logo.custrecord_bbs_output_logo_fax?has_content> Fax: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_fax}</#if><br/>Email: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_purchase_emai}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_website}</p></td>
+      				<td colspan="4" rowspan="5"><p align="center"><img src="${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_logo@url}" style="float: center; width:150px; height:75px;"/><br/><br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_legal_name}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_1}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_2}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_3}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_city}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_county}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_postcode}<br/>Tel: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_telephone}<#if record.custbody_bbs_output_logo.custrecord_bbs_output_logo_fax?has_content> Fax: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_fax}</#if><br/>Email: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_purchase_emai}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_website}</p></td>
       			</tr>
       			<tr>
       				<td colspan="2" style="border-left: 1px solid black; border-top: 1px solid black;"><b>Order Date</b></td>
@@ -18,19 +18,19 @@
       				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.tranid}</b></td>
       			</tr>
       			<tr>
-      				<td colspan="2" style="border-left: 1px solid black;"><b>Your Reference</b></td>
-      				<td colspan="2" style="border-right: 1px solid black;"><b>: <span style="color:#FF0000;">TODO</span></b></td>
+      				<td colspan="2" style="border-left: 1px solid black;"><b>Goods Ready Date</b></td>
+      				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.custbody_bbs_etd}</b></td>
       			</tr>
       			<tr>
       				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Issue Number</b></td>
-      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: <span style="color:#FF0000;">TODO</span></b></td>
+      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${record.custbody_bbs_revision_number}</b></td>
       			</tr>
       		</table>
         </macro>
         <macro id="nlfooter">
         	<table style="width: 100%">
 	           	<tr>
-	           		<td align="center" colspan="12"><span style="font-size: 6pt; font-weight: bold; color: #FF0000;">This purchase order is placed with you subject to your acceptance and compliance with the agreed delivery date, the stated price and the agreed quantity. Please advise this office
+	           		<td align="center" colspan="12"><span style="font-size: 6pt; font-weight: bold;">This purchase order is placed with you subject to your acceptance and compliance with the agreed delivery date, the stated price and the agreed quantity. Please advise this office
 immediately if you are unable to deliver by the agreed date. This PO is placed and subject to our terms and conditions. Please note all deliveries must be accompanied by a delivery
 note detailing our Purchase order reference (s) our product code and quantity delivered, prior to delivery a ASN should be sent to our supply chain contact.</span></td>
         		</tr>
@@ -91,7 +91,7 @@ note detailing our Purchase order reference (s) our product code and quantity de
 		}
 </style>
 </head>
-<body header="nlheader" header-height="145pt" footer="nlfooter" footer-height="60pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="155pt" footer="nlfooter" footer-height="60pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
     
     <table style="width: 100%; margin-bottom: 5px;">
     	<tr>
@@ -144,14 +144,14 @@ note detailing our Purchase order reference (s) our product code and quantity de
    		<table style="width: 100%;">
         	<tr>
         		<td colspan="6">
-        			<table style="width: 100%; border: 1px solid black;">
+        			<table style="width: 100%;">
         				<tr>
-        					<td colspan="2" style="padding-bottom: 20px;">Authorised by:</td>
-        					<td colspan="4" style="padding-bottom: 20px;">____________________________</td>
+        					<td colspan="2" style="padding-bottom: 20px;">&nbsp;</td>
+        					<td colspan="4" style="padding-bottom: 20px;">&nbsp;</td>
         				</tr>
         				<tr>
-        					<td colspan="2">Date:</td>
-        					<td colspan="4">____________________________</td>
+        					<td colspan="2">&nbsp;</td>
+        					<td colspan="4">&nbsp;</td>
         				</tr>
         				<tr>
         					<td style="padding-bottom: 10px;">&nbsp;</td>

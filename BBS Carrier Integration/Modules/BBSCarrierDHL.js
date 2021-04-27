@@ -31,18 +31,22 @@ function(encode, format, encode, https, record, runtime, search, xml, BBSObjects
 			//Declare and initialize variables
 			//
 			var headerObj 				= {};
+			var credentialObj			= {};
 			var responseStatus			= '';
 			var responseBodyObj			= {};
 			var processShipmentResponse	= {};
-			var totalWeight				= 0;
-		
+			
 			try
 				{				
 					//Set the headers for the request
 					//
-					headerObj['Content-Type']			= 'text/json';
-					headerObj['Accept']					= '*/*';
-					//TODO
+					headerObj['Content-Type']		= 'application/json';
+					headerObj['Accept']				= '*/*';
+					headerObj['Authorization']		= 'Basic ' + encode.convert({
+						string:			_processShipmentRequest.configuration.username + ':' + _processShipmentRequest.configuration.password,
+						inputEncoding:	encode.Encoding.UTF_8,
+						outputEncoding:	encode.Encoding.BASE_64
+					});
 				
 					//Create a JSON object that represents the structure of the DHL shipment request
 					//
@@ -50,61 +54,78 @@ function(encode, format, encode, https, record, runtime, search, xml, BBSObjects
 					
 					//Populate the object with the data from the incoming standard message
 					//
-					shipmentRequestObj.pickupAccount	= _processShipmentRequest.shippingItemInfo.carrierContractNo;
-					shipmentRequestObj.dropoffType		= 'PICKUP';
+					shipmentRequestObj.plannedShippingDateAndTime 	= _processShipmentRequest.shippingDate + 'T17:00:00 GMT+00:00';
+					shipmentRequestObj.pickup.isRequested			= false;
+					shipmentRequestObj.productCode					= 'N';
 					
-					shipmentRequestObj.senderAddress.companyName	= _processShipmentRequest.senderAddress.addresse;
-					shipmentRequestObj.senderAddress.address1		= _processShipmentRequest.senderAddress.line1;
-					shipmentRequestObj.senderAddress.address2		= _processShipmentRequest.senderAddress.line2;
-					shipmentRequestObj.senderAddress.city			= _processShipmentRequest.senderAddress.town;
-					shipmentRequestObj.senderAddress.state			= _processShipmentRequest.senderAddress.county;
-					shipmentRequestObj.senderAddress.postalCode		= _processShipmentRequest.senderAddress.postCode;
-					shipmentRequestObj.senderAddress.country		= _processShipmentRequest.senderAddress.countryCode;
-					shipmentRequestObj.senderAddress.phone			= _processShipmentRequest.senderAddress.phone;
-					shipmentRequestObj.senderAddress.email			= ''; //TODO
+					shipmentRequestObj.accounts.push(new _dhlAccountObj(_processShipmentRequest.shippingItemInfo.carrierContractNo, 'shipper'));
 					
-					var shipmentObj = new _dhlShipmentObj();
+					shipmentRequestObj.customerDetails.shipperDetails.postalAddress.addressLine1 		= _processShipmentRequest.senderAddress.line1;
 					
-					shipmentObj.consigneeAddress.companyName		= _processShipmentRequest.address.addresse;
-					shipmentObj.consigneeAddress.address1			= _processShipmentRequest.address.line1;
-					shipmentObj.consigneeAddress.address2			= _processShipmentRequest.address.line2;
-					shipmentObj.consigneeAddress.city				= _processShipmentRequest.address.city;
-					shipmentObj.consigneeAddress.state				= _processShipmentRequest.address.county;
-					shipmentObj.consigneeAddress.postalCode			= _processShipmentRequest.address.postCode;
-					shipmentObj.consigneeAddress.country			= _processShipmentRequest.address.countryCode;
-					shipmentObj.consigneeAddress.phone				= _processShipmentRequest.address.phone;
-					shipmentObj.consigneeAddress.email				= ''; // TODO
+					if (_processShipmentRequest.senderAddress.line2)
+						{
+							shipmentRequestObj.customerDetails.shipperDetails.postalAddress.addressLine2 = _processShipmentRequest.senderAddress.line2;
+						}
 					
-					shipmentObj.shipmentDetails.customerRef1		= _processShipmentRequest.shippingReference;
-					shipmentObj.shipmentDetails.totalPieces			= _processShipmentRequest.packages.length;
-					shipmentObj.shipmentDetails.carriageForward		= true;
+					shipmentRequestObj.customerDetails.shipperDetails.postalAddress.cityName	 		= _processShipmentRequest.senderAddress.town;
+					shipmentRequestObj.customerDetails.shipperDetails.postalAddress.postalCode	 		= _processShipmentRequest.senderAddress.postCode;
+					shipmentRequestObj.customerDetails.shipperDetails.postalAddress.countryCode	 		= _processShipmentRequest.senderAddress.countryCode;
+					shipmentRequestObj.customerDetails.shipperDetails.contactInformation.companyName	= _processShipmentRequest.senderAddress.addresse;		
+					shipmentRequestObj.customerDetails.shipperDetails.contactInformation.fullName		= _processShipmentRequest.senderAddress.addresse;
+					//shipmentRequestObj.customerDetails.shipperDetails.contactInformation.email		= '';
+					shipmentRequestObj.customerDetails.shipperDetails.contactInformation.phone			= _processShipmentRequest.senderContact.mobileNumber;
+					
+					shipmentRequestObj.customerDetails.receiverDetails.postalAddress.addressLine1 		= _processShipmentRequest.address.line1;
+					
+					if (_processShipmentRequest.address.line2)
+						{
+							shipmentRequestObj.customerDetails.shipperDetails.postalAddress.addressLine2 = _processShipmentRequest.address.line2;
+						}
+					
+					shipmentRequestObj.customerDetails.receiverDetails.postalAddress.cityName	 		= _processShipmentRequest.address.town;
+					shipmentRequestObj.customerDetails.receiverDetails.postalAddress.postalCode	 		= _processShipmentRequest.address.postCode;
+					shipmentRequestObj.customerDetails.receiverDetails.postalAddress.countryCode	 	= _processShipmentRequest.address.countryCode;
+					shipmentRequestObj.customerDetails.receiverDetails.contactInformation.companyName	= _processShipmentRequest.address.addresse;
+					shipmentRequestObj.customerDetails.receiverDetails.contactInformation.fullName		= _processShipmentRequest.address.addresse;
+					//shipmentRequestObj.customerDetails.receiverDetails.contactInformation.email		= '';
+					shipmentRequestObj.customerDetails.receiverDetails.contactInformation.phone			= _processShipmentRequest.address.phone;
+					
+					shipmentRequestObj.customerReferences.push(new _dhlReferenceObj(_processShipmentRequest.shippingReference));
+					
+					shipmentRequestObj.outputImageProperties.encodingFormat = _processShipmentRequest.configuration.labelFormat.toLowerCase();
+					shipmentRequestObj.outputImageProperties.imageOptions.push(new _dhlImageOptionsObj('label', 'ECOM26_A6_002'));
+					
+					shipmentRequestObj.content.unitOfMeasurement			= 'metric';
+					shipmentRequestObj.content.isCustomsDeclarable			= false;
+					shipmentRequestObj.content.incoterm						= 'DAP';
+					shipmentRequestObj.content.description					= _processShipmentRequest.shippingReference;
 					
 					//Get count of packages from the incoming message
 					//
 					var packageCount = _processShipmentRequest.packages.length;
 					
 					//Loop through packages
+					//
 					for (var i = 0; i < packageCount; i++)
 						{
-							//Add the package weight to the totalWeight variable
+							//Create a new package object
 							//
-							totalWeight += parseInt(_processShipmentRequest.packages[i].weight);
-						
+							var packageObj = new _dhlPackageObj();
+							
+							//Populate the package details
+							//
+							packageObj.customerReferences.push(new _dhlReferenceObj(_processShipmentRequest.shippingReference));
+							packageObj.weight 				= Number(_processShipmentRequest.packages[i].weight);
+							packageObj.dimensions.length	= 15;
+							packageObj.dimensions.width		= 15;
+							packageObj.dimensions.height	= 40;
+							
 							//Push a new package object to the shipmentRequestObj
 							//
-							shipmentObj.pieces.push(new _dhlPackageObj(_processShipmentRequest.packages[i].weight))
+							shipmentRequestObj.content.packages.push(packageObj);
 						}
 					
-					shipmentObj.shipmentDetails.totalWeight	= totalWeight;
-					
-					shipmentRequestObj.shipments.push(shipmentObj);
-					
-					log.debug({
-						title: 'Script Check',
-						details: shipmentRequestObj
-					});
-					
-					/*try
+					try
 						{
 							//Make the request to UPS
 							//
@@ -141,7 +162,7 @@ function(encode, format, encode, https, record, runtime, search, xml, BBSObjects
 					
 					//Check the responseObject to see whether a success or error/failure message was returned
 					//
-					if (responseStatus == '200')
+					if (responseStatus == '201')
 						{
 							//Declare and initialize variables
 							//
@@ -151,7 +172,7 @@ function(encode, format, encode, https, record, runtime, search, xml, BBSObjects
 							
 							//Get the consignment number
 							//
-							consignmentNumber = responseBodyObj['ShipmentResponse']['ShipmentResults']['ShipmentIdentificationNumber'];
+							consignmentNumber = responseBodyObj.shipmentTrackingNumber;
 									
 							//Convert the UPS response object to the standard process shipments response object
 							//
@@ -159,7 +180,7 @@ function(encode, format, encode, https, record, runtime, search, xml, BBSObjects
 									
 							//Get the package results
 							//
-							var packageResults = responseBodyObj['ShipmentResponse']['ShipmentResults']['PackageResults'];
+							var packageResults = responseBodyObj.packages;
 							
 							//If we have an array of packages
 							//
@@ -171,47 +192,43 @@ function(encode, format, encode, https, record, runtime, search, xml, BBSObjects
 										{
 											//Get the tracking number, label image and label type
 											//
-											var trackingNumber 	= packageResults[i].TrackingNumber;
-											var labelImage		= packageResults[i].ShippingLabel.GraphicImage;
-											var labelType		= 'txt';
+											var trackingNumber = packageResults[i].trackingNumber;
+											
+											//If this is the first label
+											//
+											if (i == 0)
+												{
+													//Get the label from the documents array
+													//
+													var labelImage 	= responseBodyObj.documents[0].content;
+													var labelType	= 'txt';
 													
-											// convert the label image to UTF-8 format
-											labelImage = encode.convert({
-												string: labelImage,
-												inputEncoding: encode.Encoding.BASE_64,
-												outputEncoding: encode.Encoding.UTF_8
-											});
+													// convert the label image to UTF-8 format
+													labelImage = encode.convert({
+														string: labelImage,
+														inputEncoding: encode.Encoding.BASE_64,
+														outputEncoding: encode.Encoding.UTF_8
+													});
+												}
+											else
+												{
+													//Set the label image and type to null
+													//
+													var labelImage 	= '';
+													var labelType	= '';
+												}
 												
 											//Add packages to processShipmentResponse
 											//
-											processShipmentResponse.addPackage(0, trackingNumber, labelImage, labelType);
+											processShipmentResponse.addPackage(i, trackingNumber, labelImage, labelType);
 										}
-								}
-							else //We just have the one package returned
-								{
-									//Get the tracking number, label image and label type
-									//
-									var trackingNumber 	= packageResults.TrackingNumber;
-									var labelImage		= packageResults.ShippingLabel.GraphicImage;
-									var labelType		= 'txt';
-											
-									// convert the label image to UTF-8 format
-									labelImage = encode.convert({
-										string: labelImage,
-										inputEncoding: encode.Encoding.BASE_64,
-										outputEncoding: encode.Encoding.UTF_8
-									});
-											
-									//Add packages to processShipmentResponse
-									//
-									processShipmentResponse.addPackage(0, trackingNumber, labelImage, labelType);										
 								}
 						}
 					else
 						{
 							//Get the error message
 							//
-							var message = responseBodyObj.response.errors[0].message;
+							var message = responseBodyObj.detail;
 							
 							//Convert the UPS response object to the standard process shipments response object
 							//
@@ -220,7 +237,7 @@ function(encode, format, encode, https, record, runtime, search, xml, BBSObjects
 					
 					//Return the response
 					//
-					return processShipmentResponse;*/
+					return processShipmentResponse;
 					
 				}
 			catch(e)
@@ -242,50 +259,85 @@ function(encode, format, encode, https, record, runtime, search, xml, BBSObjects
 	
 	function _shipmentRequest()
 		{
-			this.pickupAccount 	= '';
-			this.dropoffType 	= '';
+			this.plannedShippingDateAndTime 									= '';
 			
-			this.senderAddress 				= {};
-			this.senderAddress.companyName 	= '';
-			this.senderAddress.address1		= '';
-			this.senderAddress.address2		= '';
-			this.senderAddress.city			= '';
-			this.senderAddress.state 		= '';
-			this.senderAddress.postalCode 	= '';
-			this.senderAddress.country 		= '';
-			this.senderAddress.phone 		= '';
-			this.senderAddress.email 		= '';
+			this.pickup 														= {};
+			this.pickup.isRequested 											= '';
 			
-			this.shipments = [];
+			this.productCode													= '';
+			
+			this.accounts														= [];
+			
+			this.customerDetails												= {};
+			
+			this.customerDetails.shipperDetails 								= {};
+			this.customerDetails.shipperDetails.postalAddress					= {};
+			this.customerDetails.shipperDetails.postalAddress.addressLine1		= '';
+			//this.customerDetails.shipperDetails.postalAddress.addressLine2	= '';
+			this.customerDetails.shipperDetails.postalAddress.cityName			= '';
+			this.customerDetails.shipperDetails.postalAddress.postalCode		= '';
+			this.customerDetails.shipperDetails.postalAddress.countryCode		= '';
+			this.customerDetails.shipperDetails.contactInformation				= {};
+			this.customerDetails.shipperDetails.contactInformation.companyName	= '';
+			this.customerDetails.shipperDetails.contactInformation.fullName		= '';
+			//this.customerDetails.shipperDetails.contactInformation.email		= '';
+			this.customerDetails.shipperDetails.contactInformation.phone		= '';
+			
+			this.customerDetails.receiverDetails 								= {};
+			this.customerDetails.receiverDetails.postalAddress					= {};
+			this.customerDetails.receiverDetails.postalAddress.addressLine1		= '';
+			//this.customerDetails.receiverDetails.postalAddress.addressLine2	= '';
+			this.customerDetails.receiverDetails.postalAddress.cityName			= '';
+			this.customerDetails.receiverDetails.postalAddress.postalCode		= '';
+			this.customerDetails.receiverDetails.postalAddress.countryCode		= '';
+			this.customerDetails.receiverDetails.contactInformation				= {};
+			this.customerDetails.receiverDetails.contactInformation.companyName	= '';
+			this.customerDetails.receiverDetails.contactInformation.fullName	= '';
+			//this.customerDetails.receiverDetails.contactInformation.email		= '';
+			this.customerDetails.receiverDetails.contactInformation.phone		= '';
+			
+			this.customerReferences												= [];
+			
+			this.outputImageProperties											= {};
+			this.outputImageProperties.encodingFormat							= '';
+			this.outputImageProperties.imageOptions								= [];
+			
+			this.content														= {};
+			this.content.unitOfMeasurement										= '';
+			this.content.isCustomsDeclarable									= '';
+			this.content.incoterm												= '';
+			this.content.description											= '';
+			this.content.packages												= [];
 		}
 	
-	function _dhlShipmentObj()
+	function _dhlAccountObj(_accountNumber, _accountType)
 		{
-			this.consigneeAddress 				= {};
-			this.consigneeAddress.companyName	= '';
-			this.consigneeAddress.address1 		= '';
-			this.consigneeAddress.address2 		= '';
-			this.consigneeAddress.city 			= '';
-			this.consigneeAddress.state 		= '';
-			this.consigneeAddress.postalCode 	= '';
-			this.consigneeAddress.country		= '';
-			this.consigneeAddress.phone 		= '';
-			this.consigneeAddress.email 		= '';
-			
-			this.shipmentDetails 					= {};
-			this.shipmentDetails.customerRef1		= '';
-			this.shipmentDetails.totalPieces		= '';
-			this.shipmentDetails.totalWeight		= '';
-			this.shipmentDetails.carriageForward	= '';
-			
-			this.pieces = [];
+			this.number 	= _accountNumber;
+			this.typeCode	= _accountType;
 		}
 	
-	function _dhlPackageObj(_packageWeight)
+	function _dhlReferenceObj(_reference)
 		{
-			this.weight = _packageWeight;			
+			this.value	= _reference;
 		}
 	
+	function _dhlImageOptionsObj(_typeCode, _templateName)
+		{
+			this.typeCode 		= _typeCode;
+			this.templateName 	= _templateName;
+		}
+	
+	function _dhlPackageObj()
+		{
+			this.customerReferences	= [];
+			
+			this.weight				= '';
+			
+			this.dimensions			= {};
+			this.dimensions.length	= '';
+			this.dimensions.width	= '';
+			this.dimensions.height	= '';		
+		}
 
 	//=========================================================================
 	//Return functions that are available in this module 

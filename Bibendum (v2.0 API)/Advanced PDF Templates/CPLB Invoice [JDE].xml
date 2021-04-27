@@ -7,6 +7,12 @@
 
             </macro>
             <macro id="nlfooter">
+            	<p style="font-size: 11px;margin:0;padding:0;color:#000000; font-weight:600">To pay your account via bank transfer, please quote your account number as part of the payment reference.</p>
+                <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Bank Account:  Barclay's Bank</p>
+                <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Sort Code: 20-00-00</p>
+                <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">Account Number: 60461296</p>
+                <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">BIC: BARCGB22</p>
+                <p style="font-size: 12px;margin:0;padding:0;color:#000000; font-weight:600">IBAN: GB76BARC20000060461296</p>
             	<p style="font-size: 10px;margin:10px 0 0 0;padding:0;color:#000000; font-weight:300">All transactions are subject to the terms and conditions set out overleaf.</p>
                	<#if record.custbody_bbs_jdecompany == 'Bibendum'>
                		<p style="font-size: 10px;margin:10px 0 0 0;padding:0;color:#000000; font-weight:300">Bibendum Wine is a trading division of Matthew Clark Bibendum Limited. Matthew Clark Bibendum Limited is registered in England and Wales with company number 2550982, with its registered office at Whitchurch Lane, Bristol BS14 0JZ.</p>

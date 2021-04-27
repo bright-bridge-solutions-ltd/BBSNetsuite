@@ -11,7 +11,7 @@
       		<table style="width: 100%; font-size: 10pt;">
       			<tr>
       				<td colspan="4"><span style="font-size: 16pt; font-weight: bold;">STATEMENT OF ACCOUNT</span></td>
-      				<td colspan="4" rowspan="5"><p align="center"><img src="${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_logo@url}" style="float: center; width:100px; height:50px;"/><br/><br/>${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_legal_name}<br/>${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_address_1}<br/>${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_address_2}, ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_address_3}<br/>${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_city}, ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_county}, ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_postcode}<br/>Tel: ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_telephone}<#if customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_fax?has_content> Fax: ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_fax}</#if><br/>Email: ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_finance_email}<br/>${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_website}</p></td>
+      				<td colspan="4" rowspan="5"><p align="center"><img src="${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_logo@url}" style="float: center; width:150px; height:75px;"/><br/><br/>${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_legal_name}<br/>${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_address_1}, ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_address_2}, ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_address_3}<br/>${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_city}, ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_county}, ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_postcode}<br/>Tel: ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_telephone}<#if customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_fax?has_content> Fax: ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_fax}</#if><br/>Email: ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_finance_email}<br/>${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_website}</p></td>
       			</tr>
       			<tr>
       				<td colspan="2" style="border-left: 1px solid black; border-top: 1px solid black;"><b>Statement Date</b></td>
@@ -79,7 +79,7 @@
 		}
 </style>
 </head>
-<body header="nlheader" header-height="160pt" footer="nlfooter" footer-height="40pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="165pt" footer="nlfooter" footer-height="40pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
     
     <table style="width: 100%; margin-bottom: 5px;">
     	<tr>
