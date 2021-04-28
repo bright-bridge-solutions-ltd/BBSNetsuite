@@ -51,6 +51,10 @@ function bin2binTransferAS(type)
 							//
 							var invDetailLineCount = lineInvDetail.getLineItemCount('inventoryassignment');
 							
+							//Get the unit from the inventory detail record
+							//
+							var invDetailUnit = lineInvDetail.getFieldValue('unit');
+							
 							//Loop through the lines in the inventorydetail subrecord
 							//
 							for (var detailLineNo = 1; detailLineNo <= invDetailLineCount; detailLineNo++) 
@@ -104,6 +108,7 @@ function bin2binTransferAS(type)
 															
 															stockAdjustRecord.setCurrentLineItemValue('inventory', 'item', lineItem);				//Set the item
 															stockAdjustRecord.setCurrentLineItemValue('inventory', 'location', b2bLocation);		//Set the location
+															stockAdjustRecord.setCurrentLineItemValue('inventory', 'units', invDetailUnit);			//Set the units
 															stockAdjustRecord.setCurrentLineItemValue('inventory', 'adjustqtyby', adjustQuantity);	//Set the quantity
 															
 															//Add the inventorydetail subrecord

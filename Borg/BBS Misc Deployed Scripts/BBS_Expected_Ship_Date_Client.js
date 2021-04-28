@@ -94,11 +94,11 @@ function clientValidateLineESD(type) {
 		if (productRecord != null) {
 
 			var itemType = productRecord.getFieldValue('custitem1');
-			var specialCustomer = productRecord.getFieldValue('custitem_bbs_special_customer');
+			var specialCustomer = productRecord.getFieldValues('custitem_bbs_special_customer');
 
 			//Only check if item type is 'Special'
 			//
-			if (itemType != null && itemType != '' && itemType == '3') {
+			if (itemType != null && itemType != '' && itemType == '13') {
 
 				//Go and get the customer record to see if there is a parent
 				//
@@ -114,7 +114,8 @@ function clientValidateLineESD(type) {
 					//
 					if (specialCustomer != null && specialCustomer != '') {
 
-						if (orderCustomer != specialCustomer && specialCustomer != parentCustomer) {
+					//	if (orderCustomer != specialCustomer && specialCustomer != parentCustomer) {
+						if (specialCustomer.indexOf(orderCustomer) == -1 && specialCustomer.indexOf(parentCustomer) == -1 ) {
 
 							alert('Special product is not assigned to the customer or its parent');
 

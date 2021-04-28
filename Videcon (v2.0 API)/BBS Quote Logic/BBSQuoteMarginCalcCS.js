@@ -85,7 +85,7 @@ function(search) {
     				
     				var newLineCost 		= lineCost * quantity;
     				
-    				var lineMargin 		= amount - lineCost;
+    				var lineMargin 		= amount - newLineCost;
     				var lineMarginPc	= Number(((lineMargin / (amount == 0 ? 0.01 : amount)) * 100.00).toFixed(2));
     				
     				scriptContext.currentRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_line_cost_net',     value: newLineCost, ignoreFieldChange: true});

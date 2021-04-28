@@ -13,7 +13,7 @@
  * @param {String} type Sublist internal id
  * @returns {Boolean} True to save line item, false to abort save
  */
-function clientValidateLine(type) {
+function clientValidateLineESD(type) {
 
 	var returnStatus = true;
 
@@ -93,35 +93,37 @@ function clientValidateLine(type) {
 		//
 		if (productRecord != null) {
 
-			var itemType = productRecord.getFieldValue('custitem_bbs_item_type');
+			var itemType = productRecord.getFieldValue('custitem1');
 			var specialCustomer = productRecord.getFieldValue('custitem_bbs_special_customer');
 
 			//Only check if item type is 'Special'
 			//
-			if (itemType != null && itemType != '' && itemType == '2') {
+			if (itemType != null && itemType != '' && itemType == '13') {
 
 				//Go and get the customer record to see if there is a parent
 				//
-				var customerRecord = nlapiLoadRecord('customer', orderCustomer);
-				var parentCustomer = customerRecord.getFieldValue('parent');
+				if (orderCustomer != null && orderCustomer != '') {
 
-				specialCustomer = specialCustomer == null ? '' : specialCustomer;
-				parentCustomer = parentCustomer == null ? '' : parentCustomer
+					var customerRecord = nlapiLoadRecord('customer', orderCustomer);
+					var parentCustomer = customerRecord.getFieldValue('parent');
 
-				//Is the special customer on the item the same as the order customer
-				//
-				if (specialCustomer != null && specialCustomer != '') {
+					specialCustomer = specialCustomer == null ? '' : specialCustomer;
+					parentCustomer = parentCustomer == null ? '' : parentCustomer
 
-					if (orderCustomer != specialCustomer && specialCustomer != parentCustomer) {
+					//Is the special customer on the item the same as the order customer
+					//
+					if (specialCustomer != null && specialCustomer != '') {
 
-						alert('Special product is not assigned to the customer or its parent');
+						if (orderCustomer != specialCustomer && specialCustomer != parentCustomer) {
 
-						returnStatus = false;
+							alert('Special product is not assigned to the customer or its parent');
+
+							returnStatus = false;
+						}
 					}
 				}
 			}
 		}
-
 	}
 
 	return returnStatus;
