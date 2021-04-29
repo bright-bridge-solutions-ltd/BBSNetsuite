@@ -39,10 +39,10 @@ function(runtime, search) {
     			// SHOW REJECT BUTTON BASED UPON DEFINED CONDITION
     			// ===============================================
     			
-    			if ((approvalStatus == 2 && (userRole == 1013 || userRole == 3)) || (approvalStatus == 3 && (userRole == 1008 || userRole == 3)) || (approvalStatus == 4 && (isCreditController == true || userRole == 3)) || (approvalStatus == 5 && (userRole == 1011 || userRole == 3)))
+    			if ((approvalStatus == 2 && (userRole == 1021 || userRole == 3)) || (approvalStatus == 3 && (userRole == 1008 || userRole == 3)) || (approvalStatus == 4 && (isCreditController == true || userRole == 3)) || (approvalStatus == 5 && (userRole == 1011 || userRole == 3)))
     				{
     					// set a client script to run on the form
-    					scriptContext.form.clientScriptFileId = 108980;
+    					scriptContext.form.clientScriptFileId = 285829;
     					
     					// add a button to the form and call client script when the button is clicked
     					scriptContext.form.addButton({

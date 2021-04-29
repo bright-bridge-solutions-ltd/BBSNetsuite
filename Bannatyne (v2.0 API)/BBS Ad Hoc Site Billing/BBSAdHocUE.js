@@ -134,14 +134,14 @@ function(config, runtime, record, format, search) {
     						fieldId: 'custrecord_bbs_ad_hoc_site_customer'
     					});
     				
-    					// check if the customerID variable is null
-    					if (customerID == '')
+    					// if we do not have a customer
+    					if (!customerID)
     						{
     							// call function to check if we have an existing customer. Pass newRecord object
 								customerID = findCustomer(newRecord);
 								
 								// if we have not found an existing customer
-								if (customerID == '')
+								if (!customerID)
 									{
 										// call function to create a customer record. Pass newRecord object and currentRecordID. ID of created customer will be returned
         								customerID = createCustomer(newRecord, currentRecordID);	
@@ -735,7 +735,7 @@ function(config, runtime, record, format, search) {
 	    				value: bankAccountSortCode
 	    			});
 	    			
-	    			bankdetailsRecord.setValue({
+	    			bankDetailsRecord.setValue({
 	    				fieldId: 'custrecord_2663_entity_payment_desc',
 	    				value: 'Bannatyne ' + adHocReference
 	    			});

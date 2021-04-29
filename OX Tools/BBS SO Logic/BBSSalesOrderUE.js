@@ -46,95 +46,22 @@ function(runtime, record, search) {
     	// check the record is being created
     	if (scriptContext.type == scriptContext.UserEventType.CREATE)
     		{
-    			// call function to retrieve script parameters
-    			var scriptParameters = getScriptParameters();
-    		
-    			// get the current record
-    			var currentRecord 	= scriptContext.newRecord;
-    			var recordID		= currentRecord.id;
+    			// run the backorder process function
+    			runBackOrderProcess(scriptContext.newRecord.id);    					
+    		}
+    	else if (scriptContext.type == scriptContext.UserEventType.EDIT)
+    		{
+    			// get the value of the run backorder process checkbox
+    			var runBOProcess = scriptContext.newRecord.getValue({
+    				fieldId: 'custbody_bbs_run_backorder_process'
+    			});
     			
-    			try
+    			// if the run backorder process checkbox is checked
+    			if (runBOProcess == true)
     				{
-    					// reload the sales order
-    					var salesOrder = record.load({
-    						type: record.Type.SALES_ORDER,
-    						id: recordID,
-    						isDynamic: true
-    					});
-    					
-    					// get the subsidiary from the sales order record
-    	    			var subsidiaryID = salesOrder.getValue({
-    	    				fieldId: 'subsidiary'
-    	    			});
-    	    			
-    	    			// if the subsidiary is 12 (Ox Tools UK)
-    	    			if (subsidiaryID == 12)
-    	    				{
-    	    					// get the customer ID
-    	    					var customerID = salesOrder.getValue({
-    	    	    				fieldId: 'entity'
-    	    	    			});
-    	    					
-    	    					// call function to return the customer's backorder requirement
-    	    					var backOrderRequirement = getBackorderRequirement(customerID);
-    	    					
-    	    					switch(backOrderRequirement) {
-    	    					
-    	    						case '1':	// Ox Policy
-    	    							
-	    	    							// call function to get the latest due date
-	    	    	    					var latestDueDate = getLatestDueDate(salesOrder);
-	    	    	    					
-	    	    	    					// call function to set all outstanding lines to the latest due date
-	    	    	    					salesOrder = updateDueDates(salesOrder, latestDueDate);
-    	    							
-    	    								// get the date 30 days in the future
-    	    								var thirtyDaysAhead = new Date();
-    	    									thirtyDaysAhead = new Date(thirtyDaysAhead.getFullYear(), thirtyDaysAhead.getMonth(), thirtyDaysAhead.getDate()+30);
-    	    							
-    	    								// is the latestDueDate more than 30 days ahead
-    	    								if (latestDueDate.getTime() > thirtyDaysAhead.getTime())
-    	    									{
-    	    										// call function to get the total of remaining lines
-    	    										var totalRemaining = getTotalRemaining(salesOrder);
-    	    										
-    	    										// if the total remaining is over the specified amount
-    	    										if (totalRemaining < scriptParameters.closeRemainingLinesAmt)
-    	    											{
-    	    												// call function to close all remaining lines on the sales order
-    	    												salesOrder = closeAllRemainingLines(salesOrder);
-    	    											}
-    	    									}
-    	    								
-    	    								// save the changes to the sales order
-    	    								salesOrder.save({
-    	    									ignoreMandatoryFields: true
-    	    								});
-    	    							
-    	    								break;
-    	    								
-    	    						case '3':	// All Back Orders
-    	    							
-	    	    							// call function to get the latest due date
-	    	    	    					var latestDueDate = getLatestDueDate(salesOrder);
-	    	    	    					
-	    	    	    					// call function to set all outstanding lines to the latest due date
-	    	    	    					salesOrder = updateDueDates(salesOrder, latestDueDate);
-    	    							
-	    	    							// save the changes to the sales order
-		    								salesOrder.save({
-		    									ignoreMandatoryFields: true
-		    								});
-    	    							
-    	    								break;
-    	    					}
-    	    				
-    	    				}
+    					// run the backorder process function
+        				runBackOrderProcess(scriptContext.newRecord.id); 
     				}
-    			catch(e)
-    				{
-    					
-    				}    			
     		}
 
     }
@@ -156,6 +83,112 @@ function(runtime, record, search) {
     	return {
     		closeRemainingLinesAmt:	closeRemainingLinesAmt
     	}
+    	
+    }
+    
+    function runBackOrderProcess(recordID) {
+    	
+    	// call function to retrieve script parameters
+		var scriptParameters = getScriptParameters();
+    	
+    	try
+			{
+				// reload the sales order
+				var salesOrder = record.load({
+					type: record.Type.SALES_ORDER,
+					id: recordID,
+					isDynamic: true
+				});
+				
+				// get the subsidiary from the sales order record
+				var subsidiaryID = salesOrder.getValue({
+					fieldId: 'subsidiary'
+				});
+				
+				// if the subsidiary is 12 (Ox Tools UK)
+				if (subsidiaryID == 12)
+					{
+						// get the customer ID
+						var customerID = salesOrder.getValue({
+		    				fieldId: 'entity'
+		    			});
+						
+						// get the backorder requirement
+						var backOrderRequirement = salesOrder.getValue({
+							fieldId: 'custbody_bbs_cust_backorder_req'
+						});
+						
+						switch(backOrderRequirement) {
+						
+							case '1':	// Ox Policy
+								
+	    							// call function to get the latest due date
+	    	    					var latestDueDate = getLatestDueDate(salesOrder);
+	    	    					
+	    	    					// call function to set all outstanding lines to the latest due date
+	    	    					salesOrder = updateDueDates(salesOrder, latestDueDate);
+								
+									// get the date 30 days in the future
+									var thirtyDaysAhead = new Date();
+										thirtyDaysAhead = new Date(thirtyDaysAhead.getFullYear(), thirtyDaysAhead.getMonth(), thirtyDaysAhead.getDate()+30);
+								
+									// is the latestDueDate more than 30 days ahead
+									if (latestDueDate.getTime() > thirtyDaysAhead.getTime())
+										{
+											// call function to get the total of remaining lines
+											var totalRemaining = getTotalRemaining(salesOrder);
+											
+											// if the total remaining is over the specified amount
+											if (totalRemaining < scriptParameters.closeRemainingLinesAmt)
+												{
+													// call function to close all remaining lines on the sales order
+													salesOrder = closeAllRemainingLines(salesOrder);
+												}
+										}
+									
+									// save the changes to the sales order
+									salesOrder.save({
+										ignoreMandatoryFields: true
+									});
+								
+									break;
+									
+							case '2':	// No Back Orders
+								
+									// call function to close all remaining lines on the sales order
+									salesOrder = closeAllRemainingLines(salesOrder);
+									
+									// save the changes to the sales order
+									salesOrder.save({
+										ignoreMandatoryFields: true
+									});
+								
+									break;
+									
+							case '3':	// All Back Orders
+								
+	    							// call function to get the latest due date
+	    	    					var latestDueDate = getLatestDueDate(salesOrder);
+	    	    					
+	    	    					// call function to set all outstanding lines to the latest due date
+	    	    					salesOrder = updateDueDates(salesOrder, latestDueDate);
+								
+	    							// save the changes to the sales order
+									salesOrder.save({
+										ignoreMandatoryFields: true
+									});
+								
+									break;
+						}
+					}
+			}
+		catch(e)
+			{
+				log.error({
+					title: 'Error Updating Sales Order ' + recordID,
+					details: e.message
+				});
+			}
     	
     }
     

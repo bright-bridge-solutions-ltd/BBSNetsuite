@@ -138,7 +138,7 @@
             }
         </style>
     </head>
-    <body footer="nlfooter" footer-height="80pt" padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
+    <body footer="nlfooter" footer-height="80pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
         <table id="header-table">
             <tr class="heade-row">
                 <td>
@@ -149,11 +149,11 @@
                             <td class="left-side">
                                 <p class="logo">
                                     <#if record.custbody_bbs_jdecompany == 'Bibendum'>
-                                    	<img src="https://3824313-sb1.app.netsuite.com/core/media/media.nl?id=323944&amp;c=3824313_SB1&amp;h=S0Hgbhq_RfkcLWrUYFLSjrQi3yZMkOPgQKhxHVwdIgPxW3WO" style="font-size: 13.3333px; float: left; margin-right: 0px; margin-left: 0px; width: 150px; height: 90px; background-color: rgb(255, 255, 255);"/>
+                                    	<img src="https://3824313.app.netsuite.com/core/media/media.nl?id=378879&amp;c=3824313&amp;h=ZV5bgQT9uqWvb_0Rs7Haqnof8r8EikQjwJg_Iq_-4p_6CyOV" style="font-size: 13.3333px; float: left; margin-right: 0px; margin-left: 0px; width: 150px; height: 90px; background-color: rgb(255, 255, 255);"/>
                                     <#elseif record.custbody_bbs_jdecompany == 'Matthew Clark'>
-										<img src="https://3824313-sb1.app.netsuite.com/core/media/media.nl?id=323945&amp;c=3824313_SB1&amp;h=xZygp2I44vkhSotJt6gmNTWPdnOtOJ2fhD-RPcAAhHG80Iwf" style="font-size: 13.3333px; float: left; margin-right: 0px; margin-left: 0px; width: 200px; height: 90px; background-color: rgb(255, 255, 255);"/>
+										<img src="https://3824313.app.netsuite.com/core/media/media.nl?id=378881&amp;c=3824313&amp;h=7Gfbe-Ok1iIyomzW1qHBuBRKeJgDYShlGMaGEQdZcHFKv5Vl" style="font-size: 13.3333px; float: left; margin-right: 0px; margin-left: 0px; width: 200px; height: 90px; background-color: rgb(255, 255, 255);"/>
                                     <#elseif record.custbody_bbs_jdecompany == 'Walker &amp; Wodehouse'>
-                                    	<img src="https://3824313-sb1.app.netsuite.com/core/media/media.nl?id=323946&amp;c=3824313_SB1&amp;h=72iBZWPuhLKJ3gsylcDCpx7BJcAuXFzvPb6C70MK0uf7n22Q" style="font-size: 13.3333px; float: left; margin-right: 0px; margin-left: 0px; width: 200px; height: 90px; background-color: rgb(255, 255, 255);"/>
+                                    	<img src="https://3824313.app.netsuite.com/core/media/media.nl?id=378880&amp;c=3824313&amp;h=ezxeR1tCP-QuABd0rDMVQRXekw4rmNlT0Qk-27MCFuZi-JAJ" style="font-size: 13.3333px; float: left; margin-right: 0px; margin-left: 0px; width: 200px; height: 90px; background-color: rgb(255, 255, 255);"/>
                                     </#if>
                                 </p>
                                 <!-- This is for the address -->
@@ -348,10 +348,9 @@
         	</tr>
         </table>
         
-<pbr  header="nlheader2" footer="nlfooter2" header-height="0pt" footer-height="0%" padding="0.4in 0.1in 0.5in 0.3in" margin="-0.3in 0 0 0" size="Letter"/>
+<pbr  header="nlheader2" footer="nlfooter2" header-height="0pt" footer-height="0%" padding="0.5in 0.5in 0.5in 0.5in" margin="-0.3in 0 0 0" size="A4"/>
 <div style="width:100%;">
-<img src="https://3824313.app.netsuite.com/core/media/media.nl?id=282701&amp;c=3824313&amp;h=d37e94eb9afce74dfe43&amp;amp;amp;whence=" dpi="315" >
- </img>
+<img src="https://3824313.app.netsuite.com/core/media/media.nl?id=378882&amp;c=3824313&amp;h=rbRspDWOwmwBG15hQmbiKfWNfp70wIZwZY_hCmTDe98uBQGG"></img>
  </div>
     </body>
 </pdf>
