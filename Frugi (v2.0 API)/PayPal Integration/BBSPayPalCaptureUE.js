@@ -70,7 +70,11 @@ function(https, record, search, plugin)
 			   						//Get the NS transaction id of the cash sale
 			   						//
 			   						var cashSaleTransactionId = newRecord.getValue({fieldId: 'tranid'});
-			    						
+			    					
+			   						//Get the value of the cash sale
+			   						//
+			   						var cashSaleValue = Number(newRecord.getValue({fieldId: 'total'})).toFixed(2);
+			    					
 			   						if(createdFrom != null && createdFrom != '')
 			   							{
 			   								//Read the value of the paypal transaction id from the 'created from' transaction (sales order)
@@ -114,7 +118,7 @@ function(https, record, search, plugin)
 			    														
 			   														//Returned ok?
 			   														//
-			   														if(paypalReauthorisationDetailsObj.httpResponseCode == '200')
+			   														if(paypalReauthorisationDetailsObj.httpResponseCode == '201')
 			   															{
 			   																//Get the new transaction id from the re-authorise request, if the request was ok
 			   																//
@@ -135,13 +139,17 @@ function(https, record, search, plugin)
 			   												//
 			   												if(authorisationStatus == 'CREATED')
 			   													{
+			   														//Override the amount to claim
+			   														//
+			   														authorisationAmount.value = cashSaleValue;
+			   														
 			   														//Capture the payment
 			   														//
 			   														paypalCaptureDetailsObj = paypalPlugin.capturePayment(paypalTransactionId, cashSaleTransactionId, authorisationAmount);
 			    														
 			   														//Returned ok?
 			   														//
-			   														if(paypalCaptureDetailsObj.httpResponseCode == '200')
+			   														if(paypalCaptureDetailsObj.httpResponseCode == '201')
 			   															{
 			   																var captureStatus 	= paypalCaptureDetailsObj.apiResponse.status;
 			   																var captureId		= paypalCaptureDetailsObj.apiResponse.id;
@@ -156,7 +164,7 @@ function(https, record, search, plugin)
 																						{
 																							var fieldValues 					= {};
 																							fieldValues[paypalTransactionField] = captureId;
-																							fieldValues[paypalMessageField] 	= '';
+																							fieldValues[paypalMessageField] 	= captureStatus;
 																								
 																							record.submitFields({
 																												type:					recordType,
@@ -178,7 +186,7 @@ function(https, record, search, plugin)
 							    													try
 																						{
 																							var fieldValues = {};
-																							fieldValues[paypalMessageField] = JSON.stringify(paypalCaptureDetailsObj.apiResponse);
+																							fieldValues[paypalMessageField] = JSON.stringify(paypalCaptureDetailsObj);
 																								
 																							record.submitFields({
 																												type:					recordType,
@@ -202,7 +210,7 @@ function(https, record, search, plugin)
 			    															try
 			    																{
 			    																	var fieldValues = {};
-			    																	fieldValues[paypalMessageField] = paypalCaptureDetailsObj.responseMessage;
+			    																	fieldValues[paypalMessageField] = JSON.stringify(paypalCaptureDetailsObj);
 			    																		
 			    																	record.submitFields({
 			    																						type:					recordType,
@@ -225,7 +233,7 @@ function(https, record, search, plugin)
 				    												try
 																		{
 																			var fieldValues = {};
-																			fieldValues[paypalMessageField] = JSON.stringify(paypalAuthorisationDetailsObj.apiResponse);
+																			fieldValues[paypalMessageField] = JSON.stringify(paypalAuthorisationDetailsObj);
 																			
 																			record.submitFields({
 																								type:					recordType,
@@ -248,7 +256,7 @@ function(https, record, search, plugin)
 				    										try
 																{
 																	var fieldValues = {};
-																	fieldValues[paypalMessageField] = paypalAuthorisationDetailsObj.responseMessage;
+																	fieldValues[paypalMessageField] = JSON.stringify(paypalAuthorisationDetailsObj);
 																		
 																	record.submitFields({
 																						type:					recordType,

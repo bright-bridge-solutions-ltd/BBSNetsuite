@@ -168,6 +168,7 @@ function(file, record, search, http, xml, format, runtime)
 								        			var customerEmail 			= isNull(locationRecord.getValue({fieldId: 'custrecord_bbs_location_email'}),'');
 						        					var customerPhone 			= isNull(locationRecord.getValue({fieldId: 'custrecord_bbs_location_phone'}),'');
 								        			var customerMobile 			= isNull(locationRecord.getValue({fieldId: 'custrecord_bbs_location_phone'}),'');
+								        			var customerEORI			= '';
 								        			
 								        			var customerNumber			= isNull(fulfilmentRecord.getText({fieldId: 'transferlocation'}),'');						        				
 						        					var salesOrderChannel 		= 'Transfer';
@@ -199,6 +200,7 @@ function(file, record, search, http, xml, format, runtime)
 								        			var customerPhone 			= isNull(customerRecord.getValue({fieldId: 'phone'}),'');
 								        			var customerMobile 			= isNull(customerRecord.getValue({fieldId: 'mobilephone'}),'');
 								        			var customerNumber			= isNull(customerRecord.getValue({fieldId: 'entityid'}),'');
+								        			var customerEORI			= isNull(customerRecord.getValue({fieldId: 'custentity_bbs_eori'}),'');
 								        			
 								        			customerFullName 			= (customerFullName != '' ? customerFullName : customerCompanyName);
 						        				
@@ -487,6 +489,12 @@ function(file, record, search, http, xml, format, runtime)
 					        					{
 					        						// add the Attribute6 tag
 					        						xmlString += '<Attribute6>' + xml.escape({xmlText: subsidiaryDetails}) + '</Attribute6>\n';
+					        					}
+					        				
+					        				if(customerEORI != null && customerEORI != '')
+					        					{
+						        					// add the Attribute7 tag
+					        						xmlString += '<Attribute7>' + xml.escape({xmlText: customerEORI}) + '</Attribute7>\n';
 					        					}
 					        				
 					        				//Other sundry tags

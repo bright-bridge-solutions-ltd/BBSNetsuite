@@ -71,6 +71,10 @@ function(https, record, search, plugin)
 			   						//
 			   						var refundTransactionId = newRecord.getValue({fieldId: 'tranid'});
 			    						
+			   						//Get the value of the cash refund
+			   						//
+			   						var refundValue = Number(newRecord.getValue({fieldId: 'total'})).toFixed(2);
+			    					
 			   						if(createdFrom != null && createdFrom != '')
 			   							{
 			   								//Read the value of the paypal transaction id from the 'created from' transaction (cash sale)
@@ -97,18 +101,20 @@ function(https, record, search, plugin)
 			   										//
 			   										if(paypalCaptureDetailsObj.httpResponseCode == '200')
 					    								{
-					    									var capturedAmountCurrency = paypalCaptureDetailsObj.apiResponse.amount.currency;
-					    									
+				   											var capturedAmountCurrency 	= paypalCaptureDetailsObj.apiResponse.amount.currency_code;
+				   											var capturedAmountValue 	= paypalCaptureDetailsObj.apiResponse.amount.value;
+				    									
 					    									refundAmount.currency_code	= capturedAmountCurrency;
-					    									refundAmount.value			= '';
+					    							//		refundAmount.value			= capturedAmountValue;
+					    									refundAmount.value			= refundValue;
 					    									
 					   										//Refund the payment
 					   										//
-					   										paypalRefundDetailsObj = paypalPlugin.capturePayment(paypalTransactionId, refundTransactionId, refundAmount);
+					   										paypalRefundDetailsObj = paypalPlugin.refundPayment(paypalTransactionId, refundTransactionId, refundAmount);
 					    														
 					   										//Returned ok?
 					   										//
-					   										if(paypalRefundDetailsObj.httpResponseCode == '200')
+					   										if(paypalRefundDetailsObj.httpResponseCode == '201')
 					   											{
 					   												var refundStatus 	= paypalRefundDetailsObj.apiResponse.status;
 					   												var refundId		= paypalRefundDetailsObj.apiResponse.id;
@@ -123,7 +129,7 @@ function(https, record, search, plugin)
 																				{
 																					var fieldValues 					= {};
 																					fieldValues[paypalTransactionField] = refundId;
-																					fieldValues[paypalMessageField] 	= '';
+																					fieldValues[paypalMessageField] 	= refundStatus;
 																										
 																					record.submitFields({
 																										type:					recordType,
@@ -161,6 +167,28 @@ function(https, record, search, plugin)
 																				}
 					   													}			
 					   											}
+					   										else
+					   											{
+						   											//Need to log an error as the get of the capture details failed
+			   														//
+							    									try
+																		{
+																			var fieldValues 				= {};
+																			fieldValues[paypalMessageField] = JSON.stringify(paypalRefundDetailsObj);
+																								
+																			record.submitFields({
+																								type:					recordType,
+																								id:						recordId,
+																								values:					fieldValues,
+																								enableSourcing:			false,
+																								ignoreMandatoryFields:	true			
+																								});
+																		}
+																	catch(err)
+																		{
+																			log.error({title: "Error updating cash refund id = " + recordId, details: err});
+																		}
+					   											}
 					   									}
 			   										else
 			   											{
@@ -169,7 +197,7 @@ function(https, record, search, plugin)
 					    									try
 																{
 																	var fieldValues 				= {};
-																	fieldValues[paypalMessageField] = JSON.stringify(paypalCaptureDetailsObj.apiResponse);
+																	fieldValues[paypalMessageField] = JSON.stringify(paypalCaptureDetailsObj);
 																						
 																	record.submitFields({
 																						type:					recordType,

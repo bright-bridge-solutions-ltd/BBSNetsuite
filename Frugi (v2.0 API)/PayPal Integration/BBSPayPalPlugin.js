@@ -447,7 +447,7 @@ function(email, encode, file, https, record, runtime, search)
 										
 										var bodyObj 					= {};
 										bodyObj.amount					= _amountObj;
-										bodyObj.final_capture			= true;
+										bodyObj.final_capture			= false;
 										bodyObj.invoice_id				= _nsTransactionId;
 										
 										var actualUrl = configurationObj.endpointCapturePayment.replace('{authorization_id}',_transactionId);
@@ -658,7 +658,8 @@ function(email, encode, file, https, record, runtime, search)
 											{
 												var response = https.post({	
 																			url:		actualUrl,
-																			headers:	headerObj
+																			headers:	headerObj,
+																			body:		JSON.stringify(bodyObj)
 																			});
 										
 												//Extract the http response code	
