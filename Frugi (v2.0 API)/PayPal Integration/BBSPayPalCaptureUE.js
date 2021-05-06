@@ -69,7 +69,11 @@ function(https, record, search, plugin)
 			    						
 			   						//Get the NS transaction id of the cash sale
 			   						//
-			   						var cashSaleTransactionId = newRecord.getValue({fieldId: 'tranid'});
+			   						//var cashSaleTransactionId = newRecord.getValue({fieldId: 'tranid'});
+			   						var cashSaleTransactionId = search.lookupFields({type:		recordType,
+			   																		id:			recordId,
+			   																		columns:	'tranid'
+			   																		})['tranid'];
 			    					
 			   						//Get the value of the cash sale
 			   						//
@@ -137,7 +141,7 @@ function(https, record, search, plugin)
 			    												
 			   												//Is the authorisation status ok to proceed?
 			   												//
-			   												if(authorisationStatus == 'CREATED')
+			   												if(authorisationStatus == 'CREATED' || authorisationStatus == 'PARTIALLY_CAPTURED')
 			   													{
 			   														//Override the amount to claim
 			   														//

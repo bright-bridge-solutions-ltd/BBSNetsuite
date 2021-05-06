@@ -459,7 +459,7 @@ function(email, encode, file, https, record, runtime, search)
 												var response = https.post({	
 																			url:		actualUrl,
 																			headers:	headerObj,
-																			body:		JSON.stringify(_amountObj)
+																			body:		JSON.stringify(bodyObj)
 																			});
 										
 												//Extract the http response code	

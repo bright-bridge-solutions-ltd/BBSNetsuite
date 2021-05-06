@@ -69,8 +69,12 @@ function(https, record, search, plugin)
 			    						
 			   						//Get the NS transaction id of the refund
 			   						//
-			   						var refundTransactionId = newRecord.getValue({fieldId: 'tranid'});
-			    						
+			   						//var refundTransactionId = newRecord.getValue({fieldId: 'tranid'});
+			   						var refundTransactionId = search.lookupFields({type:		recordType,
+																					id:			recordId,
+																					columns:	'tranid'
+																					})['tranid'];
+			   						
 			   						//Get the value of the cash refund
 			   						//
 			   						var refundValue = Number(newRecord.getValue({fieldId: 'total'})).toFixed(2);

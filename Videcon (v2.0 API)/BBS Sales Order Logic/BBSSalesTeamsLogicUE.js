@@ -92,6 +92,10 @@ function(runtime, record, search, file, config)
 	    				    		
 	    				    		if(recordUpdated)
 										{
+	    				    				//Also set the sales rep on the header
+	    				    				//
+	    				    				currentRecord.setValue({fieldId: 'salesrep', value: currentUser, ignoreFieldChange: false});
+	    				    				
 											try
 						    					{
 									    			currentRecord.save({
