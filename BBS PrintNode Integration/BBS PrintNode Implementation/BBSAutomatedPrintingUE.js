@@ -3,13 +3,13 @@
  * @NScriptType UserEventScript
  * @NModuleScope Public
  */
-define(['N/https', 'N/record', 'N/search', 'N/plugin', 'N/render', 'N/file', 'N/encode', 'N/runtime', 'N/url'],
+define(['N/https', 'N/record', 'N/search', 'N/plugin', 'N/render', 'N/file', 'N/encode', 'N/runtime', 'N/url', './oauth', './secret', 'N/config', 'N/xml'],
 /**
  * @param {https} https
  * @param {record} record
  * @param {search} search
  */
-function(https, record, search, plugin, render, file, encode, runtime, url) 
+function(https, record, search, plugin, render, file, encode, runtime, url, oauth, secret, config, xml) 
 {
 	
 	/**
@@ -168,6 +168,10 @@ function(https, record, search, plugin, render, file, encode, runtime, url)
 			    							//
 			    							if(pnPlugin != null)
 												{
+			    									//Do the licence check
+			    									//
+			    									doLicenceCheck();
+			    								
 			    									//
 			    									//Process the packing slip
 			    									//
@@ -267,6 +271,135 @@ function(https, record, search, plugin, render, file, encode, runtime, url)
     			}
 	    }
 
+	function doLicenceCheck()
+		{
+			var configRecord 	= null;
+			var PRODUCT_NAME	= 'PRINTNODE';	//Printnode automated printing
+			var LICENCE_MODE	= 'C';			//Count mode - no actual licence check
+			var licenceResponse	= {};
+			
+			try
+				{
+					configRecord = config.load({
+											type: config.Type.COMPANY_INFORMATION
+											});
+				}
+			catch(err)
+				{
+					configRecord = null;
+				}
+			
+			if(configRecord != null)
+				{
+					var companyId 	= configRecord.getValue({fieldId: 'companyid'});
+					var companyName = configRecord.getValue({fieldId: 'legalname'});
+	
+					var licenceCheckResponse 	= validateLicence(companyId, companyName, PRODUCT_NAME, LICENCE_MODE);
+					
+					//If the http response code is 200  the return the result of the call
+					//
+					if(licenceCheckResponse.httpResponseCode == '200')
+						{	
+							licenceResponse['status'] 	= licenceCheckResponse.apiResponse.status;
+							licenceResponse['message'] 	= licenceCheckResponse.apiResponse.message;
+							
+							return licenceResponse;
+						}
+					
+					//If the http response code is anything other than 200 we are ok
+					//This is done to prevent the licence check from working if our end point is unavailable
+					//
+					if(licenceCheckResponse.httpResponseCode != '200')
+						{
+							licenceResponse['status'] 	= 'OK';
+							licenceResponse['message'] 	= '';
+							
+							return licenceResponse;
+						}
+					
+				}
+			else
+				{
+					//Can't find the config record, so we will have to say everything is ok
+					//
+					licenceResponse['status'] 	= 'OK';
+					licenceResponse['message'] 	= '';
+					
+					return licenceResponse;
+				}
+		}
+
+	//
+	//Licence helper function
+	//
+	function validateLicence(_account, _name, _product, _mode)
+		{
+			var response		= null;
+			var responseBodyObj	= null;
+			var licenceResponse	= new licenceResponseObj();
+			var fullUrl			= secret.url + '&account=' + xml.escape({xmlText: _account}) + '&name=' + xml.escape({xmlText: _name}) + '&product=' + xml.escape({xmlText: _product}) + '&mode=' + _mode;
+			var headers 		= oauth.getHeaders({
+											        url: 			fullUrl,
+											        method: 		secret.method,
+											        tokenKey: 		secret.token.public,
+											        tokenSecret: 	secret.token.secret   
+											        });
+		
+		    headers['Content-Type'] = 'application/json';
+		
+		    try
+		    	{
+		    		response = https.get({
+										        url: 		fullUrl,
+										        headers: 	headers
+										    	});
+				    
+				    
+				    //Extract the http response code	
+					//
+				    licenceResponse.httpResponseCode = response.code;
+					
+					//Extract the http response body
+					//
+					if(response.body != null && response.body != '')
+						{
+							//Try to parse the response body into a JSON object
+							//
+							try
+								{
+									responseBodyObj = JSON.parse(response.body);
+								}
+							catch(err)
+								{
+									responseBodyObj = null;
+								}
+							
+							//Process the converted JSON object
+							//
+							if(responseBodyObj != null)
+								{
+									licenceResponse.apiResponse 		= responseBodyObj;
+								}
+						}
+				}
+			catch(err)
+				{
+					licenceResponse.responseMessage = err.message;
+				}
+
+		    return licenceResponse
+		}
+	
+	//
+	//Licence Objects
+	//
+	function licenceResponseObj()
+		{
+			this.httpResponseCode	= '';
+			this.responseMessage 	= '';
+			this.apiResponse		= {};
+		}
+	
     function pnPrintRequestObj(_printerId, _title, _contentType, _content, _source, _quantity)
 		{
 			this.printerId		= _printerId;

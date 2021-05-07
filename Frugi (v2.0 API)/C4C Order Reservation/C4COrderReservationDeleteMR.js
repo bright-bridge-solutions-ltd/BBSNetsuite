@@ -83,7 +83,7 @@ function(runtime, search, record, email)
 							
 							context.write({
 											key: 	recordID,
-											value: 'Deleted Ok'
+											value: 	'Order Reservation (Internal Id ' + recordID + ') Deleted Ok'
 											});
 			
 						}

@@ -27,8 +27,8 @@ function(runtime, record)
 	    	
 	    	if (scriptContext.type == 'create' || scriptContext.type == 'edit')
 				{
-	    			var invoiceRemaining = Number(currentRecord.getValue({fieldId: 'amountremaining'}));
-	    			var futurePaymentRun = Number(currentRecord.getValue({fieldId: 'custbody_dd_future_payments'}));
+	    			var invoiceRemaining = Math.abs(Number(currentRecord.getValue({fieldId: 'amountremaining'})));
+	    			var futurePaymentRun = Match.abs(Number(currentRecord.getValue({fieldId: 'custbody_dd_future_payments'})));
 	    			
 	    			if(invoiceRemaining > 0 && invoiceRemaining - futurePaymentRun <= 0)
 	    				{
@@ -56,7 +56,7 @@ function(runtime, record)
 	    				}
 				}
 	    	
-	    	if (scriptContext.type == 'create')
+	    /*	if (scriptContext.type == 'create')
 				{
 		    		
 			    	//Get the total value of the invoice
@@ -85,6 +85,7 @@ function(runtime, record)
 			    						});
 			    	
 				}
+				*/
 	    }
 
     return 	{

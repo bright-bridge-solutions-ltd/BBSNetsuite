@@ -534,7 +534,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												
 												//Set amount remaining to include amount on future payment runs
 												//
-												lineAmountRemaining = Number(lineAmountRemaining) - Number(lineFuturePaymentValue)
+												lineAmountRemaining = Math.abs(Number(lineAmountRemaining)) - Math.abs(Number(lineFuturePaymentValue));
 												lineAmountRemaining = lineAmountRemaining * (lineType == 'Credit Memo' ? -1.0 : 1.0);
 												
 												//

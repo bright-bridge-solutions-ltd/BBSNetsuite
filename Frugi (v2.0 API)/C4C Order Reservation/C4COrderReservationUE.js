@@ -110,9 +110,9 @@ function(record)
 				    						catch(err)
 				    							{
 				    								orderReservationId = null;
-				    								log.error({title: 'Error saving order reservation record, id = ', description: err});
+				    								log.error({title: 'Error saving order reservation record', description: err});
 				    							}
-				    						
+				    						/*
 				    						if(orderReservationId != null)
 				    							{
 					    							//Delete the dummy record
@@ -129,6 +129,7 @@ function(record)
 								    						log.error({title: 'Error deleting order reservation import record, id = ' + currentId, description: err});
 								    					}
 				    							}
+				    							*/
 				    					}
 			    				}
 	    				}

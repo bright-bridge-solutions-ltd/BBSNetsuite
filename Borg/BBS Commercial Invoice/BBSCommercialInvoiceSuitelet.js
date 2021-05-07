@@ -204,13 +204,14 @@ function buildOutput(_fulfillmentId)
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
 										xml += '					<td style="width: 27%; font-size: 10px;"><b>Invoice To</b></td>';
 										xml += '					<td style="width: 12%; font-size: 10px;" align="left">&nbsp;</td>';
-										xml += '					<td style="width: 41%; font-size: 10px;" align="left">' + ifTranDate + '</td>';
+										xml += '					<td style="width: 41%; font-size: 10px;" align="left"><b>Date:</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + ifTranDate + '</td>';
+											
 										xml += '				</tr>';
 										xml += '				<tr style="margin-top: 5px;">';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
 										xml += '					<td style="width: 27%; font-size: 10px;">' + soBillAddress + '</td>';
 										xml += '					<td style="width: 12%; font-size: 10px;" align="left">&nbsp;</td>';
-										xml += '					<td style="width: 41%; font-size: 10px;" align="left">' + soTranId + '</td>';
+										xml += '					<td style="width: 41%; font-size: 10px;" align="left"><b>Document No:</b>&nbsp;' + soTranId + '.' + ifTranId + '</td>';
 										xml += '				</tr>';
 										xml += '				<tr>';
 										xml += '					<td style="width: 20%; font-size: 10px;">&nbsp;</td>';
