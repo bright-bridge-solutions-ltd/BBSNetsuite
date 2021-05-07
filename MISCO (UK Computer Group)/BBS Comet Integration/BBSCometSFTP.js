@@ -535,6 +535,12 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																																	    				fieldId: 	'povendor',
 																																	    				value: 		supplierId
 																																	    				});
+																												
+																												salesOrderRecord.setCurrentSublistValue({
+																								    													sublistId: 	'item',
+																								    													fieldId: 	'custcol_otdn_so_povendor',
+																								    													value: 		supplierId
+																								    													});
 																											}
 																										
 																										if(itemType != 'Discount')
@@ -544,6 +550,12 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																																	    				fieldId: 	'porate',
 																																	    				value: 		linePoPrice
 																																	    				});
+																												
+																												salesOrderRecord.setCurrentSublistValue({
+																								    													sublistId: 	'item',
+																								    													fieldId: 	'custcol_otdn_so_porate',
+																								    													value: 		linePoPrice
+																								    													});
 									
 																												salesOrderRecord.setCurrentSublistValue({
 																																	    				sublistId: 	'item',
@@ -1114,6 +1126,12 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																																	    				fieldId: 	'povendor',
 																																	    				value: 		supplierId
 																																	    				});
+																												
+																												salesOrderRecord.setCurrentSublistValue({
+															    																						sublistId: 	'item',
+															    																						fieldId: 	'custcol_otdn_so_povendor',
+															    																						value: 		supplierId
+															    																						});
 																											}
 																										
 																										if(itemType != 'Discount')
@@ -1123,6 +1141,12 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																																	    				fieldId: 	'porate',
 																																	    				value: 		linePoPrice
 																																	    				});
+																												
+																												salesOrderRecord.setCurrentSublistValue({
+																								    													sublistId: 	'item',
+																								    													fieldId: 	'custcol_otdn_so_porate',
+																								    													value: 		linePoPrice
+																								    													});
 									
 																												salesOrderRecord.setCurrentSublistValue({
 																																	    				sublistId: 	'item',

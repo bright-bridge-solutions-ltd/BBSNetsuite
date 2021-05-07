@@ -1,0 +1,9 @@
+<#--FM:BEGIN-->
+	<#if transaction.custbody_bbs_so_query == 'T'>
+		SO Query Template
+	<#else if transaction.custbody_bbs_pro_forma_invoice == 'T'>
+		Pro Forma Template
+	<#else>
+		Normal Template
+	</#if>
+<#--FM:END-->

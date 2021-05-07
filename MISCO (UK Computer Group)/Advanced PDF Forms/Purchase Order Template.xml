@@ -222,6 +222,17 @@
   			<td></td>
     	</tr>
   	</table>
+  	
+  	<#if record.custbody_otdn_po_specialbidref?has_content>
+	  	<table style="width: 100%; margin-bottom: 10px;">
+	    	<tr>
+	    		<td><b>Special Bid/Deal Reference</b></td>
+	    	</tr>
+	    	<tr>
+	    		<td>${record.custbody_otdn_po_specialbidref}</td>
+	    	</tr>
+	    </table>
+	</#if>
 
 	<#if record.item?has_content>
 		<table class="itemtable" style="width: 100%;"><!-- start items -->

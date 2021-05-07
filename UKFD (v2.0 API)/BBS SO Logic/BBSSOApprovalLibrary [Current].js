@@ -2,18 +2,21 @@
  * @NApiVersion 2.x
  * @NModuleScope Public
  */
-define(['N/search', 'N/record', 'N/url', 'N/https'],
+define(['N/runtime', 'N/search', 'N/record', 'N/url', 'N/https'],
 /**
  * @param {record} record
  * @param {search} search
  */
-function(search, record, url, https)  {
+function(runtime, search, record, url, https)  {
 
 	// ==========================================
     // FUNCTION TO CHECK UNIVERSAL BUSINESS RULES
     // ==========================================
     
     function checkUniversalBusinessRules(currentRecord) {
+    	
+    	// call function to retrieve script parameters
+    	var scriptParameters = getScriptParameters();
     	
     	// declare and initialize variables
     	var passedRules = true;
@@ -36,11 +39,38 @@ function(search, record, url, https)  {
 				// if this is a special order line
 				if (createPO == 'SpecOrd')
 					{
-	    				// set passedRules variable to false
-						passedRules = false;
+						// loop through the items again
+						for (var x = 0; x < itemCount; x++)
+							{
+								// get the weight and coverage for the line
+								var weight = currentRecord.getSublistValue({
+	    		    				sublistId: 'item',
+	    		    				fieldId: 'custcol_lineweight',
+	    		    				line: x
+	    		    			});
 								
-						// break the loop
-						break;
+								var coverage = currentRecord.getSublistValue({
+	    		    				sublistId: 'item',
+	    		    				fieldId: 'custcol_coverage',
+	    		    				line: x
+	    		    			});
+								
+								// if the weight or coverage have exceeded the permissible values
+								if (weight > scriptParameters.maxWeight || coverage > scriptParameters.maxCoverage)
+									{
+										// set passedRules variable to false
+										passedRules = false;
+												
+										// break the loop
+										break;
+									}
+							}
+						
+						if (passedRules == false)
+							{
+								// break the loop
+								break;
+							}						
 					}
 				else // not a special order line
 					{
@@ -103,6 +133,31 @@ function(search, record, url, https)  {
     	
     	// return passedRules variable to main script function
     	return passedRules;
+    	
+    }
+    
+    // ======================================
+    // FUNCTION TO RETRIEVE SCRIPT PARAMETERS
+    // ======================================
+    
+    function getScriptParameters() {
+    	
+    	// retrieve script parameters
+    	var currentScript = runtime.getCurrentScript();
+    	
+    	var maxWeight = currentScript.getParameter({
+    		name: 'custscript_bbs_spec_ord_item_max_weight'
+    	});
+    	
+    	var maxCoverage = currentScript.getParameter({
+    		name: 'custscript_bbs_spec_ord_item_max_coverag'
+    	});
+    	
+    	// return values to main script function
+    	return {
+    		maxWeight:		maxWeight,
+    		maxCoverage:	maxCoverage
+    	}
     	
     }
     

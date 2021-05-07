@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/currentRecord'],
-function(currentRecord) {
+define(['./BBSEOMTermsLibrary'],
+function(libraryScript) {
     
     /**
      * Function to be executed after page is initialized.
@@ -16,6 +16,32 @@ function(currentRecord) {
      * @since 2015.2
      */
     function pageInit(scriptContext) {
+    	
+    	// get the current record
+		var currentRecord = scriptContext.currentRecord;
+	
+		// get the value of the entity and override due date fields
+		var entityID = currentRecord.getValue({
+			fieldId: 'entity'
+		});
+		
+		var overrideDueDate = currentRecord.getValue({
+			fieldId: 'custbody_bbs_override_due_date'
+		});
+		
+		// if we have an entity and override checkbox is unticked
+		if (overrideDueDate == false)
+			{
+				// disable the due date field
+				currentRecord.getField('duedate').isDisabled = true;
+			
+				// if we have a customer selected
+				if (entityID)
+					{
+						// call library script function to recalculate the due date
+						libraryScript.recalculateDueDate(currentRecord);
+					}
+			}
 
     }
 
@@ -33,11 +59,56 @@ function(currentRecord) {
      */
     function fieldChanged(scriptContext) {
     	
-    	if (scriptContext.fieldId == 'duedate')
-    		{
-	    		// call function to reset line level expected receipt dates
-				resetExpectedReceiptDates();
-    		}
+    	if (scriptContext.fieldId == 'entity' || scriptContext.fieldId == 'trandate' || scriptContext.fieldId == 'custbody_bbs_shipment_date' || scriptContext.fieldId == 'terms') // if the entity, trandate, shipment date or terms fields has been changed
+			{
+	    		// get the current record
+	    		var currentRecord = scriptContext.currentRecord;
+	    	
+	    		// get the value of the entity and override due date fields
+	    		var entityID = currentRecord.getValue({
+	    			fieldId: 'entity'
+	    		});
+	    		
+	    		var overrideDueDate = currentRecord.getValue({
+	    			fieldId: 'custbody_bbs_override_due_date'
+	    		});
+	    		
+	    		// if we have an entity and override checkbox is unticked
+	    		if (entityID && overrideDueDate == false)
+	    			{
+	    				// call library script function to recalculate the due date
+	    				libraryScript.recalculateDueDate(currentRecord);
+	    			}
+			}
+		else if (scriptContext.fieldId == 'custbody_bbs_override_due_date') // if the override due date checkbox has been changed
+			{
+				// get the current record
+				var currentRecord = scriptContext.currentRecord;
+			
+				// get the value of the entity and override due date fields
+				var entityID = currentRecord.getValue({
+					fieldId: 'entity'
+				});
+				
+				var overrideDueDate = currentRecord.getValue({
+					fieldId: 'custbody_bbs_override_due_date'
+				});
+				
+				// if we have an entity and override checkbox is unticked
+				if (entityID && overrideDueDate == false)
+					{
+						// disable the due date field
+						currentRecord.getField('duedate').isDisabled = true;
+					
+						// call library script function to recalculate the due date
+						libraryScript.recalculateDueDate(currentRecord);
+					}
+				else if (overrideDueDate == true) // if override checkbox is ticked
+					{
+						// disable the due date field
+						currentRecord.getField('duedate').isDisabled = false;
+					}
+			}
 
     }
 
@@ -52,18 +123,6 @@ function(currentRecord) {
      * @since 2015.2
      */
     function postSourcing(scriptContext) {
-    	
-    	if (scriptContext.sublistId == 'item' && scriptContext.fieldId == 'item')
-			{
-				// initialize 'Expected Receipt Date' field on the current line
-    			scriptContext.currentRecord.setCurrentSublistValue({
-					sublistId: 'item',
-					fieldId: 'expectedreceiptdate',
-					value: scriptContext.currentRecord.getValue({
-						fieldId: 'duedate'
-					})
-				});
-			}
 
     }
 
@@ -168,51 +227,10 @@ function(currentRecord) {
     function saveRecord(scriptContext) {
 
     }
-    
-    // ================
-    // HELPER FUNCTIONS
-    // ================
-    
-    function resetExpectedReceiptDates() {
-    	
-    	// get the current record
-    	var currRec = currentRecord.get();
-    	
-    	// get the value of the expected receipt date field
-    	var expectedReceiptDate = currRec.getValue({
-    		fieldId: 'duedate'
-    	});
-    	
-    	// get count of item lines
-    	var lineCount = currRec.getLineCount({
-    		sublistId: 'item'
-    	});
-    	
-    	// loop through item lines
-    	for (var i = 0; i < lineCount; i++)
-    		{
-    			// set the expected receipt date field on the line
-    			currRec.selectLine({
-    				sublistId: 'item',
-    				line: i
-    			});
-    			
-    			currRec.setCurrentSublistValue({
-    				sublistId: 'item',
-    				fieldId: 'expectedreceiptdate',
-    				value: expectedReceiptDate
-    			});
-    			
-    			currRec.commitLine({
-    				sublistId: 'item'
-    			});
-    		}
-    	
-    }
 
     return {
-    	fieldChanged: fieldChanged,
-    	postSourcing: postSourcing
+        pageInit: pageInit,
+        fieldChanged: fieldChanged
     };
     
 });

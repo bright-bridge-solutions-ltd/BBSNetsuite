@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/currentRecord'],
-function(currentRecord) {
+define([],
+function() {
     
     /**
      * Function to be executed after page is initialized.
@@ -32,12 +32,6 @@ function(currentRecord) {
      * @since 2015.2
      */
     function fieldChanged(scriptContext) {
-    	
-    	if (scriptContext.fieldId == 'duedate')
-    		{
-	    		// call function to reset line level expected receipt dates
-				resetExpectedReceiptDates();
-    		}
 
     }
 
@@ -53,17 +47,28 @@ function(currentRecord) {
      */
     function postSourcing(scriptContext) {
     	
+    	// after the user has selected an item
     	if (scriptContext.sublistId == 'item' && scriptContext.fieldId == 'item')
-			{
-				// initialize 'Expected Receipt Date' field on the current line
-    			scriptContext.currentRecord.setCurrentSublistValue({
-					sublistId: 'item',
-					fieldId: 'expectedreceiptdate',
-					value: scriptContext.currentRecord.getValue({
-						fieldId: 'duedate'
-					})
+    		{
+    			// get the due date from the header
+    			var dueDate = scriptContext.currentRecord.getValue({
+					fieldId: 'duedate'
 				});
-			}
+    			
+    			// if the selected due date is a weekend
+    			if (dueDate.getDay() == 6 || dueDate.getDay() == 0) // Saturday
+    				{
+    					// add 2 days to the dueDate to get to the next working day
+    					dueDate.setDate(dueDate.getDate() + 2);
+    				}
+    		
+    			// set the expected delivery date field on the current line using the due date field on the header
+    			scriptContext.currentRecord.setCurrentSublistValue({
+    				sublistId: 'item',
+    				fieldId: 'expectedreceiptdate',
+    				value: dueDate
+    			});
+    		}
 
     }
 
@@ -168,51 +173,9 @@ function(currentRecord) {
     function saveRecord(scriptContext) {
 
     }
-    
-    // ================
-    // HELPER FUNCTIONS
-    // ================
-    
-    function resetExpectedReceiptDates() {
-    	
-    	// get the current record
-    	var currRec = currentRecord.get();
-    	
-    	// get the value of the expected receipt date field
-    	var expectedReceiptDate = currRec.getValue({
-    		fieldId: 'duedate'
-    	});
-    	
-    	// get count of item lines
-    	var lineCount = currRec.getLineCount({
-    		sublistId: 'item'
-    	});
-    	
-    	// loop through item lines
-    	for (var i = 0; i < lineCount; i++)
-    		{
-    			// set the expected receipt date field on the line
-    			currRec.selectLine({
-    				sublistId: 'item',
-    				line: i
-    			});
-    			
-    			currRec.setCurrentSublistValue({
-    				sublistId: 'item',
-    				fieldId: 'expectedreceiptdate',
-    				value: expectedReceiptDate
-    			});
-    			
-    			currRec.commitLine({
-    				sublistId: 'item'
-    			});
-    		}
-    	
-    }
 
     return {
-    	fieldChanged: fieldChanged,
-    	postSourcing: postSourcing
+        postSourcing: postSourcing
     };
     
 });

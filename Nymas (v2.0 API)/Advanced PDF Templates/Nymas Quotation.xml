@@ -30,11 +30,7 @@
         <macro id="nlfooter">
         	<table>
 	           	<tr>
-	           		<#if record.custbody_bbs_output_logo.id == '1'> <!-- Fitzroy of London -->
-						<td align="center" colspan="12"><span style="font-size: 10pt; font-weight: bold;">Fitzroy of London is Part of Nymas Group</span></td>
-		        	<#else>
-		        		<td colspan="12">&nbsp;</td>
-		        	</#if>
+	           		<td align="center" colspan="12"><span style="font-size: 10pt; font-weight: bold;">All orders are placed on our terms and conditions of sale and purchase which can be viewed here [<a href="nymas.co.uk/terms-conditions">nymas.co.uk/terms-conditions</a>]</span></td>
 		        </tr>
 	     		<tr>
         			<td colspan="12"><span style="font-size: 6pt;">${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_disclaimer}</span></td>

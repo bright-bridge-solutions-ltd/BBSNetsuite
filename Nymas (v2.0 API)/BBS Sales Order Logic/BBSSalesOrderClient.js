@@ -184,45 +184,6 @@ function(search, message, dialog, currentRecord) {
 				    		}
 		    		}
     		}
-    	else if (scriptContext.sublistId == 'item' && scriptContext.fieldId == 'quantity') // if the quantity has been changed
-    		{
-	    		// get the current record
-		    	var currentRecord = scriptContext.currentRecord;
-		    	
-		    	// get the quantity, available quantity and max quote quantity for the current line
-		    	var quantity = currentRecord.getCurrentSublistValue({
-		    		sublistId: 'item',
-		    		fieldId: 'quantity'
-		    	});
-		    	
-		    	var availableQuantity = currentRecord.getCurrentSublistValue({
-		    		sublistId: 'item',
-		    		fieldId: 'quantityavailable'
-		    	});
-		    	
-		    	// get the max quote quantity for the line
-    			var maxQuoteQty = currentRecord.getCurrentSublistValue({
-    				sublistId: 'item',
-    				fieldId: 'custcol_bbs_max_quote_qty'
-    			});
-		    	
-		    	if (quantity > availableQuantity) // if quantity > availableQuantity
-		    		{
-		    			// display an alert to the user
-		    			dialog.alert({
-		    				title: '⚠️ Check Quantity',
-		    				message: 'You have entered a quantity of <b>' + quantity + '</b> but there are only <b>' + availableQuantity + '</b> available.<br><br>Please check the quantity you have entered before continuing.'
-		    			});
-		    		}
-		    	else if (quantity >= maxQuoteQty) // if quantity >= maxQuoteQty
-    				{
-    					// display an alert to the user
-    					dialog.create({
-    						title: '⚠️ Maximum Quote Quantity Exceeded',
-    						message: 'The quantity you have entered (<b>' + quantity + '</b>) is greater than the maximum quote quantity (<b>' + maxQuoteQty + '</b>) for this item.<br><br>If you continue, the transaction will require approval before it can be processed.'
-    					});
-    				}
-    		}
     	else if (scriptContext.fieldId == 'shipdate')
     		{
     			// call function to reset line level ship dates
@@ -375,54 +336,6 @@ function(search, message, dialog, currentRecord) {
      * @since 2015.2
      */
     function saveRecord(scriptContext) {
-    	
-    	// declare and initialize variables
-    	var maxQuoteQtyExceeded = false;
-    	
-    	// get the current record
-    	var currentRecord = scriptContext.currentRecord;
-    	
-    	// get count of item lines
-    	var itemCount = currentRecord.getLineCount({
-    		sublistId: 'item'
-    	});
-    	
-    	// loop through item lines
-    	for (var i = 0; i < itemCount; i++)
-    		{
-    			// get the quantity for the line
-    			var quantity = currentRecord.getSublistValue({
-    				sublistId: 'item',
-    				fieldId: 'quantity',
-    				line: i
-    			});
-    			
-    			// get the max quote quantity for the line
-    			var maxQuoteQty = currentRecord.getSublistValue({
-    				sublistId: 'item',
-    				fieldId: 'custcol_bbs_max_quote_qty',
-    				line: i
-    			});
-    			
-    			// if quantity >= maxQuoteQty
-    			if (quantity >= maxQuoteQty)
-    				{
-    					// set maxQuoteQtyExceeded flag to true
-    					maxQuoteQtyExceeded = true;
-    					
-    					// break the loop
-    					break;
-    				}
-    		}
-    	
-    	// set the 'Max Quote Qty Exceeded' checkbox on the record
-    	currentRecord.setValue({
-    		fieldId: 'custbody_bbs_apply_mqq_block',
-    		value: maxQuoteQtyExceeded
-    	});
-    	
-    	// allow the record to be saved
-    	return true;
 
     }
     
@@ -508,7 +421,6 @@ function(search, message, dialog, currentRecord) {
         pageInit: 		pageInit,
     	fieldChanged: 	fieldChanged,
     	validateLine: 	validateLine,
-    	saveRecord: 	saveRecord,
     	resetExpectedShipDates: resetExpectedShipDates
     };
     

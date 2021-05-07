@@ -1,0 +1,156 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="Arial" type="font" subtype="truetype" src="${nsfont.Arial_Regular}" src-bold="${nsfont.Arial_Bold}" src-italic="${nsfont.Arial_Italic}" src-bolditalic="${nsfont.Arial_BoldItalic}" bytes="2" />
+	<macrolist>
+    	<macro id="nlheader">
+      		<table style="width: 100%; font-size: 10pt;">
+      			<tr>
+      				<td colspan="4"><span style="font-size: 16pt; font-weight: bold;">REMITTANCE ADVICE</span></td>
+      				<td colspan="4" rowspan="5"><p align="center"><img src="${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_logo@url}" style="float: center; width:150px; height:75px;"/><br/><br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_legal_name}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_1}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_2}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_3}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_city}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_county}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_postcode}<br/>Tel: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_telephone}<#if record.custbody_bbs_output_logo.custrecord_bbs_output_logo_fax?has_content> Fax: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_fax}</#if><br/>Email: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_purchase_emai}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_website}</p></td>
+      			</tr>
+      			<tr>
+      				<td colspan="2" style="border-left: 1px solid black; border-top: 1px solid black;"><b>Document Date</b></td>
+      				<td colspan="2" style="border-right: 1px solid black; border-top: 1px solid black;"><b>: ${record.trandate}</b></td>
+      			</tr>
+      			<tr>
+      				<td colspan="2" style="border-left: 1px solid black;"><b>Document No.</b></td>
+      				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.transactionnumber}</b></td>
+      			</tr>
+      			<tr>
+      				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Account No.</b></td>
+      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${record.entity.accountnumber}</b></td>
+      			</tr>
+      		</table>
+        </macro>
+        <macro id="nlfooter">
+        	<table style="width: 100%">
+        		<tr>
+			        <td align="left" class="footer">Printed : ${.now?datetime?string["EEE dd MMM yyyy HH:mm"]}</td>
+			        <td align="center" class="footer">VAT Reg. No.: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_vat_number}</td>
+			        <td align="right" class="footer">Page <pagenumber/> of <totalpages/></td>
+        		</tr>
+        	</table>
+        </macro>
+   </macrolist>
+    
+    <style type="text/css">
+    	* {
+			font-family: Arial, sans-serif;
+		}
+		table {
+			font-size: 10pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 10pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            color: #333333;
+        }
+        td {
+            padding: 4px 6px;
+        }
+        td.bankdetails {
+        	padding-left: 0px;
+        	padding-right: 0px;
+        	padding-top: 5px;
+        	padding-bottom: 0px;
+        	font-size: 8pt;
+        }
+        td.footer {
+        	padding-left: 0px;
+        	padding-right: 0px;
+        	padding-top: 5px;
+        	padding-bottom: 0px;
+        	font-size: 10pt;
+        }
+		td p {
+			align:left;
+		}
+		hr {
+			width: 100%;
+			margin-top: 20px;
+			margin-bottom: 5px;
+		}
+</style>
+</head>
+<body header="nlheader" header-height="155pt" footer="nlfooter" footer-height="20pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+    
+    <table style="width: 100%; margin-bottom: 5px;">
+    	<tr>
+    		<td colspan="4" style="border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"><b>REMITTANCE ADDRESS</b></td>
+      		<td colspan="4" style="margin-left: 10px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"><b>SUPPLIER ADDRESS</b></td>
+      	</tr>
+      	<tr>
+      		<td colspan="4" style="padding-left: 50px; border-left: 1px solid black; border-right: 1px solid black;">${record.address}</td>
+      		<td colspan="4" style="margin-left: 10px; padding-left:50px; border-left: 1px solid black; border-right: 1px solid black;">${record.address}</td>
+      	</tr>
+      	<tr>
+        	<td colspan="4" style="padding-left: 50px; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
+            <td colspan="4" style="margin-left: 10px; padding-left:50px; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
+        </tr>
+      	<tr>
+     		<td colspan="4" style="padding-left: 50px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
+         	<td colspan="4" style="margin-left: 10px; padding-left:50px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
+       	</tr>
+  	</table>
+  	
+  	<table style="width: 100%; margin-bottom: 5px;">
+    	<tr>
+    		<td colspan="2" style="border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Cheque Number</td>
+    		<td colspan="2" style="border-top: 1px solid black; border-bottom: 1px solid black;">: ${record.tranid}</td>
+    		<td colspan="2" style="border-top: 1px solid black; border-bottom: 1px solid black;">Remittance Value</td>
+      		<td colspan="2" style="border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">: ${record.total}</td>
+      	</tr>
+  	</table>
+  	
+  	<#if record.apply?has_content>
+	  	<!-- start apply sublist -->
+	  	<table class="itemtable" style="width: 100%; margin-top: 10px;">
+			<thead>
+				<tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
+					<th align="left" colspan="4">Date</th>
+					<th align="left" colspan="4">Your Reference</th>
+					<th align="right" colspan="4">Invoice Value</th>
+					<th align="right" colspan="4">Paid Value</th>
+				</tr>
+			</thead>
+			<#list record.apply as apply>
+				<tr>
+					<td align="left" colspan="4" line-height="150%">${apply.applydate}</td>
+					<td align="left" colspan="4">${apply.refnum}</td>
+					<td align="right" colspan="4">${apply.total}</td>
+					<td align="right" colspan="4">${apply.amount}</td>
+				</tr>
+			</#list>
+		</table>
+		<!-- end apply sublist -->
+	</#if>
+	
+	<#if record.credit?has_content>
+	  	<!-- start credit sublist -->
+	  	<table class="itemtable" style="width: 100%; margin-top: 10px;">
+			<thead>
+				<tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
+					<th align="left" colspan="4">Date</th>
+					<th align="left" colspan="8">Your Reference</th>
+					<th align="left" colspan="8">Applied To</th>
+					<th align="right" colspan="4">Credit Amount</th>
+				</tr>
+			</thead>
+			<#list record.credit as credit>
+				<tr>
+					<td align="left" colspan="4" line-height="150%">${credit.creditdate}</td>
+					<td align="left" colspan="8">${credit.refnum}</td>
+					<td align="left" colspan="8">${credit.appliedto?keep_after("#")}</td>
+					<td align="right" colspan="4">${credit.amount}</td>
+				</tr>
+			</#list>
+		</table>
+		<!-- end credit sublist -->
+	</#if>
+    
+</body>
+</pdf>

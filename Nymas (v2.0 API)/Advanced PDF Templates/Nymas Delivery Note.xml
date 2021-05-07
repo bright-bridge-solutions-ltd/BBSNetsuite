@@ -1,166 +1,328 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
-<pdf>
-<head>
-	<link name="Arial" type="font" subtype="truetype" src="${nsfont.Arial_Regular}" src-bold="${nsfont.Arial_Bold}" src-italic="${nsfont.Arial_Italic}" src-bolditalic="${nsfont.Arial_BoldItalic}" bytes="2" />
-	<macrolist>
-    	<macro id="nlheader">
-      		<table style="width: 100%; font-size: 10pt;">
-      			<tr>
-      				<td colspan="4"><span style="font-size: 16pt; font-weight: bold;">DELIVERY NOTE</span></td>
-      				<td colspan="4" rowspan="5"><p align="center"><img src="${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_logo@url}" style="float: center; width:150px; height:75px;"/><br/><br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_legal_name}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_1}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_2}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_3}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_city}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_county}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_postcode}<br/>Tel: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_telephone}<#if record.custbody_bbs_output_logo.custrecord_bbs_output_logo_fax?has_content> Fax: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_fax}</#if><br/>Email: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_sales_email}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_website}</p></td>
-      			</tr>
-      			<tr>
-      				<td colspan="2" style="border-left: 1px solid black; border-top: 1px solid black;"><b>Order Date</b></td>
-      				<td colspan="2" style="border-right: 1px solid black; border-top: 1px solid black;"><b>: ${record.trandate}</b></td>
-      			</tr>
-      			<tr>
-      				<td colspan="2" style="border-left: 1px solid black;"><b>Our Reference</b></td>
-      				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.tranid}</b></td>
-      			</tr>
-      			<tr>
-      				<td colspan="2" style="border-left: 1px solid black;"><b>Your Reference</b></td>
-      				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.createdfrom.custbody_bbs_cust_po_number}</b></td>
-      			</tr>
-      			<tr>
-      				<td colspan="2" style="border-left: 1px solid black;"><b>Sales Order No.</b></td>
-      				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.createdfrom?keep_after('#')}</b></td>
-      			</tr>
-      			<tr>
-      				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Account No.</b></td>
-      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${record.custbody_bbs_customer_account_number}</b></td>
-      			</tr>
-      		</table>
-        </macro>
-        <macro id="nlfooter">
-        	<hr/> <!-- Horizontal Line -->
-        	<table>
-	           	<tr>
-	           		<#if record.custbody_bbs_output_logo.id == '1'> <!-- Fitzroy of London -->
-						<td align="center" colspan="12"><span style="font-size: 10pt; font-weight: bold;">Fitzroy of London is Part of Nymas Group</span></td>
-		        	<#else>
-		        		<td colspan="12">&nbsp;</td>
-		        	</#if>
-		        </tr>
-	     		<tr>
-        			<td colspan="12"><span style="font-size: 6pt;">${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_disclaimer}</span></td>
-        		</tr>
-        		<tr>
-        			<td colspan="12">
-        				<table style="width: 100%; margin-top: 10px;">
-        					<tr>
-			        			<td align="left" class="footer">Printed : ${.now?datetime?string["EEE dd MMM yyyy HH:mm"]}</td>
-			        			<td align="center" class="footer">VAT Reg. No.: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_vat_number}</td>
-			        			<td align="right" class="footer"><p align="right">Page <pagenumber/> of <totalpages/></p></td>
-        					</tr>
-        				</table>
-        			</td>
-        		</tr>
-        	</table>
-        </macro>
-   </macrolist>
-    
-    <style type="text/css">
-    	* {
-			font-family: Arial, sans-serif;
-		}
-		table {
-			font-size: 10pt;
-			table-layout: fixed;
-		}
-        th {
-            font-weight: bold;
-            font-size: 10pt;
-            vertical-align: middle;
-            padding: 5px 6px 3px;
-            color: #333333;
-        }
-        td {
-            padding: 4px 6px;
-        }
-        td.bankdetails {
-        	padding-left: 0px;
-        	padding-right: 0px;
-        	padding-top: 5px;
-        	padding-bottom: 0px;
-        	font-size: 8pt;
-        }
-        td.footer {
-        	padding-left: 0px;
-        	padding-right: 0px;
-        	padding-top: 5px;
-        	padding-bottom: 0px;
-        	font-size: 10pt;
-        }
-		td p {
-			align:left;
-		}
-		hr {
-			width: 100%;
-			margin-top: 20px;
-			margin-bottom: 5px;
-		}
-</style>
-</head>
-<body header="nlheader" header-height="175pt" footer="nlfooter" footer-height="120pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
-    
-    <table style="width: 100%; margin-bottom: 5px;">
-    	<tr>
-    		<td colspan="4" style="border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"><b>CUSTOMER</b></td>
-      		<td colspan="4" style="margin-left: 10px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"><b>DELIVER TO</b></td>
-      	</tr>
-      	<tr>
-      		<td colspan="4" style="padding-left: 50px; border-left: 1px solid black; border-right: 1px solid black;">${record.createdfrom.billaddress}</td>
-      		<td colspan="4" style="margin-left: 10px; padding-left:50px; border-left: 1px solid black; border-right: 1px solid black;">${record.shipaddress}</td>
-      	</tr>
-      	<tr>
-        	<td colspan="4" style="padding-left: 50px; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
-            <td colspan="4" style="margin-left: 10px; padding-left:50px; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
-        </tr>
-      	<tr>
-     		<td colspan="4" style="padding-left: 50px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
-         	<td colspan="4" style="margin-left: 10px; padding-left:50px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
-       	</tr>
-  	</table>
-  	
-  	<!-- Initialize totalWeight variable -->
-  	<#assign totalWeight = 0>
-  	
-  	<!-- Loop through items and add item weight to totalWeight variable -->
-  	<#if record.item?has_content>
-  		<#list record.item as item>
-  			<#assign totalWeight += (item.custcol_bbs_product_weight * item.quantity)>
-  		</#list>
-  	</#if>
-  	
-  	<table style="width: 100%; margin-bottom: 5px; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">
-  		<tr style="margin-bottom: 20px;">
-  			<td colspan="6">Delivery Method: ${record.shipmethod}</td>
-  			<td colspan="3" style="padding-left: 10px;">Shipment Weight</td>
-  			<td colspan="3">: ${totalWeight?string["0.00"]} kg</td>
-  		</tr>
-  	</table>
-	
-	<!-- ITEMS TABLE -->
-    <#if record.item?has_content>
-	    <table style="width: 100%;">
-	    	<#list record.item as item>
-	    		<#if item_index==0>
-					<thead>
-						<tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
-							<th align="left" colspan="8">Product</th>
-							<th align="left" colspan="12">Description</th>
-							<th colspan="5"><p align="right">Quantity<br/>Shipped</p></th>
+<#if record.createdfrom.type == "Transfer Order">
+	<#setting number_format=",##0.00">
+	<pdf>
+	<head>
+		<link name="Arial" type="font" subtype="truetype" src="${nsfont.Arial_Regular}" src-bold="${nsfont.Arial_Bold}" src-italic="${nsfont.Arial_Italic}" src-bolditalic="${nsfont.Arial_BoldItalic}" bytes="2" />
+		<macrolist>
+	    	<macro id="nlheader">
+	      		<#if record.custbody_bbs_related_po_info?has_content>
+	      			<#assign purchase_order_summary = record.custbody_bbs_related_po_info?eval>
+						<#list purchase_order_summary as purchaseOrder>
+	      				<table style="width: 100%; font-size: 10pt;">
+			      			<tr>
+			      				<td colspan="4"><b>Date Order Raised</b></td>
+			      				<td colspan="6"><b>${purchaseOrder.orderDate}</b></td>
+			      				<td colspan="4"><b>Supplier</b></td>
+			      				<td colspan="6"><b>${purchaseOrder.supplier}</b></td>
+			      			</tr>
+			      			<tr>
+			      				<td colspan="4"><b>Purchase Order Number</b></td>
+			      				<td colspan="6"><b>${purchaseOrder.poNumber}</b></td>
+			      				<td colspan="4"><b>Supplier Address</b></td>
+			      				<td colspan="6"><b>${purchaseOrder.supplierAddress}</b></td>
+			      			</tr>
+			      			<tr>
+			      				<td colspan="4"><b>Transfer Order Number</b></td>
+			      				<td colspan="6"><b>${record.createdfrom?keep_after('#')}</b></td>
+			      				<td colspan="4"><b>Supplier Contact</b></td>
+			      				<td colspan="6"><b>${purchaseOrder.supplierContact}</b></td>
+			      			</tr>
+			      			<tr>
+			      				<td colspan="4"><b>Despatch Date</b></td>
+			      				<td colspan="6"><b>${purchaseOrder.despatchDate}</b></td>
+			      				<td colspan="4"><b>Supplier Phone</b></td>
+			      				<td colspan="6"><b>${purchaseOrder.supplierPhone}</b></td>
+			      			</tr>
+			      			<tr>
+			      				<td colspan="4"><b>Courier</b></td>
+			      				<td colspan="6"><b>&nbsp;</b></td>
+			      				<td colspan="4"><b>&nbsp;</b></td>
+			      				<td colspan="6"><b>&nbsp;</b></td>
+			      			</tr>
+			      			<tr>
+			      				<td colspan="4"><b>Consignment Number</b></td>
+			      				<td colspan="6"><b>${record.custbody_bbs_tracking_number}</b></td>
+			      				<td colspan="4"><b>&nbsp;</b></td>
+			      				<td colspan="6"><b>&nbsp;</b></td>
+			      			</tr>
+			      			<tr>
+			      				<td colspan="4"><b>Due Date</b></td>
+			      				<td colspan="6"><b>${purchaseOrder.dueDate}</b></td>
+			      				<td colspan="4"><b>&nbsp;</b></td>
+			      				<td colspan="6"><b>&nbsp;</b></td>
+			      			</tr>
+			      			<tr>
+			      				<td colspan="4"><b>Raised By</b></td>
+			      				<td colspan="6"><b>${purchaseOrder.raisedBy}</b></td>
+			      				<td colspan="4"><b>&nbsp;</b></td>
+			      				<td colspan="6"><b>&nbsp;</b></td>
+			      			</tr>
+	      				</table>
+	      			</#list>
+	      		</#if>
+	        </macro>
+	        <macro id="nlfooter">
+	        	<table style="width: 100%; margin-top: 10px;">
+	        		<tr>
+				        <td align="left" class="footer">Printed : ${.now?datetime?string["EEE dd MMM yyyy HH:mm"]}</td>
+				        <td align="right" class="footer">Page <pagenumber/> of <totalpages/></td>
+	        		</tr>
+	        	</table>
+	        </macro>
+	   </macrolist>    
+	    <style type="text/css">
+	    	* {
+				font-family: Arial, sans-serif;
+			}
+			table {
+				font-size: 10pt;
+				table-layout: fixed;
+			}
+	        th {
+	            font-weight: bold;
+	            font-size: 10pt;
+	            vertical-align: middle;
+	            padding: 5px 6px 3px;
+	            color: #333333;
+	        }
+	        td {
+	            padding: 4px 6px;
+	        }
+	        td.bankdetails {
+	        	padding-left: 0px;
+	        	padding-right: 0px;
+	        	padding-top: 5px;
+	        	padding-bottom: 0px;
+	        	font-size: 8pt;
+	        }
+	        td.footer {
+	        	padding-left: 0px;
+	        	padding-right: 0px;
+	        	padding-top: 5px;
+	        	padding-bottom: 0px;
+	        	font-size: 10pt;
+	        }
+			td p {
+				align:left;
+			}
+			hr {
+				width: 100%;
+				margin-top: 20px;
+				margin-bottom: 5px;
+			}
+	</style>
+	</head>
+	<body header="nlheader" header-height="165pt" footer="nlfooter" footer-height="20pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4-LANDSCAPE">
+	    
+	    <!-- ITEMS TABLE -->
+	    <#if record.custbody_bbs_item_json?has_content>
+			<table style="width: 100%;">
+			    <thead>
+					<tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
+						<th align="left" colspan="6">Item<br/>Diagram</th>
+						<th align="center" colspan="4">Qty</th>
+						<th align="left" colspan="6">Item<br/>Code</th>
+						<th align="left" colspan="10">Item<br/>Description</th>
+						<th align="left" colspan="10">Work<br/>Description</th>
+						<th align="left" colspan="6">Finishing<br/>Drawing</th>
+						<th align="left" colspan="6">Code to<br/>be Made</th>
+						<th align="right" colspan="4">Price</th>
+						<th align="right" colspan="4"><p align="right">Total<br/>Price</p></th>
+					</tr>
+			    </thead>
+			    <#list record.custbody_bbs_item_json?eval as item>
+		    		<#if item.itemType == "Assembly">
+			    		<tr style="border-top: 1px solid black;">
+							<td align="left" colspan="6">&nbsp;</td>
+							<td align="center" colspan="4">${item.quantity?string["0"]}</td>
+							<td align="left" colspan="6">${item.itemCode}</td>
+							<td align="left" colspan="10">${item.itemDescription}</td>
+							<td align="left" colspan="10">&nbsp;</td>
+							<td align="left" colspan="6">${item.finishingDrawing}</td>
+							<td align="left" colspan="6">&nbsp;</td>
+							<td align="right" colspan="4">${item.price}</td>
+							<td align="right" colspan="4">${item.totalPrice}</td>
 						</tr>
-	    			</thead>
-	    		</#if>
-	    			<tr>
-	    				<td align="left" colspan="8">${item.item}</td>
-	    				<td align="left" colspan="12">${item.description}</td>
-	    				<td align="right" colspan="5">${item.quantity?string["0.00"]}</td>
-	    			</tr>
-	    	</#list>
+					<#elseif item.itemType == "Component">
+						<tr>
+							<td align="left" colspan="6"><i>&nbsp;</i></td>
+							<td align="center" colspan="4"><i>${item.quantity?string["0"]}</i></td>
+							<td align="left" colspan="6"><i>&nbsp;</i></td>
+							<td align="left" colspan="10"><i>&nbsp;</i></td>
+							<td align="left" colspan="10"><i>${item.workDescription}</i></td>
+							<td align="left" colspan="6"><i>&nbsp;</i></td>
+							<td align="left" colspan="6"><i>${item.codeToBeMade}</i></td>
+							<td align="right" colspan="4"><i>&nbsp;</i></td>
+							<td align="right" colspan="4"><i>&nbsp;</i></td>
+						</tr>
+					</#if>
+				</#list>
+			</table>
+	    </#if>
+	    
+	</body>
+	</pdf>
+<#else>
+	<pdf>
+	<head>
+		<link name="Arial" type="font" subtype="truetype" src="${nsfont.Arial_Regular}" src-bold="${nsfont.Arial_Bold}" src-italic="${nsfont.Arial_Italic}" src-bolditalic="${nsfont.Arial_BoldItalic}" bytes="2" />
+		<macrolist>
+	    	<macro id="nlheader">
+	      		<table style="width: 100%; font-size: 10pt;">
+	      			<tr>
+	      				<td colspan="4"><span style="font-size: 16pt; font-weight: bold;">DELIVERY NOTE</span></td>
+	      				<td colspan="4" rowspan="5"><p align="center"><img src="${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_logo@url}" style="float: center; width:150px; height:75px;"/><br/><br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_legal_name}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_1}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_2}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_3}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_city}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_county}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_postcode}<br/>Tel: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_telephone}<#if record.custbody_bbs_output_logo.custrecord_bbs_output_logo_fax?has_content> Fax: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_fax}</#if><br/>Email: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_sales_email}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_website}</p></td>
+	      			</tr>
+	      			<tr>
+	      				<td colspan="2" style="border-left: 1px solid black; border-top: 1px solid black;"><b>Order Date</b></td>
+	      				<td colspan="2" style="border-right: 1px solid black; border-top: 1px solid black;"><b>: ${record.trandate}</b></td>
+	      			</tr>
+	      			<tr>
+	      				<td colspan="2" style="border-left: 1px solid black;"><b>Our Reference</b></td>
+	      				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.tranid}</b></td>
+	      			</tr>
+	      			<tr>
+	      				<td colspan="2" style="border-left: 1px solid black;"><b>Your Reference</b></td>
+	      				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.createdfrom.custbody_bbs_cust_po_number}</b></td>
+	      			</tr>
+	      			<tr>
+	      				<td colspan="2" style="border-left: 1px solid black;"><b>Sales Order No.</b></td>
+	      				<td colspan="2" style="border-right: 1px solid black;"><b>: ${record.createdfrom?keep_after('#')}</b></td>
+	      			</tr>
+	      			<tr>
+	      				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Account No.</b></td>
+	      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${record.custbody_bbs_customer_account_number}</b></td>
+	      			</tr>
+	      		</table>
+	        </macro>
+	        <macro id="nlfooter">
+	        	<hr/> <!-- Horizontal Line -->
+	        	<table>
+		           	<tr>
+	           			<td align="center" colspan="12"><span style="font-size: 10pt; font-weight: bold;">All orders are placed on our terms and conditions of sale and purchase which can be viewed here [<a href="nymas.co.uk/terms-conditions">nymas.co.uk/terms-conditions</a>]</span></td>
+		        	</tr>
+		     		<tr>
+	        			<td colspan="12"><span style="font-size: 6pt;">${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_disclaimer}</span></td>
+	        		</tr>
+	        		<tr>
+	        			<td colspan="12">
+	        				<table style="width: 100%; margin-top: 10px;">
+	        					<tr>
+				        			<td align="left" class="footer">Printed : ${.now?datetime?string["EEE dd MMM yyyy HH:mm"]}</td>
+				        			<td align="center" class="footer">VAT Reg. No.: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_vat_number}</td>
+				        			<td align="right" class="footer"><p align="right">Page <pagenumber/> of <totalpages/></p></td>
+	        					</tr>
+	        				</table>
+	        			</td>
+	        		</tr>
+	        	</table>
+	        </macro>
+	   </macrolist>
+	    
+	    <style type="text/css">
+	    	* {
+				font-family: Arial, sans-serif;
+			}
+			table {
+				font-size: 10pt;
+				table-layout: fixed;
+			}
+	        th {
+	            font-weight: bold;
+	            font-size: 10pt;
+	            vertical-align: middle;
+	            padding: 5px 6px 3px;
+	            color: #333333;
+	        }
+	        td {
+	            padding: 4px 6px;
+	        }
+	        td.bankdetails {
+	        	padding-left: 0px;
+	        	padding-right: 0px;
+	        	padding-top: 5px;
+	        	padding-bottom: 0px;
+	        	font-size: 8pt;
+	        }
+	        td.footer {
+	        	padding-left: 0px;
+	        	padding-right: 0px;
+	        	padding-top: 5px;
+	        	padding-bottom: 0px;
+	        	font-size: 10pt;
+	        }
+			td p {
+				align:left;
+			}
+			hr {
+				width: 100%;
+				margin-top: 20px;
+				margin-bottom: 5px;
+			}
+	</style>
+	</head>
+	<body header="nlheader" header-height="175pt" footer="nlfooter" footer-height="120pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+	    
+	    <table style="width: 100%; margin-bottom: 5px;">
+	    	<tr>
+	    		<td colspan="4" style="border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"><b>CUSTOMER</b></td>
+	      		<td colspan="4" style="margin-left: 10px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"><b>DELIVER TO</b></td>
+	      	</tr>
+	      	<tr>
+	      		<td colspan="4" style="padding-left: 50px; border-left: 1px solid black; border-right: 1px solid black;">${record.createdfrom.billaddress}</td>
+	      		<td colspan="4" style="margin-left: 10px; padding-left:50px; border-left: 1px solid black; border-right: 1px solid black;">${record.shipaddress}</td>
+	      	</tr>
+	      	<tr>
+	        	<td colspan="4" style="padding-left: 50px; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
+	            <td colspan="4" style="margin-left: 10px; padding-left:50px; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
+	        </tr>
+	      	<tr>
+	     		<td colspan="4" style="padding-left: 50px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
+	         	<td colspan="4" style="margin-left: 10px; padding-left:50px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
+	       	</tr>
 	  	</table>
-  	</#if>
-    
-</body>
-</pdf>
+	  	
+	  	<!-- Initialize totalWeight variable -->
+	  	<#assign totalWeight = 0>
+	  	
+	  	<!-- Loop through items and add item weight to totalWeight variable -->
+	  	<#if record.item?has_content>
+	  		<#list record.item as item>
+	  			<#assign totalWeight += (item.custcol_bbs_product_weight * item.quantity)>
+	  		</#list>
+	  	</#if>
+	  	
+	  	<table style="width: 100%; margin-bottom: 5px; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">
+	  		<tr style="margin-bottom: 20px;">
+	  			<td colspan="6">Delivery Method: ${record.shipmethod}</td>
+	  			<td colspan="3" style="padding-left: 10px;">Shipment Weight</td>
+	  			<td colspan="3">: ${totalWeight?string["0.00"]} kg</td>
+	  		</tr>
+	  	</table>
+		
+		<!-- ITEMS TABLE -->
+	    <#if record.item?has_content>
+		    <table style="width: 100%;">
+		    	<#list record.item as item>
+		    		<#if item_index==0>
+						<thead>
+							<tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
+								<th align="left" colspan="8">Product</th>
+								<th align="left" colspan="12">Description</th>
+								<th colspan="5"><p align="right">Quantity<br/>Shipped</p></th>
+							</tr>
+		    			</thead>
+		    		</#if>
+		    			<tr>
+		    				<td align="left" colspan="8">${item.item}</td>
+		    				<td align="left" colspan="12">${item.description}</td>
+		    				<td align="right" colspan="5">${item.quantity?string["0.00"]}</td>
+		    			</tr>
+		    	</#list>
+		  	</table>
+	  	</#if>
+	    
+	</body>
+	</pdf>
+</#if>

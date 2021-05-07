@@ -30,6 +30,9 @@
         <macro id="nlfooter">
         	<table style="width: 100%;">
         		<tr>
+	           		<td align="center" colspan="3"><span style="font-size: 10pt; font-weight: bold;">All orders are placed on our terms and conditions of sale and purchase which can be viewed here [<a href="nymas.co.uk/terms-conditions">nymas.co.uk/terms-conditions</a>]</span></td>
+		        </tr>
+        		<tr>
         			<td colspan="3" align="center"><barcode codetype="code128" showtext="true" value="${record.tranid}"/></td>
         		</tr>
         		<tr>
@@ -86,7 +89,7 @@
 		}
 </style>
 </head>
-<body header="nlheader" header-height="155pt" footer="nlfooter" footer-height="65pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="155pt" footer="nlfooter" footer-height="90pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
     
     <table style="width: 100%; margin-bottom: 5px;">
     	<tr>

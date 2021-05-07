@@ -181,10 +181,7 @@ function(search, dialog) {
     // FUNCTION TO CALCULATE DUE DATE
     // ==============================
     
-    function calculateDueDate(tranDate, supplierID) {
-    	
-    	// declare and initialize variables
-    	var dueDate = null;
+    function calculateDueDate(dueDate, supplierID) {
     	
     	// call function to get the terms from the supplier record
 		var paymentTerms = getPaymentTerms(supplierID);
@@ -192,16 +189,16 @@ function(search, dialog) {
 		// if the supplier has payment terms set
 		if (paymentTerms.paymentTerms)
 			{
-				// calculate the due date
-				dueDate = new Date();
-				dueDate.setDate(tranDate.getDate() + paymentTerms.daysToAdd);
-				
 				// if the payment terms contains 'End Of Month'
 				if (paymentTerms.paymentTerms.indexOf('End Of Month') > -1)
 					{
 						// set the due date to be the end of the month
 						dueDate = new Date(dueDate.getFullYear(), dueDate.getMonth()+1, 0);
 					}
+
+				// calculate the due date
+				dueDate.setDate(dueDate.getDate() + paymentTerms.daysToAdd);
+				
 			}
 		else // supplier does not have payment terms set
 			{
