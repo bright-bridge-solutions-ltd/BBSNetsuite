@@ -332,6 +332,8 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    								var totalWeight 		= itemFulfillmentRecord.getValue({fieldId: 'custbody_bbs_total_weight'});
 	    								var packageCount 		= itemFulfillmentRecord.getValue({fieldId: 'custbody_bbs_number_of_packages'});
 	    								var createdFrom 		= itemFulfillmentRecord.getValue({fieldId: 'createdfrom'});
+	    								var overrideEmail		= itemFulfillmentRecord.getValue({fieldId: 'custbody_bbs_ci_contact_email'});
+	    								var overrideMobile		= itemFulfillmentRecord.getValue({fieldId: 'custbody_bbs_ci_contact_mobile'});
 	    								
 	    								//Load the related sales order
 	    								//
@@ -429,6 +431,20 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    										contactInfo.mobileNumber = addressPhone;
 	    									}
                                   
+	    								
+	    								//If the transaction specific contact email address & mobile number are filled in, then use those instead of the values from the customer
+	    								//
+	    								if(overrideEmail != null && overrideEmail != '')
+	    									{
+	    										contactInfo.emailAddress = overrideEmail;
+	    									}
+	    								
+	    								if(overrideMobile != null && overrideMobile != '')
+	    									{
+	    										contactInfo.mobileNumber = overrideMobile;
+	    									}
+	    								
+
 	    								//Build up the process shipments request object
 	    								//
 	    								var processShipmentsRequest = new BBSObjects.processShipmentRequest(integrationDetails, shippingCarrierInfo, shipmentReference, shippingAddress, contactInfo, despatchDate, isSaturday, senderAddress, subsidiaryContactInfo, itemLineInfo);
@@ -493,6 +509,8 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 			    								//
 							    				var processShipmentsResponse = null;
 							    			
+							    				//log.debug({title: 'Shipping Request', details: processShipmentsRequest});
+							    				
 			    								switch(shippingCarrierInfo.primaryCarrierName)
 			    									{
 					    								case 'DHL':
