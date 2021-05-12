@@ -101,6 +101,11 @@ function(currentRecord, record, search) {
 							
 							//Update the IF record with the total weight & packages
 							//
+							
+							//Hack the weight to be a value of 1, as requested by Mark Tiso
+							//
+							totalWeight = 1.0;
+							
 							try
 								{
 									record.submitFields({

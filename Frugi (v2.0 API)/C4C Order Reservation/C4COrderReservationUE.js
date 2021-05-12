@@ -6,8 +6,6 @@
 define(['N/record'],
 function(record) 
 {
-   
-    
     /**
      * Function definition to be triggered before record is loaded.
      *
@@ -19,9 +17,9 @@ function(record)
      */
     function afterSubmit(scriptContext) 
     	{
-	    	//Only work on create of the dummy record used for importing
+	    	//Only work on create or edit of the dummy record used for importing
     		//
-	    	if (scriptContext.type == scriptContext.UserEventType.CREATE)
+	    	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
 	    		{
 	    			try
 	    				{
@@ -64,27 +62,55 @@ function(record)
 				    				var recordQuantity 			= thisRecord.getValue({fieldId: 'custrecord_c4c_scr_quantity'});
 				    				var recordTargetQuantity	= thisRecord.getValue({fieldId: 'custrecord_c4c_scr_target_quantity'});
 			    					
-				    				//Create the real order reservation record
+				    				//Create or load the real order reservation record
 				    				//
 				    				var orderReservationRecord 	= null;
 				    				var orderReservationId 		= null;
 				    				
-				    				try
+				    				//Create
+				    				//
+				    				if (scriptContext.type == scriptContext.UserEventType.CREATE)
 				    					{
-				    						orderReservationRecord = record.create({
-				    																type:		'OrderReservation',
-				    																isDynamic:	true
-				    																});
-				    					}
-				    				catch(err)
-				    					{
-				    						orderReservationRecord = null;
-				    						log.error({title: 'Error creating order reservation record', description: err});
+					    					try
+						    					{
+						    						orderReservationRecord = record.create({
+						    																type:		'OrderReservation',
+						    																isDynamic:	true
+						    																});
+						    					}
+						    				catch(err)
+						    					{
+						    						orderReservationRecord = null;
+						    						log.error({title: 'Error creating order reservation record', description: err});
+						    					}
 				    					}
 				    				
+				    				//Load
+				    				//
+				    				if (scriptContext.type == scriptContext.UserEventType.EDIT)
+				    					{
+				    						var recordRelatedOrderReservation = thisRecord.getValue({fieldId: 'custrecord_c4c_scr_order_reservation_lin'});
+				    					
+					    					try
+						    					{
+						    						orderReservationRecord = record.load({
+						    																type:		'OrderReservation',
+						    																id:			recordRelatedOrderReservation,
+						    																isDynamic:	true
+						    																});
+						    					}
+						    				catch(err)
+						    					{
+						    						orderReservationRecord = null;
+						    						log.error({title: 'Error loading order reservation record', description: err});
+						    					}
+				    					}
+				    				
+				    				//Carry on if we have created or loaded the record ok
+				    				//
 				    				if(orderReservationRecord != null)
 				    					{
-				    						//Set field values
+				    						//Set field values on the order reservation record
 				    						//
 					    					orderReservationRecord.setValue({fieldId: 'subsidiary',					value: recordSubsidiary});
 					    					orderReservationRecord.setValue({fieldId: 'name',						value: recordName});
@@ -112,24 +138,26 @@ function(record)
 				    								orderReservationId = null;
 				    								log.error({title: 'Error saving order reservation record', description: err});
 				    							}
-				    						/*
-				    						if(orderReservationId != null)
+				    						
+				    						//Update the link to the created Order reservation
+				    						//
+				    						if(orderReservationId != null && scriptContext.type == scriptContext.UserEventType.CREATE)
 				    							{
-					    							//Delete the dummy record
-								    				//
-								    				try
-								    					{
-								    						record.delete({
-								    										type:		currentType,
-								    										id:			currentId
-								    									});
-								    					}
-								    				catch(err)
-								    					{
-								    						log.error({title: 'Error deleting order reservation import record, id = ' + currentId, description: err});
-								    					}
+				    								try
+				    									{
+				    										record.submitFields({
+								    											type: 	currentType,
+								    											id: 	currentId,
+								    											values: {
+								    														custrecord_c4c_scr_order_reservation_lin:	orderReservationId
+								    													}
+								    											});
+				    									}
+				    								catch(err)
+				    									{
+				    										log.error({title: 'Error updating order reservation import record', description: err});
+				    									}
 				    							}
-				    							*/
 				    					}
 			    				}
 	    				}

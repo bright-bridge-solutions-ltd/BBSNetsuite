@@ -80,8 +80,8 @@ function(encode, format, encode, https, record, runtime, search, xml, BBSObjects
 					shipmentRequestObj.ShipmentRequest.Shipment.ShipFrom.Address.CountryCode								= _processShipmentRequest.senderAddress.countryCode;					
 					shipmentRequestObj.ShipmentRequest.Shipment.PaymentInformation.ShipmentCharge.Type						= "01"; // 01 = Transportation
 					shipmentRequestObj.ShipmentRequest.Shipment.PaymentInformation.ShipmentCharge.BillShipper.AccountNumber	= _processShipmentRequest.shippingItemInfo.carrierContractNo;					
-					shipmentRequestObj.ShipmentRequest.Shipment.Service.Code												= _processShipmentRequest.shippingItemInfo.serviceCodes[0].serviceCode;
-					shipmentRequestObj.ShipmentRequest.Shipment.Service.Description											= _processShipmentRequest.shippingItemInfo.serviceCodes[0].serviceDescription;									
+					shipmentRequestObj.ShipmentRequest.Shipment.Service.Code												= _processShipmentRequest.shippingItemInfo.serviceCode;
+					//shipmentRequestObj.ShipmentRequest.Shipment.Service.Description											= _processShipmentRequest.shippingItemInfo.serviceCodes[0].serviceDescription;									
 					shipmentRequestObj.ShipmentRequest.LabelSpecification.LabelImageFormat.Code								= _processShipmentRequest.configuration.labelFormat;
 					shipmentRequestObj.ShipmentRequest.LabelSpecification.LabelStockSize.Height								= "6";
 					shipmentRequestObj.ShipmentRequest.LabelSpecification.LabelStockSize.Width								= "4";

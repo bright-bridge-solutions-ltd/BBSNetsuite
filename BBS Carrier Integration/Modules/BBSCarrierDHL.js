@@ -56,7 +56,7 @@ function(encode, format, encode, https, record, runtime, search, xml, BBSObjects
 					//
 					shipmentRequestObj.plannedShippingDateAndTime 	= _processShipmentRequest.shippingDate + 'T17:00:00 GMT+00:00';
 					shipmentRequestObj.pickup.isRequested			= false;
-					shipmentRequestObj.productCode					= 'N';
+					shipmentRequestObj.productCode					= _processShipmentRequest.shippingItemInfo.serviceCode;
 					
 					shipmentRequestObj.accounts.push(new _dhlAccountObj(_processShipmentRequest.shippingItemInfo.carrierContractNo, 'shipper'));
 					
