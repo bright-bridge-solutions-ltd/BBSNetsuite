@@ -221,15 +221,9 @@
 <#else>
 	<!-- ITEMS TABLE -->
 	<#if record.item?has_content>
-      
-      	<#assign lastFloor = -1>
-        <#assign quantitySubTotal = 0>
-        <#assign amountSubTotal = 0>
-          
 		<table class="itemtable" style="width: 100%; margin-top: 10px; border-top: 2px solid black; border-bottom: 2px solid black; border-left: 2px solid black; border-right: 2px solid black;"><!-- start items -->
-			<#list record.item?sort_by("custcol_bbs_floor_number") as item>
+			<#list record.item as item>
 				<#if item_index == 0>
-                  	<#assign lastFloor = item.custcol_bbs_floor_number>
 					<thead>
 						<tr>
 							<th colspan="10">CLIENT SERVICES</th>
@@ -243,21 +237,6 @@
 						</tr>
 					</thead>
 				</#if>
-                  
-                  <#if lastFloor != item.custcol_bbs_floor_number>
-                  	<!--Subtotal line goes here -->
-                    <tr>
-                      <td align="right" colspan="26" style="border-top: 2px solid black; border-bottom: 2px solid black;"><b>Subtotal for floor ${lastFloor?string["0"]}</b></td>
-                      <td align="right" colspan="4" style="border-left: 2px solid black; border-top: 2px solid black; border-bottom: 2px solid black;"><b>${currencySymbol}${amountSubTotal}</b></td>
-                  	</tr>
-                  	<#assign lastFloor = item.custcol_bbs_floor_number>
-                  	<#assign quantitySubTotal = item.quantity>
-        			<#assign amountSubTotal = item.amount>
-                <#else>
-                  	<#assign quantitySubTotal += item.quantity>
-        			<#assign amountSubTotal += item.amount>
-                </#if>
-                      
 				<tr>
 					<td colspan="10" line-height="150%">${item.description}</td>
 					<td colspan="8" style="border-left: 2px solid black;">${item.custcol_bbs_date_from} to ${item.custcol_bbs_date_to}</td>
@@ -268,16 +247,7 @@
 					<td align="right" colspan="4" style="border-left: 2px solid black;">${currencySymbol}${item.rate}</td>
 					<td align="right" colspan="4" style="border-left: 2px solid black;">${currencySymbol}${item.amount}</td>
 				</tr>
-                  
-                
-                  
 			</#list>
-                  
-            <!--Last subtotal line goes here -->
-            <tr>
-           		<td align="right" colspan="26" style="border-top: 2px solid black;"><b>Subtotal for floor ${lastFloor?string["0"]}</b></td>
-               	<td align="right" colspan="4" style="border-top: 2px solid black; border-left: 2px solid black;"><b>${currencySymbol}${amountSubTotal}</b></td>
-            </tr>  
 		</table>
 	</#if>
 </#if>
@@ -371,6 +341,11 @@
 	<tr>
 		<td colspan="20"><b>Please remit your <#if subsidiary.id == '3'><!-- US -->ACH/Wire Payment to:<#else>Payment to ${subsidiary.name}</#if></b></td>
 	</tr>
+    <#if subsidiary.id == '2'><!-- UK -->
+      <tr>
+      	<td colspan="20"><b>PLEASE NOTE: OUR BANK DETAILS HAVE CHANGED</b><br/>Please amend your records accordingly and make all future payments to:</td>
+   	  </tr>
+	</#if>
 	<tr>
 		<#if subsidiary.id == '3'><!-- US -->
 			<td colspan="3"><span class="subtitle">Bank Name</span></td>
@@ -381,43 +356,36 @@
 			<td colspan="20"><b>BACS Payments to ${subsidiary.custrecord_bbs_bank_name}</b></td>
 		</#if>
 	</tr>
-	<tr>
-		<td colspan="3"><span class="subtitle">Account No</span></td>
-		<td colspan="4"><b>${subsidiary.custrecord_bbs_account_no}</b></td>
-		<#if subsidiary.id == '3'><!-- US -->
+	<#if subsidiary.id == '3'><!-- US -->
+		<tr>
+			<td colspan="3"><span class="subtitle">Account No</span></td>
+			<td colspan="4"><b>${subsidiary.custrecord_bbs_account_no}</b></td>
 			<td colspan="3"><span class="subtitle">ABA No</span></td>
 			<td colspan="4"><b>${subsidiary.custrecord_bbs_aba_no}</b></td>
 			<td colspan="3"><span class="subtitle">SWIFT Code</span></td>
 			<td colspan="6"><b>${subsidiary.custrecord_bbs_swift_code}</b></td>
-		<#else>
+		</tr>
+		<tr>
+			<td colspan="3"><span class="subtitle">Routing No</span></td>
+			<td colspan="4"><b>${subsidiary.custrecord_bbs_sort_code}</b></td>
+			<td colspan="3">&nbsp;</td>
+			<td colspan="4">&nbsp;</td>
+			<td colspan="3">&nbsp;</td>
+			<td colspan="6">&nbsp;</td>
+		</tr>
+	<#else>
+		<tr>
+			<td colspan="3"><span class="subtitle">Account No</span></td>
+			<td colspan="4"><b>${subsidiary.custrecord_bbs_account_no}</b></td>
 			<td colspan="3"><span class="subtitle">Sort Code</span></td>
 			<td colspan="4"><b>${subsidiary.custrecord_bbs_sort_code}</b></td>
 			<td colspan="2"><span class="subtitle">IBAN</span></td>
 			<td colspan="6"><b>${subsidiary.custrecord_bbs_swift_code}</b></td>
-		</#if>
-	</tr>
+		</tr>
+	</#if>
 </table>
 
 <hr/><!-- Horizontal Line -->
-
-<#if subsidiary.id == '3' || subsidiary.id == '5'> <!-- If subsidiary is 3 (US) or 5 (Canada) -->
-	
-	<table style="width:100%">
-		<thead>
-			<tr>
-				<th style="border-left: 2px solid black; border-top: 2px solid black;">Lockbox postal address:</th>
-				<th style="border-left: 2px solid black; border-right: 2px solid black; border-top: 2px solid black;">Lockbox address for overnight courier deliveries:</th>
-			</tr>
-		</thead>
-		<tr>
-			<td style="border-left: 2px solid black; border-bottom: 2px solid black;">essensys Inc.<br/>PO Box 787435<br/>Philadelphia<br/>PA 19178-7435</td>
-			<td style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">Lockbox #787435<br/>essensys Inc.<br/>MAC Y1372-0445<br/>401 Market Street<br/>Philadelphia<br/>PA 19106</td>
-		</tr>
-	</table>
-	
-	<hr/><!-- Horizontal Line -->
-	
-</#if>
 
 </body>
 </pdf>
