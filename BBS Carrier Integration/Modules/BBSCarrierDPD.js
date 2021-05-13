@@ -58,7 +58,7 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 					//
 					var processShipmentRequestDPD = new _processShipmentRequestDPD(_processShipmentRequest);
 					
-					log.debug({title: 'Shipment request',details: processShipmentRequestDPD});
+					//log.debug({title: 'Shipment request',details: processShipmentRequestDPD});
 					
 					//Populate the object with the data from the incoming standard message
 					//i.e. populate processShipmentRequestDPD with data from _processShipmentRequest

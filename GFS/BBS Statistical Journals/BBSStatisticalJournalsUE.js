@@ -10,90 +10,36 @@
  * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
  * @appliedtorecord recordType
  * 
- * @param {String} type Operation types: create, edit, delete, xedit,
- *                      approve, cancel, reject (SO, ER, Time Bill, PO & RMA only)
- *                      pack, ship (IF only)
- *                      dropship, specialorder, orderitems (PO only) 
- *                      paybills (vendor payments)
+ * @param {String} type Operation types: create, edit, delete, xedit
+ *                      approve, reject, cancel (SO, ER, Time Bill, PO & RMA only)
+ *                      pack, ship (IF)
+ *                      markcomplete (Call, Task)
+ *                      reassign (Case)
+ *                      editforecast (Opp, Estimate)
  * @returns {Void}
  */
-function statisticalJournalsAS(type)
+function statisticalJournalsBS(type)
 {
-	
-	if(type == 'create' || type == 'edit')
+	try
 		{
-			//Get the record type and ID
-			//
-			var processedRecordType = nlapiGetRecordType();
-			var processedRecordId = nlapiGetRecordId();
-			
-			//Load the processed record
-			//
-			var processedRecord = nlapiLoadRecord(processedRecordType, processedRecordId);
-			
-			//Pre-processing of credit notes to make the parcel & consignment values -ve
-			//
-			if(processedRecordType == 'creditmemo')
+			if(type == 'create' || type == 'edit')
 				{
-					var itemLineCount = processedRecord.getLineItemCount('item');
+					//Get the record type and ID
+					//
+					var processedRecordType = nlapiGetRecordType();
+					var processedRecordId = nlapiGetRecordId();
 					
-					for (var int = 1; int <= itemLineCount; int++) 
+					//Pre-processing of credit notes to make the parcel & consignment values -ve
+					//
+					if(processedRecordType == 'creditmemo')
 						{
-							var parcels = Number(processedRecord.getLineItemValue('item', 'custcol_bbs_parcels', int));
-							var consignments = Number(processedRecord.getLineItemValue('item', 'custcol_bbs_consignments', int));
-						
-							//Check if the parcels variable is a negative value
-							//
-							if (parcels > 0)
-								{
-									//Convert parcels to a positive number
-									//
-									parcels = Math.abs(parcels) * -1.0;
-								}
+							var itemLineCount = nlapiGetLineItemCount('item');
 							
-							//Check if the consignments variable is a negative value
-							//
-							if (consignments > 0)
+							for (var int = 1; int <= itemLineCount; int++) 
 								{
-									//Convert consignments to a positive number
-									//
-									consignments = Math.abs(consignments) * -1.0;
-								}
-							
-							processedRecord.setLineItemValue('item', 'custcol_bbs_parcels', int, parcels);
-							processedRecord.setLineItemValue('item', 'custcol_bbs_consignments', int, consignments);
-						}
-					
-					nlapiSubmitRecord(processedRecord, false, true);
-				}
-
-			//Pre-processing of journals to make the parcel & consignment values -ve
-			//
-			if(processedRecordType == 'journalentry')
-				{
-					var itemLineCount = processedRecord.getLineItemCount('line');
-					var reversingJournal = processedRecord.getFieldValue('isreversal');
-					
-					var updated = false;
-					
-					for (var int = 1; int <= itemLineCount; int++) 
-						{
-							var parcels = Number(processedRecord.getLineItemValue('line', 'custcol_bbs_parcels', int));
-							var consignments = Number(processedRecord.getLineItemValue('line', 'custcol_bbs_consignments', int));
-							var accountType = processedRecord.getLineItemValue('line', 'accounttype', int);
-							var debitValue = processedRecord.getLineItemValue('line', 'debit', int);
-							var creditValue = processedRecord.getLineItemValue('line', 'credit', int);
-							
-							//Make the parcels & consigments -ve if we are on an income account & the value on the line is a debit
-							//or if the journal is a reversal, we are on an income account & the value is a credit
-							//
-							if(	(accountType = 'Income' && reversingJournal != 'T' && debitValue != null && debitValue != '')
-								|| 
-								(accountType = 'Income' && reversingJournal != 'F' && creditValue != null && creditValue != '')
-								)
-								{
-									updated = true;
-									
+									var parcels 		= Number(nlapiGetLineItemValue('item', 'custcol_bbs_parcels', int));
+									var consignments 	= Number(nlapiGetLineItemValue('item', 'custcol_bbs_consignments', int));
+								
 									//Check if the parcels variable is a positive value
 									//
 									if (parcels > 0)
@@ -107,243 +53,331 @@ function statisticalJournalsAS(type)
 									//
 									if (consignments > 0)
 										{
-											//Convert consignments to a positive number
+											//Convert consignments to a negative number
 											//
 											consignments = Math.abs(consignments) * -1.0;
 										}
 									
-									processedRecord.setLineItemValue('line', 'custcol_bbs_parcels', int, parcels);
-									processedRecord.setLineItemValue('line', 'custcol_bbs_consignments', int, consignments);
+									nlapiSetLineItemValue('item', 'custcol_bbs_parcels', int, parcels);
+									nlapiSetLineItemValue('item', 'custcol_bbs_consignments', int, consignments);
 								}
 						}
-					
-					if(updated)
+			
+					//Pre-processing of journals to make the parcel & consignment values -ve
+					//
+					if(processedRecordType == 'journalentry')
 						{
-							nlapiSubmitRecord(processedRecord, false, true);
+							var itemLineCount 		= nlapiGetLineItemCount('line');
+							var reversingJournal 	= isNull(nlapiGetFieldValue('isreversal'),'F');
+							
+							for (var int = 1; int <= itemLineCount; int++) 
+								{
+									var parcels 		= Number(nlapiGetLineItemValue('line', 'custcol_bbs_parcels', int));
+									var consignments 	= Number(nlapiGetLineItemValue('line', 'custcol_bbs_consignments', int));
+									var accountType 	= nlapiGetLineItemValue('line', 'accounttype', int);
+									var debitValue 		= isNull(nlapiGetLineItemValue('line', 'debit', int),'');
+									var creditValue 	= isNull(nlapiGetLineItemValue('line', 'credit', int),'');
+									
+									
+									//Make the parcels & consigments -ve if we are on an income account & the value on the line is a debit
+									//or if the journal is a reversal, we are on an income account & the value is a credit
+									//
+									if(	(accountType = 'Income' && reversingJournal == 'F' && debitValue != '')
+										|| 
+										(accountType = 'Income' && reversingJournal == 'T' && creditValue != '')
+										)
+										{
+											//Check if the parcels variable is a positive value
+											
+											//
+											if (parcels > 0)
+												{
+													//Convert parcels to a negative number
+													//
+													parcels = Math.abs(parcels) * -1.0;
+												}
+											
+											//Check if the consignments variable is a positive value
+											//
+											if (consignments > 0)
+												{
+													//Convert consignments to a positive number
+													//
+													consignments = Math.abs(consignments) * -1.0;
+												}
+											
+											nlapiSetLineItemValue('line', 'custcol_bbs_parcels', int, parcels);
+											nlapiSetLineItemValue('line', 'custcol_bbs_consignments', int, consignments);
+										}
+									
+									//Make the parcels & consigments +ve if we are on an income account & the value on the line is a credit
+									//or if the journal is a reversal, we are on an income account & the value is a debit
+									//
+									
+									if(	(accountType = 'Income' && reversingJournal == 'F' && creditValue != '')
+										|| 
+										(accountType = 'Income' && reversingJournal == 'T' && debitValue != '')
+										)
+										{
+											//Check if the parcels variable is a positive value
+											//
+
+											if (parcels < 0)
+												{
+													//Convert parcels to a negative number
+													//
+													parcels = Math.abs(parcels);
+												}
+											
+											//Check if the consignments variable is a positive value
+											//
+											if (consignments < 0)
+												{
+													//Convert consignments to a positive number
+													//
+													consignments = Math.abs(consignments);
+												}
+										
+											nlapiSetLineItemValue('line', 'custcol_bbs_parcels', int, parcels);
+											nlapiSetLineItemValue('line', 'custcol_bbs_consignments', int, consignments);
+										}
+								}
 						}
 				}
 		}
-	
-	
-	
-	//Only interested in create, edit or delete mode
-	//
-	if(type == 'create' || type == 'edit' || type == 'delete')
+	catch(err)
 		{
-			//Get the parameters
-			//
-			var context = nlapiGetContext();
-			var accountParcels = context.getSetting('SCRIPT', 'custscript_bbs_acc_parcel');
-			var accountConsignments = context.getSetting('SCRIPT', 'custscript_bbs_acc_cons');
-			
-			//Init variables
-			//
-			var oldRecord = null;
-			var newRecord = null;
-			var recordType = null;
-			var recordId = null;
-			var summaryValues = {};
-			var subsidiaryId = null;
-			var entityId = null;
-			var recordType = null;
-			var sublistName = null;
-			var originatingTransaction = null;
-			var transactionDate = null;
-			var postingPeriod = null;
-			var supplierSegment = null;
-			var customerSegment = null;
-			
-			if(type == 'edit' || type == 'delete')
-				{
-					oldRecord = nlapiGetOldRecord();
-				}
-			
-			if(type == 'create' || type == 'edit')
-				{
-					newRecord = nlapiGetNewRecord();
-				}
-			
-			//Get info on the new version of the record
-			//
-			if(type == 'delete')
-				{
-					recordType = oldRecord.getRecordType();
-					recordId = oldRecord.getId();
-				}
-			else
-				{
-					recordType = newRecord.getRecordType();
-					recordId = newRecord.getId();
-				}
-			
-			//Get the subsidiary, originating transaction id etc
-			//
-			if(type == 'delete')
-				{
-					subsidiaryId = oldRecord.getFieldValue('subsidiary');
-					originatingTransaction = oldRecord.getFieldValue('tranid');
-					transactionDate = oldRecord.getFieldValue('trandate');
-					postingPeriod = oldRecord.getFieldValue('postingperiod');
+			nlapiLogExecution('ERROR', 'Error processing journal', err.message);
+		}
+}
 
+/**
+ * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
+ * @appliedtorecord recordType
+ * 
+ * @param {String} type Operation types: create, edit, delete, xedit,
+ *                      approve, cancel, reject (SO, ER, Time Bill, PO & RMA only)
+ *                      pack, ship (IF only)
+ *                      dropship, specialorder, orderitems (PO only) 
+ *                      paybills (vendor payments)
+ * @returns {Void}
+ */
+function statisticalJournalsAS(type)
+{
+	try
+		{
+			//Only interested in create or edit mode
+			//
+			if(type == 'create' || type == 'edit' || type == 'delete')
+				{
+					//Get the parameters
+					//
+					var context = nlapiGetContext();
+					var accountParcels = context.getSetting('SCRIPT', 'custscript_bbs_acc_parcel');
+					var accountConsignments = context.getSetting('SCRIPT', 'custscript_bbs_acc_cons');
 					
-				}
-			else
-				{
-					subsidiaryId = newRecord.getFieldValue('subsidiary');
-					originatingTransaction = newRecord.getFieldValue('tranid');
-					transactionDate = newRecord.getFieldValue('trandate');
-					postingPeriod = newRecord.getFieldValue('postingperiod');
-
-				}
-			
-			//Journal record type
-			//
-			if(recordType == 'journalentry')
-				{
-					sublistName = 'line';
-				}
-			else
-				{
+					//Init variables
+					//
+					var oldRecord = null;
+					var newRecord = null;
+					var recordType = null;
+					var recordId = null;
+					var summaryValues = {};
+					var subsidiaryId = null;
+					var entityId = null;
+					var recordType = null;
+					var sublistName = null;
+					var originatingTransaction = null;
+					var transactionDate = null;
+					var postingPeriod = null;
+					var supplierSegment = null;
+					var customerSegment = null;
+					
+					if(type == 'edit' || type == 'delete')
+						{
+							oldRecord = nlapiGetOldRecord();
+						}
+					
+					if(type == 'create' || type == 'edit')
+						{
+							newRecord = nlapiGetNewRecord();
+						}
+					
+					//Get info on the new version of the record
+					//
 					if(type == 'delete')
 						{
-							entityId = oldRecord.getFieldValue('entity');
+							recordType = oldRecord.getRecordType();
+							recordId = oldRecord.getId();
 						}
 					else
 						{
-							entityId = newRecord.getFieldValue('entity');
+							recordType = newRecord.getRecordType();
+							recordId = newRecord.getId();
 						}
 					
-					sublistName = 'item';
-				}
-			
-			//Get the summary values from the new version of the record
-			//
-			if(type != 'delete')
-				{
-					getSummaryValues(newRecord, 'N', summaryValues, sublistName);
-				}
-			
-			//If in edit or delete mode we need to get the old version of the record
-			//
-			if(type == 'edit' || type == 'delete')
-				{
-					getSummaryValues(oldRecord, 'O', summaryValues, sublistName);
-				}
-		
-			//See if we need to create a statistical journal
-			//
-			var createJournal = false;
-			
-			for ( var summaryValue in summaryValues) 
-				{
-					if(summaryValues[summaryValue][0] != 0 || summaryValues[summaryValue][1] != 0)
+					//Get the subsidiary, originating transaction id etc
+					//
+					if(type == 'delete')
 						{
-							createJournal = true;
-							break;
+							subsidiaryId = oldRecord.getFieldValue('subsidiary');
+							originatingTransaction = oldRecord.getFieldValue('tranid');
+							transactionDate = oldRecord.getFieldValue('trandate');
+							postingPeriod = oldRecord.getFieldValue('postingperiod');
 						}
-				}
-			
-			if(createJournal)
-				{
-					var lineNo = Number(0);
+					else
+						{
+							subsidiaryId = newRecord.getFieldValue('subsidiary');
+							originatingTransaction = newRecord.getFieldValue('tranid');
+							transactionDate = newRecord.getFieldValue('trandate');
+							postingPeriod = newRecord.getFieldValue('postingperiod');
+						}
 					
-					//Create the statistical journal entry
+					//Journal record type
 					//
-					var statisticalJournal = nlapiCreateRecord('statisticaljournalentry'); 
-					statisticalJournal.setFieldValue('subsidiary', subsidiaryId);
-					statisticalJournal.setFieldValue('unitstype', '1');
-					statisticalJournal.setFieldValue('memo', originatingTransaction);
-					statisticalJournal.setFieldValue('trandate', transactionDate);
-					statisticalJournal.setFieldValue('postingperiod', postingPeriod);
-					statisticalJournal.setFieldValue('custbody_bbs_originating_transaction',recordId);
+					if(recordType == 'journalentry')
+						{
+							sublistName = 'line';
+						}
+					else
+						{
+							if(type == 'delete')
+								{
+									entityId = oldRecord.getFieldValue('entity');
+								}
+							else
+								{
+									entityId = newRecord.getFieldValue('entity');
+								}
+							
+							sublistName = 'item';
+						}
 					
-					//Loop through the summary values
+					//Get the summary values from the new version of the record
 					//
+					if(type != 'delete')
+						{
+							getSummaryValues(newRecord, 'N', summaryValues, sublistName);
+						}
+					
+					//If in edit or delete mode we need to get the old version of the record
+					//
+					if(type == 'edit' || type == 'delete')
+						{
+							getSummaryValues(oldRecord, 'O', summaryValues, sublistName);
+						}
+				
+					//See if we need to create a statistical journal
+					//
+					var createJournal = false;
+					
 					for ( var summaryValue in summaryValues) 
 						{
-							var summaryParts = summaryValue.split('|');
-							var carrierId = summaryParts[0];
-							var contractId = summaryParts[1];
-							var groupId = summaryParts[2];
-							var serviceId = summaryParts[3];
-							var chargeId = summaryParts[4];
-							var operationsId = summaryParts[5];
-							var departmentId = summaryParts[6];
-							var supplierId = summaryParts[7];
-							var customerId = summaryParts[8];
-							
-							//See if we need to create a parcels line
-							//
-							if(summaryValues[summaryValue][0] != 0)
+							if(summaryValues[summaryValue][0] != 0 || summaryValues[summaryValue][1] != 0)
 								{
-									var postingValue = summaryValues[summaryValue][0];
-
-									//Check if the postingValue variable is a positive value
-									//
-									if (postingValue > 0)
-										{
-											//Convert postingValue to a negative number
-											//
-											postingValue = postingValue * Number(-1.0);
-										}
-
-									lineNo++;
-									statisticalJournal.setLineItemValue('line', 'account', lineNo, accountParcels);
-									statisticalJournal.setLineItemValue('line', 'debit', lineNo, postingValue); // field "debit" has label "Amount" in UI
-									statisticalJournal.setLineItemValue('line', 'lineunit', lineNo, '1');       
-									statisticalJournal.setLineItemValue('line', 'class', lineNo, carrierId);
-									statisticalJournal.setLineItemValue('line', 'location', lineNo, contractId);
-									statisticalJournal.setLineItemValue('line', 'custcol_cseg_bbs_prodgrp', lineNo, groupId);
-									statisticalJournal.setLineItemValue('line', 'custcol_cseg_bbs_service', lineNo, serviceId);
-									statisticalJournal.setLineItemValue('line', 'custcol_cseg_bbs_chrgetype', lineNo, chargeId);
-									statisticalJournal.setLineItemValue('line', 'cseg_bbs_ops_method', lineNo, operationsId);
-									statisticalJournal.setLineItemValue('line', 'entity', lineNo, entityId);
-									statisticalJournal.setLineItemValue('line', 'department', lineNo, departmentId);
-									statisticalJournal.setLineItemValue('line', 'cseg_bbs_supplier', lineNo, supplierId);
-									statisticalJournal.setLineItemValue('line', 'cseg_bbs_customer', lineNo, customerId);
-								}
-							
-							//See if we need to create a consignments line
-							//
-							if(summaryValues[summaryValue][1] != 0)
-								{
-									var postingValue = summaryValues[summaryValue][1];
-
-									//Check if the postingValue variable is a positive value
-									//
-									if (postingValue > 0)
-										{
-											//Convert postingValue to a negative number
-											//
-											postingValue = postingValue * Number(-1.0);
-										}
-
-									lineNo++;
-									statisticalJournal.setLineItemValue('line', 'account', lineNo, accountConsignments);
-									statisticalJournal.setLineItemValue('line', 'debit', lineNo, postingValue); // field "debit" has label "Amount" in UI
-									statisticalJournal.setLineItemValue('line', 'lineunit', lineNo, '2');       
-									statisticalJournal.setLineItemValue('line', 'class', lineNo, carrierId);
-									statisticalJournal.setLineItemValue('line', 'location', lineNo, contractId);
-									statisticalJournal.setLineItemValue('line', 'custcol_cseg_bbs_prodgrp', lineNo, groupId);
-									statisticalJournal.setLineItemValue('line', 'custcol_cseg_bbs_service', lineNo, serviceId);
-									statisticalJournal.setLineItemValue('line', 'custcol_cseg_bbs_chrgetype', lineNo, chargeId);
-									statisticalJournal.setLineItemValue('line', 'cseg_bbs_ops_method', lineNo, operationsId);
-									statisticalJournal.setLineItemValue('line', 'entity', lineNo, entityId);
-									statisticalJournal.setLineItemValue('line', 'department', lineNo, departmentId);
-									statisticalJournal.setLineItemValue('line', 'cseg_bbs_supplier', lineNo, supplierId);
-									statisticalJournal.setLineItemValue('line', 'cseg_bbs_customer', lineNo, customerId);
+									createJournal = true;
+									break;
 								}
 						}
 					
-					try
+					if(createJournal)
 						{
-							nlapiSubmitRecord(statisticalJournal, true, true);
-						}
-					catch(err)
-						{
-							nlapiLogExecution('ERROR', 'Error creating statistical journal', err.message);
+							var lineNo = Number(0);
+							
+							//Create the statistical journal entry
+							//
+							var statisticalJournal = nlapiCreateRecord('statisticaljournalentry'); 
+							statisticalJournal.setFieldValue('subsidiary', subsidiaryId);
+							statisticalJournal.setFieldValue('unitstype', '1');
+							statisticalJournal.setFieldValue('memo', originatingTransaction);
+							statisticalJournal.setFieldValue('trandate', transactionDate);
+							statisticalJournal.setFieldValue('postingperiod', postingPeriod);
+							statisticalJournal.setFieldValue('custbody_bbs_originating_transaction',recordId);
+							
+							//Loop through the summary values
+							//
+							for ( var summaryValue in summaryValues) 
+								{
+									var summaryParts = summaryValue.split('|');
+									var carrierId = summaryParts[0];
+									var contractId = summaryParts[1];
+									var groupId = summaryParts[2];
+									var serviceId = summaryParts[3];
+									var chargeId = summaryParts[4];
+									var operationsId = summaryParts[5];
+									var departmentId = summaryParts[6];
+									var supplierId = summaryParts[7];
+									var customerId = summaryParts[8];
+									
+									//See if we need to create a parcels line
+									//
+									if(summaryValues[summaryValue][0] != 0)
+										{
+											var postingValue = summaryValues[summaryValue][0];
+											
+										//	if(recordType == 'creditmemo')
+										//		{
+										//			postingValue = postingValue * Number(-1.0);
+										//		}
+		
+											lineNo++;
+											statisticalJournal.setLineItemValue('line', 'account', lineNo, accountParcels);
+											statisticalJournal.setLineItemValue('line', 'debit', lineNo, postingValue); // field "debit" has label "Amount" in UI
+											statisticalJournal.setLineItemValue('line', 'lineunit', lineNo, '1');       
+											statisticalJournal.setLineItemValue('line', 'class', lineNo, carrierId);
+											statisticalJournal.setLineItemValue('line', 'location', lineNo, contractId);
+											statisticalJournal.setLineItemValue('line', 'custcol_cseg_bbs_prodgrp', lineNo, groupId);
+											statisticalJournal.setLineItemValue('line', 'custcol_cseg_bbs_service', lineNo, serviceId);
+											statisticalJournal.setLineItemValue('line', 'custcol_cseg_bbs_chrgetype', lineNo, chargeId);
+											statisticalJournal.setLineItemValue('line', 'cseg_bbs_ops_method', lineNo, operationsId);
+											statisticalJournal.setLineItemValue('line', 'entity', lineNo, entityId);
+											statisticalJournal.setLineItemValue('line', 'department', lineNo, departmentId);
+											statisticalJournal.setLineItemValue('line', 'cseg_bbs_supplier', lineNo, supplierId);
+											statisticalJournal.setLineItemValue('line', 'cseg_bbs_customer', lineNo, customerId);
+										}
+									
+									//See if we need to create a consignments line
+									//
+									if(summaryValues[summaryValue][1] != 0)
+										{
+											var postingValue = summaryValues[summaryValue][1];
+											
+										//	if(recordType == 'creditmemo')
+										//		{
+										//			postingValue = postingValue * Number(-1.0);
+										//		}
+		
+											lineNo++;
+											statisticalJournal.setLineItemValue('line', 'account', lineNo, accountConsignments);
+											statisticalJournal.setLineItemValue('line', 'debit', lineNo, postingValue); // field "debit" has label "Amount" in UI
+											statisticalJournal.setLineItemValue('line', 'lineunit', lineNo, '2');       
+											statisticalJournal.setLineItemValue('line', 'class', lineNo, carrierId);
+											statisticalJournal.setLineItemValue('line', 'location', lineNo, contractId);
+											statisticalJournal.setLineItemValue('line', 'custcol_cseg_bbs_prodgrp', lineNo, groupId);
+											statisticalJournal.setLineItemValue('line', 'custcol_cseg_bbs_service', lineNo, serviceId);
+											statisticalJournal.setLineItemValue('line', 'custcol_cseg_bbs_chrgetype', lineNo, chargeId);
+											statisticalJournal.setLineItemValue('line', 'cseg_bbs_ops_method', lineNo, operationsId);
+											statisticalJournal.setLineItemValue('line', 'entity', lineNo, entityId);
+											statisticalJournal.setLineItemValue('line', 'department', lineNo, departmentId);
+											statisticalJournal.setLineItemValue('line', 'cseg_bbs_supplier', lineNo, supplierId);
+											statisticalJournal.setLineItemValue('line', 'cseg_bbs_customer', lineNo, customerId);
+										}
+								}
+							
+							try
+								{
+									nlapiSubmitRecord(statisticalJournal, true, true);
+								}
+							catch(err)
+								{
+									nlapiLogExecution('ERROR', 'Error creating statistical journal', err.message);
+								}
 						}
 				}
+		}
+	catch(err)
+		{
+			nlapiLogExecution('ERROR', 'Error processing journal', err.message);
 		}
 }
 
@@ -355,43 +389,47 @@ function getSummaryValues(_record, _type, _summaryValues, _sublistName)
 	
 	for (var int = 1; int <= lines; int++) 
 		{
-			var carrier = isNull(_record.getLineItemValue(_sublistName, 'class', int), '');
-			var contract = isNull(_record.getLineItemValue(_sublistName, 'location', int), '');
-			var group = isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_prodgrp', int), '');
-			var service = isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_service', int), '');
-			var charge = isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_chrgetype', int), '');
-			var operations = isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_ops_method', int), '');
-			var department = isNull(_record.getLineItemValue(_sublistName, 'department', int), '');
-			var supplier = isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_supplier', int), '');
-			var customer = isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_customer', int), '');
+			var carrier 		= isNull(_record.getLineItemValue(_sublistName, 'class', int), '');
+			var contract 		= isNull(_record.getLineItemValue(_sublistName, 'location', int), '');
+			var group 			= isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_prodgrp', int), '');
+			var service 		= isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_service', int), '');
+			var charge 			= isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_chrgetype', int), '');
+			var operations 		= isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_ops_method', int), '');
+			var department 		= isNull(_record.getLineItemValue(_sublistName, 'department', int), '');
+			var supplier 		= isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_supplier', int), '');
+			var customer 		= isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_customer', int), '');
+			var contractType 	= isNull(_record.getLineItemText(_sublistName,  'location', int), '');
 			
-			var summaryKey = carrier + '|' + contract + '|' + group + '|' + service + '|' + charge + '|' + operations + '|' + department + '|' + supplier + '|' + customer;
-			
-			var parcels = Number(_record.getLineItemValue(_sublistName, 'custcol_bbs_parcels', int));
-			var consignments = Number(_record.getLineItemValue(_sublistName, 'custcol_bbs_consignments', int));
-			
-			switch(_type)
+			if(contractType != 'T')
 				{
-					case 'O':
-						multiplier = Number(-1);
-						break;
-						
-					case 'N':
-						multiplier = Number(1);
-						break;	
-				}
-			
-			parcels = parcels * multiplier;
-			consignments = consignments * multiplier;
-			
-			if(!_summaryValues[summaryKey])
-				{
-					_summaryValues[summaryKey] = [parcels, consignments];
-				}
-			else
-				{
-					_summaryValues[summaryKey][0] += parcels;
-					_summaryValues[summaryKey][1] += consignments;
+					var summaryKey = carrier + '|' + contract + '|' + group + '|' + service + '|' + charge + '|' + operations + '|' + department + '|' + supplier + '|' + customer;
+					
+					var parcels 		= Number(_record.getLineItemValue(_sublistName, 'custcol_bbs_parcels', int));
+					var consignments 	= Number(_record.getLineItemValue(_sublistName, 'custcol_bbs_consignments', int));
+					
+					switch(_type)
+						{
+							case 'O':
+								multiplier = Number(-1);
+								break;
+								
+							case 'N':
+								multiplier = Number(1);
+								break;	
+						}
+					
+					parcels 		= parcels * multiplier;
+					consignments 	= consignments * multiplier;
+					
+					if(!_summaryValues[summaryKey])
+						{
+							_summaryValues[summaryKey] = [parcels, consignments];
+						}
+					else
+						{
+							_summaryValues[summaryKey][0] += parcels;
+							_summaryValues[summaryKey][1] += consignments;
+						}
 				}
 		}
 }
