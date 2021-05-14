@@ -55,19 +55,23 @@ function() {
 					fieldId: 'duedate'
 				});
     			
-    			// if the selected due date is a weekend
-    			if (dueDate.getDay() == 6 || dueDate.getDay() == 0) // Saturday
+    			// if we have a due date
+    			if (dueDate)
     				{
-    					// add 2 days to the dueDate to get to the next working day
-    					dueDate.setDate(dueDate.getDate() + 2);
+		    			// if the selected due date is a weekend
+		    			if (dueDate.getDay() == 6 || dueDate.getDay() == 0) // Saturday
+		    				{
+		    					// add 2 days to the dueDate to get to the next working day
+		    					dueDate.setDate(dueDate.getDate() + 2);
+		    				}
+		    		
+		    			// set the expected delivery date field on the current line using the due date field on the header
+		    			scriptContext.currentRecord.setCurrentSublistValue({
+		    				sublistId: 'item',
+		    				fieldId: 'expectedreceiptdate',
+		    				value: dueDate
+		    			});
     				}
-    		
-    			// set the expected delivery date field on the current line using the due date field on the header
-    			scriptContext.currentRecord.setCurrentSublistValue({
-    				sublistId: 'item',
-    				fieldId: 'expectedreceiptdate',
-    				value: dueDate
-    			});
     		}
 
     }

@@ -168,7 +168,7 @@
 			<th colspan="5" align="center" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">YOUR ORDER NO.</th>
 			<th colspan="3" align="center" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">DELIVERY DATE</th>
 			<th colspan="3" align="center" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">DELIVERY REF</th>
-			<th colspan="2" align="center" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">DELIVERY METH</th>
+			<th colspan="2" align="center" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">INCOTERMS</th>
 			<th colspan="2" align="center" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">PAGE</th>
 			<td colspan="2" style="margin-left: 20px;"><b>Fax No:</b></td>
 			<td colspan="4">${subsidiary.fax}</td>
@@ -179,7 +179,7 @@
 			<td colspan="5" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${salesorder.otherrefnum}</td>
 			<td colspan="3" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${record.trandate}</td>
 			<td colspan="3" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${salesorder.memo}</td>
-			<td colspan="2" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+			<td colspan="2" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custbody_bbs_incoterms}</td>
 			<td colspan="2" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;"><pagenumber/> of <totalpages/></td>
 			<td colspan="2" style="margin-left: 20px;"><b>Email:<br/><br/>Web:</b></td>
 			<td colspan="4">${subsidiary.custrecord_bbs_sales_email}<br/><br/>${subsidiary.custrecord_bbs_website}</td>
@@ -219,7 +219,7 @@
 	
 	<table style="width: 100%; margin-top: 10px;">
 		<tr>
-			<td colspan="22">Period from XXX______to____XXX</td>
+			<td colspan="22">Period from 01/01/${record.trandate?string('yyyy')}______to______31/12/${record.trandate?string('yyyy')}</td>
 			<td colspan="8">&nbsp;</td>
 		</tr>
 		<tr>

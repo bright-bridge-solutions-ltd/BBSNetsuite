@@ -23,7 +23,7 @@ function(search, record) {
     function getInputData() {
     	
     	// create search to find transactions to be deleted
-    	var transactionSearch = search.create({
+    	return search.create({
 			type: search.Type.CASH_SALE,
 			
 			columns: [{
@@ -31,58 +31,17 @@ function(search, record) {
 			}],
 			
 			filters: [{
-				name: 'customform',
+				name: 'internalid',
 				operator: 'anyof',
-				values: ['128'] // 128 = Clover Cash Sale
+				values: [10319579,10319580,11092626,11092627,11092635,11092636,11092637,11092638,11092639,11092640,11092641,11092732,11092733,11092734,11092735,11092736,11092737,11103720,11103721,11103722,11103723,11103724,11103725,11103726,11103727,11103728,11103729,11103817,11103818,11103910,11113455,11113456,11113457,11113458,11113459,11113460,11113461,11113462,11113463,11120837,11120838,11120839,11120840,11120841,11120842,11120843,11120844,11120845,11125825,11125826,11125827,11130138,11130139,11130140,11130141,11144532,11144533,11144534,11144535,11144536,11144537,11144538,11144539,11144540,11154914,11154915,11154916,11154917,11154918,11154919,11154920,11154921,11154922,11154923,11163011,11163012,11163013,11163014,11163015,11163016,11163017,11163018,11173273,11173274,11173275,11173276,11178223,11178224,11178225,11178226,11183016,11183017,11192536,11192537,11192538,11192539,11192540,11192541,11192542,11192543,11192544,11192545,11192546,11192547,11192548,11192549,11192550,11192576,11201782,11201783,11201784,11201785,11201786,11201787,11201788,11201789,11201790,11201791,11201792,11201793,11201794,11211289,11211290,11211291,11211292,11211293,11211294,11211295,11211296,11211297,11211298,11211299,11211300,11211301]
 			},
 					{
 				name: 'mainline',
 				operator: 'is',
 				values: ['T']
-			},
-					{
-				name: 'trandate',
-				operator: 'within',
-				values: ['1/9/2019','16/9/2019']
-			},
-					{
-				name: 'location',
-				operator: 'anyof',
-				values: ['88'] // 88 = Cookridge Closed
 			}],
-		});
-    	
-    	// create new array to hold search results
-    	var searchResults = new Array();
-    	
-    	// declare variables
-    	var recordID;
-
-    	// process search results push results to the array
-    	transactionSearch.run().each(function(result) {
-    		
-    		// get the record ID from the search results
-    		recordID = result.getValue({
-    			name: 'internalid'
-    		});
-    		
-    		// push search result to searchResults array
-    		searchResults.push({
-    			'id': recordID
-    		});
-    		
-    		// continue processing results
-    		return true;
+		
     	});
-    	
-    	// log number of search results found
-    	log.audit({
-    		title: 'Search Results',
-    		details: 'Search found ' + searchResults.length + ' results'
-    	});
-    	
-    	// pass array to Map() function
-    	return searchResults;
 
     }
 
@@ -94,62 +53,9 @@ function(search, record) {
      */
     function map(context) {
     	
-    	// initialize variables
-    	var cashSaleInfoRecordID;
-    	
-    	// retrieve record ID from the search
+    	// retrieve search results from the search
     	var searchResults = JSON.parse(context.value);    	
 		var cashSaleRecordID = searchResults.id;
-		
-		// run search to find Cash Sale Information records
-		var cashSaleInfoSearch = search.create({
-			type: 'customrecordbbs_cash_sale_information',
-					
-			columns: [{
-				name: 'internalid'
-			}],
-					
-			filters: [{
-				name: 'custrecord_bbs_cash_sale',
-				operator: 'anyof',
-				values: [cashSaleRecordID]
-			}],
-		});
-				
-		// process search results
-		cashSaleInfoSearch.run().each(function(result) {
-    	    		
-    	    // get the record ID from the search results
-    	    cashSaleInfoRecordID = result.getValue({
-    	    	name: 'internalid'
-    	    });
-    	    
-    	    try
-    	    	{
-    	    		// delete the cash sale info record
-	    	    	record.delete({
-		    			type: 'customrecordbbs_cash_sale_information',
-		    			id: cashSaleInfoRecordID
-		    		});
-	    	    	
-	    	    	log.audit({
-		    			title: 'Cash Sale Info Record Deleted',
-		    			details: 'Record ' + cashSaleInfoRecordID + ' has been deleted'
-		    		});	    	    	
-    	    	}
-    	    catch (error)
-    	    	{
-    	    		// log the error
-    	    		log.error({
-    	    			title: 'Error Deleting Cash Sale Info Record ' + cashSaleInfoRecordID,
-    	    			details: error
-    	    		});
-    	    	}
-    	    		
-    	    // continue processing results
-    	    return true;
-		
-		});
 		
 		try
 			{
@@ -161,15 +67,15 @@ function(search, record) {
 	    		
 	    		log.audit({
 	    			title: 'Cash Sale Record Deleted',
-	    			details: 'Record ' + cashSaleRecordID + ' has been deleted'
+	    			details: cashSaleRecordID
 	    		});
 			}
-		catch (error)
+		catch(e)
 			{
 				// log the error
 	    		log.error({
 	    			title: 'Error Deleting Cash Sale Record ' + cashSaleRecordID,
-	    			details: error
+	    			details: e.message
 	    		});
 			}
     }
@@ -191,12 +97,18 @@ function(search, record) {
      * @since 2015.1
      */
     function summarize(summary) {
+    	
+    	log.audit({
+    		title: '*** END OF SCRIPT ***',
+    		details: 'Duration: ' + summary.seconds + ' seconds<br>Units Used: ' + summary.usage + '<br>Yields: ' + summary.yields
+    	});
 
     }
 
     return {
         getInputData: getInputData,
-        map: map
+        map: map,
+        summarize: summarize
     };
     
 });

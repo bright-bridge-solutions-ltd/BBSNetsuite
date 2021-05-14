@@ -10,8 +10,30 @@ define(['N/record', 'N/search', './BBSCustomerLogicLibrary'],
  */
 function(record, search, BBSCustomerLogicLibrary) {
    
-     /**
+	/**
      * Function definition to be triggered before record is loaded.
+     *
+     * @param {Object} scriptContext
+     * @param {Record} scriptContext.newRecord - New record
+     * @param {string} scriptContext.type - Trigger type
+     * @param {Form} scriptContext.form - Current form
+     * @Since 2015.2
+     */
+    function customerBeforeLoad(scriptContext) { 
+    	
+    	if (scriptContext.type == scriptContext.UserEventType.CREATE)
+    		{
+    			// default email preference to "PDF"
+    			scriptContext.newRecord.setValue({
+    				fieldId: 'emailpreference',
+    				value: 'PDF'
+    			});
+    		}
+    	
+    }
+	
+	/**
+     * Function definition to be triggered after record is submitted.
      *
      * @param {Object} scriptContext
      * @param {Record} scriptContext.newRecord - New record
@@ -33,6 +55,8 @@ function(record, search, BBSCustomerLogicLibrary) {
 	    }
 
     return 	{
-        	afterSubmit: 	customerAfterSubmit
-    		};
+    	beforeLoad:		customerBeforeLoad,		
+    	afterSubmit: 	customerAfterSubmit
+    };
+    
 });
