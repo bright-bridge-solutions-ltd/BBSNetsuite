@@ -532,10 +532,74 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 			this.consolidate				= false;
 			this.consignment				= [];
 			
-			var _consignment				= new _consignmentDPD(shippingRequestData);
-			this.consignment.push(_consignment);
+			this.consignment.push(new _consignmentDPD(shippingRequestData));
+			
+			/* For international use
+			 * 
+			this.generateCustomsData		= true;
+			this.invoice 					= new _invoiceDPD(shippingRequestData);
+			*
+			*/
+			
 		}
 
+	function _invoiceDPD(_shippingRequestData)
+		{
+			this.countryOfOrigin			= 'GB';
+			this.invoiceCustomsNumber		= '';
+			this.invoiceDeliveryDetails		= new _invoiceDeliveryDetailsDPD(_shippingRequestData);
+			this.invoiceExportReason		= '01';													//Sales
+			this.invoiceTermsOfDelivery		= 'DAP';												//Duties and taxes for unpaid parcels where the receiver is to pay those charges
+			this.invoiceReference			= '';
+			this.invoiceShipperDetails		= new _invoiceShipperDetailsDPD(_shippingRequestData);
+			this.invoiceType				= '2';													//Commercial Invoice
+			this.shippingCost				= '';
+		}
+	
+	function _invoiceDeliveryDetailsDPD(_shippingRequestData)
+		{
+			this.address					= new _addressDPD(
+															_shippingRequestData.address.addresse.substring(0,35), 
+															_shippingRequestData.address.countryCode, 
+															_shippingRequestData.address.postCode.toUpperCase().substring(0,8), 
+															_shippingRequestData.address.line1.substring(0,35), 
+															_shippingRequestData.address.line2.substring(0,35), 
+															_shippingRequestData.address.town.substring(0,35), 
+															_shippingRequestData.address.county.substring(0,35)
+															);
+			this.contactDetails				= new _invoiceContactDetailsDPD(
+																			_shippingRequestData.senderAddress.addresse.substring(0,25), 
+																			_shippingRequestData.senderContact.mobileNumber.substring(0,15),
+																			_shippingRequestData.contact.emailAddress
+																			);
+			this.vatNumber					= _shippingRequestData.senderContact.eori;
+		}
+	
+	function _invoiceShipperDetailsDPD(_shippingRequestData)
+		{
+			this.address					= new _addressDPD(
+																_shippingRequestData.senderAddress.addresse.substring(0,35), 
+																_shippingRequestData.senderAddress.countryCode, 
+																_shippingRequestData.senderAddress.postCode.toUpperCase().substring(0,8), 
+																_shippingRequestData.senderAddress.line1.substring(0,35), 
+																_shippingRequestData.senderAddress.line2.substring(0,35), 
+																_shippingRequestData.senderAddress.town.substring(0,35), 
+																_shippingRequestData.senderAddress.county.substring(0,35)
+																);
+			this.contactDetails				= new _invoiceContactDetailsDPD(
+																			_shippingRequestData.senderAddress.addresse.substring(0,25), 
+																			_shippingRequestData.senderContact.mobileNumber.substring(0,15),
+																			_shippingRequestData.senderContact.emailAddress
+																			);
+			this.vatNumber					= _shippingRequestData.senderContact.eori;
+		}
+
+	function _invoiceContactDetailsDPD(_contactName, _telephone, _email)
+		{
+			this.contactName	= _contactName;
+			this.telephone		= _telephone;
+			this.email			= _email;
+		}
 	
 	function _contactDetailsDPD(_contactName, _telephone)
 		{
@@ -560,48 +624,47 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 			this.county			= _county;
 		}
 	
-	function _consignmentDPD(shippingRequestData)
+	function _consignmentDPD(_shippingRequestData)
 		{
 			this.consignmentNumber						= null;
 			this.consignmentRef							= null;
-			this.parcel									= [];
 			this.collectionDetails						= {};
 			this.collectionDetails.contactDetails		= new _contactDetailsDPD(
-																				shippingRequestData.senderAddress.addresse.substring(0,25), 
-																				shippingRequestData.senderContact.mobileNumber.substring(0,15)
+																				_shippingRequestData.senderAddress.addresse.substring(0,25), 
+																				_shippingRequestData.senderContact.mobileNumber.substring(0,15)
 																				);
 			this.collectionDetails.address				= new _addressDPD(
-																			shippingRequestData.senderAddress.addresse.substring(0,35), 
-																			shippingRequestData.senderAddress.countryCode, 
-																			shippingRequestData.senderAddress.postCode.toUpperCase().substring(0,8), 
-																			shippingRequestData.senderAddress.line1.substring(0,35), 
-																			shippingRequestData.senderAddress.line2.substring(0,35), 
-																			shippingRequestData.senderAddress.town.substring(0,35), 
-																			shippingRequestData.senderAddress.county.substring(0,35)
+																			_shippingRequestData.senderAddress.addresse.substring(0,35), 
+																			_shippingRequestData.senderAddress.countryCode, 
+																			_shippingRequestData.senderAddress.postCode.toUpperCase().substring(0,8), 
+																			_shippingRequestData.senderAddress.line1.substring(0,35), 
+																			_shippingRequestData.senderAddress.line2.substring(0,35), 
+																			_shippingRequestData.senderAddress.town.substring(0,35), 
+																			_shippingRequestData.senderAddress.county.substring(0,35)
 																			);
 			this.deliveryDetails						= {};
 			this.deliveryDetails.contactDetails			= new _contactDetailsDPD(
-																				shippingRequestData.address.addresse.substring(0,25), 
-																				shippingRequestData.contact.mobileNumber.substring(0,15)
+																			_shippingRequestData.address.addresse.substring(0,25), 
+																			_shippingRequestData.contact.mobileNumber.substring(0,15)
 																				);
 			this.deliveryDetails.address				= new _addressDPD(
-																			shippingRequestData.address.addresse.substring(0,35), 
-																			shippingRequestData.address.countryCode, 
-																			shippingRequestData.address.postCode.toUpperCase().substring(0,8), 
-																			shippingRequestData.address.line1.substring(0,35), 
-																			shippingRequestData.address.line2.substring(0,35), 
-																			shippingRequestData.address.town.substring(0,35), 
-																			shippingRequestData.address.county.substring(0,35)
+																			_shippingRequestData.address.addresse.substring(0,35), 
+																			_shippingRequestData.address.countryCode, 
+																			_shippingRequestData.address.postCode.toUpperCase().substring(0,8), 
+																			_shippingRequestData.address.line1.substring(0,35), 
+																			_shippingRequestData.address.line2.substring(0,35), 
+																			_shippingRequestData.address.town.substring(0,35), 
+																			_shippingRequestData.address.county.substring(0,35)
 																			);
 			
 			this.deliveryDetails.notificationDetails	= new _notificationDetailsDPD(
-																						shippingRequestData.contact.emailAddress, 
-																						shippingRequestData.contact.mobileNumber
+																						_shippingRequestData.contact.emailAddress, 
+																						_shippingRequestData.contact.mobileNumber
 																						);
-			this.networkCode							= shippingRequestData.shippingItemInfo.serviceCode;
-			this.numberOfParcels						= shippingRequestData.packageCount;
-			this.totalWeight							= shippingRequestData.weight;
-			this.shippingRef1							= shippingRequestData.shippingReference;
+			this.networkCode							= _shippingRequestData.shippingItemInfo.serviceCode;
+			this.numberOfParcels						= _shippingRequestData.packageCount;
+			this.totalWeight							= _shippingRequestData.weight;
+			this.shippingRef1							= _shippingRequestData.shippingReference;
 			this.shippingRef2							= '';
 			this.shippingRef3							= '';
 			this.customsValue							= null;
@@ -609,6 +672,10 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 			this.parcelDescription						= "";
 			this.liabilityValue							= null;
 			this.liability								= false;
+			this.parcel									= [];
+			this.totalWeight							= '';
+			this.shipperDestinationTaxId				= null;		//Australian destinations only
+			this.vatPaid								= null;		//Australian destinations only
 		}
 	
 	

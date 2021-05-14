@@ -780,13 +780,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								//
 								var formField = form.addField({
 															    id: 		'custpage_message',
-															    type: 		serverWidget.FieldType.TEXTAREA,
+															    type: 		serverWidget.FieldType.INLINEHTML,
 															    label: 		'Message'
 																});
 								
-								formField.updateDisplayType({displayType: serverWidget.FieldDisplayType.DISABLED});
-								formField.defaultValue = 'Payment Run Creation In Progress';
-								formField.updateDisplaySize({height: 10, width: 120});
+								formField.defaultValue = '<p style="font-size: 12pt;">A payment run has been submitted to be processed</p>';
+							
 								
 								break;
 						}
@@ -889,7 +888,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 						 		mapReduceTask.deploymentId 	= 'customdeploy_mr_create_payment_run';
 						 		mapReduceTask.params 		= {custscript_invoice_data: invoicesData};
 						 		
-						// 		var mapReduceTaskId 		= mapReduceTask.submit();
+						 		var mapReduceTaskId 		= mapReduceTask.submit();
 						 		
 								//Increment the stage
 								//

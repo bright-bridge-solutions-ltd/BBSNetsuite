@@ -287,17 +287,20 @@ function ddBatchRecordsSuitelet(request, response)
 					
 					//bankAccountSelectField.addSelectOption('0', '', false);
 					
+					
 					var accountSearch = nlapiSearchRecord("account",null,
 							[
 							   ["type","anyof","Bank"], 
 							   "AND", 
-							   ["issummary","is","F"]
+							   ["issummary","is","F"],
+							   "AND",
+							   ["subsidiary","anyof","1"]
 							], 
 							[
 							   new nlobjSearchColumn("name").setSort(false)
 							]
 							);
-					
+							
 					if(accountSearch != null && accountSearch.length > 0)
 						{
 							for (var int2 = 0; int2 < accountSearch.length; int2++) 

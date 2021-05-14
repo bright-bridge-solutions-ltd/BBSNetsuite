@@ -26,10 +26,10 @@ function salesOrderFieldChanged(type, name, linenum)
 			
 			if(billingEndDateString != null && billingEndDateString != '')
 				{
-					var billingFrequency = null;
-					var billingEndDate = nlapiStringToDate(billingEndDateString);
-					var billingOffCycle = nlapiGetFieldValue('custbody_bbs_off_billing_cycle');
-					var lineCount = nlapiGetLineItemCount('item');
+					var billingFrequency 	= null;
+					var billingEndDate 		= nlapiStringToDate(billingEndDateString);
+					var billingOffCycle 	= nlapiGetFieldValue('custbody_bbs_off_billing_cycle');
+					var lineCount 			= nlapiGetLineItemCount('item');
 					
 					for (var int = 1; int <= lineCount; int++) 
 						{
@@ -54,8 +54,8 @@ function salesOrderFieldChanged(type, name, linenum)
 									
 									//See if we need to set the credit note flag
 									//
-									var closeDateMonthEnd = new Date(closeDate.getFullYear(), closeDate.getMonth() + 1, 0);
-									var originalBillingEndDate = nlapiStringToDate(billingEndDateString);
+									var closeDateMonthEnd 		= new Date(closeDate.getFullYear(), closeDate.getMonth() + 1, 0);
+									var originalBillingEndDate 	= nlapiStringToDate(billingEndDateString);
 									
 									if(originalBillingEndDate.getTime() <= closeDateMonthEnd.getTime())
 										{
@@ -69,15 +69,15 @@ function salesOrderFieldChanged(type, name, linenum)
 								{
 									if(billingOffCycle == 'F')
 										{
-											var today = new Date();
-											var closeDate = getCloseDate(today);
+											var today 		= new Date();
+											var closeDate 	= getCloseDate(today);
 											
 											nlapiSetFieldValue('custbody_bbs_sales_order_close_date', nlapiDateToString(closeDate), false, true);
 											
 											//See if we need to set the credit note flag
 											//
-											var closeDateMonthEnd = new Date(closeDate.getFullYear(), closeDate.getMonth() + 1, 0);
-											var originalBillingEndDate = nlapiStringToDate(billingEndDateString);
+											var closeDateMonthEnd 		= new Date(closeDate.getFullYear(), closeDate.getMonth() + 1, 0);
+											var originalBillingEndDate 	= nlapiStringToDate(billingEndDateString);
 											
 											if(originalBillingEndDate.getTime() <= closeDateMonthEnd.getTime())
 												{
@@ -88,13 +88,13 @@ function salesOrderFieldChanged(type, name, linenum)
 										}
 									else
 										{
-											var today = new Date();
-											var todayMonth = today.getMonth();
+											var today 		= new Date();
+											var todayMonth 	= today.getMonth();
 												
 											if(todayMonth == 11 || todayMonth == 0 || todayMonth == 1)
 												{
-													var endMonth = 1;
-													var closeDate = new Date();
+													var endMonth 	= 1;
+													var closeDate 	= new Date();
 													closeDate.setMonth(endMonth);
 													closeDate.setDate(27);
 													
@@ -108,8 +108,8 @@ function salesOrderFieldChanged(type, name, linenum)
 											
 											if(todayMonth == 2 || todayMonth == 3 || todayMonth == 4)
 												{
-													var endMonth = 4;
-													var closeDate = new Date();
+													var endMonth 	= 4;
+													var closeDate 	= new Date();
 													closeDate.setMonth(endMonth);
 													closeDate.setDate(27);
 													
@@ -118,8 +118,8 @@ function salesOrderFieldChanged(type, name, linenum)
 											
 											if(todayMonth == 5 || todayMonth == 6 || todayMonth == 7)
 												{
-													var endMonth = 7;
-													var closeDate = new Date();
+													var endMonth 	= 7;
+													var closeDate 	= new Date();
 													closeDate.setMonth(endMonth);
 													closeDate.setDate(27);
 													
@@ -128,8 +128,8 @@ function salesOrderFieldChanged(type, name, linenum)
 											
 											if(todayMonth == 8 || todayMonth == 9 || todayMonth == 10)
 												{
-													var endMonth = 10;
-													var closeDate = new Date();
+													var endMonth 	= 10;
+													var closeDate 	= new Date();
 													closeDate.setMonth(endMonth);
 													closeDate.setDate(27);
 													
@@ -138,8 +138,8 @@ function salesOrderFieldChanged(type, name, linenum)
 											
 											//See if we need to set the credit note flag
 											//
-											var closeDateMonthEnd = new Date(closeDate.getFullYear(), closeDate.getMonth() + 1, 0);
-											var originalBillingEndDate = nlapiStringToDate(billingEndDateString);
+											var closeDateMonthEnd 		= new Date(closeDate.getFullYear(), closeDate.getMonth() + 1, 0);
+											var originalBillingEndDate 	= nlapiStringToDate(billingEndDateString);
 											
 											if(originalBillingEndDate.getTime() <= closeDateMonthEnd.getTime())
 												{
@@ -159,68 +159,87 @@ function salesOrderFieldChanged(type, name, linenum)
 }
 
 function getCloseDate(periodDate)
-{
-	
-	var returnValue = '';
-	var currentQuarter = null;
-	
-	var accountingperiodSearch = nlapiSearchRecord("accountingperiod",null,
-			[
-			   ["isquarter","is","T"], 
-			   "AND", 
-			   ["isinactive","is","F"], 
-			   "AND", 
-			   ["enddate","onorafter",periodDate], 
-			   "AND", 
-			   ["startdate","onorbefore",periodDate]
-			], 
-			[
-			   new nlobjSearchColumn("periodname").setSort(false)
-			]
-			);
-	
-	if(accountingperiodSearch && accountingperiodSearch.length > 0)
-		{
-			currentQuarter = accountingperiodSearch[0].getId();
+	{
+		
+		var returnValue 	= '';
+		var currentQuarter 	= null;
+		
+		//Read the subsidiary record to get the fiscal calendar
+		//
+		var fiscalCalendar = nlapiLookupField('subsidiary', '1', 'fiscalcalendar');
+		
+		//Did we get a fiscal calendar
+		//
+		if(fiscalCalendar != null && fiscalCalendar != '')
+			{
+				//Search for a matching accounting quarter
+				//
+				var accountingperiodSearch = nlapiSearchRecord("accountingperiod",null,
+						[
+						   ["isquarter","is","T"], 
+						   "AND", 
+						   ["isinactive","is","F"], 
+						   "AND", 
+						   ["enddate","onorafter",periodDate], 
+						   "AND", 
+						   ["startdate","onorbefore",periodDate],
+						   "AND",
+						   ["fiscalcalendar","anyof",fiscalCalendar]
+						], 
+						[
+						   new nlobjSearchColumn("periodname").setSort(false)
+						]
+						);
+				
+				//Did we find an accounting quarter
+				//
+				if(accountingperiodSearch && accountingperiodSearch.length > 0)
+					{
+						currentQuarter = accountingperiodSearch[0].getId();
+						
+						if(currentQuarter != null && currentQuarter != '')
+							{
+								var endDateString = null;
+								
+								//Search for a period within the quarter
+								//
+								var accountingperiodSearch = nlapiSearchRecord("accountingperiod",null,
+										[
+										   ["isquarter","is","F"], 
+										   "AND", 
+										   ["isinactive","is","F"], 
+										   "AND", 
+										   ["isyear","is","F"], 
+										   "AND", 
+										   ["isadjust","is","F"],
+										   "AND",
+										   ["parent","anyof",currentQuarter],
+										   "AND",
+										   ["fiscalcalendar","anyof",fiscalCalendar]
+										], 
+										[
+										   new nlobjSearchColumn("parent"), 
+										   new nlobjSearchColumn("periodname"), 
+										   new nlobjSearchColumn("startdate"), 
+										   new nlobjSearchColumn("enddate").setSort(true)	//Sort by period end date descending
+										]
+										);
 			
-			if(currentQuarter != null && currentQuarter != '')
-				{
-					var endDateString = null;
-					
-					var accountingperiodSearch = nlapiSearchRecord("accountingperiod",null,
-							[
-							   ["isquarter","is","F"], 
-							   "AND", 
-							   ["isinactive","is","F"], 
-							   "AND", 
-							   ["isyear","is","F"], 
-							   "AND", 
-							   ["isadjust","is","F"],
-							   "AND",
-							   ["parent","anyof",currentQuarter]
-							], 
-							[
-							   new nlobjSearchColumn("parent"), 
-							   new nlobjSearchColumn("periodname"), 
-							   new nlobjSearchColumn("startdate"), 
-							   new nlobjSearchColumn("enddate").setSort(true)
-							]
-							);
-
-					if(accountingperiodSearch && accountingperiodSearch.length > 0)
-						{
-							endDateString = accountingperiodSearch[0].getValue('enddate');
-							
-							if(endDateString != null && endDateString != '')
-								{
-									var endDate = nlapiStringToDate(endDateString);
-									endDate.setDate(27);
-									
-									returnValue = endDate;
-								}
-						}
-				}
-		}
-	
-	return returnValue;
-}
+								if(accountingperiodSearch && accountingperiodSearch.length > 0)
+									{
+										endDateString = accountingperiodSearch[0].getValue('enddate');
+										
+										if(endDateString != null && endDateString != '')
+											{
+												var endDate = nlapiStringToDate(endDateString);
+												endDate.setDate(27);
+												
+												returnValue = endDate;
+											}
+									}
+							}
+					}
+			}
+		
+		return returnValue;
+	}

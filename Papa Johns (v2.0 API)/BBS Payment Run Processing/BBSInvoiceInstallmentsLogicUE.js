@@ -28,7 +28,7 @@ function(runtime, record)
 	    	if (scriptContext.type == 'create' || scriptContext.type == 'edit')
 				{
 	    			var invoiceRemaining = Math.abs(Number(currentRecord.getValue({fieldId: 'amountremaining'})));
-	    			var futurePaymentRun = Match.abs(Number(currentRecord.getValue({fieldId: 'custbody_dd_future_payments'})));
+	    			var futurePaymentRun = Math.abs(Number(currentRecord.getValue({fieldId: 'custbody_dd_future_payments'})));
 	    			
 	    			if(invoiceRemaining > 0 && invoiceRemaining - futurePaymentRun <= 0)
 	    				{

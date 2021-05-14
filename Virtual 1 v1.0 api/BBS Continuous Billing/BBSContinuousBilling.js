@@ -227,7 +227,8 @@ function scheduled(type)
 	
 	//Find any fully billed purchase orders & create new purchase orders from them
 	//
-	processFullyBilledPurchaseOrders(processingDate);
+//	processFullyBilledPurchaseOrders(processingDate);
+	
 }
 
 //=============================================================================================
@@ -255,7 +256,8 @@ function processFullyBilledPurchaseOrders(_processingDate)
 				   ["class","anyof","1"],							//Rental
 				   "AND", 
 				   ["custbody_bbs_next_purchase_order","anyof","@NONE@"],	//Does not have a next purchase order
-				   
+				   "AND",
+				   ["subsidiary","anyof","1"]
 			],
 			[
 			   new nlobjSearchColumn("tranid"), 
@@ -430,7 +432,9 @@ function processFullyBilledOrders(_processingDate)
 			   "AND", 
 			   ["custbody_bbs_next_sales_order","anyof","@NONE@"],	//Does not have a next sales order
 			   "AND", 
-			   ["custbody_bbs_billing_end_date","isempty",""]		//We do not have a billing end date
+			   ["custbody_bbs_billing_end_date","isempty",""],		//We do not have a billing end date
+			   "AND",
+			   ["subsidiary","anyof","1"]
 			],
 			[
 			   new nlobjSearchColumn("tranid"), 
@@ -626,7 +630,9 @@ function processBillingEndDates(_processingDate)
 			   "AND", 
 			   ["custbody_bbs_sales_order_close_date","onorbefore",todayString],
 			   "AND",
-			   ["custbody_bbs_billing_end_date_proc","is","F"]
+			   ["custbody_bbs_billing_end_date_proc","is","F"],
+			   "AND",
+			   ["subsidiary","anyof","1"]
 			], 
 			[
 			   new nlobjSearchColumn("tranid"), 
@@ -737,8 +743,10 @@ function closePurchaseOrder(_soPEReference, _closeDate)
 			   "AND", 
 			   ["custbody_bbs_pe_reference","is",_soPEReference], 
 			   "AND", 
-			   ["status","noneof","PurchOrd:H","PurchOrd:G","PurchOrd:A","PurchOrd:P","PurchOrd:C"]	//Not Pending Supervisor Approval, Rejected by Supervisor, Fully Billed, Closed, Planned
-			], 
+			   ["status","noneof","PurchOrd:H","PurchOrd:G","PurchOrd:A","PurchOrd:P","PurchOrd:C"],	//Not Pending Supervisor Approval, Rejected by Supervisor, Fully Billed, Closed, Planned
+			   "AND",
+			   ["subsidiary","anyof","1"]
+			   ], 
 			[
 			   new nlobjSearchColumn("trandate").setSort(true), 									//Ordered by po date descending
 			   new nlobjSearchColumn("tranid")
