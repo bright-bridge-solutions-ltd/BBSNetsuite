@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define([],
-function() {
+define(['N/url'],
+function(url) {
     
     /**
      * Function to be executed after page is initialized.
@@ -46,33 +46,6 @@ function() {
      * @since 2015.2
      */
     function postSourcing(scriptContext) {
-    	
-    	// after the user has selected an item
-    	if (scriptContext.sublistId == 'item' && scriptContext.fieldId == 'item')
-    		{
-    			// get the due date from the header
-    			var dueDate = scriptContext.currentRecord.getValue({
-					fieldId: 'duedate'
-				});
-    			
-    			// if we have a due date
-    			if (dueDate)
-    				{
-		    			// if the selected due date is a weekend
-		    			if (dueDate.getDay() == 6 || dueDate.getDay() == 0) // Saturday
-		    				{
-		    					// add 2 days to the dueDate to get to the next working day
-		    					dueDate.setDate(dueDate.getDate() + 2);
-		    				}
-		    		
-		    			// set the expected delivery date field on the current line using the due date field on the header
-		    			scriptContext.currentRecord.setCurrentSublistValue({
-		    				sublistId: 'item',
-		    				fieldId: 'expectedreceiptdate',
-		    				value: dueDate
-		    			});
-    				}
-    		}
 
     }
 
@@ -177,9 +150,30 @@ function() {
     function saveRecord(scriptContext) {
 
     }
+    
+    // ===========================================================
+    // FUNCTION TO CALL A SUITELET TO PRINT THE COMMERCIAL INVOICE
+    // ===========================================================
+    
+    function printCommercialInvoice(recordID) {
+    	
+    	// get the URL of the Suitelet
+    	var suiteletURL = url.resolveScript({
+    		scriptId: 'customscript_bbs_commercial_invoice_sl',
+    		deploymentId: 'customdeploy_bbs_commercial_invoice_sl',
+    		params: {
+    			fulfilment: recordID
+    		}
+    	});
+    	
+    	// open the Suitelet in the a new tab/window
+    	window.open(suiteletURL, '_blank');
+    	
+    }
 
     return {
-        postSourcing: postSourcing
+        pageInit: pageInit,
+        printCommercialInvoice: printCommercialInvoice
     };
     
 });

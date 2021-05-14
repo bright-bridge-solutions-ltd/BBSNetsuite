@@ -218,9 +218,8 @@
     	</tr>
   	</table>
   	
-<#if record.item?has_content>
+<#if record.item?has_content><!-- start items -->
 	<table class="itemtable" style="width: 100%; margin-top: 10px;">
-		<#list record.item as item><#if item_index==0><!-- start items -->
 		<thead>
 			<tr>
 				<th colspan="12"><br/>Description</th>
@@ -231,15 +230,17 @@
 				<th align="right" colspan="3">Gross<br/>Amount</th>
 			</tr>
 		</thead>
-		</#if>
-		<tr>
-			<td colspan="12">${item.description}</td>
-		    <td align="center" colspan="2">${item.quantity?string["0"]}</td>
-			<td align="right" colspan="2">${currencySymbol}${item.rate}</td>
-		    <td align="right" colspan="3">${currencySymbol}${item.amount}</td>
-			<td align="right" colspan="3">${currencySymbol}${item.taxamount}</td>
-			<td align="right" colspan="3">${currencySymbol}${item.grossamt}</td>
-		</tr>
+		<#list record.item as item>
+			<#if item.amount gt 0>
+				<tr>
+					<td colspan="12">${item.description}</td>
+				    <td align="center" colspan="2">${item.quantity?string["0"]}</td>
+					<td align="right" colspan="2">${currencySymbol}${item.rate}</td>
+				    <td align="right" colspan="3">${currencySymbol}${item.amount}</td>
+					<td align="right" colspan="3">${currencySymbol}${item.taxamount}</td>
+					<td align="right" colspan="3">${currencySymbol}${item.grossamt}</td>
+				</tr>
+			</#if>
 		</#list><!-- end items -->
 	</table>
 </#if>

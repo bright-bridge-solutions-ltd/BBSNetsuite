@@ -8,7 +8,6 @@ function(search, format) {
 	function recalculateDueDate(currentRecord) {
 		
 		// declare and initialize variables
-		var dueDate 		= null;
 		var paymentTerms	= null;
 		var paymentDays		= 0;
 		
@@ -34,23 +33,10 @@ function(search, format) {
 				paymentDays = parseInt(entityLookup.custentity_bbs_entity_payment_term_days);
 			}
 		
-		// get the record type
-		var recordType = currentRecord.type;
-		
-		if (recordType == 'vendorbill') // if this is a vendor bill
-			{
-				// get the shipment date
-				dueDate = currentRecord.getValue({
-					fieldId: 'custbody_bbs_shipment_date'
-				});
-			}
-		else if (recordType == 'invoice') // if this is an invoice
-			{
-				// get the transaction date
-				dueDate = currentRecord.getValue({
-					fieldId: 'trandate'
-				});
-			}
+		// get the transaction date
+		var dueDate = currentRecord.getValue({
+			fieldId: 'trandate'
+		});
 		
 		if (paymentTerms == 2) // if paymentTerms is 2 (EOM)
 			{
