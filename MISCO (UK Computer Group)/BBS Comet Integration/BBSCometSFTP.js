@@ -1769,7 +1769,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 
 							createdCustomerRecord.setValue({
 															fieldId:	'companyname',
-															value:		_headerContactName
+															value:		_headerCoName
 															});	
 						}
 					else

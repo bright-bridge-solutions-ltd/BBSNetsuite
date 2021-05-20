@@ -1291,7 +1291,7 @@ function(record, search, runtime) {
     									return returnedDate;
     								}
     		
-	       		this.getStartOfQuarter	= function()
+	       		this.getEndOfQuarter	= function()
 									{
 										//Is todays date inside the Q1 end date?
 										//
@@ -1338,6 +1338,7 @@ function(record, search, runtime) {
 			checkRebateProcessing:				checkRebateProcessing,
 			findGroupMembers:					findGroupMembers,
 			findCurrentGroupMembers:			findCurrentGroupMembers,
-			findInvoiceValueByCustomer:			findInvoiceValueByCustomer
+			findInvoiceValueByCustomer:			findInvoiceValueByCustomer,
+			createIndividualRebateOrAccrual:	createIndividualRebateOrAccrual
 			};	
 });

@@ -48,8 +48,36 @@ function(search) {
 	    	var output 				= [];
 	    	var employeeDetailsArr 	= {};
 	    	
-	    	log.error({title: "Request", details: requestBody});
 	    	
+	    	var employeeSearchObj = getResults(search.create({
+	    		   type: "employee",
+	    		   filters:
+	    		   [
+	    		   ],
+	    		   columns:
+	    		   [
+	    		      search.createColumn({name: "entityid", sort: search.Sort.ASC,label: "Name"}),
+	    		      search.createColumn({name: "internalid", label: "Internal ID"})
+	    		   ]
+	    		}));
+	    		
+	    	if(employeeSearchObj != null && employeeSearchObj.length > 0)
+	    		{
+	    			for (var int = 0; int < employeeSearchObj.length; int++) 
+		    			{
+							var employeeName 	= employeeSearchObj[int].getValue({name: "entityid"});
+							var employeeId 		= employeeSearchObj[int].getValue({name: "internalid"});
+							
+							var rows 		= {};
+							rows['id']		= employeeId;
+							rows['name']	= employeeName;
+							
+							output.push(rows);
+						}
+	    		}
+	    	
+	    	employeeDetailsArr['employeeLst'] 	= output;
+	    	employeeDetailsArr['isValid'] 		= true;
 	        
 	        return employeeDetailsArr;
 	    	
@@ -67,7 +95,25 @@ function(search) {
 	
 	    }
 
-  
+  //Page through results set from search
+    //
+    function getResults(_searchObject)
+	    {
+	    	var results = [];
+	
+	    	var pageData = _searchObject.runPaged({pageSize: 1000});
+	
+	    	for (var int = 0; int < pageData.pageRanges.length; int++) 
+	    		{
+	    			var searchPage = pageData.fetch({index: int});
+	    			var data = searchPage.data;
+	    			
+	    			results = results.concat(data);
+	    		}
+	
+	    	return results;
+	    }
+    
     return {
 	        'get': 		doGet,
 	        put: 		doPut,
