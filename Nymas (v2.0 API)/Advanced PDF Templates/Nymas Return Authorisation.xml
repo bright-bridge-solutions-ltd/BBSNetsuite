@@ -123,7 +123,7 @@
     		</#if>
     			<tr>
     				<td align="left" colspan="8">${item.item}</td>
-    				<td align="left" colspan="18">${item.description}</td>
+    				<td align="left" colspan="18">${item.description}<#if item.custcol_scm_customerpartnumber?has_content><br/>Your Part No: ${item.custcol_scm_customerpartnumber}</#if></td>
     				<td align="right" colspan="4">${item.quantity}</td>
     				<td align="center" colspan="6">${record.custbody_bbs_return_reason_rma}</td>
     			</tr>

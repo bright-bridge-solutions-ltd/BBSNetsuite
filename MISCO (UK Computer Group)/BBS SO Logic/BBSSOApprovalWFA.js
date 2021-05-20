@@ -62,60 +62,65 @@ function(runtime, search, record) {
     			marginBelowSixPercent = true;
     		}
     	
-    	var verifiedAddress = currentRecord.getSubrecord({
-    		fieldId: 'shippingaddress'
-    	}).getValue({
-    		fieldId: 'custrecord_bbs_verified_address'
-    	});
-    	
-    	switch(verifiedAddress) {
-    	
-    		case true:
-    			unverifiedAddress = false;
-    			break;
-    		
-    		case false:
-    			unverifiedAddress = true;
-    			break;
-    	
-    	}
-    	
-    	// call function to lookup fields on the customer record
-    	var customerInfo = getCustomerInfo(customerID);
-    	var accountOnHold = customerInfo.accountonhold;
-    	var availableBalance = customerInfo.availablebalance;
-    	
-    	// call function to check if the customer has made 3 or less orders
-    	var firstThreeOrders = checkNumberOfOrders(customerID);
-    	
-    	// call function to check if the customer has any overdue invoices
-    	var overdueInvoices = checkAgeOfInvoices(customerID, scriptParameters.daysOverdue);
-    	
-    	// call function to check if the order contains zero value lines
-    	var zeroValueLine = checkZeroValueLines(currentRecord);
-    	
-    	if (paymentMethod == 8 && (orderTotal > scriptParameters.stripeFloor)) // payment method 8 = Stripe
+    	if (paymentMethod == 8) // payment method 8 = Stripe
     		{
-    			// set stripeFloorExceeded to true
-    			stripeFloorExceeded = true;
+    			if (orderTotal > scriptParameters.stripeFloor)
+    				{
+    					// set stripeFloorExceeded to true
+        				stripeFloorExceeded = true;
+    				}
     		}
-    	
-    	if (orderTotal > availableBalance)
+    	else
     		{
-    			// set creditLimitExceeded variable to true
-    			creditLimitExceeded = true;
-    		}
+		    	var verifiedAddress = currentRecord.getSubrecord({
+		    		fieldId: 'shippingaddress'
+		    	}).getValue({
+		    		fieldId: 'custrecord_bbs_verified_address'
+		    	});
+		    	
+		    	switch(verifiedAddress) {
+		    	
+		    		case true:
+		    			unverifiedAddress = false;
+		    			break;
+		    		
+		    		case false:
+		    			unverifiedAddress = true;
+		    			break;
+		    	
+		    	}
     	
-    	if (orderTotal > scriptParameters.highValueOrderLimit)
-    		{
-    			// set highValueOrder variable to true
-    			highValueOrder = true;
-    		}
+		    	// call function to lookup fields on the customer record
+		    	var customerInfo = getCustomerInfo(customerID);
+		    	var accountOnHold = customerInfo.accountonhold;
+		    	var availableBalance = customerInfo.availablebalance;
+		    	
+		    	// call function to check if the customer has made 3 or less orders
+		    	var firstThreeOrders = checkNumberOfOrders(customerID);
+		    	
+		    	// call function to check if the customer has any overdue invoices
+		    	var overdueInvoices = checkAgeOfInvoices(customerID, scriptParameters.daysOverdue);
+		    	
+		    	// call function to check if the order contains zero value lines
+		    	var zeroValueLine = checkZeroValueLines(currentRecord);
     	
-    	if (taxTotal == 0)
-    		{
-    			// set vatExempt variable to true
-    			vatExempt = true;
+		    	if (orderTotal > availableBalance)
+		    		{
+		    			// set creditLimitExceeded variable to true
+		    			creditLimitExceeded = true;
+		    		}
+		    	
+		    	if (orderTotal > scriptParameters.highValueOrderLimit)
+		    		{
+		    			// set highValueOrder variable to true
+		    			highValueOrder = true;
+		    		}
+		    	
+		    	if (taxTotal == 0)
+		    		{
+		    			// set vatExempt variable to true
+		    			vatExempt = true;
+		    		}
     		}
     	
     	// update fields on the record

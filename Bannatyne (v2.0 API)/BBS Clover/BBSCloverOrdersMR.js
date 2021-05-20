@@ -11,6 +11,9 @@ define(['N/record', 'N/runtime', 'N/search', 'N/task', 'N/format'],
  */
 function(record, runtime, search, task, format) {
 	
+	// set transaction date
+	transactionDate = new Date();
+	
 	// retrieve script parameters
 	var currentScript = runtime.getCurrentScript();
 	
@@ -42,13 +45,6 @@ function(record, runtime, search, task, format) {
 	cloverDiscountItem = currentScript.getParameter({
 		name: 'custscript_bbs_clover_discount_item'
 	});
-	
-	transactionDate = currentScript.getParameter({
-		name: 'custscript_bbs_clover_processing_date'
-	});
-	
-	// call function to calculate the posting period
-	postingPeriod = getPostingPeriod(transactionDate);
 
     /**
      * Marks the beginning of the Map/Reduce process and generates input data.
@@ -72,11 +68,6 @@ function(record, runtime, search, task, format) {
     			values: ['F']
     		},
     				{
-    			name: 'custrecord_bbs_clover_order_def_inc',
-    			operator: search.Operator.IS,
-    			values: ['F']
-    		},
-    				{
     			name: 'custrecord_bbs_clover_order_do_not_proc',
     			operator: search.Operator.IS,
     			values: ['F']
@@ -84,7 +75,7 @@ function(record, runtime, search, task, format) {
     				{
     	    	name: 'custrecord_bbs_order_date',
     	    	operator: search.Operator.ON,
-    	    	values: [format.format({type: format.Type.DATE, value: transactionDate})]
+    	    	values: ['yesterday']
     	    }],
     		
     		columns: [{
@@ -163,7 +154,7 @@ function(record, runtime, search, task, format) {
     	// ===================================================================================
     	
     	// submit a map/reduce task
-    	var mapReduceTaskID = task.create({
+    	/*var mapReduceTaskID = task.create({
     	    taskType: task.TaskType.MAP_REDUCE,
     	    scriptId: 'customscript_bbs_clover_orders_hotels_mr',
     	    deploymentId: 'customdeploy_bbs_clover_orders_hotels_mr'
@@ -172,7 +163,7 @@ function(record, runtime, search, task, format) {
     	log.audit({
     		title: 'Map/Reduce Script Scheduled',
     		details: 'BBS Clover Orders Hotels Map/Reduce script has been Scheduled.<br>Job ID: ' + mapReduceTaskID
-    	});
+    	});*/
 
     }
     
@@ -201,9 +192,9 @@ function(record, runtime, search, task, format) {
     				value: transactionDate
     			});
     			
-    			cashSale.setText({
+    			cashSale.setValue({
     				fieldId: 'postingperiod',
-    				value: postingPeriod
+    				value: getPostingPeriod(transactionDate)
     			});
     			
     			cashSale.setValue({
@@ -352,11 +343,6 @@ function(record, runtime, search, task, format) {
     			values: ['F']
     		},
     				{
-    			name: 'custrecord_bbs_clover_order_def_inc',
-    			operator: search.Operator.IS,
-    			values: ['F']
-    		},
-    				{
     			name: 'custrecord_bbs_clover_order_do_not_proc',
     			operator: search.Operator.IS,
     			values: ['F']
@@ -369,7 +355,7 @@ function(record, runtime, search, task, format) {
     				{
     			name: 'custrecord_bbs_order_date',
     			operator: search.Operator.ON,
-    			values: [format.format({type: format.Type.DATE, value: transactionDate})]
+    			values: ['yesterday']
     		}],
     		
     		columns: [{
@@ -425,12 +411,43 @@ function(record, runtime, search, task, format) {
     
     function getPostingPeriod(date) {
 		
-    	// create array of months
-		var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-		
-		// calculate/return the posting period
-		return months[date.getMonth()] + ' ' + date.getFullYear();
-	}
+    	// declare and initialize variables
+    	var postingPeriod	= null;
+    	var startDate 		= new Date(date.getFullYear(), date.getMonth(), 1);
+    	var endDate 		= new Date(date.getFullYear(), date.getMonth()+1, 0);
+    	
+    	// run search to find the posting period for the given month
+    	search.create({
+    		type: search.Type.ACCOUNTING_PERIOD,
+    	
+    		filters: [{
+    			name: 'startdate',
+    			operator: search.Operator.ON,
+    			values: [format.format({type: format.Type.DATE, value: startDate})]
+    		},
+    				{
+    			name: 'enddate',
+    			operator: search.Operator.ON,
+    			values: [format.format({type: format.Type.DATE, value: endDate})]
+    		}],
+    		
+    		columns: [{
+    			name: 'internalid'
+    		}],
+    	
+    	}).run().each(function(result){
+    		
+    		// get the internal ID of the posting period
+    		postingPeriod = result.getValue({
+    			name: 'internalid'
+    		});
+    		
+    	});
+    	
+    	// return values to main script function
+    	return postingPeriod;
+	
+    }
 
     return {
         getInputData: getInputData,

@@ -296,5 +296,32 @@
 	</tr>
 </table>
 
+<#if record.custbody_bbs_sales_proformaflag == true>
+	<table class="bankdetails" style="width: 100%;">
+		<tr>
+			<td colspan="14"><b>Bank Details for payments in ${record.currency}:</b></td>
+		</tr>
+		<tr>
+			<td colspan="14">&nbsp;</td>
+		</tr>
+		<tr>
+			<td colspan="4" class="bankdetails"><b>Bank Name</b></td>
+			<td colspan="10" class="bankdetails">${record.cseg_bbs_division.custrecord_bbs_division_bank_name}</td>
+		</tr>
+		<tr>
+			<td colspan="4" class="bankdetails"><b>Account Number</b></td>
+			<td colspan="8" class="bankdetails">${record.cseg_bbs_division.custrecord_bbs_division_bank_account_num}</td>
+			<td colspan="4" class="bankdetails"><b>Sort Code</b></td>
+			<td colspan="8" class="bankdetails">${record.cseg_bbs_division.custrecord_bbs_division_bank_sort_code}</td>
+		</tr>
+		<tr>
+			<td colspan="4" class="bankdetails"><b>IBAN</b></td>
+			<td colspan="8" class="bankdetails">${record.cseg_bbs_division.custrecord_bbs_division_bank_iban}</td>
+			<td colspan="4" class="bankdetails"><b>BIC/SWIFT</b></td>
+			<td colspan="8" class="bankdetails">${record.cseg_bbs_division.custrecord_bbs_division_bank_bic_swift}</td>
+		</tr>
+	</table>
+</#if>
+
 </body>
 </pdf>

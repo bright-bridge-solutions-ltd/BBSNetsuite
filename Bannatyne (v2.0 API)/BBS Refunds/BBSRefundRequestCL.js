@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/url', 'N/https', 'N/ui/dialog'],
-function(url, https, dialog) {
+define(['N/url', 'N/https', 'N/ui/dialog', 'N/search'],
+function(url, https, dialog, search) {
 
 	function reject(recordID)
 		{
@@ -73,6 +73,77 @@ function(url, https, dialog) {
      * @since 2015.2
      */
     function fieldChanged(scriptContext) {
+    	
+    	// if the sort code has been changed
+    	if (scriptContext.fieldId == 'custrecord_refund_sort_code')
+    		{
+    			// get the current record
+    			var currentRecord = scriptContext.currentRecord;
+    			
+    			// get the value of the bank account detail fields
+    			var accountNumber = currentRecord.getValue({
+    				fieldId: 'custrecord_refund_bank_account_number'
+    			});
+    			
+    			var sortCode = currentRecord.getValue({
+    				fieldId: 'custrecord_refund_sort_code'
+    			});
+    			
+    			// check the user has entered both an account number and a sort code
+    			if (accountNumber && sortCode)
+    				{
+		    			// declare and initialize variables
+    					var refundRequests = new Array();
+    				
+    					// run search to check if the bank details have been used before
+		    			search.create({
+		    				type: 'customrecord_refund_request',
+		    				
+		    				filters: [{
+		    					name: 'isinactive',
+		    					operator: search.Operator.IS,
+		    					values: ['F']
+		    				},
+		    						{
+		    					name: 'custrecord_refund_bank_account_number',
+		    					operator: search.Operator.IS,
+		    					values: [accountNumber]
+		    				},
+		    						{
+		    					name: 'custrecord_refund_sort_code',
+		    					operator: search.Operator.IS,
+		    					values: [sortCode]
+		    				}],
+		    				
+		    				columns: [{
+		    					name: 'name'
+		    				}],
+		    			
+		    			}).run().each(function(result){
+		    				
+		    				// get the refund request ID and push it to the refundRequests array
+		    				refundRequests.push(
+		    										result.getValue({
+		    											name: 'name'
+		    										})
+		    									);
+		    				
+		    				// continue processing search results
+		    				return true;
+		    				
+		    			});
+		    			
+		    			// if we have found any refund requests
+		    			if (refundRequests.length > 0)
+		    				{
+		    					// display an alert to the user
+			    				dialog.alert({
+	    							title: '⚠️ Check Bank Details',
+	    							message: 'The bank details you have entered have been used previously on the below refund request(s):<br><br>' + refundRequests + '<br><br>Please review and amend the bank details if required.'
+	    						});
+		    				}
+    				}
+    		}
 
     }
 
@@ -193,7 +264,7 @@ function(url, https, dialog) {
     }
 
     return {
-        pageInit: pageInit,
+    	fieldChanged: fieldChanged,
         reject: reject
     };
     

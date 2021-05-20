@@ -394,13 +394,31 @@
 		}
 </style>
 </head>
-<body header="nlheader" header-height="30%" footer="nlfooter" footer-height="50pt" padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
-    <table style="width: 110%; margin-top: 10px; margin-left: 400px"><tr>
-	<td class="addressheader"><b>${DelAdd}</b></td>
-	</tr>
-	<tr>
-	<td class="address">${record.shipaddress}</td>
-	</tr></table>
+<body header="nlheader" header-height="175pt" footer="nlfooter" footer-height="50pt" padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
+    
+    <table style="width: 100%; margin-top: 10px; margin-left: 400px">
+    	<tr>
+			<td class="addressheader" colspan="5"><b>FAO:</b></td>
+			<td class="addressheader" colspan="6">${record.custbody_swift_fao}</td>
+		</tr>
+		<tr>
+			<td class="addressheader" colspan="5"><b>Requested By:</b></td>
+			<td class="addressheader" colspan="6">${record.custbody_bbs_so_requested_by?keep_after_last(":")}<br/>${record.custbody_bbs_so_requested_by.email}</td>
+		</tr>
+		<tr>
+			<td class="addressheader" colspan="5"><b>Site Contact Number:</b></td>
+			<td class="addressheader" colspan="6">${record.custbody_swift_site_number}</td>
+		</tr>
+	</table>
+    
+    <table style="width: 100%; margin-top: 10px; margin-left: 400px">
+    	<tr>
+			<td class="addressheader"><b>${DelAdd}</b></td>
+		</tr>
+		<tr>
+			<td class="address">${record.shipaddress}</td>
+		</tr>
+	</table>
 
 <table class="body" style="width: 100%; margin-top: 10px;"><tr>
 	<th>${ShipMeth}</th>

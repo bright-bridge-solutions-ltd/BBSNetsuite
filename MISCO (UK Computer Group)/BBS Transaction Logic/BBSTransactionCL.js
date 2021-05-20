@@ -198,19 +198,22 @@ function() {
 		currentRecord.setCurrentSublistValue({
 			sublistId: 'item',
 			fieldId: 'costestimaterate',
-			value: poRate
+			value: poRate,
+			ignoreFieldChange: true
 		});
 		
 		currentRecord.setCurrentSublistValue({
 			sublistId: 'item',
 			fieldId: 'porate',
-			value: poRate
+			value: poRate,
+			ignoreFieldChange: true
 		});
 		
 		currentRecord.setCurrentSublistValue({
 			sublistId: 'item',
 			fieldId: 'costestimate',
-			value: (poRate * quantity)
+			value: (poRate * quantity),
+			ignoreFieldChange: true
 		});
     	
     }
@@ -224,7 +227,8 @@ function() {
 			value: currentRecord.getCurrentSublistValue({
 				sublistId: 'item',
 				fieldId: 'custcol_otdn_so_povendor',
-			})
+			}),
+			ignoreFieldChange: true
 		});
     	
     	currentRecord.setCurrentSublistValue({
@@ -233,7 +237,8 @@ function() {
 			value: currentRecord.getCurrentSublistValue({
 				sublistId: 'item',
 				fieldId: 'custcol_otdn_so_porate',
-			})
+			}),
+			ignoreFieldChange: true
 		});
     	
     } 

@@ -177,8 +177,8 @@
 			<td colspan="2" align="center" style="vertical-align: middle; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${customer.accountnumber}</td>
 			<td colspan="1" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${record.sales_rep_initials}</td>
 			<td colspan="5" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${salesorder.otherrefnum}</td>
-			<td colspan="3" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${record.trandate}</td>
-			<td colspan="3" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${salesorder.memo}</td>
+			<td colspan="3" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${salesorder.custbody_delivery_date}</td>
+			<td colspan="3" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${salesorder.custbody_delivery_reference_number}</td>
 			<td colspan="2" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custbody_bbs_incoterms}</td>
 			<td colspan="2" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;"><pagenumber/> of <totalpages/></td>
 			<td colspan="2" style="margin-left: 20px;"><b>Email:<br/><br/>Web:</b></td>

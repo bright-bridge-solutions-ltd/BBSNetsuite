@@ -3,13 +3,16 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/record', 'N/runtime', 'N/search', 'N/task', 'N/format'],
+define(['N/record', 'N/runtime', 'N/search', 'N/task'],
 /**
  * @param {record} record
  * @param {runtime} runtime
  * @param {search} search
  */
-function(record, runtime, search, task, format) {
+function(record, runtime, search, task) {
+	
+	// set transaction date
+	transactionDate = new Date();
 	
 	// retrieve script parameters
 	var currentScript = runtime.getCurrentScript();
@@ -25,10 +28,6 @@ function(record, runtime, search, task, format) {
 		
 	cloverCashControlBHL = currentScript.getParameter({
 		name: 'custscript_bbs_clover_cash_control_bhl'
-	});
-	
-	transactionDate = currentScript.getParameter({
-		name: 'custscript_bbs_clover_processing_date'
 	});
 
     /**
@@ -55,7 +54,7 @@ function(record, runtime, search, task, format) {
     				{
     			name: 'custrecord_bbs_clover_payment_date',
     			operator: 'on',
-    			values: [format.format({type: format.Type.DATE, value: transactionDate})]
+    			values: ['yesterday']
     		}],
     		
     		columns: [{
@@ -314,7 +313,7 @@ function(record, runtime, search, task, format) {
     				{
     			name: 'custrecord_bbs_clover_payment_date',
     			operator: 'on',
-    			values: [format.format({type: format.Type.DATE, value: transactionDate})]
+    			values: ['yesterday']
     		}],
     		
     		columns: [{

@@ -138,7 +138,7 @@
     		</#if>
     			<tr>
     				<td align="left" colspan="8">${item.item}</td>
-    				<td align="left" colspan="10">${item.description}<#if record.custbody_bbs_pro_forma_invoice == false><br/><i>Despatch Date: ${item.expectedshipdate}</i></#if></td>
+    				<td align="left" colspan="10">${item.description}<#if item.custcol_scm_customerpartnumber?has_content><br/>Your Part No: ${item.custcol_scm_customerpartnumber}</#if><#if record.custbody_bbs_pro_forma_invoice == false><br/><i>Despatch Date: ${item.expectedshipdate}</i></#if></td>
     				<td align="right" colspan="4">${item.quantity}</td>
     				<td align="left" colspan="4" style="padding-left: 20px;">${item.units}</td>
     				<td align="right" colspan="4">${record.custbody_bbs_currency_symbol}${item.rate?string["#,##0.00"]}</td>

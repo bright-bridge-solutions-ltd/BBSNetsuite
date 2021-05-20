@@ -3,19 +3,16 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/record', 'N/runtime', 'N/search', 'N/task'],
+define(['N/record', 'N/runtime', 'N/search', 'N/task', 'N/format'],
 /**
  * @param {record} record
  * @param {runtime} runtime
  * @param {search} search
  */
-function(record, runtime, search, task) {
+function(record, runtime, search, task, format) {
 	
 	// set transaction date
 	transactionDate = new Date();
-	
-	// call function to calculate the posting period
-	postingPeriod = getPostingPeriod(transactionDate);
 	
 	// retrieve script parameters
 	var currentScript = runtime.getCurrentScript();
@@ -192,7 +189,7 @@ function(record, runtime, search, task) {
     			
 	    		cashRefund.setText({
     				fieldId: 'postingperiod',
-    				value: postingPeriod
+    				value: getPostingPeriod(transactionDate)
     			});
 	    		
     			// call function to set the posting account. Pass subsdiaryID and locationID
@@ -374,11 +371,42 @@ function(record, runtime, search, task) {
     
     function getPostingPeriod(date) {
 		
-    	// create array of months
-		var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-		
-		// calculate/return the posting period
-		return months[date.getMonth()] + ' ' + date.getFullYear();
+    	// declare and initialize variables
+    	var postingPeriod	= null;
+    	var startDate 		= new Date(date.getFullYear(), date.getMonth(), 1);
+    	var endDate 		= new Date(date.getFullYear(), date.getMonth()+1, 0);
+    	
+    	// run search to find the posting period for the given month
+    	search.create({
+    		type: search.Type.ACCOUNTING_PERIOD,
+    	
+    		filters: [{
+    			name: 'startdate',
+    			operator: search.Operator.ON,
+    			values: [format.format({type: format.Type.DATE, value: startDate})]
+    		},
+    				{
+    			name: 'enddate',
+    			operator: search.Operator.ON,
+    			values: [format.format({type: format.Type.DATE, value: endDate})]
+    		}],
+    		
+    		columns: [{
+    			name: 'internalid'
+    		}],
+    	
+    	}).run().each(function(result){
+    		
+    		// get the internal ID of the posting period
+    		postingPeriod = result.getValue({
+    			name: 'internalid'
+    		});
+    		
+    	});
+    	
+    	// return values to main script function
+    	return postingPeriod;
+
 	}
 
     return {

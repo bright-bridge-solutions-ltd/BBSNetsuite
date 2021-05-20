@@ -1,5 +1,7 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
 <#if record.custbody_bbs_pro_forma_invoice == true>
+	<#setting number_format=",##0.00">
+	<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
 	<pdf>
 		<head>
 			<macrolist>
@@ -180,13 +182,23 @@
 			    				<tr>
 			    					<td>${record.billaddr2}</td>
 			    				</tr>
+			    				<tr>
+		    						<td>${record.billcity}</td>
+		    					</tr>
+				    			<tr>
+			    					<td>${record.billzip}</td>
+			    				</tr>
+			    			<#else>
+			    				<tr>
+		    						<td>${record.billcity}</td>
+		    					</tr>
+				    			<tr>
+			    					<td>${record.billzip}</td>
+			    				</tr>
+			    				<tr>
+			    					<td>&nbsp;</td>
+			    				</tr>
 			    			</#if>
-			    			<tr>
-		    					<td>${record.billcity}</td>
-		    				</tr>
-			    			<tr>
-		    					<td>${record.billzip}</td>
-		    				</tr>
 		    			</table>
 		    		</td>
 		    		<td>
@@ -201,13 +213,23 @@
 			    				<tr>
 			    					<td>${record.shipaddr2}</td>
 			    				</tr>
+			    				<tr>
+		    						<td>${record.shipcity}</td>
+		    					</tr>
+				    			<tr>
+			    					<td>${record.shipzip}</td>
+			    				</tr>
+			    			<#else>
+			    				<tr>
+		    						<td>${record.shipcity}</td>
+		    					</tr>
+				    			<tr>
+			    					<td>${record.shipzip}</td>
+			    				</tr>
+			    				<tr>
+			    					<td>&nbsp;</td>
+			    				</tr>
 			    			</#if>
-			    			<tr>
-		    					<td>${record.shipcity}</td>
-		    				</tr>
-			    			<tr>
-		    					<td>${record.shipzip}</td>
-		    				</tr>
 		    			</table>
 		    		</td>
 		    	</tr>
@@ -230,8 +252,8 @@
 		    		<td colspan="4" align="center" style="border-right: 1px solid black;">${record.entity.accountnumber}</td>
 		    		<td colspan="2" align="center" style="border-right: 1px solid black;">${record.custbody_bbs_sales_rep_initials}</td>
 		    		<td colspan="6" align="center" style="border-right: 1px solid black;">${record.otherrefnum}</td>
-		    		<td colspan="4" align="center" style="border-right: 1px solid black;">&nbsp;</td>
-		    		<td colspan="4" align="center" style="border-right: 1px solid black;">&nbsp;</td>
+		    		<td colspan="4" align="center" style="border-right: 1px solid black;">${record.custbody_delivery_date}</td>
+		    		<td colspan="4" align="center" style="border-right: 1px solid black;">${record.custbody_delivery_reference_number}</td>
 		    		<td colspan="4" align="center" style="border-right: 1px solid black;">${record.trandate}</td>
 		    		<td colspan="4" align="center" style="border-right: 1px solid black;">${record.tranid}</td>
 		    		<td colspan="4" align="center"><pagenumber/> of <totalpages/></td>
@@ -256,11 +278,11 @@
 			    			<td colspan="5" align="center">${item.item}</td>
 			    			<td colspan="4" align="center" style="border-right: 1px solid black;">&nbsp;</td>
 			    			<td colspan="10" align="center" style="border-right: 1px solid black;">${item.description}</td>
-			    			<td colspan="3" align="center" style="border-right: 1px solid black;">${item.quantity}</td>
-			    			<td colspan="3" align="center" style="border-right: 1px solid black;">${item.rate}</td>
-			    			<td colspan="3" align="center" style="border-right: 1px solid black;">&nbsp;</td>
-			    			<td colspan="3" align="center" style="border-right: 1px solid black;">${item.amount}</td>
-			    			<td colspan="1" align="center">&nbsp;</td>
+			    			<td colspan="3" align="center" style="border-right: 1px solid black;">${item.quantity?string.number}</td>
+			    			<td colspan="3" align="center" style="border-right: 1px solid black;">${currencySymbol}${item.rate}</td>
+			    			<td colspan="3" align="center" style="border-right: 1px solid black;">${item.units}</td>
+			    			<td colspan="3" align="center" style="border-right: 1px solid black;">${currencySymbol}${item.amount}</td>
+			    			<td colspan="1" align="center">${item.taxcode?keep_after(":")?keep_before("-")}</td>
 			    		</tr>
 			    	</#list> <!-- END ITEMS -->
 		    	</table>
@@ -280,10 +302,10 @@
 			    				</tr>
 			    				<#list record.custbody_bbs_vat_summary?eval as tax>
 			        				<tr>
-				    					<td colspan="1" align="center" style="border-right: 1px solid black;">&nbsp;</td>
-				    					<td colspan="4" align="center" style="border-right: 1px solid black;">${tax.goodsconverted}</td>
+				    					<td colspan="1" align="center" style="border-right: 1px solid black;">${tax.name?keep_after(":")?keep_before("-")}</td>
+				    					<td colspan="4" align="center" style="border-right: 1px solid black;">${currencySymbol}${tax.goodsconverted}</td>
 				    					<td colspan="4" align="center" style="border-right: 1px solid black;">${tax.rate}%</td>
-				    					<td colspan="4" align="center">${tax.amtconverted}</td>
+				    					<td colspan="4" align="center">${currencySymbol}${tax.amtconverted}</td>
 				    				</tr>
 			    				</#list>
 			    			</table>
@@ -304,11 +326,11 @@
 		    					<th colspan="5" align="center" style="border-right: 1px solid black;">INVOICE TOTAL</th>
 		    				</tr>
 		    				<tr>
-		    					<td colspan="5" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.subtotal}</td>
-		    					<td colspan="4" align="right" style="border-right: 1px solid black; border-bottom: 1px solid black;">${record.discounttotal}</td>
-		    					<td colspan="4" align="right" style="border-right: 1px solid black; border-bottom: 1px solid black;">${record.taxtotal}</td>
-		    					<td colspan="4" align="right" style="border-right: 1px solid black; border-bottom: 1px solid black;">${record.shippingcost}</td>
-		    					<td colspan="5" align="right" style="border-right: 1px solid black; border-bottom: 1px solid black;">${record.total}</td>
+		    					<td colspan="5" align="right" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${record.subtotal}</td>
+		    					<td colspan="4" align="right" style="border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${record.discounttotal}</td>
+		    					<td colspan="4" align="right" style="border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${record.taxtotal}</td>
+		    					<td colspan="4" align="right" style="border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${record.shippingcost}</td>
+		    					<td colspan="5" align="right" style="border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${record.total}</td>
 		    				</tr>
 		    			</table>
 		    		</td>

@@ -3,13 +3,19 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/record', 'N/runtime', 'N/search', 'N/task', 'N/format'],
+define(['N/record', 'N/runtime', 'N/search', 'N/task'],
 /**
  * @param {record} record
  * @param {runtime} runtime
  * @param {search} search
  */
-function(record, runtime, search, task, format) {
+function(record, runtime, search, task) {
+	
+	// set transaction date
+	transactionDate = new Date();
+	
+	// call function to calculate the posting period
+	postingPeriod = getPostingPeriod(transactionDate);
 	
 	// retrieve script parameters
 	var currentScript = runtime.getCurrentScript();
@@ -30,13 +36,6 @@ function(record, runtime, search, task, format) {
 	deferredIncomeAccount = currentScript.getParameter({
 		name: 'custscript_bbs_deferred_income_bhl'
 	});
-	
-	transactionDate = currentScript.getParameter({
-		name: 'custscript_bbs_clover_processing_date'
-	});
-	
-	// call function to calculate the posting period
-	postingPeriod = getPostingPeriod(transactionDate);
 
     /**
      * Marks the beginning of the Map/Reduce process and generates input data.
@@ -72,7 +71,7 @@ function(record, runtime, search, task, format) {
     				{
     	    	name: 'custrecord_bbs_order_date',
     	    	operator: search.Operator.ON,
-    	    	values: [format.format({type: format.Type.DATE, value: transactionDate})]
+    	    	values: ['yesterday']
     	    }],
     		
     		columns: [{
@@ -317,7 +316,7 @@ function(record, runtime, search, task, format) {
     				{
     	    	name: 'custrecord_bbs_order_date',
     	    	operator: search.Operator.ON,
-    	    	values: [format.format({type: format.Type.DATE, value: transactionDate})]
+    	    	values: ['yesterday']
     	    },
     	    		{
     			name: 'custrecord_bbs_clover_location',
