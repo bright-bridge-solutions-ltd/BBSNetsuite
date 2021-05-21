@@ -911,13 +911,28 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 	
 	function getISOCode(currencyID) {
 		
-		// get the ISO code from the currency record
-		return search.lookupFields({
-			type: search.Type.CURRENCY,
-			id: currencyID,
-			columns: ['symbol']
-		}).symbol;
+		//Added protection in case this feature is not enabled in the account
+		//Zach has confirmed that currency code is not mandatory
+		//
+		//CSG 21/05/21
+		//
+		var isoCurrencyCode = '';
 		
+		try
+			{
+				// get the ISO code from the currency record
+				isoCurrencyCode = search.lookupFields({
+														type: 		search.Type.CURRENCY,
+														id: 		currencyID,
+														columns: 	['symbol']
+														}).symbol;
+			}
+		catch(err)
+			{
+				isoCurrencyCode = '';
+			}
+		
+		return isoCurrencyCode;
 	}
 	
 	function getCustomerTypeCode(customerTypeID) {
