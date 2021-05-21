@@ -23,9 +23,13 @@ function(runtime, search, record) {
     	var stripeFloorExceeded		= false;
     	var highValueOrder 			= false;
     	var vatExempt 				= false;
-    	var unverifiedAddress 		= null;
+    	var unverifiedAddress 		= false;
     	var marginBelowThreePercent = false;
     	var marginBelowSixPercent 	= false;
+    	var accountOnHold			= false;
+    	var firstThreeOrders		= false;
+    	var overdueInvoices			= false;
+    	var zeroValueLine			= false;
     	
     	// get the current record
     	var currentRecord = scriptContext.newRecord;
@@ -92,17 +96,17 @@ function(runtime, search, record) {
     	
 		    	// call function to lookup fields on the customer record
 		    	var customerInfo = getCustomerInfo(customerID);
-		    	var accountOnHold = customerInfo.accountonhold;
 		    	var availableBalance = customerInfo.availablebalance;
+		    	accountOnHold = customerInfo.accountonhold;
 		    	
 		    	// call function to check if the customer has made 3 or less orders
-		    	var firstThreeOrders = checkNumberOfOrders(customerID);
+		    	firstThreeOrders = checkNumberOfOrders(customerID);
 		    	
 		    	// call function to check if the customer has any overdue invoices
-		    	var overdueInvoices = checkAgeOfInvoices(customerID, scriptParameters.daysOverdue);
+		    	overdueInvoices = checkAgeOfInvoices(customerID, scriptParameters.daysOverdue);
 		    	
 		    	// call function to check if the order contains zero value lines
-		    	var zeroValueLine = checkZeroValueLines(currentRecord);
+		    	zeroValueLine = checkZeroValueLines(currentRecord);
     	
 		    	if (orderTotal > availableBalance)
 		    		{

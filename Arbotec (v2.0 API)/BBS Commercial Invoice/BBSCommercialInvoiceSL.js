@@ -178,10 +178,10 @@ function(render, record, search) {
 				// push a new instance of the output summary object into the output array
 				itemSummary.push(new outputSummary(
 														itemName,
-														itemInfo.altCode,
 														itemInfo.description,
 														itemInfo.commodityCode,
 														itemInfo.origin,
+														itemInfo.category,
 														quantity,
 														unitPrice
 													)
@@ -235,35 +235,42 @@ function(render, record, search) {
     
     function getItemInfo(itemID) {
     	
+    	// declare and initialize variables
+    	var category = '';
+    	
     	// lookup fields on the item record
     	var itemLookup = search.lookupFields({
     		type: search.Type.ITEM,
     		id: itemID,
-    		columns: ['displayname', 'vendorname', 'custitem_commodity_code', 'countryofmanufacture']
+    		columns: ['displayname', 'custitem_commodity_code', 'countryofmanufacture', 'class']
     	});
     	
     	var description		= itemLookup.displayname;
-    	var altCode			= itemLookup.vendorname;
     	var commodityCode 	= itemLookup.custitem_commodity_code;
     	var origin			= itemLookup.countryofmanufacture;
+    	
+    	if (itemLookup.class.length > 0)
+    		{
+    			category = itemLookup.class[0].text;
+    		}
     	
     	// return values to the main script function
     	return {
     		description:	description,
-    		altCode:		altCode,
     		commodityCode:	commodityCode,
+    		category:		category,
     		origin:			origin
     	}
     	
     }
     
-    function outputSummary(stockCode, altCode, description, commodityCode, origin, quantity, unitPrice, lineValue) {
+    function outputSummary(stockCode, description, commodityCode, origin, category, quantity, unitPrice, lineValue) {
     	
     	this.stockCode			=	stockCode;
-    	this.altCode 			= 	altCode;
     	this.description		=	description;
     	this.commodityCode		=	commodityCode;
     	this.origin				= 	origin;
+    	this.category			=	category;
     	this.quantity			=	quantity;
     	this.unitPrice			=	unitPrice;
     	this.lineValue			=	(quantity * unitPrice);

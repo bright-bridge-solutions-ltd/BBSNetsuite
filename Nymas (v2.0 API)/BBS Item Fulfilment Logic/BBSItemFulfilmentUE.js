@@ -318,6 +318,9 @@ function(record, search, format) {
 					    															line: x
 					    														});
 			    								    							
+			    								    							// call function to get the finishing drawing
+			    								    							finishingDrawing = getFinishingDrawing(componentItemID);
+			    								    							
 			    								    							// push a new instance of the output summary object into the output array
 			    						    									itemSummary.push(new outputSummary(
 			    						    																			itemType,

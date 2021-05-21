@@ -284,7 +284,7 @@ function(format, record, search) {
 								    							var itemCode 			= '';
 								    							var itemDescription 	= '';
 								    							var workDescription 	= '';
-								    							var finishingDrawing 	= '';
+								    							var finishingDrawing	= '';
 								    							var codeToBeMade 		= '';
 								    							var price 				= '';
 								    							
@@ -306,6 +306,9 @@ function(format, record, search) {
 	    															fieldId: 'quantity',
 	    															line: x
 	    														});
+								    							
+								    							// call function to get the finishing drawing
+								    							finishingDrawing = getFinishingDrawing(componentItemID);
 								    							
 								    							// push a new instance of the output summary object into the output array
 						    									itemSummary.push(new outputSummary(
@@ -352,6 +355,17 @@ function(format, record, search) {
     		id: itemID,
     		columns: ['type']
     	}).type[0].value;
+    	
+    }
+    
+    function getFinishingDrawing(itemID) {
+    	
+    	// lookup fields on the item record
+    	return search.lookupFields({
+    		type: search.Type.ITEM,
+    		id: itemID,
+    		columns: ['custitem_ny_drawing_number']
+    	}).custitem_ny_drawing_number;
     	
     }
     

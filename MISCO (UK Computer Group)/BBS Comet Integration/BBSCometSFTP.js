@@ -120,7 +120,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 									try
 										{
 											fileList = objConnection.list({
-																			path: 	'./' + integrationFileExtension, 
+																			path: 	'./' + integrationFileExtension,
 																			sort: 	sftp.Sort.DATE
 																			});
 										}

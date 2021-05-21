@@ -1,4 +1,6 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<#setting number_format=",##0.00">
+<#assign currencySymbol>${salesOrder.custbody_bbs_currency_symbol}</#assign>
 <pdf>
 <head>
 	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
@@ -191,8 +193,9 @@
 		<table style="width: 100%; border: 1px solid black; margin-top: 5px;">
 			<thead>
 				<tr>
-				    <th colspan="8" align="center" style="border-right: 1px solid black; border-bottom: 1px solid black;">STOCK CODE / ALT CODE</th>
-				    <th colspan="8" align="left" style="border-right: 1px solid black; border-bottom: 1px solid black;">DESCRIPTION</th>
+				    <th colspan="6" align="center" style="border-right: 1px solid black; border-bottom: 1px solid black;">STOCK CODE</th>
+				    <th colspan="10" align="left" style="border-right: 1px solid black; border-bottom: 1px solid black;">DESCRIPTION</th>
+				    <th colspan="6" align="center" style="border-right: 1px solid black; border-bottom: 1px solid black;">CATEGORY</th>
 				    <th colspan="4" align="center" style="border-right: 1px solid black; border-bottom: 1px solid black;">COMMODITY CODE</th>
 				    <th colspan="2" align="center" style="border-right: 1px solid black; border-bottom: 1px solid black;">ORIGIN</th>
 				    <th colspan="2" align="center" style="border-right: 1px solid black; border-bottom: 1px solid black;">QTY DEL</th>
@@ -202,14 +205,14 @@
 			</thead>
 			<#list record.item_json?eval as item>
 				<tr>
-				    <td colspan="4" align="center">${item.stockCode}</td>
-				    <td colspan="4" align="center" style="border-right: 1px solid black;">${item.altCode}</td>
-				    <td colspan="8" align="left" style="border-right: 1px solid black;">${item.description}</td>
+				    <td colspan="6" align="center" style="border-right: 1px solid black;">${item.stockCode}</td>
+				    <td colspan="10" align="left" style="border-right: 1px solid black;">${item.description}</td>
+				    <td colspan="6" align="center" style="border-right: 1px solid black;">${item.category}</td>
 				    <td colspan="4" align="center" style="border-right: 1px solid black;">${item.commodityCode}</td>
 				    <td colspan="2" align="center" style="border-right: 1px solid black;">${item.origin}</td>
-				    <td colspan="2" align="center" style="border-right: 1px solid black;">${item.quantity}</td>
-				    <td colspan="3" align="center" style="border-right: 1px solid black;">${item.unitPrice}</td>
-				    <td colspan="3" align="center">${item.lineValue}</td>
+				    <td colspan="2" align="center" style="border-right: 1px solid black;">${item.quantity?string.number}</td>
+				    <td colspan="3" align="center" style="border-right: 1px solid black;">${currencySymbol}${item.unitPrice}</td>
+				    <td colspan="3" align="center">${currencySymbol}${item.lineValue}</td>
 				</tr>
 				<!-- Add the line value to the goodsTotal variable -->
 				<#assign goodsTotal += item.lineValue>
@@ -219,37 +222,30 @@
 	
 	<table style="width: 100%; margin-top: 10px;">
 		<tr>
-			<td colspan="22">Period from 01/01/${record.trandate?string('yyyy')}______to______31/12/${record.trandate?string('yyyy')}</td>
-			<td colspan="8">&nbsp;</td>
+			<td><span style="font-size: 10pt;">Currency: <b>${salesOrder.currency}</b></span></td>
+		</tr>
+		<tr style="margin-top: 10px;">
+			<td>Period from 01/01/${record.trandate?string('yyyy')}______to______31/12/${record.trandate?string('yyyy')}</td>
 		</tr>
 		<tr>
-			<td colspan="22">The exporter of the products covered by this document (Arbortec – Registered Exporter Number: GBREX990906583000X)</td>
-			<td colspan="8">&nbsp;</td>
+			<td>The exporter of the products covered by this document (Arbortec – Registered Exporter Number: GBREX990906583000X) Arbortec EORI Number: ${subsidiary.custrecord_bbs_eori_number}</td>
 		</tr>
 		<tr>
-			<td colspan="22">declares that except where otherwise clearly indicated, these products are of EU origin.</td>
-			<td colspan="8">&nbsp;</td>
-		</tr>
-	</table>
-	
-	<table style="width: 100%; margin-top: 10px;">
-		<tr>
-			<td colspan="2">PLACE:</td>
-			<td colspan="3">Kings Lynn, UK</td>
-			<td colspan="2">DATE:</td>
-			<td colspan="3">${record.trandate}</td>
-			<td colspan="2">NAME:</td>
-			<td colspan="3">&nbsp;</td>
-			<td colspan="3">SIGNATURE</td>
-			<td colspan="5">____________________________</td>
-			<td colspan="8">&nbsp;</td>
+			<td>declares that except where otherwise clearly indicated, these products are of EU origin.</td>
 		</tr>
 	</table>
 	
 	<table style="width: 100%; margin-top: 10px;">
 		<tr>
-			<td colspan="22">ITEMS NOT OF EU ORIGIN MARKED WITH AN * AFTER 'ALT CODE'. Arbortec EORI Number: ${subsidiary.custrecord_bbs_eori_number}</td>
-			<td colspan="8">&nbsp;</td>
+			<td colspan="2" style="vertical-align: middle;">PLACE:</td>
+			<td colspan="3" style="vertical-align: middle;">Kings Lynn, UK</td>
+			<td colspan="2" style="vertical-align: middle;">DATE:</td>
+			<td colspan="3" style="vertical-align: middle;">${record.trandate}</td>
+			<td colspan="2" style="vertical-align: middle;">NAME:</td>
+			<td colspan="3" style="vertical-align: middle;">Guy Brothers</td>
+			<td colspan="3" style="vertical-align: middle;">SIGNATURE:</td>
+			<td colspan="5" style="vertical-align: middle;"><img src="https://6778659.app.netsuite.com/core/media/media.nl?id=8449&c=6778659&h=LXcHFB87YlJNt3zm0c1LoNLx532_KiMVu347wbmJIv93QpeM" style="width:100px; height:50px;" /></td>
+			<td colspan="8" style="vertical-align: middle;">&nbsp;</td>
 		</tr>
 	</table>
 	
@@ -258,21 +254,21 @@
 			<td colspan="12" style="border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black;"><span style="font-weight: bold; font-size: 6pt;">Delivery Instructions</span></td>
 			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black;">&nbsp;</td>
 			<td colspan="5" style="margin-left: 5px; border-left: 1px solid black; border-top: 1px solid black;"><b>TOTAL VALUE</b></td>
-			<td colspan="4" align="right" style="border-right: 1px solid black; border-top: 1px solid black;">${goodsTotal + record.shippingcost}</td>
+			<td colspan="4" align="right" style="border-right: 1px solid black; border-top: 1px solid black;">${currencySymbol}${goodsTotal + record.shippingcost}</td>
 		</tr>
 		<tr>
 			<td colspan="12" style="border-left: 1px solid black; border-right: 1px solid black;">&nbsp;</td>
 			<td colspan="3" style="margin-left: 5px; border-left: 1px solid black;"><b>NAME:</b></td>
 			<td colspan="6" style="border-right: 1px solid black;">______________________________________</td>
 			<td colspan="5" style="margin-left: 5px; border-left: 1px solid black;"><b>FREIGHT VALUE</b></td>
-			<td colspan="4" align="right" style="border-right: 1px solid black;">${record.shippingcost}</td>
+			<td colspan="4" align="right" style="border-right: 1px solid black;">${currencySymbol}${record.shippingcost}</td>
 		</tr>
 		<tr>
 			<td colspan="12" style="border-left: 1px solid black; border-right: 1px solid black;">&nbsp;</td>
 			<td colspan="4" style="margin-left: 5px; border-left: 1px solid black;">&nbsp;</td>
 			<td colspan="5" style="border-right: 1px solid black;">&nbsp;</td>
 			<td colspan="5" style="margin-left: 5px; border-left: 1px solid black; border-bottom: 1px solid black;"><b>GOODS VALUE</b></td>
-			<td colspan="4" align="right" style="border-right: 1px solid black; border-bottom: 1px solid black;">${goodsTotal}</td>
+			<td colspan="4" align="right" style="border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${goodsTotal}</td>
 		</tr>
 		<tr>
 			<td colspan="12" style="border-left: 1px solid black; border-right: 1px solid black;">&nbsp;</td>

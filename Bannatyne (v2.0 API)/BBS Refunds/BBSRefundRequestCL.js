@@ -139,7 +139,7 @@ function(url, https, dialog, search) {
 		    					// display an alert to the user
 			    				dialog.alert({
 	    							title: '⚠️ Check Bank Details',
-	    							message: 'The bank details you have entered have been used previously on the below refund request(s):<br><br>' + refundRequests + '<br><br>Please review and amend the bank details if required.'
+	    							message: 'The bank details you have entered have been used previously on the below refund request(s):<br><br>' + refundRequests + '<br><br>Please review to check this is not a duplicate request <b>before</b> submitting the form.'
 	    						});
 		    				}
     				}
