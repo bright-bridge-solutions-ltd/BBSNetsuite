@@ -459,6 +459,49 @@ function(runtime, search, record, format, task) {
     		});
     		
     		monthlyMinimum = parseFloat(monthlyMinimum); // use parseFloat to convert to a floating point number
+    		
+    		// check if the invoiceDate is greater than (after) or equal to the contractEnd OR the invoiceDate is greater than (after) or equal to the earlyEndDate
+			if (invoiceDate.getTime() >= contractEnd.getTime() || earlyEndDate != '' && invoiceDate.getTime() >= earlyEndDate.getTime())
+				{
+					// if we have an early end date
+					if (earlyEndDate)
+						{
+							// if the earlyEndDate falls before the contract end date
+							if (earlyEndDate.getTime() < contractEnd.getTime())
+								{
+									// call function to get the number of days in the early end date's month
+									var daysInMonth = getDaysInMonth(earlyEndDate);
+												
+									// divide the monthly minimum by the days in month to calculate the daily minimum
+									var dailyMinimum = (monthlyMinimum / daysInMonth);
+												
+									// multiply the daily minimum by the date of the early end date to calculate the monthly minimum
+									monthlyMinimum = (dailyMinimum * earlyEndDate.getDate());
+								}
+							else
+								{
+									// call function to get the number of days in the contract end date's month
+									var daysInMonth = getDaysInMonth(contractEnd);
+												
+									// divide the monthly minimum by the days in month to calculate the daily minimum
+									var dailyMinimum = (monthlyMinimum / daysInMonth);
+												
+									// multiply the daily minimum by the date of the contract end date to calculate the monthly minimum
+									monthlyMinimum = (dailyMinimum * contractEnd.getDate());		
+								}
+							}
+						else
+							{
+								// call function to get the number of days in the contract end date's month
+								var daysInMonth = getDaysInMonth(contractEnd);
+										
+								// divide the monthly minimum by the days in month to calculate the daily minimum
+								var dailyMinimum = (monthlyMinimum / daysInMonth);
+										
+								// multiply the daily minimum by the date of the contract end date to calculate the monthly minimum
+								monthlyMinimum = (dailyMinimum * contractEnd.getDate());	
+							}
+				}
 			
 			// create search to find cumulative monthly minimums for this contract
     		var cumulativeMinimumsSearch = search.create({
@@ -2176,7 +2219,48 @@ function(runtime, search, record, format, task) {
     		
     		monthlyMinimum = parseFloat(monthlyMinimum); // use parseFloat to convert to a floating point number
     		
-    		
+    		// check if the invoiceDate is greater than (after) or equal to the contractEnd OR the invoiceDate is greater than (after) or equal to the earlyEndDate
+			if (invoiceDate.getTime() >= contractEnd.getTime() || earlyEndDate != '' && invoiceDate.getTime() >= earlyEndDate.getTime())
+				{
+					// if we have an early end date
+					if (earlyEndDate)
+						{
+							// if the earlyEndDate falls before the contract end date
+							if (earlyEndDate.getTime() < contractEnd.getTime())
+								{
+									// call function to get the number of days in the early end date's month
+									var daysInMonth = getDaysInMonth(earlyEndDate);
+												
+									// divide the monthly minimum by the days in month to calculate the daily minimum
+									var dailyMinimum = (monthlyMinimum / daysInMonth);
+												
+									// multiply the daily minimum by the date of the early end date to calculate the monthly minimum
+									monthlyMinimum = (dailyMinimum * earlyEndDate.getDate());
+								}
+							else
+								{
+									// call function to get the number of days in the contract end date's month
+									var daysInMonth = getDaysInMonth(contractEnd);
+												
+									// divide the monthly minimum by the days in month to calculate the daily minimum
+									var dailyMinimum = (monthlyMinimum / daysInMonth);
+												
+									// multiply the daily minimum by the date of the contract end date to calculate the monthly minimum
+									monthlyMinimum = (dailyMinimum * contractEnd.getDate());		
+								}
+							}
+						else
+							{
+								// call function to get the number of days in the contract end date's month
+								var daysInMonth = getDaysInMonth(contractEnd);
+										
+								// divide the monthly minimum by the days in month to calculate the daily minimum
+								var dailyMinimum = (monthlyMinimum / daysInMonth);
+										
+								// multiply the daily minimum by the date of the contract end date to calculate the monthly minimum
+								monthlyMinimum = (dailyMinimum * contractEnd.getDate());	
+							}
+				}
 			
     		// load the sales order record
 			var soRecord = record.load({
@@ -4527,10 +4611,10 @@ function(runtime, search, record, format, task) {
 	// FUNCTION TO GET THE NUMBER OF DAYS IN THE MONTH
 	//================================================   
     
-    function getDaysInMonth(month, year)
+    function getDaysInMonth(date)
 	    {
     		// day 0 is the last day in the current month
-    	 	return new Date(year, month+1, 0).getDate(); // return the last day of the month
+    	 	return new Date(date.getFullYear(), date.getMonth()+1, 0).getDate(); // return the last day of the month
 	    }
     
     // =======================================
