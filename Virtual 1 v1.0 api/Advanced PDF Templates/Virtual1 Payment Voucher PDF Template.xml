@@ -33,26 +33,26 @@
 				<td align="right" style="font-size: 10pt; font-weight: bold; color: #00C9FF;">Remittance Advice</td>
 			</tr>
 			<tr style="margin-top: 20px;">
-				<td align="left"  rowspan="7" style="font-size: 10pt; color: #030014;">${record.address}</td>
+				<td align="left"  rowspan="7" style="font-size: 8pt; color: #030014;">${record.address}</td>
 				<td align="right" style="font-size: 10pt;  color: #030014;">Date: ${record.trandate?string["dd MMM yyyy"]}</td>
 			</tr>
 			<tr>
-              	<td align="right" style="font-family: Arial; font-size: 10pt; color: #030014; padding: 4px 6px 0px 0px;">Virtual1 Ltd</td>
+              	<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014; padding: 4px 6px 0px 0px;">Virtual1 Ltd</td>
 			</tr>
 			<tr>
-				<td align="right" style="font-family: Arial; font-size: 10pt; color: #030014; padding: 0px 6px 0px 0px;">6th Floor Alphabeta</td>
+				<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014; padding: 0px 6px 0px 0px;">6th Floor Alphabeta</td>
 			</tr>
 			<tr>
-				<td align="right" style="font-family: Arial; font-size: 10pt; color: #030014; padding: 0px 6px 0px 0px">14-18 Finsbury Square</td>
+				<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014; padding: 0px 6px 0px 0px">14-18 Finsbury Square</td>
 			</tr>
 			<tr>
-				<td align="right" style="font-family: Arial; font-size: 10pt; color: #030014; padding: 0px 6px 0px 0px">London</td>
+				<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014; padding: 0px 6px 0px 0px">London</td>
 			</tr>
 			<tr>
-				<td align="right" style="font-family: Arial; font-size: 10pt; color: #030014; padding: 0px 6px 0px 0px">EC2A 1BR</td>
+				<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014; padding: 0px 6px 0px 0px">EC2A 1BR</td>
 			</tr>
 			<tr>
-				<td align="right" style="font-size: 10pt; color: #030014;">accounts@virtual1.com</td>
+				<td align="right" style="font-size: 8pt; color: #030014;">accounts@virtual1.com</td>
 			</tr>
 			</table>
 

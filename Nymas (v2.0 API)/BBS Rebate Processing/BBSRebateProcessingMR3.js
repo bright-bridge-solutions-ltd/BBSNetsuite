@@ -162,7 +162,8 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    						
 		    						//Calculate the rebate value
 		    						//
-		    						var rebateValue = (invoiceValue / 100.0) * rebateProcessingInfo.percentage;
+		    						//var rebateValue = (invoiceValue / 100.0) * rebateProcessingInfo.percentage;
+		    						var rebateValue = Number(((invoiceValue / 100.0) * rebateProcessingInfo.percentage).toFixed(2));
 		    						
 		    						//Rebate/Accrual is applied to the individual customer
 		    						//
@@ -215,7 +216,9 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    							}
 		    						else
 		    							{
-		    								rebateValue = (invoiceValue / 100.0) * rebateProcessingInfo.percentage;
+		    								//rebateValue = (invoiceValue / 100.0) * rebateProcessingInfo.percentage;
+		    								rebateValue = Number(((invoiceValue / 100.0) * rebateProcessingInfo.percentage).toFixed(2));
+				    						
 		    							}
 		    						
 		    						
@@ -260,8 +263,9 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 									
 									//Calculate the rebate value
 									//
-									var rebateValue = (invoiceValue / 100.0) * rebateProcessingInfo.percentage;
-									
+									//var rebateValue = (invoiceValue / 100.0) * rebateProcessingInfo.percentage;
+									var rebateValue = Number(((invoiceValue / 100.0) * rebateProcessingInfo.percentage).toFixed(2));
+		    						
 									//Rebate/Accrual is applied to the group customer
 									//
 									BBSRebateProcessingLibrary.createIndividualRebateOrAccrual(

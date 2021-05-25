@@ -1,86 +1,30 @@
 /**
  * @NApiVersion 2.x
- * @NScriptType MapReduceScript
+ * @NScriptType ScheduledScript
  * @NModuleScope SameAccount
  */
+
+
 define(['N/record', 'N/runtime', 'N/search', './BBSRebateProcessingLibrary', 'N/format', 'N/task'],
 
 function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 {
    
     /**
-     * Marks the beginning of the Map/Reduce process and generates input data.
+     * Definition of the Scheduled script trigger point.
      *
-     * @typedef {Object} ObjectRef
-     * @property {number} id - Internal ID of the record instance
-     * @property {string} type - Record type id
-     *
-     * @return {Array|Object|Search|RecordRef} inputSummary
-     * @since 2015.1
+     * @param {Object} scriptContext
+     * @param {string} scriptContext.type - The context in which the script is executed. It is one of the values from the scriptContext.InvocationType enum.
+     * @Since 2015.2
      */
-	
-	//Map reduce script #4 for rebate processing
-	//Calculates the rebate for each group customer rebate record
-	//
-    function getInputData() 
+    function execute(scriptContext) 
 	    {
-    		try
-    			{
-		    		//Search for all group rebate records that are active for this year
-		    		//
-		    		var today 				= new Date();
-		    		var startOfYear			= new Date(today.getFullYear(), 0, 1);
-		    		var endOfYear			= new Date(today.getFullYear(), 11, 31);
-		    		var startOfYearString	= format.format({value: startOfYear, type: format.Type.DATE});
-		    		var endOfYearString		= format.format({value: endOfYear, type: format.Type.DATE});
-		    		
-		    		var searchResults =	BBSRebateProcessingLibrary.getResults(search.create({
-															    			   type: 		"customrecord_bbs_cust_group_rebate",
-															    			   filters:
-																		    			   [
-																		    			      ["isinactive","is","F"], 
-																		    			      "AND", 
-																		    			      ["custrecord_bbs_start_date","onorafter",startOfYearString],
-																		    			      "AND", 
-																		    			      ["custrecord_bbs_end_date","onorbefore",endOfYearString],
-																		    			      "AND",
-																		    			      ["custrecord_bbs_status","anyof","1"]		//Status = In Progress
-																		    			   ],
-															    			   columns:
-																		    			   [
-																		    			      search.createColumn({name: "name",sort: search.Sort.ASC,  label: "ID"}),
-																		    			      search.createColumn({name: "internalid", label: "Internal Id"}),
-																		    			      search.createColumn({name: "custrecord_bbs_customer", label: "Customer"})
-																		    			   ]
-															    			}));
-		    		
-		    		//log.debug({title: 'search results for group rebates', details: searchResults});
-		    		
-		    		return searchResults;
-    			}
-    		catch(err)
-    			{
-	    			log.error({
-								title: 		'Unexpexcted error in getInputData section',
-								details: 	err
-								});
-    			}
-	    }
 
-    /**
-     * Executes when the map entry point is triggered and applies to each key/value pair.
-     *
-     * @param {MapSummary} context - Data collection containing the key/value pairs to process through the map stage
-     * @since 2015.1
-     */
-    function map(context) 
-	    {
     		try
     			{
 		    		//Rehydrate the search result & get values
 		    		//
-		    		var searchResult 			= JSON.parse(context.value);
-		    		var searchId	 			= searchResult.values['internalid'][0].value;	//Internal id of group rebate record
+		    		var searchId	 			= '';	//Internal id of group rebate record
 		    		var now						= new Date();
 		    		var today					= new Date(now.getFullYear(), now.getMonth(), now.getDate());
 		    		
@@ -173,7 +117,7 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    						
 		    						//Calculate the rebate value
 		    						//
-		    						var rebateValue = Number(((invoiceValue / 100.0) * rebateProcessingInfo.percentage).toFixed(2));
+		    						var rebateValue = (invoiceValue / 100.0) * rebateProcessingInfo.percentage;
 		    						
 		    						//Now work out how we apply the rebate
 		    						//
@@ -243,22 +187,7 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 		    						
 		    						//Calculate the rebate value
 		    						//
-		    						//var rebateValue = Number(((invoiceValue / 100.0) * rebateProcessingInfo.percentage).toFixed(2));
-		    						
-		    						//Calculate the rebate value
-		    						//
-		    						var rebateValue = Number(0);
-		    						
-		    						if(rebateProcessingInfo.rebateMarketingFixedAmt != null && rebateMarketingFixedAmt != '')
-		    							{
-		    								rebateValue = Number(rebateProcessingInfo.rebateMarketingFixedAmt);
-		    							}
-		    						else
-		    							{
-		    								//rebateValue = (invoiceValue / 100.0) * rebateProcessingInfo.percentage;
-		    								rebateValue = Number(((invoiceValue / 100.0) * rebateProcessingInfo.percentage).toFixed(2));
-				    						
-		    							}
+		    						var rebateValue = Number(((invoiceValue / 100.0) * rebateProcessingInfo.percentage).toFixed(2));
 		    						
 		    						//Now work out how we apply the rebate
 		    						//
@@ -367,55 +296,8 @@ function(record, runtime, search, BBSRebateProcessingLibrary, format, task)
 				}
 	    }
 
-    /**
-     * Executes when the reduce entry point is triggered and applies to each group.
-     *
-     * @param {ReduceSummary} context - Data collection containing the groups to process through the reduce stage
-     * @since 2015.1
-     */
-    function reduce(context) 
-	    {
-	
-	    }
+   
 
-
-    /**
-     * Executes when the summarize entry point is triggered and applies to the result set.
-     *
-     * @param {Summary} summary - Holds statistics regarding the execution of a map/reduce script
-     * @since 2015.1
-     */
-    function summarize(summary) 
-	    {
-	    	//Submit the next map/reduce job 
-			//
-    	
-			/*
-			try
-				{
-					var mrTask = task.create({
-											taskType:		task.TaskType.MAP_REDUCE,
-											scriptId:		'customscript_bbs_rebate_processing_3',	
-											deploymentid:	null
-											});
-					
-					mrTask.submit();
-				}
-			catch(err)
-				{
-					log.error({
-								title: 		'Error submitting mr 3 script',
-								details: 	err
-								});	
-				}
-			*/
-	    }
-
-    return {
-	        getInputData: 	getInputData,
-	        map: 			map,
-	        reduce: 		reduce,
-	        summarize: 		summarize
-    		};
+    return {execute: execute};
     
 });
