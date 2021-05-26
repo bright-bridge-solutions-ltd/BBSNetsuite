@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/format', 'N/record', 'N/search'],
-function(format, record, search) {
+define(['N/format', 'N/record', 'N/search', 'N/format'],
+function(format, record, search, format) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -178,6 +178,7 @@ function(format, record, search) {
     							var itemCode 			= '';
     							var itemDescription 	= '';
     							var workDescription 	= '';
+    							var dueDate				= '';
     							var finishingDrawing 	= '';
     							var codeToBeMade 		= '';
     							var price 				= '';
@@ -189,17 +190,32 @@ function(format, record, search) {
     								line: i
     							});
 	    						
-	    						itemCode = currentRecord.getSublistText({
+	    						codeToBeMade = currentRecord.getSublistText({
     								sublistId: 'item',
-    								fieldId: 'item',
+    								fieldId: 'assembly',
     								line: i
     							});
 	    						
-	    						itemDescription = currentRecord.getSublistValue({
+	    						workDescription = currentRecord.getSublistValue({
     								sublistId: 'item',
     								fieldId: 'description',
     								line: i
     							});
+	    						
+	    						dueDate = currentRecord.getSublistValue({
+	    							sublistId: 'item',
+	    							fieldId: 'productionenddate',
+	    							line: i
+	    						});
+	    						
+		    					if (dueDate)
+		    						{
+		    							// convert to a date string
+		    							dueDate = format.format({
+		    								type: format.Type.DATE,
+		    								value: dueDate
+		    							});
+		    						}
 	    						
 	    						finishingDrawing = currentRecord.getSublistValue({
     								sublistId: 'item',
@@ -220,6 +236,7 @@ function(format, record, search) {
 																		itemCode,
 																		itemDescription,
 																		workDescription,
+																		dueDate,
 																		finishingDrawing,
 																		codeToBeMade,
 																		price
@@ -284,18 +301,19 @@ function(format, record, search) {
 								    							var itemCode 			= '';
 								    							var itemDescription 	= '';
 								    							var workDescription 	= '';
+								    							var dueDate				= '';
 								    							var finishingDrawing	= '';
 								    							var codeToBeMade 		= '';
 								    							var price 				= '';
 								    							
 								    							// get details about the component item
-								    							workDescription = bomRevision.getSublistValue({
+								    							itemDescription = bomRevision.getSublistValue({
     																sublistId: 'component',
     																fieldId: 'description',
     																line: x
     															});
 								    							
-								    							codeToBeMade = bomRevision.getSublistText({
+								    							itemCode = bomRevision.getSublistText({
     																sublistId: 'component',
     																fieldId: 'item',
     																line: x
@@ -317,6 +335,7 @@ function(format, record, search) {
 						    																			itemCode,
 						    																			itemDescription,
 						    																			workDescription,
+						    																			dueDate,
 						    																			finishingDrawing,
 						    																			codeToBeMade,
 						    																			price
@@ -426,13 +445,14 @@ function(format, record, search) {
     	
     }
     
-    function outputSummary(itemType, quantity, itemCode, itemDescription, workDescription, finishingDrawing, codeToBeMade, price) {
+    function outputSummary(itemType, quantity, itemCode, itemDescription, workDescription, dueDate, finishingDrawing, codeToBeMade, price) {
     	
     	this.itemType			=	itemType;
     	this.quantity 			= 	quantity;
     	this.itemCode			=	itemCode;
     	this.itemDescription	=	itemDescription;
     	this.workDescription	= 	workDescription;
+    	this.dueDate			=	dueDate;
     	this.finishingDrawing	=	finishingDrawing;
     	this.codeToBeMade		=	codeToBeMade;
     	this.price				=	price;
