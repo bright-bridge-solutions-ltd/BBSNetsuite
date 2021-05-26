@@ -43,7 +43,7 @@ function(record, search, runtime) {
 					//Process based on frequency
 					//
 					switch(_rebateProcessingInfo.frequency)
-						{
+						{  
 							case 1:		//Quarterly
 								
 								switch(_rebateProcessingInfo.rebateOrAccrual)
@@ -68,10 +68,17 @@ function(record, search, runtime) {
 													createCreditMemo(customer, customerRebate, 'Buying group rebate - quarterly');
 												}
 											
-											//Reset the accrual value
+											//Reset the accrual value & update the rebate value
 											//
+											var totalRebate = Number(isNullorBlank(search.lookupFields({
+																									type: 		'customrecord_bbs_cust_group_rebate', 
+																									id: 		_rebateRecordId,
+																									columns:	'custrecord_bbs_rebate_value'
+																								}).customrecord_bbs_cust_individ_rebate, '0')) + rebateValue;
+															
 											var fieldsAndValues = {};
 											fieldsAndValues[accuraField] = 0;
+											fieldsAndValues['custrecord_bbs_rebate_value'] = totalRebate;
 											
 											record.submitFields({
 								    							type:		'customrecord_bbs_cust_group_rebate',
@@ -129,10 +136,17 @@ function(record, search, runtime) {
 													createCreditMemo(customer, customerRebate, 'Buying group rebate - annualy');
 												}
 											
-											//Reset the accrual value
+											//Reset the accrual value & update the rebate value
 											//
+											var totalRebate = Number(isNullorBlank(search.lookupFields({
+																									type: 		'customrecord_bbs_cust_group_rebate', 
+																									id: 		_rebateRecordId,
+																									columns:	'custrecord_bbs_rebate_value'
+																								}).customrecord_bbs_cust_individ_rebate, '0')) + rebateValue;
+															
 											var fieldsAndValues = {};
 											fieldsAndValues[accuraField] = 0;
+											fieldsAndValues['custrecord_bbs_rebate_value'] = totalRebate;
 											
 											record.submitFields({
 								    							type:		'customrecord_bbs_cust_group_rebate',
@@ -186,10 +200,17 @@ function(record, search, runtime) {
 										
 										createCreditMemo(customer, customerRebate, 'Buying group rebate - monthly');
 										
-										//Reset the accrual value
+										//Reset the accrual value & update the rebate value
 										//
+										var totalRebate = Number(isNullorBlank(search.lookupFields({
+																								type: 		'customrecord_bbs_cust_group_rebate', 
+																								id: 		_rebateRecordId,
+																								columns:	'custrecord_bbs_rebate_value'
+																							}).customrecord_bbs_cust_individ_rebate, '0')) + rebateValue;
+														
 										var fieldsAndValues = {};
 										fieldsAndValues[accuraField] = 0;
+										fieldsAndValues['custrecord_bbs_rebate_value'] = totalRebate;
 										
 										record.submitFields({
 							    							type:		'customrecord_bbs_cust_group_rebate',
@@ -249,10 +270,17 @@ function(record, search, runtime) {
 											//
 											createCreditMemo(_rebateGroupCustomer, rebateValue, 'Group customer rebate - quarterly');
 											
-											//Reset the accrual value
+											//Reset the accrual value & update the rebate value
 											//
+											var totalRebate = Number(isNullorBlank(search.lookupFields({
+																									type: 		'customrecord_bbs_cust_group_rebate', 
+																									id: 		_rebateRecordId,
+																									columns:	'custrecord_bbs_rebate_value'
+																								}).customrecord_bbs_cust_individ_rebate, '0')) + rebateValue;
+															
 											var fieldsAndValues = {};
 											fieldsAndValues[accuraField] = 0;
+											fieldsAndValues['custrecord_bbs_rebate_value'] = totalRebate;
 											
 											record.submitFields({
 								    							type:		'customrecord_bbs_cust_group_rebate',
@@ -262,6 +290,7 @@ function(record, search, runtime) {
 								    										ignoreMandatoryFields: 	true
 								    										}
 								    							});
+											
 											
 											break;
 											
@@ -296,10 +325,17 @@ function(record, search, runtime) {
 											//
 											createCreditMemo(_rebateGroupCustomer, rebateValue, 'Group customer rebate - annual');
 											
-											//Reset the accrual value
+											//Reset the accrual value & update the rebate value
 											//
+											var totalRebate = Number(isNullorBlank(search.lookupFields({
+																									type: 		'customrecord_bbs_cust_group_rebate', 
+																									id: 		_rebateRecordId,
+																									columns:	'custrecord_bbs_rebate_value'
+																								}).customrecord_bbs_cust_individ_rebate, '0')) + rebateValue;
+															
 											var fieldsAndValues = {};
 											fieldsAndValues[accuraField] = 0;
+											fieldsAndValues['custrecord_bbs_rebate_value'] = totalRebate;
 											
 											record.submitFields({
 								    							type:		'customrecord_bbs_cust_group_rebate',
@@ -339,10 +375,17 @@ function(record, search, runtime) {
 								//
 								createCreditMemo(_rebateGroupCustomer, rebateValue, 'Group customer rebate - monthly');
 								
-								//Reset the accrual value
+								//Reset the accrual value & update the rebate value
 								//
+								var totalRebate = Number(isNullorBlank(search.lookupFields({
+																						type: 		'customrecord_bbs_cust_group_rebate', 
+																						id: 		_rebateRecordId,
+																						columns:	'custrecord_bbs_rebate_value'
+																					}).customrecord_bbs_cust_individ_rebate, '0')) + rebateValue;
+												
 								var fieldsAndValues = {};
 								fieldsAndValues[accuraField] = 0;
+								fieldsAndValues['custrecord_bbs_rebate_value'] = totalRebate;
 								
 								record.submitFields({
 					    							type:		'customrecord_bbs_cust_group_rebate',
@@ -403,11 +446,18 @@ function(record, search, runtime) {
 											//
 											createCreditMemo(_rebateIndividualCustomer, rebateValue, 'Individual customer rebate - quarterly');
 											
-											//Reset the accrual value
+											//Reset the accrual value & update the rebate value
 											//
+											var totalRebate = Number(isNullorBlank(search.lookupFields({
+																					type: 		'customrecord_bbs_cust_individ_rebate', 
+																					id: 		_rebateRecordId,
+																					columns:	'custrecord_bbs_rebate_value_ind'
+																				}).customrecord_bbs_cust_individ_rebate, '0')) + rebateValue;
+											
 											var fieldsAndValues = {};
 											fieldsAndValues[accuraField] = 0;
-											
+											fieldsAndValues['custrecord_bbs_rebate_value_ind'] = totalRebate;
+												
 											record.submitFields({
 								    							type:		'customrecord_bbs_cust_individ_rebate',
 								    							id:			_rebateRecordId,
@@ -450,11 +500,18 @@ function(record, search, runtime) {
 											//
 											createCreditMemo(_rebateIndividualCustomer, rebateValue, 'Individual customer rebate - annual');
 											
-											//Reset the accrual value
+											//Reset the accrual value & update the rebate value
 											//
+											var totalRebate = Number(isNullorBlank(search.lookupFields({
+																					type: 		'customrecord_bbs_cust_individ_rebate', 
+																					id: 		_rebateRecordId,
+																					columns:	'custrecord_bbs_rebate_value_ind'
+																				}).customrecord_bbs_cust_individ_rebate, '0')) + rebateValue;
+											
 											var fieldsAndValues = {};
 											fieldsAndValues[accuraField] = 0;
-											
+											fieldsAndValues['custrecord_bbs_rebate_value_ind'] = totalRebate;
+												
 											record.submitFields({
 								    							type:		'customrecord_bbs_cust_individ_rebate',
 								    							id:			_rebateRecordId,
@@ -493,11 +550,18 @@ function(record, search, runtime) {
 								//
 								createCreditMemo(_rebateIndividualCustomer, rebateValue, 'Individual customer rebate - monthly');
 								
-								//Reset the accrual value
+								//Reset the accrual value & update the rebate value
 								//
+								var totalRebate = Number(isNullorBlank(search.lookupFields({
+																		type: 		'customrecord_bbs_cust_individ_rebate', 
+																		id: 		_rebateRecordId,
+																		columns:	'custrecord_bbs_rebate_value_ind'
+																	}).customrecord_bbs_cust_individ_rebate, '0')) + rebateValue;
+								
 								var fieldsAndValues = {};
 								fieldsAndValues[accuraField] = 0;
-								
+								fieldsAndValues['custrecord_bbs_rebate_value_ind'] = totalRebate;
+									
 								record.submitFields({
 					    							type:		'customrecord_bbs_cust_individ_rebate',
 					    							id:			_rebateRecordId,
@@ -621,7 +685,7 @@ function(record, search, runtime) {
 															processingInfo.endDate			= endOfQuarter;											//End of date range to find invoices for
 															processingInfo.percentage		= Number(_rebateTargetInfo.rebateGuarenteedPercent);	//Percentage rebate to apply
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateGuaranteedItemTypes			//Item types
-															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
+															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateGuarenteedFreq)			//Return the frequency used
 															processingInfo.rebateOrAccrual	= (	_rebateDateInfo.isQ1End() || 
 																								_rebateDateInfo.isQ2End() || 
 																								_rebateDateInfo.isQ3End() || 
@@ -641,7 +705,7 @@ function(record, search, runtime) {
 															processingInfo.endDate			= endOfYear;											//End of date range to find invoices for
 															processingInfo.percentage		= Number(_rebateTargetInfo.rebateGuarenteedPercent);	//Percentage rebate to apply
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateGuaranteedItemTypes			//Item types
-															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
+															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateGuarenteedFreq)			//Return the frequency used
 															processingInfo.rebateOrAccrual	= (_rebateDateInfo.isEndOfYear() ? 'R' : 'A');			//Say if we need to create a rebate or an accrual
 												//		}
 													
@@ -658,7 +722,7 @@ function(record, search, runtime) {
 															processingInfo.endDate			= endOfMonth;											//End of date range to find invoices for
 															processingInfo.percentage		= Number(_rebateTargetInfo.rebateGuarenteedPercent);	//Percentage rebate to apply
 															processingInfo.rebateItemTypes	= _rebateTargetInfo.rebateGuaranteedItemTypes			//Item types
-															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateMarketingFreq)			//Return the frequency used
+															processingInfo.frequency 		= Number(_rebateTargetInfo.rebateGuarenteedFreq)			//Return the frequency used
 															processingInfo.rebateOrAccrual	= (_rebateDateInfo.isEndOfMonth() ? 'R' : 'A');			//Say if we need to create a rebate or an accrual
 												//		}
 													
@@ -1049,8 +1113,8 @@ function(record, search, runtime) {
 				{
 					for (var int = 0; int < invoiceSearchObj.length; int++) 
 						{	
-							var invoiceValue 				= Number(invoiceSearchObj[0].getValue({name: "amount",summary: "SUM"}));
-							var invoiceCustomer				= invoiceSearchObj[0].getValue({name: "entity",summary: "GROUP"});
+							var invoiceValue 				= Number(invoiceSearchObj[int].getValue({name: "amount",summary: "SUM"}));
+							var invoiceCustomer				= invoiceSearchObj[int].getValue({name: "entity",summary: "GROUP"});
 							invoiceValues[invoiceCustomer]	= invoiceValue;
 						}
 				}
@@ -1325,6 +1389,11 @@ function(record, search, runtime) {
 									}
 
     	}
+    
+    function isNullorBlank(_string, _replacer)
+		{
+			return (_string == null || _string == '' ? _replacer : _string);
+		}
     
 	return 	{
 			getResults:							getResults,
