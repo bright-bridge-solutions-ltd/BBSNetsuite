@@ -1,0 +1,154 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd"><pdf><head>
+	<macrolist>
+		<macro id="nlheader">
+		</macro>
+		<macro id="nlfooter">
+		</macro>
+	</macrolist>
+<style type="text/css">
+            table {
+				font-family: sans-serif;
+				/*For Chinese, Japanese and Korean font, use this line instead:
+				font-family: hygothic, sans-serif;*/
+				font-size: 9pt;
+				margin-top: 10px;
+				table-layout: fixed;
+				width: 100%;
+                border-collapse:collapse;
+			}
+			th {
+				font-weight: bold;
+				font-size: 10pt;
+				vertical-align: middle;
+				padding-right: 6px;
+				padding-left: 6px;
+				padding-bottom: 3px;
+				padding-top: 3px;
+				background-color: #cfdde7;
+				color: #0c547b;
+			}
+            td.header{
+				font-weight: bold;
+				font-size: 10pt;
+				vertical-align: middle;
+                text-align: left;
+				padding-right: 6px;
+				padding-left: 6px;
+				padding-bottom: 3px;
+				padding-top: 3px;				
+				color: #0c547b;            
+            }
+			td {
+				padding-right: 6px;
+				padding-left: 6px;
+				padding-bottom: 4px;
+				padding-top: 4px;
+			}
+			table.header td {
+				padding: 0px;
+				font-size: 10pt;
+			}
+			table.footer td {
+				padding: 0px;
+				font-size: 8pt;
+			}
+            table.itemtable{
+                page-break-inside: avoid;
+            }
+			table.itemtable th {
+				padding-bottom: 2px;
+				padding-top: 2px;
+			}
+			table.body td {
+				padding-top: 2px;
+                padding-bottom: 2px;
+			}
+			td.totalcell {
+                font-size: 10pt;
+                font-weight: bold;
+                color: #0c547b;
+				background-color: #cfdde7;
+                text-align: right;
+			}
+			td.totalboxtop {
+				font-weight: bold;
+				color: #0c547b;
+				font-size: 12pt;
+				background-color: #cfdde7;
+			}           
+			td.totalboxmid {
+				font-size: 28pt;
+				padding-top: 3px;
+				padding-bottom: 3px;
+				background-color: #cfdde7;
+                text-align: right;
+			}
+			td.totalboxbot {
+				background-color: #cfdde7;
+				font-weight: bold;
+			}
+			span.title {
+				font-size: 28pt;
+			}
+			span.number {
+				font-size: 16pt;
+			}
+			span.itemname {
+				font-weight: bold;				
+			}</style>
+</head><body header="nlheader" header-height="10pt" footer="nlfooter" footer-height="10pt">
+
+	<table>
+		<tr>
+			<td>Dear Supplier</td>
+		</tr>
+		<tr>
+			<td>Please see below details relating to payment made - ${record.trandate}</td>
+		</tr>
+	</table>
+	
+	<#if record.apply?has_content>
+		<table class="itemtable" style="height: 43px; width: 99.85%">
+			<#list record.apply as apply> <!-- start apply sublist -->
+			<#if apply_index==0>
+				<thead>
+					<tr>
+						<th align="left">Date</th>
+						<th align="left">Description</th>
+						<th align="right">Due Date</th>
+						<th align="right">Amount Due</th>
+						<th align="right">Payment Amount</th>
+					</tr>
+				</thead>
+			</#if>
+			<#if apply.apply?length == 3> <!-- display only applied payments, 3 character length for "yes" -->
+				<tr>
+					<td align="left">${apply.applydate}</td>
+					<td align="left">${apply.type}<#if apply.refnum?length != 0> #${apply.refnum}</#if></td>
+					<td align="right">${apply.duedate}</td>
+					<td align="right">${apply.due}</td>
+					<td align="right">${apply.amount}</td>
+				</tr>
+	    	</#if>
+			</#list><!-- end apply -->
+			<tr>
+				<td colspan="3">&nbsp;</td>
+				<td class="totalcell">Amount</td>
+				<td class="totalcell">${record.total}</td>
+			</tr>    
+		</table>
+	</#if>
+	
+	<table>
+		<tr>
+			<td>Should you have any queries relating to this payment please email <a href="mailto:finance@nymas.co.uk">finance@nymas.co.uk</a></td>
+		</tr>
+		<tr>
+			<td>Please allow 3 working days for payment to reach your designated bank account</td>
+		</tr>
+		<tr>
+			<td>Best Regards<br/>Nymas Group Finance Team</td>
+		</tr>
+	</table>
+
+</body></pdf>

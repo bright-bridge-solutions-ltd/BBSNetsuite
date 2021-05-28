@@ -133,7 +133,7 @@ function(ui, search, record, format, message) {
 						
 						// set field display types
 						timeEntryField.updateDisplayType({
-							displayType: ui.FieldDisplayType.INLINE
+							displayType: ui.FieldDisplayType.HIDDEN
 						});
 						
 						seciSiteField.updateDisplayType({

@@ -1,0 +1,294 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<#setting number_format=",##0.00">
+<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%; font-size: 10pt;">
+            	<tr>
+					<td rowspan="12"><#if subsidiary.logo?length != 0><img src="${subsidiary.logo@url}" style="float: center; width:250px; height:100px;" /></#if></td>
+					<td align="right"><span style="font-size: 24px; font-weight: bold;">RETURN COMMERCIAL INVOICE</span></td>
+				</tr>
+			</table>
+        </macro>
+        <macro id="nlfooter">
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 8pt;
+			table-layout: fixed;
+		}
+		a {
+			text-decoration: none;
+		}
+        th {
+            font-weight: bold;
+            font-size: 6pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { 
+			align:left 
+		}
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0;
+            font-size: 10pt;
+            vertical-align: middle;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            font-weight: bold;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        div.returnform {
+            width: 100%;
+            height: 200pt;
+            page-break-inside: avoid;
+            page-break-after: avoid;
+        }
+        hr {
+            border-top: 1px dashed #d3d3d3;
+            width: 100%;
+            color: #ffffff;
+            background-color: #ffffff;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="65pt" footer="nlfooter" footer-height="5pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4-Landscape">
+    
+    <#setting number_format=",##0.00">
+    <#assign goodsTotal = 0>
+    
+    <table style="width: 100%;">
+		<tr>
+			<td colspan="9" style="margin-left: 10px;"><i>COLLECT FROM</i></td>
+		    <td colspan="9" style="margin-left: 10px;"><i>RETURN TO</i></td>
+		    <td colspan="6">&nbsp;</td>
+		</tr>
+		<tr>
+			<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black;">${record.entity}</td>
+			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black;">${subsidiary.name}</td>
+		    <td colspan="6" style="margin-left: 20px;"><b>${subsidiary.name}</b></td>
+		</tr>
+		<tr>
+			<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black;">${record.shipaddr1}</td>
+			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${subsidiary.addr1}</td>
+		    <td colspan="6" style="margin-left: 20px;">${subsidiary.addr1}</td>
+		</tr>
+		<tr>
+			<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black;">${record.shipaddr2}</td>
+			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${subsidiary.addr2}</td>
+		    <td colspan="6" style="margin-left: 20px;">${subsidiary.addr2}</td>
+		</tr>
+		<tr>
+			<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black;">${record.shipcity}</td>
+			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${subsidiary.city}</td>
+		    <td colspan="6" style="margin-left: 20px;">${subsidiary.city}</td>
+		</tr>
+		<tr>
+			<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.shipzip}</td>
+			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${subsidiary.zip}</td>
+		    <td colspan="6" style="margin-left: 20px;">${subsidiary.zip}</td>
+		</tr>
+	</table>
+	
+	<table style="width: 100%;">
+		<tr>
+			<td colspan="9">&nbsp;</td>
+			<td colspan="4">CUSTOMER EORI NUMBER:</td>
+			<td colspan="5">${customer.custentity_bbs_eori_number}</td>
+			<td colspan="2" style="margin-left: 20px;"><b>Tel No:</b></td>
+			<td colspan="4">${subsidiary.addrphone}</td>
+		</tr>
+	</table>
+	
+	<table style="width: 100%;">
+		<tr>
+			<th colspan="2" align="center" style="border: 1px solid black;">ACCOUNT</th>
+			<th colspan="1" align="center" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">REP</th>
+			<th colspan="5" align="center" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">YOUR ORDER NO.</th>
+			<th colspan="3" align="center" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">DELIVERY DATE</th>
+			<th colspan="3" align="center" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">DELIVERY REF</th>
+			<th colspan="2" align="center" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">INCOTERMS</th>
+			<th colspan="2" align="center" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">PAGE</th>
+			<td colspan="2" style="margin-left: 20px;"><b>Fax No:</b></td>
+			<td colspan="4">${subsidiary.fax}</td>
+		</tr>
+		<tr>
+			<td colspan="2" align="center" style="vertical-align: middle; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${customer.accountnumber}</td>
+			<td colspan="1" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${record.sales_rep_initials}</td>
+			<td colspan="5" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${salesorder.otherrefnum}</td>
+			<td colspan="3" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custbody_delivery_date}</td>
+			<td colspan="3" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custbody_delivery_reference_number}</td>
+			<td colspan="2" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custbody_bbs_incoterms}</td>
+			<td colspan="2" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;"><pagenumber/> of <totalpages/></td>
+			<td colspan="2" style="margin-left: 20px;"><b>Email:<br/><br/>Web:</b></td>
+			<td colspan="4">${subsidiary.custrecord_bbs_sales_email}<br/><br/>${subsidiary.custrecord_bbs_website}</td>
+		</tr>
+	</table>
+	
+	<!-- ITEM TABLE -->
+	<#if record.item_json?has_content>
+		<table style="width: 100%; border: 1px solid black; margin-top: 5px;">
+			<thead>
+				<tr>
+				    <th colspan="6" align="center" style="border-right: 1px solid black; border-bottom: 1px solid black;">STOCK CODE</th>
+				    <th colspan="10" align="left" style="border-right: 1px solid black; border-bottom: 1px solid black;">DESCRIPTION</th>
+				    <th colspan="6" align="center" style="border-right: 1px solid black; border-bottom: 1px solid black;">CATEGORY</th>
+				    <th colspan="4" align="center" style="border-right: 1px solid black; border-bottom: 1px solid black;">COMMODITY CODE</th>
+				    <th colspan="2" align="center" style="border-right: 1px solid black; border-bottom: 1px solid black;">ORIGIN</th>
+				    <th colspan="2" align="center" style="border-right: 1px solid black; border-bottom: 1px solid black;">QTY DEL</th>
+				    <th colspan="3" align="center" style="border-right: 1px solid black; border-bottom: 1px solid black;">UNIT PRICE</th>
+				    <th colspan="3" align="center" style="border-bottom: 1px solid black;">LINE VALUE</th>
+				</tr>
+			</thead>
+			<#list record.item_json?eval as item>
+				<tr>
+				    <td colspan="6" align="center" style="border-right: 1px solid black;">${item.stockCode}</td>
+				    <td colspan="10" align="left" style="border-right: 1px solid black;">${item.description}</td>
+				    <td colspan="6" align="center" style="border-right: 1px solid black;">${item.category}</td>
+				    <td colspan="4" align="center" style="border-right: 1px solid black;">${item.commodityCode}</td>
+				    <td colspan="2" align="center" style="border-right: 1px solid black;">${item.origin}</td>
+				    <td colspan="2" align="center" style="border-right: 1px solid black;">${item.quantity?string.number}</td>
+				    <td colspan="3" align="center" style="border-right: 1px solid black;">${currencySymbol}${item.unitPrice}</td>
+				    <td colspan="3" align="center">${currencySymbol}${item.lineValue}</td>
+				</tr>
+				<!-- Add the line value to the goodsTotal variable -->
+				<#assign goodsTotal += item.lineValue>
+			</#list>
+		</table>
+	</#if>
+	
+	<table style="width: 100%; margin-top: 10px;">
+		<tr>
+			<td><span style="font-size: 10pt;">Currency: <b>${record.currency}</b></span></td>
+		</tr>
+		<tr style="margin-top: 10px;">
+			<td>Period from 01/01/${record.trandate?string('yyyy')}______to______31/12/${record.trandate?string('yyyy')}</td>
+		</tr>
+		<tr>
+			<td>The exporter of the products covered by this document (Arbortec – Registered Exporter Number: GBREX990906583000X) Arbortec EORI Number: ${subsidiary.custrecord_bbs_eori_number}</td>
+		</tr>
+		<tr>
+			<td>declares that except where otherwise clearly indicated, these products are of EU origin.</td>
+		</tr>
+	</table>
+	
+	<table style="width: 100%; margin-top: 10px;">
+		<tr>
+			<td colspan="2" style="vertical-align: middle;">PLACE:</td>
+			<td colspan="3" style="vertical-align: middle;">Kings Lynn, UK</td>
+			<td colspan="2" style="vertical-align: middle;">DATE:</td>
+			<td colspan="3" style="vertical-align: middle;">${record.trandate}</td>
+			<td colspan="2" style="vertical-align: middle;">NAME:</td>
+			<td colspan="3" style="vertical-align: middle;">Guy Brothers</td>
+			<td colspan="3" style="vertical-align: middle;">SIGNATURE:</td>
+			<td colspan="5" style="vertical-align: middle;"><img src="https://6778659.app.netsuite.com/core/media/media.nl?id=8449&c=6778659&h=LXcHFB87YlJNt3zm0c1LoNLx532_KiMVu347wbmJIv93QpeM" style="width:100px; height:50px;" /></td>
+			<td colspan="8" style="vertical-align: middle;">&nbsp;</td>
+		</tr>
+	</table>
+	
+	<table style="width: 100%;">
+		<tr>
+			<td colspan="12" style="border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black;"><span style="font-weight: bold; font-size: 6pt;">Reason for Return</span></td>
+			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black;">&nbsp;</td>
+			<td colspan="5" style="margin-left: 5px; border-left: 1px solid black; border-top: 1px solid black;"><b>TOTAL VALUE</b></td>
+			<td colspan="4" align="right" style="border-right: 1px solid black; border-top: 1px solid black;">${currencySymbol}${goodsTotal}</td>
+		</tr>
+		<tr>
+			<td colspan="12" style="border-left: 1px solid black; border-right: 1px solid black;">${record.memo}</td>
+			<td colspan="3" style="margin-left: 5px; border-left: 1px solid black;"><b>NAME:</b></td>
+			<td colspan="6" style="border-right: 1px solid black;">______________________________________</td>
+			<td colspan="5" style="margin-left: 5px; border-left: 1px solid black;"><b>FREIGHT VALUE</b></td>
+			<td colspan="4" align="right" style="border-right: 1px solid black;">${currencySymbol}0.00</td>
+		</tr>
+		<tr>
+			<td colspan="12" style="border-left: 1px solid black; border-right: 1px solid black;">&nbsp;</td>
+			<td colspan="4" style="margin-left: 5px; border-left: 1px solid black;">&nbsp;</td>
+			<td colspan="5" style="border-right: 1px solid black;">&nbsp;</td>
+			<td colspan="5" style="margin-left: 5px; border-left: 1px solid black; border-bottom: 1px solid black;"><b>GOODS VALUE</b></td>
+			<td colspan="4" align="right" style="border-right: 1px solid black; border-bottom: 1px solid black;">${currencySymbol}${goodsTotal}</td>
+		</tr>
+		<tr>
+			<td colspan="12" style="border-left: 1px solid black; border-right: 1px solid black;">&nbsp;</td>
+			<td colspan="3" style="margin-left: 5px; border-left: 1px solid black;"><b>DATE:</b></td>
+			<td colspan="6" style="border-right: 1px solid black;">______________________________________</td>
+			<td colspan="9" style="margin-left: 5px; margin-top: 5px; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black;"><span style="font-weight: bold; font-size: 6pt;">Comments</span></td>
+		</tr>
+		<tr>
+			<td colspan="12" style="border-left: 1px solid black; border-right: 1px solid black;">&nbsp;</td>
+			<td colspan="4" style="margin-left: 5px; border-left: 1px solid black;">&nbsp;</td>
+			<td colspan="5" style="border-right: 1px solid black;">&nbsp;</td>
+			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">&nbsp;</td>
+		</tr>
+		<tr>
+			<td colspan="12" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+			<td colspan="3" style="margin-left: 5px; border-left: 1px solid black; border-bottom: 1px solid black;"><b>SIGNATURE:</b></td>
+			<td colspan="6" style="padding-bottom: 10px; border-right: 1px solid black; border-bottom: 1px solid black;">______________________________________</td>
+			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+		</tr>
+	</table>
+    
+</body>
+</pdf>

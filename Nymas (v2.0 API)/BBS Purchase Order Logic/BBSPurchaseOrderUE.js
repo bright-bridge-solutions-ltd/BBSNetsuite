@@ -217,12 +217,6 @@ function(format, record, search, format) {
 		    							});
 		    						}
 	    						
-	    						finishingDrawing = currentRecord.getSublistValue({
-    								sublistId: 'item',
-    								fieldId: 'custcol_bbs_drawing_number',
-    								line: i
-    							});
-	    						
 	    						price = currentRecord.getSublistValue({
     								sublistId: 'item',
     								fieldId: 'rate',

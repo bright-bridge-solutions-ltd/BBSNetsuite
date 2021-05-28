@@ -189,6 +189,7 @@ function(record, search, format) {
 				    							var itemCode 			= '';
 				    							var itemDescription 	= '';
 				    							var workDescription 	= '';
+				    							var dueDate				= '';
 				    							var finishingDrawing 	= '';
 				    							var codeToBeMade 		= '';
 				    							var price 				= '';
@@ -200,23 +201,32 @@ function(record, search, format) {
 				    								line: i
 				    							});
 					    						
-					    						itemCode = purchaseOrder.getSublistText({
+				    							codeToBeMade = purchaseOrder.getSublistText({
 				    								sublistId: 'item',
 				    								fieldId: 'item',
 				    								line: i
 				    							});
 					    						
-					    						itemDescription = purchaseOrder.getSublistValue({
+				    							workDescription = purchaseOrder.getSublistValue({
 				    								sublistId: 'item',
 				    								fieldId: 'description',
 				    								line: i
 				    							});
 					    						
-					    						finishingDrawing = purchaseOrder.getSublistValue({
-				    								sublistId: 'item',
-				    								fieldId: 'custcol_bbs_drawing_number',
-				    								line: i
-				    							});
+					    						dueDate = purchaseOrder.getSublistValue({
+					    							sublistId: 'item',
+					    							fieldId: 'productionenddate',
+					    							line: i
+					    						});
+					    						
+						    					if (dueDate)
+						    						{
+						    							// convert to a date string
+						    							dueDate = format.format({
+						    								type: format.Type.DATE,
+						    								value: dueDate
+						    							});
+						    						}
 					    						
 					    						price = purchaseOrder.getSublistValue({
 				    								sublistId: 'item',
@@ -231,6 +241,7 @@ function(record, search, format) {
 		    																			itemCode,
 		    																			itemDescription,
 		    																			workDescription,
+		    																			dueDate,
 		    																			finishingDrawing,
 		    																			codeToBeMade,
 		    																			price
@@ -295,18 +306,19 @@ function(record, search, format) {
 			    								    							var itemCode 			= '';
 			    								    							var itemDescription 	= '';
 			    								    							var workDescription 	= '';
+			    								    							var dueDate				= '';
 			    								    							var finishingDrawing 	= '';
 			    								    							var codeToBeMade 		= '';
 			    								    							var price 				= '';
 			    								    							
 			    								    							// get details about the component item
-			    								    							workDescription = bomRevision.getSublistValue({
+			    								    							itemDescription = bomRevision.getSublistValue({
 				    																sublistId: 'component',
 				    																fieldId: 'description',
 				    																line: x
 				    															});
 			    								    							
-			    								    							codeToBeMade = bomRevision.getSublistText({
+			    								    							itemCode = bomRevision.getSublistText({
 				    																sublistId: 'component',
 				    																fieldId: 'item',
 				    																line: x
@@ -328,6 +340,7 @@ function(record, search, format) {
 			    						    																			itemCode,
 			    						    																			itemDescription,
 			    						    																			workDescription,
+			    						    																			dueDate,
 			    						    																			finishingDrawing,
 			    						    																			codeToBeMade,
 			    						    																			price
@@ -412,6 +425,17 @@ function(record, search, format) {
     		id: itemID,
     		columns: ['type']
     	}).type[0].value;
+    	
+    }
+    
+    function getFinishingDrawing(itemID) {
+    	
+    	// lookup fields on the item record
+    	return search.lookupFields({
+    		type: search.Type.ITEM,
+    		id: itemID,
+    		columns: ['custitem_ny_drawing_number']
+    	}).custitem_ny_drawing_number;
     	
     }
     
