@@ -20,7 +20,10 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
      */
     function execute(scriptContext) 
 	    {
-    		var emailMessage = '';
+    		// Declare and initialize variables
+    		//
+    		var integrationType = null;
+    		var emailMessage 	= '';
     		
     		//Get the deployment parameter which will determine what integration type to use
     		//
@@ -171,6 +174,9 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 													switch(integrationTypeParam)
 														{
 															case '1':	//Orders - B2C
+																
+																// set integrationType variable to "Comet"
+																integrationType = "Comet";
 																
 																//Do we have a file to process
 																//
@@ -758,6 +764,9 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																
 															case '2': 	//Orders - B2B
 																
+																// set integrationType variable to "Misco"
+																integrationType = "Misco";
+																
 																//Do we have a file to process
 																//
 																if(downloadedFile != null)
@@ -1308,6 +1317,9 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																
 															case '3':	//Products
 																
+																// set integrationType variable to "Products"
+																integrationType = "Products";
+																
 																var fileProcessedOk = true;
 																
 																//Do we have a file to process
@@ -1561,7 +1573,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 											email.send({
 											            author: 		integrationEmailSender,
 											            recipients: 	integrationEmailRecipients.split(';'),
-											            subject: 		'COMET Integration Errors',
+											            subject: 		integrationType + ' Integration Errors',
 											            body: 			emailMessage,
 											        	});
 										}

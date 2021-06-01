@@ -3,10 +3,51 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/ui/dialog'],
-function(dialog) {
-    
-    /**
+define(['N/url', 'N/https', 'N/ui/dialog', 'N/search'],
+function(url, https, dialog, search) {
+
+	function reject(recordID)  {
+		
+		// display dialog asking the user to enter a rejection reason
+		Ext.Msg.prompt('', 'Please enter a reason for rejecting the SECI time entry', function(btn, text) {
+			
+		// check if the user clicked the OK button
+	    if (btn == 'ok')
+	    	{
+	    		// check if the user entered a rejection reason
+	    		if (text)
+	    			{
+	    				// define URL of Suitelet
+	    				var suiteletURL = url.resolveScript({
+	    					scriptId: 'customscript_bbs_seci_time_rejection_sl',
+	    					deploymentId: 'customdeploy_bbs_seci_time_rejection_sl',
+	    					params: {
+	    						'id': recordID,
+	    						'reason': text
+	    					}
+	    				});
+	    						
+	    				// call a backend Suitelet to update the SO with the rejection reason
+	    				https.get({
+	    					url: suiteletURL
+	    				});
+	    						
+	    				// reload the current record to display the changes to the user
+	    				location.reload();
+	    			}
+	    		else // user clicked ok but did not enter a rejection reason
+	    			{
+	    				// display an alert to the user asking them to try again
+	    				dialog.alert({
+	    					title: '⚠️ Error',
+	    					message: 'A rejection reason was not entered. Please click the Rejected button and try again.'
+	    				});
+	    			}
+	    	}
+		});
+	}
+	
+	/**
      * Function to be executed after page is initialized.
      *
      * @param {Object} scriptContext
@@ -32,35 +73,6 @@ function(dialog) {
      * @since 2015.2
      */
     function fieldChanged(scriptContext) {
-    	
-    	// check if the quantity field has been changed
-    	if (scriptContext.sublistId == 'item' && scriptContext.fieldId == 'quantity')
-    		{
-    			// get the current record
-    			var currentRecord = scriptContext.currentRecord;
-    			
-    			// get the quantity for the line
-    			var lineQuantity = currentRecord.getCurrentSublistValue({
-    				sublistId: 'item',
-    				fieldId: 'quantity'
-    			});
-    			
-    			// get the max quote quantity for the line
-    			var maxQuoteQty = currentRecord.getCurrentSublistValue({
-    				sublistId: 'item',
-    				fieldId: 'custcol_bbs_max_quote_qty'
-    			});
-    			
-    			// if lineQuantity >= maxQuoteQty
-    			if (maxQuoteQty && (lineQuantity >= maxQuoteQty))
-    				{
-    					// display an alert to the user
-    					dialog.create({
-    						title: '⚠️ Maximum Quote Quantity Exceeded',
-    						message: 'The quantity you have entered (<b>' + lineQuantity + '</b>) is greater than the maximum quote quantity (<b>' + maxQuoteQty + '</b>) for this item.<br><br>If you continue, the transaction will require approval before it can be processed.'
-    					});
-    				}
-    		}
 
     }
 
@@ -134,8 +146,6 @@ function(dialog) {
      * @since 2015.2
      */
     function validateLine(scriptContext) {
-    	
-    	
 
     }
 
@@ -179,60 +189,12 @@ function(dialog) {
      * @since 2015.2
      */
     function saveRecord(scriptContext) {
-    	
-    	// declare and initialize variables
-    	var maxQuoteQtyExceeded = false;
-    	
-    	// get the current record
-    	var currentRecord = scriptContext.currentRecord;
-    	
-    	// get count of item lines
-    	var itemCount = currentRecord.getLineCount({
-    		sublistId: 'item'
-    	});
-    	
-    	// loop through item lines
-    	for (var i = 0; i < itemCount; i++)
-    		{
-    			// get the quantity for the line
-    			var lineQuantity = currentRecord.getSublistValue({
-    				sublistId: 'item',
-    				fieldId: 'quantity',
-    				line: i
-    			});
-    			
-    			// get the max quote quantity for the line
-    			var maxQuoteQty = currentRecord.getSublistValue({
-    				sublistId: 'item',
-    				fieldId: 'custcol_bbs_max_quote_qty',
-    				line: i
-    			});
-    			
-    			// if lineQuantity >= maxQuoteQty
-    			if (lineQuantity >= maxQuoteQty)
-    				{
-    					// set maxQuoteQtyExceeded flag to true
-    					maxQuoteQtyExceeded = true;
-    					
-    					// break the loop
-    					break;
-    				}
-    		}
-    	
-    	// set the 'Max Quote Qty Exceeded' checkbox on the record
-    	currentRecord.setValue({
-    		fieldId: 'custbody_bbs_apply_mqq_block',
-    		value: maxQuoteQtyExceeded
-    	});
-    	
-    	// allow the record to be saved
-    	return true;
 
     }
 
     return {
-    	fieldChanged: fieldChanged,
-    	saveRecord: saveRecord
+    	pageInit: pageInit,
+        reject: reject
     };
     
 });

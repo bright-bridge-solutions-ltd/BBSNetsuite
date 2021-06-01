@@ -26,12 +26,8 @@
         <macro id="nlfooter">
         	<table style="width: 100%;">
 	           	<tr>
-	           		<#if record.custbody_bbs_output_logo.id == '1'> <!-- Fitzroy of London -->
-						<td align="center" colspan="12"><span style="font-size: 10pt; font-weight: bold;">Fitzroy of London is Part of Nymas Group</span></td>
-		        	<#else>
-		        		<td colspan="12">&nbsp;</td>
-		        	</#if>
-		        </tr>
+        			<td colspan="12" align="center"><barcode codetype="code128" showtext="true" value="${record.tranid}"/></td>
+        		</tr>
         		<tr>
         			<td colspan="12">
         				<table style="width: 100%; margin-top: 10px;">
@@ -92,7 +88,7 @@
 		}
 </style>
 </head>
-<body header="nlheader" header-height="150pt" footer="nlfooter" footer-height="40pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="150pt" footer="nlfooter" footer-height="50pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
     
    	<!-- ITEMS TABLE -->
     <table style="width: 100%;">

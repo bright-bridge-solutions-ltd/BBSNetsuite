@@ -268,7 +268,7 @@ function(ui, search, runtime, record) {
 						
 						supplierRecord.setValue({
 	    					fieldId: 'category',
-	    					value: 21 // 21 = Personal Trainer
+	    					value: 22 // 22 = SECI
 	    				});
 						
 						supplierRecord.setValue({

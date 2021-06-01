@@ -16,6 +16,13 @@ function(search, dialog, url) {
      * @since 2015.2
      */
     function pageInit(scriptContext) {
+    
+    	// get the the () automatically added by NetSuite to the end of the sublist name
+    	if (document.getElementsByClassName("smalltext")[0])
+    		{
+    			// hide the () automatically added by NetSuite to the end of the sublist name
+        		document.getElementsByClassName("smalltext")[0].style.visibility = "hidden";
+    		}
 
     }
 
@@ -363,8 +370,25 @@ function(search, dialog, url) {
     	
     	if (timeEntries > 0) // if the user has entered at least one time entry
     		{
-    			// allow the record to be saved
-    			return true;
+    			// get the value of the location field
+    			var location = scriptContext.currentRecord.getValue({
+    	    		fieldId: 'custpage_seci_location'
+    	    	});
+    			
+    			// if the user has not selected a location
+    			if (location == 0)
+    				{
+	    				// display an alert
+	        			dialog.alert({
+	        				title: '⚠️ Error',
+	        				message: 'You must select a location before submitting the form'
+	        			});
+    				}
+    			else
+    				{
+    					// allow the record to be saved
+        				return true;
+    				}
     		}
     	else // user has not entered any time entries
     		{
@@ -399,7 +423,8 @@ function(search, dialog, url) {
     }
 
     return {
-        fieldChanged: 	fieldChanged,
+        pageInit:		pageInit,
+    	fieldChanged: 	fieldChanged,
         saveRecord: 	saveRecord,
         cancelButton: 	cancelButton,
         returnToStart: 	returnToStart

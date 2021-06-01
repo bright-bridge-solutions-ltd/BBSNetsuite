@@ -19,7 +19,7 @@
    	 			<tr>
 					<td align="right">&nbsp;</td>
 					<td align="right">&nbsp;</td>
-					<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /></td>
+					<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:50px;" /></td>
     			</tr>
     			<tr>
 					<td><span style="font-size:24px;">${record@title}</span></td>

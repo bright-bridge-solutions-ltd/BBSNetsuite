@@ -105,12 +105,13 @@
 			<table style="width: 100%;">
 			    <thead>
 					<tr style="border-top: 1px solid black; border-bottom: 1px solid black;">
-						<th align="center" colspan="4">Qty</th>
-						<th align="left" colspan="6">Item<br/>Code</th>
+						<th align="center" colspan="5">Qty to<br/>be picked</th>
+						<th align="left" colspan="8">Item<br/>Code</th>
 						<th align="left" colspan="10">Item<br/>Description</th>
 						<th align="left" colspan="10">Work<br/>Description</th>
-						<th align="left" colspan="6">Finishing<br/>Drawing</th>
-						<th align="left" colspan="6">Code to<br/>be Made</th>
+						<th align="left" colspan="5">Due<br/>Date</th>
+						<th align="left" colspan="6">Drawing</th>
+						<th align="left" colspan="8">Code to<br/>be Made</th>
 						<th align="right" colspan="4">Price</th>
 						<th align="right" colspan="4"><p align="right">Total<br/>Price</p></th>
 					</tr>
@@ -118,23 +119,25 @@
 			    <#list record.custbody_bbs_item_json?eval as item>
 		    		<#if item.itemType == "Assembly">
 			    		<tr style="border-top: 1px solid black;">
-							<td align="center" colspan="4">${item.quantity?string["0"]}</td>
-							<td align="left" colspan="6">${item.itemCode}</td>
+							<td align="center" colspan="5">&nbsp;</td>
+							<td align="left" colspan="8">&nbsp;</td>
 							<td align="left" colspan="10">&nbsp;</td>
-							<td align="left" colspan="10">${item.itemDescription}</td>
+							<td align="left" colspan="10">${item.workDescription}</td>
+							<td align="left" colspan="5">${item.dueDate}</td>
 							<td align="left" colspan="6">&nbsp;</td>
-							<td align="left" colspan="6">&nbsp;</td>
+							<td align="left" colspan="8">${item.codeToBeMade}</td>
 							<td align="right" colspan="4">${item.price}</td>
 							<td align="right" colspan="4">${item.totalPrice}</td>
 						</tr>
 					<#elseif item.itemType == "Component">
 						<tr>
-							<td align="center" colspan="4"><i>&nbsp;</i></td>
-							<td align="left" colspan="6"><i>&nbsp;</i></td>
-							<td align="left" colspan="10"><i>${item.workDescription}</i></td>
+							<td align="center" colspan="5"><i>${item.quantity?string["0"]}</i></td>
+							<td align="left" colspan="8"><i>${item.itemCode}</i></td>
+							<td align="left" colspan="10"><i>${item.itemDescription}</i></td>
 							<td align="left" colspan="10"><i>&nbsp;</i></td>
+							<td align="left" colspan="5"><i>&nbsp;</i></td>
 							<td align="left" colspan="6"><#if item.finishingDrawing?has_content><i><a href="${item.finishingDrawing}" target="_blank">Drawing</a></i></#if></td>
-							<td align="left" colspan="6"><i>${item.codeToBeMade}</i></td>
+							<td align="left" colspan="8"><i>${item.codeToBeMade}</i></td>
 							<td align="right" colspan="4"><i>&nbsp;</i></td>
 							<td align="right" colspan="4"><i>&nbsp;</i></td>
 						</tr>

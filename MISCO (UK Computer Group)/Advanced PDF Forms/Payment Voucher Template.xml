@@ -2,12 +2,15 @@
 <pdf>
 <head>
     
-              <#assign regInfo>Company Registration No: 99999999. Registered Office: xxxxxxxxxxxxx, xxxxxxxxxxx, xxxx xxx, United Kingdom.</#assign>
-              <#assign emailInfo>creditcontrol@xxxxxxxxx.com</#assign>
-              <#assign telInfo>xxxxx xxxxxx</#assign>
-              <#assign vatInfo>GB xxx xxxx xx</#assign>
-              <#assign footerMsg>All goods remain the property of xxxxxxxxxxxxx until paid in full.</#assign>
-              <#assign logoInfo>${companyInformation.logoUrl}</#assign>
+	<#setting number_format=",##0.00">
+	<#assign regInfo>Company Registration No: ${record.cseg_bbs_division.custrecord_bbs_division_company_reg}. Registered Office: ${record.cseg_bbs_division.custrecord_bbs_division_legal_name}, ${record.cseg_bbs_division.custrecord_bbs_division_address_1}, ${record.cseg_bbs_division.custrecord_bbs_division_address_2}, ${record.cseg_bbs_division.custrecord_bbs_division_city}, ${record.cseg_bbs_division.custrecord_bbs_division_address_county}, ${record.cseg_bbs_division.custrecord_bbs_division_postcode}, ${record.cseg_bbs_division.custrecord_bbs_division_address_country}</#assign>
+   	<#assign emailInfo>${record.cseg_bbs_division.custrecord_bbs_division_accounts_email}</#assign>
+   	<#assign telInfo>${record.cseg_bbs_division.custrecord_bbs_division_telephone_number}</#assign>
+    <#assign vatInfo>${record.cseg_bbs_division.custrecord_bbs_division_vat_number}</#assign>
+    <#assign EORI>${record.cseg_bbs_division.custrecord_bbs_division_eori_number}</#assign>
+    <#assign footerMsg>All goods remain the property of ${record.cseg_bbs_division.custrecord_bbs_division_legal_name} until paid in full.</#assign>
+    <#assign logoInfo>${record.cseg_bbs_division.custrecord_bbs_division_logo@url}</#assign>
+    <#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
 
   
     <macrolist>
@@ -16,7 +19,7 @@
     <tr>
     <td align="right">&nbsp;</td>
     <td align="right">&nbsp;</td>
-    <td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /></td>
+    <td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:50px;" /></td>
     </tr>
     <!--<tr><td>&nbsp;</td></tr>-->
     <tr>
@@ -36,8 +39,7 @@
     <tr>
     <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Payment Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.entity}<br/>${record.address}</span></td>
     <td align="right" style="font-size:10pt"></td>
-    
-    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress" style="font-size:10pt"></span><span class="nameandaddress">${companyInformation.companyName}<br />${companyInformation.addressText}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.cseg_bbs_division.custrecord_bbs_division_legal_name}<br/>${record.cseg_bbs_division.custrecord_bbs_division_address_1}<br/>${record.cseg_bbs_division.custrecord_bbs_division_address_2}<br/>${record.cseg_bbs_division.custrecord_bbs_division_city}<br/>${record.cseg_bbs_division.custrecord_bbs_division_address_county}<br/>${record.cseg_bbs_division.custrecord_bbs_division_postcode}<br/>${record.cseg_bbs_division.custrecord_bbs_division_address_country}</span><br/>VAT No. ${vatInfo}<br/>EORI: ${EORI}<br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
     </tr>
     <tr>
     <!--<<td align="right"></td>-->
@@ -281,5 +283,7 @@
     <tr>
     <td>&nbsp;</td>
     </tr></table>
+  
+  
 </body>
 </pdf>

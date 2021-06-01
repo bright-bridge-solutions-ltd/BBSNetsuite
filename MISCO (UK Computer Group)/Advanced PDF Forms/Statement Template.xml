@@ -21,7 +21,7 @@
             <table class="header" style="width: 100%;"><tr>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
-	<td align="right"><#if companyInformation.logoUrl?length != 0><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /> </#if></td>
+	<td align="right"><#if companyInformation.logoUrl?length != 0><img src="${logoInfo}" style="float: right; width:250px; height:50px;" /> </#if></td>
 	</tr>
 	<tr><td>&nbsp;</td></tr>
 	<tr>

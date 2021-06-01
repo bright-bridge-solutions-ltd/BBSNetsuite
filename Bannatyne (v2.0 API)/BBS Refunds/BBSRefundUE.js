@@ -42,7 +42,7 @@ function(runtime) {
     			 * 
     			 * 3 	(Administrator)
     			 * 1062	(TBG - Central Regional Managers)
-    			 * 1091	(TBG - Contact Centre)
+    			 * 1098	(TBG - Contact Centre)
     			 * 1060	(TBG - East Anglia Regional Manager)
     			 * 1088	(TBG - Legal Team)
     			 * 1076	(TBG - London Regional Manager)
@@ -59,7 +59,7 @@ function(runtime) {
     			 * approvalStatus is 2 (Approved) AND userRole is one of the following OR userID is 541 (Paul Farrow)
     			 *   
     			 * 3	(Administrator)
-    			 * 1091	(TBG - Contact Centre)
+    			 * 1098	(TBG - Contact Centre)
     			 * 1025	(TBG - Management Accountant)
     			 */
     			

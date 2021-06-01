@@ -124,7 +124,7 @@ note detailing our Purchase order reference (s) our product code and quantity de
 						<th align="right" colspan="4">Quantity</th>
 						<th align="left" colspan="4" style="padding-left: 20px;">UOM</th>
 						<th align="right" colspan="4">Net Price</th>
-						<th align="right" colspan="4">Value</th>
+						<th align="right" colspan="5">Value</th>
 					</tr>
     			</thead>
     		</#if>
@@ -135,7 +135,7 @@ note detailing our Purchase order reference (s) our product code and quantity de
     				<td align="right" colspan="4">${item.quantity}</td>
     				<td align="left" colspan="4" style="padding-left: 20px;">${item.units}</td>
     				<td align="right" colspan="4">${record.custbody_bbs_currency_symbol}${item.rate?string["#,##0.00"]}</td>
-    				<td align="right" colspan="4">${record.custbody_bbs_currency_symbol}${item.amount?string["#,##0.00"]}</td>
+    				<td align="right" colspan="5">${record.custbody_bbs_currency_symbol}${item.amount?string["#,##0.00"]}</td>
     			</tr>
     	</#list>
   	</table>
