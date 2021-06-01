@@ -29,7 +29,7 @@ function(search, record) {
     			if (itemSublist)
     				{
     					// set client script to run on the form
-    					scriptContext.form.clientScriptFileId = 12220;
+    					scriptContext.form.clientScriptFileId = 172159;
     				
     					// add a button to the item sublist
     					itemSublist.addButton({

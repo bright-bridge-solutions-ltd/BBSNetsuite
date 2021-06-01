@@ -624,6 +624,26 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 			this.county			= _county;
 		}
 	
+	function _parcelDPD(_shippingRequestData)
+		{
+			this.packageNumber			= '';
+			this.parcelProduct			= [];
+		}
+	
+	function _parcelProductDPD(_shippingRequestData)
+		{
+			this.countryOfOrigin			= '';
+			this.numberOfItems				= 0;
+			this.productCode				= '';
+			this.productFabricContent		= '';
+			this.productHarmonisedCode		= '';
+			this.productItemsDescription	= '';
+			this.productTypeDescription		= '';
+			this.unitValue					= 0.0;
+			this.unitWeight					= 0;
+			this.productUrl					= '';
+		}
+		
 	function _consignmentDPD(_shippingRequestData)
 		{
 			this.consignmentNumber						= null;

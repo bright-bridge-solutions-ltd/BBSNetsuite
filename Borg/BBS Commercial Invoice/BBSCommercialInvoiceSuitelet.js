@@ -47,6 +47,7 @@ function buildOutput(_fulfillmentId)
 		var customerRecord 		= null;
 		var salesOrderId		= null;
 		var pdfFileObject 		= null;
+		var createdFromType		= null;
 		var xml 				= "<?xml version=\"1.0\"?>\n<!DOCTYPE pdf PUBLIC \"-//big.faceless.org//report\" \"report-1.1.dtd\">";
 		var userName 			= nlapiEscapeXML(nlapiGetContext().getName());
 		
@@ -67,22 +68,33 @@ function buildOutput(_fulfillmentId)
 			{
 				//Get the sales order id
 				//
-				salesOrderId = fulfillmentRecord.getFieldValue('createdfrom');
+				salesOrderId 		= fulfillmentRecord.getFieldValue('createdfrom');
+				createdFromType		= fulfillmentRecord.getFieldText('createdfrom').split(" #").shift();
 				
 				//Try to load the sales order
 				//
 				if(salesOrderId != null && salesOrderId != '')
 					{
+						
 						try
 							{
-								salesOrderRecord = nlapiLoadRecord('salesorder', salesOrderId);
+								if (createdFromType == 'Sales Order')
+		        					{	
+										salesOrderRecord = nlapiLoadRecord('salesorder', salesOrderId);
+		        					}
+								
+								if (createdFromType == 'Transfer Order')
+		        					{	
+										salesOrderRecord = nlapiLoadRecord('transferorder', salesOrderId);
+		        					}
+								
 							}
 						catch(err)
 							{
 								salesOrderRecord = null;
 							}
 						
-						//Did the sales order load ok?
+						//Did the sales order/tramsfer order load ok?
 						//
 						if(salesOrderRecord != null)
 							{
@@ -97,17 +109,69 @@ function buildOutput(_fulfillmentId)
 								var ifEORI				= isNull(nlapiEscapeXML(fulfillmentRecord.getFieldValue('custbody_bo_tran_eori_number')),'');
 								var ifPurposeOfShipment	= isNull(nlapiEscapeXML(fulfillmentRecord.getFieldText('custbody_purpose_of_shipment')),'');
 								
-								var soBillAddress 		= nlapiEscapeXML(salesOrderRecord.getFieldValue('billaddress'));
-								soBillAddress 			= soBillAddress.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
-								var soOtherRef 			= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('otherrefnum')),'');
-								var soTranId 			= nlapiEscapeXML(salesOrderRecord.getFieldValue('tranid'));
-								var soCustomer 			= salesOrderRecord.getFieldValue('entity');
-								var soSubsidiary		= Number(salesOrderRecord.getFieldValue('subsidiary'));		//1=Borg, 7=FreshGround, 8=Sterizen
-								var soShipCost 			= Number(salesOrderRecord.getFieldValue('shippingcost'));
-								var soCurrency 			= salesOrderRecord.getFieldValue('currency');
-								var soCurrencySymbol	= getCurrencySymbol(soCurrency);
-								var soPlacedByEmail 	= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('custbody_bbs_order_contact_email')),'');
-								var soDeliveryTerms		= isNull(nlapiEscapeXML(salesOrderRecord.getFieldText('custbody_delivery_terms')),'');
+								if (createdFromType == 'Sales Order')
+		        					{	
+										var soBillAddress 		= nlapiEscapeXML(salesOrderRecord.getFieldValue('billaddress'));
+										soBillAddress 			= soBillAddress.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
+										var soOtherRef 			= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('otherrefnum')),'');
+										var soTranId 			= nlapiEscapeXML(salesOrderRecord.getFieldValue('tranid'));
+										var soCustomer 			= salesOrderRecord.getFieldValue('entity');
+										var soSubsidiary		= Number(salesOrderRecord.getFieldValue('subsidiary'));		//1=Borg, 7=FreshGround, 8=Sterizen
+										var soShipCost 			= Number(salesOrderRecord.getFieldValue('shippingcost'));
+										var soCurrency 			= salesOrderRecord.getFieldValue('currency');
+										var soCurrencySymbol	= getCurrencySymbol(soCurrency);
+										var soPlacedByEmail 	= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('custbody_bbs_order_contact_email')),'');
+										var soDeliveryTerms		= isNull(nlapiEscapeXML(salesOrderRecord.getFieldText('custbody_delivery_terms')),'');
+										
+		        					}
+								
+								if (createdFromType == 'Transfer Order')
+		        					{	
+										var fromLocationRecord	= null;
+										var fromLocationId		= salesOrderRecord.getFieldValue('transferlocation');
+										var soBillAddress 		= '';
+										var soOtherRef 			= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('otherrefnum')),'');
+										var soTranId 			= nlapiEscapeXML(salesOrderRecord.getFieldValue('tranid'));
+										var soCustomer 			= salesOrderRecord.getFieldValue('entity');
+										var soSubsidiary		= Number(salesOrderRecord.getFieldValue('subsidiary'));		//1=Borg, 7=FreshGround, 8=Sterizen
+										var soShipCost 			= Number(salesOrderRecord.getFieldValue('shippingcost'));
+										var soCurrency 			= salesOrderRecord.getFieldValue('currency');
+										var soCurrencySymbol	= getCurrencySymbol(soCurrency);
+										var soPlacedByEmail 	= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('custbody_bbs_order_contact_email')),'');
+										var soDeliveryTerms		= isNull(nlapiEscapeXML(salesOrderRecord.getFieldText('custbody_delivery_terms')),'');
+										
+										try
+											{
+												fromLocationRecord = nlapiLoadRecord('location', fromLocationId);
+											}
+										catch(err)
+											{
+												fromLocationRecord	= null;
+											}
+										
+										if(fromLocationRecord	!= null)
+											{
+												soBillAddress 		= fromLocationRecord.getFieldValue('mainaddress_text');
+												soBillAddress 		= soBillAddress.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
+												
+											}
+										
+		        					}
+								
+								var companyEmail		= '';
+								var companyPhone 		= '';
+								var companyWeb			= '';
+								var companyLogo			= '';
+								var companyVatNo		= '';
+								var companyEori			= '';
+								var companyName			= '';
+								var companyDeclaration	= '';
+								var signatory			= '';
+								var signatureImage		= '';
+								var origin				= '';
+								var exporterName        = '';
+								var customerVatNo 		= '';
+								var customerNo 			= '';
 								
 								try
 									{
@@ -117,23 +181,14 @@ function buildOutput(_fulfillmentId)
 									{
 										customerRecord 	= null;
 									}
-								
+									
 								if(customerRecord != null)
 									{
-										var companyEmail		= '';
-										var companyPhone 		= '';
-										var companyWeb			= '';
-										var companyLogo			= '';
-										var companyVatNo		= '';
-										var companyEori			= '';
-										var companyName			= '';
-										var companyDeclaration	= '';
-										var signatory			= '';
-										var signatureImage		= '';
-										var origin				= '';
-										var exporterName        = '';
-                                      
-										switch(soSubsidiary)
+										customerVatNo 		= isNull(nlapiEscapeXML(customerRecord.getFieldValue('vatregnumber')),'');
+										customerNo 			= nlapiEscapeXML(customerRecord.getFieldValue('entityid')).split(' ')[0];
+									}
+								
+								switch(soSubsidiary)
 											{
 												case 1:	//Borg
 													companyEmail		= 'sales@borgandoverstrom.com';
@@ -182,9 +237,7 @@ function buildOutput(_fulfillmentId)
 
 											}
 										
-										var customerVatNo 	= isNull(nlapiEscapeXML(customerRecord.getFieldValue('vatregnumber')),'');
-										var customerNo 		= nlapiEscapeXML(customerRecord.getFieldValue('entityid')).split(' ')[0];
-									
+										
 										xml += '<pdf>';
 										xml += '<head>';
 										xml += '	<link type="font" name="Futura" subtype="TrueType" src="https://3976137.app.netsuite.com/core/media/media.nl?id=3399123&amp;c=3976137&amp;h=7917b62431a11b4980e7&amp;_xt=.ttf" src-bold="https://3976137.app.netsuite.com/core/media/media.nl?id=3399122&amp;c=3976137&amp;h=4d2d7c35c4770d83a7b6&amp;_xt=.ttf" />';
@@ -347,11 +400,19 @@ function buildOutput(_fulfillmentId)
 														var ifLineUnitPrice		= Number(getSoLineInfo(salesOrderRecord, ifLineOrderLine, 'rate'));
 														var ifKitLevel			= fulfillmentRecord.getLineItemValue('item', 'kitlevel', int);
 														
+														
 														netWeight += ifLineWeight;
+														
+														//If no rate then see if we can get the rate from the base price on the item record if we are working with atransfer order
+														//
+														if((ifLineUnitPrice == null || ifLineUnitPrice == '' || ifLineUnitPrice == 0) && createdFromType == 'Transfer Order')
+															{
+																ifLineUnitPrice = getItemBasePrice(ifLineItemId);
+															}
 														
 														//If no rate then see if we can get the rate from price band 'I' on the item record
 														//
-														if(ifLineUnitPrice == null || ifLineUnitPrice == '' || ifLineUnitPrice == 0)
+														if((ifLineUnitPrice == null || ifLineUnitPrice == '' || ifLineUnitPrice == 0) && createdFromType == 'Sales Order')
 															{
 																ifLineUnitPrice = getItemPriceBandPricve(ifLineItemId);
 															}
@@ -568,13 +629,14 @@ function buildOutput(_fulfillmentId)
 												pdfFileObject = null;
 												nlapiLogExecution('ERROR', 'Error converting xml to pdf', err.message);
 											}
-									}
+									
 							}
 					}
 			}
 
 		return pdfFileObject;
 	}
+
 
 function isNullOrEmpty(strVal)
 	{
@@ -698,10 +760,35 @@ function getItemPriceBandPricve(_itemId)
 				   new nlobjSearchColumn("unitprice","pricing",null)
 				]
 				);
+		
 		if(itemSearch != null && itemSearch.length > 0)
 			{
 				priceBandPrice = Number(itemSearch[0].getValue("unitprice","pricing"));
 			}
 		
 		return priceBandPrice;
+	}
+
+function getItemBasePrice(_itemId)
+	{
+		var itemPrice = Number(0);
+		
+		var itemSearch = nlapiSearchRecord("item",null,
+				[
+				   ["internalid","anyof",_itemId]
+				], 
+				[
+				   new nlobjSearchColumn("itemid").setSort(false), 
+				   new nlobjSearchColumn("displayname"), 
+				   new nlobjSearchColumn("salesdescription"), 
+				   new nlobjSearchColumn("baseprice")
+				]
+				);
+		
+		if(itemSearch != null && itemSearch.length > 0)
+		{
+			itemPrice = Number(itemSearch[0].getValue("baseprice"));
+		}
+		
+		return itemPrice;
 	}

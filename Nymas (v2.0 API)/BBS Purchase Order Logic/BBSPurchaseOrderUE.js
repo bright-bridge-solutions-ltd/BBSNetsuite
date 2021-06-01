@@ -77,7 +77,10 @@ function(format, record, search) {
      * @Since 2015.2
      */
     function afterSubmit(scriptContext) {
-    	
+    	try
+    		{
+    		
+
     	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
 			{
     			// get the current record
@@ -340,7 +343,14 @@ function(format, record, search) {
     					
     				}
 			}
-
+    		}
+    	catch(e)
+    		{
+    		log.error({
+				title: 'Unexpected error in script',
+				details: e
+			});
+    		}
     }
     
     // ================

@@ -259,7 +259,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 
 								subList0.addField({
 													id:		'custpage_sl0_created',
-													label:	'Customer',
+													label:	'Created By',
 													type:	serverWidget.FieldType.TEXT
 												});													//CreatedBy
 
@@ -270,8 +270,14 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												});													//Required Stock
 								
 								subList0.addField({
+													id:		'custpage_sl0_po_lines',
+													label:	'PO Lines',
+													type:	serverWidget.FieldType.FLOAT
+												});	
+								
+								subList0.addField({
 													id:		'custpage_sl0_committed',
-													label:	'Committed',
+													label:	'Available To Pick',
 													type:	serverWidget.FieldType.FLOAT
 												});													//Committed
 
@@ -346,13 +352,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								               "AND", 
 								               ["item.type","noneof","Discount","Description"], 
 								               "AND", 
-								               ["status","anyof","SalesOrd:B","SalesOrd:D","SalesOrd:E","SalesOrd:A"], 
+								               ["status","anyof","SalesOrd:A","SalesOrd:B","SalesOrd:D","SalesOrd:E","SalesOrd:F"], 
 								               "AND", 
 								               ["shipcomplete","is","F"], 
 								               "AND", 
 								               ["memorized","is","F"], 
 								               "AND", 
-								               ["formulanumeric: {quantity}-{quantityshiprecv}","greaterthan","0"]
+								               ["formulanumeric: {quantity}-{quantitybilled}","greaterthan","0"]
 								            ];
 								
 								if(paramLocation != null && paramLocation != '')
@@ -479,7 +485,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 											         name: "internalid",
 											         summary: "GROUP",
 											         label: "Internal Id"
-											      })
+											      }),
+											  search.createColumn({
+											          name: "formulanumeric",
+											          summary: "SUM",
+											          formula: "CASE WHEN {purchaseorder.number} IS NULL THEN 0 ELSE 1 END",
+											          label: "PO Lines"
+											       })
 										   ]
 									});
 									
@@ -609,6 +621,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																			value:	format.parse({value: isNullorBlank(Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[15]).replace('%','')).toFixed(2),'0'), type: format.Type.PERCENT})
 																			});	
 		
+												subList0.setSublistValue({
+																			id:		'custpage_sl0_po_lines',
+																			line:	line,
+																			value:	format.parse({value: isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[17]),'0'), type: format.Type.FLOAT})
+																			});	
+												
 												totalRequired			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[7]));
 												totalCommitted			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[8]));
 												totalBackOrder			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[9]));
@@ -626,28 +644,28 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								//Find any items to process & populate the sublist ship complete orders which can be shipped
 								//
 								var filters = [
-											      ["type","anyof","SalesOrd"], 
-											      "AND", 
-											      ["mainline","is","F"], 
-											      "AND", 
-											      ["taxline","is","F"], 
-											      "AND", 
-											      ["shipping","is","F"], 
-											      "AND", 
-											      ["shipdate","onorbefore","today"], 
-											      "AND", 
-											      ["status","anyof","SalesOrd:B","SalesOrd:D","SalesOrd:E","SalesOrd:F","SalesOrd:A"], 
-											      "AND", 
-											      ["item.type","noneof","Discount"], 
-											      "AND", 
-											      ["formulanumeric: {quantity}-{quantityshiprecv}","notequalto","0"], 
-											      "AND", 
-											      ["memorized","is","F"], 
-											      "AND", 
-											      ["shipcomplete","is","T"], 
-											      "AND", 
-											      ["sum(formulanumeric: CASE WHEN {quantitycommitted} IS NULL THEN ({quantity}-{quantityshiprecv})-0 ELSE  ({quantity}-{quantityshiprecv})-{quantitycommitted} END)","equalto","0"]
-											   ];
+								               ["type","anyof","SalesOrd"], 
+								               "AND", 
+								               ["mainline","is","F"], 
+								               "AND", 
+								               ["taxline","is","F"], 
+								               "AND", 
+								               ["shipping","is","F"], 
+								               "AND", 
+								               ["shipdate","onorbefore","today"], 
+								               "AND", 
+								               ["status","anyof","SalesOrd:B","SalesOrd:D","SalesOrd:E","SalesOrd:F","SalesOrd:A"], 
+								               "AND", 
+								               ["item.type","noneof","Discount"], 
+								               "AND", 
+								               ["formulanumeric: {quantity}-{quantitybilled}","notequalto","0"], 
+								               "AND", 
+								               ["memorized","is","F"], 
+								               "AND", 
+								               ["shipcomplete","is","T"], 
+								               "AND", 
+								               ["sum(formulanumeric: CASE WHEN {quantitycommitted} IS NULL THEN ({quantity}-{quantityshiprecv})-0 ELSE  ({quantity}-{quantityshiprecv})-{quantitycommitted} END)","equalto","0"]
+								            ];
 								
 								if(paramLocation != null && paramLocation != '')
 									{
@@ -773,7 +791,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 									         name: "internalid",
 									         summary: "GROUP",
 									         label: "Internal ID"
-									      })
+									      }),
+										  search.createColumn({
+									          name: "formulanumeric",
+									          summary: "SUM",
+									          formula: "CASE WHEN {purchaseorder.number} IS NULL THEN 0 ELSE 1 END",
+									          label: "PO Lines"
+									       })
 									   ]
 									});
 	
@@ -904,6 +928,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																			value:	format.parse({value: isNullorBlank(Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[15]).replace('%','')).toFixed(2),'0'), type: format.Type.PERCENT})
 																			});	
 		
+												subList0.setSublistValue({
+																			id:		'custpage_sl0_po_lines',
+																			line:	line,
+																			value:	format.parse({value: isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[17]),'0'), type: format.Type.FLOAT})
+																			});	
+						
 												totalRequired			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[7]));
 												totalCommitted			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[8]));
 												totalBackOrder			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[9]));
@@ -921,28 +951,28 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								//Find any items to process & populate the sublist ship complete orders which cannot be shipped
 								//
 								var filters = [
-											      ["type","anyof","SalesOrd"], 
-											      "AND", 
-											      ["mainline","is","F"], 
-											      "AND", 
-											      ["taxline","is","F"], 
-											      "AND", 
-											      ["shipping","is","F"], 
-											      "AND", 
-											      ["shipdate","onorbefore","today"], 
-											      "AND", 
-											      ["item.type","noneof","Discount","Description"], 
-											      "AND", 
-											      ["status","anyof","SalesOrd:B","SalesOrd:D","SalesOrd:E","SalesOrd:A"], 
-											      "AND", 
-											      ["shipcomplete","is","T"], 
-											      "AND", 
-											      ["formulanumeric: {quantity}-{quantityshiprecv}","notequalto","0"], 
-											      "AND", 
-											      ["memorized","is","F"], 
-											      "AND", 
-											      ["sum(formulanumeric: CASE WHEN {quantitycommitted} IS NULL THEN ({quantity}-{quantitypicked})-0 ELSE ({quantity}-{quantitypicked}) - {quantitycommitted}      END)","greaterthan","0"]
-											   ];
+								               ["type","anyof","SalesOrd"], 
+								               "AND", 
+								               ["mainline","is","F"], 
+								               "AND", 
+								               ["taxline","is","F"], 
+								               "AND", 
+								               ["shipping","is","F"], 
+								               "AND", 
+								               ["shipdate","onorbefore","today"], 
+								               "AND", 
+								               ["item.type","noneof","Discount","Description"], 
+								               "AND", 
+								               ["status","anyof","SalesOrd:A","SalesOrd:B","SalesOrd:D","SalesOrd:E","SalesOrd:F"], 
+								               "AND", 
+								               ["shipcomplete","is","T"], 
+								               "AND", 
+								               ["formulanumeric: {quantity}-{quantitybilled}","notequalto","0"], 
+								               "AND", 
+								               ["memorized","is","F"], 
+								               "AND", 
+								               ["sum(formulanumeric: CASE WHEN {quantitycommitted} IS NULL THEN ({quantity}-{quantitypicked})-0 ELSE ({quantity}-{quantitypicked}) - {quantitycommitted}      END)","greaterthan","0"]
+								            ];
 								
 								if(paramLocation != null && paramLocation != '')
 									{
@@ -1068,7 +1098,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 									         name: "internalid",
 									         summary: "GROUP",
 									         label: "Internal ID"
-									      })
+									      }),
+										  search.createColumn({
+									          name: "formulanumeric",
+									          summary: "SUM",
+									          formula: "CASE WHEN {purchaseorder.number} IS NULL THEN 0 ELSE 1 END",
+									          label: "PO Lines"
+									       })
 									   ]
 									});
 	
@@ -1199,6 +1235,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																			value:	format.parse({value: isNullorBlank(Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[15]).replace('%','')).toFixed(2),'0'), type: format.Type.PERCENT})
 																			});	
 		
+												subList0.setSublistValue({
+																			id:		'custpage_sl0_po_lines',
+																			line:	line,
+																			value:	format.parse({value: isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[17]),'0'), type: format.Type.FLOAT})
+																			});	
+						
 												totalRequired			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[7]));
 												totalCommitted			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[8]));
 												totalBackOrder			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[9]));
@@ -1222,7 +1264,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								fieldTotalShiped.defaultValue 		= totalShiped.toFixed(2);
 								fieldTotalShip.defaultValue 		= totalShip.toFixed(2);
 								fieldTotalNonShip.defaultValue 		= totalNonShip.toFixed(2);
-								fieldTotalMargin.defaultValue       = (totalMargin/totalLines).toFixed(2);
+						//		fieldTotalMargin.defaultValue       = (totalMargin/totalLines).toFixed(2);
 								
 								//=====================================================================================================================
 								//
@@ -1370,7 +1412,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 
 								subList1.addField({
 													id:		'custpage_sl1_created',
-													label:	'Customer',
+													label:	'Created By',
 													type:	serverWidget.FieldType.TEXT
 												});													//CreatedBy
 
@@ -1381,8 +1423,14 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												});													//Required Stock
 								
 								subList1.addField({
+													id:		'custpage_sl1_po_lines',
+													label:	'PO Lines',
+													type:	serverWidget.FieldType.FLOAT
+												});													//PO Lines
+
+								subList1.addField({
 													id:		'custpage_sl1_committed',
-													label:	'Committed',
+													label:	'Available To Pick',
 													type:	serverWidget.FieldType.FLOAT
 												});													//Committed
 
@@ -1457,13 +1505,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								               "AND", 
 								               ["item.type","noneof","Discount","Description"], 
 								               "AND", 
-								               ["status","anyof","SalesOrd:B","SalesOrd:D","SalesOrd:E","SalesOrd:A"], 
+								               ["status","anyof","SalesOrd:A","SalesOrd:B","SalesOrd:D","SalesOrd:E","SalesOrd:F"], 
 								               "AND", 
 								               ["shipcomplete","is","F"], 
 								               "AND", 
 								               ["memorized","is","F"], 
 								               "AND", 
-								               ["formulanumeric: {quantity}-{quantityshiprecv}","greaterthan","0"]
+								               ["formulanumeric: {quantity}-{quantitybilled}","greaterthan","0"]
 								            ];
 								
 								if(paramLocation != null && paramLocation != '')
@@ -1590,7 +1638,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 											         name: "internalid",
 											         summary: "GROUP",
 											         label: "Internal Id"
-											      })
+											      }) ,
+											  search.createColumn({
+											          name: "formulanumeric",
+											          summary: "SUM",
+											          formula: "CASE WHEN {purchaseorder.number} IS NULL THEN 0 ELSE 1 END",
+											          label: "PO Lines"
+											       })
 										   ]
 									});
 									
@@ -1711,7 +1765,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																			value:	format.parse({value: isNullorBlank(Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[15]).replace('%','')).toFixed(2),'0'), type: format.Type.PERCENT})
 																			});	
 
-		
+												subList1.setSublistValue({
+																			id:		'custpage_sl1_po_lines',
+																			line:	int,
+																			value:	format.parse({value: isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[17]),'0'), type: format.Type.FLOAT})
+																			});	
+
+
 												totalRequired			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[7]));
 												totalCommitted			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[8]));
 												totalBackOrder			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[9]));
@@ -1733,7 +1793,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								fieldTotalShiped.defaultValue 		= totalShiped.toFixed(2);
 								fieldTotalShip.defaultValue 		= totalShip.toFixed(2);
 								fieldTotalNonShip.defaultValue 		= totalNonShip.toFixed(2);
-								fieldTotalMargin.defaultValue       = (totalMargin/totalLines).toFixed(2);
+					//			fieldTotalMargin.defaultValue       = (totalMargin/totalLines).toFixed(2);
 								
 								//=====================================================================================================================
 								//
@@ -1880,7 +1940,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 
 								subList2.addField({
 													id:		'custpage_sl2_created',
-													label:	'Customer',
+													label:	'Created By',
 													type:	serverWidget.FieldType.TEXT
 												});													//CreatedBy
 
@@ -1891,8 +1951,14 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												});													//Required Stock
 								
 								subList2.addField({
+													id:		'custpage_sl2_po_lines',
+													label:	'PO Lines',
+													type:	serverWidget.FieldType.FLOAT
+												});	
+								
+								subList2.addField({
 													id:		'custpage_sl2_committed',
-													label:	'Committed',
+													label:	'Available To Pick',
 													type:	serverWidget.FieldType.FLOAT
 												});													//Committed
 
@@ -1955,28 +2021,28 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								var totalLines             = Number(0);
 								
 								var filters = [
-											      ["type","anyof","SalesOrd"], 
-											      "AND", 
-											      ["mainline","is","F"], 
-											      "AND", 
-											      ["taxline","is","F"], 
-											      "AND", 
-											      ["shipping","is","F"], 
-											      "AND", 
-											      ["shipdate","onorbefore","today"], 
-											      "AND", 
-											      ["status","anyof","SalesOrd:B","SalesOrd:D","SalesOrd:E","SalesOrd:F","SalesOrd:A"], 
-											      "AND", 
-											      ["item.type","noneof","Discount"], 
-											      "AND", 
-											      ["formulanumeric: {quantity}-{quantityshiprecv}","notequalto","0"], 
-											      "AND", 
-											      ["memorized","is","F"], 
-											      "AND", 
-											      ["shipcomplete","is","T"], 
-											      "AND", 
-											      ["sum(formulanumeric: CASE WHEN {quantitycommitted} IS NULL THEN ({quantity}-{quantityshiprecv})-0 ELSE  ({quantity}-{quantityshiprecv})-{quantitycommitted} END)","equalto","0"]
-											   ];
+								               ["type","anyof","SalesOrd"], 
+								               "AND", 
+								               ["mainline","is","F"], 
+								               "AND", 
+								               ["taxline","is","F"], 
+								               "AND", 
+								               ["shipping","is","F"], 
+								               "AND", 
+								               ["shipdate","onorbefore","today"], 
+								               "AND", 
+								               ["status","anyof","SalesOrd:B","SalesOrd:D","SalesOrd:E","SalesOrd:F","SalesOrd:A"], 
+								               "AND", 
+								               ["item.type","noneof","Discount"], 
+								               "AND", 
+								               ["formulanumeric: {quantity}-{quantitybilled}","notequalto","0"], 
+								               "AND", 
+								               ["memorized","is","F"], 
+								               "AND", 
+								               ["shipcomplete","is","T"], 
+								               "AND", 
+								               ["sum(formulanumeric: CASE WHEN {quantitycommitted} IS NULL THEN ({quantity}-{quantityshiprecv})-0 ELSE  ({quantity}-{quantityshiprecv})-{quantitycommitted} END)","equalto","0"]
+								            ];
 								
 								if(paramLocation != null && paramLocation != '')
 									{
@@ -2102,7 +2168,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 									         name: "internalid",
 									         summary: "GROUP",
 									         label: "Internal ID"
-									      })
+									      }),
+										  search.createColumn({
+									          name: "formulanumeric",
+									          summary: "SUM",
+									          formula: "CASE WHEN {purchaseorder.number} IS NULL THEN 0 ELSE 1 END",
+									          label: "PO Lines"
+									       })
 									   ]
 									});
 									
@@ -2222,6 +2294,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																			line:	int,
 																			value:	format.parse({value: isNullorBlank(Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[15]).replace('%','')).toFixed(2),'0'), type: format.Type.PERCENT})
 																			});	
+												
+												subList2.setSublistValue({
+																			id:		'custpage_sl2_po_lines',
+																			line:	int,
+																			value:	format.parse({value: isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[17]),'0'), type: format.Type.FLOAT})
+																			});	
 		
 												totalRequired			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[7]));
 												totalCommitted			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[8]));
@@ -2244,7 +2322,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								fieldTotalShiped.defaultValue 		= totalShiped.toFixed(2);
 								fieldTotalShip.defaultValue 		= totalShip.toFixed(2);
 								fieldTotalNonShip.defaultValue 		= totalNonShip.toFixed(2);
-								fieldTotalMargin.defaultValue       = (totalMargin/totalLines).toFixed(2);
+					//			fieldTotalMargin.defaultValue       = (totalMargin/totalLines).toFixed(2);
 			
 								//=====================================================================================================================
 								//
@@ -2391,7 +2469,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 
 								subList3.addField({
 													id:		'custpage_sl3_created',
-													label:	'Customer',
+													label:	'Crerated By',
 													type:	serverWidget.FieldType.TEXT
 												});													//CreatedBy
 
@@ -2402,8 +2480,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 												});													//Required Stock
 								
 								subList3.addField({
+													id:		'custpage_sl3_po_lines',
+													label:	'PO Lines',
+													type:	serverWidget.FieldType.FLOAT
+												});	
+								subList3.addField({
 													id:		'custpage_sl3_committed',
-													label:	'Committed',
+													label:	'Available To Pick',
 													type:	serverWidget.FieldType.FLOAT
 												});													//Committed
 
@@ -2466,28 +2549,28 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								var totalLines 				= Number(0);
 								
 								var filters = [
-											      ["type","anyof","SalesOrd"], 
-											      "AND", 
-											      ["mainline","is","F"], 
-											      "AND", 
-											      ["taxline","is","F"], 
-											      "AND", 
-											      ["shipping","is","F"], 
-											      "AND", 
-											      ["shipdate","onorbefore","today"], 
-											      "AND", 
-											      ["item.type","noneof","Discount","Description"], 
-											      "AND", 
-											      ["status","anyof","SalesOrd:B","SalesOrd:D","SalesOrd:E","SalesOrd:A"], 
-											      "AND", 
-											      ["shipcomplete","is","T"], 
-											      "AND", 
-											      ["formulanumeric: {quantity}-{quantityshiprecv}","notequalto","0"], 
-											      "AND", 
-											      ["memorized","is","F"], 
-											      "AND", 
-											      ["sum(formulanumeric: CASE WHEN {quantitycommitted} IS NULL THEN ({quantity}-{quantitypicked})-0 ELSE ({quantity}-{quantitypicked}) - {quantitycommitted}      END)","greaterthan","0"]
-											   ];
+								               ["type","anyof","SalesOrd"], 
+								               "AND", 
+								               ["mainline","is","F"], 
+								               "AND", 
+								               ["taxline","is","F"], 
+								               "AND", 
+								               ["shipping","is","F"], 
+								               "AND", 
+								               ["shipdate","onorbefore","today"], 
+								               "AND", 
+								               ["item.type","noneof","Discount","Description"], 
+								               "AND", 
+								               ["status","anyof","SalesOrd:A","SalesOrd:B","SalesOrd:D","SalesOrd:E","SalesOrd:F"], 
+								               "AND", 
+								               ["shipcomplete","is","T"], 
+								               "AND", 
+								               ["formulanumeric: {quantity}-{quantitybilled}","notequalto","0"], 
+								               "AND", 
+								               ["memorized","is","F"], 
+								               "AND", 
+								               ["sum(formulanumeric: CASE WHEN {quantitycommitted} IS NULL THEN ({quantity}-{quantitypicked})-0 ELSE ({quantity}-{quantitypicked}) - {quantitycommitted}      END)","greaterthan","0"]
+								            ];
 								
 								if(paramLocation != null && paramLocation != '')
 									{
@@ -2613,7 +2696,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 									         name: "internalid",
 									         summary: "GROUP",
 									         label: "Internal ID"
-									      })
+									      }),
+										  search.createColumn({
+									          name: "formulanumeric",
+									          summary: "SUM",
+									          formula: "CASE WHEN {purchaseorder.number} IS NULL THEN 0 ELSE 1 END",
+									          label: "PO Lines"
+									       })
 									   ]
 									});
 									
@@ -2734,6 +2823,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																			line:	int,
 																			value:	format.parse({value: isNullorBlank(Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[15]).replace('%','')).toFixed(2),'0'), type: format.Type.PERCENT})
 																			});	
+												
+												subList3.setSublistValue({
+																			id:		'custpage_sl3_po_lines',
+																			line:	int,
+																			value:	format.parse({value: isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[17]),'0'), type: format.Type.FLOAT})
+																			});	
 		
 												totalRequired			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[7]));
 												totalCommitted			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[8]));
@@ -2757,7 +2852,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								fieldTotalShiped.defaultValue 		= totalShiped.toFixed(2);
 								fieldTotalShip.defaultValue 		= totalShip.toFixed(2);
 								fieldTotalNonShip.defaultValue 		= totalNonShip.toFixed(2);
-								fieldTotalMargin.defaultValue 		= (totalMargin/totalLines).toFixed(2);
+					//			fieldTotalMargin.defaultValue 		= (totalMargin/totalLines).toFixed(2);
 								
 		            //Return the form to the user
 		            //

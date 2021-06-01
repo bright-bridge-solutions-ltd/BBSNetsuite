@@ -194,6 +194,7 @@
   </table>
 </#if>
 
+
     <table style="width: 100%; page-break-inside: avoid;" padding-top="10px">
     <tr>
 	<td colspan="4">&nbsp;</td>
@@ -211,7 +212,7 @@
 	<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014; font-weight: bold;">${record.total}</td>
 	</tr></table>
   
-  <table width="100%" style="padding-top: 10px;">
+  <table width="100%" style="page-break-inside: avoid; padding-top: 10px;">
     <tr>
     <td align="center" style="font-family: Arial; font-size: 10pt; font-weight: bold; color: #030014; background-color: #cdccd0;">Special Instructions:</td>
     </tr>
@@ -219,5 +220,6 @@
     <td align="left" style="font-family: Arial; font-size: 10pt; color: #030014; background-color: #cdccd0; width: 100%; height: 80px;">${record.memo}</td>
     </tr>
   </table>
+  
 </body>
 </pdf>

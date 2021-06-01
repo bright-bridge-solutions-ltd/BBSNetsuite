@@ -70,7 +70,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					
 	    			//Create a form
 	    			//
-		            var form = serverWidget.createForm({title: 	'Trial Kit'});
+		            var form = serverWidget.createForm({title: 	'NYMAS - Trial Kit'});
 		            
 		            //Find the client script
 	    			//
@@ -1378,109 +1378,168 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 	    	
 			    	case 'Assembly':	//Assembly Item
 			    		
-			    		//Find any open WO's for the assembly item
-			    		//
-			    		var workorderSearchObj = getResults(search.create({
-			    			   type: "workorder",
+			    		var itemSearchObj = getResults(search.create({
+			    			   type: 		"item",
 			    			   filters:
-			    			   [
-			    			      ["type","anyof","WorkOrd"], 
-			    			      "AND", 
-			    			      ["status","anyof","WorkOrd:D","WorkOrd:A","WorkOrd:B"], 
-			    			      "AND", 
-			    			      ["mainline","is","T"], 
-			    			      "AND", 
-			    			      ["item","anyof",_memberItem]
-			    			   ],
+						    			   [
+						    			      		["internalid","anyof",_memberItem]
+						    			   ],
 			    			   columns:
-			    			   [
-			    			      search.createColumn({name: "trandate",sort: search.Sort.ASC,label: "Date"}),
-			    			      search.createColumn({name: "tranid", label: "Document Number"}),
-			    			      search.createColumn({name: "item", label: "Item"}),
-			    			      search.createColumn({name: "startdate", label: "Start Date"}),
-			    			      search.createColumn({name: "enddate", label: "End Date"}),
-			    			      search.createColumn({name: "quantity", label: "Quantity"}),
-			    			      search.createColumn({name: "internalid", label: "Internal Id"})
-			    			   ]
+						    			   [
+						    			      search.createColumn({name: "inventorylocation", label: "Inventory Location"}),
+						    			      search.createColumn({name: "custrecord_bbs_i_am_outsource",join: "inventoryLocation",label: "Outsource Location"}),
+						    			      search.createColumn({name: "locationquantityonhand", label: "Location On Hand"}),
+						    			      search.createColumn({name: "locationquantityavailable", label: "Location Available"}),
+						    			      search.createColumn({name: "locationquantitybackordered", label: "Location Back Ordered"}),
+						    			      search.createColumn({name: "locationquantityonorder", label: "Location On Order"})
+						    			   ]
 			    			}));
-			    			
-			    		if(workorderSearchObj != null && workorderSearchObj.length > 0)
-			    			{
-			    				availData.supplySource 	= '';
-			    				availData.availableDate	= '';
-			    				
-			    				for(var woCount = 0; woCount < workorderSearchObj.length; woCount++)
-			    					{
-			    						var woId	 	= workorderSearchObj[woCount].getValue({name: "internalid"});
-			    						var woNumber 	= workorderSearchObj[woCount].getValue({name: "tranid"});
-					    				var woDueDate	= workorderSearchObj[woCount].getValue({name: "enddate"});
-						    			var woStartDate	= workorderSearchObj[woCount].getValue({name: "startdate"});
-										var woAmountDue	= Number(workorderSearchObj[woCount].getValue({name: "quantity"}));
-										
-										var woUrl = url.resolveRecord({
-																		isEditMode:		false,
-																		recordId:		woId,
-																		recordType:		record.Type.WORK_ORDER
-																		});
-										
-								//		var tempString = '<a href="' + woUrl + '">' + woNumber + '</a> (' +
-								//						  woAmountDue.toString() + ') : ' + 
-								//						  ' start ' + 
-								//						  (woStartDate == null || woStartDate == '' ? '<n/a>' : woStartDate) +
-								//						  ' end ' + 
-								//						  (woDueDate == null || woDueDate == '' ? '<n/a>' : woDueDate) + '\n';
-										
-										var tempString =  woNumber + ' (' +
-														  woAmountDue.toString() + ') : ' + 
-														  ' start ' + 
-														  (woStartDate == null || woStartDate == '' ? '<n/a>' : woStartDate) +
-														  ' end ' + 
-														  (woDueDate == null || woDueDate == '' ? '<n/a>' : woDueDate) + '\n';
+
+						var nymasOnHand 		= Number(0);
+						var nymasAvailable 		= Number(0);
+						var nymasBackOrdered	= Number(0);
+						var nymasOnOrder 		= Number(0);
+						var outsourceOnHand 	= Number(0);
+						var outsourceAvailable	= Number(0);
 						
-										if(availData.supplySource.length + tempString.length <= 300)
+						if(itemSearchObj != null && itemSearchObj.length > 0)
+							{
+								for(var itemCounter = 0; itemCounter < itemSearchObj.length; itemCounter++)
+									{
+										var itemLocation 		= itemSearchObj[itemCounter].getValue({name: "inventorylocation"});
+										var itemLocOutsourced 	= itemSearchObj[itemCounter].getValue({name: "custrecord_bbs_i_am_outsource", join: "inventoryLocation"});
+										var itemOnHand 			= Number(itemSearchObj[itemCounter].getValue({name: "locationquantityonhand"}));
+										var itemAvailable		= Number(itemSearchObj[itemCounter].getValue({name: "locationquantityavailable"}));
+										var itemBackOrdered		= Number(itemSearchObj[itemCounter].getValue({name: "locationquantitybackordered"}));
+										var itemOnOrder			= Number(itemSearchObj[itemCounter].getValue({name: "locationquantityonorder"}));
+										
+										if(itemLocation == 1)	//Nymas Warehouse
 											{
-												availData.supplySource 		+= tempString;
+												nymasOnHand			+= itemOnHand;
+												nymasAvailable		+= itemAvailable;
+												nymasBackOrdered	+= itemBackOrdered;
+												nymasOnOrder		+= itemOnOrder;
 											}
 										
-										if(woCount == 0)
+										if(itemLocOutsourced)
 											{
-												availData.transactionFound	= true;
-												availData.availableDate		= (woDueDate == null || woDueDate == '' ? '<n/a>' : woDueDate) + '\n';
-												availData.availableDateDate	= (woDueDate == null || woDueDate == '' ? null : format.parse({value: woDueDate, type: format.Type.DATE}));
+												outsourceOnHand		+= itemOnHand;
+												outsourceAvailable	+= itemAvailable;
 											}
-			    					}
-			    			}
-			    		else
-			    			{
-			    				//See if there is a purchase order for the assembly
-			    				//
-			    				availData = getPurchaseOrderInfo(_memberItem, availData);
-			    				
-			    				//If no WO or PO is found, then we will return with the fact that a new WO must be created
-								//
-			    				if(!availData.transactionFound)
-			    					{
-			    						//Get the works order lead time (in days) from the item record
-			    						//
-			    						var woLeadTime = Number(search.lookupFields({
-			    																type: 		search.Type.ITEM,
-			    																id: 		_memberItem,
-			    																columns: 	['leadtime']
-			    															}).leadtime);
-			    						
-			    						woLeadTime = (isNaN(woLeadTime) ? Number(0) : woLeadTime);
-			    						
-			    						var availableDate = new Date();
-			    						
-			    						availableDate.setDate(availableDate.getDate() + woLeadTime);
-			    					
-				    					availData.supplySource 		= 'New Works Order';
-			    						availData.availableDate 	= format.format({value: availableDate, type: format.Type.DATE});
-			    						availData.transactionFound	= false;
-			    						availData.availableDateDate	= availableDate;
-			    					}
-			    			}
-			    		
+									}
+							}
+						
+						availData.nymasOnHand			= nymasOnHand;
+						availData.nymasAvailable		= nymasAvailable;
+						availData.nymasBackOrdered		= nymasBackOrdered;
+						availData.nymasOnOrder			= nymasOnOrder;
+						availData.outsourceOnHand		= outsourceOnHand;
+						availData.outsourceAvailable	= outsourceAvailable;
+
+
+					    		//Find any open WO's for the assembly item
+					    		//
+					    		var workorderSearchObj = getResults(search.create({
+					    			   type: "workorder",
+					    			   filters:
+					    			   [
+					    			      ["type","anyof","WorkOrd"], 
+					    			      "AND", 
+					    			      ["status","anyof","WorkOrd:D","WorkOrd:A","WorkOrd:B"], 
+					    			      "AND", 
+					    			      ["mainline","is","T"], 
+					    			      "AND", 
+					    			      ["item","anyof",_memberItem]
+					    			   ],
+					    			   columns:
+					    			   [
+					    			      search.createColumn({name: "trandate",sort: search.Sort.ASC,label: "Date"}),
+					    			      search.createColumn({name: "tranid", label: "Document Number"}),
+					    			      search.createColumn({name: "item", label: "Item"}),
+					    			      search.createColumn({name: "startdate", label: "Start Date"}),
+					    			      search.createColumn({name: "enddate", label: "End Date"}),
+					    			      search.createColumn({name: "quantity", label: "Quantity"}),
+					    			      search.createColumn({name: "internalid", label: "Internal Id"})
+					    			   ]
+					    			}));
+					    			
+					    		if(workorderSearchObj != null && workorderSearchObj.length > 0)
+					    			{
+					    				availData.supplySource 	= '';
+					    				availData.availableDate	= '';
+					    				
+					    				for(var woCount = 0; woCount < workorderSearchObj.length; woCount++)
+					    					{
+					    						var woId	 	= workorderSearchObj[woCount].getValue({name: "internalid"});
+					    						var woNumber 	= workorderSearchObj[woCount].getValue({name: "tranid"});
+							    				var woDueDate	= workorderSearchObj[woCount].getValue({name: "enddate"});
+								    			var woStartDate	= workorderSearchObj[woCount].getValue({name: "startdate"});
+												var woAmountDue	= Number(workorderSearchObj[woCount].getValue({name: "quantity"}));
+												
+												var woUrl = url.resolveRecord({
+																				isEditMode:		false,
+																				recordId:		woId,
+																				recordType:		record.Type.WORK_ORDER
+																				});
+												
+										//		var tempString = '<a href="' + woUrl + '">' + woNumber + '</a> (' +
+										//						  woAmountDue.toString() + ') : ' + 
+										//						  ' start ' + 
+										//						  (woStartDate == null || woStartDate == '' ? '<n/a>' : woStartDate) +
+										//						  ' end ' + 
+										//						  (woDueDate == null || woDueDate == '' ? '<n/a>' : woDueDate) + '\n';
+												
+												var tempString =  woNumber + ' (' +
+																  woAmountDue.toString() + ') : ' + 
+																  ' start ' + 
+																  (woStartDate == null || woStartDate == '' ? '<n/a>' : woStartDate) +
+																  ' end ' + 
+																  (woDueDate == null || woDueDate == '' ? '<n/a>' : woDueDate) + '\n';
+								
+												if(availData.supplySource.length + tempString.length <= 300)
+													{
+														availData.supplySource 		+= tempString;
+													}
+												
+												if(woCount == 0)
+													{
+														availData.transactionFound	= true;
+														availData.availableDate		= (woDueDate == null || woDueDate == '' ? '<n/a>' : woDueDate) + '\n';
+														availData.availableDateDate	= (woDueDate == null || woDueDate == '' ? null : format.parse({value: woDueDate, type: format.Type.DATE}));
+													}
+					    					}
+					    			}
+					    		else
+					    			{
+					    				//See if there is a purchase order for the assembly
+					    				//
+					    				availData = getPurchaseOrderInfo(_memberItem, availData);
+					    				
+					    				//If no WO or PO is found, then we will return with the fact that a new WO must be created
+										//
+					    				if(!availData.transactionFound)
+					    					{
+					    						//Get the works order lead time (in days) from the item record
+					    						//
+					    						var woLeadTime = Number(search.lookupFields({
+					    																type: 		search.Type.ITEM,
+					    																id: 		_memberItem,
+					    																columns: 	['leadtime']
+					    															}).leadtime);
+					    						
+					    						woLeadTime = (isNaN(woLeadTime) ? Number(0) : woLeadTime);
+					    						
+					    						var availableDate = new Date();
+					    						
+					    						availableDate.setDate(availableDate.getDate() + woLeadTime);
+					    					
+						    					availData.supplySource 		= 'New Works Order';
+					    						availData.availableDate 	= format.format({value: availableDate, type: format.Type.DATE});
+					    						availData.transactionFound	= false;
+					    						availData.availableDateDate	= availableDate;
+					    					}
+					    			}
+
 			    		break;
 			    		
 			    	case 'InvtPart':	//Inventory Item
