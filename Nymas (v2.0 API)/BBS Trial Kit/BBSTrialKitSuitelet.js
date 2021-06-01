@@ -23,7 +23,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
      * @param {ServerResponse} context.response - Encapsulation of the Suitelet response
      * @Since 2015.2
      */
-    function onRequest(context) 
+    function onRequest(context)   
 	    {
 	    	if (context.request.method === http.Method.GET) 
 		    	{
