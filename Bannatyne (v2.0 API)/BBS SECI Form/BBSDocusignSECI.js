@@ -1,10 +1,10 @@
 /*
-*  This script will only include files with 'Ad hoc contract' in the DocuSign Envelope
+*  This script will only include files with 'SECI Agreement' in the DocuSign Envelope
 */
 function customSendMain() {
 	
 	var searches = [{ 
-		keyword: 'SECI contract',
+		keyword: 'SECI Agreement',
 		type: 'phrase'
 	}];
 	

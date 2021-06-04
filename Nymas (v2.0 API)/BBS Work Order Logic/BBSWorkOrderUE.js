@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/record'],
-function(record) {
+define(['N/runtime'],
+function(runtime) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -33,79 +33,29 @@ function(record) {
     	// check the record is being created or edited
     	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
     		{
+    			// retrieve script parameters
+    			var allocationStrategy = runtime.getCurrentScript().getParameter({
+    				name: 'custscript_bbs_wo_def_allocate_strategy'
+    			});
+    		
     			// get the current record
     			var currentRecord = scriptContext.newRecord;
     			
-    			// get the value of the manufacturer routing field
-    			var manufacturerRouting = currentRecord.getValue({
-    				fieldId: 'manufacturingrouting'
+    			// get count of item lines
+    			var lineCount = currentRecord.getLineCount({
+    				sublistId: 'item'
     			});
     			
-    			// if we have a manufacturer routing
-    			if (manufacturerRouting)
+    			// loop through items
+    			for (var i = 0; i < lineCount; i++)
     				{
-    					// declare and initialize variables
-    					var routingStepsSummary = new Array();
-    				
-    					try
-    						{
-    							// load the manufacturer routing record
-    							manufacturerRouting = record.load({
-    								type: record.Type.MANUFACTURING_ROUTING,
-    								id: manufacturerRouting
-    							});
-    							
-    							// get count of routing steps
-    							var routingSteps = manufacturerRouting.getLineCount({
-    								sublistId: 'routingstep'
-    							});
-    							
-    							// loop through routing steps
-    							for (var i = 0; i < routingSteps; i++)
-    								{
-    									// get the operation sequence, name and run rate
-    									var operationSequence = manufacturerRouting.getSublistValue({
-    										sublistId: 'routingstep',
-    										fieldId: 'operationsequence',
-    										line: i
-    									});
-    									
-    									var operationName = manufacturerRouting.getSublistValue({
-    										sublistId: 'routingstep',
-    										fieldId: 'operationname',
-    										line: i
-    									});
-    									
-    									var runRate = manufacturerRouting.getSublistValue({
-    										sublistId: 'routingstep',
-    										fieldId: 'runrate',
-    										line: i
-    									});
-    									
-    									// push the routing steps into the routingStepsSummary array
-    									routingStepsSummary.push(
-    											new routingStep(
-    													operationSequence,
-    													operationName,
-    													runRate
-    													)
-    											);
-    								}
-    							
-    							// populate the manufacturer routing steps JSON field on the work order
-    							currentRecord.setValue({
-    								fieldId: 'custbody_bbs_manufactuer_routing_steps',
-    								value: JSON.stringify(routingStepsSummary)
-    							});
-    							
-    						}
-    					catch(e)
-    						{
-    							log.error({
-    								title: 'Error Loading Manufacturer Routing',
-    								details: e
-    							});
-    						}
+    					// set the allocation strategy
+    					currentRecord.setSublistValue({
+    						sublistId: 'item',
+    						fieldId: 'orderallocationstrategy',
+    						value: allocationStrategy,
+    						line: i
+    					});
     				}
     		}
 
@@ -123,22 +73,9 @@ function(record) {
     function afterSubmit(scriptContext) {
 
     }
-    
-    // =======
-    // OBJECTS
-    // =======
-    
-    function routingStep(operationSequence, operationName, runRate)
-    	{
-	    	this.operationSequence	=	operationSequence;
-			this.operationName		=	operationName;
-			this.runRate			=	runRate;	
-    	}
 
     return {
-        beforeLoad: beforeLoad,
-        beforeSubmit: beforeSubmit,
-        afterSubmit: afterSubmit
+        beforeSubmit: beforeSubmit
     };
     
 });

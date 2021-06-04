@@ -82,6 +82,9 @@ function(runtime, search, record) {
     		details: supplierID
     	});
     	
+    	// call function to get the subsidiary for the location
+    	var subsidiaryID = getLocationSubsidiary(locationID);
+    	
     	try
     		{
     			// create a new vendor bill record
@@ -93,6 +96,11 @@ function(runtime, search, record) {
     			});
     			
     			// set fields on the vendor bill record
+    			vendorBill.setValue({
+    				fieldId: 'subsidiary',
+    				value: subsidiaryID
+    			});
+    			
     			vendorBill.setValue({
     				fieldId: 'tranid',
     				value: 'TEST' //TODO
@@ -312,6 +320,22 @@ function(runtime, search, record) {
     		lineOfBusiness:	lineOfBusiness,
     		item:			item
     	}
+    	
+    }
+    
+    // =======================================================
+    // FUNCTION TO GET THE SUBSIDIARY FROM THE LOCATION RECORD
+    // =======================================================
+    
+    function getLocationSubsidiary(locationID) {
+    	
+    	// load the location record and return the subsidiary ID to the main script function
+    	return record.load({
+    		type: record.Type.LOCATION,
+    		id: locationID
+    	}).getValue({
+    		fieldId: 'subsidiary'
+    	});
     	
     }
 

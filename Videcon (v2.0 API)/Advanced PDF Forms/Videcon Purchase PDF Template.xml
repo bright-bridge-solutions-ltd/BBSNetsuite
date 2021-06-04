@@ -30,81 +30,62 @@
           
           	<table class="header" style="width: 100%; margin-top: 10px;">
 				<tr>
-	        		<td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Supplier Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.entity.vatregnumber}</span></td>
+	        		<td colspan="2" rowspan="5" class="addressheader"><span style="font-size:10pt"><b>Supplier Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.entity.vatregnumber}</span></td>
 					<td align="right" style="font-size:10pt">&nbsp;</td>
-	    			<td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custbody_bbs_branding.custrecord_bbs_branding_trade_name}<br/>
+	    			<td colspan="2" align="left" rowspan="5"><span class="nameandaddress">${record.custbody_bbs_branding.custrecord_bbs_branding_trade_name}<br/>
                       ${record.custbody_bbs_branding.custrecord_bbs_branding_address}</span></td>
 				</tr>
 			</table>
           
           	<table class="header" style="width: 100%; margin-top: 10px;">
 				<tr>
-                  <td align="left" colspan="2" style="font-size:10pt">&nbsp;</td>
+                  <td colspan="2" class="addressheader"><b>Shipping Address:</b></td>
                   <td align="left" style="font-size:10pt">&nbsp;</td>
                   <td align="left" colspan="2" style="font-size:10pt"><b>VAT No.</b> ${vatInfo}</td>
                 </tr>
               	<tr>
-                  <td align="left" colspan="2" style="font-size:10pt">&nbsp;</td>
+                  <td colspan="2" class="address" rowspan="9">${record.shipaddress}</td>
                   <td align="left" style="font-size:10pt">&nbsp;</td>
                   <td align="left" colspan="2" style="font-size:10pt"><b>EORI No.</b> ${eoriInfo}</td>
                 </tr>
-              	<tr>
-                  <td align="left" colspan="2" style="font-size:10pt">&nbsp;</td>
+                <tr>
                   <td align="left" style="font-size:10pt">&nbsp;</td>
                   <td align="left" colspan="2" style="font-size:10pt"><b>Email:</b> ${emailInfo}</td>
                 </tr>
-              	<tr>
-                  <td align="left" colspan="2" style="font-size:10pt">&nbsp;</td>
+                <tr>
                   <td align="left" style="font-size:10pt">&nbsp;</td>
                   <td align="left" colspan="2" style="font-size:10pt"><b>Tel:</b> ${telInfo}</td>
                 </tr>
-			</table>
-          	
-          	<table style="width: 100%; margin-top: 10px;">
-    	<tr>
-			<td colspan="2" class="addressheader"><b>Shipping Address:</b></td>
-			<td></td>
-			<td></td>
-			<td></td>
-		</tr>
-		<tr>
-			<td colspan="2" rowspan="8" class="address">${record.custbody_bbs_branding.custrecord_bbs_branding_trade_name}<br/>${record.shipaddress}</td>
-			<td></td>
-			<td></td>
-			<td></td>
-		</tr>
-		<tr>
-			<td class="address">&nbsp;</td>
-			<td align="left" style="font-size:10pt"><b>Order No.</b></td>
-			<td align="right" style="font-size:10pt">${record.tranid}</td>
-	    </tr>
-		<tr>
-			<td class="address">&nbsp;</td>
-			<td align="left" style="font-size:10pt"><b>Order Date</b></td>
-			<td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
-	    </tr>
-	    <tr>
-			<td class="address">&nbsp;</td>
-			<td align="left" style="font-size:10pt"><b>Required By Date</b></td>
-			<td align="right" style="font-size:10pt"><#if record.duedate?length gt 0>${record.duedate?string["dd MMM yyyy"]}<#else>&nbsp;</#if></td>
-	    </tr>
-	  	<tr>
-			<td class="address">&nbsp;</td>
-			<td align="left" style="font-size:10pt"><b>Raised By</b></td>
-			<td align="right" style="font-size:10pt">${record.employee}</td>
-	    </tr>
-      	<tr>
-			<td class="address">&nbsp;</td>
-			<td align="left" style="font-size:10pt"><b>Supplier Id</b></td>
-			<td align="right" style="font-size:10pt">${record.entity.entityid?keep_before(" ")}</td>
-    	</tr>
-    	<tr>
-			<td class="address">&nbsp;</td>
-			<td></td>
-			<td></td>
-    	</tr>
-  	</table>
-  	
+                <tr>
+                  <td align="left" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" colspan="2" style="font-size:10pt">&nbsp;</td>
+                </tr>
+                <tr>
+                  <td align="left" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" style="font-size:10pt"><b>Order No.</b></td>
+                  <td align="right" style="font-size:10pt">${record.tranid}</td>
+                </tr>
+                <tr>
+                  <td align="left" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" style="font-size:10pt"><b>Order Date.</b></td>
+                  <td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+                </tr>
+                <tr>
+                  <td align="left" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" style="font-size:10pt"><b>Required By Date</b></td>
+                  <td align="right" style="font-size:10pt"><#if record.duedate?length gt 0>${record.duedate?string["dd MMM yyyy"]}<#else>&nbsp;</#if></td>
+                </tr>
+                <tr>
+                  <td align="left" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" style="font-size:10pt"><b>Raised By</b></td>
+                  <td align="right" style="font-size:10pt">${record.employee}</td>
+                </tr>
+                <tr>
+                  <td align="left" style="font-size:10pt">&nbsp;</td>
+                  <td align="left" style="font-size:10pt"><b>Supplier Id</b></td>
+                  <td align="right" style="font-size:10pt">${record.entity.entityid?keep_before(" ")}</td>
+                </tr>
+			</table> 	
 		</macro>
 		
 		<macro id="nlfooter">
@@ -230,7 +211,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="300pt" footer="nlfooter" footer-height="50pt" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+<body header="nlheader" header-height="310pt" footer="nlfooter" footer-height="60pt" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 
 
 <#if record.item?has_content>

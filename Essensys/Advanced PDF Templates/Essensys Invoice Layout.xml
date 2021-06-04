@@ -387,5 +387,24 @@
 
 <hr/><!-- Horizontal Line -->
 
+<#if subsidiary.id == '3' || subsidiary.id == '5'> <!-- If subsidiary is 3 (US) or 5 (Canada) -->
+	
+	<table style="width:100%">
+		<thead>
+			<tr>
+				<th style="border-left: 2px solid black; border-top: 2px solid black;">Lockbox postal address:</th>
+				<th style="border-left: 2px solid black; border-right: 2px solid black; border-top: 2px solid black;">Lockbox address for overnight courier deliveries:</th>
+			</tr>
+		</thead>
+		<tr>
+			<td style="border-left: 2px solid black; border-bottom: 2px solid black;">essensys Inc.<br/>PO Box 358077<br/>Pittsburgh<br/>PA 15251-5077</td>
+			<td style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">Lockbox #358077<br/>essensys Inc.<br/>PO Box 358077<<br/>Pittsburgh<br/>PA 15251-5077</td>
+		</tr>
+	</table>
+	
+	<hr/><!-- Horizontal Line -->
+	
+</#if>
+
 </body>
 </pdf>

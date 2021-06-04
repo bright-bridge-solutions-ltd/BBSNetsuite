@@ -264,7 +264,7 @@
       <thead>
           <tr>
   		  <th align="left" colspan="4"><br/>Code</th>
-  		  <th align="left" colspan="6"><br/>Description</th>
+  		  <th align="left" colspan="10"><br/>Description</th>
   		  <th align="right" colspan="2"><br/>Bin</th>
   		  <th align="right" colspan="2"><p align="right">Units/<br/>Case</p></th>
           <th align="right" colspan="2"><p align="right">Pack<br/>Size</p></th>
@@ -280,7 +280,7 @@
                 	<#if tranline.line==item.orderline>
   						<tr>
                             <td align="left" colspan="4">${item.custcol_bbs_sku}</td>
-  							<td align="left" colspan="6">${item.description}</td>
+  							<td align="left" colspan="10">${item.description}<#if item.custcol_scm_customerpartnumber?has_content><br/>${item.custcol_scm_customerpartnumber}</#if></td>
   							<td align="right" colspan="2">${item.custcol_bbs_item_bin}</td>
   							<td align="right" colspan="2">${tranline.custcol_bbs_trx_units_case}</td>
   							<td align="right" colspan="2">${tranline.units}</td>
@@ -305,7 +305,7 @@
                 <#if (salesorder.entity.custentity_bbs_legacy_accnumber == "CHER001" && shipped gt 0) || salesorder.entity.custentity_bbs_legacy_accnumber != "CHER001">
                   <tr>3
                       <td align="left" colspan="3">${tranline.custcol_bbs_sku}</td>
-                      <td colspan="13" style="margin-top: 5px;">${tranline.description}</td>
+                      <td colspan="10" style="margin-top: 5px;">${tranline.description}</td>
                       <td align="right" colspan="2">&nbsp;</td>
                       <td align="right" colspan="2" style="margin-top: 5px;">${tranline.quantityordered}</td>
                       <td align="right" colspan="2" style="margin-top: 5px;">${tranline.quantityremaining}</td>
@@ -329,7 +329,7 @@
                    </#list>
                 <#if isInList || tranline.quantitybackordered != 0>
   					<tr>
-					<td colspan="13" style="margin-top: 5px;">${tranline.description}</td>
+					<td colspan="10" style="margin-top: 5px;">${tranline.description}</td>
       				<td align="right" colspan="4" style="margin-top: 5px;">${tranline.quantity}</td>
     				<td align="right" colspan="2" style="margin-top: 5px;">${tranline.quantityremaining}</td>
 					<td align="right" colspan="4" style="margin-top: 5px;">${shipped}</td>
@@ -624,7 +624,7 @@
       <thead>
           <tr>
   		  <th align="left" colspan="4"><br/>Code</th>
-  		  <th align="left" colspan="6"><br/>Description</th>
+  		  <th align="left" colspan="10"><br/>Description</th>
   		  <th align="right" colspan="2"><br/>Bin</th>
           <th align="right" colspan="2"><p align="right">Units/<br/>Case</p></th>
           <th align="right" colspan="2"><p align="right">Pack<br/>Size</p></th>
@@ -640,7 +640,7 @@
                 	<#if tranline.line==item.orderline>
   						<tr>
                             <td align="left" colspan="4">${item.custcol_bbs_sku}</td>
-  							<td align="left" colspan="6">${item.description}</td>
+  							<td align="left" colspan="10">${item.description}<#if item.custcol_scm_customerpartnumber?has_content><br/>${item.custcol_scm_customerpartnumber}</#if></td>
   							<td align="right" colspan="2">${item.custcol_bbs_item_bin}</td>
   							<td align="right" colspan="2">${tranline.custcol_bbs_trx_units_case}</td>
   							<td align="right" colspan="2">${tranline.units}</td>
@@ -664,7 +664,7 @@
                 <#if (salesorder.entity.custentity_bbs_legacy_accnumber == "CHER001" && shipped gt 0) || salesorder.entity.custentity_bbs_legacy_accnumber != "CHER001">
                   <tr>
                       <td align="left" colspan="4">${tranline.custcol_bbs_sku}</td>
-                      <td align="left" colspan="6">${tranline.description}</td>
+                      <td align="left" colspan="10">${tranline.description}</td>
                       <td align="right" colspan="2">&nbsp;</td>
                       <td align="right" colspan="2">${tranline.custcol_bbs_trx_units_case}</td>
                       <td align="right" colspan="2">${tranline.units}</td>
@@ -690,7 +690,7 @@
                    </#list>
                 <#if isInList || tranline.quantitybackordered != 0>
   					<tr>
-					<td colspan="13" style="margin-top: 5px;">${tranline.description}</td>
+					<td colspan="10" style="margin-top: 5px;">${tranline.description}</td>
       				<td align="right" colspan="4" style="margin-top: 5px;">${tranline.quantity}</td>
     				<td align="right" colspan="2" style="margin-top: 5px;">${tranline.quantityremaining}</td>
 					<td align="right" colspan="4" style="margin-top: 5px;">${shipped}</td>

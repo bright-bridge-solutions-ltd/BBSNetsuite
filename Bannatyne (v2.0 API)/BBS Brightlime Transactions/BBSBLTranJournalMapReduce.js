@@ -17,6 +17,18 @@ function(runtime, search, record, task, format) {
 		name: 'custscript_bl_tran_jnl_default_gl'
 	});
 	
+	defaultTaxCode = currentScript.getParameter({
+		name: 'custscript_bl_tran_jnl_default_tax_code'
+	});
+	
+	defaultDebitTaxAccount = currentScript.getParameter({
+		name: 'custscript_bl_tran_jnl_def_debit_tax_acc'
+	});
+	
+	defaultCreditTaxAccount = currentScript.getParameter({
+		name: 'custscript_bl_tran_jnl_def_cred_tax_acc'
+	});
+	
 	// set the date of the journal
 	journalDate = new Date();
 	journalDate = new Date(journalDate.getFullYear(), journalDate.getMonth(), journalDate.getDate() - 1); // Yesterday
@@ -162,10 +174,12 @@ function(runtime, search, record, task, format) {
     function createJournal(context, subsidiaryID, locationID, bankGLAccountID) {
     	
     	// declare new array to hold IDs of processed BL Charge records
-    	var processedRecords 	= new Array();
-    	var totalDebitAmount 	= 0;
-    	var totalCreditAmount	= 0;
-    	var directDebitTotal	= 0;
+    	var processedRecords 		= new Array();
+    	var totalDebitNetAmount 	= 0;
+    	var totalDebitGrossAmount	= 0;
+    	var totalCreditNetAmount	= 0;
+    	var totalCreditGrossAmount	= 0;
+    	var directDebitTotal		= 0;
     	
     	try
     		{
@@ -322,8 +336,8 @@ function(runtime, search, record, task, format) {
 		    						// add the gross amount to the directDebitTotal
 		    						directDebitTotal += grossAmt;
     	    					}
-    	    				// check if we have got a credit line
-    	    				else if (creditOrDebit == 'C')
+    	    				// check if we have got a debit line
+    	    				else if (creditOrDebit == 'D')
 		    	    			{
 		    	    				// ===========
 		    	    				// CREDIT LINE
@@ -344,28 +358,6 @@ function(runtime, search, record, task, format) {
 		    							fieldId: 'credit',
 		    							value: credit
 		    						});
-		    						
-		    						// check if we have a tax code
-		    						if (taxCode)
-		    							{
-		    								journalRec.setCurrentSublistValue({
-		    									sublistId: 'line',
-		    									fieldId: 'taxcode',
-		    									value: taxCode
-		    								});
-		    								
-		    								journalRec.setCurrentSublistValue({
-		    									sublistId: 'line',
-		    									fieldId: 'grossamt',
-		    									value: grossAmt
-		    								});
-		    								
-		    								journalRec.setCurrentSublistValue({
-		    									sublistId: 'line',
-		    									fieldId: 'tax1acct',
-		    									value: taxAccount
-		    								});
-		    							}
 		    						
 		    						journalRec.setCurrentSublistValue({
 		    							sublistId: 'line',
@@ -389,10 +381,11 @@ function(runtime, search, record, task, format) {
 		    							sublistId: 'line'
 		    						});
 		    						
-		    						// add the gross amount to the totalDebitAmount variable
-		    						totalDebitAmount += grossAmt;
+		    						// add the net/gross amount to the total variables
+		    						totalDebitNetAmount		+= credit;
+		    						totalDebitGrossAmount 	+= grossAmt;
 		    	    			}
-		    	    		else if (creditOrDebit == 'D') // if we have got a debit line
+		    	    		else if (creditOrDebit == 'C') // if we have got a credit line
 		    	    			{
 			    	    			// ==========
 				    				// DEBIT LINE
@@ -413,28 +406,6 @@ function(runtime, search, record, task, format) {
 										fieldId: 'debit',
 										value: debit
 									});
-									
-									// check if we have a tax code
-									if (taxCode)
-										{
-											journalRec.setCurrentSublistValue({
-												sublistId: 'line',
-												fieldId: 'taxcode',
-												value: taxCode
-											});
-											
-											journalRec.setCurrentSublistValue({
-												sublistId: 'line',
-												fieldId: 'grossamt',
-												value: grossAmt
-											});
-											
-											journalRec.setCurrentSublistValue({
-												sublistId: 'line',
-												fieldId: 'tax1acct',
-												value: taxAccount
-											});
-										}
 									
 									journalRec.setCurrentSublistValue({
 										sublistId: 'line',
@@ -458,8 +429,9 @@ function(runtime, search, record, task, format) {
 										sublistId: 'line'
 									});
 									
-									// add the gross amount to the totalCreditAmount variable
-									totalCreditAmount += grossAmt;
+									// add the net/gross amount to the total variables
+									totalCreditNetAmount	+= debit;
+		    						totalCreditGrossAmount 	+= grossAmt;
 		    	    			}
     	    			}
     	    		catch(e)
@@ -478,7 +450,7 @@ function(runtime, search, record, task, format) {
     	    	// TOTAL CREDIT LINE
     	    	// =================
     	    	
-    	    	if (totalCreditAmount > 0)
+    	    	if (totalCreditNetAmount > 0)
     	    		{
 		    	    	journalRec.selectNewLine({
 							sublistId: 'line'
@@ -493,7 +465,25 @@ function(runtime, search, record, task, format) {
 						journalRec.setCurrentSublistValue({
 							sublistId: 'line',
 							fieldId: 'credit',
-							value: totalCreditAmount.toFixed(2)
+							value: totalCreditNetAmount.toFixed(2)
+						});
+						
+						journalRec.setCurrentSublistValue({
+							sublistId: 'line',
+							fieldId: 'taxcode',
+							value: defaultTaxCode
+						});
+						
+						journalRec.setCurrentSublistValue({
+							sublistId: 'line',
+							fieldId: 'grossamt',
+							value: totalCreditGrossAmount.toFixed(2)
+						});
+						
+						journalRec.setCurrentSublistValue({
+							sublistId: 'line',
+							fieldId: 'tax1acct',
+							value: defaultCreditTaxAccount
 						});
 		    	    		
 						journalRec.setCurrentSublistValue({
@@ -517,7 +507,7 @@ function(runtime, search, record, task, format) {
     	    	// TOTAL DEBIT LINE
     	    	// ================
     	    	
-    	    	if (totalDebitAmount > 0)
+    	    	if (totalDebitNetAmount > 0)
     	    		{ 	    	
 		    	    	journalRec.selectNewLine({
 							sublistId: 'line'
@@ -532,7 +522,25 @@ function(runtime, search, record, task, format) {
 						journalRec.setCurrentSublistValue({
 							sublistId: 'line',
 							fieldId: 'debit',
-							value: totalDebitAmount.toFixed(2)
+							value: totalDebitNetAmount.toFixed(2)
+						});
+						
+						journalRec.setCurrentSublistValue({
+							sublistId: 'line',
+							fieldId: 'taxcode',
+							value: defaultTaxCode
+						});
+						
+						journalRec.setCurrentSublistValue({
+							sublistId: 'line',
+							fieldId: 'grossamt',
+							value: totalDebitGrossAmount.toFixed(2)
+						});
+						
+						journalRec.setCurrentSublistValue({
+							sublistId: 'line',
+							fieldId: 'tax1acct',
+							value: defaultDebitTaxAccount
 						});
 		    	    		
 						journalRec.setCurrentSublistValue({

@@ -496,13 +496,14 @@ function(record, search, format) {
     	
     }
     
-    function outputSummary(itemType, quantity, itemCode, itemDescription, workDescription, finishingDrawing, codeToBeMade, price) {
+    function outputSummary(itemType, quantity, itemCode, itemDescription, workDescription, dueDate, finishingDrawing, codeToBeMade, price) {
     	
     	this.itemType			=	itemType;
     	this.quantity 			= 	quantity;
     	this.itemCode			=	itemCode;
     	this.itemDescription	=	itemDescription;
     	this.workDescription	= 	workDescription;
+    	this.dueDate			=	dueDate;
     	this.finishingDrawing	=	finishingDrawing;
     	this.codeToBeMade		=	codeToBeMade;
     	this.price				=	price;

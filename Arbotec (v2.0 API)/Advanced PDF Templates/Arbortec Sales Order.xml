@@ -282,7 +282,7 @@
 			    			<td colspan="3" align="center" style="border-right: 1px solid black;">${currencySymbol}${item.rate}</td>
 			    			<td colspan="3" align="center" style="border-right: 1px solid black;">${item.units}</td>
 			    			<td colspan="3" align="center" style="border-right: 1px solid black;">${currencySymbol}${item.amount}</td>
-			    			<td colspan="1" align="center">${item.taxcode?keep_after(":")?keep_before("-")}</td>
+			    			<td colspan="1" align="center"><#if item.taxcode?has_content>${item.taxcode?keep_after(":")?substring(0, 1)}</#if></td>
 			    		</tr>
 			    	</#list> <!-- END ITEMS -->
 		    	</table>
@@ -302,7 +302,7 @@
 			    				</tr>
 			    				<#list record.custbody_bbs_vat_summary?eval as tax>
 			        				<tr>
-				    					<td colspan="1" align="center" style="border-right: 1px solid black;">${tax.name?keep_after(":")?keep_before("-")}</td>
+				    					<td colspan="1" align="center" style="border-right: 1px solid black;">${tax.name?keep_after(":")?substring(0, 1)}</td>
 				    					<td colspan="4" align="center" style="border-right: 1px solid black;">${currencySymbol}${tax.goodsconverted}</td>
 				    					<td colspan="4" align="center" style="border-right: 1px solid black;">${tax.rate}%</td>
 				    					<td colspan="4" align="center">${currencySymbol}${tax.amtconverted}</td>
@@ -356,45 +356,83 @@
 		</#if>
 	    <macrolist>
 	        <macro id="nlheader">
-	            <table class="header" style="width: 100%;"><tr>
-		<td rowspan="2" style="width: 30%;"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: left; margin: 7px" /> </#if></td>
-		<td colspan="3" style="width: 10%; font-size: 32px; text-align: center;"><strong>Sales Order</strong></td>
-		</tr>
-		<tr>
-		<td style="font-size:9px; width: 50px">${companyInformation.companyName}<br />${subsidiary.mainaddress.addrtext}</td>
-		<!--<td style="font-size:9px; width: 2px">&nbsp;</td>-->
-		<td style="font-size:9px; width: 50px"><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tel No:<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Fax: No:<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email:<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Web:<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VAT Reg No:</strong></td>
-		<td style="font-size:9px;">${subsidiary.mainaddress.addrphone}<br />${subsidiary.fax}<br />${subsidiary.email}<br />https://www.arbortec.com<br />${subsidiary.federalidnumber}</td>
+	            <table width="100%"><tr>
+		<td align="right">
+		<h3 style="font-style: normal;margin-top:-10px; margin-bottom:10px"><b>ORDER ACKNOWLEDGEMENT</b></h3>
+		</td>
+		</tr></table>
+	
+	<table class="header" style="width: 100%;"><tr>
+		<td width="45%"><#if companyInformation.logoUrl?length != 0>${subsidiary.logo}</#if></td>
+		<td width="55%">
+		<table class="lino" style="padding-left: 200px" width="100%"><tr>
+			<td style="font-size:8pt;height:15px;">${subsidiary.mainaddress_text}</td>
+			</tr>
+			<tr>
+			<td style="font-size: 8pt; height: 13px;"><b>Tel No:</b>&nbsp;${subsidiary.mainaddress.addrphone}</td>
+			</tr>
+			<tr>
+			<td style="font-size:8pt;height:15px;"><b>E-mail:</b>&nbsp;${subsidiary.custrecord_bbs_sales_email}</td>
+			</tr>
+			<tr>
+			<td style="font-size:8pt;height:15px;"><b>Web:</b>&nbsp;${subsidiary.custrecord_bbs_website}</td>
+			</tr>
+			<!--
+	<tr>
+			<td style="font-size:8pt"><b>VAT Reg No:</b>&nbsp;${companyInformation.employerid}</td>
+			</tr>-->
+	</table>
+		</td>
+		</tr></table>
+	
+	<table width="100%"><tr>
+		<td padding-left="0">
+		<p>BILL TO</p>
+	
+		<table border="1" min-height="110px" style="border-radius: 3px 5px;font-size: 10px" width="100%"><tr>
+			<td>
+			<p>${record.billaddress}</p>
+			</td>
+			</tr></table>
+		</td>
+		<td padding-right="0">
+		<p>DELIVER TO</p>
+	
+		<table border="1" min-height="110px" style="border-radius: 3px 5px;font-size: 10px" width="100%"><tr>
+			<td>
+			<p><#if record.shipaddress??>${record.shipaddress} <#else> ${subsidiary.mainaddress_text} </#if></p>
+			</td>
+			</tr></table>
+		</td>
 		</tr></table>
 	        </macro>
 	        <macro id="nlfooter">
-	            <table border="0" cellpadding="1" cellspacing="1" style="width: 100%;"><tr>
-		<td style="width: 25%;"><strong>Address:&nbsp;</strong><br />${companyinformation.addresstext}</td>
-		<td style="width: 25%;"><strong>${subsidiary.custrecord1395}</strong></td>
-		<td style="width: 25%;"><strong>${subsidiary.custrecord1396}</strong></td>
-		<td style="width: 35%;">${subsidiary.custrecord1394}</td>
+	            <table width="100%"><tr>
+		<td align="center" font-size="8px">
+		<p style="text-align:center">${subsidiary.companyName}<br />${subsidiary.addressText}</p>
+		</td>
 		</tr></table>
 	        </macro>
 	    </macrolist>
 	    <style type="text/css">* {
-			<#if .locale == "zh_CN">
-				font-family: NotoSans, NotoSansCJKsc, sans-serif;
-			<#elseif .locale == "zh_TW">
-				font-family: NotoSans, NotoSansCJKtc, sans-serif;
-			<#elseif .locale == "ja_JP">
-				font-family: NotoSans, NotoSansCJKjp, sans-serif;
-			<#elseif .locale == "ko_KR">
-				font-family: NotoSans, NotoSansCJKkr, sans-serif;
-			<#elseif .locale == "th_TH">
-				font-family: NotoSans, NotoSansThai, sans-serif;
-			<#else>
-				font-family: NotoSans, sans-serif;
-			</#if>
-			}
-			table {
-				font-size: 9pt;
-				table-layout: fixed;
-			}
+	        <#if .locale == "zh_CN">
+	            font-family: NotoSans, NotoSansCJKsc, sans-serif;
+	        <#elseif .locale == "zh_TW">
+	            font-family: NotoSans, NotoSansCJKtc, sans-serif;
+	        <#elseif .locale == "ja_JP">
+	            font-family: NotoSans, NotoSansCJKjp, sans-serif;
+	        <#elseif .locale == "ko_KR">
+	            font-family: NotoSans, NotoSansCJKkr, sans-serif;
+	        <#elseif .locale == "th_TH">
+	            font-family: NotoSans, NotoSansThai, sans-serif;
+	        <#else>
+	            font-family: NotoSans, sans-serif;
+	        </#if>
+	        }
+	        table {
+	            font-size: 9pt;
+	            table-layout: fixed;
+	        }
 	        th {
 	            font-weight: bold;
 	            font-size: 8pt;
@@ -406,17 +444,17 @@
 	        td {
 	            padding: 4px 6px;
 	        }
-			td p { align:left }
+	        td p { align:left }
 	        b {
 	            font-weight: bold;
 	            color: #333333;
 	        }
 	        table.header td {
-	            padding: 0px;
+	            padding: 0;
 	            font-size: 10pt;
 	        }
 	        table.footer td {
-	            padding: 0px;
+	            padding: 0;
 	            font-size: 8pt;
 	        }
 	        table.itemtable th {
@@ -443,16 +481,12 @@
 	            padding-bottom: 2px;
 	        }
 	        td.address {
-	            padding-top: 0px;
+	            padding-top: 0;
 	        }
 	        td.totalboxmid {
 	            font-size: 28pt;
 	            padding-top: 20px;
 	            background-color: #e3e3e3;
-	        }
-	        td.totalboxbot {
-	            background-color: #e3e3e3;
-	            font-weight: bold;
 	        }
 	        span.title {
 	            font-size: 28pt;
@@ -470,87 +504,83 @@
 	            background-color: #d3d3d3;
 	            height: 1px;
 	        }
+			table tr td a{
+				text-decoration: none;
+			}
 	</style>
 	</head>
-	<body header="nlheader" header-height="10%" footer="nlfooter" footer-height="8%" padding="12mm 12mm 12mm 12mm" size="A4">
-	    &nbsp;
-	<table style="width: 100%; margin-top: 10px;"><tr>
-		<td class="addressheader" colspan="3"><em>${record.billaddress@label}</em></td>
-		<td class="addressheader" colspan="3"><em>${record.shipaddress@label}</em></td>
-		</tr>
-		<tr>
-		<td class="address" colspan="3" rowspan="2">${record.entity}<br />${record.billaddress}</td>
-		<td class="address" colspan="3" rowspan="2">${record.entity}<br />${record.shipaddress}</td>
-		</tr>
-		<tr></tr></table>
+	<body header="nlheader" header-height="23%" footer="nlfooter" footer-height="20pt" padding="0.5in 0.5in 0.5in 0.5in" size="Letter"><br />
 	
-	<table align="center" border="1" class="body" style="margin-top:10px;width:100%;">
-	<thead>
-		<tr>
-		<th scope="col" style="width: 86px;">Account</th>
-		<th scope="col" style="width: 84px;">Rep</th>
-		<th scope="col" style="width: 174px;">Your Order<br />Number</th>
-		<th scope="col" style="width: 135px;">Invoice&nbsp;<br />Date</th>
-		<th scope="col" style="width: 136px;">Invoice<br />Number</th>
-		<th scope="col" style="width: 81px;">Page</th>
+	    <table border="1" style="width: 100%; margin-top: 10px;font-size: 8pt"><tr>
+		<td style="border-right: 1px solid #000;border-bottom: 1px solid #000;"><b>ACCOUNT</b></td>
+		<td style="border-right: 1px solid #000;border-bottom: 1px solid #000;" width="80px"><b>REP</b></td>
+		<td style="border-right: 1px solid #000;border-bottom: 1px solid #000;" width="100px"><b>YOUR ORDER NO.</b></td>
+		<td style="border-right: 1px solid #000;border-bottom: 1px solid #000;"><b>DEL. DATE</b></td>
+		<td style="border-right: 1px solid #000;border-bottom: 1px solid #000;"><b>DELIVERY REF</b></td>
+		<td style="border-right: 1px solid #000;border-bottom: 1px solid #000;"><b>DATE</b></td>
+		<td style="border-right: 1px solid #000;border-bottom: 1px solid #000;"><b>SO NO.</b></td>
+		<td style="border-bottom: 1px solid #000;"><b>PAGE</b></td>
 		</tr>
-	</thead><tr>
-		<td style="width: 86px;">${record.entity}</td>
-		<td style="width: 84px;">TP</td>
-		<td style="width: 174px;">${record.custbody_sii_ref_no}</td>
-		<td style="width: 135px; text-align: center;">${record.custbody_sii_invoice_date}</td>
-		<td style="width: 136px; text-align: center;">${record.tranid}</td>
-		<td style="width: 81px;">
-		<table class="footer" style="width: 100%;"><tr>
-			<td align="right"><pagenumber/> of <totalpages/></td>
-			</tr></table>
-		</td>
+		<tr>
+		<td style="border-right: 1px solid #000;">${record.entity}</td>
+		<td style="border-right: 1px solid #000;">${record.salesrep}</td>
+		<td style="border-right: 1px solid #000;">${record.otherrefnum}</td>
+		<td style="border-right: 1px solid #000;">${record.custbody_eti_delivery_date}</td>
+		<td style="border-right: 1px solid #000;">&nbsp;</td>
+		<td style="border-right: 1px solid #000;">${record.trandate}</td>
+		<td style="border-right: 1px solid #000;">${record.tranid}</td>
+		<td><pagenumber/> of <totalpages/></td>
 		</tr></table>
 	<#if record.item?has_content>
 	
-	<table align="center" border="1" class="itemtable" style="margin-top:10px;width:100%;"><!-- start items --><#list record.item as item><#if item_index==0>
+	<table border="1" min-height="300px" style="width: 100%; margin-top: 10px;font-size: 9pt"><!-- start items --><#list record.item as item><#if item_index==0>
 	<thead>
 		<tr>
-		<th align="center" colspan="3" style="height: 13px; width: 123px;">Item Code</th>
-		<th colspan="12" style="height: 13px; width: 179px;">Description</th>
-		<th colspan="3" style="height: 13px; width: 66px;">${item.quantity@label}</th>
-		<th align="right" colspan="4" style="height: 13px; width: 81px;">Price</th>
-		<th align="right" style="height: 13px; width: 48px;">Unit</th>
-		<th align="right" style="height: 13px; width: 122px;">${item.amount@label}</th>
-		<th align="right" colspan="4" style="height: 13px; width: 75px;">Tax Code</th>
+		<td align="center" style="border-right: 1px solid #000;border-bottom: 1px solid #000;" width="15%"><b>STOCK CODE</b></td>
+		<td align="center" style="border-right: 1px solid #000;border-bottom: 1px solid #000;" width="35%"><b>DESCRIPTION</b></td>
+		<td align="center" style="border-right: 1px solid #000;border-bottom: 1px solid #000;" width="10%"><b>DUE DATE</b></td>
+		<td align="center" style="border-right: 1px solid #000;border-bottom: 1px solid #000;" width="5%"><b>QTY</b></td>
+		<td align="center" style="border-right: 1px solid #000;border-bottom: 1px solid #000;" width="5%"><b>UNIT</b></td>
+		<td align="center" style="border-right: 1px solid #000;border-bottom: 1px solid #000;" width="10%"><b>PRICE</b></td>
+		<td align="center" style="border-right: 1px solid #000;border-bottom: 1px solid #000;" width="10%"><b>VALUE</b></td>
+		<td style="border-bottom: 1px solid #000;" width="5%"><b>VC</b></td>
 		</tr>
 	</thead>
-	</#if><tr>
-		<td align="center" colspan="3" line-height="150%" style="width: 123px;"><span class="itemname">${item.item}</span></td>
-		<td colspan="12" style="width: 179px;">${item.description}</td>
-		<td colspan="3" style="width: 66px;">${item.quantity}</td>
-		<td align="right" colspan="4" style="width: 81px;">${item.rate}</td>
-		<td align="right" style="width: 48px;">${item.units}</td>
-		<td align="right" style="width: 122px;">${item.amount}</td>
-		<td align="right" colspan="4" style="width: 75px;">${item.taxcode}</td>
+	</#if><tr style="line-height: 10px;">
+		<td style="border-right: 1px solid #000; line-height: 250%;">${item.item}</td>
+		<td style="border-right: 1px solid #000; line-height: 250%;">${item.description}</td>
+		<td style="border-right: 1px solid #000; line-height: 250%;">&nbsp;</td>
+		<td style="border-right: 1px solid #000; line-height: 250%;">${item.quantity}</td>
+		<td align="center" style="border-right: 1px solid #000; line-height: 250%;">EACH</td>
+		<td align="right" style="border-right: 1px solid #000; line-height: 250%;">${item.rate}</td>
+		<td align="right" style="border-right: 1px solid #000; line-height: 250%;">${item.amount}</td>
+		<td>&nbsp;</td>
 		</tr>
 		</#list><!-- end items --></table>
+	</#if>
 	
-	<hr /></#if>
-	<table class="total" style="width: 100%; margin-top: 10px;"><tr>
-		<td colspan="4">&nbsp;</td>
-		<td align="right"><b>${record.subtotal@label}</b></td>
-		<td align="right">${record.subtotal}</td>
-		</tr>
-		<tr>
-		<td colspan="4">&nbsp;</td>
-		<td align="right"><strong>Shipping Cost</strong></td>
-		<td align="right">${record.shippingcost}</td>
-		</tr>
-		<tr>
-		<td colspan="4">&nbsp;</td>
-		<td align="right"><b>${record.taxtotal@label}</b></td>
-		<td align="right">${record.taxtotal}</td>
-		</tr>
-		<tr class="totalrow">
-		<td background-color="#ffffff" colspan="4">&nbsp;</td>
-		<td align="right"><b>${record.total@label}</b></td>
-		<td align="right">${record.total}</td>
+	<table style="width: 100%; margin-top: 10px;"><tr>
+		<td padding-left="0" width="45%">
+		<table border="1" min-height="80px" style="width: 100%; font-size: 8pt"><tr>
+			<td><b>COMMENTS</b><br />${record.memo}</td>
+			</tr></table>
+		</td>
+		<td padding-right="0">
+		<table style="width: 100%; font-size: 10pt"><tr>
+			<td align="center">${record.currencyname}<b>&nbsp;</b></td>
+			</tr></table>
+	
+		<table border="1" style="width: 100%;font-size: 8pt"><tr>
+			<td style="border-right: 1px solid #000;border-bottom: 1px solid #000;"><b>TOTAL GOODS</b></td>
+			<td style="border-right: 1px solid #000;border-bottom: 1px solid #000;"><b>TOTAL VAT</b></td>
+			<td style="border-bottom: 1px solid #000;"><b>SO TOTAL</b></td>
+			</tr>
+			<tr>
+			<td style="border-right: 1px solid #000;">${record.subtotal}</td>
+			<td style="border-right: 1px solid #000;">${record.taxtotal}</td>
+			<td>${record.total}</td>
+			</tr></table>
+		</td>
 		</tr></table>
 	</body>
 	</pdf>

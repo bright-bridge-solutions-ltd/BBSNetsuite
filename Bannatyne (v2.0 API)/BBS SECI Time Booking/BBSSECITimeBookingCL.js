@@ -66,10 +66,73 @@ function(search, dialog, url) {
 	    				});
     				}
     		}
+    	else if (scriptContext.sublistId == 'custpage_time_entries' && (scriptContext.fieldId == 'custpage_start_time' || scriptContext.fieldId == 'custpage_end_time'))
+			{
+    			// get the current record
+				var currentRecord = scriptContext.currentRecord;
+    		
+    			// get the start and end times
+    			var startTime = currentRecord.getCurrentSublistText({
+    				sublistId: 'custpage_time_entries',
+    				fieldId: 'custpage_start_time'
+    			});
+    			
+    			var endTime = currentRecord.getCurrentSublistText({
+    				sublistId: 'custpage_time_entries',
+    				fieldId: 'custpage_end_time'
+    			});
+    			
+    			// if we have a start and end time
+    			if (startTime && endTime)
+    				{
+    					// declare and initialize variables
+    					var startTimeDate 	= new Date();
+    					var endTimeDate		= new Date();
+    					
+    					// split the start/end times on the : character
+    					startTime	= startTime.split(':');
+    					endTime 	= endTime.split(':');
+    					
+    					// set the time of the start/end time date objects
+    					startTimeDate.setHours(startTime[0]);
+    					startTimeDate.setMinutes(startTime[1]);
+    					startTimeDate.setSeconds(0);
+    					startTimeDate.setMilliseconds(0);
+    					
+    					endTimeDate.setHours(endTime[0]);
+    					endTimeDate.setMinutes(endTime[1]);
+    					endTimeDate.setSeconds(0);
+    					endTimeDate.setMilliseconds(0);
+    					
+    					// check if the end time is after the start time
+    					if (endTimeDate.getTime() > startTimeDate.getTime())
+    						{
+		    					// calculate the class duration (difference between the start/end times)
+		    					var duration = (endTimeDate.getTime() - startTimeDate.getTime()) / 1000;
+		    					duration /= (60 * 60);
+		    					duration = Math.abs(duration);
+		    					
+		    					// set the duration field
+		    					currentRecord.setCurrentSublistValue({
+		    	    				sublistId: 'custpage_time_entries',
+		    	    				fieldId: 'custpage_duration',
+		    	    				value: duration
+		    	    			});
+    						}
+    					else
+    						{
+    							// display an error message
+	    						dialog.alert({
+	    		    				title: '⚠️ Error',
+	    		    				message: 'The end time you have selected is before the selected start time.<br><br>Please correct this before continuing.'
+	    		    			});
+    						}
+    				}
+			}
     	else if (scriptContext.fieldId == 'custpage_seci_code')
     		{
 	    		// declare and initialize variables
-    			var seciSite	= null;
+    			var startTime
     			var firstName 	= null;
     			var lastName 	= null;
     			var companyName = null;
@@ -319,6 +382,70 @@ function(search, dialog, url) {
      * @since 2015.2
      */
     function validateLine(scriptContext) {
+    	
+    	// check if the user is adding a new line to the time entries sublist
+    	if (scriptContext.sublistId == 'custpage_time_entries')
+    		{
+    			// get the current record
+    			var currentRecord = scriptContext.currentRecord;
+    			
+    			// get the start and end times
+    			var startTime = currentRecord.getCurrentSublistText({
+    				sublistId: 'custpage_time_entries',
+    				fieldId: 'custpage_start_time'
+    			});
+    			
+    			var endTime = currentRecord.getCurrentSublistText({
+    				sublistId: 'custpage_time_entries',
+    				fieldId: 'custpage_end_time'
+    			});
+    			
+    			// if we have a start and end time
+    			if (startTime && endTime)
+    				{
+    					// declare and initialize variables
+    					var startTimeDate 	= new Date();
+    					var endTimeDate		= new Date();
+    					
+    					// split the start/end times on the : character
+    					startTime	= startTime.split(':');
+    					endTime 	= endTime.split(':');
+    					
+    					// set the time of the start/end time date objects
+    					startTimeDate.setHours(startTime[0]);
+    					startTimeDate.setMinutes(startTime[1]);
+    					startTimeDate.setSeconds(0);
+    					startTimeDate.setMilliseconds(0);
+    					
+    					endTimeDate.setHours(endTime[0]);
+    					endTimeDate.setMinutes(endTime[1]);
+    					endTimeDate.setSeconds(0);
+    					endTimeDate.setMilliseconds(0);
+    					
+    					// check if the end time is after the start time
+    					if (endTimeDate.getTime() > startTimeDate.getTime())
+    						{
+		    					// allow the user to save the line
+    							return true;
+    						}
+    					else
+    						{
+    							// display an error message
+	    						dialog.alert({
+	    		    				title: '⚠️ Error',
+	    		    				message: 'The end time you have selected is before the selected start time.<br><br>Please correct this before continuing.'
+	    		    			});
+    						}
+    				}
+    			else
+    				{
+    					// display an error message
+	    				dialog.alert({
+		    				title: '⚠️ Error',
+		    				message: 'A start and end time have not been selected.<br><br>Please correct this before continuing.'
+		    			});
+    				}
+    		}
 
     }
 
@@ -425,6 +552,7 @@ function(search, dialog, url) {
     return {
         pageInit:		pageInit,
     	fieldChanged: 	fieldChanged,
+    	validateLine:	validateLine,
         saveRecord: 	saveRecord,
         cancelButton: 	cancelButton,
         returnToStart: 	returnToStart

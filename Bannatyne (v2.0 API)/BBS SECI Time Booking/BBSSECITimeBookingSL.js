@@ -172,11 +172,60 @@ function(ui, search, record, format, message) {
 							label: 'Class'
 						}).isMandatory = true;
 						
+						var startTime = sublist.addField({
+							type: ui.FieldType.SELECT,
+							id: 'custpage_start_time',
+							label: 'Start Time'
+						});
+						
+						startTime.isMandatory = true;
+						
+						var endTime = sublist.addField({
+							type: ui.FieldType.SELECT,
+							id: 'custpage_end_time',
+							label: 'End Time'
+						});
+						
+						endTime.isMandatory = true;
+						
+						// add a default select option to the start/end time fields
+						startTime.addSelectOption({
+							value: 0,
+							text: '',
+							isSelected: true
+						});
+						
+						endTime.addSelectOption({
+							value: 0,
+							text: '',
+							isSelected: true
+						});
+						
+						// call function to return class times
+						var classTimes = getClassTimes();
+						
+						// loop through class times
+						for (var i = 0; i < classTimes.length; i++)
+							{
+								// add a select option to the start/end time fields
+								startTime.addSelectOption({
+									value: classTimes[i].id,
+									text: classTimes[i].name
+								});
+								
+								endTime.addSelectOption({
+									value: classTimes[i].id,
+									text: classTimes[i].name
+								});
+							}
+						
 						sublist.addField({
 							type: ui.FieldType.FLOAT,
 							id: 'custpage_duration',
 							label: 'Duration (Hours)'
-						}).isMandatory = true;
+						}).updateDisplayType({
+							displayType: ui.FieldDisplayType.DISABLED
+						});
 						
 						sublist.addField({
 							type: ui.FieldType.CURRENCY,
@@ -261,6 +310,26 @@ function(ui, search, record, format, message) {
 	    	    								});
 	    	    								
 	    	    								sublist.setSublistValue({
+	    	    								    id: 'custpage_start_time',
+	    	    								    value: timeEntryRecord.getSublistValue({
+	    	    								    	sublistId: 'recmachcustrecord_bbs_seci_time_entry_li_parent',
+	    	    								    	fieldId: 'custrecord_bbs_seci_time_entry_li_start',
+	    	    								    	line: i
+	    	    								    }),
+	    	    								    line: i
+	    	    								});
+	    	    								
+	    	    								sublist.setSublistValue({
+	    	    								    id: 'custpage_end_time',
+	    	    								    value: timeEntryRecord.getSublistValue({
+	    	    								    	sublistId: 'recmachcustrecord_bbs_seci_time_entry_li_parent',
+	    	    								    	fieldId: 'custrecord_bbs_seci_time_entry_li_end',
+	    	    								    	line: i
+	    	    								    }),
+	    	    								    line: i
+	    	    								});
+	    	    								
+	    	    								sublist.setSublistValue({
 	    	    								    id: 'custpage_duration',
 	    	    								    value: timeEntryRecord.getSublistValue({
 	    	    								    	sublistId: 'recmachcustrecord_bbs_seci_time_entry_li_parent',
@@ -299,7 +368,6 @@ function(ui, search, record, format, message) {
 	    	    						});
 	    	    					}
 	    	    			}
-	    	    		
 	    	    		if (seciSite) // if we have a seci site record ID
 	    	    			{
 			    	    		// call function to retrieve details for entered SECI details
@@ -335,7 +403,8 @@ function(ui, search, record, format, message) {
 															text: seciDetails.locations[i].text
 														});
 													}
-		
+												
+												
 											}
 									}
 								else
@@ -361,6 +430,14 @@ function(ui, search, record, format, message) {
 														});
 													}
 											}
+									}
+								
+								if (seciDetails.locations.length == 1) // if the SECI only takes classes at one location
+									{
+										// disable the location field
+										seciLocationField.updateDisplayType({
+											displayType: ui.FieldDisplayType.INLINE
+										});
 									}
 								
 								// set field values
@@ -540,6 +617,26 @@ function(ui, search, record, format, message) {
 		    					
 		    					timeEntryRec.setCurrentSublistValue({
 		    						sublistId: 'recmachcustrecord_bbs_seci_time_entry_li_parent',
+		    						fieldId: 'custrecord_bbs_seci_time_entry_li_start',
+    								value: context.request.getSublistValue({
+    		    						group: 'custpage_time_entries',
+    		    						name: 'custpage_start_time',
+    		    						line: i
+    		    					})
+		    					});
+		    					
+		    					timeEntryRec.setCurrentSublistValue({
+		    						sublistId: 'recmachcustrecord_bbs_seci_time_entry_li_parent',
+		    						fieldId: 'custrecord_bbs_seci_time_entry_li_end',
+    								value: context.request.getSublistValue({
+    		    						group: 'custpage_time_entries',
+    		    						name: 'custpage_end_time',
+    		    						line: i
+    		    					})
+		    					});
+		    					
+		    					timeEntryRec.setCurrentSublistValue({
+		    						sublistId: 'recmachcustrecord_bbs_seci_time_entry_li_parent',
 		    						fieldId: 'custrecord_bbs_seci_time_entry_li_length',
     								value: context.request.getSublistValue({
     		    						group: 'custpage_time_entries',
@@ -663,9 +760,54 @@ function(ui, search, record, format, message) {
     	
     }
     
+    function getClassTimes() {
+    	
+    	// declare and initialize variables
+    	var classTimes = new Array();
+    	
+    	// run search to return the class times
+    	search.create({
+    		type: 'customrecord_bbs_class_times',
+    		
+    		filters: [{
+    			name: 'isinactive',
+    			operator: search.Operator.IS,
+    			values: ['F']
+    		}],
+    		
+    		columns: [{
+    			name: 'internalid',
+    			sort: search.Sort.ASC
+    		},
+    				{
+    			name: 'name'
+    		}],	
+    			
+    	}).run().each(function(result){
+    		
+    		// push a new time obj to the classTimes array
+    		classTimes.push(new timeObj(result.getValue({name: 'name'}), result.getValue({name: 'internalid'})));
+    		
+    		// continue processing search results
+    		return true;
+    		
+    	});
+    	
+    	// return values to the main script function
+    	return classTimes;
+	
+    }
+    
     function locationObj(name, id) {
     	
     	this.name 	= name;
+    	this.id		= id;
+    	
+    }
+    
+    function timeObj(name, id) {
+    	
+    	this.name	= name;
     	this.id		= id;
     	
     }
