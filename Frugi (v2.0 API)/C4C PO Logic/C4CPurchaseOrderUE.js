@@ -22,7 +22,7 @@ function(poLibrary, email) {
     	if (scriptContext.type == scriptContext.UserEventType.VIEW)
     		{
     			// set client script to run on the form
-    			scriptContext.form.clientScriptFileId = 3429;
+    			scriptContext.form.clientScriptFileId = 4195; //3429;
     			
     			// add a button to the form and call a client script function when the button is clicked
     			scriptContext.form.addButton({

@@ -33,7 +33,7 @@
 			</tr>
 			<tr>
 				<td align="left" colspan="2" rowspan="6" style="font-family: Arial; font-size: 8pt; color: #030014;">${partner.defaultaddress}</td>
-				<td align="right" style="font-family: Arial; font-size: 10pt;  color: #030014;">Date: ${todaysDate?string["dd MMM yyyy"]}</td>
+				<td align="right" style="font-family: Arial; font-size: 8pt;  color: #030014;">Date: ${todaysDate?string["dd MMM yyyy"]}</td>
 			</tr>
 			<tr>
 				<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014; padding: 4px 6px 0px 0px;">Virtual1 Ltd</td>

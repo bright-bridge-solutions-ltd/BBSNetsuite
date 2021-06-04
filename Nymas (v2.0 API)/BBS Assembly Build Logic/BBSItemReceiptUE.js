@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/search', 'N/record'],
-function(search, record) 
+define(['N/search', 'N/record', 'N/runtime'],
+function(search, record, runtime) 
 {
    
  
@@ -25,6 +25,7 @@ function(search, record)
 	    		{   	
 		    		var receiptRecordId 	= scriptContext.newRecord.id;
 			    	var receiptRecord 		= null;
+			    	var transferBin		 	= runtime.getCurrentScript().getParameter({name: 'custscript_bbs_transfer_bin'});;
 			    	
 			    	//Load the item receipt record
 			    	//
@@ -185,6 +186,17 @@ function(search, record)
 																																fieldId:		'quantity',
 																																value:			assemblyQty
 																																});
+										    										
+										    										//Set the bin if the script parameter has been set
+										    										//
+										    										if(transferBin != null && transferBin != '')
+										    											{
+											    											invTransferSubrecord.setCurrentSublistValue({
+																																		sublistId:		'inventoryassignment',
+																																		fieldId:		'tobinnumber',
+																																		value:			transferBin
+																																		});
+										    											}
 										    										
 										    										//Commit the inventory assignment line
 										    										//

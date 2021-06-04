@@ -34,7 +34,7 @@
 			</tr>
 			<tr style="margin-top: 20px;">
 				<td align="left"  rowspan="7" style="font-size: 8pt; color: #030014;">${record.address}</td>
-				<td align="right" style="font-size: 10pt;  color: #030014;">Date: ${record.trandate?string["dd MMM yyyy"]}</td>
+				<td align="right" style="font-size: 8pt;  color: #030014;">Date: ${record.trandate?string["dd MMM yyyy"]}</td>
 			</tr>
 			<tr>
               	<td align="right" style="font-family: Arial; font-size: 8pt; color: #030014; padding: 4px 6px 0px 0px;">Virtual1 Ltd</td>
