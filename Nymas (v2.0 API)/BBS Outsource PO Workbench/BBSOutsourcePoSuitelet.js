@@ -46,7 +46,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 
 	    			//Create a form
 	    			//
-		            var form = serverWidget.createForm({title: 	'Outsource Purchase Orders Workbench'});
+		            var form = serverWidget.createForm({title: 	'NYMAS - Outsourced PO Workbench'});
 		            
 		            //Find the client script
 	    			//

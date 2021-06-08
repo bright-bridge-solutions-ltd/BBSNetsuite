@@ -10,7 +10,9 @@
     <#assign logoInfo 			= "https://6765982-sb1.app.netsuite.com/c.6765982_SB1/suitebundle372819/PDF%20Videcon%20Logo.jpg">
     <#assign logoHeight 		= "42">
     <#assign logoWidth 			= "200">
-
+	<#assign tradingName 		= "Videcon Ltd">
+	<#assign tradingAddress		= "Unit 1 Concept Business Park<br/>Smithies Lane<br/>Heckmondwike<br/>West Yorkshire<br/>WF16 0PN">
+      
 	<#assign bankName 			= "HSBC">
 	<#assign bankSortCode		= "40-19-17">
 	<#assign bankAccount 		= "81746812">
@@ -25,6 +27,33 @@
       <#assign bankIban 		= "GB88HBUK40191771849220">
     </#if>
 
+   <#if statement.subsidiary == "Dynamic Fire Protection Limited">
+      <#assign regInfo 			= "Company Registration No: 07238972.">
+      <#assign emailInfo 			= "accounts@dynamicfire.co.uk">
+      <#assign telInfo 			= "0333 355 1100">
+      <#assign vatInfo 			= "989 7417 41">
+      <#assign eoriInfo 			= "GB989741741000">
+      <#assign eoriEuInfo 		= "IE3737149BH">
+      <#assign logoInfo 			= "https://6765982.app.netsuite.com/c.6765982/suitebundle372819/PDF%20Dynamic%20Logo.png">
+      <#assign logoHeight 		= "75">
+      <#assign logoWidth 			= "128">
+      <#assign tradingName 		= "Dynamic Fire Protection Ltd">
+      <#assign tradingAddress		= "Unit 1 Carrock Road<br/>Croft Business Park<br/>Bromborough<br/>CH62 3RA">
+    
+      <#assign bankName 			= "HSBC">
+      <#assign bankSortCode		= "40-61-35">
+      <#assign bankAccount 		= "03009132">
+      <#assign bankBic 			= "HBUK GB4B">
+      <#assign bankIban 			= "GB20HBUK40613503009132">
+   	
+      <#if customer.custentity_bbs_credit_type == "CASH">
+          <#assign bankName 		= "NatWest">
+          <#assign bankSortCode		= "60-05-07">
+          <#assign bankAccount 		= "15694267">
+          <#assign bankBic 			= "NWBK GB2L">
+          <#assign bankIban 		= "GB80NWBK60050715694267">
+      </#if>
+   </#if>
     <macrolist>
       
               <macro id="nlheader">
@@ -41,9 +70,9 @@
           
           	<table class="header" style="width: 100%; margin-top: 10px;">
 				<tr>
-	        		<td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${statement.billaddress}<br/>VAT Number: ${customer.vatregnumber}</span></td>
+	        	<td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt">Customer: <b>${customer.entityid}</b><br/><br /><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${statement.billaddress}<br/>VAT Number: ${customer.vatregnumber}</span></td>
 					<td align="right" style="font-size:10pt">&nbsp;</td>
-	    			<td colspan="2" align="left" rowspan="8"><span class="nameandaddress">Videcon Ltd<br/>Unit 1 Concept Business Park<br/>Smithies Lane<br/>Heckmondwike <br/>West Yorkshire<br/>WF16 0PN</span></td>
+	    			<td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${tradingName}<br/>${tradingAddress}</span></td>
 				</tr>
 			</table>
           
@@ -146,7 +175,7 @@
           
 			<table style="width: 100%; margin-top: 10px;">
 	       		<tr class="messagerow">
-	              	<td colspan="6" align="left" class="message">Videcon Ltd.&nbsp;${regInfo}&nbsp;EU EORI Number:&nbsp;${eoriEuInfo}</td>
+	              	<td colspan="6" align="left" class="message">${tradingName}&nbsp;${regInfo}&nbsp;EU EORI Number:&nbsp;${eoriEuInfo}</td>
 			  	</tr>
              	 <tr class="messagerow">
 	              	<td colspan="6" align="left" class="message">Part of the Videcon Group</td>
@@ -259,7 +288,7 @@
 </style>
       
 </head>
-<body header="nlheader" header-height="300pt" footer="nlfooter" footer-height="70pt" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+<body header="nlheader" header-height="330pt" footer="nlfooter" footer-height="70pt" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
 
 <#if statement.lines?has_content>
 

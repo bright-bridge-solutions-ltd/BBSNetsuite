@@ -76,12 +76,27 @@ function(search) {
     				var itemData = search.lookupFields({
     													type:		search.Type.ITEM,
     													id:			itemId,
-    													columns:	['averagecost','cost']
+    													columns:	['averagecost','cost','costestimatetype','costestimate']
     													});
     				
-    				var itemAverageCost = Number(itemData.averagecost);
-    				var itemCost 		= Number(itemData.cost);
-    				var lineCost 		= (itemAverageCost === 0 ? itemCost : itemAverageCost);	//If average cost is 0 then use purchase price
+    				var costEstimateType	= itemData.costestimatetype;
+    				var itemAverageCost 	= Number(0);
+    				var itemCost 			= Number(0);
+    				var lineCost 			= Number(0);
+    				var itemCostEstimate	= Number(0);
+    				
+    				if(costEstimateType == 'Item Defined Cost')
+    					{
+	    					itemCostEstimate = Number(itemData.costestimate);
+							itemCost 		= Number(itemData.cost);
+							lineCost 		= (itemCostEstimate === 0 ? itemCost : itemCostEstimate);	//If cost estimate is 0 then use purchase price
+    					}
+    				else
+    					{
+    						itemAverageCost = Number(itemData.averagecost);
+    						itemCost 		= Number(itemData.cost);
+    						lineCost 		= (itemAverageCost === 0 ? itemCost : itemAverageCost);	//If average cost is 0 then use purchase price
+    					}
     				
     				var newLineCost 		= lineCost * quantity;
     				
