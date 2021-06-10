@@ -112,19 +112,19 @@ function(https, record, search, plugin)
 					   								if(adyenRefundDetailsObj.httpResponseCode == '201')
 					   									{
 					   										var refundStatus 	= adyenRefundDetailsObj.apiResponse.status;
-					   										var refundId		= adyenRefundDetailsObj.apiResponse.id;
+					   										var refundId		= adyenRefundDetailsObj.apiResponse.paymentPspReference;
 					    															
 					   												//Did the refund complete ok?
 					   												//
-					   												if(refundStatus == 'COMPLETED')
+					   												if(refundStatus == 'received')
 					   													{
 					   														//Save the refund transaction id to the refund record
 					   														//
 					    													try
 																				{
 																					var fieldValues 					= {};
-																					fieldValues[adyenTransactionField] = refundId;
-																					fieldValues[adyenMessageField] 	= refundStatus;
+																					fieldValues[adyenTransactionField] 	= refundId;
+																					fieldValues[adyenMessageField] 		= refundStatus;
 																										
 																					record.submitFields({
 																										type:					recordType,

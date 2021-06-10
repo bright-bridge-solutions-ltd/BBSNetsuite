@@ -242,7 +242,7 @@ function(email, encode, file, https, record, runtime, search)
 						bodyObj.merchantAccount			= configurationObj.merchant;
 						bodyObj.reference				= _nsTransactionId;
 										
-						var actualUrl = configurationObj.endpointRefundPayment.replace('{capture_id}',_transactionId);
+						var actualUrl = configurationObj.endpointRefundPayment.replace('{paymentPspReference}',_transactionId);
 										
 						//Execute the request
 						//
