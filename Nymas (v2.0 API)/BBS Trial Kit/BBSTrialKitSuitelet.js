@@ -559,6 +559,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 														}
 							            		}
 							            	
+							            	break;
+							            	
 							            case 3:		//works order
 							            	
 							            	var worksOrderItems = getResults(search.create({
