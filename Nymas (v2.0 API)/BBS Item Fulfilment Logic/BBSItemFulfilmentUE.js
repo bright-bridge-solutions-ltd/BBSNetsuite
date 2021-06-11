@@ -203,7 +203,7 @@ function(record, search, format) {
 					    						
 				    							codeToBeMade = purchaseOrder.getSublistText({
 				    								sublistId: 'item',
-				    								fieldId: 'item',
+				    								fieldId: 'assembly',
 				    								line: i
 				    							});
 					    						

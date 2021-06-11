@@ -1,6 +1,6 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
 <#setting number_format=",##0.00">
-<#assign currencySymbol>${salesOrder.custbody_bbs_currency_symbol}</#assign>
+<#assign currencySymbol>${createdfrom.custbody_bbs_currency_symbol}</#assign>
 <pdf>
 <head>
 	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
@@ -128,27 +128,27 @@
 		</tr>
 		<tr>
 			<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black;">${record.entity}</td>
-			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black;">${salesorder.entity}</td>
+			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black; border-top: 1px solid black;">${createdfrom.entity}</td>
 		    <td colspan="6" style="margin-left: 20px;"><b>${subsidiary.name}</b></td>
 		</tr>
 		<tr>
 			<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black;">${record.shipaddr1}</td>
-			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${salesorder.billaddr1}</td>
+			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${createdfrom.billaddr1}</td>
 		    <td colspan="6" style="margin-left: 20px;">${subsidiary.addr1}</td>
 		</tr>
 		<tr>
 			<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black;">${record.shipaddr2}</td>
-			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${salesorder.billaddr2}</td>
+			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${createdfrom.billaddr2}</td>
 		    <td colspan="6" style="margin-left: 20px;">${subsidiary.addr2}</td>
 		</tr>
 		<tr>
 			<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black;">${record.shipcity}</td>
-			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${salesorder.billcity}</td>
+			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${createdfrom.billcity}</td>
 		    <td colspan="6" style="margin-left: 20px;">${subsidiary.city}</td>
 		</tr>
 		<tr>
 			<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.shipzip}</td>
-			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${salesorder.billzip}</td>
+			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${createdfrom.billzip}</td>
 		    <td colspan="6" style="margin-left: 20px;">${subsidiary.zip}</td>
 		</tr>
 	</table>
@@ -178,9 +178,9 @@
 		<tr>
 			<td colspan="2" align="center" style="vertical-align: middle; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${customer.accountnumber}</td>
 			<td colspan="1" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${record.sales_rep_initials}</td>
-			<td colspan="5" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${salesorder.otherrefnum}</td>
-			<td colspan="3" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${salesorder.custbody_delivery_date}</td>
-			<td colspan="3" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${salesorder.custbody_delivery_reference_number}</td>
+			<td colspan="5" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${createdfrom.otherrefnum}</td>
+			<td colspan="3" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${createdfrom.custbody_delivery_date}</td>
+			<td colspan="3" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${createdfrom.custbody_delivery_reference_number}</td>
 			<td colspan="2" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;">${record.custbody_bbs_incoterms}</td>
 			<td colspan="2" align="center" style="vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;"><pagenumber/> of <totalpages/></td>
 			<td colspan="2" style="margin-left: 20px;"><b>Email:<br/><br/>Web:</b></td>
@@ -222,7 +222,7 @@
 	
 	<table style="width: 100%; margin-top: 10px;">
 		<tr>
-			<td><span style="font-size: 10pt;">Currency: <b>${salesOrder.currency}</b></span></td>
+			<td><span style="font-size: 10pt;">Currency: <b>${createdfrom.currency}</b></span></td>
 		</tr>
 		<tr style="margin-top: 10px;">
 			<td>Period from 01/01/${record.trandate?string('yyyy')}______to______31/12/${record.trandate?string('yyyy')}</td>

@@ -42,7 +42,7 @@ function(runtime, search, record) {
     		}],
     		
     		columns: [{
-    			name: 'custrecordbbs_seci_time_entry_supplier',
+    			name: 'custrecord_bbs_seci_time_entry_supplier',
     			summary: search.Summary.GROUP
     		},
     				{
@@ -73,7 +73,7 @@ function(runtime, search, record) {
     	
     	// retrieve search results
     	var searchResult 		= JSON.parse(context.value);
-    	var supplierID			= searchResult.values['GROUP(custrecordbbs_seci_time_entry_supplier)'].value;
+    	var supplierID			= searchResult.values['GROUP(custrecord_bbs_seci_time_entry_supplier)'].value;
     	var locationID			= searchResult.values['MAX(internalid.custrecord_bbs_seci_time_entry_location)'];
     	var timeEntryRecords	= searchResult.values['MAX(formulatext)'];
     	
@@ -143,7 +143,7 @@ function(runtime, search, record) {
     	    			values: [1] // 1 = Approved
     	    		},
     						{
-    					name: 'custrecordbbs_seci_time_entry_supplier',
+    					name: 'custrecord_bbs_seci_time_entry_supplier',
     					join: 'custrecord_bbs_seci_time_entry_li_parent',
     					operator: search.Operator.ANYOF,
     					values: [supplierID]

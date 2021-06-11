@@ -257,7 +257,7 @@
 			<td colspan="4" align="right" style="border-right: 1px solid black; border-top: 1px solid black;">${currencySymbol}${goodsTotal}</td>
 		</tr>
 		<tr>
-			<td colspan="12" style="border-left: 1px solid black; border-right: 1px solid black;">${record.memo}</td>
+			<td colspan="12" style="border-left: 1px solid black; border-right: 1px solid black;">${record.custbody4}</td>
 			<td colspan="3" style="margin-left: 5px; border-left: 1px solid black;"><b>NAME:</b></td>
 			<td colspan="6" style="border-right: 1px solid black;">______________________________________</td>
 			<td colspan="5" style="margin-left: 5px; border-left: 1px solid black;"><b>FREIGHT VALUE</b></td>

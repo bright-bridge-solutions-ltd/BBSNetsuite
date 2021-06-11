@@ -1,7 +1,7 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
 <pdf>
 <head>
-	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<link name="OpenSans" type="font" subtype="truetype" src="${nsfont.OpenSans_Regular}" src-bold="${nsfont.OpenSans_Bold}" src-italic="${nsfont.OpenSans_Italic}" src-bolditalic="${nsfont.OpenSans_BoldItalic}" bytes="2" />
 	<#setting number_format=",##0.00">
 	<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
 	<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
@@ -100,7 +100,7 @@
 		</#if>
 		}
 		table {
-			font-size: 9pt;
+			font-size: 8pt;
 			table-layout: fixed;
 		}
         th {
@@ -124,7 +124,7 @@
         }
         table.header td {
             padding: 0px;
-            font-size: 10pt;
+            font-size: 8pt;
         }
         table.footer td {
             padding: 0px;
@@ -191,7 +191,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="280pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="290pt" footer="nlfooter" footer-height="10pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
 <#if record.createdfrom.custbody_bbs_order_type == 'Equipment'>
 <table class="itemtable" style="width: 100%; margin-top: 10px; border-top: 2px solid black; border-bottom: 2px solid black; border-left: 2px solid black; border-right: 2px solid black;"><!-- start items -->
@@ -232,7 +232,12 @@
 								<th align="left" colspan="4" style="border-left: 2px solid black;">LOCATION</th>
 							</#if>
 							<th align="right" colspan="4" style="border-left: 2px solid black;">QUANTITY</th>
-							<th align="right" colspan="4" style="border-left: 2px solid black;">UNIT PRICE</th>
+							<#if subsidiary.id != "3"> <!-- US -->
+								<th align="right" colspan="5" style="border-left: 2px solid black;">UNIT PRICE</th>
+								<th align="right" colspan="4" style="border-left: 2px solid black;">TAX RATE</th>
+							<#else>
+								<th align="right" colspan="4" style="border-left: 2px solid black;">UNIT PRICE</th>
+							</#if>
 							<th align="right" colspan="4" style="border-left: 2px solid black;">AMOUNT</th>
 						</tr>
 					</thead>
@@ -244,7 +249,12 @@
 						<td align="left" colspan="4" style="border-left: 2px solid black;">${item.custcol_bbs_site?keep_before("-")}</td>
 					</#if>
 					<td align="right" colspan="4" style="border-left: 2px solid black;">${item.quantity?string["0"]}</td>
-					<td align="right" colspan="4" style="border-left: 2px solid black;">${currencySymbol}${item.rate}</td>
+					<#if subsidiary.id != "3"> <!-- US -->
+						<td align="right" colspan="5" style="border-left: 2px solid black;">${currencySymbol}${item.rate}</td>
+						<td align="right" colspan="4" style="border-left: 2px solid black;">${item.taxrate1?string["0"]}%</td>
+					<#else>
+						<td align="right" colspan="4" style="border-left: 2px solid black;">${currencySymbol}${item.rate}</td>
+					</#if>
 					<td align="right" colspan="4" style="border-left: 2px solid black;">${currencySymbol}${item.amount}</td>
 				</tr>
 			</#list>
@@ -317,9 +327,9 @@
 		<tr>
 			<td colspan="10">&nbsp;</td>
 			<#if record.createdfrom?has_content>
-				<td colspan="20" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>20% Standard Vat Rate</b></td>
+				<td colspan="20" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>Tax Total</b></td>
 			<#else>
-				<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>20% Standard Vat Rate</b></td>
+				<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>Tax Total</b></td>
 			</#if>
 			<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">${currencySymbol}${record.taxtotal}</td>
 		</tr>
@@ -352,6 +362,8 @@
 			<td colspan="4"><b>${subsidiary.custrecord_bbs_bank_name}</b></td>
 			<td colspan="4"><span class="subtitle">Bank Address</span></td>
 			<td colspan="4">&nsbp;</td>
+		<#elseif subsidiary.id == '12'><!-- Europe -->
+			<td colspan="20"><b>SEPA Payments to ${subsidiary.custrecord_bbs_bank_name}</b></td>
 		<#else>
 			<td colspan="20"><b>BACS Payments to ${subsidiary.custrecord_bbs_bank_name}</b></td>
 		</#if>
@@ -372,6 +384,15 @@
 			<td colspan="4">&nbsp;</td>
 			<td colspan="3">&nbsp;</td>
 			<td colspan="6">&nbsp;</td>
+		</tr>
+	<#elseif subsidiary.id == '12'><!-- Europe -->
+		<tr>
+			<td colspan="3"><span class="subtitle">Account No</span></td>
+			<td colspan="4"><b>${subsidiary.custrecord_bbs_account_no}</b></td>
+			<td colspan="3"><span class="subtitle">BIC</span></td>
+			<td colspan="4"><b>${subsidiary.custrecord_bbs_sort_code}</b></td>
+			<td colspan="2"><span class="subtitle">IBAN</span></td>
+			<td colspan="6"><b>${subsidiary.custrecord_bbs_swift_code}</b></td>
 		</tr>
 	<#else>
 		<tr>
@@ -397,8 +418,8 @@
 			</tr>
 		</thead>
 		<tr>
-			<td style="border-left: 2px solid black; border-bottom: 2px solid black;">essensys Inc.<br/>PO Box 358077<br/>Pittsburgh<br/>PA 15251-5077</td>
-			<td style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">Lockbox #358077<br/>essensys Inc.<br/>PO Box 358077<<br/>Pittsburgh<br/>PA 15251-5077</td>
+			<td style="border-left: 2px solid black; border-bottom: 2px solid black;">Customer #76740<br/>essensys Inc.<br/>PO Box 358077<br/>Pittsburgh<br/>PA 15251-5077</td>
+			<td style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">Lockbox #358077<br/>essensys Inc.<br/>PO Box 358077<br/>Pittsburgh<br/>PA 15251-5077</td>
 		</tr>
 	</table>
 	

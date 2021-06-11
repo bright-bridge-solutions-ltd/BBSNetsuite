@@ -3,8 +3,8 @@
  * @NScriptType MapReduceScript
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/search', 'N/record'],
-function(runtime, search, record) {
+define(['N/runtime', 'N/search', 'N/record', 'N/format'],
+function(runtime, search, record, format) {
    
     // retrieve script parameters. Script parameters are global variables so can be accessed throughout the script
 	allocationStrategy = runtime.getCurrentScript().getParameter({
@@ -93,6 +93,29 @@ function(runtime, search, record) {
     				isDynamic: true
     			});
     			
+    			// retrieve values from the work order
+    			var assemblyItem = workOrder.getValue({
+    				fieldId: 'assemblyitem'
+    			});
+    			
+    			var salesOrder = workOrder.getValue({
+    				fieldId: 'createdfrom'
+    			});
+    			
+    			// call function to get the production end date from the sales order line
+    			var productionEndDate = getProductionEndDate(assemblyItem, salesOrder);
+    			
+    			// update fields on the work order
+    			workOrder.setValue({
+    				fieldId: 'enddate',
+    				value: productionEndDate
+    			});
+    			
+    			workOrder.setValue({
+    				fieldId: 'custbody_bbs_original_end_date',
+    				value: productionEndDate
+    			});
+    			
     			// get count of item lines
     			var lineCount = workOrder.getLineCount({
     				sublistId: 'item'
@@ -160,6 +183,59 @@ function(runtime, search, record) {
     		details: 'Duration: ' + summary.seconds + ' seconds<br>Units Used: ' + summary.usage + '<br>Yields: ' + summary.yields
     	});
 
+    }
+    
+    // ================
+    // HELPER FUNCTIONS
+    // ================
+    
+    function getProductionEndDate(assemblyItem, salesOrder) {
+    	
+    	// declare and initialize variables
+    	var productionEndDate = null;
+    	
+    	// run search to get the production end date from the sales order
+    	search.create({
+    		type: search.Type.SALES_ORDER,
+    		
+    		filters: [{
+    			name: 'internalid',
+    			operator: search.Operator.ANYOF,
+    			values: [salesOrder]
+    		},
+    				{
+    			name: 'item',
+    			operator: search.Operator.ANYOF,
+    			values: [assemblyItem]
+    		}],
+    		
+    		columns: [{
+    			name: 'requesteddate',
+    			summary: search.Summary.MIN
+    		}],
+    		
+    	}).run().each(function(result){
+    		
+    		// get the supply required by date
+    		productionEndDate = result.getValue({
+    			name: 'requesteddate',
+    			summary: search.Summary.MIN
+    		});
+    		
+    	});
+    	
+    	if (productionEndDate)
+    		{
+    			// format as a date object
+    			productionEndDate = format.parse({
+    				type: format.Type.DATE,
+    				value: productionEndDate
+    			});
+    		}
+    	
+    	// return values to main script function
+    	return productionEndDate;
+    	
     }
 
     return {

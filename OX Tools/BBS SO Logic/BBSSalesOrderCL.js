@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/ui/dialog', 'N/url'],
-function(dialog, url) {
+define(['N/search', 'N/ui/dialog'],
+function(search, dialog) {
     
     /**
      * Function to be executed after page is initialized.
@@ -105,6 +105,53 @@ function(dialog, url) {
      * @since 2015.2
      */
     function validateLine(scriptContext) {
+    	
+    	if (scriptContext.sublistId == 'item')
+    		{
+    			// get the current record
+    			var currentRecord = scriptContext.currentRecord;
+    			
+    			// get the item ID
+    			var itemID = currentRecord.getCurrentSublistValue({
+    				sublistId: 'item',
+    				fieldId: 'item'
+    			});
+    			
+    			// call function to lookup fields on the item record
+    			var isItemBrexitRestricted = getItemInfo(itemID);
+    			
+    			// if this is a brexit restricted item
+    			if (isItemBrexitRestricted == true)
+    				{
+    					// get the customer ID
+    					var customerID = currentRecord.getValue({
+    						fieldId: 'entity'
+    					});
+    					
+    					// call function to lookup fields on the customer record
+    					var isCustomerBrexitRestricted = getCustomerInfo(customerID);
+    					
+    					// if this is a brexit restricted customer
+    					if (isCustomerBrexitRestricted == true)
+    						{
+    							// display a warning and don't let the user save the line
+    							dialog.alert({
+    								title: '🇪🇺 Brexit Restricted',
+    								message: 'This item cannot be sold to this customer as it is brexit restricted.<br><br>Please select a different item.'
+    							});
+    						}
+    					else
+    						{
+    							// allow the line to be saved
+    							return true;
+    						}
+    				}
+    			else
+    				{
+    					// allow the line to be saved
+    					return true;
+    				}
+    		}
 
     }
 
@@ -151,97 +198,34 @@ function(dialog, url) {
 
     }
     
-    function approve(recordID, invoiceID, total, level1Approved) {
+    // ================
+    // HELPER FUNCTIONS
+    // ================
+    
+    function getItemInfo(itemID) {
     	
-    	// define URL of Suitelet
-		var suiteletURL = url.resolveScript({
-			scriptId: 'customscript_bbs_cr_approval_sl',
-			deploymentId: 'customdeploy_bbs_cr_approval_sl',
-			params: {
-				'id': recordID,
-				'invoice': invoiceID,
-				'total': total,
-				'level1Approved': level1Approved
-			}
-		});
-		
-		Ext.Ajax.timeout = (60000*5);
-		
-		var myMask = new Ext.LoadMask(Ext.getBody(), {msg:'<span style="font-size: 10pt;">The Credit Note Request is being Approved<br><br>Please Wait...</span>'});
-		myMask.show();
-		
-		// call a backend Suitelet to update the PO with the rejection reason
-		Ext.Ajax.request({
-							url: suiteletURL,
-							method: 'GET',
-							success: function (response, result) {
-								myMask.hide();
-								location.reload();
-							},
-							failure: function (response, result) {
-								myMask.hide();
-								alert("Error Approving the Credit Note Request");
-							}
-						});
+    	// lookup fields on the item record
+    	return search.lookupFields({
+    		type: search.Type.ITEM,
+    		id: itemID,
+    		columns: ['custitem_bbs_brexit_restricted']
+    	}).custitem_bbs_brexit_restricted;
+    	
     }
     
-    function reject(recordID) {
+    function getCustomerInfo(customerID) {
     	
-    	// display dialog asking the user to enter a rejection reason
-    	Ext.Msg.prompt('Reject', 'Please enter a reason for rejecting the Sales Order', function(btn, text) {
-    	    
-    		// check if the user clicked the OK button
-    		if (btn == 'ok')
-    			{
-	    	        // check if the user entered a rejection reason
-    				if (text)
-    					{
-    						// define URL of Suitelet
-    						var suiteletURL = url.resolveScript({
-    							scriptId: 'customscript_bbs_cr_rejection_sl',
-    							deploymentId: 'customdeploy_bbs_cr_rejection_sl',
-    							params: {
-    								'id': recordID,
-    								'reason': text
-    							}
-    						});
-    						
-    						Ext.Ajax.timeout = (60000*5);
-    						
-    						var myMask = new Ext.LoadMask(Ext.getBody(), {msg:'<span style="font-size: 10pt;">The Credit Note Request is being Rejected<br><br>Please Wait...</span>'});
-    						myMask.show();
-    						
-    						// call a backend Suitelet to update the PO with the rejection reason
-    						Ext.Ajax.request({
-    											url: suiteletURL,
-    											method: 'GET',
-    											success: function (response, result) {
-    												myMask.hide();
-    												location.reload();
-    											},
-    											failure: function (response, result) {
-    												myMask.hide();
-    												alert("Error Rejecting the Credit Note Request");
-    											}
-    										});
-    					}
-    				else // user clicked ok but did not enter a rejection reason
-    					{
-    						// display an alert to the user asking them to try again
-    						dialog.alert({
-    							title: '⚠️ Error',
-    							message: 'A rejection reason was not entered. Please click the Reject button and try again.'
-    						});
-    					}
-	    	    }
-    	});
+    	// lookup fields on the customer record
+    	return search.lookupFields({
+    		type: search.Type.CUSTOMER,
+    		id: customerID,
+    		columns: ['custentity_bbs_brexit_restricted']
+    	}).custentity_bbs_brexit_restricted;
     	
     }
 
     return {
-        pageInit: pageInit,
-        approve: approve,
-        reject: reject
+        validateLine: validateLine
     };
     
 });

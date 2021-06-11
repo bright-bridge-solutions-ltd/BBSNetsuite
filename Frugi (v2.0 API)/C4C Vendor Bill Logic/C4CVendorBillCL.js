@@ -166,6 +166,23 @@ function(search) {
      * @since 2015.2
      */
     function saveRecord(scriptContext) {
+    	
+    	// get the value Department field
+		var department = scriptContext.currentRecord.getValue({
+			fieldId: 'custbody_c4c_department'
+		});
+		
+		// call function to return the approval department
+		var approvalDepartment = getApprovalDepartment(department);
+		
+		// set the Approval Department field
+		scriptContext.currentRecord.setValue({
+			fieldId: 'custbody_c4c_approval_department',
+			value: approvalDepartment
+		});
+		
+		// allow the record to be saved
+		return true;
 
     }
     
@@ -214,7 +231,8 @@ function(search) {
     }
 
     return {
-        fieldChanged: fieldChanged
+        fieldChanged: fieldChanged,
+        saveRecord: saveRecord
     };
     
 });

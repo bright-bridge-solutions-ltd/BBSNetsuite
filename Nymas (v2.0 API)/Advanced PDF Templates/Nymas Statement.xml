@@ -115,7 +115,7 @@
     				<td colspan="5">${line.description?keep_before("#")}</td>
     				<td colspan="4">${line.otherrefnum}</td>
     				<td colspan="4">${line.duedate}</td>
-    				<td colspan="4" align="right">${line.charge}</td>
+    				<td colspan="4" align="right"><#if line.description?keep_before(' #') == "Invoice">${line.charge}<#elseif line.description?keep_before(' #') == "Credit Memo">-${line.payment}</#if></td>
     				<td colspan="4" align="right">${line.balance}</td>
     			</tr>
     		</table>
@@ -134,11 +134,11 @@
     		<td colspan="4" align="right">Over 90 days</td>
     	</tr>
     	<tr>
-    		<td colspan="4" align="right" style="padding-left: 20px;">${statement.agingbal}</td>
-    		<td colspan="4" align="right">${statement.aging1}</td>
+    		<td colspan="4" align="right" style="padding-left: 20px;">${statement.aging1}</td>
     		<td colspan="4" align="right">${statement.aging2}</td>
     		<td colspan="4" align="right">${statement.aging3}</td>
     		<td colspan="4" align="right">${statement.aging4}</td>
+    		<td colspan="4" align="right">${statement.aging5}</td>
     	</tr>
     </table>
     

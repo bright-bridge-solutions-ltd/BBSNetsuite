@@ -110,9 +110,9 @@
 	    </tr>
       	<tr>
 			<td class="address">&nbsp;</td>
-			<td></td>
-			<td></td>
-    	</tr>
+			<td align="left" style="font-size:10pt"><b>PO No.</b></td>
+			<td align="right" style="font-size:10pt">${record.otherrefnum}</td>
+	    </tr>
     	<tr>
 			<td class="address">&nbsp;</td>
 			<td></td>

@@ -164,8 +164,6 @@ function(search, record) {
     }
 
     return {
-        beforeLoad: beforeLoad,
-        beforeSubmit: beforeSubmit,
         afterSubmit: afterSubmit
     };
     

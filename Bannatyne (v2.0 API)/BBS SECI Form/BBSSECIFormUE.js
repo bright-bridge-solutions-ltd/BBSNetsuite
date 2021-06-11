@@ -110,6 +110,11 @@ function(runtime, search, record) {
     					// get the current record
     					var currentRecord = scriptContext.newRecord;
     					
+    					// get the list of locations
+						var locations = currentRecord.getValue({
+							fieldId: 'custrecord_bbs_seci_site_location'
+						});
+    					
     					// first check if we can already find an existing supplier for the email address and phone number
     					var supplierID = findSupplier(currentRecord);
     					

@@ -356,7 +356,7 @@ function(runtime, search, record, task, format) {
 		    						journalRec.setCurrentSublistValue({
 		    							sublistId: 'line',
 		    							fieldId: 'credit',
-		    							value: credit
+		    							value: grossAmt
 		    						});
 		    						
 		    						journalRec.setCurrentSublistValue({
@@ -382,8 +382,8 @@ function(runtime, search, record, task, format) {
 		    						});
 		    						
 		    						// add the net/gross amount to the total variables
-		    						totalDebitNetAmount		+= credit;
-		    						totalDebitGrossAmount 	+= grossAmt;
+		    						totalDebitNetAmount			+= debit;
+		    						totalDebitGrossAmount 		+= grossAmt;
 		    	    			}
 		    	    		else if (creditOrDebit == 'C') // if we have got a credit line
 		    	    			{
@@ -404,7 +404,7 @@ function(runtime, search, record, task, format) {
 									journalRec.setCurrentSublistValue({
 										sublistId: 'line',
 										fieldId: 'debit',
-										value: debit
+										value: grossAmt
 									});
 									
 									journalRec.setCurrentSublistValue({
@@ -430,8 +430,8 @@ function(runtime, search, record, task, format) {
 									});
 									
 									// add the net/gross amount to the total variables
-									totalCreditNetAmount	+= debit;
-		    						totalCreditGrossAmount 	+= grossAmt;
+									totalCreditNetAmount		+= credit;
+		    						totalCreditGrossAmount 		+= grossAmt;
 		    	    			}
     	    			}
     	    		catch(e)

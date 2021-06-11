@@ -37,9 +37,11 @@ function estCostPriceValidateLine(type)
 				{
 					var customrecord_bbs_cust_item_costsSearch = nlapiSearchRecord("customrecord_bbs_cust_item_costs",null,
 							[
-							   ["custrecord_bbs_cust_item_cost_cust","anyof",customer], 
-							   "AND", 
-							   ["custrecord_bbs_cust_item_cost_item","anyof",item]
+								["isinactive","is","F"],
+									"AND",
+								["custrecord_bbs_cust_item_cost_cust","anyof",customer], 
+									"AND", 
+								["custrecord_bbs_cust_item_cost_item","anyof",item]
 							], 
 							[
 							   new nlobjSearchColumn("custrecord_bbs_cust_item_cost_cost")

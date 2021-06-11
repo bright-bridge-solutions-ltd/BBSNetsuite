@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/ui/dialog', 'N/url'],
-function(dialog, url) {
+define(['N/search'],
+function(search) {
     
     /**
      * Function to be executed after page is initialized.
@@ -46,6 +46,22 @@ function(dialog, url) {
      * @since 2015.2
      */
     function postSourcing(scriptContext) {
+    	
+    	if (scriptContext.fieldId == 'class')
+			{
+				var productCategory = scriptContext.currentRecord.getValue({
+					fieldId: 'class'
+				});
+				
+				if (productCategory)
+					{
+						// call function to find the relevant product type for the selected class and set the product type field
+						scriptContext.currentRecord.setValue({
+							fieldId: 'custbody_bbs_order_type',
+							value: getProductType(productCategory)
+						});
+					}
+			}
 
     }
 
@@ -151,97 +167,69 @@ function(dialog, url) {
 
     }
     
-    function approve(recordID, invoiceID, total, level1Approved) {
+    // ================
+    // HELPER FUNCTIONS
+    // ================
+    
+    function getProductType(productCategory) {
     	
-    	// define URL of Suitelet
-		var suiteletURL = url.resolveScript({
-			scriptId: 'customscript_bbs_cr_approval_sl',
-			deploymentId: 'customdeploy_bbs_cr_approval_sl',
-			params: {
-				'id': recordID,
-				'invoice': invoiceID,
-				'total': total,
-				'level1Approved': level1Approved
-			}
-		});
-		
-		Ext.Ajax.timeout = (60000*5);
-		
-		var myMask = new Ext.LoadMask(Ext.getBody(), {msg:'<span style="font-size: 10pt;">The Credit Note Request is being Approved<br><br>Please Wait...</span>'});
-		myMask.show();
-		
-		// call a backend Suitelet to update the PO with the rejection reason
-		Ext.Ajax.request({
-							url: suiteletURL,
-							method: 'GET',
-							success: function (response, result) {
-								myMask.hide();
-								location.reload();
-							},
-							failure: function (response, result) {
-								myMask.hide();
-								alert("Error Approving the Credit Note Request");
-							}
-						});
+    	// declare and initialize variables
+    	var productType = null;
+    	
+    	// run search to find the relevant product type(s) for the selected product category
+    	var searchResults = getResults(
+    										search.create({
+    											type: 'customrecord_bbs_order_type',
+    											
+    											filters: [{
+    												name: 'isinactive',
+    												operator: search.Operator.IS,
+    												values: ['F']
+    											},
+    													{
+    												name: 'custrecord_bbs_order_type_product_cat',
+    												operator: search.Operator.ANYOF,
+    												values: [productCategory]
+    											}],
+    											
+    											columns: [{
+    												name: 'name'
+    											}],
+    											
+    										})
+    									);
+    	
+    	// if only one result has been found
+    	if (searchResults.length == 1)
+    		{
+    			// get the product type from the first search result
+    			productType = searchResults[0].id;
+    		}
+    	
+    	return productType;
+    	
     }
     
-    function reject(recordID) {
-    	
-    	// display dialog asking the user to enter a rejection reason
-    	Ext.Msg.prompt('Reject', 'Please enter a reason for rejecting the Sales Order', function(btn, text) {
-    	    
-    		// check if the user clicked the OK button
-    		if (btn == 'ok')
-    			{
-	    	        // check if the user entered a rejection reason
-    				if (text)
-    					{
-    						// define URL of Suitelet
-    						var suiteletURL = url.resolveScript({
-    							scriptId: 'customscript_bbs_cr_rejection_sl',
-    							deploymentId: 'customdeploy_bbs_cr_rejection_sl',
-    							params: {
-    								'id': recordID,
-    								'reason': text
-    							}
-    						});
-    						
-    						Ext.Ajax.timeout = (60000*5);
-    						
-    						var myMask = new Ext.LoadMask(Ext.getBody(), {msg:'<span style="font-size: 10pt;">The Credit Note Request is being Rejected<br><br>Please Wait...</span>'});
-    						myMask.show();
-    						
-    						// call a backend Suitelet to update the PO with the rejection reason
-    						Ext.Ajax.request({
-    											url: suiteletURL,
-    											method: 'GET',
-    											success: function (response, result) {
-    												myMask.hide();
-    												location.reload();
-    											},
-    											failure: function (response, result) {
-    												myMask.hide();
-    												alert("Error Rejecting the Credit Note Request");
-    											}
-    										});
-    					}
-    				else // user clicked ok but did not enter a rejection reason
-    					{
-    						// display an alert to the user asking them to try again
-    						dialog.alert({
-    							title: '⚠️ Error',
-    							message: 'A rejection reason was not entered. Please click the Reject button and try again.'
-    						});
-    					}
-	    	    }
-    	});
-    	
-    }
+  function getResults(_searchObject) {
+	    	
+	  var results = [];
+	
+	  var pageData = _searchObject.runPaged({pageSize: 1000});
+	
+	  for (var int = 0; int < pageData.pageRanges.length; int++) 
+	   	{
+		  	var searchPage = pageData.fetch({index: int});
+	    	
+		  	var data = searchPage.data;
+	    			
+	    	results = results.concat(data);
+	    }
+	
+	  return results;
+  }
 
     return {
-        pageInit: pageInit,
-        approve: approve,
-        reject: reject
+        postSourcing: postSourcing
     };
     
 });

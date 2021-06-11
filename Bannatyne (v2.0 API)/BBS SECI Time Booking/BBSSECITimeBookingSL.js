@@ -378,7 +378,7 @@ function(ui, search, record, format, message) {
 									value: 0,
 									text: ''
 								});
-			
+								
 								// if we have a default location (picked up from the time entry record)
 								if (defaultLocation)
 									{
@@ -390,8 +390,8 @@ function(ui, search, record, format, message) {
 													{
 														// add a select option to the location field and select the location by default
 														seciLocationField.addSelectOption({
-															value: seciDetails.locations[i].value,
-															text: seciDetails.locations[i].text,
+															value: seciDetails.locations[i].id,
+															text: seciDetails.locations[i].name,
 															isSelected: true
 														});
 													}
@@ -399,8 +399,8 @@ function(ui, search, record, format, message) {
 													{
 														// add a select option to the location field
 														seciLocationField.addSelectOption({
-															value: seciDetails.locations[i].value,
-															text: seciDetails.locations[i].text
+															value: seciDetails.locations[i].id,
+															text: seciDetails.locations[i].name
 														});
 													}
 												
@@ -413,8 +413,8 @@ function(ui, search, record, format, message) {
 											{
 												// add a select option to the location field and select the location by default
 												seciLocationField.addSelectOption({
-													value: seciDetails.locations[0].value,
-													text: seciDetails.locations[0].text,
+													value: seciDetails.locations[0].id,
+													text: seciDetails.locations[0].name,
 													isSelected: true
 												});
 											}
@@ -425,8 +425,8 @@ function(ui, search, record, format, message) {
 													{
 														// add a select option to the location field
 														seciLocationField.addSelectOption({
-															value: seciDetails.locations[i].value,
-															text: seciDetails.locations[i].text
+															value: seciDetails.locations[i].id,
+															text: seciDetails.locations[i].name
 														});
 													}
 											}
@@ -744,18 +744,66 @@ function(ui, search, record, format, message) {
     
     function getSeciDetails(seciSite) {
     	
-    	// loop fields on the seciSite record
-    	var seciLookup = search.lookupFields({
-    		type: 'customrecord_bbs_seci_site_form',
-    		id: seciSite,
-    		columns: ['custrecord_bbs_seci_site_first_name', 'custrecord_bbs_seci_site_surname', 'custrecord_bbs_seci_site_company_name', 'custrecord_bbs_seci_site_location']
+    	// declare and initialize variables
+    	var firstName 	= null;
+    	var surname		= null;
+    	var companyName	= null;
+    	var locations   = new Array();
+    	
+    	try
+    		{
+    			// load the SECI site record
+    			var seciSite = record.load({
+    				type: 'customrecord_bbs_seci_site_form',
+    	    		id: seciSite
+    			});
+    			
+    			// get values from the record
+    			firstName = seciSite.getValue({
+    				fieldId: 'custrecord_bbs_seci_site_first_name'
+    			});
+    			
+    			surname = seciSite.getValue({
+    				fieldId: 'custrecord_bbs_seci_site_surname'
+    			});
+    			
+    			companyName = seciSite.getValue({
+    				fieldId: 'custrecord_bbs_seci_site_company_name'
+    			});
+    			
+    			var locationValues = seciSite.getValue({
+    				fieldId: 'custrecord_bbs_seci_site_location'
+    			});
+    			
+    			var locationTextValues = seciSite.getText({
+    				fieldId: 'custrecord_bbs_seci_site_location'
+    			});
+    			
+    			// loop through locations
+    			for (var i = 0; i < locationValues.length; i++)
+    				{
+    					// push a new location obj to the locations array
+    					locations.push(new locationObj(locationTextValues[i], locationValues[i]));
+    				}
+    		}
+    	catch(e)
+    		{
+    			log.error({
+    				title: 'Error Loading SECI Site ' + seciSite,
+    				details: e.message
+    			});
+    		}
+    	
+    	log.debug({
+    		title: 'locations',
+    		details: locations
     	});
     	
     	// return values to the main script function
     	return {
-    		name: 			seciLookup.custrecord_bbs_seci_site_first_name + ' ' + seciLookup.custrecord_bbs_seci_site_surname,
-    		companyName: 	seciLookup.custrecord_bbs_seci_site_company_name,
-    		locations:		seciLookup.custrecord_bbs_seci_site_location
+    		name: 			firstName + ' ' + surname,
+    		companyName: 	companyName,
+    		locations:		locations
     	}
     	
     }

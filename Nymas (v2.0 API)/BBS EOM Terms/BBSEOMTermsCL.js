@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/ui/dialog', 'N/url'],
-function(dialog, url) {
+define(['./BBSEOMTermsLibrary'],
+function(libraryScript) {
     
     /**
      * Function to be executed after page is initialized.
@@ -16,6 +16,32 @@ function(dialog, url) {
      * @since 2015.2
      */
     function pageInit(scriptContext) {
+    	
+    	// get the current record
+		var currentRecord = scriptContext.currentRecord;
+	
+		// get the value of the entity and override due date fields
+		var entityID = currentRecord.getValue({
+			fieldId: 'entity'
+		});
+		
+		var overrideDueDate = currentRecord.getValue({
+			fieldId: 'custbody_bbs_override_due_date'
+		});
+		
+		// if we have an entity and override checkbox is unticked
+		if (overrideDueDate == false)
+			{
+				// disable the due date field
+				currentRecord.getField('duedate').isDisabled = true;
+			
+				// if we have a customer selected
+				if (entityID)
+					{
+						// call library script function to recalculate the due date
+						libraryScript.recalculateDueDate(currentRecord);
+					}
+			}
 
     }
 
@@ -32,6 +58,57 @@ function(dialog, url) {
      * @since 2015.2
      */
     function fieldChanged(scriptContext) {
+    	
+    	if (scriptContext.fieldId == 'entity' || scriptContext.fieldId == 'trandate' || scriptContext.fieldId == 'terms') // if the entity, trandate or terms fields has been changed
+			{
+	    		// get the current record
+	    		var currentRecord = scriptContext.currentRecord;
+	    	
+	    		// get the value of the entity and override due date fields
+	    		var entityID = currentRecord.getValue({
+	    			fieldId: 'entity'
+	    		});
+	    		
+	    		var overrideDueDate = currentRecord.getValue({
+	    			fieldId: 'custbody_bbs_override_due_date'
+	    		});
+	    		
+	    		// if we have an entity and override checkbox is unticked
+	    		if (entityID && overrideDueDate == false)
+	    			{
+	    				// call library script function to recalculate the due date
+	    				libraryScript.recalculateDueDate(currentRecord);
+	    			}
+			}
+		else if (scriptContext.fieldId == 'custbody_bbs_override_due_date') // if the override due date checkbox has been changed
+			{
+				// get the current record
+				var currentRecord = scriptContext.currentRecord;
+			
+				// get the value of the entity and override due date fields
+				var entityID = currentRecord.getValue({
+					fieldId: 'entity'
+				});
+				
+				var overrideDueDate = currentRecord.getValue({
+					fieldId: 'custbody_bbs_override_due_date'
+				});
+				
+				// if we have an entity and override checkbox is unticked
+				if (entityID && overrideDueDate == false)
+					{
+						// disable the due date field
+						currentRecord.getField('duedate').isDisabled = true;
+					
+						// call library script function to recalculate the due date
+						libraryScript.recalculateDueDate(currentRecord);
+					}
+				else if (overrideDueDate == true) // if override checkbox is ticked
+					{
+						// disable the due date field
+						currentRecord.getField('duedate').isDisabled = false;
+					}
+			}
 
     }
 
@@ -150,98 +227,10 @@ function(dialog, url) {
     function saveRecord(scriptContext) {
 
     }
-    
-    function approve(recordID, invoiceID, total, level1Approved) {
-    	
-    	// define URL of Suitelet
-		var suiteletURL = url.resolveScript({
-			scriptId: 'customscript_bbs_cr_approval_sl',
-			deploymentId: 'customdeploy_bbs_cr_approval_sl',
-			params: {
-				'id': recordID,
-				'invoice': invoiceID,
-				'total': total,
-				'level1Approved': level1Approved
-			}
-		});
-		
-		Ext.Ajax.timeout = (60000*5);
-		
-		var myMask = new Ext.LoadMask(Ext.getBody(), {msg:'<span style="font-size: 10pt;">The Credit Note Request is being Approved<br><br>Please Wait...</span>'});
-		myMask.show();
-		
-		// call a backend Suitelet to update the PO with the rejection reason
-		Ext.Ajax.request({
-							url: suiteletURL,
-							method: 'GET',
-							success: function (response, result) {
-								myMask.hide();
-								location.reload();
-							},
-							failure: function (response, result) {
-								myMask.hide();
-								alert("Error Approving the Credit Note Request");
-							}
-						});
-    }
-    
-    function reject(recordID) {
-    	
-    	// display dialog asking the user to enter a rejection reason
-    	Ext.Msg.prompt('Reject', 'Please enter a reason for rejecting the Sales Order', function(btn, text) {
-    	    
-    		// check if the user clicked the OK button
-    		if (btn == 'ok')
-    			{
-	    	        // check if the user entered a rejection reason
-    				if (text)
-    					{
-    						// define URL of Suitelet
-    						var suiteletURL = url.resolveScript({
-    							scriptId: 'customscript_bbs_cr_rejection_sl',
-    							deploymentId: 'customdeploy_bbs_cr_rejection_sl',
-    							params: {
-    								'id': recordID,
-    								'reason': text
-    							}
-    						});
-    						
-    						Ext.Ajax.timeout = (60000*5);
-    						
-    						var myMask = new Ext.LoadMask(Ext.getBody(), {msg:'<span style="font-size: 10pt;">The Credit Note Request is being Rejected<br><br>Please Wait...</span>'});
-    						myMask.show();
-    						
-    						// call a backend Suitelet to update the PO with the rejection reason
-    						Ext.Ajax.request({
-    											url: suiteletURL,
-    											method: 'GET',
-    											success: function (response, result) {
-    												myMask.hide();
-    												location.reload();
-    											},
-    											failure: function (response, result) {
-    												myMask.hide();
-    												alert("Error Rejecting the Credit Note Request");
-    											}
-    										});
-    					}
-    				else // user clicked ok but did not enter a rejection reason
-    					{
-    						// display an alert to the user asking them to try again
-    						dialog.alert({
-    							title: '⚠️ Error',
-    							message: 'A rejection reason was not entered. Please click the Reject button and try again.'
-    						});
-    					}
-	    	    }
-    	});
-    	
-    }
 
     return {
         pageInit: pageInit,
-        approve: approve,
-        reject: reject
+        fieldChanged: fieldChanged
     };
     
 });

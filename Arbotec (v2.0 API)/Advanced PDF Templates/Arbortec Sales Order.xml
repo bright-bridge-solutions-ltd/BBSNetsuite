@@ -303,9 +303,9 @@
 			    				<#list record.custbody_bbs_vat_summary?eval as tax>
 			        				<tr>
 				    					<td colspan="1" align="center" style="border-right: 1px solid black;">${tax.name?keep_after(":")?substring(0, 1)}</td>
-				    					<td colspan="4" align="center" style="border-right: 1px solid black;">${currencySymbol}${tax.goodsconverted}</td>
+				    					<td colspan="4" align="center" style="border-right: 1px solid black;">${currencySymbol}${tax.goods}</td>
 				    					<td colspan="4" align="center" style="border-right: 1px solid black;">${tax.rate}%</td>
-				    					<td colspan="4" align="center">${currencySymbol}${tax.amtconverted}</td>
+				    					<td colspan="4" align="center">${currencySymbol}${tax.amt}</td>
 				    				</tr>
 			    				</#list>
 			    			</table>
