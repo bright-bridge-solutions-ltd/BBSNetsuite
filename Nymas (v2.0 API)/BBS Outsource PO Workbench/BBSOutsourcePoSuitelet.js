@@ -214,11 +214,11 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 											{
 												var outsupId 		= outsourceSuppliers[outsup].getValue({name: "internalid"});
 												var outsupName 		= outsourceSuppliers[outsup].getValue({name: "entityid"});
-												var outsupAltName 	= outsourceSuppliers[outsup].getValue({name: "altname"});
+												//var outsupAltName 	= outsourceSuppliers[outsup].getValue({name: "altname"});
 											
 												supplierField.addSelectOption({
 																				value: 			outsupId, 
-																				text: 			outsupName + ' ' + outsupAltName, 
+																				text: 			outsupName, 
 																				isSelected: 	false
 																				});
 											}
@@ -1082,7 +1082,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 							    		   columns:
 										    		   [
 										    		      search.createColumn({name: "entityid",sort: search.Sort.ASC,label: "ID"}),
-										    		      search.createColumn({name: "altname", label: "Name"}),
+										    	//	      search.createColumn({name: "altname", label: "Name"}),
 										    		      search.createColumn({name: "internalid", label: "Internal Id"})
 										    		   ]
 							    		}));
