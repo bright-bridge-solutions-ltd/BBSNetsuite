@@ -20,7 +20,7 @@
 			      				<td colspan="5"><b>Purchase Order Number</b></td>
 			      				<td colspan="4">${purchaseOrder.poNumber}</td>
 			      				<td colspan="5"><b>Supplier Address</b></td>
-			      				<td colspan="6">${purchaseOrder.supplierAddress}</td>
+			      				<td colspan="6"><#if record.custbody_bbs_po_del_address?has_content>${record.custbody_bbs_po_del_address}<#else>${purchaseOrder.supplierAddress}</#if></td>
 			      			</tr>
 			      			<tr>
 			      				<td colspan="5"><b>Transfer Order Number</b></td>

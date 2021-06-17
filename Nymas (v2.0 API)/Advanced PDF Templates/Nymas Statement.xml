@@ -19,7 +19,7 @@
       			</tr>
       			<tr>
       				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Account No.</b></td>
-      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${customer.accountnumber}</b></td>
+      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${customer.entityid?keep_before(" ")}</b></td>
       			</tr>
       		</table>
       		<table style="width: 100%; font-size: 10pt;">
@@ -94,32 +94,30 @@
     </table>
     
     <#if statement.lines?has_content>
-    	<#list statement.lines as line>
-    		<table style="width: 100%; margin-bottom: 20px;">
-    			<#if line_index==0>
-    				<thead>
-    					<tr>
-    						<th colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black;">Transaction<br/>Date</th>
-    						<th colspan="5" style="border-top: 1px solid black; border-bottom: 1px solid black;">Transaction<br/>Reference</th>
-    						<th colspan="5" style="border-top: 1px solid black; border-bottom: 1px solid black;">Transaction<br/>Type</th>
-    						<th colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black;">Customer<br/>Reference</th>
-    						<th colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black;">Due Date</th>
-    						<th colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black;"><p align="right">Transaction<br/>Value</p></th>
-    						<th colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black;"><p align="right">Outstanding<br/>Value</p></th>
-    					</tr>
-    				</thead>
-    			</#if>
+    	<table style="width: 100%; margin-bottom: 20px;">
+    		<thead>
     			<tr>
-    				<td colspan="4">${line.datecol}</td>
-    				<td colspan="5">${line.description?replace("Invoice #","")?replace("Credit Memo #","")}</td>
-    				<td colspan="5">${line.description?keep_before("#")}</td>
-    				<td colspan="4">${line.otherrefnum}</td>
-    				<td colspan="4">${line.duedate}</td>
-    				<td colspan="4" align="right"><#if line.description?keep_before(' #') == "Invoice">${line.charge}<#elseif line.description?keep_before(' #') == "Credit Memo">-${line.payment}</#if></td>
-    				<td colspan="4" align="right">${line.balance}</td>
+    				<th colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black;">Transaction<br/>Date</th>
+    				<th colspan="5" style="border-top: 1px solid black; border-bottom: 1px solid black;">Transaction<br/>Reference</th>
+    				<th colspan="5" style="border-top: 1px solid black; border-bottom: 1px solid black;">Transaction<br/>Type</th>
+    				<th colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black;">Customer<br/>Reference</th>
+    				<th colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black;">Due Date</th>
+    				<th colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black;"><p align="right">Transaction<br/>Value</p></th>
+    				<th colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black;"><p align="right">Outstanding<br/>Value</p></th>
     			</tr>
-    		</table>
-    	</#list>
+    		</thead>
+    		<#list statement.lines as line>
+	    		<tr>
+	    			<td colspan="4">${line.datecol}</td>
+	    			<td colspan="5">${line.description?replace("Invoice #","")?replace("Credit Memo #","")}</td>
+	    			<td colspan="5">${line.description?keep_before("#")}</td>
+	    			<td colspan="4">${line.otherrefnum}</td>
+	    			<td colspan="4">${line.duedate}</td>
+	    			<td colspan="4" align="right"><#if line.description?keep_before(' #') == "Invoice">${line.charge}<#elseif line.description?keep_before(' #') == "Credit Memo">-${line.payment}</#if></td>
+	    			<td colspan="4" align="right">${line.balance}</td>
+	    		</tr>
+	    	</#list>
+    	</table>
     </#if>
     
     <table style="width: 100%; border: 1px solid black;">

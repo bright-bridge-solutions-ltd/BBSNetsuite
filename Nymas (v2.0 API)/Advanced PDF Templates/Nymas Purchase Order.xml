@@ -100,7 +100,7 @@ note detailing our Purchase order reference (s) our product code and quantity de
       	</tr>
       	<tr>
       		<td colspan="4" style="padding-left: 50px; border-left: 1px solid black; border-right: 1px solid black;">${record.billaddress}</td>
-      		<td colspan="4" style="margin-left: 10px; padding-left:50px; border-left: 1px solid black; border-right: 1px solid black;">${record.shipaddress}</td>
+      		<td colspan="4" style="margin-left: 10px; padding-left:50px; border-left: 1px solid black; border-right: 1px solid black;"><#if record.custbody_bbs_po_del_address?has_content>${record.custbody_bbs_po_del_address}<#else>${record.shipaddress}</#if></td>
       	</tr>
       	<tr>
         	<td colspan="4" style="padding-left: 50px; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
@@ -130,7 +130,7 @@ note detailing our Purchase order reference (s) our product code and quantity de
     		</#if>
     			<tr>
     				<td align="left" colspan="2">${item_index +1}</td>
-    				<td align="left" colspan="8">${item.item}</td>
+    				<td align="left" colspan="8"><#if item.vendorname?has_content>${item.vendorname}<#else>${item.item}</#if></td>
     				<td align="left" colspan="10">${item.description}<br/><i>Delivery date to our facility : ${item.expectedreceiptdate}</i></td>
     				<td align="right" colspan="4">${item.quantity}</td>
     				<td align="left" colspan="4" style="padding-left: 20px;">${item.units}</td>

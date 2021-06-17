@@ -194,6 +194,11 @@ function(runtime, search, record, format, task) {
     			join: 'custbody_bbs_contract_record',
     			operator: 'anyof',
     			values: [billingType]
+    		},
+    				{
+    			name: 'internalid',
+    			operator: 'anyof',
+    			values: [384653]
     		}],
 
 		});
@@ -390,156 +395,9 @@ function(runtime, search, record, format, task) {
 		    			value: earlyEndDate
 		    		});
 		    	}
-		    	
-		    // run search to find period detail records for this billing month
-		    var periodDetailSearch = search.create({
-		    	type: 'customrecord_bbs_contract_period',
-		    	
-		    	columns: [{
-		    		name: 'custrecord_bbs_contract_period_period'
-		    	}],
-		    	
-		    	filters: [{
-    				name: 'custrecord_bbs_contract_period_contract',
-    				operator: 'anyof',
-    				values: [contractRecord]
-    			},
-    					{
-    				name: 'custrecord_bbs_contract_period_start',
-    				operator: 'within',
-    				values: ['lastmonth']
-    			},
-    					{
-    				name: 'custrecord_bbs_contract_period_end',
-    				operator: 'within',
-    				values: ['lastmonth']
-        		}],
-        		
-		    });
-		    	
-		    // process search results
-    		periodDetailSearch.run().each(function(result) {
-    			
-    			// get the current period from the search results
-    			currentPeriod = result.getValue({
-	    			name: 'custrecord_bbs_contract_period_period'
-	    		});
-
-    		});
-    		
-    		// create search to find the minimum usage for this month
-    		var minimumUsageSearch = search.create({
-    			type: 'customrecord_bbs_contract_minimum_usage',
-    			
-    			columns: [{
-    				name: 'custrecord_bbs_contract_min_usage'
-    			}],
-    			
-    			filters: [{
-    				name: 'custrecord_bbs_contract_min_usage_parent',
-    				operator: 'anyof',
-    				values: [contractRecord]
-    			},
-    					{
-    				name: 'custrecord_bbs_contract_min_usage_month',
-    				operator: 'equalto',
-    				values: [currentPeriod]
-    			}],
-    			
-    		});
-    		
-    		// run search and process results
-    		minimumUsageSearch.run().each(function(result){
-    			
-    			// get the minimum usage from the search results
-    			monthlyMinimum = result.getValue({
-    				name: 'custrecord_bbs_contract_min_usage'
-    			});
-    			
-    		});
-    		
-    		monthlyMinimum = parseFloat(monthlyMinimum); // use parseFloat to convert to a floating point number
-    		
-    		// check if the invoiceDate is greater than (after) or equal to the contractEnd OR the invoiceDate is greater than (after) or equal to the earlyEndDate
-			if (invoiceDate.getTime() >= contractEnd.getTime() || earlyEndDate != '' && invoiceDate.getTime() >= earlyEndDate.getTime())
-				{
-					// if we have an early end date
-					if (earlyEndDate)
-						{
-							// if the earlyEndDate falls before the contract end date
-							if (earlyEndDate.getTime() < contractEnd.getTime())
-								{
-									// call function to get the number of days in the early end date's month
-									var daysInMonth = getDaysInMonth(earlyEndDate);
-												
-									// divide the monthly minimum by the days in month to calculate the daily minimum
-									var dailyMinimum = (monthlyMinimum / daysInMonth);
-												
-									// multiply the daily minimum by the date of the early end date to calculate the monthly minimum
-									monthlyMinimum = (dailyMinimum * earlyEndDate.getDate());
-								}
-							else
-								{
-									// call function to get the number of days in the contract end date's month
-									var daysInMonth = getDaysInMonth(contractEnd);
-												
-									// divide the monthly minimum by the days in month to calculate the daily minimum
-									var dailyMinimum = (monthlyMinimum / daysInMonth);
-												
-									// multiply the daily minimum by the date of the contract end date to calculate the monthly minimum
-									monthlyMinimum = (dailyMinimum * contractEnd.getDate());		
-								}
-							}
-						else
-							{
-								// call function to get the number of days in the contract end date's month
-								var daysInMonth = getDaysInMonth(contractEnd);
-										
-								// divide the monthly minimum by the days in month to calculate the daily minimum
-								var dailyMinimum = (monthlyMinimum / daysInMonth);
-										
-								// multiply the daily minimum by the date of the contract end date to calculate the monthly minimum
-								monthlyMinimum = (dailyMinimum * contractEnd.getDate());	
-							}
-				}
-			
-			// create search to find cumulative monthly minimums for this contract
-    		var cumulativeMinimumsSearch = search.create({
-    			type: 'customrecord_bbs_contract_minimum_usage',
-    			
-    			columns: [{
-    				name: 'custrecord_bbs_contract_min_usage',
-    				summary: 'SUM'
-    			}],
-    			
-    			filters: [{
-    				name: 'custrecord_bbs_contract_min_usage_parent',
-    				operator: 'anyof',
-    				values: [contractRecord]
-    			},
-    					{
-    				name: 'custrecord_bbs_contract_min_usage_month',
-    				operator: 'lessthanorequalto',
-    				values: [currentPeriod]
-    			}],
-    			
-    		});
-    		
-    		// run search and process results
-    		cumulativeMinimumsSearch.run().each(function(result){
-    			
-    			// get the cumulative monthly minimums from the search results
-    			cumulativeMinimums = result.getValue({
-    				name: 'custrecord_bbs_contract_min_usage',
-    				summary: 'SUM'
-    			});
-    			
-    		});
-    		
-    		cumulativeMinimums = parseFloat(cumulativeMinimums); // use parseFloat to convert to a floating point number
     		
     		// create search to find cumulative total of monthly invoices for this contract
-    		var cumulativeInvoiceSearch = search.create({
+    		search.create({
     			type: search.Type.INVOICE,
     			
     			columns: [{
@@ -563,10 +421,7 @@ function(runtime, search, record, format, task) {
     				operator: 'anyof',
     				values: [contractRecord]
     			}],
-    		});
-    		
-    		// run search and process results
-    		cumulativeInvoiceSearch.run().each(function(result) {
+    		}).run().each(function(result) {
     			
     			// get the total of all invoices from the search results
     			cumulativeInvoicesSearchResult = result.getValue({
@@ -588,59 +443,23 @@ function(runtime, search, record, format, task) {
     		// add cumulativeInvoicesSearchResult to cumulativeInvoices
     		cumulativeInvoices += cumulativeInvoicesSearchResult;
     		
-    		// create search to find usage for this month
-    		var usageSearch = search.create({
+    		// create search to find the usage for the contract
+    		search.create({
     			type: 'customrecord_bbs_contract_period',
     			
     			columns: [{
     				name: 'custrecord_bbs_contract_period_prod_use',
     				summary: 'SUM'
-    			}],
-    			
-    			filters: [{
-    				name: 'custrecord_bbs_contract_period_contract',
-    				operator: 'anyof',
-    				values: [contractRecord]
     			},
     					{
-    				name: 'custrecord_bbs_contract_period_start',
-    				operator: 'within',
-    				values: ['lastmonth']
+    				name: 'formulacurrency',
+    				formula: "CASE WHEN TO_CHAR({custrecord_bbs_contract_period_end}, 'MM') = TO_CHAR(ADD_MONTHS({today},-1), 'MM') AND TO_CHAR({custrecord_bbs_contract_period_end}, 'YYYY') = TO_CHAR(ADD_MONTHS({today},-1), 'YYYY') THEN {custrecord_bbs_contract_period_prod_use} END",
+    				summary: 'SUM'
     			},
     					{
-    				name: 'custrecord_bbs_contract_period_end',
-    				operator: 'within',
-    				values: ['lastmonth']
-    			}],
-    		});
-    		
-    		// run search and process results
-    		usageSearch.run().each(function(result)	{
-    			
-    			// get the the total of this month's usage from the search
-    			thisMonthUsage = result.getValue({
-    				name: 'custrecord_bbs_contract_period_prod_use',
-    				summary: 'SUM'
-    			});
-    			
-    		});
-    		
-    		// check if the thisMonthUsage variable is null
-    		if (thisMonthUsage == '')
-    			{
-    				// set the thisMonthUsage to 0
-    				thisMonthUsage = 0;
-    			}
-    		
-    		thisMonthUsage = parseFloat(thisMonthUsage); // use parseFloat to convert to a floating point number
-    		
-    		// create search to find cumulative usage for the contract
-    		var cumulativeUsageSearch = search.create({
-    			type: 'customrecord_bbs_contract_period',
-    			
-    			columns: [{
-    				name: 'custrecord_bbs_contract_period_prod_use',
-    				summary: 'SUM'
+    				name: 'formulatext',
+    				formula: "CASE WHEN TO_CHAR({custrecord_bbs_contract_period_end}, 'MM') = TO_CHAR(ADD_MONTHS({today},-1), 'MM') AND TO_CHAR({custrecord_bbs_contract_period_end}, 'YYYY') = TO_CHAR(ADD_MONTHS({today},-1), 'YYYY') THEN {custrecord_bbs_contract_period_period} END",
+    				summary: 'MAX'
     			}],
     			
     			filters: [{
@@ -653,10 +472,8 @@ function(runtime, search, record, format, task) {
     				operator: 'onorbefore',
     				values: ['lastmonth']
     			}],
-    		});
     		
-    		// run search and process results
-    		cumulativeUsageSearch.run().each(function(result)	{
+    		}).run().each(function(result)	{
     			
     			// get the the total of this month's usage from the search
     			cumulativeUsage = result.getValue({
@@ -664,7 +481,24 @@ function(runtime, search, record, format, task) {
     				summary: 'SUM'
     			});
     			
+    			thisMonthUsage = result.getValue({
+    				name: 'formulacurrency',
+    				summary: 'SUM'
+    			});
+    			
+    			currentPeriod = result.getValue({
+    				name: 'formulatext',
+    				summary: 'MAX'
+    			});
+    			
     		});
+    		
+    		// check if the thisMonthUsage variable is null
+    		if (thisMonthUsage == '')
+    			{
+    				// set the thisMonthUsage to 0
+    				thisMonthUsage = 0;
+    			}
     		
     		// check if the cumulativeUsage variable is null
     		if (cumulativeUsage == '')
@@ -673,7 +507,51 @@ function(runtime, search, record, format, task) {
     				cumulativeUsage = 0;
     			}
     		
+    		thisMonthUsage 	= parseFloat(thisMonthUsage); // use parseFloat to convert to a floating point number
     		cumulativeUsage = parseFloat(cumulativeUsage); // use parseFloat to convert to a floating point number
+			
+			// create search to find monthly minimums for this contract
+    		search.create({
+    			type: 'customrecord_bbs_contract_minimum_usage',
+    			
+    			columns: [{
+    				name: 'custrecord_bbs_contract_min_usage',
+    				summary: 'SUM'
+    			},
+    					{
+    				name: 'formulacurrency',
+    				formula: "CASE WHEN {custrecord_bbs_contract_min_usage_month} = " + currentPeriod + " THEN {custrecord_bbs_contract_min_usage_month} END",
+    				summary: 'MAX'
+    			}],
+    			
+    			filters: [{
+    				name: 'custrecord_bbs_contract_min_usage_parent',
+    				operator: 'anyof',
+    				values: [contractRecord]
+    			},
+    					{
+    				name: 'custrecord_bbs_contract_min_usage_month',
+    				operator: 'lessthanorequalto',
+    				values: [currentPeriod]
+    			}],
+    			
+    		}).run().each(function(result){
+    			
+    			// get the cumulative monthly minimums from the search results
+    			cumulativeMinimums = result.getValue({
+    				name: 'custrecord_bbs_contract_min_usage',
+    				summary: 'SUM'
+    			});
+    			
+    			monthlyMinimum = result.getValue({
+    				name: 'formulacurrency',
+    				summary: 'MAX'
+    			});
+    			
+    		});
+    		
+    		cumulativeMinimums	= parseFloat(cumulativeMinimums); // use parseFloat to convert to a floating point number
+    		monthlyMinimum		= parseFloat(monthlyMinimum); // use parseFloat to convert to a floating point number
     		
     		// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
 			var deferredRevAmt = calculateDeferredRev(contractRecord);
@@ -776,7 +654,13 @@ function(runtime, search, record, format, task) {
     
     function AMP(billingType, recordID, contractRecord, contractCurrency)
     	{
-	    	// check if the billingType is 4 (AMP)
+	    	// declare and initialize variables
+			var thisMonthUsage;
+			var cumulativeUsage;
+			var amtToBill;
+			var creditLineAmt;
+    	
+    		// check if the billingType is 4 (AMP)
     		if (billingType == 4)
     			{
 	    			// set the billingType variable to AMP
@@ -787,60 +671,32 @@ function(runtime, search, record, format, task) {
     				// set the billingType variable to Contract Extension
     				billingType = 'Contract Extension';
     			}
+    		
+    		// load the sales order record
+			var soRecord = record.load({
+				type: record.Type.SALES_ORDER,
+				id: recordID,
+				isDynamic: true
+			});
 			
-			// lookup fields on the contract record
+			// get the subtotal from the soRecord object
+			var soSubtotal = soRecord.getValue({
+				fieldId: 'subtotal'
+			});
+    		
+    		// lookup fields on the contract record
 		    var contractRecordLookup = search.lookupFields({
 		    	type: 'customrecord_bbs_contract',
 		    	id: contractRecord,
-		    	columns: ['custrecord_bbs_contract_min_ann_use', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_early_end_date']
+		    	columns: ['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_early_end_date', 'custrecord_bbs_contract_min_ann_use', 'custrecord_bbs_contract_cum_inv_total']
 		    });
-    		
+		    
 		    // return values from the contractRecordLookup
-		    var minimumUsage = contractRecordLookup.custrecord_bbs_contract_min_ann_use;
+		    var customer = contractRecordLookup.custrecord_bbs_contract_customer[0].value;
 		    var contractEnd = contractRecordLookup.custrecord_bbs_contract_end_date;
 		    var earlyEndDate = contractRecordLookup.custrecord_bbs_contract_early_end_date;
+		    var annualMinimum = parseFloat(contractRecordLookup.custrecord_bbs_contract_min_ann_use);
 		    
-		    // create search to find cumulative usage for the contract
-    		var cumulativeUsageSearch = search.create({
-    			type: 'customrecord_bbs_contract_period',
-    			
-    			columns: [{
-    				name: 'custrecord_bbs_contract_period_prod_use',
-    				summary: 'SUM'
-    			}],
-    			
-    			filters: [{
-    				name: 'custrecord_bbs_contract_period_contract',
-    				operator: 'anyof',
-    				values: [contractRecord]
-    			},
-    					{
-    				name: 'custrecord_bbs_contract_period_end',
-    				operator: 'onorbefore',
-    				values: ['lastmonth']
-    			}],
-    		});
-    		
-    		// run search and process results
-    		cumulativeUsageSearch.run().each(function(result)	{
-    			
-    			// get the the total of this month's usage from the search
-    			cumulativeUsage = result.getValue({
-    				name: 'custrecord_bbs_contract_period_prod_use',
-    				summary: 'SUM'
-    			});
-    			
-    		});
-    		
-    		// check if the cumulativeUsage variable is null
-    		if (cumulativeUsage == '')
-    			{
-    				// set the cumulativeUsage to 0
-    				cumulativeUsage = 0;
-    			}
-    		
-    		cumulativeUsage = parseFloat(cumulativeUsage); // use parseFloat to convert to a floating point number
-
 		    // format contractEnd as a date object
 		    contractEnd = format.parse({
 		    	type: format.Type.DATE,
@@ -856,55 +712,149 @@ function(runtime, search, record, format, task) {
 		    			value: earlyEndDate
 		    		});
 		    	}
-		    
-		    // check if the invoiceDate is greater than (after) or equal to the contractEnd OR earlyEndDate
+    		
+    		// create search to find the usage for the contract
+    		search.create({
+    			type: 'customrecord_bbs_contract_period',
+    			
+    			columns: [{
+    				name: 'custrecord_bbs_contract_period_prod_use',
+    				summary: 'SUM'
+    			},
+    					{
+    				name: 'formulacurrency',
+    				formula: "CASE WHEN TO_CHAR({custrecord_bbs_contract_period_end}, 'MM') = TO_CHAR(ADD_MONTHS({today},-1), 'MM') AND TO_CHAR({custrecord_bbs_contract_period_end}, 'YYYY') = TO_CHAR(ADD_MONTHS({today},-1), 'YYYY') THEN {custrecord_bbs_contract_period_prod_use} END",
+    				summary: 'SUM'
+    			},
+    					{
+    				name: 'formulatext',
+    				formula: "CASE WHEN TO_CHAR({custrecord_bbs_contract_period_end}, 'MM') = TO_CHAR(ADD_MONTHS({today},-1), 'MM') AND TO_CHAR({custrecord_bbs_contract_period_end}, 'YYYY') = TO_CHAR(ADD_MONTHS({today},-1), 'YYYY') THEN {custrecord_bbs_contract_period_period} END",
+    				summary: 'MAX'
+    			}],
+    			
+    			filters: [{
+    				name: 'custrecord_bbs_contract_period_contract',
+    				operator: 'anyof',
+    				values: [contractRecord]
+    			},
+    					{
+    				name: 'custrecord_bbs_contract_period_end',
+    				operator: 'onorbefore',
+    				values: ['lastmonth']
+    			}],
+    		
+    		}).run().each(function(result)	{
+    			
+    			// get the the usage from the search
+    			cumulativeUsage = result.getValue({
+    				name: 'custrecord_bbs_contract_period_prod_use',
+    				summary: 'SUM'
+    			});
+    			
+    			thisMonthUsage = result.getValue({
+    				name: 'formulacurrency',
+    				summary: 'SUM'
+    			});
+    			
+    			currentPeriod = result.getValue({
+    				name: 'formulatext',
+    				summary: 'MAX'
+    			});
+    			
+    		});
+    		
+    		// check if the thisMonthUsage variable is null
+    		if (thisMonthUsage == '')
+    			{
+    				// set the thisMonthUsage to 0
+    				thisMonthUsage = 0;
+    			}
+    		
+    		// check if the cumulativeUsage variable is null
+    		if (cumulativeUsage == '')
+    			{
+    				// set the cumulativeUsage to 0
+    				cumulativeUsage = 0;
+    			}
+    		
+    		thisMonthUsage 	= parseFloat(thisMonthUsage); // use parseFloat to convert to a floating point number
+    		cumulativeUsage = parseFloat(cumulativeUsage); // use parseFloat to convert to a floating point number
+    		
+    		// call function to calculate the remaining deferred revenue. Pass in contractRecord. Deferred revenue amount will be returned
+			var deferredRevAmt = calculateDeferredRev(contractRecord);
+			
+			// set the value of the calculatedDeferredRevenue variable
+			calculatedDeferredRevenue = parseFloat(deferredRevAmt - thisMonthUsage);
+			
+			log.audit({
+				title: 'AMP Check',
+				details: 'Current Period: ' + currentPeriod + '<br>Annual Minimum: ' + annualMinimum + '<br>This Month Usage: ' + thisMonthUsage + '<br>Cumulative Usage: ' + cumulativeUsage + '<br>Deferred Rev Amt: ' + deferredRevAmt + '<br>Calculated Deferred Revenue Balance: ' + calculatedDeferredRevenue
+			});
+			
+			// check if the invoiceDate is greater than (after) or equal to the contractEnd OR earlyEndDate
 			if (invoiceDate.getTime() >= contractEnd.getTime() || earlyEndDate != '' && invoiceDate.getTime() >= earlyEndDate.getTime())
 		    	{
-		    		// load the sales order record
-					var soRecord = record.load({
-						type: record.Type.SALES_ORDER,
-						id: recordID,
-						isDynamic: true
-					});
-				
-					// check if the cumulativeUsage is less than the minimumUsage
-				    if (cumulativeUsage <= minimumUsage)
-					    {
-				    		// call function to close the sales order. Pass in soRecord object
-				    		closeSalesOrder(soRecord);
-					    }
-				    // else if cumulativeUsage is greater than minimumUsage
-				    else
-				    	{
-				    		// calculate the overage
-				    		var overage = parseFloat(cumulativeUsage - minimumUsage);
-				    		
-				    		// get the sales order total
-				    		var soTotal = soRecord.getValue({
-				    			fieldId: 'subtotal'
-				    		});
-				    		
-				    		// calculate the credit line amount by subtracting overage from soTotal
-				    		var creditLineAmount = parseFloat(soTotal - overage);
-				    	
-				    		// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, creditLineAmount  and contractRecord
-			    			addCreditLine(soRecord, billingType, creditLineAmount, contractRecord);
-			    		
-			    			// call function to transform the sales order to an invoice. Pass in recordID
-			    			createInvoice(recordID);
-			    			
-			    			// call function to update period detail records (to tick the Usage Invoice Issued checkbox). Pass in recordID and contractRecord
-							updatePeriodDetail(recordID, contractRecord);
-				    	}
-				    
-				    // call function to create journal recognising all revenue for the current contract period and to clear deferred revenue balance (if any remaining). Pass in recordID, billingType and contractCurrency (True = Clearing Journal YES)
-	    		    createRevRecJournal(recordID, billingType, contractCurrency, true);
+					// check if calculatedDeferredRevenue is less than 0
+					if (calculatedDeferredRevenue < 0)
+						{
+							// set the amtToBill variable to be the calculatedDeferredRevenue multiplied by -1 to create a positive number
+							amtToBill = parseFloat(calculatedDeferredRevenue * -1);
+									
+							// check if soSubtotal minus amtToBill is greater than 0
+							if ((soSubtotal - amtToBill) > 0)
+					    		{
+						    		// calculate the value of the credit line that needs adding
+					    			creditLineAmt = parseFloat(soSubtotal - amtToBill);
+					    					
+					    			// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, creditLineAmt and contractRecord
+					    			addCreditLine(soRecord, billingType, creditLineAmt, contractRecord);
+					    		}
+					    			
+					    	// call function to transform the sales order to an invoice. Pass in recordID
+						    createInvoice(recordID);
+						}
+					else
+						{
+							// call function to close the sales order. Pass in soRecord object
+			    			closeSalesOrder(soRecord);
+						}
+					
+					// check if we have deferredRevAmt is greater than 0
+					if (deferredRevAmt > 0)
+						{
+							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType and contractCurrency (True = Clearing Journal YES)
+		    				createRevRecJournal(recordID, billingType, contractCurrency, true);
+						}
 		    	}
-		    else // this is calendar month end and NOT the end of the contract
-		    	{
-			    	// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType and contractCurrency (False = Clearing Journal NO)
-		    		createRevRecJournal(recordID, billingType, contractCurrency, false);
-		    	}
+			else
+				{
+					// check if calculatedDeferredRevenue is less than 0
+					if (calculatedDeferredRevenue < 0)
+						{
+							// set the amtToBill variable to be the calculatedDeferredRevenue multiplied by -1 to create a positive number
+							amtToBill = parseFloat(calculatedDeferredRevenue * -1);
+									
+							// check if soSubtotal minus amtToBill is greater than 0
+							if ((soSubtotal - amtToBill) > 0)
+					    		{
+						    		// calculate the value of the credit line that needs adding
+					    			creditLineAmt = parseFloat(soSubtotal - amtToBill);
+					    					
+					    			// call function to add a credit line to the sales order prior to billing. Pass in soRecord, billingType, creditLineAmt and contractRecord
+					    			addCreditLine(soRecord, billingType, creditLineAmt, contractRecord);
+					    		}
+					    			
+					    	// call function to transform the sales order to an invoice. Pass in recordID
+						    createInvoice(recordID);
+						}
+					
+					// check if we have deferredRevAmt is greater than 0
+					if (deferredRevAmt > 0)
+						{				
+							// call function to create journal recognising all revenue for the current contract period. Pass in recordID, billingType and contractCurrency (False = Clearing Journal NO)
+							createRevRecJournal(recordID, billingType, contractCurrency, false);
+						}
+				}
     	}
     
     function BUR(recordID, contractRecord, contractCurrency)
@@ -2123,35 +2073,9 @@ function(runtime, search, record, format, task) {
 			// declare and initialize variables
 			var currentPeriod;
 			var monthlyMinimum;
-			
-			// get the contract end date and early end dates from the contract record
-			var contractRecordLookup = search.lookupFields({
-				type: 'customrecord_bbs_contract',
-				id: contractRecord,
-				columns: ['custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_early_end_date']
-			});
-			
-			var contractEnd = contractRecordLookup.custrecord_bbs_contract_end_date;
-			var earlyEndDate = contractRecordLookup.custrecord_bbs_contract_early_end_date;
-			
-			// check if earlyEndDate returns a value
-			if (earlyEndDate)
-				{
-					// format earlyEndDate as a date object
-					earlyEndDate = format.parse({
-						type: format.Type.DATE,
-						value: earlyEndDate
-					});
-				}
-			
-			// format contractEnd as a date object
-			contractEnd = format.parse({
-				type: format.Type.DATE,
-				value: contractEnd
-			});
 		
-			// run search to find period detail records for this billing month
-		    var periodDetailSearch = search.create({
+			// create search to find period detail records for this billing month
+		    search.create({
 		    	type: 'customrecord_bbs_contract_period',
 		    	
 		    	columns: [{
@@ -2174,10 +2098,7 @@ function(runtime, search, record, format, task) {
     				values: ['lastmonth']
         		}],
         		
-		    });
-		    	
-		    // process search results
-    		periodDetailSearch.run().each(function(result) {
+		    }).run().each(function(result) {
     			
     			// get the current period from the search results
     			currentPeriod = result.getValue({
@@ -2187,7 +2108,7 @@ function(runtime, search, record, format, task) {
     		});
     		
     		// create search to find the minimum usage for this month
-    		var minimumUsageSearch = search.create({
+    		search.create({
     			type: 'customrecord_bbs_contract_minimum_usage',
     			
     			columns: [{
@@ -2205,10 +2126,7 @@ function(runtime, search, record, format, task) {
     				values: [currentPeriod]
     			}],
     			
-    		});
-    		
-    		// run search and process results
-    		minimumUsageSearch.run().each(function(result){
+    		}).run().each(function(result){
     			
     			// get the minimum usage from the search results
     			monthlyMinimum = result.getValue({
@@ -2218,49 +2136,6 @@ function(runtime, search, record, format, task) {
     		});
     		
     		monthlyMinimum = parseFloat(monthlyMinimum); // use parseFloat to convert to a floating point number
-    		
-    		// check if the invoiceDate is greater than (after) or equal to the contractEnd OR the invoiceDate is greater than (after) or equal to the earlyEndDate
-			if (invoiceDate.getTime() >= contractEnd.getTime() || earlyEndDate != '' && invoiceDate.getTime() >= earlyEndDate.getTime())
-				{
-					// if we have an early end date
-					if (earlyEndDate)
-						{
-							// if the earlyEndDate falls before the contract end date
-							if (earlyEndDate.getTime() < contractEnd.getTime())
-								{
-									// call function to get the number of days in the early end date's month
-									var daysInMonth = getDaysInMonth(earlyEndDate);
-												
-									// divide the monthly minimum by the days in month to calculate the daily minimum
-									var dailyMinimum = (monthlyMinimum / daysInMonth);
-												
-									// multiply the daily minimum by the date of the early end date to calculate the monthly minimum
-									monthlyMinimum = (dailyMinimum * earlyEndDate.getDate());
-								}
-							else
-								{
-									// call function to get the number of days in the contract end date's month
-									var daysInMonth = getDaysInMonth(contractEnd);
-												
-									// divide the monthly minimum by the days in month to calculate the daily minimum
-									var dailyMinimum = (monthlyMinimum / daysInMonth);
-												
-									// multiply the daily minimum by the date of the contract end date to calculate the monthly minimum
-									monthlyMinimum = (dailyMinimum * contractEnd.getDate());		
-								}
-							}
-						else
-							{
-								// call function to get the number of days in the contract end date's month
-								var daysInMonth = getDaysInMonth(contractEnd);
-										
-								// divide the monthly minimum by the days in month to calculate the daily minimum
-								var dailyMinimum = (monthlyMinimum / daysInMonth);
-										
-								// multiply the daily minimum by the date of the contract end date to calculate the monthly minimum
-								monthlyMinimum = (dailyMinimum * contractEnd.getDate());	
-							}
-				}
 			
     		// load the sales order record
 			var soRecord = record.load({
@@ -4611,10 +4486,10 @@ function(runtime, search, record, format, task) {
 	// FUNCTION TO GET THE NUMBER OF DAYS IN THE MONTH
 	//================================================   
     
-    function getDaysInMonth(date)
+    function getDaysInMonth(month, year)
 	    {
     		// day 0 is the last day in the current month
-    	 	return new Date(date.getFullYear(), date.getMonth()+1, 0).getDate(); // return the last day of the month
+    	 	return new Date(year, month+1, 0).getDate(); // return the last day of the month
 	    }
     
     // =======================================

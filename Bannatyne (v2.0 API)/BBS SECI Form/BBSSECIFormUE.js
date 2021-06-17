@@ -43,8 +43,8 @@ function(runtime, search, record) {
 					fieldId: 'custrecord_bbs_seci_site_approval_status'
 				});
 				
-				// if the approvalStatus is 2 (Pending Approval) and approvalRole = userRole OR approvalUser = userID
-				if (approvalStatus == 2 && (approvalRole == userRole || approvalUser == userID))
+				// if the approvalStatus is 2 (Pending Approval) and approvalRole = userRole OR userRole = 3 (Administrator) OR approvalUser = userID
+				if (approvalStatus == 2 && (approvalRole == userRole || userRole == 3 || approvalUser == userID))
 					{
 						// get ID of current record
 		        		var recordID = currentRecord.id;
@@ -249,6 +249,13 @@ function(runtime, search, record) {
 		    								})
 		    		    				});
 		    							
+		    							supplierRec.setValue({
+		    		    					fieldId: 'vatregnumber',
+		    		    					value: currentRecord.getValue({
+		    									fieldId: 'custrecord_bbs_seci_site_vat'
+		    								})
+		    		    				});
+		    							
 		    							// add a new line to the address sublist
 		    							supplierRec.selectNewLine({
 		    		    					sublistId: 'addressbook'
@@ -356,22 +363,37 @@ function(runtime, search, record) {
 				    			    				type: 'customrecord_2663_entity_bank_details'
 				    			    			});
 				    			    			
-				    			    			// set fields on the new bank details record
 				    			    			bankDetailsRecord.setValue({
 				    			    				fieldId: 'custrecord_2663_parent_vendor',
 				    			    				value: supplierID
 				    			    			});
 				    			    			
-				    			    			bankDetailsRecord.setValue({
-				    			    				fieldId: 'name',
-				    			    				value: currentRecord.getValue({
-				    									fieldId: 'custrecord_bbs_seci_site_company_name'
-				    								})
-				    			    			});
+				    			    			var companyName = currentRecord.getValue({
+			    									fieldId: 'custrecord_bbs_seci_site_company_name'
+			    								});
+				    			    			
+				    			    			if (companyName)
+				    			    				{
+						    			    			bankDetailsRecord.setValue({
+						    			    				fieldId: 'name',
+						    			    				value: companyName
+						    			    			});
+				    			    				}
+				    			    			else
+				    			    				{
+					    			    				bankDetailsRecord.setValue({
+						    			    				fieldId: 'name',
+						    			    				value: currentRecord.getValue({
+						    									fieldId: 'custrecord_bbs_seci_site_first_name'
+						    								}) + ' ' + currentRecord.getValue({
+						    									fieldId: 'custrecord_bbs_seci_site_surname'
+						    								})
+						    			    			});
+				    			    				}
 				    			    			
 				    			    			bankDetailsRecord.setValue({
-				    			    				fieldId: 'custpage_2663_entity_file_format',
-				    			    				value: 5 // 5 = BACS
+				    			    				fieldId: 'custrecord_2663_entity_file_format',
+				    			    				value: 67 // 67 = BACS Bank of Scotland without transaction REF
 				    			    			});
 				    			    			
 				    			    			bankDetailsRecord.setValue({
@@ -380,7 +402,7 @@ function(runtime, search, record) {
 				    			    			});
 				    			    			
 				    			    			bankDetailsRecord.setValue({
-				    			    				fieldId: 'custrecord_2663_entity_bank_no',
+				    			    				fieldId: 'custrecord_2663_entity_acct_no',
 				    			    				value: currentRecord.getValue({
 				    			    					fieldId: 'custrecord_bbs_seci_site_bank_acc_no'
 				    			    				})
@@ -407,11 +429,8 @@ function(runtime, search, record) {
 				    								})
 				    			    			});
 				    			    			
-				    			    			// submit the bankDetailsRecord
-				    			    			bankDetailsRecord.save({
-				    			    				enableSourcing: false,
-				    					    		ignoreMandatoryFields: true
-				    			    			});
+				    			    			// save the bankDetailsRecord
+				    			    			bankDetailsRecord.save();
 				    			    			
 				    			    			log.audit({
 				    			    				title: 'Bank Details Record Created',

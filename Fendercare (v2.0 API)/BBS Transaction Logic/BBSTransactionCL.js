@@ -46,6 +46,33 @@ function(dialog) {
      * @since 2015.2
      */
     function postSourcing(scriptContext) {
+    	
+    	if (scriptContext.sublistId == 'item' && scriptContext.fieldId == 'item')
+			{
+				scriptContext.currentRecord.setCurrentSublistValue({
+					sublistId: 'item',
+					fieldId: 'department',
+					value: scriptContext.currentRecord.getValue({
+						fieldId: 'department'
+					})
+				});
+				
+				scriptContext.currentRecord.setCurrentSublistValue({
+					sublistId: 'item',
+					fieldId: 'class',
+					value: scriptContext.currentRecord.getValue({
+						fieldId: 'class'
+					})
+				});
+				
+				scriptContext.currentRecord.setCurrentSublistValue({
+					sublistId: 'item',
+					fieldId: 'location',
+					value: scriptContext.currentRecord.getValue({
+						fieldId: 'location'
+					})
+				});
+			}
 
     }
 
@@ -176,7 +203,8 @@ function(dialog) {
     }
 
     return {
-        validateLine: validateLine
+    	postSourcing:	postSourcing,
+        validateLine: 	validateLine
     };
     
 });

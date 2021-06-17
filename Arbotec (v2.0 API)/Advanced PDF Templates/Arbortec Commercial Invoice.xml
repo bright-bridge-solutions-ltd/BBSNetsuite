@@ -115,7 +115,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="65pt" footer="nlfooter" footer-height="5pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4-Landscape">
+<body header="nlheader" header-height="65pt" footer="nlfooter" footer-height="5pt" padding="0.2in 0.4in 0.2in 0.4in" size="A4-Landscape">
     
     <#setting number_format=",##0.00">
     <#assign goodsTotal = 0>
@@ -147,9 +147,14 @@
 		    <td colspan="6" style="margin-left: 20px;">${subsidiary.city}</td>
 		</tr>
 		<tr>
-			<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.shipzip}</td>
-			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${createdfrom.billzip}</td>
+			<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black;">${record.shipzip}</td>
+			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${createdfrom.billzip}</td>
 		    <td colspan="6" style="margin-left: 20px;">${subsidiary.zip}</td>
+		</tr>
+		<tr>
+			<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.shipcountry}</td>
+			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${createdfrom.billcountry}</td>
+		    <td colspan="6" style="margin-left: 20px;">${subsidiary.country}</td>
 		</tr>
 	</table>
 	

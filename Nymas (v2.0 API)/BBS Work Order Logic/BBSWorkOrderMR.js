@@ -102,19 +102,22 @@ function(runtime, search, record, format) {
     				fieldId: 'createdfrom'
     			});
     			
-    			// call function to get the production end date from the sales order line
-    			var productionEndDate = getProductionEndDate(assemblyItem, salesOrder);
-    			
-    			// update fields on the work order
-    			workOrder.setValue({
-    				fieldId: 'enddate',
-    				value: productionEndDate
-    			});
-    			
-    			workOrder.setValue({
-    				fieldId: 'custbody_bbs_original_end_date',
-    				value: productionEndDate
-    			});
+    			if(salesOrder)
+    				{
+		    			// call function to get the production end date from the sales order line
+		    			var productionEndDate = getProductionEndDate(assemblyItem, salesOrder);
+		    			
+		    			// update fields on the work order
+		    			workOrder.setValue({
+		    				fieldId: 'enddate',
+		    				value: productionEndDate
+		    			});
+		    			
+		    			workOrder.setValue({
+		    				fieldId: 'custbody_bbs_original_end_date',
+		    				value: productionEndDate
+		    			});
+    				}
     			
     			// get count of item lines
     			var lineCount = workOrder.getLineCount({

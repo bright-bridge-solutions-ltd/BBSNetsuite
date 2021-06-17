@@ -3,7 +3,6 @@
 <head>
 	<link name="OpenSans" type="font" subtype="truetype" src="${nsfont.OpenSans_Regular}" src-bold="${nsfont.OpenSans_Bold}" src-italic="${nsfont.OpenSans_Italic}" src-bolditalic="${nsfont.OpenSans_BoldItalic}" bytes="2" />
 	<#setting number_format=",##0.00">
-	<#assign currencySymbol>${record.custbody_bbs_currency_symbol}</#assign>
 	<#assign logoInfo>https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=1942&amp;c=5423837_SB1&amp;h=1e9c8c9c705d4925337f</#assign>
 	
 	<#if .locale == "zh_CN">
@@ -27,7 +26,7 @@
             	</tr>
             	<tr style="margin-bottom: 10px;">
             		<td colspan="6"><span class="title">INVOICE</span></td>
-            		<td colspan="4" rowspan="3"><span class="address">${subsidiary.mainaddress_text}<br/><br/>${subsidiary.email}<#if subsidiary.id == "2"><!-- UK --><br/><br/>VAT: GB ${subsidiary.federalidnumber}</#if></span></td>
+            		<td colspan="4" rowspan="3"><span class="address">${subsidiary.mainaddress_text}<br/><br/>${subsidiary.email}<#if subsidiary.id == "2" || subsidiary.id == "12"><!-- UK OR EU--><br/>VAT: ${subsidiary.federalidnumber}</#if></span></td>
            		</tr>
            		<tr style="margin-bottom: 5px;">
            			<td colspan="6"><span class="subtitle">INVOICE TO:</span></td>
@@ -37,13 +36,11 @@
            		</tr>
            		<tr style="margin-bottom: 5px;">
            			<td colspan="6"><span class="subtitle">Cost Centre/Location:</span></td>
-           		</tr>
-           		<tr style="margin-bottom: 5px;">
-           			<td colspan="6" rowspan="8"><span class="address">${record.shipaddress}</span></td>
            			<td colspan="2"><span class="subtitle">DATE:</span></td>
            			<td colspan="2"><span class="address">${record.trandate}</span></td>
            		</tr>
            		<tr style="margin-bottom: 5px;">
+           			<td colspan="6" rowspan="7"><span class="address">${record.shipaddress}</span></td>
            			<td colspan="2"><span class="subtitle">INVOICE NO:</span></td>
            			<td colspan="2"><span class="address">${record.tranid}</span></td>
            		</tr>
@@ -250,12 +247,12 @@
 					</#if>
 					<td align="right" colspan="4" style="border-left: 2px solid black;">${item.quantity?string["0"]}</td>
 					<#if subsidiary.id != "3"> <!-- US -->
-						<td align="right" colspan="5" style="border-left: 2px solid black;">${currencySymbol}${item.rate}</td>
-						<td align="right" colspan="4" style="border-left: 2px solid black;">${item.taxrate1?string["0"]}%</td>
+						<td align="right" colspan="5" style="border-left: 2px solid black;">${item.rate}</td>
+						<td align="right" colspan="4" style="border-left: 2px solid black;">${item.taxrate1?string.percent}</td>
 					<#else>
-						<td align="right" colspan="4" style="border-left: 2px solid black;">${currencySymbol}${item.rate}</td>
+						<td align="right" colspan="4" style="border-left: 2px solid black;">${item.rate}</td>
 					</#if>
-					<td align="right" colspan="4" style="border-left: 2px solid black;">${currencySymbol}${item.amount}</td>
+					<td align="right" colspan="4" style="border-left: 2px solid black;">${item.amount}</td>
 				</tr>
 			</#list>
 		</table>
@@ -271,7 +268,7 @@
 		<#else>
 			<td colspan="16" align="right" style="border-left: 2px solid black; border-top: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>SUB TOTAL</b></td>
 		</#if>
-		<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-top: 2px solid black; border-bottom: 2px solid black;">${currencySymbol}${record.subtotal}</td>
+		<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-top: 2px solid black; border-bottom: 2px solid black;">${record.subtotal}</td>
 	</tr>
 	<#if subsidiary.id == "3"> <!-- US -->
 		<#if record.custbody_bbs_tfc_tax_summ_json?has_content>
@@ -297,7 +294,7 @@
 									<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>${taxes.taxName}</b></td>
 								</#if>
 							</#if>
-							<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">${currencySymbol}${taxes.taxAmount}</td>
+							<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">${taxes.taxAmount}</td>
 						</tr>
 					</#if>
 				</#list>
@@ -310,7 +307,7 @@
 			<#else>
 				<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>GST/HST</b></td>
 			</#if>
-			<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">${currencySymbol}${record.taxtotal}</td>
+			<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">${record.taxtotal}</td>
 		</tr>
 		<tr>
 			<td colspan="10">&nbsp;</td>
@@ -319,7 +316,7 @@
 			<#else>
 				<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>PST</b></td>
 			</#if>
-			<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">${currencySymbol}${record.tax2total}</td>
+			<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">${record.tax2total}</td>
 		</tr>
 	<#elseif subsidiary.id == "2" && record.vatregnum?has_content && !record.billaddress?contains("United Kingdom")> <!-- If subsidiary is UK AND we have a customer VAT number AND the country is not UK-->
 		<!-- DO NOTHING -->
@@ -331,7 +328,7 @@
 			<#else>
 				<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>Tax Total</b></td>
 			</#if>
-			<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">${currencySymbol}${record.taxtotal}</td>
+			<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">${record.taxtotal}</td>
 		</tr>
 	</#if>
 	<tr>
@@ -341,13 +338,13 @@
 		<#else>
 			<td colspan="16" align="right" style="border-left: 2px solid black; border-bottom: 2px solid black; background-color: #d3d3d3;"><b>TOTAL DUE</b></td>
 		</#if>
-		<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">${currencySymbol}${record.total}</td>
+		<td colspan="4" align="right" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">${record.total}</td>
 	</tr>
 </table>
 
 <hr/><!-- Horizontal Line -->
 
-<table style="width: 100%;"> <!-- Bank Details -->
+<table style="width: 100%; page-break-inside: avoid;"> <!-- Bank Details -->
 	<tr>
 		<td colspan="20"><b>Please remit your <#if subsidiary.id == '3'><!-- US -->ACH/Wire Payment to:<#else>Payment to ${subsidiary.name}</#if></b></td>
 	</tr>

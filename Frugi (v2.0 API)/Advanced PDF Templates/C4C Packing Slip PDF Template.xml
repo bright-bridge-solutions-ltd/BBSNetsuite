@@ -257,15 +257,15 @@
 	            <table class="header" style="width: 100%;">
 	            	<tr>
 						<td colspan="10">&nbsp;</td>
-						<td colspan="14" style="margin-top: 5px;">${record.tranid}<br/>${record.custbody_c4c_customer_number}<br/>${record.trandate}</td>
+						<td colspan="14" style="margin-top: 3px;">${record.tranid}<br/>${record.custbody_c4c_customer_number}<br/>${record.trandate}</td>
 						<td colspan="6">&nbsp;</td>
-						<td colspan="28" style="margin-top: 10px;">${record.entity}<br/>${record.shipaddr1}<#if record.shipaddr2?has_content><br/>${record.shipaddr2}</#if><br/>${record.shipcity}<br/>${record.shipstate}<br/>${record.shipzip}<br/>${record.shipcountry}</td>
+						<td colspan="28" style="margin-top: 8px;">${record.entity}<br/>${record.shipaddr1}<#if record.shipaddr2?has_content><br/>${record.shipaddr2}</#if><br/>${record.shipcity}<br/>${record.shipstate}<br/>${record.shipzip}<br/>${record.shipcountry}</td>
 						<td colspan="20">&nbsp;</td>
 					</tr>
 				</table>
 	        </macro>
 	        <macro id="nlfooter">
-				<table class="footer" style="width: 100%; margin-top: 10px;">
+				<table class="footer" style="width: 100%;">
 					<tr>
 						<td colspan="43">&nbsp;</td>
 						<td colspan="8" line-height="150%">${record.custbody_c4c_if_total}</td>
@@ -332,6 +332,7 @@
 	        }
 	        table.itemtable td {
 	            font-size: 8pt;
+	            vertical-align: middle;
 	        }
 	        table.total {
 	            page-break-inside: avoid;
@@ -385,7 +386,7 @@
 	        }
 	</style>
 	</head>
-	<body header="nlheader" header-height="115pt" footer="nlfooter" footer-height="162pt" padding="0.2in 0.3in 0.4in 0.3in" size="A4-LANDSCAPE">
+	<body header="nlheader" header-height="115pt" footer="nlfooter" footer-height="155pt" padding="0.18in 0.3in 0.4in 0.3in" size="A4-LANDSCAPE">
 		
 		<#if record.custbody_c4c_item_json?length gt 0> 
   			<#assign item_summary = record.custbody_c4c_item_json?eval>
@@ -393,9 +394,10 @@
   					<table class="itemtable" style="width: 100%;">
         				<#list item_summary as item>
 							<tr>
-								<td align="center" colspan="8" line-height="175%">${item.item}</td>
-								<td align="center" colspan="20">${item.description}</td>
-								<td align="center" colspan="10">&nbsp;</td>
+								<td align="center" colspan="10" line-height="170%">${item.item}</td>
+								<td align="center" colspan="18">${item.description?substring(0, 45)}</td>
+								<td align="center" colspan="6">${item.size?substring(0, 10)}</td>
+								<td align="center" colspan="4">&nbsp;</td>
 								<td align="center" colspan="3">${item.quantity?string["0"]}</td>
 								<td align="center" colspan="4">${item.rate}</td>
 								<td align="center" colspan="4">${item.netAmount}</td>
