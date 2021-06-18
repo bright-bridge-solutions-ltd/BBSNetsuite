@@ -70,12 +70,12 @@ function vendorbillAfterSubmit(type)
 									}
 							}
 						
-						if(accountToBeCredited)
+						if (accountToBeCredited)
 							{
 								for (var i = 1; i <= nlapiGetLineItemCount('expense'); i++)
 									{
 										// get values from the line
-										var accountId      = vendorBill.getLineItemValue('expense', 'account', i);
+										var account      = vendorBill.getLineItemValue('expense', 'account', i);
 										var accountName    = vendorBill.getLineItemValue('expense', 'account_display', i);
 										var amt            = vendorBill.getLineItemValue('expense', 'amount', i);
 										var grossAmt       = vendorBill.getLineItemValue('expense', 'grossamt', i);
@@ -95,14 +95,15 @@ function vendorbillAfterSubmit(type)
 														var journalID 		= null;
 														var vatJournalID	= null;
 													
-														var accountRepreSite = nlapiLookupField('account', accountId, 'custrecord_bbs_represents_site');
+														var accountRepreSite = nlapiLookupField('account', account, 'custrecord_bbs_represents_site');
 														
 														try
 															{
 																// create a journal record
 																var journal = nlapiCreateRecord('journalentry');
+																
 																journal.setFieldValue('customform', 105);
-																journal.setFieldValue('trandate', today);
+																journal.setFieldValue('trandate', tranDate);
 																journal.setFieldValue('subsidiary', accountRepreSite);
 																journal.setFieldValue('location', location);
 																journal.setFieldValue('custbody_bb_created_from_script', 'T');
@@ -119,12 +120,14 @@ function vendorbillAfterSubmit(type)
 																		journal.setCurrentLineItemValue('line', 'taxcode', 6);
 																		journal.setCurrentLineItemValue('line', 'memo', documentNo);
 																		journal.commitLineItem('line');
+																		
 																		journal.selectNewLineItem('line');
 																		journal.setCurrentLineItemValue('line', 'account', debitAccount);
 																		journal.setCurrentLineItemValue('line', 'debit', amt);
 																		journal.setCurrentLineItemValue('line', 'taxcode', 6);
 																		journal.setCurrentLineItemValue('line', 'memo', documentNo);
 																		journal.commitLineItem('line');
+																		
 																		journal.selectNewLineItem('line');
 																		journal.setCurrentLineItemValue('line', 'account', 110);
 																		journal.setCurrentLineItemValue('line', 'debit', taxAmount);
@@ -139,6 +142,7 @@ function vendorbillAfterSubmit(type)
 																		journal.setCurrentLineItemValue('line', 'credit', amt);
 																		journal.setCurrentLineItemValue('line', 'taxcode', 6);
 																		journal.commitLineItem('line');
+																		
 																		journal.selectNewLineItem('line');
 																		journal.setCurrentLineItemValue('line', 'account', debitAccount);
 																		journal.setCurrentLineItemValue('line', 'debit', amt);
@@ -159,9 +163,10 @@ function vendorbillAfterSubmit(type)
 																	{
 																		// create a journal record
 																		var vatOutputJournal = nlapiCreateRecord('journalentry');
+																		
 																		vatOutputJournal.setFieldValue('customform', 105);
-																		vatOutputJournal.setFieldValue('trandate', today);
-																		vatOutputJournal.setFieldValue('subsidiary', subsidary);
+																		vatOutputJournal.setFieldValue('trandate', tranDate);
+																		vatOutputJournal.setFieldValue('subsidiary', subsidiary);
 																		vatOutputJournal.setFieldValue('location', vatOutLocation);
 																		vatOutputJournal.setFieldValue('custbody_bb_created_from_script', 'T');
 																		vatOutputJournal.setFieldValue('memo', memo);

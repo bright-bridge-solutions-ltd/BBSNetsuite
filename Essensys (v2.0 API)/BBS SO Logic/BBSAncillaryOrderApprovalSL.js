@@ -39,18 +39,10 @@ function(ui, search, record) {
     	if (approvalStatus == 13)
     		{
     			// call function to approve the sales order
-    			var salesOrderUpdated = approveSalesOrder(soID);
+    			approveSalesOrder(soID);
     			
-    			if (salesOrderUpdated == true)
-    				{
-    					// set value of page text field
-    					pageText.defaultValue = '<br/><p align="center"><img src="https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=2851&c=5423837_SB1&h=263dbead5b271f496136" alt="essensys Logo" style="width: 200px; height: 50px; float: center;"></p><br/><p align="center"><span style="font-size:20px; color:#008000;"><strong>Thankyou, you have approved the order and it will now be processed.</strong></span></p><br/><p align="center"><span style="font-size:20px; color:#008000;"><strong>You may now close the page.</strong></span></p>';
-    				}
-    			else
-    				{
-    					// set value of page text field
-						pageText.defaultValue = '<br/><p align="center"><img src="https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=2851&c=5423837_SB1&h=263dbead5b271f496136" alt="essensys Logo" style="width: 200px; height: 50px; float: center;"></p><br/><p align="center"><span style="font-size:20px; color:#FF0000;"><strong>There was a problem marking the order as approved.</strong></span></p><br/><p align="center"><span style="font-size:20px; color:#FF0000;"><strong>Please contact your account manager for further assistance.</strong></span></p>';
-    				}
+    			// set value of page text field
+    			pageText.defaultValue = '<br/><p align="center"><img src="https://5423837-sb1.app.netsuite.com/core/media/media.nl?id=2851&c=5423837_SB1&h=263dbead5b271f496136" alt="essensys Logo" style="width: 200px; height: 50px; float: center;"></p><br/><p align="center"><span style="font-size:20px; color:#008000;"><strong>Thankyou, you have approved the order and it will now be processed.</strong></span></p><br/><p align="center"><span style="font-size:20px; color:#008000;"><strong>You may now close the page.</strong></span></p>';
     		}
     	else
     		{
@@ -88,9 +80,6 @@ function(ui, search, record) {
     
     function approveSalesOrder(soID) {
     	
-    	// declare and initialize variables
-    	var salesOrderUpdated = true;
-    	
     	try
     		{
     			// update fields on the sales order
@@ -105,15 +94,11 @@ function(ui, search, record) {
     		}
     	catch(e)
     		{
-    			salesOrderUpdated = false;
-    		
     			log.error({
     				title: 'Error Updating Sales Order ' + soID,
     				details: e.message
     			});
     		}
-    	
-    	return salesOrderUpdated;
     }
 
     return {
