@@ -304,7 +304,7 @@ function(runtime, record, search) {
     				{
     					log.error({
     						title: 'Error Creating Journal Record',
-    						details: e.message
+    						details: e
     					});
     				}
     				

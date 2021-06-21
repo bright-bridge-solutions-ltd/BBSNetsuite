@@ -63,7 +63,7 @@ function()
 	
 	//Object to hold the request to create a shipment
 	//
-	function _processShipmentRequest(_configuration, _shippingItemInfo, _shippingReference, _address, _contact, _shippingDate, _isSaturday, _senderAddress, _senderContactInfo, _itemDetails)
+	function _processShipmentRequest(_configuration, _shippingItemInfo, _shippingReference, _address, _contact, _shippingDate, _isSaturday, _senderAddress, _senderContactInfo, _currencyISOCode, _itemDetails)
 		{
 			this.configuration		= _configuration;		//Configuration object
 			this.shippingItemInfo	= _shippingItemInfo;	//Shipping info object
@@ -77,6 +77,7 @@ function()
 			this.isSaturday			= _isSaturday;
 			this.senderAddress		= _senderAddress;		//Address object
 			this.senderContact		= _senderContactInfo;	//Contact object
+			this.currencyISOCode	= _currencyISOCode;
 			this.itemDetails		= _itemDetails;			//Array of item details
 		}
 

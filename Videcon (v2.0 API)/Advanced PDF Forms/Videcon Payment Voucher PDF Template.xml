@@ -2,6 +2,7 @@
 <pdf>
 <head>
 	
+	<#setting number_format		= ",##0.00">
 	<#assign regInfo 			= "Company Registration No: " + record.custbody_bbs_branding.custrecord_bbs_branding_co_reg + ".">
    	<#assign emailInfo 			= record.custbody_bbs_branding.custrecord_bbs_branding_email_acc>
    	<#assign telInfo 			= record.custbody_bbs_branding.custrecord_bbs_branding_phone>
@@ -243,10 +244,10 @@
 </#if><tr>
 	<td align="center" colspan="3" line-height="150%">${apply.applydate}</td>
 	<td colspan="5">${apply.type}</td>
-	<td align="right" colspan="3">${apply.total}</td>
-	<td align="right" colspan="3">${apply.due}</td>
-	<td align="right" colspan="3">${apply.disc}</td>
-	<td align="right" colspan="4">${apply.amount}</td>
+	<td align="right" colspan="3">${currencySymbol}${apply.total}</td>
+	<td align="right" colspan="3">${currencySymbol}${apply.due}</td>
+	<td align="right" colspan="3">${currencySymbol}${apply.disc}</td>
+	<td align="right" colspan="4">${currencySymbol}${apply.amount}</td>
 	</tr>
 	</#list><!-- end apply --></table>
 
@@ -258,7 +259,7 @@
 	<th colspan="5">${credit.type@label}</th>
 	<th align="right" colspan="3">${credit.refnum@label}</th>
 	<th align="right" colspan="6">${credit.appliedto@label}</th>
-	<th align="right" colspan="4">${credit.amount@label}</th>
+	<th align="right" colspan="4">${currencySymbol}${credit.amount@label}</th>
 	</tr>
 </thead>
 </#if><tr>
@@ -266,7 +267,7 @@
 	<td colspan="5">${credit.type}</td>
 	<td align="right" colspan="3">${credit.refnum}</td>
 	<td align="right" colspan="6">${credit.appliedto}</td>
-	<td align="right" colspan="4">${credit.amount}</td>
+	<td align="right" colspan="4">${currencySymbol}${credit.amount}</td>
 	</tr>
 	</#list><!-- end credit--></table>
 
@@ -274,7 +275,7 @@
 <table class="total" style="width: 100%; margin-top: 10px;"><tr class="totalrow">
 	<td background-color="#ffffff" colspan="4">&nbsp;</td>
 	<td align="right"><b>${record.total@label}</b></td>
-	<td align="right">${record.total}</td>
+	<td align="right">${currencySymbol}${record.total}</td>
 	</tr></table>
 
 

@@ -172,11 +172,60 @@ function(ui, search, record, format, message) {
 							label: 'Class'
 						}).isMandatory = true;
 						
+						var startTime = sublist.addField({
+							type: ui.FieldType.SELECT,
+							id: 'custpage_start_time',
+							label: 'Start Time'
+						});
+						
+						startTime.isMandatory = true;
+						
+						var endTime = sublist.addField({
+							type: ui.FieldType.SELECT,
+							id: 'custpage_end_time',
+							label: 'End Time'
+						});
+						
+						endTime.isMandatory = true;
+						
+						// add a default select option to the start/end time fields
+						startTime.addSelectOption({
+							value: 0,
+							text: '',
+							isSelected: true
+						});
+						
+						endTime.addSelectOption({
+							value: 0,
+							text: '',
+							isSelected: true
+						});
+						
+						// call function to return class times
+						var classTimes = getClassTimes();
+						
+						// loop through class times
+						for (var i = 0; i < classTimes.length; i++)
+							{
+								// add a select option to the start/end time fields
+								startTime.addSelectOption({
+									value: classTimes[i].id,
+									text: classTimes[i].name
+								});
+								
+								endTime.addSelectOption({
+									value: classTimes[i].id,
+									text: classTimes[i].name
+								});
+							}
+						
 						sublist.addField({
 							type: ui.FieldType.FLOAT,
 							id: 'custpage_duration',
 							label: 'Duration (Hours)'
-						}).isMandatory = true;
+						}).updateDisplayType({
+							displayType: ui.FieldDisplayType.DISABLED
+						});
 						
 						sublist.addField({
 							type: ui.FieldType.CURRENCY,
@@ -261,6 +310,26 @@ function(ui, search, record, format, message) {
 	    	    								});
 	    	    								
 	    	    								sublist.setSublistValue({
+	    	    								    id: 'custpage_start_time',
+	    	    								    value: timeEntryRecord.getSublistValue({
+	    	    								    	sublistId: 'recmachcustrecord_bbs_seci_time_entry_li_parent',
+	    	    								    	fieldId: 'custrecord_bbs_seci_time_entry_li_start',
+	    	    								    	line: i
+	    	    								    }),
+	    	    								    line: i
+	    	    								});
+	    	    								
+	    	    								sublist.setSublistValue({
+	    	    								    id: 'custpage_end_time',
+	    	    								    value: timeEntryRecord.getSublistValue({
+	    	    								    	sublistId: 'recmachcustrecord_bbs_seci_time_entry_li_parent',
+	    	    								    	fieldId: 'custrecord_bbs_seci_time_entry_li_end',
+	    	    								    	line: i
+	    	    								    }),
+	    	    								    line: i
+	    	    								});
+	    	    								
+	    	    								sublist.setSublistValue({
 	    	    								    id: 'custpage_duration',
 	    	    								    value: timeEntryRecord.getSublistValue({
 	    	    								    	sublistId: 'recmachcustrecord_bbs_seci_time_entry_li_parent',
@@ -299,7 +368,6 @@ function(ui, search, record, format, message) {
 	    	    						});
 	    	    					}
 	    	    			}
-	    	    		
 	    	    		if (seciSite) // if we have a seci site record ID
 	    	    			{
 			    	    		// call function to retrieve details for entered SECI details
@@ -310,7 +378,7 @@ function(ui, search, record, format, message) {
 									value: 0,
 									text: ''
 								});
-			
+								
 								// if we have a default location (picked up from the time entry record)
 								if (defaultLocation)
 									{
@@ -322,8 +390,8 @@ function(ui, search, record, format, message) {
 													{
 														// add a select option to the location field and select the location by default
 														seciLocationField.addSelectOption({
-															value: seciDetails.locations[i].value,
-															text: seciDetails.locations[i].text,
+															value: seciDetails.locations[i].id,
+															text: seciDetails.locations[i].name,
 															isSelected: true
 														});
 													}
@@ -331,11 +399,12 @@ function(ui, search, record, format, message) {
 													{
 														// add a select option to the location field
 														seciLocationField.addSelectOption({
-															value: seciDetails.locations[i].value,
-															text: seciDetails.locations[i].text
+															value: seciDetails.locations[i].id,
+															text: seciDetails.locations[i].name
 														});
 													}
-		
+												
+												
 											}
 									}
 								else
@@ -344,8 +413,8 @@ function(ui, search, record, format, message) {
 											{
 												// add a select option to the location field and select the location by default
 												seciLocationField.addSelectOption({
-													value: seciDetails.locations[0].value,
-													text: seciDetails.locations[0].text,
+													value: seciDetails.locations[0].id,
+													text: seciDetails.locations[0].name,
 													isSelected: true
 												});
 											}
@@ -356,11 +425,19 @@ function(ui, search, record, format, message) {
 													{
 														// add a select option to the location field
 														seciLocationField.addSelectOption({
-															value: seciDetails.locations[i].value,
-															text: seciDetails.locations[i].text
+															value: seciDetails.locations[i].id,
+															text: seciDetails.locations[i].name
 														});
 													}
 											}
+									}
+								
+								if (seciDetails.locations.length == 1) // if the SECI only takes classes at one location
+									{
+										// disable the location field
+										seciLocationField.updateDisplayType({
+											displayType: ui.FieldDisplayType.INLINE
+										});
 									}
 								
 								// set field values
@@ -540,6 +617,26 @@ function(ui, search, record, format, message) {
 		    					
 		    					timeEntryRec.setCurrentSublistValue({
 		    						sublistId: 'recmachcustrecord_bbs_seci_time_entry_li_parent',
+		    						fieldId: 'custrecord_bbs_seci_time_entry_li_start',
+    								value: context.request.getSublistValue({
+    		    						group: 'custpage_time_entries',
+    		    						name: 'custpage_start_time',
+    		    						line: i
+    		    					})
+		    					});
+		    					
+		    					timeEntryRec.setCurrentSublistValue({
+		    						sublistId: 'recmachcustrecord_bbs_seci_time_entry_li_parent',
+		    						fieldId: 'custrecord_bbs_seci_time_entry_li_end',
+    								value: context.request.getSublistValue({
+    		    						group: 'custpage_time_entries',
+    		    						name: 'custpage_end_time',
+    		    						line: i
+    		    					})
+		    					});
+		    					
+		    					timeEntryRec.setCurrentSublistValue({
+		    						sublistId: 'recmachcustrecord_bbs_seci_time_entry_li_parent',
 		    						fieldId: 'custrecord_bbs_seci_time_entry_li_length',
     								value: context.request.getSublistValue({
     		    						group: 'custpage_time_entries',
@@ -647,25 +744,118 @@ function(ui, search, record, format, message) {
     
     function getSeciDetails(seciSite) {
     	
-    	// loop fields on the seciSite record
-    	var seciLookup = search.lookupFields({
-    		type: 'customrecord_bbs_seci_site_form',
-    		id: seciSite,
-    		columns: ['custrecord_bbs_seci_site_first_name', 'custrecord_bbs_seci_site_surname', 'custrecord_bbs_seci_site_company_name', 'custrecord_bbs_seci_site_location']
+    	// declare and initialize variables
+    	var firstName 	= null;
+    	var surname		= null;
+    	var companyName	= null;
+    	var locations   = new Array();
+    	
+    	try
+    		{
+    			// load the SECI site record
+    			var seciSite = record.load({
+    				type: 'customrecord_bbs_seci_site_form',
+    	    		id: seciSite
+    			});
+    			
+    			// get values from the record
+    			firstName = seciSite.getValue({
+    				fieldId: 'custrecord_bbs_seci_site_first_name'
+    			});
+    			
+    			surname = seciSite.getValue({
+    				fieldId: 'custrecord_bbs_seci_site_surname'
+    			});
+    			
+    			companyName = seciSite.getValue({
+    				fieldId: 'custrecord_bbs_seci_site_company_name'
+    			});
+    			
+    			var locationValues = seciSite.getValue({
+    				fieldId: 'custrecord_bbs_seci_site_location'
+    			});
+    			
+    			var locationTextValues = seciSite.getText({
+    				fieldId: 'custrecord_bbs_seci_site_location'
+    			});
+    			
+    			// loop through locations
+    			for (var i = 0; i < locationValues.length; i++)
+    				{
+    					// push a new location obj to the locations array
+    					locations.push(new locationObj(locationTextValues[i], locationValues[i]));
+    				}
+    		}
+    	catch(e)
+    		{
+    			log.error({
+    				title: 'Error Loading SECI Site ' + seciSite,
+    				details: e.message
+    			});
+    		}
+    	
+    	log.debug({
+    		title: 'locations',
+    		details: locations
     	});
     	
     	// return values to the main script function
     	return {
-    		name: 			seciLookup.custrecord_bbs_seci_site_first_name + ' ' + seciLookup.custrecord_bbs_seci_site_surname,
-    		companyName: 	seciLookup.custrecord_bbs_seci_site_company_name,
-    		locations:		seciLookup.custrecord_bbs_seci_site_location
+    		name: 			firstName + ' ' + surname,
+    		companyName: 	companyName,
+    		locations:		locations
     	}
     	
+    }
+    
+    function getClassTimes() {
+    	
+    	// declare and initialize variables
+    	var classTimes = new Array();
+    	
+    	// run search to return the class times
+    	search.create({
+    		type: 'customrecord_bbs_class_times',
+    		
+    		filters: [{
+    			name: 'isinactive',
+    			operator: search.Operator.IS,
+    			values: ['F']
+    		}],
+    		
+    		columns: [{
+    			name: 'internalid',
+    			sort: search.Sort.ASC
+    		},
+    				{
+    			name: 'name'
+    		}],	
+    			
+    	}).run().each(function(result){
+    		
+    		// push a new time obj to the classTimes array
+    		classTimes.push(new timeObj(result.getValue({name: 'name'}), result.getValue({name: 'internalid'})));
+    		
+    		// continue processing search results
+    		return true;
+    		
+    	});
+    	
+    	// return values to the main script function
+    	return classTimes;
+	
     }
     
     function locationObj(name, id) {
     	
     	this.name 	= name;
+    	this.id		= id;
+    	
+    }
+    
+    function timeObj(name, id) {
+    	
+    	this.name	= name;
     	this.id		= id;
     	
     }

@@ -11,36 +11,36 @@
 	      				<table style="width: 100%; font-size: 10pt;">
 			      			<tr>
 			      				<td colspan="5"><b>Date Order Raised</b></td>
-			      				<td colspan="4"><b>${purchaseOrder.orderDate}</b></td>
+			      				<td colspan="4">${purchaseOrder.orderDate}</td>
 			      				<td colspan="5"><b>Supplier</b></td>
-			      				<td colspan="6"><b>${purchaseOrder.supplier}</b></td>
+			      				<td colspan="6">${purchaseOrder.supplier}</td>
 			      				<td colspan="8" rowspan="5"><p align="center"><img src="${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_logo@url}" style="float: center; width:150px; height:75px;"/><br/><br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_legal_name}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_1}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_2}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_address_3}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_city}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_county}, ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_postcode}<br/>Tel: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_telephone}<#if record.custbody_bbs_output_logo.custrecord_bbs_output_logo_fax?has_content> Fax: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_fax}</#if><br/>Email: ${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_sales_email}<br/>${record.custbody_bbs_output_logo.custrecord_bbs_output_logo_website}</p></td>
 			      			</tr>
 			      			<tr>
 			      				<td colspan="5"><b>Purchase Order Number</b></td>
-			      				<td colspan="4"><b>${purchaseOrder.poNumber}</b></td>
+			      				<td colspan="4">${purchaseOrder.poNumber}</td>
 			      				<td colspan="5"><b>Supplier Address</b></td>
-			      				<td colspan="6"><b>${purchaseOrder.supplierAddress}</b></td>
+			      				<td colspan="6"><#if record.custbody_bbs_po_del_address?has_content>${record.custbody_bbs_po_del_address}<#else>${purchaseOrder.supplierAddress}</#if></td>
 			      			</tr>
 			      			<tr>
 			      				<td colspan="5"><b>Transfer Order Number</b></td>
-			      				<td colspan="4"><b>${record.custbody_bbs_related_to?keep_after('#')}</b></td>		      				
+			      				<td colspan="4">${record.custbody_bbs_related_to?keep_after('#')}</td>		      				
 			      				<td colspan="5"><b>Supplier Contact</b></td>
-			      				<td colspan="6"><b>${purchaseOrder.supplierContact}</b></td>
+			      				<td colspan="6">${purchaseOrder.supplierContact}</td>
 			      			</tr>
 			      			<tr>
 			      				<td colspan="5"><b>Despatch Date</b></td>
-			      				<td colspan="4"><b>${purchaseOrder.despatchDate}</b></td>
+			      				<td colspan="4">${purchaseOrder.despatchDate}</td>
 			      				<td colspan="5"><b>Supplier Phone</b></td>
-			      				<td colspan="6"><b>${purchaseOrder.supplierPhone}</b></td>
+			      				<td colspan="6">${purchaseOrder.supplierPhone}</td>
 			      			</tr>
 			      			<tr>
 			      				<td colspan="5"><b>Due Date</b></td>
-			      				<td colspan="4"><b>${purchaseOrder.dueDate}</b></td>
+			      				<td colspan="4">${purchaseOrder.dueDate}</td>
 			      			</tr>
 			      			<tr>
 			      				<td colspan="5"><b>Raised By</b></td>
-			      				<td colspan="4"><b>${purchaseOrder.raisedBy}</b></td>
+			      				<td colspan="4">${purchaseOrder.raisedBy}</td>
 			      			</tr>
 	      				</table>
 	      			</#list>

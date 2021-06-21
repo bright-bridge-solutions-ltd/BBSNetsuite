@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/ui/dialog', 'N/url', 'N/search'],
-function(dialog, url, search) {
+define(['N/ui/dialog', 'N/url', 'N/search', 'N/runtime'],
+function(dialog, url, search, runtime) {
     
     /**
      * Function to be executed after page is initialized.
@@ -158,6 +158,36 @@ function(dialog, url, search) {
      * @since 2015.2
      */
     function saveRecord(scriptContext) {
+    	
+    	// retrieve script parameters
+    	var ancillaryOrderLimit = runtime.getCurrentScript().getParameter({
+    		name: 'custscript_bbs_ancillary_order_limit'
+    	});
+    	
+    	// get the product type and order total
+    	var productType = scriptContext.currentRecord.getValue({
+    		fieldId: 'custbody_bbs_order_type'
+    	});
+    	
+    	var orderTotal = scriptContext.currentRecord.getValue({
+    		fieldId: 'total'
+    	});
+    	
+    	// if productType = 4 (Ancillary) and orderTotal > ancillaryOrderLimit
+    	if (productType == 4 && orderTotal > ancillaryOrderLimit)
+    		{
+    			// display a warning and don't let the user save the record
+    			dialog.alert({
+    				title: '⚠️ Error',
+    				message: 'The estimate cannot be saved as the total is greater than the allowable amount for ancillary orders.<br><br>Please ensure the total is less than ' + ancillaryOrderLimit.toFixed(2) + ' or change the product type before saving the estimate'
+    			});
+    		}
+    	else
+    		{
+    			// allow the record to be saved
+    			return true;
+    		}
+    	
     }
     
     function reject(recordID) {
@@ -279,6 +309,7 @@ function(dialog, url, search) {
 
     return {
         fieldChanged: fieldChanged,
+        saveRecord: saveRecord,
         reject: reject,
         transformToSalesOrder: transformToSalesOrder
     };

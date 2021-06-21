@@ -83,134 +83,61 @@ function(format, record, search, format) {
 
     	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
 			{
-    			// get the current record
-    			var currentRecord = scriptContext.newRecord;
-    			
     			// get the form number
-    			var customForm = currentRecord.getValue({
+    			var customForm = scriptContext.newRecord.getValue({
     				fieldId: 'customform'
     			});
     			
     			// if the form in use is 111 (Nymas - Outsourced Purchase Order)
     			if (customForm == 111)
     				{
-    					// declare and initialize variables
-    					var itemSummary 			= new Array();
-    					var purchaseOrderSummary	= new Array();
-    					
-    					// get field values from the current record
-    					var orderDate = currentRecord.getValue({
-    						fieldId: 'trandate'
-    					});
-    					
-    					if (orderDate)
+    					try
     						{
-    							// convert to a date string
-    							orderDate = format.format({
-    								type: format.Type.DATE,
-    								value: orderDate
+    							// reload the purchase order record
+    							var purchaseOrder = record.load({
+    								type: record.Type.PURCHASE_ORDER,
+    								id: scriptContext.newRecord.id
     							});
-    						}
-    					
-    					var poNumber = currentRecord.getValue({
-    						fieldId: 'tranid'
-    					});
-    					
-    					var despatchDate = currentRecord.getValue({
-    						fieldId: 'custbody_bbs_etd'
-    					});
-    					
-    					if (despatchDate)
-    						{
-    							// convert to a date string
-    							despatchDate = format.format({
-    								type: format.Type.DATE,
-    								value: despatchDate
-    							});
-    						}
-    					
-    					var dueDate = currentRecord.getValue({
-    						fieldId: 'duedate'
-    					});
-    					
-    					if (dueDate)
-    						{
-    							// convert to a date string
-    							dueDate = format.format({
-    								type: format.Type.DATE,
-    								value: dueDate
-    							});
-    						}
-    					
-    					var raisedBy = currentRecord.getText({
-    						fieldId: 'employee'
-    					});
-    					
-    					var supplierID = currentRecord.getValue({
-    						fieldId: 'entity'
-    					});
-    					
-    					// call function to return supplier info
-    					var supplierInfo = getSupplierInfo(supplierID);
-    					
-    					// push a new instance of the purchase order info object into the output array
-						purchaseOrderSummary.push(new purchaseOrderInfo(
-																orderDate,
-																poNumber,
-																despatchDate,
-																dueDate,
-																raisedBy,
-																supplierInfo.supplierName,
-																supplierInfo.supplierAddress,
-																supplierInfo.supplierContact,
-																supplierInfo.supplierPhone
-															)
-										);
-						
-    					// get count of item lines on the current record
-    					var lineCount = currentRecord.getLineCount({
-    						sublistId: 'item'
-    					});
-    					
-    					// loop through line count
-    					for (var i = 0; i < lineCount; i++)
-    						{
-    							// declare and initialize variables
-    							var itemType			= 'Assembly';
-    							var assemblyQuantity 	= '';
-    							var itemCode 			= '';
-    							var itemDescription 	= '';
-    							var workDescription 	= '';
-    							var dueDate				= '';
-    							var finishingDrawing 	= '';
-    							var codeToBeMade 		= '';
-    							var price 				= '';
-    						
-    							// get values from the line
-    							assemblyQuantity = currentRecord.getSublistValue({
-    								sublistId: 'item',
-    								fieldId: 'quantity',
-    								line: i
-    							});
-	    						
-	    						codeToBeMade = currentRecord.getSublistText({
-    								sublistId: 'item',
-    								fieldId: 'assembly',
-    								line: i
-    							});
-	    						
-	    						workDescription = currentRecord.getSublistValue({
-    								sublistId: 'item',
-    								fieldId: 'description',
-    								line: i
-    							});
-	    						
-	    						dueDate = currentRecord.getSublistValue({
-	    							sublistId: 'item',
-	    							fieldId: 'productionenddate',
-	    							line: i
-	    						});
-	    						
+    				
+		    					// declare and initialize variables
+		    					var itemSummary 			= new Array();
+		    					var purchaseOrderSummary	= new Array();
+		    					
+		    					// get field values from the current record
+		    					var orderDate = purchaseOrder.getValue({
+		    						fieldId: 'trandate'
+		    					});
+		    					
+		    					if (orderDate)
+		    						{
+		    							// convert to a date string
+		    							orderDate = format.format({
+		    								type: format.Type.DATE,
+		    								value: orderDate
+		    							});
+		    						}
+		    					
+		    					var poNumber = purchaseOrder.getValue({
+		    						fieldId: 'tranid'
+		    					});
+		    					
+		    					var despatchDate = purchaseOrder.getValue({
+		    						fieldId: 'custbody_bbs_etd'
+		    					});
+		    					
+		    					if (despatchDate)
+		    						{
+		    							// convert to a date string
+		    							despatchDate = format.format({
+		    								type: format.Type.DATE,
+		    								value: despatchDate
+		    							});
+		    						}
+		    					
+		    					var dueDate = purchaseOrder.getValue({
+		    						fieldId: 'duedate'
+		    					});
+		    					
 		    					if (dueDate)
 		    						{
 		    							// convert to a date string
@@ -219,141 +146,230 @@ function(format, record, search, format) {
 		    								value: dueDate
 		    							});
 		    						}
-	    						
-	    						price = currentRecord.getSublistValue({
-    								sublistId: 'item',
-    								fieldId: 'rate',
-    								line: i
-    							});
-    							
-    							// push a new instance of the output summary object into the output array
-								itemSummary.push(new outputSummary(
-																		itemType,
-																		assemblyQuantity,
-																		itemCode,
-																		itemDescription,
-																		workDescription,
+		    					
+		    					var raisedBy = purchaseOrder.getText({
+		    						fieldId: 'employee'
+		    					});
+		    					
+		    					var supplierID = purchaseOrder.getValue({
+		    						fieldId: 'entity'
+		    					});
+		    					
+		    					// call function to return supplier info
+		    					var supplierInfo = getSupplierInfo(supplierID);
+		    					
+		    					// push a new instance of the purchase order info object into the output array
+								purchaseOrderSummary.push(new purchaseOrderInfo(
+																		orderDate,
+																		poNumber,
+																		despatchDate,
 																		dueDate,
-																		finishingDrawing,
-																		codeToBeMade,
-																		price
+																		raisedBy,
+																		supplierInfo.supplierName,
+																		supplierInfo.supplierAddress,
+																		supplierInfo.supplierContact,
+																		supplierInfo.supplierPhone
 																	)
 												);
 								
-								// get the BOM revision from the line
-								var bomRevisionID = currentRecord.getSublistValue({
-									sublistId: 'item',
-									fieldId: 'billofmaterialsrevision',
-									line: i
-								});
-								
-								// if we have a BOM revision number
-								if (bomRevisionID)
-									{
-										// declare and initialize variables
-										var bomRevision = null;
+		    					// get count of item lines on the current record
+		    					var lineCount = purchaseOrder.getLineCount({
+		    						sublistId: 'item'
+		    					});
+		    					
+		    					// loop through line count
+		    					for (var i = 0; i < lineCount; i++)
+		    						{
+		    							// declare and initialize variables
+		    							var itemType			= 'Assembly';
+		    							var assemblyQuantity 	= '';
+		    							var itemCode 			= '';
+		    							var itemDescription 	= '';
+		    							var workDescription 	= '';
+		    							var dueDate				= '';
+		    							var finishingDrawing 	= '';
+		    							var codeToBeMade 		= '';
+		    							var price 				= '';
+		    						
+		    							// get values from the line
+		    							assemblyQuantity = purchaseOrder.getSublistValue({
+		    								sublistId: 'item',
+		    								fieldId: 'quantity',
+		    								line: i
+		    							});
+			    						
+			    						codeToBeMade = purchaseOrder.getSublistText({
+		    								sublistId: 'item',
+		    								fieldId: 'assembly',
+		    								line: i
+		    							});
+			    						
+			    						workDescription = purchaseOrder.getSublistValue({
+		    								sublistId: 'item',
+		    								fieldId: 'description',
+		    								line: i
+		    							});
+			    						
+			    						dueDate = purchaseOrder.getSublistValue({
+			    							sublistId: 'item',
+			    							fieldId: 'productionenddate',
+			    							line: i
+			    						});
+			    						
+				    					if (dueDate)
+				    						{
+				    							// convert to a date string
+				    							dueDate = format.format({
+				    								type: format.Type.DATE,
+				    								value: dueDate
+				    							});
+				    						}
+			    						
+			    						price = purchaseOrder.getSublistValue({
+		    								sublistId: 'item',
+		    								fieldId: 'rate',
+		    								line: i
+		    							});
+		    							
+		    							// push a new instance of the output summary object into the output array
+										itemSummary.push(new outputSummary(
+																				itemType,
+																				assemblyQuantity,
+																				itemCode,
+																				itemDescription,
+																				workDescription,
+																				dueDate,
+																				finishingDrawing,
+																				codeToBeMade,
+																				price
+																			)
+														);
 										
-										try
-											{
-												// load the BOM revision record
-												bomRevision = record.load({
-													type: record.Type.BOM_REVISION,
-													id: bomRevisionID
-												});
-											}
-										catch(e)
-											{
-												log.error({
-													title: 'Error Loading BOM Revision Record ' + bomRevisionID,
-													details: e.message
-												});
-											}
+										// get the BOM revision from the line
+										var bomRevisionID = purchaseOrder.getSublistValue({
+											sublistId: 'item',
+											fieldId: 'billofmaterialsrevision',
+											line: i
+										});
 										
-										// if we have been able to load the BOM revision record
-										if (bomRevision)
+										// if we have a BOM revision number
+										if (bomRevisionID)
 											{
-												// get count of components
-												var components = bomRevision.getLineCount({
-													sublistId: 'component'
-												});
+												// declare and initialize variables
+												var bomRevision = null;
 												
-												// loop through components
-												for (var x = 0; x < components; x++)
+												try
 													{
-														// get the item ID from the line
-														var componentItemID = bomRevision.getSublistValue({
-															sublistId: 'component',
-															fieldId: 'item',
-															line: x
+														// load the BOM revision record
+														bomRevision = record.load({
+															type: record.Type.BOM_REVISION,
+															id: bomRevisionID
+														});
+													}
+												catch(e)
+													{
+														log.error({
+															title: 'Error Loading BOM Revision Record ' + bomRevisionID,
+															details: e.message
+														});
+													}
+												
+												// if we have been able to load the BOM revision record
+												if (bomRevision)
+													{
+														// get count of components
+														var components = bomRevision.getLineCount({
+															sublistId: 'component'
 														});
 														
-														// call function to get the item type
-														var componentItemType = getItemType(componentItemID);
-														
-														if (componentItemType != 'OthCharge')
+														// loop through components
+														for (var x = 0; x < components; x++)
 															{
-																// declare and initialize variables
-								    							var itemType			= 'Component';
-								    							var componentQuantity 	= '';
-								    							var itemCode 			= '';
-								    							var itemDescription 	= '';
-								    							var workDescription 	= '';
-								    							var dueDate				= '';
-								    							var finishingDrawing	= '';
-								    							var codeToBeMade 		= '';
-								    							var price 				= '';
-								    							
-								    							// get details about the component item
-								    							itemDescription = bomRevision.getSublistValue({
-    																sublistId: 'component',
-    																fieldId: 'description',
-    																line: x
-    															});
-								    							
-								    							itemCode = bomRevision.getSublistText({
-    																sublistId: 'component',
-    																fieldId: 'item',
-    																line: x
-    															});
-								    							
-								    							componentQuantity = bomRevision.getSublistValue({
-	    															sublistId: 'component',
-	    															fieldId: 'quantity',
-	    															line: x
-	    														});
-								    							
-								    							// call function to get the finishing drawing
-								    							finishingDrawing = getFinishingDrawing(componentItemID);
-								    							
-								    							// push a new instance of the output summary object into the output array
-						    									itemSummary.push(new outputSummary(
-						    																			itemType,
-						    																			(componentQuantity * assemblyQuantity),
-						    																			itemCode,
-						    																			itemDescription,
-						    																			workDescription,
-						    																			dueDate,
-						    																			finishingDrawing,
-						    																			codeToBeMade,
-						    																			price
-						    																		)
-						    													);
+																// get the item ID from the line
+																var componentItemID = bomRevision.getSublistValue({
+																	sublistId: 'component',
+																	fieldId: 'item',
+																	line: x
+																});
+																
+																// call function to get the item type
+																var componentItemType = getItemType(componentItemID);
+																
+																if (componentItemType != 'OthCharge')
+																	{
+																		// declare and initialize variables
+										    							var itemType			= 'Component';
+										    							var componentQuantity 	= '';
+										    							var itemCode 			= '';
+										    							var itemDescription 	= '';
+										    							var workDescription 	= '';
+										    							var dueDate				= '';
+										    							var finishingDrawing	= '';
+										    							var codeToBeMade 		= '';
+										    							var price 				= '';
+										    							
+										    							// get details about the component item
+										    							itemDescription = bomRevision.getSublistValue({
+		    																sublistId: 'component',
+		    																fieldId: 'description',
+		    																line: x
+		    															});
+										    							
+										    							itemCode = bomRevision.getSublistText({
+		    																sublistId: 'component',
+		    																fieldId: 'item',
+		    																line: x
+		    															});
+										    							
+										    							componentQuantity = bomRevision.getSublistValue({
+			    															sublistId: 'component',
+			    															fieldId: 'quantity',
+			    															line: x
+			    														});
+										    							
+										    							// call function to get the finishing drawing
+										    							finishingDrawing = getFinishingDrawing(componentItemID);
+										    							
+										    							// push a new instance of the output summary object into the output array
+								    									itemSummary.push(new outputSummary(
+								    																			itemType,
+								    																			(componentQuantity * assemblyQuantity),
+								    																			itemCode,
+								    																			itemDescription,
+								    																			workDescription,
+								    																			dueDate,
+								    																			finishingDrawing,
+								    																			codeToBeMade,
+								    																			price
+								    																		)
+								    													);
+																	}
 															}
 													}
 											}
-									}
+		    						}
+    						
+		    					// update the JSON fields on the purchase order
+			    				purchaseOrder.setValue({
+	    							fieldId: 'custbody_bbs_item_json',
+	    							value: JSON.stringify(itemSummary)
+	    						});
+	    						
+	    						purchaseOrder.setValue({
+	    							fieldId: 'custbody_bbs_related_po_info',
+	    							value: JSON.stringify(purchaseOrderSummary)
+	    						});
+	    						
+	    						// save the changes to the purchase order
+	    						purchaseOrder.save();
     						}
-    					
-    					// update the JSON fields on the purchase order
-    			    	record.submitFields({
-    						type: record.Type.PURCHASE_ORDER,
-    						id: currentRecord.id,
-    						values: {
-    							custbody_bbs_item_json: 				JSON.stringify(itemSummary),
-    							custbody_bbs_related_po_info:			JSON.stringify(purchaseOrderSummary)
+    					catch(e)
+    						{
+    							log.error({
+    								title: 'Error Updating Purchase Order ' + scriptContext.newRecord.id,
+    								details: e.message
+    							});
     						}
-    					});
-    					
     				}
 			}
     		}

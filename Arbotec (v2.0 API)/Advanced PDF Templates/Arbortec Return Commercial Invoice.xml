@@ -115,7 +115,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="65pt" footer="nlfooter" footer-height="5pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4-Landscape">
+<body header="nlheader" header-height="65pt" footer="nlfooter" footer-height="5pt" padding="0.2in 0.4in 0.2in 0.4in" size="A4-Landscape">
     
     <#setting number_format=",##0.00">
     <#assign goodsTotal = 0>
@@ -136,21 +136,49 @@
 			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${subsidiary.addr1}</td>
 		    <td colspan="6" style="margin-left: 20px;">${subsidiary.addr1}</td>
 		</tr>
-		<tr>
-			<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black;">${record.shipaddr2}</td>
-			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${subsidiary.addr2}</td>
-		    <td colspan="6" style="margin-left: 20px;">${subsidiary.addr2}</td>
-		</tr>
-		<tr>
-			<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black;">${record.shipcity}</td>
-			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${subsidiary.city}</td>
-		    <td colspan="6" style="margin-left: 20px;">${subsidiary.city}</td>
-		</tr>
-		<tr>
-			<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.shipzip}</td>
-			<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${subsidiary.zip}</td>
-		    <td colspan="6" style="margin-left: 20px;">${subsidiary.zip}</td>
-		</tr>
+		<#if record.shipaddr2?has_content>
+			<tr>
+				<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black;">${record.shipaddr2}</td>
+				<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${subsidiary.addr2}</td>
+			    <td colspan="6" style="margin-left: 20px;">${subsidiary.addr2}</td>
+			</tr>
+			<tr>
+				<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black;">${record.shipcity}</td>
+				<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${subsidiary.city}</td>
+			    <td colspan="6" style="margin-left: 20px;">${subsidiary.city}</td>
+			</tr>
+			<tr>
+				<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black;">${record.shipzip}</td>
+				<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${subsidiary.zip}</td>
+			    <td colspan="6" style="margin-left: 20px;">${subsidiary.zip}</td>
+			</tr>
+			<tr>
+				<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.shipcountry}</td>
+				<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${subsidiary.country}</td>
+			    <td colspan="6" style="margin-left: 20px;">${subsidiary.country}</td>
+			</tr>
+		<#else>
+			<tr>
+				<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black;">${record.shipcity}</td>
+				<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${subsidiary.addr2}</td>
+			    <td colspan="6" style="margin-left: 20px;">${subsidiary.addr2}</td>
+			</tr>
+			<tr>
+				<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black;">${record.shipzip}</td>
+				<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${subsidiary.city}</td>
+			    <td colspan="6" style="margin-left: 20px;">${subsidiary.city}</td>
+			</tr>
+			<tr>
+				<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black;">${record.shipcountry}</td>
+				<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black;">${subsidiary.zip}</td>
+			    <td colspan="6" style="margin-left: 20px;">${subsidiary.zip}</td>
+			</tr>
+			<tr>
+				<td colspan="9" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+				<td colspan="9" style="margin-left: 5px; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${subsidiary.country}</td>
+			    <td colspan="6" style="margin-left: 20px;">${subsidiary.country}</td>
+			</tr>
+		</#if>
 	</table>
 	
 	<table style="width: 100%;">
@@ -257,7 +285,7 @@
 			<td colspan="4" align="right" style="border-right: 1px solid black; border-top: 1px solid black;">${currencySymbol}${goodsTotal}</td>
 		</tr>
 		<tr>
-			<td colspan="12" style="border-left: 1px solid black; border-right: 1px solid black;">${record.memo}</td>
+			<td colspan="12" style="border-left: 1px solid black; border-right: 1px solid black;">${record.custbody4}</td>
 			<td colspan="3" style="margin-left: 5px; border-left: 1px solid black;"><b>NAME:</b></td>
 			<td colspan="6" style="border-right: 1px solid black;">______________________________________</td>
 			<td colspan="5" style="margin-left: 5px; border-left: 1px solid black;"><b>FREIGHT VALUE</b></td>

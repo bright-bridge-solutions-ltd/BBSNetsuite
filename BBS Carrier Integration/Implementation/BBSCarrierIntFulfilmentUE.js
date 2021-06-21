@@ -277,6 +277,7 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
     		var newRecord 			= scriptContext.newRecord;
     		var integrationDetails 	= null;
     		var shippingCarrierInfo = null;
+    		var currencyISOCode		= null;
     		var itemLineInfo 		= [];
     		
     		switch(type)
@@ -356,6 +357,8 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 			    								
 			    								if(salesOrderRecord != null)
 			    									{
+			    										currencyISOCode = getCurrencyISOCode(salesOrderRecord.getValue({fieldId: 'currency'}));
+			    									
 			    										itemLineInfo = getItemLineInfo(itemFulfillmentRecord, salesOrderRecord);
 			    									}
 	    								
@@ -447,7 +450,7 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 
 	    								//Build up the process shipments request object
 	    								//
-	    								var processShipmentsRequest = new BBSObjects.processShipmentRequest(integrationDetails, shippingCarrierInfo, shipmentReference, shippingAddress, contactInfo, despatchDate, isSaturday, senderAddress, subsidiaryContactInfo, itemLineInfo);
+	    								var processShipmentsRequest = new BBSObjects.processShipmentRequest(integrationDetails, shippingCarrierInfo, shipmentReference, shippingAddress, contactInfo, despatchDate, isSaturday, senderAddress, subsidiaryContactInfo, currencyISOCode, itemLineInfo);
 	    								
 	    								// check if totalWeight and packageCount are empty
 	    								if (totalWeight == '' && packageCount == '')
@@ -867,7 +870,7 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    								
 			    						//Process the response from the carrier
 			    						//
-			    						if (cancelShipmentResponse['status'] == 'SUCCESS' || cancelShipmentResponse['status'] == '200')
+			    						if (cancelShipmentResponse!= null && cancelShipmentResponse['status'] == 'SUCCESS' || cancelShipmentResponse['status'] == '200')
 			    							{
 				    							//Define email subject
 					    						//
@@ -1044,7 +1047,34 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
     		return itemInfoArray;
     	}
     
+    // =====================================
+    // FUNCTION TO GET THE ISO CURRENCY CODE
+    // =====================================
     
+    function getCurrencyISOCode(currencyID) {
+    	
+    	// declare and initialize variables
+    	var currencyISOCode = null;
+    	
+    	try
+    		{
+	    		// lookup fields on the currency record
+    			currencyISOCode = search.lookupFields({
+	        		type: search.Type.CURRENCY,
+	        		id: currencyID,
+	        		columns: ['symbol']
+	        	}).symbol;
+    		}
+    	catch(e)
+    		{
+    			// set currencyISOCode variable to 'GBP'
+    			currencyISOCode = 'GBP';
+    		}
+    	
+    	// return values to main script function
+    	return currencyISOCode;
+    	
+    }
     
     // ===============================
     // FUNCTION TO GET THE COMPANY URL

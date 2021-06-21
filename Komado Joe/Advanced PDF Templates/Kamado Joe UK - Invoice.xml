@@ -240,7 +240,7 @@
 	<tr>
 	<th align="left" colspan="2">Quantity</th>
 	<th align="left" colspan="7">${itemline.item@label}</th>
-      <#if record.custbody_tariff_code_summary?string =="Yes"> <th align="right" colspan="3">Commodity Code</th> </#if>
+      <#if record.custbody_tariff_code_summary?string =="Yes"> <th align="right" colspan="3">Tariff Code</th> </#if>
       <#if record.custbody_tariff_code_summary?string =="Yes"> <th align="right" colspan="3">Unit Weight</th></#if>
 	<th align="right" colspan="3">${itemline.taxrate1@label}</th>
 	<th align="right" colspan="4">Unit Rate</th>
@@ -250,8 +250,8 @@
 </#if><!-- Ignore discount lines --><tr>
 	<td align="left" line-height="150%" colspan="2">${itemline.quantity}</td>
 	<td colspan="7"><span class="itemname">${itemline.item}</span><br />${itemline.description}</td>
-  	  <#if record.custbody_tariff_code_summary?string =="Yes"> <td line-height="150%" colspan="3" align="right">${itemline.custcol_bbs_commodity_code_salestrx}</td> </#if>
-  	  <#if record.custbody_tariff_code_summary?string =="Yes"> <td line-height="150%" colspan="3" align="right">${(itemline.custcol_unit_weight/2.2)?string[",##0.00"]} kg</td> </#if>
+  	  <#if record.custbody_tariff_code_summary?string =="Yes"> <td line-height="150%" colspan="3" align="right">${itemline.custcol_tariff_code}</td> </#if>
+  	  <#if record.custbody_tariff_code_summary?string =="Yes"> <td line-height="150%" colspan="3" align="right">${itemline.custcol_unit_weight}&nbsp;${itemline.custcol_weight_units}</td> </#if>
 	<td align="right" line-height="150%" colspan="3">${itemline.taxrate1}</td>
 	<td align="right" line-height="150%" colspan="4">${itemline.rate}</td>
 	<td align="right" line-height="150%" colspan="4">${itemline.amount}</td>
@@ -272,7 +272,7 @@
 	<table class="bankinfo" style="width: 100%;">
 	<tr>
 		<td>
-             <#if record.currency == "British pound" && (record.terms == "Prepay" || record.terms == "Direct 30" || record.terms == "Direct 60" || record.terms == "Direct 90")>
+             <#if record.currency == "British pound" && (record.terms == "Prepay" || record.terms == "Direct 30" || record.terms == "Direct 60" || record.terms == "Direct 90" || record.terms == "MM30" || record.terms == "MM60" || record.terms == "MM90")>
                 Your prompt payment is greatly appreciated<br />
                 Payment to the following bank details:<br />
                 Kamado Joe UK Limited<br />
@@ -281,7 +281,7 @@
                 Account No: 01670700<br />
                 IBAN: GB44HBUK40360201670700<br />
                 BIC: HBUKGB4B
-            <#elseif record.currency == "British pound" && (record.terms != "Prepay" || record.terms != "Direct 30" || record.terms != "Direct 60" || record.terms != "Direct 90")>
+            <#elseif record.currency == "British pound" && (record.terms != "Prepay" || record.terms != "Direct 30" || record.terms != "Direct 60" || record.terms != "Direct 90" || record.terms != "MM30" || record.terms != "MM60" || record.terms != "MM90")>
                 <b>Payment to the following bank details:</b><br />
                 <b>HSBC Invoice Finance (UK) Ltd</b><br />
                 <b>Sort Code: 40-47-25</b><br />
@@ -292,7 +292,7 @@
                     HSBC Reference 39539 / (Your account number – See HSBC Statement)<br />
                 </#if>
                 Please quote your HSBC Reference and invoice number on  your payment instruction
-            <#elseif (record.currency == "Euro") && (record.terms == "Prepay" || record.terms == "Direct 30" || record.terms == "Direct 60" || record.terms == "Direct 90")>
+            <#elseif (record.currency == "Euro") && (record.terms == "Prepay" || record.terms == "Direct 30" || record.terms == "Direct 60" || record.terms == "Direct 90" || record.terms == "MM30" || record.terms == "MM60" || record.terms == "MM90")>
                 Your prompt payment is greatly appreciated<br />
                 Payment to the following bank details:<br />
                 Kamado Joe UK Limited<br />
@@ -300,7 +300,7 @@
                 Account No: 83922575<br />
                 IBAN: GB54 HBUK 4012 7683 922575<br />
                 BIC: HBUKGB4B<br /><br />
-            <#elseif (record.currency == "Euro") && (record.terms != "Prepay" || record.terms != "Direct 30" || record.terms != "Direct 60" || record.terms != "Direct 90")>
+            <#elseif (record.currency == "Euro") && (record.terms != "Prepay" || record.terms != "Direct 30" || record.terms != "Direct 60" || record.terms != "Direct 90" || record.terms != "MM30" || record.terms != "MM60" || record.terms != "MM90")>
                 <b>Payment to the following Bank details:</b><br />
                 <b>HSBC Invoice Finance (UK) Ltd</b><br />
                 <b>BIC: HBUKGB41CM1</b><br />
@@ -311,7 +311,7 @@
                     HSBC Reference 39541 / (Your account number – See HSBC Statement)<br />
                 </#if>
                 Please quote your HSBC Reference and invoice number on  your payment instruction<br /><br />
-            <#elseif (record.currency =="USA") && (record.terms == "Prepay" || record.terms == "Direct 30" || record.terms == "Direct 60" || record.terms == "Direct 90")>
+            <#elseif (record.currency =="USA") && (record.terms == "Prepay" || record.terms == "Direct 30" || record.terms == "Direct 60" || record.terms == "Direct 90" || record.terms == "MM30" || record.terms == "MM60" || record.terms == "MM90")>
                 Your prompt payment is greatly appreciated<br />
                 Payment to the following bank details:<br />
                 Kamado Joe UK Limited<br />
@@ -319,7 +319,7 @@
                 Account No: 83916726<br />
                 IBAN: GB61 HBUK 4012 7683 9167 26<br />
                 BIC: HBUKGB4B<br /><br />
-            <#elseif (record.currency == "USA") && (record.terms != "Prepay" || record.terms != "Direct 30" || record.terms != "Direct 60" || record.terms != "Direct 90")>
+            <#elseif (record.currency == "USA") && (record.terms != "Prepay" || record.terms != "Direct 30" || record.terms != "Direct 60" || record.terms != "Direct 90" || record.terms != "MM30" || record.terms != "MM60" || record.terms != "MM90")>
                 <b>Payment to the following Bank details:</b><br />
                 <b>HSBC Invoice Finance (UK) Ltd</b><br />
                 <b>BIC: HBUKGB41CM1</b><br />
@@ -330,7 +330,7 @@
                     HSBC Reference 39542 / (Your account number – See HSBC Statement)<br />
                 </#if>
                 Please quote your HSBC Reference and invoice number on  your payment instruction<br /><br />
-            <#elseif record.currency == "Swiss Frank" && (record.terms == "Prepay" || record.terms == "Direct 30" || record.terms == "Direct 60" || record.terms == "Direct 90")>
+            <#elseif record.currency == "Swiss Frank" && (record.terms == "Prepay" || record.terms == "Direct 30" || record.terms == "Direct 60" || record.terms == "Direct 90" || record.terms == "MM30" || record.terms == "MM60" || record.terms == "MM90")>
                 Your prompt payment is greatly appreciated<br />
                 Payment to the following bank details:<br />
                 Kamado Joe UK Limited<br />
@@ -338,7 +338,7 @@
                 IBAN: GB68HBUK40127683908646<br />
                 BIC: HBUKGB4B<br /><br />
                 Export delivery according to art. 146 of the Directive 2006/112/EC. VAT not chargeable
-            <#elseif record.currency == "Swiss Frank" && (record.terms != "Prepay" || record.terms != "Direct 30" || record.terms != "Direct 60" || record.terms != "Direct 90")>
+            <#elseif record.currency == "Swiss Frank" && (record.terms != "Prepay" || record.terms != "Direct 30" || record.terms != "Direct 60" || record.terms != "Direct 90" || record.terms != "MM30" || record.terms != "MM60" || record.terms != "MM90")>
                 <b>Payment to the following Bank details:</b><br />
                 <b>HSBC Invoice Finance (UK) Ltd</b><br />
                 <b>BIC: HBUKGB41CM1</b><br />
@@ -349,7 +349,7 @@
                     HSBC Reference 39563 / (Your account number – See HSBC Statement)<br />
                 </#if>
                 Please quote your HSBC Reference and invoice number on  your payment instruction<br /><br />
-            <#elseif record.currency == "Swedish Krona" && (record.terms == "Prepay" || record.terms == "Direct 30" || record.terms == "Direct 60" || record.terms == "Direct 90")>
+            <#elseif record.currency == "Swedish Krona" && (record.terms == "Prepay" || record.terms == "Direct 30" || record.terms == "Direct 60" || record.terms == "Direct 90" || record.terms == "MM30" || record.terms == "MM60" || record.terms == "MM90")>
                 Your prompt payment is greatly appreciated<br />
                 Payment to the following bank details:<br />
                 Kamado Joe UK Limited<br />
@@ -357,7 +357,7 @@
                 Account No:  83922591<br />
                 IBAN:  GB10HBUK40127683922591<br />
                 BIC:  HBUKGB4B<br /><br />
-            <#elseif record.currency =="Swedish Krona" && (record.terms != "Prepay" || record.terms != "Direct 30" || record.terms != "Direct 60" || record.terms != "Direct 90")>
+            <#elseif record.currency =="Swedish Krona" && (record.terms != "Prepay" || record.terms != "Direct 30" || record.terms != "Direct 60" || record.terms != "Direct 90" || record.terms != "MM30" || record.terms != "MM60" || record.terms != "MM90")>
                 <b>Payment to the following bank details:</b><br />
                 <b>HSBC Invoice Finance (UK) Ltd</b><br />
                 <b>BIC:  HBUKGB41CM1</b><br />
@@ -368,7 +368,7 @@
                     HSBC Reference 39544 / (Your account number – See HSBC Statement)<br />
                 </#if>
                 Please quote your HSBC Reference and invoice number on  your payment instruction<br /><br />
-                <#elseif record.currency =="Danish Krone" && (record.terms == "Prepay" || record.terms == "Direct 30" || record.terms == "Direct 60" || record.terms == "Direct 90")>
+                <#elseif record.currency =="Danish Krone" && (record.terms == "Prepay" || record.terms == "Direct 30" || record.terms == "Direct 60" || record.terms == "Direct 90" || record.terms == "MM30" || record.terms == "MM60" || record.terms == "MM90")>
                 Your prompt payment is greatly appreciated<br />
                 Payment to the following bank details:<br />
                 Kamado Joe UK Limited<br />
@@ -376,7 +376,7 @@
                 Account No:  83922583<br />
                 IBAN:  GB32HBUK40127683922583<br />
                 BIC:  HBUKGB4B<br /><br />
-            <#elseif record.currency == "Danish Krone" && (record.terms != "Prepay" || record.terms != "Direct 30" || record.terms != "Direct 60" || record.terms != "Direct 90")>
+            <#elseif record.currency == "Danish Krone" && (record.terms != "Prepay" || record.terms != "Direct 30" || record.terms != "Direct 60" || record.terms != "Direct 90" || record.terms != "MM30" || record.terms != "MM60" || record.terms != "MM90")>
                 <b>Payment to the following bank details:</b><br />
                 <b>HSBC Invoice Finance (UK) Ltd</b><br />
                 <b>BIC:  HBUKGB41CM1</b><br />
@@ -419,17 +419,17 @@
 </table>
          
 <#if record.custbody_tariff_code_summary?string =="Yes">
-<#if record.custbody_bbs_commodity_code_json?has_content >
-   <#assign commodityCodes = record.custbody_bbs_commodity_code_json?eval />
+<#if record.custbody_tariff_json?has_content >
+   <#assign tariffs = record.custbody_tariff_json?eval />
    <table class="itemtable" style="width: 30%; margin-top: 10px;">
 		<thead><tr>
-          	<th align="center" width="50%">Commodity Code</th>
-	        <th align="center" width="50%">Total Weight</th>
+          	<th align="left" width="50%">Tariff Code</th>
+	        <th align="left" width="50%">Total Weight</th>
         </tr></thead>
-   <#list commodityCodes as commodityCode>
+   <#list tariffs as tariff>
      <tr>
-       <td align="center">${commodityCode.commodityCode}</td>
-       <td align="center">${(commodityCode.weight/2.2)?string[",##0.00"]} kg</td>
+       <td>${tariff.tariffCode}</td>
+       <td align="right">${tariff.weight?string[",##0.0"]} ${tariff.unit}</td>
      </tr>
    </#list>
    </table>

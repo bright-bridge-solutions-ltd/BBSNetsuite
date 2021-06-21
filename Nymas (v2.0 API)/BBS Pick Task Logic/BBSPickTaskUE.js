@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define([],
-function() {
+define(['N/record'],
+function(record) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -29,20 +29,6 @@ function() {
      * @Since 2015.2
      */
     function beforeSubmit(scriptContext) {
-    	
-    	// check the record is being created or edited
-    	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
-    		{
-    			// set the header item fulfilment field using the first pick action line
-    			scriptContext.newRecord.setValue({
-    				fieldId: 'custrecord_bbs_item_fulfilment',
-    				value: scriptContext.newRecord.getSublistValue({
-    					sublistId: 'pickactions',
-    					fieldId: 'shipnumberid',
-    					line: 0 
-    				})
-    			});
-    		}
 
     }
 
@@ -56,11 +42,38 @@ function() {
      * @Since 2015.2
      */
     function afterSubmit(scriptContext) {
+    	
+    	// check the record is being created or edited
+    	if (scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.EDIT)
+    		{
+    			try
+    				{
+		    			// set the header item fulfilment field using the first pick action line
+		    			record.submitFields({
+		    				type: record.Type.PICK_TASK,
+		    				id: scriptContext.newRecord.id,
+		    				values: {
+		    					custrecord_bbs_item_fulfilment: scriptContext.newRecord.getSublistValue({
+		        					sublistId: 'pickactions',
+		        					fieldId: 'shipnumberid',
+		        					line: 0 
+		        				})
+		    				}
+		    			});
+    				}
+    			catch(e)
+    				{
+    					log.error({
+    						title: 'Error Uploading Pick Task ' + scriptContext.newRecord.id,
+    						details: e.message
+    					});
+    				}
+    		}
 
     }
 
     return {
-        beforeSubmit: beforeSubmit
+        afterSubmit: afterSubmit
     };
     
 });

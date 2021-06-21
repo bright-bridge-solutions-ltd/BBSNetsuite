@@ -35,6 +35,7 @@ function(encode, format, encode, https, record, runtime, search, xml, BBSObjects
 			var responseStatus			= '';
 			var responseBodyObj			= {};
 			var processShipmentResponse	= {};
+			var declaredValue			= 0;
 			
 			try
 				{				
@@ -93,12 +94,15 @@ function(encode, format, encode, https, record, runtime, search, xml, BBSObjects
 					shipmentRequestObj.customerReferences.push(new _dhlReferenceObj(_processShipmentRequest.shippingReference));
 					
 					shipmentRequestObj.outputImageProperties.encodingFormat = _processShipmentRequest.configuration.labelFormat.toLowerCase();
-					shipmentRequestObj.outputImageProperties.imageOptions.push(new _dhlImageOptionsObj('label', 'ECOM26_A6_002'));
 					
-					shipmentRequestObj.content.unitOfMeasurement			= 'metric';
-					shipmentRequestObj.content.isCustomsDeclarable			= false;
-					shipmentRequestObj.content.incoterm						= 'DAP';
-					shipmentRequestObj.content.description					= _processShipmentRequest.shippingReference;
+					var shippingLabel = new _dhlImageOptionsObj();;
+					shippingLabel.typeCode 		= 'label';
+					shippingLabel.templateName	= 'ECOM26_A6_002';
+					shipmentRequestObj.outputImageProperties.imageOptions.push(shippingLabel);
+					
+					shipmentRequestObj.content.unitOfMeasurement		= 'metric';
+					shipmentRequestObj.content.incoterm					= 'DAP';
+					shipmentRequestObj.content.description				= _processShipmentRequest.shippingReference;
 					
 					//Get count of packages from the incoming message
 					//
@@ -124,6 +128,74 @@ function(encode, format, encode, https, record, runtime, search, xml, BBSObjects
 							//
 							shipmentRequestObj.content.packages.push(packageObj);
 						}
+					
+					if (shipmentRequestObj.customerDetails.receiverDetails.postalAddress.countryCode != 'GB')
+						{
+							shipmentRequestObj.content.isCustomsDeclarable = true;
+							
+							var commercialInvoice 			= new _dhlImageOptionsObj();
+							commercialInvoice.invoiceType 	= 'commercial';
+							commercialInvoice.templateName	= 'COMMERCIAL_INVOICE_P_10';
+							commercialInvoice.isRequested	= true;
+							commercialInvoice.typeCode		= 'invoice';
+							shipmentRequestObj.outputImageProperties.imageOptions.push(commercialInvoice);
+							
+							shipmentRequestObj.content.exportDeclaration = {};
+							shipmentRequestObj.content.exportDeclaration.lineItems = [];
+							
+							//Loop through line items
+							for (var i = 0; i < _processShipmentRequest.itemDetails.length; i++)
+								{
+									var itemObj 						= new _dhlLineItemObj();
+									itemObj.number 						= i+1;
+									itemObj.description 				= _processShipmentRequest.itemDetails[0].itemDesc;
+									itemObj.price						= _processShipmentRequest.itemDetails[0].itemUnitRate;
+									itemObj.priceCurrency				= _processShipmentRequest.currencyISOCode;
+									itemObj.quantity.value				= _processShipmentRequest.itemDetails[0].itemQty;
+									itemObj.quantity.unitOfMeasurement	= 'BOX';
+									itemObj.commodityCodes.push(new _dhlCommodityCodeObj('outbound', _processShipmentRequest.itemDetails[0].itemCommodity));
+									itemObj.exportReasonType			= 'permanent';
+									itemObj.manufacturerCountry			= _processShipmentRequest.itemDetails[0].itemCountry;
+									itemObj.weight.netValue				= Number(_processShipmentRequest.itemDetails[0].itemUnitWeight);
+									itemObj.weight.grossValue			= Number(_processShipmentRequest.itemDetails[0].itemUnitWeight);
+									
+									shipmentRequestObj.content.exportDeclaration.lineItems.push(itemObj);
+									
+									declaredValue += _processShipmentRequest.itemDetails[0].itemValue;
+								}
+							
+							shipmentRequestObj.content.exportDeclaration.invoice 				= {};
+							shipmentRequestObj.content.exportDeclaration.invoice.number 		= _processShipmentRequest.shippingReference;
+							shipmentRequestObj.content.exportDeclaration.invoice.date			= _processShipmentRequest.shippingDate;
+							
+							shipmentRequestObj.content.exportDeclaration.exportReason			= 'Sold To Receiver';
+							shipmentRequestObj.content.exportDeclaration.placeOfIncoterm		= _processShipmentRequest.senderAddress.town;
+							shipmentRequestObj.content.exportDeclaration.shipmentType			= 'commercial';
+							
+							shipmentRequestObj.content.declaredValue 			= declaredValue;
+							shipmentRequestObj.content.declaredValueCurrency	= _processShipmentRequest.currencyISOCode;
+							
+							shipmentRequestObj.valueAddedServices.push(new _dhlValueAddedService('WY'));
+							
+							if (_processShipmentRequest.senderContact.vatNo)
+								{
+									shipmentRequestObj.customerDetails.shipperDetails.registrationNumbers.push(new _dhlRegistrationNumberObj(_processShipmentRequest.senderContact.vatNo, _processShipmentRequest.senderAddress.countryCode, 'VAT'));
+								}
+							
+							if (_processShipmentRequest.senderContact.eori)
+								{
+									shipmentRequestObj.customerDetails.shipperDetails.registrationNumbers.push(new _dhlRegistrationNumberObj(_processShipmentRequest.senderContact.eori, _processShipmentRequest.senderAddress.countryCode, 'EOR'));
+								}
+						}
+					else
+						{
+							shipmentRequestObj.content.isCustomsDeclarable = false;
+						}
+					
+					log.debug({
+						title: 'Shipment Request Obj',
+						details: JSON.stringify(shipmentRequestObj)
+					});
 					
 					try
 						{
@@ -282,6 +354,7 @@ function(encode, format, encode, https, record, runtime, search, xml, BBSObjects
 			this.customerDetails.shipperDetails.contactInformation.fullName		= '';
 			//this.customerDetails.shipperDetails.contactInformation.email		= '';
 			this.customerDetails.shipperDetails.contactInformation.phone		= '';
+			this.customerDetails.shipperDetails.registrationNumbers				= [];
 			
 			this.customerDetails.receiverDetails 								= {};
 			this.customerDetails.receiverDetails.postalAddress					= {};
@@ -295,12 +368,15 @@ function(encode, format, encode, https, record, runtime, search, xml, BBSObjects
 			this.customerDetails.receiverDetails.contactInformation.fullName	= '';
 			//this.customerDetails.receiverDetails.contactInformation.email		= '';
 			this.customerDetails.receiverDetails.contactInformation.phone		= '';
+			this.customerDetails.receiverDetails.registrationNumbers			= [];
 			
 			this.customerReferences												= [];
 			
 			this.outputImageProperties											= {};
 			this.outputImageProperties.encodingFormat							= '';
 			this.outputImageProperties.imageOptions								= [];
+			
+			this.valueAddedServices												= [];
 			
 			this.content														= {};
 			this.content.unitOfMeasurement										= '';
@@ -321,10 +397,10 @@ function(encode, format, encode, https, record, runtime, search, xml, BBSObjects
 			this.value	= _reference;
 		}
 	
-	function _dhlImageOptionsObj(_typeCode, _templateName)
+	function _dhlImageOptionsObj()
 		{
-			this.typeCode 		= _typeCode;
-			this.templateName 	= _templateName;
+			this.typeCode 		= '';
+			this.templateName 	= '';
 		}
 	
 	function _dhlPackageObj()
@@ -337,6 +413,41 @@ function(encode, format, encode, https, record, runtime, search, xml, BBSObjects
 			this.dimensions.length	= '';
 			this.dimensions.width	= '';
 			this.dimensions.height	= '';		
+		}
+	
+	function _dhlLineItemObj()
+		{
+			this.number						= '';
+			this.description				= '';
+			this.price						= '';
+			this.priceCurrency				= '';
+			this.quantity					= {};
+			this.quantity.value				= '';
+			this.quantity.unitOfMeasurement	= '';
+			this.commodityCodes				= [];
+			this.exportReasonType			= '';
+			this.manufacturerCountry		= '';
+			this.weight						= {};
+			this.weight.netValue			= '';
+			this.weight.grossValue			= '';
+		}
+	
+	function _dhlCommodityCodeObj(_typeCode, _value)
+		{
+			this.typeCode 	= _typeCode;
+			this.value		= _value;
+		}
+	
+	function _dhlValueAddedService(_serviceCode)
+		{
+			this.serviceCode = _serviceCode;
+		}
+	
+	function _dhlRegistrationNumberObj(_number, _issuerCountryCode, _typeCode)
+		{
+			this.number				= _number;
+			this.issuerCountryCode	= _issuerCountryCode;
+			this.typeCode			= _typeCode;
 		}
 
 	//=========================================================================

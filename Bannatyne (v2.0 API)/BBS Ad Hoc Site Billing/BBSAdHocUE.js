@@ -54,7 +54,7 @@ function(config, runtime, record, format, search) {
     					var recordID = currentRecord.id;
     				
     					// set client script to run on the form
-    					scriptContext.form.clientScriptFileId = 777339;
+    					scriptContext.form.clientScriptFileId = 406811;
     					
     					// add button to the form
 			    		scriptContext.form.addButton({
@@ -90,11 +90,6 @@ function(config, runtime, record, format, search) {
      * @Since 2015.2
      */
     function afterSubmit(scriptContext) {
-    	
-    	log.debug({
-    		title: 'Script Context',
-    		details: scriptContext
-    	});
 
     	// check if the record is being edited
     	if (scriptContext.type == scriptContext.UserEventType.EDIT)
@@ -487,7 +482,10 @@ function(config, runtime, record, format, search) {
     
     function createCustomer(adHocSiteRecord, adHocSiteID)
 	    {
-	    	// get field values from the adHocSiteRecord object
+	    	// declare and initialize variables
+    		var customerID = null;
+    	
+    		// get field values from the adHocSiteRecord object
     		var adHocReference = adHocSiteRecord.getValue({
     			fieldId: 'name'
     		});
@@ -689,8 +687,7 @@ function(config, runtime, record, format, search) {
 					});
     				
     				// submit the new customer record
-	    			var customerID = customerRecord.save({
-	    				enableSourcing: false,
+	    			customerID = customerRecord.save({
 			    		ignoreMandatoryFields: true
 	    			});
 	    			
@@ -711,7 +708,7 @@ function(config, runtime, record, format, search) {
 	    			});
 	    			
 	    			bankDetailsRecord.setValue({
-	    				fieldId: 'custpage_2663_entity_file_format',
+	    				fieldId: 'custrecord_2663_entity_file_format',
 	    				value: 42 // 42 = BACS DD
 	    			});
 	    			
@@ -749,10 +746,7 @@ function(config, runtime, record, format, search) {
 	    			log.audit({
 	    				title: 'New Customer Record Created',
 	    				details: 'Ad Hoc Site: ' + adHocSiteID + ' | Customer ID: ' + customerID
-	    			});
-	    			
-	    			// return the customerID to the main script function
-	    			return customerID;				
+	    			});			
 	    		}
     		catch(error)
     			{
@@ -761,6 +755,9 @@ function(config, runtime, record, format, search) {
     					details: 'Ad Hoc Site: ' + adHocSiteID + ' | Error: ' + error
     				});
     			}
+    		
+    		// return the customerID to the main script function
+			return customerID;
 	    }
 
 	/*

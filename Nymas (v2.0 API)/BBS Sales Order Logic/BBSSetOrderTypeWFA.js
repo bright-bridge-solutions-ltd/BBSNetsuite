@@ -2,8 +2,8 @@
  * @NApiVersion 2.x
  * @NScriptType workflowactionscript
  */
-define([],
-function() {
+define(['N/search'],
+function(search) {
    
     /**
      * Definition of the Suitelet script trigger point.
@@ -16,7 +16,7 @@ function() {
     function onAction(scriptContext) {
     	
     	// declare and initialize variables
-    	var hasKitItem = 'F';
+    	var hasDocMItem = 'F';
     	
     	// get the current record
     	var currentRecord = scriptContext.newRecord;
@@ -29,28 +29,31 @@ function() {
     	// loop through items
     	for (var i = 0; i < itemCount; i++)
     		{
-    			// get the item type
-    			var itemType = currentRecord.getSublistValue({
+    			// get the internal ID of the item
+    			var itemID = currentRecord.getSublistValue({
     				sublistId: 'item',
-    				fieldId: 'itemtype',
+    				fieldId: 'item',
     				line: i
     			});
     			
-    			// if this is a kit item
-    			if (itemType == 'Kit')
+    			// lookup fields on the item record
+    			var isDocM = search.lookupFields({
+    				type: search.Type.ITEM,
+    				id: itemID,
+    				columns: ['custitem_bbs_is_doc_m_order_type']
+    			}).custitem_bbs_is_doc_m_order_type;
+    			
+    			if (isDocM == true)
     				{
-    					hasKitItem = 'T';
+    					// set has docMItem to true
+    					hasDocMItem = 'T';
     					
+    					// break the loop
     					break;
     				}
     		}
     	
-    	log.debug({
-    		title: 'hasKitItem',
-    		details: hasKitItem
-    	});
-    	
-    	return hasKitItem;
+    	return hasDocMItem;
 
     }
 

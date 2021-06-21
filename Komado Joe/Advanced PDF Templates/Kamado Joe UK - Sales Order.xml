@@ -253,7 +253,7 @@
 						<td align="right" colspan="3">&nsbp;</td>
 						<td align="right" colspan="4">&nbsp;</td>
 					<#else>
-						<td colspan="5"><span class="itemname">${itemline.item}</span><br />${itemline.description}</td>
+						<td colspan="5"><span class="itemname">${itemline.item}</span></td>
 						<td align="right" colspan="3">${itemline.taxrate1}</td>
 						<td align="right" colspan="4">${itemline.rate}</td>
 					</#if>
@@ -271,7 +271,7 @@
       <#else>
 		<td align="left" colspan="4" rowspan="3">
       </#if>
-  	<#if subsidiary.internalid?string == "3" && (record.terms == "Prepay" || record.terms == "Direct 30" || record.terms == "Direct 60" || record.terms == "Direct 90")><span class="colored-text-to-line">Payment Information:</span> <!-- Subsidiary internal ID = 1= US, 3= UK, 4=NL --> <!-- If the codes are not printed correctly, please check to see if the name of the currency has changed -->
+  	<#if subsidiary.internalid?string == "3" && (record.terms == "Prepay" || record.terms == "Direct 30" || record.terms == "Direct 60" || record.terms == "Direct 90" || record.terms == "MM30" || record.terms == "MM60" || record.terms == "MM90")><span class="colored-text-to-line">Payment Information:</span> <!-- Subsidiary internal ID = 1= US, 3= UK, 4=NL --> <!-- If the codes are not printed correctly, please check to see if the name of the currency has changed -->
         	<table class="bankinfo" style="width: 100%;">
       		<tr>
               <td>

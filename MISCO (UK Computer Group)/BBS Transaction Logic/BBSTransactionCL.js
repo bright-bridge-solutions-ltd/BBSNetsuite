@@ -197,6 +197,13 @@ function() {
 		// set the 'Est Extended Cost/PO Rate/Est Unit Cost' fields
 		currentRecord.setCurrentSublistValue({
 			sublistId: 'item',
+			fieldId: 'costestimatetype',
+			value: 'CUSTOM',
+			ignoreFieldChange: true
+		});
+		
+		currentRecord.setCurrentSublistValue({
+			sublistId: 'item',
 			fieldId: 'costestimaterate',
 			value: poRate,
 			ignoreFieldChange: true

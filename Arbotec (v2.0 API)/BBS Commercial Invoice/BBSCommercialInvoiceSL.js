@@ -16,6 +16,11 @@ function(render, record, search) {
      */
     function onRequest(context) {
     	
+    	// declare and initialize variables
+    	var createdFrom 		= null;
+    	var salesRepInitials 	= null;
+    	var customer			= null;
+    	
     	// retrieve parameters that were passed from the client script
 		var fulfilmentID = parseInt(context.request.parameters.fulfilment);
 		
@@ -26,7 +31,11 @@ function(render, record, search) {
 		});
 		
 		// retrieve details from the fulfilment record
-		var salesOrderID = itemFulfilment.getValue({
+		var createdFromType = itemFulfilment.getText({
+			fieldId: 'createdfrom'
+		}).split(' #').shift();
+		
+		var createdFromID = itemFulfilment.getValue({
 			fieldId: 'createdfrom'
 		});
 		
@@ -38,14 +47,25 @@ function(render, record, search) {
 			fieldId: 'entity'
 		});
 		
-		// load the sales order record
-		var salesOrder = record.load({
-			type: record.Type.SALES_ORDER,
-			id: salesOrderID
-		});
+		if (createdFromType == 'Transfer Order') // if the related transaction type is a transfer order
+			{
+				// load the transfer order record
+				createdFrom = record.load({
+					type: record.Type.TRANSFER_ORDER,
+					id: createdFromID
+				});
+			}
+		else
+			{
+				// load the sales order record
+				createdFrom = record.load({
+					type: record.Type.SALES_ORDER,
+					id: createdFromID
+				});
+			}
 		
-		// retrieve details from the fulfilment record
-		var salesRepID = salesOrder.getValue({
+		// retrieve details from the related record
+		var salesRepID = createdFrom.getValue({
 			fieldId: 'salesrep'
 		});
 		
@@ -55,14 +75,22 @@ function(render, record, search) {
 			id: subsidiaryID
 		});
 		
-		// load the customer record
-		var customer = record.load({
-			type: record.Type.CUSTOMER,
-			id: customerID
-		});
+		// if we have a customer ID
+		if (customerID)
+			{
+				// load the customer record
+				customer = record.load({
+					type: record.Type.CUSTOMER,
+					id: customerID
+				});
+			}
 		
-		// call function to get the sales rep's initials
-		var salesRepInitials = getSalesRepInitials(salesRepID);
+		// if we have a sales rep ID
+		if (salesRepID)
+			{
+				// call function to get the sales rep's initials
+				salesRepInitials = getSalesRepInitials(salesRepID);
+			}
 		
 		// set the sales rep initials field on the IF record
 		itemFulfilment.setValue({
@@ -71,7 +99,7 @@ function(render, record, search) {
 		});
 		
 		// call function to generate the item JSON
-		var itemJSON = generateItemJSON(itemFulfilment, salesOrder);
+		var itemJSON = generateItemJSON(itemFulfilment, createdFromType, createdFrom);
 		
 		// set the item JSON field on the IF record
 		itemFulfilment.setValue({
@@ -81,11 +109,15 @@ function(render, record, search) {
 		
 		// render the transaction file
 		var renderer = render.create();
-		renderer.setTemplateById(110);
+		renderer.setTemplateById(111);
 		renderer.addRecord({templateName: 'record', record: itemFulfilment});
-		renderer.addRecord({templateName: 'salesorder', record: salesOrder});
+		renderer.addRecord({templateName: 'createdfrom', record: createdFrom});
 		renderer.addRecord({templateName: 'subsidiary', record: subsidiary});
-		renderer.addRecord({templateName: 'customer', record: customer});
+		
+		if (customer)
+			{
+				renderer.addRecord({templateName: 'customer', record: customer});
+			}
 		
 		// create the PDF file
 		var commercialInvoice = renderer.renderAsPdf();
@@ -103,13 +135,13 @@ function(render, record, search) {
     // HELPER FUNCTIONS
     // ================
     
-    function generateItemJSON(itemFulfilment, salesOrder) {
+    function generateItemJSON(itemFulfilment, createdFromType, createdFrom) {
     	
     	// declare and initialize variables
-    	var itemSummary 	= new Array();
+    	var itemSummary = new Array();
     	
-    	// get count of items on the sales order
-    	var soItemCount = salesOrder.getLineCount({
+    	// get count of items on the related transaction
+    	var createdFromItemCount = createdFrom.getLineCount({
 			sublistId: 'item'
 		});
 	
@@ -117,77 +149,126 @@ function(render, record, search) {
     	var itemCount = itemFulfilment.getLineCount({
 			sublistId: 'item'
 		});
-
-		// loop through items
-		for (var i = 0; i < itemCount; i++)
-			{
-				// declare and initialize variables
-				var unitPrice = '';
-			
-				// retrieve values from the line
-				var itemID = itemFulfilment.getSublistValue({
-					sublistId: 'item',
-					fieldId: 'item',
-					line: i
-				});
-				
-				var itemName = itemFulfilment.getSublistValue({
-					sublistId: 'item',
-					fieldId: 'itemname',
-					line: i
-				});
-				
-				var quantity = itemFulfilment.getSublistValue({
-					sublistId: 'item',
-					fieldId: 'quantity',
-					line: i
-				});
-				
-				var orderLine = itemFulfilment.getSublistValue({
-					sublistId: 'item',
-					fieldId: 'orderline',
-					line: i
-				});
-				
-				// loop through sales order items
-				for (var x = 0; x < soItemCount; x++)
-					{
-						// get the line number
-						var line = salesOrder.getSublistValue({
+    	
+    	if (createdFromType == 'Transfer Order') // if the related transaction type is a transfer order
+    		{
+	    		// loop through items on the TO
+	    		for (var i = 0; i < createdFromItemCount; i++)
+	    			{
+		    			// retrieve values from the line
+						var itemID = createdFrom.getSublistValue({
 							sublistId: 'item',
-							fieldId: 'line',
-							line: x
+							fieldId: 'item',
+							line: i
 						});
 						
-						if (line == orderLine)
+						var itemName = createdFrom.getSublistText({
+							sublistId: 'item',
+							fieldId: 'item',
+							line: i
+						});
+						
+						var quantity = createdFrom.getSublistValue({
+							sublistId: 'item',
+							fieldId: 'quantity',
+							line: i
+						});
+						
+						var unitPrice = createdFrom.getSublistValue({
+							sublistId: 'item',
+							fieldId: 'rate',
+							line: i
+						});
+						
+						// call function to lookup fields on the item record
+						var itemInfo = getItemInfo(itemID);
+						
+						// push a new instance of the output summary object into the output array
+						itemSummary.push(new outputSummary(
+																itemName,
+																itemInfo.description,
+																itemInfo.commodityCode,
+																itemInfo.origin,
+																itemInfo.category,
+																quantity,
+																unitPrice
+															)
+										);
+	    			}
+    		}
+    	else
+    		{	
+		    	// loop through items
+				for (var i = 0; i < itemCount; i++)
+					{
+						// declare and initialize variables
+						var unitPrice = '';
+					
+						// retrieve values from the line
+						var itemID = itemFulfilment.getSublistValue({
+							sublistId: 'item',
+							fieldId: 'item',
+							line: i
+						});
+						
+						var itemName = itemFulfilment.getSublistValue({
+							sublistId: 'item',
+							fieldId: 'itemname',
+							line: i
+						});
+						
+						var quantity = itemFulfilment.getSublistValue({
+							sublistId: 'item',
+							fieldId: 'quantity',
+							line: i
+						});
+						
+						var orderLine = itemFulfilment.getSublistValue({
+							sublistId: 'item',
+							fieldId: 'orderline',
+							line: i
+						});
+						
+						// loop through sales order items
+						for (var x = 0; x < createdFromItemCount; x++)
 							{
-								// get the unit price from the sales order line
-								unitPrice = salesOrder.getSublistValue({
+								// get the line number
+								var line = createdFrom.getSublistValue({
 									sublistId: 'item',
-									fieldId: 'rate',
+									fieldId: 'line',
 									line: x
 								});
 								
-								break;
+								if (line == orderLine)
+									{
+										// get the unit price from the created from line
+										unitPrice = createdFrom.getSublistValue({
+											sublistId: 'item',
+											fieldId: 'rate',
+											line: x
+										});
+										
+										break;
+									}
 							}
+						
+						// call function to lookup fields on the item record
+						var itemInfo = getItemInfo(itemID);
+						
+						// push a new instance of the output summary object into the output array
+						itemSummary.push(new outputSummary(
+																itemName,
+																itemInfo.description,
+																itemInfo.commodityCode,
+																itemInfo.origin,
+																itemInfo.category,
+																quantity,
+																unitPrice
+															)
+										);
+						
 					}
-				
-				// call function to lookup fields on the item record
-				var itemInfo = getItemInfo(itemID);
-				
-				// push a new instance of the output summary object into the output array
-				itemSummary.push(new outputSummary(
-														itemName,
-														itemInfo.description,
-														itemInfo.commodityCode,
-														itemInfo.origin,
-														itemInfo.category,
-														quantity,
-														unitPrice
-													)
-								);
-				
-			}
+    		}
 		
 		// return values to the main script function
 		return itemSummary;

@@ -3,8 +3,8 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['N/runtime', 'N/search', 'N/record'],
-function(runtime, search, record) {
+define(['./BBSCRApprovalLibrary', 'N/search'],
+function(library, search) {
    
     /**
      * Definition of the Suitelet script trigger point.
@@ -16,108 +16,57 @@ function(runtime, search, record) {
      */
     function onRequest(context) {
     	
-    	// retrieve script parameters
-    	var templateID = runtime.getCurrentScript().getParameter({
-    		name: 'custscript_bbs_cr_approval_sl_email_temp'
-    	});
-    	
-    	var level1ApprovalLimit = runtime.getCurrentScript().getParameter({
-    		name: 'custscript_bbs_cr_approval_level_1_limit'
-    	});
-    	
     	// retrieve parameters that were passed from the client script
     	var recordID = context.request.parameters.id;
     		recordID = parseInt(recordID); // use parseInt to convert to a number
     		
     	// lookup fields on the RMA record
     	var rmaLookup = search.lookupFields({
-    		type: record.Type.RETURN_AUTHORIZATION,
+    		type: search.Type.RETURN_AUTHORIZATION,
     		id: recordID,
-    		columns: ['total', 'custbody_bbs_level_1_approved']
+    		columns: ['total', 'custbody_bbs_approval_status', 'custbody_bbs_next_approver']
     	});
     	
     	// retrieve values from the RMA lookup
-    	var total = parseFloat(rmaLookup.total * -1); // lookup returns negative number so multiply by -1 to get a positive number
-    	var level1Approved = rmaLookup.custbody_bbs_level_1_approved;
+    	var total 			= parseFloat(rmaLookup.total * -1); // lookup returns negative number so multiply by -1 to get a positive number
+    	var approvalStatus 	= rmaLookup.custbody_bbs_approval_status[0].value;
+    	var nextApprover	= rmaLookup.custbody_bbs_next_approver[0].value;
     	
-    	// check if the total is less than equal to the level1ApprovalLimit
-    	if (total <= level1ApprovalLimit)
+    	// call library function to get the next approver's approval limit
+    	var approvalLimit = library.getApprovalLimit(nextApprover);
+    	
+    	if (approvalStatus == 17) // if the approvalStatus is 17 (CFO Approval)
     		{
-	    		// call function to mark the RMA record as approved
-    			approveRMA(recordID);
+    			// call library function to mark the RMA record as approved
+				library.approveRMA(recordID);
     		}
-    	else // total is greater than the level1ApprovalLimit
+    	else if (approvalStatus == 16) // if the approvalStatus is 16 (Finance Director Approval)
     		{
-    			// check if the level1Approved is true
-    			if (level1Approved == true)
+    			if (total > approvalLimit)
     				{
-    					// call function to mark the RMA record as approved
-    					approveRMA(recordID);
+    					// call library function to update the approval status on the RMA record
+    					library.updateApprovalStatus(recordID, 17);
     				}
     			else
     				{
-    					// call function to update the 'Level 1 Approved' checkbox on the RMA record
-    					updateLevel1Approved(recordID);
+    					// call library function to mark the RMA record as approved
+    					library.approveRMA(recordID);
     				}
     		}
+    	else if (approvalStatus == 15) // if the approvalStatus is 15 (Financial Controller Approval)
+    		{
+	    		if (total > approvalLimit)
+					{
+						// call library function to update the approval status on the RMA record
+	    				library.updateApprovalStatus(recordID, 16);
+					}
+				else
+					{
+						// call library function to mark the RMA record as approved
+						library.approveRMA(recordID);
+					}
+    		}
 
-    }
-    
-    // ====================================
-    // FUNCTION TO MARK THE RMA AS APPROVED
-    // ====================================
-    
-    function approveRMA(recordID) {
-    	
-    	try
-    		{
-    			// update fields on the RMA record
-    			record.submitFields({
-    				type: record.Type.RETURN_AUTHORIZATION,
-    				id: recordID,
-    				values: {
-    					custbody_bbs_approval_status: 6,// 6 = Approved
-    					status: 'B' // B = Pending Receipt
-    				},
-    				enableSourcing: false,
-					ignoreMandatoryFields: true
-    			});
-    		}
-    	catch(e)
-    		{
-    			log.error({
-    				title: 'Error Approving RMA Record',
-    				details: 'ID: ' + recordID + '<br>Error: ' + e
-    			});
-    		}
-    	
-    }
-    
-    // =============================================================
-    // FUNCTION TO UPDATE THE RMA RECORD'S LEVEL 1 APPROVED CHECKBOX
-    // =============================================================
-    
-    function updateLevel1Approved(recordID) {
-	    	
-    	try
-    		{
-		    	record.submitFields({
-			    	type: record.Type.RETURN_AUTHORIZATION,
-			    	id: recordID,
-			    	values:	{
-			    		custbody_bbs_level_1_approved: true
-			    	},
-			    	enableSourcing: false,
-					ignoreMandatoryFields: true
-			    });
-    		}
-    	catch(e)
-    		{
-    			log.error({
-    				title: 'Error Setting Level 1 Approved Checkbox',
-    				details: 'ID: ' + recordID + '<br>Error: ' + e
-    			});
-    		}
     }
 
     return {

@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/record'],
-function(record) {
+define(['N/record', 'N/search'],
+function(record, search) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -95,11 +95,20 @@ function(record) {
     							if (orderLine == line)
     								{
     									// get line values from the item fulfilment
+	    								var itemID = itemFulfilment.getSublistValue({
+											sublistId: 'item',
+											fieldId: 'item',
+											line: i
+										});
+    								
     									var item = itemFulfilment.getSublistValue({
     										sublistId: 'item',
     										fieldId: 'itemname',
     										line: i
     									});
+    									
+    									// call function to get the size from the item record
+    									var size = getItemSize(itemID);
     									
     									var description = itemFulfilment.getSublistValue({
     										sublistId: 'item',
@@ -139,6 +148,7 @@ function(record) {
     									itemSummary.push(new outputSummary(
     																			item,
     																			description,
+    																			size,
     																			quantity,
     																			rate,
     																			taxAmount
@@ -169,10 +179,30 @@ function(record) {
     // HELPER FUNCTIONS
     // ================
     
-    function outputSummary(item, description, quantity, rate, taxAmount) {
+    function getItemSize(itemID) {
+    	
+    	var itemSize = '';
+    	
+    	var itemLookup = search.lookupFields({
+    		type: search.Type.ITEM,
+    		id: itemID,
+    		columns: ['custitem_c4c_size']
+    	});
+    	
+    	if (itemLookup.custitem_c4c_size.length > 0)
+    		{
+    			itemSize = itemLookup.custitem_c4c_size[0].text;
+    		}
+    	
+    	return itemSize;
+    	
+    }
+    
+    function outputSummary(item, description,size, quantity, rate, taxAmount) {
     	
     	this.item 			= 	item;
     	this.description	=	description;
+    	this.size			=	size;
     	this.quantity		=	quantity;
     	this.rate			= 	rate;
     	this.netAmount		=	(rate * quantity);

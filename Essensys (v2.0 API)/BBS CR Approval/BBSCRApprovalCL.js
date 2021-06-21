@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/ui/dialog', 'N/url', 'N/https'],
-function(dialog, url, https) {
+define(['N/ui/dialog', 'N/url'],
+function(dialog, url) {
     
     /**
      * Function to be executed after page is initialized.
@@ -165,15 +165,25 @@ function(dialog, url, https) {
 			}
 		});
 		
-		// call a backend Suitelet to update the SO with the rejection reason
-		https.get({
-			url: suiteletURL
-		});
+		Ext.Ajax.timeout = (60000*5);
 		
-		// reload the current record to display the changes to the user
-		location.reload();
+		var myMask = new Ext.LoadMask(Ext.getBody(), {msg:'<span style="font-size: 10pt;">The Credit Note Request is being Approved<br><br>Please Wait...</span>'});
+		myMask.show();
+		
+		// call a backend Suitelet to update the PO with the rejection reason
+		Ext.Ajax.request({
+							url: suiteletURL,
+							method: 'GET',
+							success: function (response, result) {
+								myMask.hide();
+								location.reload();
+							},
+							failure: function (response, result) {
+								myMask.hide();
+								alert("Error Approving the Credit Note Request");
+							}
+						});
     }
-    
     
     function reject(recordID) {
     	
@@ -196,13 +206,24 @@ function(dialog, url, https) {
     							}
     						});
     						
-    						// call a backend Suitelet to update the SO with the rejection reason
-    						https.get({
-    							url: suiteletURL
-    						});
+    						Ext.Ajax.timeout = (60000*5);
     						
-    						// reload the current record to display the changes to the user
-    						location.reload();
+    						var myMask = new Ext.LoadMask(Ext.getBody(), {msg:'<span style="font-size: 10pt;">The Credit Note Request is being Rejected<br><br>Please Wait...</span>'});
+    						myMask.show();
+    						
+    						// call a backend Suitelet to update the PO with the rejection reason
+    						Ext.Ajax.request({
+    											url: suiteletURL,
+    											method: 'GET',
+    											success: function (response, result) {
+    												myMask.hide();
+    												location.reload();
+    											},
+    											failure: function (response, result) {
+    												myMask.hide();
+    												alert("Error Rejecting the Credit Note Request");
+    											}
+    										});
     					}
     				else // user clicked ok but did not enter a rejection reason
     					{
@@ -216,8 +237,6 @@ function(dialog, url, https) {
     	});
     	
     }
-    
-    
 
     return {
         pageInit: pageInit,

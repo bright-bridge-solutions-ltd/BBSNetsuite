@@ -1,0 +1,280 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd"><pdfset><#if statements?has_content><#list statements as statement>
+<pdf>
+<#setting date_format="dd/MM/yyyy">
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header">
+            	<tr>
+              		<td rowspan="2" style="vertical-align: middle; align: right;"><img height="32" src="https://3424956.app.netsuite.com/core/media/media.nl?id=882124&amp;c=3424956&amp;h=da1a8b6fc441ceac3634&amp;fcts=20200330090236&amp;whence=" style="float: left; margin: 7px" width="204" /> </td>
+					<td colspan="2" style="align: right;"><span class="title">${record@title}</span></td>
+				</tr>
+				<tr>
+					<td></td>
+				</tr>
+				<tr>
+					<td><span class="companyaddress">${subsidiary.name}<br/><#if subsidiary.mainaddress_text?length != 0> ${subsidiary.mainaddress_text}<br />${subsidiary.phone}<br /><#if subsidiary.id == "3">accounts.uk@kamadojoe.com</#if><br /><#if subsidiary.id == "3">Our VAT Registration # <#if customer.billcountry == "GB">GB 292 5730 83<#else>NL 825 8328 95 B01</#if></#if></#if> </span></td>
+				</tr>
+			</table>
+
+<hr class="line" style="margin: 5px 0px;" />
+        </macro>
+        <macro id="nlfooter">
+            <table class="footer" style="width: 100%;"><tr>
+	<td align="right"><pagenumber/> of <totalpages/></td>
+	</tr></table>
+        </macro>
+    </macrolist>
+    <style type="text/css">table {
+        <#if .locale == "zh_CN">
+            font-family: stsong, sans-serif;
+        <#elseif .locale == "zh_TW">
+            font-family: msung, sans-serif;
+        <#elseif .locale == "ja_JP">
+            font-family: heiseimin, sans-serif;
+        <#elseif .locale == "ko_KR">
+            font-family: hygothic, sans-serif;
+        <#elseif .locale == "ru_RU">
+            font-family: verdana;
+        <#else>
+            font-family: sans-serif;
+        </#if>
+        font-size: 10pt;
+        table-layout: fixed;
+        width: 100%;
+      }
+      table.bankinfo {
+        font-size: 8pt;
+        border-collapse: collapse ;
+      }
+      td.bankinfo {
+        font-size: 8pt;
+        border-collapse: collapse ;
+      }
+      tr.bankinfo {
+        font-size: 8pt;
+        border-collapse: collapse ;
+      }
+      table.itemtable {
+        font-size: 8pt;
+      }
+      table.header img {
+            height: 8%;
+            width: 8%;
+      }
+      th {
+        font-weight: bold;
+        vertical-align: middle;
+        background-color: #E53D32;
+        color: #fff;
+        padding: 5px 5px;
+      }
+      td {
+        padding: 2px 5px;
+      }
+      table.footer td {
+        font-size: 7pt;
+      }
+      table.total {
+        page-break-inside: avoid;
+      }
+      tr.totalrow {
+        background-color: #E53D32;
+        color: #fff;
+        border-bottom: 1px solid white;
+        font-size: 14pt;
+        font-weight: bold;
+      }
+      tr.taxrow {
+        padding: 5px 5px 6px 5px;
+      }
+      tr.shippingrow {
+        padding: 5px 5px 2px 5px;
+      }
+      span.title {
+        font-size: 18pt;
+        font-weight: bold;
+      }
+      span.due-date {
+        font-size: 16pt;
+        text-align: right;
+      }
+      span.colored-text {
+        font-weight: bold;
+      }
+      <!-- Address text to line-->
+      span.colored-text-to-line {
+        color: #E53D32;
+        font-weight: bold;
+      }
+      <!-- Address text -->
+      span.colored-text-to {
+        font-weight: bold;
+        font-size: 7pt;
+      }
+      span.companyaddress {
+        font-weight: bold;
+        font-size: 7pt;
+      }
+      span.itemname {
+        font-weight: bold;
+        line-height: 150%;
+      }
+      hr.line {
+        width: 100%;
+        margin: 0px 0px 20px;
+        height: 0px;
+        color: #fff;
+        background-color: #fff;
+        border-top: 3px solid #E53D32;
+      }
+      td.bottom-highlight {
+        border-bottom: 1px solid #E53D32;
+      }
+      table.total td {
+        padding: 1px 1px;
+<!--         vertical-align: middle; -->
+      }
+      table.order-details td {
+        border-top: 1px solid #E53D32;
+      }
+      span.pagenumber {
+        text-align: right;
+      }
+</style>
+</head>
+<body header="nlheader" header-height="16.3%" footer="nlfooter" footer-height="5pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+<table>
+	<tr>
+		<td colspan="5" style="vertical-align: middle;">
+			<table>
+				<tr>
+					<td><span class="colored-text-to-line">${statement.billaddress@label}</span></td>
+				</tr>
+				<tr>
+					<td><span class="colored-text-to">${statement.billaddress}<br /><br />VAT ${customer.vatregnumber}</span></td>
+				</tr>
+				<tr>
+					<td colspan="2"><span class="colored-text-to">${statement.billphone}</span></td>
+				</tr>
+			</table>
+		</td>
+		<td colspan="3" style="vertical-align: middle;">
+			<table class="order-details">
+				<tr>
+					<td colspan="2"><span class="colored-text-to">Statement Date</span></td>
+					<td colspan="3" style="vertical-align: middle; align: right;"><span class="colored-text-to">${statement.trandate}</span></td>
+				</tr>
+				<tr>
+					<td colspan="2"><span class="colored-text-to">Account</span></td>
+					<td colspan="3" style="vertical-align: middle; align: right;"><span class="colored-text-to">${customer.entityid}</span></td>
+				</tr>
+				<tr>
+					<td colspan="2"><span class="colored-text-to">${statement.terms@label}</span></td>
+					<td colspan="3" style="vertical-align: middle; align: right;"><span class="colored-text-to">${statement.terms}</span></td>
+				</tr>
+				<tr>
+					<td colspan="2"><span class="colored-text-to">Currency</span></td>
+					<td colspan="3" style="vertical-align: middle; align: right;"><span class="colored-text-to">${statement.currency}</span></td>
+				</tr>
+				<tr>
+					<td colspan="2"><span class="colored-text-to">Total Balance Due</span></td>
+					<td colspan="3" style="vertical-align: middle; align: right;">${statement.amountdue}</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+
+<hr class="line" />
+<#if statement.lines?has_content>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list statement.lines as line><#if line_index==0>
+<thead>
+	<tr>
+	<th colspan="4">Date of<br/>Transaction</th>
+	<th colspan="10">${line.description@label}</th>
+	<th colspan="4">Invoice Due<br/>Date</th>
+	<th align="right" colspan="4">Invoice Value</th>
+	<th align="right" colspan="4">Payment/<br/>Credit Memo</th>
+	<th align="right" colspan="4">Balance<br/>Outstanding</th>
+	</tr>
+</thead>
+</#if><tr>
+	<td colspan="4">${line.datecol}</td>
+	<td colspan="10">${line.description}</td>
+	<td colspan="4">${line.duedate}</td>
+	<td align="right" colspan="4">${line.charge}</td>
+	<td align="right" colspan="4">${line.payment}</td>
+	<td align="right" colspan="4">${line.balance}</td>
+	</tr>
+	</#list><!-- end items --></table>
+
+<table class="aging" style="width: 100%; margin-top: 10px;">
+	<tr>
+		<th colspan="4">Current</th>
+		<th colspan="4">1-30 Days<br/>Overdue</th>
+		<th colspan="4">31-60 Days<br/>Overdue</th>
+		<th colspan="4">61-90 Days<br/>Overdue</th>
+		<th colspan="4">90+ Days<br/>Overdue</th>
+		<th colspan="4">Total Balance<br/>Due</th>
+	</tr>
+	<tr>
+		<td colspan="4">${statement.aging1}</td>
+		<td colspan="4">${statement.aging2}</td>
+		<td colspan="4">${statement.aging3}</td>
+		<td colspan="4">${statement.aging4}</td>
+		<td colspan="4">${statement.aging5}</td>
+		<td colspan="4">${statement.agingbal}</td>
+	</tr>
+</table>
+
+</#if><#if preferences.REMITTANCEFORM && remittanceSlip??>
+
+<hr />
+<div class="remittanceSlip">
+<table style="width: 100%; margin-top: 10px;"><tr>
+	<td><span class="nameandaddress">${companyInformation.companyName}</span></td>
+	<td align="right"><span class="number">${remittanceSlip@title}</span></td>
+	</tr></table>
+
+<table style="width: 100%; margin-top: 10px;"><tr>
+	<th>${remittanceSlip.customername@label}</th>
+	<th>${statement.trandate@label}</th>
+	<th>${statement.amountDue@label}</th>
+	<th>${remittanceSlip.amountPaid@label}</th>
+	</tr>
+	<tr>
+	<td>${companyInformation.addressText}</td>
+	<td>${statement.trandate}</td>
+	<td align="right">${statement.amountDue}</td>
+	<td>&nbsp;</td>
+	</tr></table>
+
+<table style="width: 100%;"><tr>
+	<th>${remittanceSlip.ccinfo@label}</th>
+	<th>${remittanceSlip.companyaddress@label}</th>
+	</tr>
+	<tr>
+	<td>${remittanceSlip.ccinfo}</td>
+	<td>${companyInformation.addressText}</td>
+	</tr></table>
+</div>
+</#if></body></pdf></#list><#else><pdf><head></head><body>
+
+<p>Please use Single Currency Advanced Printing Template</p>
+</body>
+</pdf></#if></pdfset>

@@ -3,8 +3,8 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['N/search', 'N/format'],
-function(search, format) {
+define(['N/search', 'N/format', 'N/record'],
+function(search, format, record) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -35,6 +35,8 @@ function(search, format) {
     		{
     			// declare and initialize variables
     			var calculationDate 		= null;
+    			var periodStart				= null;
+    			var periodEnd				= null;
     			var externalInvoiceNumber 	= null;
     		
     			// get the current record
@@ -130,13 +132,16 @@ function(search, format) {
 		    					var fieldLookup = search.lookupFields({
 		    						type: search.Type.RETURN_AUTHORIZATION,
 		    						id: createdFrom,
-		    						columns: ['createdfrom.custbody_bbs_ext_inv_no', 'createdfrom.trandate']
+		    						columns: ['createdfrom.custbody_bbs_ext_inv_no', 'createdfrom.trandate', 'createdfrom']
 		    					});
 		    					
-		    					calculationDate	= format.parse({
-		    						type: format.Type.DATE,
-		    						value: fieldLookup['createdfrom.trandate']
-		    					});
+		    					if (fieldLookup['createdfrom.trandate'])
+		    						{
+			    						calculationDate	= format.parse({
+				    						type: format.Type.DATE,
+				    						value: fieldLookup['createdfrom.trandate']
+				    					});
+		    						}
 		    					
 		    					externalInvoiceNumber = fieldLookup['createdfrom.custbody_bbs_ext_inv_no'];
 		    				}
@@ -165,9 +170,12 @@ function(search, format) {
 		    			});
 		    		}
 		    	
-		    	// calculate the start and end of the calculation date's month
-    			var periodStart = new Date(calculationDate.getFullYear(), calculationDate.getMonth(), 1);
-    			var periodEnd 	= new Date(calculationDate.getFullYear(), calculationDate.getMonth()+1, 0);
+		    	if (calculationDate)
+		    		{
+				    	// calculate the start and end of the calculation date's month
+		    			periodStart = new Date(calculationDate.getFullYear(), calculationDate.getMonth(), 1);
+		    			periodEnd 	= new Date(calculationDate.getFullYear(), calculationDate.getMonth()+1, 0);
+		    		}
     			
     			// get count of lines on the current record
     			var lineCount = currentRecord.getLineCount({
@@ -197,8 +205,7 @@ function(search, format) {
     			currentRecord.setValue({
     				fieldId: 'custbody_bbs_ext_inv_no',
     				value: externalInvoiceNumber
-    			});
-		    	
+    			});		    	
     		}
     }
 
@@ -212,6 +219,91 @@ function(search, format) {
      * @Since 2015.2
      */
     function afterSubmit(scriptContext) {
+    	
+	    if (scriptContext.type == scriptContext.UserEventType.CREATE)
+			{
+		    	// get the value of the created from field
+				var createdFrom = scriptContext.newRecord.getValue({
+					fieldId: 'createdfrom'
+				});
+				    	
+				if (createdFrom)
+					{
+						// get the text value of the createdFrom field
+						var createdFromType = scriptContext.newRecord.getText({
+							fieldId: 'createdfrom'
+						}).split(" #").shift();
+				    			
+				    	if (createdFromType == 'Credit Note Request')
+				    		{
+				    			// lookup fields on the credit note request record
+				    			var raLookup = search.lookupFields({
+				    				type: search.Type.RETURN_AUTHORIZATION,
+				    				id: createdFrom,
+				    				columns: ['createdfrom']
+				    			});
+				    					
+				    			if (raLookup.createdfrom.length > 0)
+				    				{
+						    			// get the ID of the linked invoice ID
+				    					var linkedInvoice = raLookup.createdfrom[0].value;
+				    				
+				    					try
+							    		    {
+							    		    	// reload the record
+							    		    	var creditMemoRecord = record.load({
+							    		    		type: record.Type.CREDIT_MEMO,
+							    		    		id: scriptContext.newRecord.id
+							    		    	});
+							    		    	
+							    		    	// get count of 'Apply' sublist lines
+							    	    		var lineCount = creditMemoRecord.getLineCount({
+							    	    			sublistId: 'apply'
+							    	    		});
+							    	    			
+							    	    		// loop through 'Apply' sublist
+							    	    		for (var i = 0; i < lineCount; i++)
+							    	    			{
+							    	    				// get the invoice ID for the current line
+							    	    				var lineInvoice = creditMemoRecord.getSublistValue({
+							    	    					sublistId: 'apply',
+							    	    					fieldId: 'internalid',
+							    	    					line: i
+							    	    				});
+							    	    					
+							    	    				if (lineInvoice == linkedInvoice)
+							    	    					{
+							    	    						// tick the 'Apply' checkbox for the line
+							    	    						creditMemoRecord.setSublistValue({
+							    	    							sublistId: 'apply',
+							    	    							fieldId: 'apply',
+							    	    							value: true,
+							    	    							line: i
+							    	    						});
+							    	    					}
+							    	    			}
+							    	    		
+							    	    		// save the changes to the credit memo record
+							    	    		creditMemoRecord.save({
+							    	    			ignoreMandatoryFields: true
+							    	    		});
+							    	    		
+							    	    		log.audit({
+							    	    			title: 'Credit Memo Applied',
+							    	    			details: scriptContext.newRecord.id
+							    	    		});
+							    		    }
+				    					catch(e)
+								    		{
+								    			log.error({
+								    				title: 'Error Applying Credit Memo ' + scriptContext.newRecord.id,
+								    				details: e.message
+								    			});
+								    		}
+				    				}
+				    		}
+					}
+			}
 
     }
     

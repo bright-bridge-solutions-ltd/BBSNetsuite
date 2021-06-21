@@ -97,19 +97,19 @@
     <table style="width: 100%; margin-bottom: 5px;">
     	<tr>
     		<td colspan="4" style="border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"><b>CUSTOMER</b></td>
-      		<td colspan="4" style="margin-left: 10px; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"><b>DELIVER TO</b></td>
+      		<td colspan="4" style="margin-left: 10px;">&nbsp;</td>
       	</tr>
       	<tr>
       		<td colspan="4" style="padding-left: 50px; border-left: 1px solid black; border-right: 1px solid black;">${record.billaddress}</td>
-      		<td colspan="4" style="margin-left: 10px; padding-left:50px; border-left: 1px solid black; border-right: 1px solid black;">${record.shipaddress}</td>
+      		<td colspan="4" style="margin-left: 10px;">&nbsp;</td>
       	</tr>
       	<tr>
         	<td colspan="4" style="padding-left: 50px; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
-            <td colspan="4" style="margin-left: 10px; padding-left:50px; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
+            <td colspan="4" style="margin-left: 10px;">&nsbp;</td>
         </tr>
       	<tr>
      		<td colspan="4" style="padding-left: 50px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
-         	<td colspan="4" style="margin-left: 10px; padding-left:50px; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;">&nsbp;</td>
+         	<td colspan="4" style="margin-left: 10px;">&nsbp;</td>
        	</tr>
   	</table>
     
