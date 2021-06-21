@@ -27,21 +27,36 @@ function(search, render, xml, runtime, plugin, file, encode)
     	{
 	    	//Retrieve script parameters
     		//
-	    	var recordID = context.request.parameters.id;
+	    	var recordID 		= context.request.parameters.id;
 	    	
-	    	//Get the current user
+	    	var userWorkstation	= null;
+	    	
+	    	//Get the workstation from the user preference
 			//
-			var currentUser	= runtime.getCurrentUser().id;
-			
-			//See if the current user has a printnode workstation assigned
-			//
-			var userWorkstation	= search.lookupFields({
-				    									type:		search.Type.EMPLOYEE,
-				    									id:			currentUser,
-				    									columns:	'custentity_bbs_default_workstation'
-				    									}).custentity_bbs_default_workstation;		
-			
-			userWorkstation = (userWorkstation.length > 0 ? userWorkstation[0].value : null);
+			var currentScript 		= runtime.getCurrentScript();
+	    	var userPrefWorkstation = currentScript.getParameter({name: 'custscript_bbs_up_pref_pack_station'});
+	    	
+	    	try
+				{
+			    	//Get the current user
+					//
+					var currentUser	= runtime.getCurrentUser().id;
+					
+		
+					//See if the current user has a printnode workstation assigned
+					//
+					userWorkstation	= search.lookupFields({
+						    									type:		search.Type.EMPLOYEE,
+						    									id:			currentUser,
+						    									columns:	'custentity_bbs_default_workstation'
+						    									}).custentity_bbs_default_workstation;		
+					
+					userWorkstation = (userWorkstation.length > 0 ? userWorkstation[0].value : null);
+				}
+			catch(err)
+				{
+					userWorkstation	= null;
+				}
 			
 			//See if the IF record has a printnode workstation assigned
 			//
@@ -55,9 +70,22 @@ function(search, render, xml, runtime, plugin, file, encode)
 			
 			//If the packing station from the IF is empty then try and use the default printnode workstation from the employee record
 			//
-			packingStation = (packingStation == null || packingStation == '' ? userWorkstation : packingStation);
+			if(packingStation == null || packingStation == '')
+				{
+					packingStation = userWorkstation;
+				}
 			
-		
+			//If there is a user preference for a workstation use that instead as this will override everything else
+			//
+			if(userPrefWorkstation != null && userPrefWorkstation != '')
+				{
+					packingStation = userPrefWorkstation;
+				}
+			
+			//If the packing station from the IF is empty then try and use the default printnode workstation from the employee record
+			//
+			//packingStation = (packingStation == null || packingStation == '' ? userWorkstation : packingStation);
+			
 			//Only carry on if we have a workstation in some shape or form
 			//
 			if(packingStation != null && packingStation != '')

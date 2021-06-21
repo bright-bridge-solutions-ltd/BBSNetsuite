@@ -77,11 +77,18 @@ function(https, record, search, plugin, render, file, encode, runtime, url, oaut
 	    			var oldRecord 			= null;
 					var oldShippingStatus 	= null;
 					
+					//Get data from the current record
+					//
 					var newRecord 			= scriptContext.newRecord;
     				var newShippingStatus 	= newRecord.getValue({fieldId: 'shipstatus'});							// A=Picked, B=Packed, C=Shipped
     				var packingStation	 	= newRecord.getValue({fieldId: 'custbody_bbs_printnode_workstation'});		
     				var recordId			= newRecord.id;
     				
+    				//Get the workstation from the user preference
+    				//
+    				var currentScript 		= runtime.getCurrentScript();
+    		    	var userPrefWorkstation = currentScript.getParameter({name: 'custscript_bbs_up_pref_pack_station'});
+    		    	
 					//If we are in edit mode then get the old record & the old status
 					//
     				if(scriptContext.type != 'create')
@@ -115,7 +122,19 @@ function(https, record, search, plugin, render, file, encode, runtime, url, oaut
     				
     				//If the packing station from the IF is empty then try and use the default printnode workstation from the employee record
     				//
-    				packingStation = (packingStation == null || packingStation == '' ? userWorkstation : packingStation);
+    				if(packingStation == null || packingStation == '')
+    					{
+    						packingStation = userWorkstation;
+    					}
+    				
+    				//If there is a user preference for a workstation use that instead as this will override everything else
+    				//
+    				if(userPrefWorkstation != null && userPrefWorkstation != '')
+						{
+							packingStation = userPrefWorkstation;
+						}
+    				
+    				//packingStation = (packingStation == null || packingStation == '' ? userWorkstation : packingStation);
     				
     				//Has the IF changed from picked to packed, or has it been created at packed
     				//

@@ -68,10 +68,12 @@ function(record, search) {
     						title: 'Error Reloading Transfer Order ' + transferOrderID,
     						details: e.message
     					});
+    					
+    					transferOrder	= null;
     				}
     			
     			// if we have been able to reload the transfer order
-    			if (transferOrder)
+    			if (transferOrder != null)
     				{
 		    			// get the ID of the related purchase order
 		    			var purchaseOrderID = transferOrder.getValue({
@@ -92,10 +94,12 @@ function(record, search) {
 		    						title: 'Error Loading Purchase Order ' + purchaseOrderID,
 		    						details: e.message
 		    					});
+			    				
+			    				purchaseOrder	= null;
 		    				}
 		    			
 		    			// if we have been able to load the purchase order
-		    			if (purchaseOrder)
+		    			if (purchaseOrder != null)
 		    				{
 		    					// get count of items on the transfer order
 		    					var tfrOrdLineCount = transferOrder.getLineCount({
@@ -110,6 +114,8 @@ function(record, search) {
 		    					// loop through transfer order lines
 		    					for (var i = 0; i < tfrOrdLineCount; i++)
 		    						{
+		    							try
+		    								{
 		    							// get values from the line on the transfer order
 		    							var tfrOrdItem = transferOrder.getSublistValue({
 		    								sublistId: 'item',
@@ -174,6 +180,14 @@ function(record, search) {
     																			price
     																		)
     													);
+		    								}
+		    							catch(e)
+		    								{
+			    								log.error({
+				    								title: 'Error getting item detail for transfer order id = ' + transferOrderID,
+				    								details: e.message
+				    							});
+		    								}
 		    							
 		    						}
 		    					
