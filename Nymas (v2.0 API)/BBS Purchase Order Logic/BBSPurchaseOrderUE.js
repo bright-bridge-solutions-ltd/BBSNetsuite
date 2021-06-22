@@ -52,7 +52,7 @@ function(format, record, search, format) {
     					// increment the revisionNumber by 1 and set the revision number field
     					scriptContext.newRecord.setValue({
     	    				fieldId: 'custbody_bbs_revision_number',
-    	    				value: revisionNumber++
+    	    				value: ++revisionNumber
     	    			});
     				}
     			else

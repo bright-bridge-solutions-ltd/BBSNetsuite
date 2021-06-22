@@ -53,13 +53,13 @@ function(runtime, record, search, libraryModule, plugin, ui)
 							var fromAddressField = itemSublist.addField({
 																		id: 	'custpage_bbstfc_endpoint_from',
 																		type: 	ui.FieldType.SELECT,
-																		label: 'EndPoint From Address'
+																		label: 'Select Origin Address'
 																		});
 					
 							var toAddressField = itemSublist.addField({
 																		id: 	'custpage_bbstfc_endpoint_to',
 																		type: 	ui.FieldType.SELECT,
-																		label: 'EndPoint To Address'
+																		label: 'Select Destination Address'
 																		});
 			    		
 							//Get the customer id
@@ -506,6 +506,15 @@ function(runtime, record, search, libraryModule, plugin, ui)
 										var privateLineSplit	=	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_tfc_private_line_split', line: i});
 										var fromAddress			= 	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: configuration.fromAddressFieldId, line: i});
 										var toAddress			=	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: configuration.toAddressFieldId, line: i});
+										var llbAddress			=	'';
+										
+										//Do we have a line level billing address set up?
+										//
+										if(configuration.llbAddressFieldId != null && configuration.llbAddressFieldId != '')
+											{
+												llbAddress = _transactionRecord.getSublistValue({sublistId: 'item', fieldId: configuration.llbAddressFieldId, line: i});
+											}
+										
 										
 										//Do we have a salesType
 										//
@@ -624,6 +633,21 @@ function(runtime, record, search, libraryModule, plugin, ui)
 														taxReqItemObj.to.int 	= toAddressData.incorporated;
 													}
 										        
+												//Have we got a line level billing address
+												//
+												if (llbAddress != '')
+													{
+														//Call library function to return data for the selected address
+														//
+														var llbAddressData = libraryModule.getAddressData(llbAddress);
+													
+														//Fill in the to properties in the item object
+														//
+														taxReqItemObj.bill		= new libraryModule.libLocationObj();
+														taxReqItemObj.bill.pcd	= llbAddressData.pCode;
+														taxReqItemObj.bill.int 	= llbAddressData.incorporated;
+													}
+												
 										        //Add the item object to the invoice line object array
 										        //
 										        taxReqInvObj.itms.push(taxReqItemObj);

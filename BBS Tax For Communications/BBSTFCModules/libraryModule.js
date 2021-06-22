@@ -175,6 +175,7 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 			this.taxCustomAddressIdFrom		= '';
 			this.fromAddressFieldId			= '';
 			this.toAddressFieldId			= '';
+			this.llbAddressFieldId			= '';
 			this.subsidiariesEnabled		= [];
 			this.maxTaxLinesToProcess		= '';
 		}
