@@ -1,0 +1,112 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	
+    <macrolist>
+            	<macro id="nlheader">
+      		<table style="width: 100%; font-size: 10pt;">
+      			<tr>
+      				<td colspan="4"><span style="font-size: 16pt; font-weight: bold;">PRICE LIST</span></td>
+      				<td colspan="4" rowspan="5"><p align="center"><img src="${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_logo@url}" style="float: center; width:150px; height:75px;"/><br/><br/>${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_legal_name}<br/>${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_address_1}, ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_address_2}, ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_address_3}<br/>${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_city}, ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_county}, ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_postcode}<br/>Tel: ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_telephone}<#if customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_fax?has_content> Fax: ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_fax}</#if><br/>Email: ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_finance_email}<br/>${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_website}</p></td>
+      			</tr>
+      			<tr>
+      				<td colspan="2" style="border-left: 1px solid black; border-top: 1px solid black;"><b>Date</b></td>
+      				<td colspan="2" style="border-right: 1px solid black; border-top: 1px solid black;"><b>: ${record.trandate}</b></td>
+      			</tr>
+      			<tr>
+      				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Account No.</b></td>
+      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${customer.entityid?keep_before(" ")}</b></td>
+      			</tr>
+
+      		</table>
+      		
+        </macro>
+        <macro id="nlfooter">
+        	<hr/> <!-- Horizontal Line -->
+        	<table style="width: 100%; margin-top: 10px;">
+        		<tr>
+			        <td align="left" class="footer">Printed : ${.now?datetime?string["EEE dd MMM yyyy HH:mm"]}</td>
+			        <td align="center" class="footer">VAT Reg. No.: ${customer.custentity_bbs_output_logo.custrecord_bbs_output_logo_vat_number}</td>
+			        <td align="right" class="footer"><p align="right">Page <pagenumber/> of <totalpages/></p></td>
+        		</tr>
+        	</table>
+        </macro>
+    </macrolist>
+      
+    <style type="text/css">
+    	* {
+			font-family: Arial, sans-serif;
+		}
+		table {
+			font-size: 10pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 10pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            color: #333333;
+        }
+        td {
+            padding-left: 6px;
+            padding-right: 6px;
+            padding-top: 4px;
+            padding-bottom: 0px;
+        }
+        td.footer {
+        	padding-left: 0px;
+        	padding-right: 0px;
+        	padding-top: 5px;
+        	padding-bottom: 0px;
+        	font-size: 10pt;
+        }
+		td p {
+			align:left;
+		}
+		hr {
+			width: 100%;
+			margin-top: 20px;
+			margin-bottom: 5px;
+		}
+</style>
+  
+</head>
+<body header="nlheader" header-height="165pt" footer="nlfooter" footer-height="40pt" padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
+    <table style="width: 100%; margin-top: 10px;"><tr>
+	<td style="border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"><b>CUSTOMER</b></td>
+	<td>&nbsp;</td>
+	</tr>
+	<tr>
+	<td style="padding-left: 20px; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">${record.billaddress}</td>
+	<td>&nbsp;</td>
+	</tr>
+  </table>
+  
+
+  <table style="width: 100%; margin-top: 10px;">
+  <thead>
+      <tr>
+        <th colspan="12" style="border-top: 1px solid black; border-bottom: 1px solid black;">Item</th>
+        <th colspan="3"  style="border-top: 1px solid black; border-bottom: 1px solid black;">Unit</th>
+        <th colspan="3" style="border-top: 1px solid black; border-bottom: 1px solid black;">Currency</th>
+        <th align="right" colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black;">Unit Price</th>
+
+      </tr>
+	</thead>
+    
+<#list record.pricelevels as lines>
+  <#list lines as line>
+  	<tr>
+	<td colspan="12"><span class="itemname"><b>${line.item}</b></span><br />${line.description}</td>
+	<td colspan="3">Each</td>
+	<td colspan="3">${line.currency}</td>
+	<td align="right" colspan="4">${line.rate}</td>
+
+	</tr>
+
+</#list></#list>
+        </table>
+</body>
+</pdf>

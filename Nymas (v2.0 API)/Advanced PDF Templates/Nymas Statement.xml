@@ -4,6 +4,20 @@
 <#if statements?has_content>
 <#list statements as statement>
 <pdf>
+  
+<#assign curSymbol = "£">
+<#if statement.currencysymbol == "EUR">
+  <#assign curSymbol = "€">
+</#if>
+<#if statement.currencysymbol == "USD">
+  <#assign curSymbol = "$">
+</#if>
+<#if statement.currencysymbol == "AUD">
+  <#assign curSymbol = "$">
+</#if>
+<#if statement.currencysymbol == "CNY">
+  <#assign curSymbol = "¥">
+</#if>
 <head>
 	<link name="Arial" type="font" subtype="truetype" src="${nsfont.Arial_Regular}" src-bold="${nsfont.Arial_Bold}" src-italic="${nsfont.Arial_Italic}" src-bolditalic="${nsfont.Arial_BoldItalic}" bytes="2" />
 	<macrolist>
@@ -18,8 +32,12 @@
       				<td colspan="2" style="border-right: 1px solid black; border-top: 1px solid black;"><b>: ${statement.trandate}</b></td>
       			</tr>
       			<tr>
-      				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Account No.</b></td>
-      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${customer.entityid?keep_before(" ")}</b></td>
+      				<td colspan="2" style="border-left: 1px solid black; "><b>Account No.</b></td>
+      				<td colspan="2" style="border-right: 1px solid black; "><b>: ${customer.entityid?keep_before(" ")}</b></td>
+      			</tr>
+              	<tr>
+      				<td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;"><b>Currency.</b></td>
+      				<td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>: ${statement.currency}</b></td>
       			</tr>
       		</table>
       		<table style="width: 100%; font-size: 10pt;">
@@ -85,7 +103,7 @@
     	<tr>
     		<td colspan="8" style="border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"><b>CUSTOMER</b></td>
     		<td colspan="4" rowspan="2" style="margin-left: 10px; border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">Total Outstanding<br/><br/>Unallocated Funds<br/><br/>Current Balance</td>
-    		<td colspan="2" rowspan="2" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black;">£<br/><br/>£<br/><br/>£</td>
+    		<td colspan="2" rowspan="2" align="center" style="border-top: 1px solid black; border-bottom: 1px solid black;">${curSymbol}<br/><br/>${curSymbol}<br/><br/>${curSymbol}</td>
     		<td colspan="2" rowspan="2" align="right" style="border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">${statement.amountDue}<br/><br/>${customer.depositbalance}<br/><br/>${customer.balance}</td>
     	</tr>
     	<tr>

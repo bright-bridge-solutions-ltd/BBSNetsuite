@@ -100,7 +100,7 @@
       		<td colspan="4">&nbsp;</td>
       	</tr>
       	<tr>
-      		<td colspan="4" style="padding-left: 50px; border-left: 1px solid black; border-right: 1px solid black;">${record.billaddress}</td>
+      		<td colspan="4" style="padding-left: 50px; border-left: 1px solid black; border-right: 1px solid black;">${record.entity.companyname}<br/>${record.billaddress}</td>
       		<td colspan="4">&nbsp;</td>
       	</tr>
       	<tr>
@@ -116,7 +116,7 @@
   	 <table style="width: 100%; margin-bottom: 5px; border: 1px solid black;">
     	<tr>
     		<td colspan="4"><b>Account Number</b></td>
-    		<td colspan="4"><b>: ${record.entity.accountnumber}</b></td>
+    		<td colspan="4"><b>: ${record.entity.entityid}</b></td>
     		<td colspan="4">&nbsp;</td>
     		<td colspan="4">&nbsp;</td>
     	</tr>
