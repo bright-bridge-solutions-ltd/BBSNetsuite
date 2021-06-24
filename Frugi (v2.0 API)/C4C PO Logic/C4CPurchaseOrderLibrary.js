@@ -77,7 +77,8 @@ function(search, file, runtime, render, email)  {
 			},
 					{
 				name: 'formulatext',
-				formula: "CASE WHEN {class} = 'B2B' THEN 'Trade' ELSE CASE WHEN {class} = 'B2C' THEN 'Cons.' END END",
+				//formula: "CASE WHEN {class} = 'B2B' THEN 'Trade' ELSE CASE WHEN {class} = 'B2C' THEN 'Cons.' END END",
+				formula: "CASE {class} WHEN 'B2B' THEN 'Trade' WHEN 'B2C' THEN 'Cons.' ELSE {class} END",
 				summary: search.Summary.GROUP
 			},
 					{
@@ -101,7 +102,7 @@ function(search, file, runtime, render, email)  {
 			var productNo		= result.getValue(result.columns[1]);
 			var commodityCode	= result.getValue(result.columns[2]);
 			var description		= result.getValue(result.columns[3]);
-				description		= description.replace(/,/g, ""); // strip commas from the description
+		//		description		= description.replace(/,/g, ""); // strip commas from the description
 			var barcode			= result.getValue(result.columns[4]);
 			var class			= result.getValue(result.columns[5]);
 			var quantity		= result.getValue(result.columns[6]);
@@ -110,7 +111,7 @@ function(search, file, runtime, render, email)  {
 			var totalValue		= result.getValue(result.columns[8]);
 			
 			// add to the CSV
-			CSV += supplierCode + ',' + productNo + ',' + commodityCode + ',' + description + ',' + barcode + ',' + quantity + ',' + unitPrice + ',' + totalValue;
+			CSV += '"' + supplierCode + '","' + productNo + '","' + commodityCode + '","' + description + '","' + barcode + '","' + quantity + '","' + unitPrice + '","' + totalValue + '"';
 			CSV += '\r\n';
 			
 			// continue processing search results

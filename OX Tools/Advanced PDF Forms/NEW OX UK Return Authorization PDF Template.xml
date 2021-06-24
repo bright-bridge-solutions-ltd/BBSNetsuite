@@ -1,0 +1,264 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+
+  	<!--Settings-->
+  	<#setting time_zone = "GMT">
+    
+     <!--Set the VAT & EORI number to its default value-->
+    <#assign vatNumber = "GB407311196">
+	<#assign eoriNumber = "GB407311196000">
+
+    <!--If shipping to Northen Ireland-->
+    <#if record.entity.taxitem?contains("S-GB") && record.shipzip?starts_with("BT")>
+        <#assign eoriNumber = "XI407311196000">
+        <#assign vatNumber = "GB407311196">
+    </#if>
+
+	<#if record.entity.taxitem?contains("IE")>
+        <#assign eoriNumber = "ESN8267652I">
+        <#assign vatNumber = "3739852FH">
+    </#if>
+
+	<#if record.entity.taxitem?contains("ES")>
+        <#assign eoriNumber = "ESN8267652I">
+        <#assign vatNumber = "N8267652I">
+    </#if>
+
+	<#if record.entity.taxitem?contains("NL")>
+        <#assign eoriNumber = "ESN8267652I">
+        <#assign vatNumber = "NL826358263B01">
+    </#if>
+
+    <!--Set company billing address-->
+    <#assign billAddress = record.billaddress>
+      
+    <macrolist>
+      
+       <macro id="nlheader">
+            <table class="header" style="width: 100%;">
+                <tr>
+                    <td align="left" colspan="2"><img src="${subsidiary.logo@url}" style="width: 300px; height: 39px;" /></td>
+                    <td align="left" style="font-size: 7pt; padding-left: 40px;"><b>${subsidiary.mainaddress_text}</b></td>
+                    <td align="left" style="font-size: 7pt; padding-left: 10px;"><b>T: +44 (0)208 676 9990<br/>E: sales.uk@oxtools.com<br/>W: www.oxtools.com<br/>Reg. No. 07697065<br/>VAT No. ${vatNumber}<#if eoriNumber != ""><br/>EORI: ${eoriNumber}</#if></b></td>
+                </tr>
+            </table>
+
+            <table class="header" style="width: 100%; margin-top: 10px;">
+                <tr>
+                    <td align="left"   colspan="6" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff;"><b>Customer Name &amp; Address</b></td>
+                    <td align="left"   colspan="5" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff; margin-left: 3px;"><b>Delivery Address</b></td>
+                    <td align="center" colspan="5" style="font-size: 8pt; background-color: #00adef; color: #ffffff; padding: 5px; margin-left: 3px;"><b>RETURN COLLECTION NOTE</b></td>
+                </tr>
+                <tr>
+                    <td align="left" colspan="6" rowspan="5" style="font-size: 8pt; padding: 5px;">${billAddress}</td>
+                    <td align="left" colspan="5" rowspan="5" style="font-size: 8pt; padding: 5px;">${record.shipaddress}</td>
+                    <td align="left" colspan="5" style="font-size: 7pt;  padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>FAO:</b></td><td align="right" style="font-size: 7pt;">${record.entity.contact}</td></tr></table></td>
+                </tr>
+                <tr>
+                    <td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Date:</b></td><td align="right" style="font-size: 7pt;">${record.trandate}</td></tr></table></td>
+                </tr>
+                <tr>
+                    <td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Return Ref:</b></td><td align="right" style="font-size: 7pt;">${record.memo}</td></tr></table></td>
+                </tr>
+                <tr>
+                    <td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Taken By:</b></td><td align="right" style="font-size: 7pt;">${record.salesrep?keep_before(" ")}</td></tr></table></td>
+                </tr>
+                <tr>
+                    <td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Return Number:</b></td><td align="right" style="font-size: 10pt;"><b>${record.tranid}</b></td></tr></table></td>
+                </tr>
+
+                <tr>
+                    <td align="left" colspan="16" style="font-size: 7pt; padding: 5px;">
+                        <#if record.entity.entityid?index_of(" : ") gt 0>
+                            Cust ID: ${record.entity.entityid?keep_after(" : ")}
+                        <#else>         
+                            Cust ID: ${record.entity.entityid}
+                        </#if>
+                        <#if record.entity.vatregnumber?length gt 0>
+                            &nbsp;VAT No: ${record.entity.vatregnumber}
+                        </#if>
+                        <#if record.entity.custentity_bbs_cust_eori_no?length gt 0>
+                            &nbsp;EORI: ${record.entity.custentity_bbs_cust_eori_no}
+                        </#if>
+                    </td>
+                </tr>
+            </table>
+        </macro>
+      
+		
+      
+      	<macro id="nlfooter">
+              <table  style="width: 100%; margin-top: 20px;">
+                <tr>
+                  <td colspan="10" align="left" style="font-size: 7pt; padding: 0px 0px  0px 0px;"><b>I confirm that the driver has received the above listed items for return to OX Products Group UK Ltd.</b></td>
+                </tr>
+                <tr style="margin-top: 20px;">
+                  <td colspan="1" align="left" style="font-size: 7pt; padding: 0px 0px  0px 0px;"><b>Signed:</b></td>
+                  <td colspan="3" align="left" style="font-size: 7pt; padding: 0px 10px 0px 0px; border-bottom: 1pt solid black;">&nbsp;</td>
+                  <td colspan="1" align="left" style="font-size: 7pt; padding: 0px 0px  0px 0px;"><b>Date:</b></td>
+                  <td colspan="2" align="left" style="font-size: 7pt; padding: 0px 10px 0px 0px; border-bottom: 1pt solid black;">&nbsp;</td>
+                  <td colspan="3" align="left" style="font-size: 7pt; padding: 0px 0px  0px 0px; ">&nbsp;</td>
+                </tr>
+                <tr style="margin-top: 20px;">
+                  <td colspan="1" align="left" style="font-size: 7pt; padding: 0px 0px  0px 0px;"><b>Print Name:</b></td>
+                  <td colspan="3" align="left" style="font-size: 7pt; padding: 0px 10px 0px 0px; border-bottom: 1pt solid black;">&nbsp;</td>
+                  <td colspan="1" align="left" style="font-size: 7pt; padding: 0px 0px  0px 0px;">&nbsp;</td>
+                  <td colspan="2" align="left" style="font-size: 7pt; padding: 0px 0px  0px 0px; ">&nbsp;</td>
+                  <td colspan="3" align="left" style="font-size: 7pt; padding: 0px 0px  0px 0px; ">&nbsp;</td>
+                </tr>
+            </table>
+      
+            <table class="footer" style="width: 100%; margin-top: 20px;">
+				<tr>
+                    <td align="right">${.now?string["dd/MM/yyyy, HH:mm:ss"]} Page <pagenumber/> of <totalpages/></td>
+                </tr>
+			</table>
+		</macro>
+    </macrolist>
+  
+    <style type="text/css">
+      table {
+            font-family: sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: left;
+            padding: 5px 6px 3px;
+            text-align: left;
+            
+        }
+        td {
+            padding: 4px 6px;
+          
+        }
+        b {
+            font-weight: bold;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 5px;
+            padding-top: 5px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+      
+      th.itemlist {
+            background-color: #000000;            
+            font-weight: bold;
+            color: #FFFFFF;
+      }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+            background-color: #000000;            
+            font-weight: bold;
+            color: #FFFFFF;
+        }
+        td.address {
+            padding-top: 0px;
+          border: 1px solid black;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+      td.bodyinfo {
+        text-align: left;
+        border: 1px solid black;
+      }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+  
+<body header="nlheader" header-height="250px" footer="nlfooter" footer-height="120px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+<#if record.item?has_content>
+  <table style="width: 100%;">
+      <#list record.item as item>
+        <#if item_index==0>
+          <thead>
+              <tr>
+              <th align="right"  colspan="2"  style="font-size: 7pt;  background-color: #00adef; color: #ffffff;" >Qty To<br/>Collect</th>
+              <th align="left"   colspan="3"  style="font-size: 7pt;  background-color: #00adef; color: #ffffff;" ><br/>Code</th>
+              <th align="left"   colspan="13" style="font-size: 7pt;  background-color: #00adef; color: #ffffff;" ><br/>Description</th>
+              <th align="center" colspan="2"  style="font-size: 7pt;  background-color: #00adef; color: #ffffff;" >Collected</th>
+              </tr>
+          </thead>
+        </#if>
+
+        <tr style="padding: 0px;">
+          <td align="right"  colspan="2"  style="font-size: 7pt; " >${item.quantity}</td>
+          <td align="left"   colspan="3"  style="font-size: 7pt; " >${item.item}</td>
+          <td align="left"   colspan="13" style="font-size: 7pt; " >${item.description}</td>
+          <td align="center" colspan="1"  style="font-size: 7pt; " >&nbsp;</td>
+          <td align="center" colspan="1"  style="font-size: 7pt; " ><table style="width: 100%"><tr><td align="center" style="border: 1pt solid black;">&nbsp;</td></tr></table></td>
+        </tr>
+      </#list>
+  </table>
+</#if>
+
+	<div style="page-break-inside: avoid;">
+      <table  style="width: 100%; margin-top: 10px;">
+        <tr>
+          <td align="center" style="font-size: 7pt; padding: 0px 0px 0px 0px;"><b>We have arranged for the above items to be collected by Interlink so please ensure the goods are suitably packaged and ready for collection.</b></td>
+        </tr>
+        <tr>
+          <td align="center" style="font-size: 7pt; padding: 0px 0px 0px 0px;"><b>Please also print this Returns Collection Note and attach it to the parcel.</b></td>
+        </tr>
+        <tr>
+          <td align="center" style="font-size: 7pt; padding: 0px 0px 0px 0px;"><b>Please be aware that failed collections can incur additional charges.</b></td>
+        </tr>
+        <tr>
+          <td align="center" style="font-size: 7pt; padding: 0px 0px 0px 0px;"><b>Interlink will send a separate email to confirm when these items will be collected.</b></td>
+        </tr>
+      </table>
+      
+
+    </div>
+</body>
+</pdf>

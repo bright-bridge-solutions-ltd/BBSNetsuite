@@ -5,31 +5,30 @@
 
     <!--Settings-->
     <#setting time_zone = "GMT">
-    
-    <!--Set the VAT number to its default value-->
+
+    <!--Set the VAT & EORI number to its default value-->
     <#assign vatNumber = "GB407311196">
+	<#assign eoriNumber = "GB407311196000">
 
-    <!--Use the VAT number from the location if it has one-->
-    <#if record.location.custrecord_bbs_vat_number?length gt 0>
-        <#assign vatNumber = record.location.custrecord_bbs_vat_number>
+    <!--If shipping to Northen Ireland-->
+    <#if record.entity.taxitem?contains("S-GB") && record.shipzip?starts_with("BT")>
+        <#assign eoriNumber = "XI407311196000">
+        <#assign vatNumber = "GB407311196">
     </#if>
 
-    <!--Set the EORI to blank-->
-    <#assign eoriNumber = "">
-
-    <!--Use the EORI from the location if it has one-->
-    <#if eoriNumber == "" && record.location.custrecord_bbs_location_eori_number?length gt 0>
-        <#assign eoriNumber = record.location.custrecord_bbs_location_eori_number>
+	<#if record.entity.taxitem?contains("IE")>
+        <#assign eoriNumber = "ESN8267652I">
+        <#assign vatNumber = "3739852FH">
     </#if>
 
-    <!--If shipping to outside the UK use the EORI from the subsidiary record-->
-    <#if eoriNumber == "" && record.shipcountry != "GB">
-        <#assign eoriNumber = subsidiary.custrecord_bbs_eori_number>
+	<#if record.entity.taxitem?contains("ES")>
+        <#assign eoriNumber = "ESN8267652I">
+        <#assign vatNumber = "N8267652I">
     </#if>
 
-    <!--If shipping to Northen Ireland use the NI EORI from the subsidiary record-->
-    <#if eoriNumber == "" && record.shipzip?starts_with("BT")>
-        <#assign eoriNumber = subsidiary.custrecord_bbs_ni_eori_number>
+	<#if record.entity.taxitem?contains("NL")>
+        <#assign eoriNumber = "ESN8267652I">
+        <#assign vatNumber = "NL826358263B01">
     </#if>
 
     <!--Set company billing address-->
@@ -50,7 +49,7 @@
                 <tr>
                     <td align="left"   colspan="6" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff;"><b>Customer Name &amp; Address</b></td>
                     <td align="left"   colspan="5" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff; margin-left: 3px;"><b>Delivery Address</b></td>
-                    <td align="center" colspan="5" style="font-size: 8pt; background-color: #00adef; color: #ffffff; padding: 5px; margin-left: 3px;"><b>ACKNOWLEDGEMENT</b></td>
+                    <td align="center" colspan="5" style="font-size: 8pt; background-color: #00adef; color: #ffffff; padding: 5px; margin-left: 3px;"><b>PRO FORMA INVOICE</b></td>
                 </tr>
                 <tr>
                     <td align="left" colspan="6" rowspan="5" style="font-size: 8pt; padding: 5px;">${billAddress}</td>
@@ -280,8 +279,13 @@
                 <td rowspan="6" colspan="14" align="left"  style="font-size: 7pt;">&nbsp;</td>
               </#if>
               <td colspan="1"  align="left"  style="font-size: 7pt;">&nbsp;</td>
-              <td colspan="3"  align="left"  style="font-size: 7pt; "><b>Delivery:</b><br/>(${record.shipmethod})</td>
+              <td colspan="3"  align="left"  style="font-size: 7pt; "><b>Delivery:</b></td>
               <td colspan="2"  align="right" style="font-size: 7pt; ">${record.shippingcost}</td>
+          </tr>
+          <tr>
+              <td colspan="1"  align="left"  style="font-size: 7pt;">&nbsp;</td>
+              <td colspan="5"  align="left"  style="font-size: 7pt; ">(${record.shipmethod})</td>
+
           </tr>
           <tr>
               <td colspan="1"  align="left"  style="font-size: 7pt;">&nbsp;</td>
@@ -300,27 +304,6 @@
           </tr>
 
 
-      </table>
-  
-      <table  style="width: 100%; margin-top: 5px; ">
-        <tr>
-          <td align="center" style="font-size: 7pt; padding: 0px 0px 0px 0px;"><b>Thank you for your order</b></td>
-        </tr>
-        <tr>
-          <td align="center" style="font-size: 7pt; padding: 0px 0px 0px 0px;"><b>Please note product codes, pricing and delivery charges and make any necessary changes to your purchase order and records.</b></td>
-        </tr>
-      </table>
-
-      <table  style="width: 100%; margin-top: 5px; ">
-        <tr>
-          <td align="center" style="font-size: 7pt; padding: 0px 0px 0px 0px;"><b>Our fully trained distribution team are preparing your order for despatch in accordance with the above.</b></td>
-        </tr>
-        <tr>
-          <td align="center" style="font-size: 7pt; padding: 0px 0px 0px 0px;"><b>If there are any discrepancies please email sales.uk@oxtools.com within 72 hours of receipt of goods</b></td>
-        </tr>
-        <tr>
-          <td align="center" style="font-size: 7pt; padding: 0px 0px 0px 0px;"><b>&nbsp;</b></td>
-        </tr>
       </table>
     </div>
 </body>

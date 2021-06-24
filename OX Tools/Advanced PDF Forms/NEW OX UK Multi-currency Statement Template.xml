@@ -1,0 +1,263 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdfset>
+	<#if statements?has_content>
+      <#list statements as statement>
+
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+
+  	<!--Settings-->
+  	<#setting time_zone = "GMT">
+    
+    <!--Set the VAT & EORI number to its default value-->
+    <#assign vatNumber = "GB407311196">
+	<#assign eoriNumber = "GB407311196000">
+
+    <!--If shipping to Northen Ireland-->
+    <#if customer.taxitem?contains("S-GB") && customer.billzip?starts_with("BT")>
+        <#assign eoriNumber = "XI407311196000">
+        <#assign vatNumber = "GB407311196">
+    </#if>
+
+	<#if customer.taxitem?contains("IE")>
+        <#assign eoriNumber = "ESN8267652I">
+        <#assign vatNumber = "3739852FH">
+    </#if>
+
+	<#if customer.taxitem?contains("ES")>
+        <#assign eoriNumber = "ESN8267652I">
+        <#assign vatNumber = "N8267652I">
+    </#if>
+
+	<#if customer.taxitem?contains("NL")>
+        <#assign eoriNumber = "ESN8267652I">
+        <#assign vatNumber = "NL826358263B01">
+    </#if>
+
+    <!--Set company billing address-->
+    <#assign billAddress = statement.billaddress>
+
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;">
+                <tr>
+                    <td align="left" colspan="2"><img src="${subsidiary.logo@url}" style="width: 300px; height: 39px;" /></td>
+                    <td align="left" style="font-size: 7pt; padding-left: 40px;"><b>${subsidiary.mainaddress_text}</b></td>
+                    <td align="left" style="font-size: 7pt; padding-left: 10px;"><b>T: +44 (0)208 676 9990<br/>E: sales.uk@oxtools.com<br/>W: www.oxtools.com<br/>Reg. No. 07697065<br/>VAT No. ${vatNumber}<#if eoriNumber != ""><br/>EORI: ${eoriNumber}</#if></b></td>
+                </tr>
+            </table>
+
+            <table class="header" style="width: 100%; margin-top: 10px;">
+                <tr>
+                    <td align="left"   colspan="11" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff;"><b>Customer Name &amp; Address</b></td>
+                    <td align="center" colspan="5" style="font-size: 8pt; background-color: #00adef; color: #ffffff; padding: 5px; margin-left: 3px;"><b>STATEMENT</b></td>
+                </tr>
+                <tr>
+                    <td align="left" colspan="11" rowspan="5" style="font-size: 8pt; padding: 5px;">${billAddress}</td>
+                    <td align="left" colspan="5" style="font-size: 7pt;  padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>FAO:</b></td><td align="right" style="font-size: 7pt;">${customer.contact?keep_after(" : ")}</td></tr></table></td>
+                </tr>
+                <tr>
+                    <td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt; "><b>Statement Date:</b></td><td align="right" style="font-size: 7pt;">${statement.trandate}</td></tr></table></td>
+                </tr>
+                <tr>
+                    <td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt; "><b>Amount Due:</b></td><td align="right" style="font-size: 7pt;">${statement.amountdue}</td></tr></table></td>
+                </tr>
+                <tr>
+                    <td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt; "><b>Terms:</b></td><td align="right" style="font-size: 7pt;">${statement.terms}</td></tr></table></td>
+                </tr>
+                <tr>
+                    <td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Currency:</b></td><td align="right" style="font-size: 7pt;">${statement.currency}</td></tr></table></td>
+                </tr>
+
+                <tr>
+                    <td align="left" colspan="16" style="font-size: 7pt; padding: 5px;">
+                        <#if customer.entityid?index_of(" : ") gt 0>
+                            Cust ID: ${customer.entityid?keep_after(" : ")}
+                        <#else>         
+                            Cust ID: ${customer.entityid}
+                        </#if>
+                        <#if customer.vatregnumber?length gt 0>
+                            &nbsp;VAT No: ${customer.vatregnumber}
+                        </#if>
+                        <#if customer.custentity_bbs_cust_eori_no?length gt 0>
+                            &nbsp;EORI: ${customer.custentity_bbs_cust_eori_no}
+                        </#if>
+                    </td>
+                </tr>
+            </table>
+        </macro>
+      
+		
+      	<macro id="nlfooter">
+        <table style="width: 100%;">
+          <tr>
+              <td align="center" style="font-size: 7pt;"><b>Bank Details:</b></td>
+          </tr>
+          <tr>
+              <td align="center" style="font-size: 7pt;"><b>${statement.currency}</b></td>
+          </tr>
+          <tr>
+              <td align="center" style="font-size: 7pt;"><b>HSBC Account No. 22824094 Sort Code: 40-28-20</b></td>
+          </tr>
+          <tr>
+              <td align="center" style="font-size: 7pt;"><b>IBAN: GB59 HBUK 4028 2022 8240 94</b></td>
+          </tr>
+          <tr>
+              <td align="center" style="font-size: 7pt;"><b>All cheques should be made payable to OX Group UK</b></td>
+          </tr>
+
+      </table>
+            <table class="footer" style="width: 100%; margin-top: 10px;">
+              	<tr>
+					<td align="right">${.now?string["dd/MM/yyyy, HH:mm:ss"]} Page <pagenumber/> of <totalpages/></td>
+              	</tr>
+			</table>
+		</macro>
+    </macrolist>
+  
+	<style type="text/css">
+      table {
+            font-family: sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: left;
+            padding: 5px 6px 3px;
+            text-align: left;
+            
+        }
+        td {
+            padding: 4px 6px;
+          
+        }
+        b {
+            font-weight: bold;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 5px;
+            padding-top: 5px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+      
+      th.itemlist {
+            background-color: #000000;            
+            font-weight: bold;
+            color: #FFFFFF;
+      }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+            background-color: #000000;            
+            font-weight: bold;
+            color: #FFFFFF;
+        }
+        td.address {
+            padding-top: 0px;
+          border: 1px solid black;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+      td.bodyinfo {
+        text-align: left;
+        border: 1px solid black;
+      }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+
+<body header="nlheader" header-height="240px" footer="nlfooter" footer-height="100px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+<#if statement.lines?has_content>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list statement.lines as line><#if line_index==0>
+<thead>
+	<tr>
+	<th colspan="3" style="font-size: 7pt;  background-color: #00adef; color: #ffffff;">${line.datecol@label}</th>
+	<th colspan="3" style="font-size: 7pt;  background-color: #00adef; color: #ffffff;">${line.duedate@label}</th>
+	<th colspan="10" style="font-size: 7pt;  background-color: #00adef; color: #ffffff;">${line.description@label}</th>
+	<th align="right" colspan="3" style="font-size: 7pt;  background-color: #00adef; color: #ffffff;">${line.charge@label}</th>
+	<th align="right" colspan="4" style="font-size: 7pt;  background-color: #00adef; color: #ffffff;">${line.payment@label}</th>
+    <th align="right" colspan="4" style="font-size: 7pt;  background-color: #00adef; color: #ffffff;">${line.amountremaining@label}</th>
+	<th align="right" colspan="4" style="font-size: 7pt;  background-color: #00adef; color: #ffffff;">${line.balance@label}</th>
+	</tr>
+</thead>
+</#if><tr>
+	<td colspan="3"  style="font-size: 7pt;">${line.datecol}</td>
+	<td colspan="3"  style="font-size: 7pt;">${line.duedate}</td>
+	<td colspan="10"  style="font-size: 7pt;">${line.description}</td>
+	<td align="right" colspan="3"  style="font-size: 7pt;">${line.charge}</td>
+	<td align="right" colspan="4"  style="font-size: 7pt;">${line.payment}</td>
+	<td align="right" colspan="4"  style="font-size: 7pt;">${line.amountremaining}</td>
+	<td align="right" colspan="4"  style="font-size: 7pt;">${line.balance}</td>
+	</tr>
+	</#list><!-- end items --></table>
+
+<table class="aging" style="width: 100%; margin-top: 10px;"><tr>
+	<th style="font-size: 7pt;  background-color: #00adef; color: #ffffff;">${statement.aging1@label}</th>
+	<th style="font-size: 7pt;  background-color: #00adef; color: #ffffff;">${statement.aging2@label}</th>
+	<th style="font-size: 7pt;  background-color: #00adef; color: #ffffff;">${statement.aging3@label}</th>
+	<th style="font-size: 7pt;  background-color: #00adef; color: #ffffff;">${statement.aging4@label}</th>
+	<th style="font-size: 7pt;  background-color: #00adef; color: #ffffff;">${statement.aging5@label}</th>
+	<th style="font-size: 7pt;  background-color: #00adef; color: #ffffff;">${statement.agingbal@label}</th>
+	</tr>
+	<tr>
+	<td  style="font-size: 7pt;">${statement.aging1}</td>
+	<td  style="font-size: 7pt;">${statement.aging2}</td>
+	<td  style="font-size: 7pt;">${statement.aging3}</td>
+	<td  style="font-size: 7pt;">${statement.aging4}</td>
+	<td  style="font-size: 7pt;">${statement.aging5}</td>
+	<td  style="font-size: 7pt;">${statement.agingbal}</td>
+	</tr></table>
+</#if></body></pdf></#list><#else><pdf><head></head><body>
+
+<p>Please use Single Currency Advanced Printing Template</p>
+</body>
+</pdf></#if></pdfset>
