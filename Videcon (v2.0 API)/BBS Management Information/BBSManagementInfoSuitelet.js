@@ -230,7 +230,18 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					
 								linkField.linkText = 'View';
 								
-								
+								subList0.addField({
+													id:		'custpage_sl0_approved',
+													label:	'Approved ?',
+													type:	serverWidget.FieldType.TEXT				//Approved
+												});		
+									
+								subList0.addField({
+													id:		'custpage_sl0_cust_po',
+													label:	'Cust PO',
+													type:	serverWidget.FieldType.TEXT				//Cust PO
+												});		
+									
 								subList0.addField({
 													id:		'custpage_sl0_ship_complete',
 													label:	'Ship Complete',
@@ -308,7 +319,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													type:	serverWidget.FieldType.FLOAT
 												});													//Shipped
 
-				
+								subList0.addField({
+													id:		'custpage_sl0_to_be_done',
+													label:	'To Be Done',
+													type:	serverWidget.FieldType.FLOAT			//To Be Done
+												});		
+								
 								subList0.addField({
 													id:		'custpage_sl0_ship_sales',
 													label:	'Ship Value',
@@ -491,7 +507,24 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 											          summary: "SUM",
 											          formula: "CASE WHEN {purchaseorder.number} IS NULL THEN 0 ELSE 1 END",
 											          label: "PO Lines"
-											       })
+											       }),
+											       search.createColumn({
+											           name: "formulatext",
+											           summary: "GROUP",
+											           formula: "CASE WHEN {status} = 'Pending Approval' THEN 'NO' ELSE 'YES' END",
+											           label: "Approved ?"
+											        }),
+											        search.createColumn({
+											           name: "otherrefnum",
+											           summary: "GROUP",
+											           label: "Cust PO"
+											        }),
+											        search.createColumn({
+											           name: "formulanumeric",
+											           summary: "SUM",
+											           formula: "(CASE WHEN {quantitycommitted} IS NULL Then 0 ELSE CASE WHEN ({quantitypacked}-{quantityshiprecv})>0 THEN{quantitycommitted}- ({quantitypacked}-{quantityshiprecv}) ELSE CASE WHEN ({quantitypicked}-{quantitypacked})>0 THEN {quantitycommitted}- ({quantitypicked}-{quantitypacked})  ELSE {quantitycommitted} END END END) + ({quantitypicked}-{quantitypacked}) + ({quantitypacked}-{quantityshiprecv}) + ({quantityshiprecv}-{quantitybilled})",
+											           label: "To Be Done"
+											        })
 										   ]
 									});
 									
@@ -625,6 +658,23 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																			id:		'custpage_sl0_po_lines',
 																			line:	line,
 																			value:	format.parse({value: isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[17]),'0'), type: format.Type.FLOAT})
+																			});	
+												subList0.setSublistValue({
+																			id:		'custpage_sl0_approved',
+																			line:	line,
+																			value:	salesorderSearchObj[int].getValue(salesorderColumnsObj[18]) 
+																			});	
+
+												subList0.setSublistValue({
+																			id:		'custpage_sl0_cust_po',
+																			line:	line,
+																			value:	isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[19]),'')
+																			});	
+												
+												subList0.setSublistValue({
+																			id:		'custpage_sl0_to_be_done',
+																			line:	line,
+																			value:	format.parse({value: isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[20]),'0'), type: format.Type.FLOAT})
 																			});	
 												
 												totalRequired			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[7]));
@@ -797,7 +847,24 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 									          summary: "SUM",
 									          formula: "CASE WHEN {purchaseorder.number} IS NULL THEN 0 ELSE 1 END",
 									          label: "PO Lines"
-									       })
+									       }),
+									       search.createColumn({
+									           name: "formulatext",
+									           summary: "GROUP",
+									           formula: "CASE WHEN {status} = 'Pending Approval' THEN 'NO' ELSE 'YES' END",
+									           label: "Approved ?"
+									        }),
+									        search.createColumn({
+									           name: "otherrefnum",
+									           summary: "GROUP",
+									           label: "Cust PO"
+									        }),
+									        search.createColumn({
+									           name: "formulanumeric",
+									           summary: "SUM",
+									           formula: "(CASE WHEN {quantitycommitted} IS NULL Then 0 ELSE CASE WHEN ({quantitypacked}-{quantityshiprecv})>0 THEN{quantitycommitted}- ({quantitypacked}-{quantityshiprecv}) ELSE CASE WHEN ({quantitypicked}-{quantitypacked})>0 THEN {quantitycommitted}- ({quantitypicked}-{quantitypacked})  ELSE {quantitycommitted} END END END) + ({quantitypicked}-{quantitypacked}) + ({quantitypacked}-{quantityshiprecv}) + ({quantityshiprecv}-{quantitybilled})",
+									           label: "To Be Done"
+									        })
 									   ]
 									});
 	
@@ -933,7 +1000,24 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																			line:	line,
 																			value:	format.parse({value: isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[17]),'0'), type: format.Type.FLOAT})
 																			});	
-						
+												subList0.setSublistValue({
+																			id:		'custpage_sl0_approved',
+																			line:	line,
+																			value:	salesorderSearchObj[int].getValue(salesorderColumnsObj[18]) 
+																			});	
+
+												subList0.setSublistValue({
+																			id:		'custpage_sl0_cust_po',
+																			line:	line,
+																			value:	isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[19]),'')
+																			});	
+												
+												subList0.setSublistValue({
+																			id:		'custpage_sl0_to_be_done',
+																			line:	line,
+																			value:	format.parse({value: isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[20]),'0'), type: format.Type.FLOAT})
+																			});	
+												
 												totalRequired			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[7]));
 												totalCommitted			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[8]));
 												totalBackOrder			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[9]));
@@ -1104,7 +1188,24 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 									          summary: "SUM",
 									          formula: "CASE WHEN {purchaseorder.number} IS NULL THEN 0 ELSE 1 END",
 									          label: "PO Lines"
-									       })
+									       }),
+									       search.createColumn({
+									           name: "formulatext",
+									           summary: "GROUP",
+									           formula: "CASE WHEN {status} = 'Pending Approval' THEN 'NO' ELSE 'YES' END",
+									           label: "Approved ?"
+									        }),
+									        search.createColumn({
+									           name: "otherrefnum",
+									           summary: "GROUP",
+									           label: "Cust PO"
+									        }),
+									        search.createColumn({
+									           name: "formulanumeric",
+									           summary: "SUM",
+									           formula: "(CASE WHEN {quantitycommitted} IS NULL Then 0 ELSE CASE WHEN ({quantitypacked}-{quantityshiprecv})>0 THEN{quantitycommitted}- ({quantitypacked}-{quantityshiprecv}) ELSE CASE WHEN ({quantitypicked}-{quantitypacked})>0 THEN {quantitycommitted}- ({quantitypicked}-{quantitypacked})  ELSE {quantitycommitted} END END END) + ({quantitypicked}-{quantitypacked}) + ({quantitypacked}-{quantityshiprecv}) + ({quantityshiprecv}-{quantitybilled})",
+									           label: "To Be Done"
+									        })
 									   ]
 									});
 	
@@ -1241,6 +1342,24 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																			value:	format.parse({value: isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[17]),'0'), type: format.Type.FLOAT})
 																			});	
 						
+												subList0.setSublistValue({
+																			id:		'custpage_sl0_approved',
+																			line:	line,
+																			value:	salesorderSearchObj[int].getValue(salesorderColumnsObj[18]) 
+																			});	
+
+												subList0.setSublistValue({
+																			id:		'custpage_sl0_cust_po',
+																			line:	line,
+																			value:	isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[19]),'')
+																			});	
+												
+												subList0.setSublistValue({
+																			id:		'custpage_sl0_to_be_done',
+																			line:	line,
+																			value:	format.parse({value: isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[20]),'0'), type: format.Type.FLOAT})
+																			});	
+												
 												totalRequired			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[7]));
 												totalCommitted			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[8]));
 												totalBackOrder			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[9]));
@@ -1383,6 +1502,17 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					
 								linkField.linkText = 'View';
 								
+								subList1.addField({
+				                                    id:      'custpage_sl1_approved',
+				                                    label:   'Approved ?',
+				                                    type: serverWidget.FieldType.TEXT            //Approved
+				                                 });      
+                        
+								subList1.addField({
+				                                    id:      'custpage_sl1_cust_po',
+				                                    label:   'Cust PO',
+				                                    type: serverWidget.FieldType.TEXT            //Cust PO
+				                                 });    
 								
 								subList1.addField({
 													id:		'custpage_sl1_ship_complete',
@@ -1461,7 +1591,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													type:	serverWidget.FieldType.FLOAT
 												});													//Shipped
 
-				
+								subList1.addField({
+				                                    id:      'custpage_sl1_to_be_done',
+				                                    label:   'To Be Done',
+				                                    type: serverWidget.FieldType.FLOAT        //To Be Done
+				                                 });   
+								
 								subList1.addField({
 													id:		'custpage_sl1_ship_sales',
 													label:	'Ship Value',
@@ -1644,7 +1779,24 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 											          summary: "SUM",
 											          formula: "CASE WHEN {purchaseorder.number} IS NULL THEN 0 ELSE 1 END",
 											          label: "PO Lines"
-											       })
+											       }),
+											       search.createColumn({
+											           name: "formulatext",
+											           summary: "GROUP",
+											           formula: "CASE WHEN {status} = 'Pending Approval' THEN 'NO' ELSE 'YES' END",
+											           label: "Approved ?"
+											        }),
+											        search.createColumn({
+											           name: "otherrefnum",
+											           summary: "GROUP",
+											           label: "Cust PO"
+											        }),
+											        search.createColumn({
+											           name: "formulanumeric",
+											           summary: "SUM",
+											           formula: "(CASE WHEN {quantitycommitted} IS NULL Then 0 ELSE CASE WHEN ({quantitypacked}-{quantityshiprecv})>0 THEN{quantitycommitted}- ({quantitypacked}-{quantityshiprecv}) ELSE CASE WHEN ({quantitypicked}-{quantitypacked})>0 THEN {quantitycommitted}- ({quantitypicked}-{quantitypacked})  ELSE {quantitycommitted} END END END) + ({quantitypicked}-{quantitypacked}) + ({quantitypacked}-{quantityshiprecv}) + ({quantityshiprecv}-{quantitybilled})",
+											           label: "To Be Done"
+											        })
 										   ]
 									});
 									
@@ -1771,7 +1923,24 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																			value:	format.parse({value: isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[17]),'0'), type: format.Type.FLOAT})
 																			});	
 
+												subList1.setSublistValue({
+																			id:		'custpage_sl1_approved',
+																			line:	int,
+																			value:	salesorderSearchObj[int].getValue(salesorderColumnsObj[18]) 
+																			});	
 
+												subList1.setSublistValue({
+																			id:		'custpage_sl1_cust_po',
+																			line:	int,
+																			value:	isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[19]),'')
+																			});	
+												
+												subList1.setSublistValue({
+																			id:		'custpage_sl1_to_be_done',
+																			line:	int,
+																			value:	format.parse({value: isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[20]),'0'), type: format.Type.FLOAT})
+																			});	
+												
 												totalRequired			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[7]));
 												totalCommitted			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[8]));
 												totalBackOrder			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[9]));
@@ -1911,6 +2080,17 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					
 								linkField.linkText = 'View';
 								
+								subList2.addField({
+					                                    id:      'custpage_sl2_approved',
+					                                    label:   'Approved ?',
+					                                    type: serverWidget.FieldType.TEXT            //Approved
+					                                 });      
+                        
+								subList2.addField({
+				                                    id:      'custpage_sl2_cust_po',
+				                                    label:   'Cust PO',
+				                                    type: serverWidget.FieldType.TEXT            //Cust PO
+				                                 });  
 								
 								subList2.addField({
 													id:		'custpage_sl2_ship_complete',
@@ -1989,7 +2169,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													type:	serverWidget.FieldType.FLOAT
 												});													//Shipped
 
-				
+								subList2.addField({
+				                                    id:      'custpage_sl2_to_be_done',
+				                                    label:   'To Be Done',
+				                                    type: serverWidget.FieldType.FLOAT        //To Be Done
+				                                 }); 
+								
 								subList2.addField({
 													id:		'custpage_sl2_ship_sales',
 													label:	'Ship Value',
@@ -2174,7 +2359,24 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 									          summary: "SUM",
 									          formula: "CASE WHEN {purchaseorder.number} IS NULL THEN 0 ELSE 1 END",
 									          label: "PO Lines"
-									       })
+									       }),
+									       search.createColumn({
+									           name: "formulatext",
+									           summary: "GROUP",
+									           formula: "CASE WHEN {status} = 'Pending Approval' THEN 'NO' ELSE 'YES' END",
+									           label: "Approved ?"
+									        }),
+									        search.createColumn({
+									           name: "otherrefnum",
+									           summary: "GROUP",
+									           label: "Cust PO"
+									        }),
+									        search.createColumn({
+									           name: "formulanumeric",
+									           summary: "SUM",
+									           formula: "(CASE WHEN {quantitycommitted} IS NULL Then 0 ELSE CASE WHEN ({quantitypacked}-{quantityshiprecv})>0 THEN{quantitycommitted}- ({quantitypacked}-{quantityshiprecv}) ELSE CASE WHEN ({quantitypicked}-{quantitypacked})>0 THEN {quantitycommitted}- ({quantitypicked}-{quantitypacked})  ELSE {quantitycommitted} END END END) + ({quantitypicked}-{quantitypacked}) + ({quantitypacked}-{quantityshiprecv}) + ({quantityshiprecv}-{quantitybilled})",
+									           label: "To Be Done"
+									        })
 									   ]
 									});
 									
@@ -2301,6 +2503,24 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																			value:	format.parse({value: isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[17]),'0'), type: format.Type.FLOAT})
 																			});	
 		
+												subList2.setSublistValue({
+																			id:		'custpage_sl2_approved',
+																			line:	int,
+																			value:	salesorderSearchObj[int].getValue(salesorderColumnsObj[18]) 
+																			});	
+						
+												subList2.setSublistValue({
+																			id:		'custpage_sl2_cust_po',
+																			line:	int,
+																			value:	isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[19]),'')
+																			});	
+												
+												subList2.setSublistValue({
+																			id:		'custpage_sl2_to_be_done',
+																			line:	int,
+																			value:	format.parse({value: isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[20]),'0'), type: format.Type.FLOAT})
+																			});	
+												
 												totalRequired			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[7]));
 												totalCommitted			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[8]));
 												totalBackOrder			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[9]));
@@ -2440,7 +2660,18 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					
 								linkField.linkText = 'View';
 								
-								
+								subList3.addField({
+				                                    id:      'custpage_sl3_approved',
+				                                    label:   'Approved ?',
+				                                    type: serverWidget.FieldType.TEXT            //Approved
+				                                 });      
+                        
+			                     subList3.addField({
+			                                    id:      'custpage_sl3_cust_po',
+			                                    label:   'Cust PO',
+			                                    type: serverWidget.FieldType.TEXT            //Cust PO
+			                                 }); 
+                     
 								subList3.addField({
 													id:		'custpage_sl3_ship_complete',
 													label:	'Ship Complete',
@@ -2517,7 +2748,12 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 													type:	serverWidget.FieldType.FLOAT
 												});													//Shipped
 
-				
+								subList3.addField({
+				                                    id:      'custpage_sl3_to_be_done',
+				                                    label:   'To Be Done',
+				                                    type: serverWidget.FieldType.FLOAT       		 //To Be Done
+				                                 });   
+								
 								subList3.addField({
 													id:		'custpage_sl3_ship_sales',
 													label:	'Ship Value',
@@ -2702,7 +2938,24 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 									          summary: "SUM",
 									          formula: "CASE WHEN {purchaseorder.number} IS NULL THEN 0 ELSE 1 END",
 									          label: "PO Lines"
-									       })
+									       }),
+									       search.createColumn({
+									           name: "formulatext",
+									           summary: "GROUP",
+									           formula: "CASE WHEN {status} = 'Pending Approval' THEN 'NO' ELSE 'YES' END",
+									           label: "Approved ?"
+									        }),
+									        search.createColumn({
+									           name: "otherrefnum",
+									           summary: "GROUP",
+									           label: "Cust PO"
+									        }),
+									        search.createColumn({
+									           name: "formulanumeric",
+									           summary: "SUM",
+									           formula: "(CASE WHEN {quantitycommitted} IS NULL Then 0 ELSE CASE WHEN ({quantitypacked}-{quantityshiprecv})>0 THEN{quantitycommitted}- ({quantitypacked}-{quantityshiprecv}) ELSE CASE WHEN ({quantitypicked}-{quantitypacked})>0 THEN {quantitycommitted}- ({quantitypicked}-{quantitypacked})  ELSE {quantitycommitted} END END END) + ({quantitypicked}-{quantitypacked}) + ({quantitypacked}-{quantityshiprecv}) + ({quantityshiprecv}-{quantitybilled})",
+									           label: "To Be Done"
+									        })
 									   ]
 									});
 									
@@ -2830,6 +3083,24 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																			value:	format.parse({value: isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[17]),'0'), type: format.Type.FLOAT})
 																			});	
 		
+												subList3.setSublistValue({
+																			id:		'custpage_sl3_approved',
+																			line:	int,
+																			value:	salesorderSearchObj[int].getValue(salesorderColumnsObj[18]) 
+																			});	
+												
+												subList3.setSublistValue({
+																			id:		'custpage_sl3_cust_po',
+																			line:	int,
+																			value:	isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[19]),'')
+																			});	
+												
+												subList3.setSublistValue({
+																			id:		'custpage_sl3_to_be_done',
+																			line:	int,
+																			value:	format.parse({value: isNullorBlank(salesorderSearchObj[int].getValue(salesorderColumnsObj[20]),'0'), type: format.Type.FLOAT})
+																			});	
+												
 												totalRequired			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[7]));
 												totalCommitted			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[8]));
 												totalBackOrder			+= Number(salesorderSearchObj[int].getValue(salesorderColumnsObj[9]));
