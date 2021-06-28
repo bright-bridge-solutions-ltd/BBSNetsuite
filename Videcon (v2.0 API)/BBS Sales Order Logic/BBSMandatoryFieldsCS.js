@@ -27,7 +27,12 @@ function(currentRecord, dialog) {
 																fieldId: 	'inventorylocation'
 																});
 			
-			if(invLocation == null || invLocation == '')
+			var itemType = currentRecord.getCurrentSublistValue({
+																sublistId: 	'item',
+																fieldId: 	'itemtype'
+																});
+
+			if((invLocation == null || invLocation == '') && itemType != 'Discount')
 				{
 					dialog.alert({
 									title: 		'Error',
@@ -65,7 +70,13 @@ function(currentRecord, dialog) {
 																	line:		int
 																	});
 	    			
-	    			if(invLocation == null || invLocation == '')
+	    			var itemType = currentRecord.getSublistValue({
+																	sublistId: 	'item',
+																	fieldId: 	'itemtype',
+																	line:		int
+																	});
+	    			
+	    			if((invLocation == null || invLocation == '') && itemType != 'Discount')
 						{
 							dialog.alert({
 											title: 		'Error',

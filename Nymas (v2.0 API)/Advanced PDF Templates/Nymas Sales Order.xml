@@ -159,7 +159,7 @@
     			<td align="left" colspan="4" style="padding-left: 20px;">&nbsp;</td>
     			<td align="right" colspan="4">${record.custbody_bbs_currency_symbol}${record.shippingcost?string["#,##0.00"]}</td>
     			<td align="right" colspan="4">${record.custbody_bbs_currency_symbol}${record.shippingcost?string["#,##0.00"]}</td>
-    			<td align="right" colspan="4">ZERO</td>
+    			<td align="right" colspan="4">STD</td>
     		</tr>
     	</#if>
   	</table>
@@ -167,7 +167,7 @@
   	<hr/><!-- Horizontal Line -->
    		<table style="width: 100%;">
         	<tr>
-        		<td colspan="6" rowspan="3">
+        		<td colspan="6" rowspan="4">
         			<table class="bankdetails" style="width: 100%">
 	        			<tr>
 			        		<td colspan="6"><b>VAT<br/>Analysis</b></td>
@@ -189,6 +189,10 @@
 				</td>
 			  	<td colspan="4" style="padding-bottom: 10px; border-left: 1px solid black; border-top: 1px solid black;"><b>Total Value</b></td>
 			  	<td colspan="2" align="right" style="padding-bottom: 20px; border-right: 1px solid black; border-top: 1px solid black;">${record.custbody_bbs_currency_symbol}${record.subtotal?string["#,##0.00"]}</td>
+			 </tr>
+          	<tr>
+			    <td colspan="4" style="padding-bottom: 10px; border-left: 1px solid black;"><b>Total Shipping</b></td>
+			 	<td colspan="2" align="right" style="padding-bottom: 20px; border-right: 1px solid black;">${record.shippingcost}</td>
 			 </tr>
 	        <tr>
 			    <td colspan="4" style="padding-bottom: 10px; border-left: 1px solid black;"><b>Total Discount</b></td>
