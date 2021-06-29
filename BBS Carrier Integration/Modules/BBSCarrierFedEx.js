@@ -129,7 +129,11 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 																																		_processShipmentRequest.packages[_requestPackages].weight
 																																	)
 																												);
-					
+			
+			//Add the items to the commodities part of the request
+			//
+			
+			
 			// Declare xmlRequest variable and set SOAP envelope
 			var xmlRequest = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v26="http://fedex.com/ws/ship/v26"><soapenv:Header/><soapenv:Body>';
 					
@@ -341,6 +345,16 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 	
 	function _processShipmentRequestFedEx(shippingRequestData)
 		{
+			//Calculate the total value
+			//
+			var totalValue = Number(0);
+			
+			for (var itemDetailCounter = 0; itemDetailCounter < shippingRequestData.itemDetails.length; itemDetailCounter++) 
+				{
+					totalValue += Number(shippingRequestData.itemDetails[itemDetailCounter].itemValue);
+				}
+		
+			
 			this.ProcessShipmentRequest 																				= {};
 			this.ProcessShipmentRequest.WebAuthenticationDetail 														= {};
 			this.ProcessShipmentRequest.WebAuthenticationDetail.UserCredential 											= {};
@@ -394,6 +408,18 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			this.ProcessShipmentRequest.RequestedShipment.ShippingChargesPayment.Payor 									= {};
 			this.ProcessShipmentRequest.RequestedShipment.ShippingChargesPayment.Payor.ResponsibleParty 				= {};
 			this.ProcessShipmentRequest.RequestedShipment.ShippingChargesPayment.Payor.ResponsibleParty.AccountNumber 	= shippingRequestData.shippingItemInfo.carrierContractNo;
+			
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail   										= {};
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.DutiesPayment            				= {};
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.DutiesPayment.PaymentType              = 'SENDER';
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.DutiesPayment.Payor                    = {};
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.DutiesPayment.Payor.ResponsibleParty  	= {};
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.DutiesPayment.Payor.ResponsibleParty.AccountNumber	= shippingRequestData.shippingItemInfo.carrierContractNo;
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.CustomsValue             				= {};
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.CustomsValue.Currency                 	= shippingRequestData.currencyISOCode;
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.CustomsValue.Amount                   	= totalValue;
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.Commodities              				= [];
+
 			this.ProcessShipmentRequest.RequestedShipment.LabelSpecification 											= {};
 			this.ProcessShipmentRequest.RequestedShipment.LabelSpecification.LabelFormatType 							= 'COMMON2D';
 			this.ProcessShipmentRequest.RequestedShipment.LabelSpecification.ImageType 									= shippingRequestData.configuration.labelFormat;
@@ -405,11 +431,46 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			this.ProcessShipmentRequest.RequestedShipment.PackageCount 													= shippingRequestData.packageCount;
 			this.ProcessShipmentRequest.RequestedShipment.RequestedPackageLineItems 									= [];
 			
+			//Add the commodity lines
+			//
+			for (var itemDetailCounter = 0; itemDetailCounter < shippingRequestData.itemDetails.length; itemDetailCounter++) 
+				{
+					this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.Commodities.push(new _commodityFedEx(
+																																Number(shippingRequestData.itemDetails[itemDetailCounter].itemQty), 
+																																shippingRequestData.itemDetails[itemDetailCounter].itemDesc, 
+																																shippingRequestData.itemDetails[itemDetailCounter].itemCountry, 
+																																Number(shippingRequestData.itemDetails[itemDetailCounter].itemUnitWeight) * Number(shippingRequestData.itemDetails[itemDetailCounter].itemQty), 
+																																Number(shippingRequestData.itemDetails[itemDetailCounter].itemUnitRate), 
+																																Number(shippingRequestData.itemDetails[itemDetailCounter].itemValue), 
+																																shippingRequestData.currencyISOCode
+																																)
+																											);
+				}
+			
 	//		this.addLineItems = function (_sequenceNumber, _weightUnits, _weightValue, _dimensionsLength, _dimensionsWidth, _dimensionsHeight, _dimensionsUnits)
 	//			{
 	//				this.ProcessShipmentRequest.RequestedShipment.RequestedPackageLineItems.push(new _lineItemsFedEx(_sequenceNumber, _weightUnits, _weightValue, _dimensionsLength, _dimensionsWidth, _dimensionsHeight, _dimensionsUnits))
 	//			}
 		}
+	
+	function _commodityFedEx(_quantity, _description, _com, _weight, _rate, _amount, _currrency)
+		{
+			this.NumberOfPieces           = _quantity;
+			this.Description              = _description;
+			this.CountryOfManufacture     = _com;
+			this.Weight                   = {};
+			this.Weight.Units             = 'KG';
+			this.Weight.Value             = _weight;
+			this.Quantity                 = _quantity;
+			this.QuantityUnits            = 'EA';
+			this.UnitPrice                = {};
+			this.UnitPrice.Currency       = _currrency;
+			this.UnitPrice.Amount         = _amount;
+			this.CustomsValue             = {};
+			this.CustomsValue.Currency    = _currrency;
+			this.CustomsValue.Amount      = _amount;
+		}
+	
 	
 	function _lineItemsFedEx(_sequenceNumber, _weightUnits, _weightValue)
 		{

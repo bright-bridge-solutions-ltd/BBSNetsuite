@@ -250,14 +250,14 @@ OX Products Group UK Ltd. All business is transacted subject to and in accordanc
               <td colspan="6"  align="left"   style="font-size: 7pt; ">(${record.shipmethod})</td>
           </tr>
           <tr>
-              <td colspan="4"  align="left"   style="font-size: 7pt; "><b>Customer Returns Ref</b></td>
+              <td colspan="4"  align="left"   style="font-size: 7pt; ">&nbsp;</td>
               <td colspan="4"  align="right"  style="font-size: 7pt; ">&nbsp;</td>
               <td colspan="8"  align="center" style="font-size: 7pt;"><b>HSBC Account No. 22824094 Sort Code: 40-28-20</b></td>
               <td colspan="3"  align="left"   style="font-size: 7pt;"><b>VAT:</b></td>
               <td colspan="3"  align="right"  style="font-size: 7pt; ">${record.taxtotal}</td>
           </tr>
 		  <tr>
-              <td colspan="4"  align="left"   style="font-size: 7pt; "><b>Customer Returns Ref</b></td>
+              <td colspan="4"  align="left"   style="font-size: 7pt; ">&nbsp;</td>
               <td colspan="4"  align="right"  style="font-size: 7pt; ">&nbsp;</td>
               <td colspan="8"  align="center" style="font-size: 7pt;"><b>IBAN: GB59 HBUK 4028 2022 8240 94</b></td>
               <td colspan="3"  align="left"   style="font-size: 7pt;"><b>Total:</b></td>
