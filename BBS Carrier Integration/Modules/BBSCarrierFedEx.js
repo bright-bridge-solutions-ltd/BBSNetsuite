@@ -130,9 +130,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 																																	)
 																												);
 			
-			//Add the items to the commodities part of the request
-			//
-			
+			log.debug({title: 'FedEx Request Object', details: processShipmentRequestFedEx});
 			
 			// Declare xmlRequest variable and set SOAP envelope
 			var xmlRequest = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v26="http://fedex.com/ws/ship/v26"><soapenv:Header/><soapenv:Body>';

@@ -1010,7 +1010,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								}
 							catch(err)
 								{
-									transferOrderId = null;
+									//transferOrderId = null;
 									log.error({title: 'Error saving transfer order', details: err});
 								}
     					}
