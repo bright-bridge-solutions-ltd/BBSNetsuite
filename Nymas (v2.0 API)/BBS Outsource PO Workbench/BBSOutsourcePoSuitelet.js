@@ -15,6 +15,7 @@ define(['N/runtime', 'N/search', 'N/task', 'N/ui/serverWidget', 'N/ui/dialog', '
 function(runtime, search, task, serverWidget, dialog, message, format, http, record, url) 
 {
    
+	
     /**
      * Definition of the Suitelet script trigger point.
      *
