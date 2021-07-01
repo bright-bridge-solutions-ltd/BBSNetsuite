@@ -3,8 +3,6 @@
 <head>
 	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
 
-  	<!--Settings-->
-  	<#setting time_zone = "GMT">
     
 	<!--Set the VAT & EORI number to its default value-->
     <#assign vatNumber = "GB407311196">
@@ -49,13 +47,13 @@
 
             <table class="header" style="width: 100%; margin-top: 10px;">
                 <tr>
-                    <td align="left"   colspan="6" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff;"><b>Customer Name &amp; Address</b></td>
-                    <td align="left"   colspan="5" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff; margin-left: 3px;"><b>Delivery Address</b></td>
+                    <td align="left"   colspan="6" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff;"><b>Delivery Address</b></td>
+                    <td align="left"   colspan="5" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff; margin-left: 3px;"><b>Customer Name &amp; Address</b></td>
                     <td align="center" colspan="5" style="font-size: 8pt; background-color: #00adef; color: #ffffff; padding: 5px; margin-left: 3px;"><b>DELIVERY NOTE</b></td>
                 </tr>
                 <tr>
-                    <td align="left" colspan="6" rowspan="5" style="font-size: 8pt; padding: 5px;">${billAddress}</td>
-                    <td align="left" colspan="5" rowspan="5" style="font-size: 8pt; padding: 5px;">${record.shipaddress}</td>
+                    <td align="left" colspan="6" rowspan="5" style="font-size: 8pt; padding: 5px;">${record.shipaddress}</td>
+                    <td align="left" colspan="5" rowspan="5" style="font-size: 8pt; padding: 5px;">${billAddress}</td>
                     <td align="left" colspan="5" style="font-size: 7pt;  padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>FAO:</b></td><td align="right" style="font-size: 7pt;">${salesorder.entity.contact}</td></tr></table></td>
                 </tr>
                 <tr>

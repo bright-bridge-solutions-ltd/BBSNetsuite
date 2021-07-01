@@ -522,7 +522,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 											        search.createColumn({
 											           name: "formulanumeric",
 											           summary: "SUM",
-											           formula: "(CASE WHEN {quantitycommitted} IS NULL Then 0 ELSE CASE WHEN ({quantitypacked}-{quantityshiprecv})>0 THEN{quantitycommitted}- ({quantitypacked}-{quantityshiprecv}) ELSE CASE WHEN ({quantitypicked}-{quantitypacked})>0 THEN {quantitycommitted}- ({quantitypicked}-{quantitypacked})  ELSE {quantitycommitted} END END END) + ({quantitypicked}-{quantitypacked}) + ({quantitypacked}-{quantityshiprecv}) + ({quantityshiprecv}-{quantitybilled})",
+											           formula: "(CASE WHEN {quantitycommitted} IS NULL Then 0 ELSE CASE WHEN ({quantitypacked}-{quantityshiprecv})>0 THEN{quantitycommitted}- ({quantitypacked}-{quantityshiprecv}) ELSE CASE WHEN ({quantitypicked}-{quantitypacked})>0 THEN {quantitycommitted}- ({quantitypicked}-{quantitypacked})  ELSE {quantitycommitted} END END END) + ({quantitypicked}-{quantitypacked}) + ({quantitypacked}-{quantityshiprecv})",
 											           label: "To Be Done"
 											        })
 										   ]
@@ -862,7 +862,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 									        search.createColumn({
 									           name: "formulanumeric",
 									           summary: "SUM",
-									           formula: "(CASE WHEN {quantitycommitted} IS NULL Then 0 ELSE CASE WHEN ({quantitypacked}-{quantityshiprecv})>0 THEN{quantitycommitted}- ({quantitypacked}-{quantityshiprecv}) ELSE CASE WHEN ({quantitypicked}-{quantitypacked})>0 THEN {quantitycommitted}- ({quantitypicked}-{quantitypacked})  ELSE {quantitycommitted} END END END) + ({quantitypicked}-{quantitypacked}) + ({quantitypacked}-{quantityshiprecv}) + ({quantityshiprecv}-{quantitybilled})",
+									           formula: "(CASE WHEN {quantitycommitted} IS NULL Then 0 ELSE CASE WHEN ({quantitypacked}-{quantityshiprecv})>0 THEN{quantitycommitted}- ({quantitypacked}-{quantityshiprecv}) ELSE CASE WHEN ({quantitypicked}-{quantitypacked})>0 THEN {quantitycommitted}- ({quantitypicked}-{quantitypacked})  ELSE {quantitycommitted} END END END) + ({quantitypicked}-{quantitypacked}) + ({quantitypacked}-{quantityshiprecv})",
 									           label: "To Be Done"
 									        })
 									   ]
@@ -1203,7 +1203,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 									        search.createColumn({
 									           name: "formulanumeric",
 									           summary: "SUM",
-									           formula: "(CASE WHEN {quantitycommitted} IS NULL Then 0 ELSE CASE WHEN ({quantitypacked}-{quantityshiprecv})>0 THEN{quantitycommitted}- ({quantitypacked}-{quantityshiprecv}) ELSE CASE WHEN ({quantitypicked}-{quantitypacked})>0 THEN {quantitycommitted}- ({quantitypicked}-{quantitypacked})  ELSE {quantitycommitted} END END END) + ({quantitypicked}-{quantitypacked}) + ({quantitypacked}-{quantityshiprecv}) + ({quantityshiprecv}-{quantitybilled})",
+									           formula: "(CASE WHEN {quantitycommitted} IS NULL Then 0 ELSE CASE WHEN ({quantitypacked}-{quantityshiprecv})>0 THEN{quantitycommitted}- ({quantitypacked}-{quantityshiprecv}) ELSE CASE WHEN ({quantitypicked}-{quantitypacked})>0 THEN {quantitycommitted}- ({quantitypicked}-{quantitypacked})  ELSE {quantitycommitted} END END END) + ({quantitypicked}-{quantitypacked}) + ({quantitypacked}-{quantityshiprecv})",
 									           label: "To Be Done"
 									        })
 									   ]
@@ -1794,7 +1794,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 											        search.createColumn({
 											           name: "formulanumeric",
 											           summary: "SUM",
-											           formula: "(CASE WHEN {quantitycommitted} IS NULL Then 0 ELSE CASE WHEN ({quantitypacked}-{quantityshiprecv})>0 THEN{quantitycommitted}- ({quantitypacked}-{quantityshiprecv}) ELSE CASE WHEN ({quantitypicked}-{quantitypacked})>0 THEN {quantitycommitted}- ({quantitypicked}-{quantitypacked})  ELSE {quantitycommitted} END END END) + ({quantitypicked}-{quantitypacked}) + ({quantitypacked}-{quantityshiprecv}) + ({quantityshiprecv}-{quantitybilled})",
+											           formula: "(CASE WHEN {quantitycommitted} IS NULL Then 0 ELSE CASE WHEN ({quantitypacked}-{quantityshiprecv})>0 THEN{quantitycommitted}- ({quantitypacked}-{quantityshiprecv}) ELSE CASE WHEN ({quantitypicked}-{quantitypacked})>0 THEN {quantitycommitted}- ({quantitypicked}-{quantitypacked})  ELSE {quantitycommitted} END END END) + ({quantitypicked}-{quantitypacked}) + ({quantitypacked}-{quantityshiprecv})",
 											           label: "To Be Done"
 											        })
 										   ]
@@ -2374,7 +2374,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 									        search.createColumn({
 									           name: "formulanumeric",
 									           summary: "SUM",
-									           formula: "(CASE WHEN {quantitycommitted} IS NULL Then 0 ELSE CASE WHEN ({quantitypacked}-{quantityshiprecv})>0 THEN{quantitycommitted}- ({quantitypacked}-{quantityshiprecv}) ELSE CASE WHEN ({quantitypicked}-{quantitypacked})>0 THEN {quantitycommitted}- ({quantitypicked}-{quantitypacked})  ELSE {quantitycommitted} END END END) + ({quantitypicked}-{quantitypacked}) + ({quantitypacked}-{quantityshiprecv}) + ({quantityshiprecv}-{quantitybilled})",
+									           formula: "(CASE WHEN {quantitycommitted} IS NULL Then 0 ELSE CASE WHEN ({quantitypacked}-{quantityshiprecv})>0 THEN{quantitycommitted}- ({quantitypacked}-{quantityshiprecv}) ELSE CASE WHEN ({quantitypicked}-{quantitypacked})>0 THEN {quantitycommitted}- ({quantitypicked}-{quantitypacked})  ELSE {quantitycommitted} END END END) + ({quantitypicked}-{quantitypacked}) + ({quantitypacked}-{quantityshiprecv})",
 									           label: "To Be Done"
 									        })
 									   ]
@@ -2953,7 +2953,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 									        search.createColumn({
 									           name: "formulanumeric",
 									           summary: "SUM",
-									           formula: "(CASE WHEN {quantitycommitted} IS NULL Then 0 ELSE CASE WHEN ({quantitypacked}-{quantityshiprecv})>0 THEN{quantitycommitted}- ({quantitypacked}-{quantityshiprecv}) ELSE CASE WHEN ({quantitypicked}-{quantitypacked})>0 THEN {quantitycommitted}- ({quantitypicked}-{quantitypacked})  ELSE {quantitycommitted} END END END) + ({quantitypicked}-{quantitypacked}) + ({quantitypacked}-{quantityshiprecv}) + ({quantityshiprecv}-{quantitybilled})",
+									           formula: "(CASE WHEN {quantitycommitted} IS NULL Then 0 ELSE CASE WHEN ({quantitypacked}-{quantityshiprecv})>0 THEN{quantitycommitted}- ({quantitypacked}-{quantityshiprecv}) ELSE CASE WHEN ({quantitypicked}-{quantitypacked})>0 THEN {quantitycommitted}- ({quantitypicked}-{quantitypacked})  ELSE {quantitycommitted} END END END) + ({quantitypicked}-{quantitypacked}) + ({quantitypacked}-{quantityshiprecv})",
 									           label: "To Be Done"
 									        })
 									   ]

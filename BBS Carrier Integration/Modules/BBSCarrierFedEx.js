@@ -423,6 +423,7 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			this.ProcessShipmentRequest.RequestedShipment.LabelSpecification.ImageType 									= shippingRequestData.configuration.labelFormat;
 			this.ProcessShipmentRequest.RequestedShipment.LabelSpecification.LabelStockType 							= 'STOCK_4X6';
 			this.ProcessShipmentRequest.RequestedShipment.LabelSpecification.LabelPrintingOrientation 					= 'TOP_EDGE_OF_TEXT_FIRST';		
+			this.ProcessShipmentRequest.RequestedShipment.LabelSpecification.LabelOrderType 							= 'SHIPPING_LABEL_LAST';		
 			this.ProcessShipmentRequest.RequestedShipment.RateRequestTypes 												= 'NONE';			
 			this.ProcessShipmentRequest.RequestedShipment.MasterTrackingId 												= {};
 			this.ProcessShipmentRequest.RequestedShipment.MasterTrackingId.TrackingNumber 								= '';
@@ -470,12 +471,17 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 		}
 	
 	
-	function _lineItemsFedEx(_sequenceNumber, _weightUnits, _weightValue)
+	function _lineItemsFedEx(_sequenceNumber, _weightUnits, _weightValue, _dimensionsLength, _dimensionsWidth, _dimensionsHeight, _dimensionsUnits)
 		{
 			this.SequenceNumber 	= _sequenceNumber;	
 			this.Weight 			= {};
 			this.Weight.Units 		= _weightUnits;
 			this.Weight.Value 		= _weightValue;
+			this.Dimensions			= {};
+			this.Dimensions.Length	= '';
+			this.Dimensions.Width	= '';
+			this.Dimensions.Height	= '';
+			this.Dimensions.Units	= '';
 		}
 	
 	//=========================================================================
