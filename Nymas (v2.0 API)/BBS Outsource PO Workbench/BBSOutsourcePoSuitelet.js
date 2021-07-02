@@ -15,6 +15,7 @@ define(['N/runtime', 'N/search', 'N/task', 'N/ui/serverWidget', 'N/ui/dialog', '
 function(runtime, search, task, serverWidget, dialog, message, format, http, record, url) 
 {
    
+	
     /**
      * Definition of the Suitelet script trigger point.
      *
@@ -1010,7 +1011,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 								}
 							catch(err)
 								{
-									transferOrderId = null;
+									//transferOrderId = null;
 									log.error({title: 'Error saving transfer order', details: err});
 								}
     					}

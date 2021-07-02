@@ -40,104 +40,44 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 	function fedExProcessShipments(_processShipmentRequest)
 		{
 			try
-				{		
-					//Create a JSON object that represents the structure of the FedEx specific request
+				{	
+					debugger;
+					
+					//New implementation
 					//
-					var processShipmentRequestFedEx = new _processShipmentRequestFedEx(_processShipmentRequest);
+					var masterTrackingId 		= '';
+					var processShipmentResponse = new BBSObjects.processShipmentResponse('', '', '');	//status, message, consignment #
 					
-					processShipmentRequestFedEx.ProcessShipmentRequest.RequestedShipment.RequestedPackageLineItems.push(new _lineItemsFedEx(1, 'KG', _processShipmentRequest.weight))
-					
-					// Declare xmlRequest variable and set SOAP envelope
-					var xmlRequest = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v26="http://fedex.com/ws/ship/v26"><soapenv:Header/><soapenv:Body>';
-					
-					//Convert the gfs request object into xml. Add to xmlRequest variable
+					//Loop through the packages on the incoming shipping request
 					//
-					xmlRequest += BBSCommon.json2xml(processShipmentRequestFedEx, '', 'v26:');
-					
-					//Add closing SOAP envelope tags
-					//
-					xmlRequest += '</soapenv:Body></soapenv:Envelope>';
-					
-					//Send the request to FedEx
-					//
-					var xmlResponse = https.post({
-											     url: 	_processShipmentRequest.configuration.url,
-											     body: 	xmlRequest
-												});
-					
-					log.debug({title: 'xmlResponse.body', details: xmlResponse.body});
-					
-					
-					//Parse the xmlResponse string and convert it to XML
-					//
-					xmlResponse = xml.Parser.fromString({text: xmlResponse.body});
-					
-					log.debug({title: 'xmlResponse', details: xmlResponse});
-					
-					//Convert the xml response back into a JSON object so that it is easier to manipulate
-					//
-					var responseObject = BBSCommon.xml2Json(xmlResponse);
-					
-					log.debug({title: 'response object', details: responseObject});
-					
-					// check if we have a soap fault
-					if (responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['soap:Fault'])
+					for (var requestPackages = 0; requestPackages < _processShipmentRequest.packages.length; requestPackages++) 
 						{
-							// get the soap fault
-							var responseMessage = responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['soap:Fault']['faultstring']['#text'];
+							//Call FedEx passing in the original shipment request, the loop counter for the packages & the master tracking id
+							//Response object will contain status, consignmentNumber, responseMessage, labelSequence, labelTracking, labelImage & labelType, 
+							//
+							var fedExResponse = callFedEx(_processShipmentRequest, requestPackages, masterTrackingId);
 							
-							//Convert the GFS response object to the standard process shipments response object
+							//If the master tracking id is empty, then fill it from the tracking id returned & also set the consignment number on the response message
 							//
-							var processShipmentResponse = new BBSObjects.processShipmentResponse(null, responseMessage);
-						}
-					else
-						{
-							//Get the status of the response from the responseObject
-							//
-							var responseStatus = responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['HighestSeverity']['#text'];
-							
-							//Check the responseObject to see whether a success or error/failure message was returned
-							//
-							if (responseStatus == 'SUCCESS' || responseStatus == 'WARNING')
+							if(masterTrackingId == '')
 								{
-									//Get the consignment number from the responseObject
-									//
-									var consignmentNumber = responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['CompletedShipmentDetail']['MasterTrackingId']['TrackingNumber']['#text']
-								
-									//Convert the FedEx response object to the standard process shipments response object
-									//
-									var processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, null, consignmentNumber);
-									
-									
-									var labelSequence 	= responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['CompletedShipmentDetail']['CompletedPackageDetails']['SequenceNumber']['#text'];
-									var labelTracking 	= responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['CompletedShipmentDetail']['CompletedPackageDetails']['TrackingIds']['TrackingNumber']['#text'];
-									var labelImage 		= responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['CompletedShipmentDetail']['CompletedPackageDetails']['Label']['Parts']['Image']['#text'];
-									var labelType 		= responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['CompletedShipmentDetail']['CompletedPackageDetails']['Label']['ImageType']['#text'];
+									masterTrackingId 							= fedExResponse.consignmentNumber;
+									processShipmentResponse.consignmentNumber 	= fedExResponse.consignmentNumber;
+								}
 							
-									//Add packages to processShipmentResponse
-									//
-									processShipmentResponse.addPackage(
-																		labelSequence,
-																		labelTracking,
-																		labelImage,
-																		labelType
-																		);
-										
-								}
-							else
-								{
-									//Get the message from the responseObject
-									//
-									var responseMessage  = responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['HighestSeverity']['#text'];
-									responseMessage		+= ' ';
-									responseMessage 	+= responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['Notifications']['Message']['#text'];
-								
-									//Convert the FedEx response object to the standard process shipments response object
-									//
-									var processShipmentResponse = new BBSObjects.processShipmentResponse(responseStatus, responseMessage);
-								}
+							processShipmentResponse.status 	= fedExResponse.status;
+							processShipmentResponse.message = fedExResponse.responseMessage;
+							
+							//Push the response into the return message
+							//
+							processShipmentResponse.addPackage(
+																fedExResponse.labelSequence,
+																fedExResponse.labelTracking,
+																fedExResponse.labelImage,
+																fedExResponse.labelType
+																);
 						}
-							
+				
 					//Return the response
 					//
 					return processShipmentResponse;
@@ -152,6 +92,140 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 					//
 					return processShipmentResponse;
 				}
+		}		
+				
+		
+	function fedExResponseObj(_status, _consignmentNumber, _responseMessage, _labelSequence, _labelTracking, _labelImage, _labelType)
+		{
+			this.status				= _status; 
+			this.consignmentNumber	= _consignmentNumber;
+			this.responseMessage	= _responseMessage;
+			this.labelSequence		= _labelSequence;
+			this.labelTracking		= _labelTracking;
+			this.labelImage			= _labelImage;
+			this.labelType			= _labelType;
+		}
+	
+	//Encapsulate the call to FedEx
+	//
+	function callFedEx(_processShipmentRequest, _requestPackages, _masterTrackingId)		
+		{		
+			//Create a JSON object that represents the structure of the FedEx specific request
+			//
+			var processShipmentRequestFedEx = new _processShipmentRequestFedEx(_processShipmentRequest);
+					
+			//Do we need to add in the master tracking id
+			//
+			if(_masterTrackingId != '')
+				{
+					processShipmentRequestFedEx.ProcessShipmentRequest.RequestedShipment.MasterTrackingId.TrackingNumber = _masterTrackingId;
+				}
+					
+			//Add the package info to the request
+			//
+			processShipmentRequestFedEx.ProcessShipmentRequest.RequestedShipment.RequestedPackageLineItems.push(
+																												new _lineItemsFedEx(	_requestPackages + 1, 
+																																		'KG', 
+																																		_processShipmentRequest.packages[_requestPackages].weight
+																																	)
+																												);
+			
+			log.debug({title: 'FedEx Request Object', details: processShipmentRequestFedEx});
+			
+			// Declare xmlRequest variable and set SOAP envelope
+			var xmlRequest = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v26="http://fedex.com/ws/ship/v26"><soapenv:Header/><soapenv:Body>';
+					
+			//Convert the FedEx request object into xml. Add to xmlRequest variable
+			//
+			xmlRequest += BBSCommon.json2xml(processShipmentRequestFedEx, '', 'v26:');
+					
+			//Add closing SOAP envelope tags
+			//
+			xmlRequest += '</soapenv:Body></soapenv:Envelope>';
+					
+			//Send the request to FedEx
+			//
+			var xmlResponse = https.post({
+									     url: 	_processShipmentRequest.configuration.url,
+									     body: 	xmlRequest
+										});
+					
+			log.debug({title: 'xmlResponse.body', details: xmlResponse.body});
+					
+					
+			//Parse the xmlResponse string and convert it to XML
+			//
+			xmlResponse = xml.Parser.fromString({text: xmlResponse.body});
+					
+			log.debug({title: 'xmlResponse', details: xmlResponse});
+					
+			//Convert the xml response back into a JSON object so that it is easier to manipulate
+			//
+			var responseObject = BBSCommon.xml2Json(xmlResponse);
+					
+			log.debug({title: 'response object', details: responseObject});
+					
+			// check if we have a soap fault
+			if (responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['soap:Fault'])
+				{
+					// get the soap fault
+					var responseMessage = responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['soap:Fault']['faultstring']['#text'];
+							
+					//Create a FedEx response object 
+					//
+					var fedExResponse = new fedExResponseObj('ERROR', '', responseMessage, '', '', '', '');
+				}
+			else
+				{
+					//Get the status of the response from the responseObject
+					//
+					var responseStatus = responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['HighestSeverity']['#text'];
+							
+					//Check the responseObject to see whether a success or error/failure message was returned
+					//
+					if (responseStatus == 'SUCCESS' || responseStatus == 'WARNING' || responseStatus == 'NOTE')
+						{
+							//Get the consignment number from the responseObject
+							//
+							var consignmentNumber = responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['CompletedShipmentDetail']['MasterTrackingId']['TrackingNumber']['#text']
+								
+							//Create a FedEx response object 
+							//
+							var labelSequence 	= responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['CompletedShipmentDetail']['CompletedPackageDetails']['SequenceNumber']['#text'];
+							var labelTracking 	= responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['CompletedShipmentDetail']['CompletedPackageDetails']['TrackingIds']['TrackingNumber']['#text'];
+							var labelImage 		= responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['CompletedShipmentDetail']['CompletedPackageDetails']['Label']['Parts']['Image']['#text'];
+							var labelType 		= responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['CompletedShipmentDetail']['CompletedPackageDetails']['Label']['ImageType']['#text'];
+							
+							//If the label type is ZPL, then decode it
+							//
+							if(labelType = 'ZPLII')
+								{
+									labelImage = encode.convert({
+																string: 		labelImage,
+																inputEncoding: 	encode.Encoding.BASE_64,
+																outputEncoding: encode.Encoding.UTF_8
+															});
+								}
+							
+							var fedExResponse = new fedExResponseObj(responseStatus, consignmentNumber, '', labelSequence, labelTracking, labelImage, labelType);	
+						}
+					else
+						{
+							//Get the message from the responseObject
+							//
+							var responseMessage  = responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['HighestSeverity']['#text'];
+							responseMessage		+= ' ';
+							responseMessage 	+= responseObject['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ProcessShipmentReply']['Notifications']['Message']['#text'];
+								
+							//Create a FedEx response object 
+							//
+							var fedExResponse = new fedExResponseObj(responseStatus, '', responseMessage, '', '', '', '');
+						}
+				}
+							
+			//Return the response
+			//
+			return fedExResponse;
 		}
 
 	
@@ -269,6 +343,16 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 	
 	function _processShipmentRequestFedEx(shippingRequestData)
 		{
+			//Calculate the total value
+			//
+			var totalValue = Number(0);
+			
+			for (var itemDetailCounter = 0; itemDetailCounter < shippingRequestData.itemDetails.length; itemDetailCounter++) 
+				{
+					totalValue += Number(shippingRequestData.itemDetails[itemDetailCounter].itemValue);
+				}
+		
+			
 			this.ProcessShipmentRequest 																				= {};
 			this.ProcessShipmentRequest.WebAuthenticationDetail 														= {};
 			this.ProcessShipmentRequest.WebAuthenticationDetail.UserCredential 											= {};
@@ -322,16 +406,45 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 			this.ProcessShipmentRequest.RequestedShipment.ShippingChargesPayment.Payor 									= {};
 			this.ProcessShipmentRequest.RequestedShipment.ShippingChargesPayment.Payor.ResponsibleParty 				= {};
 			this.ProcessShipmentRequest.RequestedShipment.ShippingChargesPayment.Payor.ResponsibleParty.AccountNumber 	= shippingRequestData.shippingItemInfo.carrierContractNo;
+			
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail   										= {};
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.DutiesPayment            				= {};
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.DutiesPayment.PaymentType              = 'SENDER';
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.DutiesPayment.Payor                    = {};
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.DutiesPayment.Payor.ResponsibleParty  	= {};
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.DutiesPayment.Payor.ResponsibleParty.AccountNumber	= shippingRequestData.shippingItemInfo.carrierContractNo;
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.CustomsValue             				= {};
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.CustomsValue.Currency                 	= shippingRequestData.currencyISOCode;
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.CustomsValue.Amount                   	= totalValue;
+			this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.Commodities              				= [];
+
 			this.ProcessShipmentRequest.RequestedShipment.LabelSpecification 											= {};
 			this.ProcessShipmentRequest.RequestedShipment.LabelSpecification.LabelFormatType 							= 'COMMON2D';
 			this.ProcessShipmentRequest.RequestedShipment.LabelSpecification.ImageType 									= shippingRequestData.configuration.labelFormat;
-			this.ProcessShipmentRequest.RequestedShipment.LabelSpecification.LabelStockType 							= 'PAPER_4X6';
+			this.ProcessShipmentRequest.RequestedShipment.LabelSpecification.LabelStockType 							= 'STOCK_4X6';
 			this.ProcessShipmentRequest.RequestedShipment.LabelSpecification.LabelPrintingOrientation 					= 'TOP_EDGE_OF_TEXT_FIRST';		
-			this.ProcessShipmentRequest.RequestedShipment.RateRequestTypes 												= 'PREFERRED';			
+			this.ProcessShipmentRequest.RequestedShipment.LabelSpecification.LabelOrderType 							= 'SHIPPING_LABEL_LAST';		
+			this.ProcessShipmentRequest.RequestedShipment.RateRequestTypes 												= 'NONE';			
 			this.ProcessShipmentRequest.RequestedShipment.MasterTrackingId 												= {};
 			this.ProcessShipmentRequest.RequestedShipment.MasterTrackingId.TrackingNumber 								= '';
-			this.ProcessShipmentRequest.RequestedShipment.PackageCount 													= 1; 		//shippingRequestData.packageCount;
+			this.ProcessShipmentRequest.RequestedShipment.PackageCount 													= shippingRequestData.packageCount;
 			this.ProcessShipmentRequest.RequestedShipment.RequestedPackageLineItems 									= [];
+			
+			//Add the commodity lines
+			//
+			for (var itemDetailCounter = 0; itemDetailCounter < shippingRequestData.itemDetails.length; itemDetailCounter++) 
+				{
+					this.ProcessShipmentRequest.RequestedShipment.CustomsClearanceDetail.Commodities.push(new _commodityFedEx(
+																																Number(shippingRequestData.itemDetails[itemDetailCounter].itemQty), 
+																																shippingRequestData.itemDetails[itemDetailCounter].itemDesc, 
+																																shippingRequestData.itemDetails[itemDetailCounter].itemCountry, 
+																																Number(shippingRequestData.itemDetails[itemDetailCounter].itemUnitWeight) * Number(shippingRequestData.itemDetails[itemDetailCounter].itemQty), 
+																																Number(shippingRequestData.itemDetails[itemDetailCounter].itemUnitRate), 
+																																Number(shippingRequestData.itemDetails[itemDetailCounter].itemValue), 
+																																shippingRequestData.currencyISOCode
+																																)
+																											);
+				}
 			
 	//		this.addLineItems = function (_sequenceNumber, _weightUnits, _weightValue, _dimensionsLength, _dimensionsWidth, _dimensionsHeight, _dimensionsUnits)
 	//			{
@@ -339,13 +452,36 @@ function(encode, format, https, record, runtime, search, xml, BBSObjects, BBSCom
 	//			}
 		}
 	
-	function _lineItemsFedEx(_sequenceNumber, _weightUnits, _weightValue)
+	function _commodityFedEx(_quantity, _description, _com, _weight, _rate, _amount, _currrency)
 		{
-			this.SequenceNumber = _sequenceNumber;	
-			
+			this.NumberOfPieces           = _quantity;
+			this.Description              = _description;
+			this.CountryOfManufacture     = _com;
+			this.Weight                   = {};
+			this.Weight.Units             = 'KG';
+			this.Weight.Value             = _weight;
+			this.Quantity                 = _quantity;
+			this.QuantityUnits            = 'EA';
+			this.UnitPrice                = {};
+			this.UnitPrice.Currency       = _currrency;
+			this.UnitPrice.Amount         = _amount;
+			this.CustomsValue             = {};
+			this.CustomsValue.Currency    = _currrency;
+			this.CustomsValue.Amount      = _amount;
+		}
+	
+	
+	function _lineItemsFedEx(_sequenceNumber, _weightUnits, _weightValue, _dimensionsLength, _dimensionsWidth, _dimensionsHeight, _dimensionsUnits)
+		{
+			this.SequenceNumber 	= _sequenceNumber;	
 			this.Weight 			= {};
 			this.Weight.Units 		= _weightUnits;
 			this.Weight.Value 		= _weightValue;
+			this.Dimensions			= {};
+			this.Dimensions.Length	= '';
+			this.Dimensions.Width	= '';
+			this.Dimensions.Height	= '';
+			this.Dimensions.Units	= '';
 		}
 	
 	//=========================================================================

@@ -117,8 +117,13 @@ function(search, dialog) {
     				fieldId: 'item'
     			});
     			
+    			var isItemBrexitRestricted = false;
+    			
     			// call function to lookup fields on the item record
-    			var isItemBrexitRestricted = getItemInfo(itemID);
+    			if(itemID != null && itemID != '')
+    				{
+    					isItemBrexitRestricted = getItemInfo(itemID);
+    				}
     			
     			// if this is a brexit restricted item
     			if (isItemBrexitRestricted == true)
@@ -129,7 +134,12 @@ function(search, dialog) {
     					});
     					
     					// call function to lookup fields on the customer record
-    					var isCustomerBrexitRestricted = getCustomerInfo(customerID);
+    					var isCustomerBrexitRestricted = false;
+    					
+    					if(customerID != null && customerID != '')
+    						{
+    							isCustomerBrexitRestricted = getCustomerInfo(customerID);
+    						}
     					
     					// if this is a brexit restricted customer
     					if (isCustomerBrexitRestricted == true)

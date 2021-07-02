@@ -48,7 +48,7 @@
             <table class="header" style="width: 100%; margin-top: 10px;">
                 <tr>
                     <td align="left"   colspan="6" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff;"><b>Customer Name &amp; Address</b></td>
-                    <td align="left"   colspan="5" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff; margin-left: 3px;"><b>Delivery Address</b></td>
+                    <td align="left"   colspan="5" style="font-size: 8pt; padding: 5px; background-color: #00adef; color: #ffffff; margin-left: 3px;"><b>Collection Address</b></td>
                     <td align="center" colspan="5" style="font-size: 8pt; background-color: #00adef; color: #ffffff; padding: 5px; margin-left: 3px;"><b>RETURN COLLECTION NOTE</b></td>
                 </tr>
                 <tr>
@@ -60,13 +60,13 @@
                     <td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Date:</b></td><td align="right" style="font-size: 7pt;">${record.trandate}</td></tr></table></td>
                 </tr>
                 <tr>
-                    <td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Return Ref:</b></td><td align="right" style="font-size: 7pt;">${record.memo}</td></tr></table></td>
+                    <td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Return Ref:</b></td><td align="right" style="font-size: 7pt;">${record.custbody_bbs_courier_return_ref}</td></tr></table></td>
                 </tr>
                 <tr>
-                    <td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Taken By:</b></td><td align="right" style="font-size: 7pt;">${record.salesrep?keep_before(" ")}</td></tr></table></td>
+                    <td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Return Number:</b></td><td align="right" style="font-size: 7pt;"><b>${record.tranid}</b></td></tr></table></td>
                 </tr>
                 <tr>
-                    <td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;"><b>Return Number:</b></td><td align="right" style="font-size: 10pt;"><b>${record.tranid}</b></td></tr></table></td>
+                    <td align="left" colspan="5" style="font-size: 7pt; padding: 5px; margin-left: 3px;"><table style="width: 100%;"><tr><td align="left" style="font-size: 7pt;">&nbsp;</td><td align="right" style="font-size: 10pt;">&nbsp;</td></tr></table></td>
                 </tr>
 
                 <tr>

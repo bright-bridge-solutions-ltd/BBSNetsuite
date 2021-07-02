@@ -209,8 +209,18 @@
               </tr>
           </thead>
         </#if>
-
-        <tr>
+        
+		<#if item.isclosed>
+          <tr>
+          <td align="right" colspan="1"  style="font-size: 7pt;" >${item.quantity}</td>
+          <td align="left"  colspan="3"  style="font-size: 7pt;" >${item.item}</td>
+          <td align="left"  colspan="10" style="font-size: 7pt;" >${item.description}</td>
+          <td align="right" colspan="2"  style="font-size: 7pt;" >&nbsp;</td>
+          <td align="right" colspan="2"  style="font-size: 7pt;" >&nbsp;</td>
+          <td align="right" colspan="2"  style="font-size: 7pt;" >&nbsp;</td>
+        </tr>
+        <#else>
+          <tr>
           <td align="right" colspan="1"  style="font-size: 7pt;" >${item.quantity}</td>
           <td align="left"  colspan="3"  style="font-size: 7pt;" >${item.item}</td>
           <td align="left"  colspan="10" style="font-size: 7pt;" >${item.description}</td>
@@ -218,11 +228,13 @@
           <td align="right" colspan="2"  style="font-size: 7pt;" >${item.amount}</td>
           <td align="right" colspan="2"  style="font-size: 7pt;" >${item.tax1amt}</td>
         </tr>
+        </#if>
+        
         
         <#if item.isclosed>
             <tr>
                 <td align="left" colspan="1"  style="font-size: 7pt; padding-top: 0px; padding-bottom: 0px;" >&nbsp;</td>
-                <td align="left" colspan="13"  style="font-size: 7pt; padding-top: 0px; padding-bottom: 0px; color: #A9A9A9" >This product has been removed from your order and will not be shipped</td>
+                <td align="left" colspan="13"  style="font-size: 7pt; padding-top: 0px; padding-bottom: 0px; color: #A9A9A9" >This product has been removed from your order as it is out of stock and we do not have a confirmed arrival date.</td>
                 <td align="left" colspan="2"  style="font-size: 7pt; padding-top: 0px; padding-bottom: 0px;" >&nbsp;</td>
                 <td align="left" colspan="2"  style="font-size: 7pt; padding-top: 0px; padding-bottom: 0px;" >&nbsp;</td>
                 <td align="left" colspan="2"  style="font-size: 7pt; padding-top: 0px; padding-bottom: 0px;" >&nbsp;</td>

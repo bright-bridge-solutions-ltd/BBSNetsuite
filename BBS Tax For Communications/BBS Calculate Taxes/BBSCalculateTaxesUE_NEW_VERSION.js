@@ -26,6 +26,15 @@ function(runtime, record, search, libraryModule, plugin, ui)
     		var itemSublist 	= form.getSublist({id: 'item'});
     		var currentRecord 	= scriptContext.newRecord;
     		
+    		//Code to blank out AFC fields on create or copy of a transaction
+    		//
+    		if(scriptContext.type == scriptContext.UserEventType.CREATE || scriptContext.type == scriptContext.UserEventType.COPY)
+    			{
+    				currentRecord.setValue({fieldId: 'custbody_bbs_tfc_tax_summ_json', value: null});
+    				currentRecord.setValue({fieldId: 'custbody_bbs_tfc_errors', value: null});
+    			}
+    		
+    		
     		//Get the plugin implementation
 			//
 			var tfcPlugin = plugin.loadImplementation({
@@ -36,6 +45,7 @@ function(runtime, record, search, libraryModule, plugin, ui)
 			//
 			if (tfcPlugin)
 				{
+					
 					//Get the configuration
 					//
 					var configuration = tfcPlugin.getTFCConfiguration();
