@@ -693,7 +693,6 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 			this.liabilityValue							= null;
 			this.liability								= false;
 			this.parcel									= [];
-			this.totalWeight							= '';
 			this.shipperDestinationTaxId				= null;		//Australian destinations only
 			this.vatPaid								= null;		//Australian destinations only
 		}

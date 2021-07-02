@@ -53,6 +53,7 @@ function(search) {
 	    		   type: "employee",
 	    		   filters:
 	    		   [
+	    		    	["department","anyof","17"]				//Borg Production department
 	    		   ],
 	    		   columns:
 	    		   [
