@@ -224,6 +224,16 @@ function(search, message, dialog, currentRecord) {
      * @since 2015.2
      */
     function postSourcing(scriptContext) {
+    	
+    	if (scriptContext.sublistId == 'item' && scriptContext.fieldId == 'item')
+			{
+				// initialize fields on the current line
+				scriptContext.currentRecord.setCurrentSublistValue({
+					sublistId: 'item',
+					fieldId: 'location',
+					value: 1 // 1 = Nymas Warehouse
+				});
+			}
 
     }
 
@@ -420,6 +430,7 @@ function(search, message, dialog, currentRecord) {
     return {
         pageInit: 		pageInit,
     	fieldChanged: 	fieldChanged,
+    	postSourcing:	postSourcing,
     	validateLine: 	validateLine,
     	resetExpectedShipDates: resetExpectedShipDates
     };

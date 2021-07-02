@@ -125,25 +125,25 @@ function(runtime, record, search) {
 	    							// call function to get the latest due date
 	    	    					var latestDueDate = getLatestDueDate(salesOrder);
 	    	    					
-	    	    					// call function to set all outstanding lines to the latest due date
-	    	    					salesOrder = updateDueDates(salesOrder, latestDueDate);
-								
-									// get the date 30 days in the future
+	    	    					// get the date 30 days in the future
 									var thirtyDaysAhead = new Date();
 										thirtyDaysAhead = new Date(thirtyDaysAhead.getFullYear(), thirtyDaysAhead.getMonth(), thirtyDaysAhead.getDate()+30);
 								
-									// is the latestDueDate more than 30 days ahead
-									if (latestDueDate.getTime() > thirtyDaysAhead.getTime())
+									// call function to close all remaining lines on the sales order more than 30 days in the future
+									salesOrder = closeAllRemainingLines(salesOrder, thirtyDaysAhead);
+
+									var totalRemaining = getTotalRemaining(salesOrder);
+									
+									// if the total remaining is over the specified amount
+									if (totalRemaining < scriptParameters.closeRemainingLinesAmt)
 										{
-											// call function to get the total of remaining lines
-											var totalRemaining = getTotalRemaining(salesOrder);
-											
-											// if the total remaining is over the specified amount
-											if (totalRemaining < scriptParameters.closeRemainingLinesAmt)
-												{
-													// call function to close all remaining lines on the sales order
-													salesOrder = closeAllRemainingLines(salesOrder);
-												}
+											// call function to close all remaining lines on the sales order
+											salesOrder = closeAllRemainingLines(salesOrder);
+										}
+									else
+										{
+											// call function to set all outstanding lines to the latest due date
+		    	    						salesOrder = updateDueDates(salesOrder, latestDueDate);
 										}
 									
 									// save the changes to the sales order
@@ -343,7 +343,7 @@ function(runtime, record, search) {
     	
     }
     
-    function closeAllRemainingLines(salesOrder) {
+    function closeAllRemainingLines(salesOrder, thirtyDaysAhead) {
     	
     	// get count of sales order lines
     	var lineCount = salesOrder.getLineCount({
@@ -368,16 +368,43 @@ function(runtime, record, search) {
 				// if this line has a backorder quantity
 				if (backorderQty > 0)
 					{
-						// mark the line as closed
-						salesOrder.setCurrentSublistValue({
-							sublistId: 'item',
-							fieldId: 'isclosed',
-							value: true
-						});
+						// if we have a date that is thirty days ahead
+						if (thirtyDaysAhead)
+							{
+								// get the expected ship date from the line
+								var expShipDate = salesOrder.getCurrentSublistValue({
+									sublistId: 'item',
+									fieldId: 'expectedshipdate'
+								});
 						
-						salesOrder.commitLine({
-							sublistId: 'item'
-						});
+								// is the expShipDate more than 30 days ahead
+								if (expShipDate.getTime() > thirtyDaysAhead.getTime())
+									{
+										// mark the line as closed
+										salesOrder.setCurrentSublistValue({
+											sublistId: 'item',
+											fieldId: 'isclosed',
+											value: true
+										});
+										
+										salesOrder.commitLine({
+											sublistId: 'item'
+										});
+									}
+							}
+						else
+							{
+								// mark the line as closed
+								salesOrder.setCurrentSublistValue({
+									sublistId: 'item',
+									fieldId: 'isclosed',
+									value: true
+								});
+								
+								salesOrder.commitLine({
+									sublistId: 'item'
+								});
+							}
 					}
     		}
     	

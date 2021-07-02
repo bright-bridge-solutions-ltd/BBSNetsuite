@@ -14,9 +14,16 @@ function(search, file, runtime, render, email)  {
 		// declare and initialize variables
 		var csvFile = null;
 		
+		// lookup fields on the purchase order
+		var poLookup = search.lookupFields({
+			type: search.Type.PURCHASE_ORDER,
+			id: recordID,
+			columns: ['tranid', 'otherrefnum']
+		});
+		
 		// start off the CSV
-		var CSV = '"New Purchase Order :"\r\n';
-			CSV += '"Original Purchase Order :"\r\n';
+		var CSV = '"New Purchase Order",' + poLookup.tranid + '\r\n';
+			CSV += '"Original Purchase Order",' + poLookup.otherrefnum + '\r\n';
 			CSV += '\r\n';
 			CSV += '"Supplier Code","Product No","Commodity Code","Description","Barcode","Qty","Unit Price","Total Value"\r\n';
 			
@@ -75,12 +82,12 @@ function(search, file, runtime, render, email)  {
 				join: 'item',
 				summary: search.Summary.MAX
 			},
-					{
+					/*{
 				name: 'formulatext',
 				//formula: "CASE WHEN {class} = 'B2B' THEN 'Trade' ELSE CASE WHEN {class} = 'B2C' THEN 'Cons.' END END",
 				formula: "CASE {class} WHEN 'B2B' THEN 'Trade' WHEN 'B2C' THEN 'Cons.' ELSE {class} END",
 				summary: search.Summary.GROUP
-			},
+			},*/
 					{
 				name: 'quantity',
 				summary: search.Summary.SUM
@@ -104,11 +111,11 @@ function(search, file, runtime, render, email)  {
 			var description		= result.getValue(result.columns[3]);
 		//		description		= description.replace(/,/g, ""); // strip commas from the description
 			var barcode			= result.getValue(result.columns[4]);
-			var class			= result.getValue(result.columns[5]);
-			var quantity		= result.getValue(result.columns[6]);
-				quantity		= class + ' ' + quantity;
-			var unitPrice		= result.getValue(result.columns[7]);
-			var totalValue		= result.getValue(result.columns[8]);
+		//	var class			= result.getValue(result.columns[5]);
+			var quantity		= result.getValue(result.columns[5]);
+		//		quantity		= class + ' ' + quantity;
+			var unitPrice		= result.getValue(result.columns[6]);
+			var totalValue		= result.getValue(result.columns[7]);
 			
 			// add to the CSV
 			CSV += '"' + supplierCode + '","' + productNo + '","' + commodityCode + '","' + description + '","' + barcode + '","' + quantity + '","' + unitPrice + '","' + totalValue + '"';
@@ -130,6 +137,8 @@ function(search, file, runtime, render, email)  {
 			}
 		catch(e)
 			{
+				csvFile = null;
+			
 				log.error({
 					title: 'Error Generating CSV for PO ' + recordID,
 					details: e
@@ -141,7 +150,35 @@ function(search, file, runtime, render, email)  {
 		
 	}
 	
-	function sendEmail(recordID, supplierID, csvFile) {
+	function generatePDF(recordID) {
+		
+		// declare and initialize variables
+		var pdfFile = null;
+		
+		try
+			{
+				// render the PDF of the purchase order
+				pdfFile = render.transaction({
+				    entityId: recordID,
+				    printMode: render.PrintMode.PDF
+				});    
+			}
+		catch(e)
+			{
+				pdfFile = null;
+				
+				log.error({
+					title: 'Error Rendering PDF for PO ' + recordID,
+					details: e.message
+				});
+			}
+		
+		// return pdfFile to main script function
+		return pdfFile;
+		
+	}
+	
+	function sendEmail(recordID, supplierID, emailAttachments) {
 		
 		// retrieve script parameters
 		var currentScript = runtime.getCurrentScript();
@@ -168,7 +205,7 @@ function(search, file, runtime, render, email)  {
 					recipients: supplierID,
 					subject: mergeResult.subject,
 					body: mergeResult.body,
-					attachments: [csvFile],
+					attachments: emailAttachments,
 					relatedRecords: {
 						transactionId: recordID
 					}
@@ -186,8 +223,9 @@ function(search, file, runtime, render, email)  {
     
     
     return {
-    	generateCSV: generateCSV,
-    	sendEmail: sendEmail
+    	generateCSV: 	generateCSV,
+    	generatePDF:	generatePDF,
+    	sendEmail: 		sendEmail
     };
     
 });

@@ -259,7 +259,7 @@
 			<td>The exporter of the products covered by this document (Arbortec – Registered Exporter Number: GBREX990906583000X) Arbortec EORI Number: ${subsidiary.custrecord_bbs_eori_number}</td>
 		</tr>
 		<tr>
-			<td>declares that except where otherwise clearly indicated, these products are of EU origin.</td>
+			<td>declares that except where otherwise clearly indicated, these products are of GB origin.</td>
 		</tr>
 	</table>
 	
