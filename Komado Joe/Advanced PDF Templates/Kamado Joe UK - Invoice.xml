@@ -31,10 +31,10 @@
 		${subsidiary.phone}<br />
 		${subsidiary.email}
 		<#if subsidiary.id == "3">accounts.uk@kamadojoe.com</#if><br />
-		<!-- Print GFR requirements if location is Waddinxween -->
-		<#if subsidiary.id == "3" && record.location.id != "225">
+		<!-- Print GFR requirements if location is KJ UK – Waddinxveen/KJ UK - Waddinxveen Reserved -->
+		<#if subsidiary.id == "3" && record.location.id != "225" && record.location.id != "335">
 		Our VAT Registration # GB 292 5730 83
-		<#elseif subsidiary.id == "3" && record.location.id == "225">
+		<#elseif subsidiary.id == "3" && (record.location.id == "225" || record.location.id == "335")>
 		Our VAT Registration # NL 825 8328 95 B01
 		</#if>
 		</#if> 
@@ -292,7 +292,7 @@
                     HSBC Reference 39539 / (Your account number – See HSBC Statement)<br />
                 </#if>
                 Please quote your HSBC Reference and invoice number on  your payment instruction
-            <#elseif (record.currency == "Euro") && (record.terms == "Prepay" || record.terms == "Direct 30" || record.terms == "Direct 60" || record.terms == "Direct 90" || record.terms == "MM30" || record.terms == "MM60" || record.terms == "MM90")>
+            <#elseif record.currency == "Euro" && (record.terms == "Prepay" || record.terms == "Direct 30" || record.terms == "Direct 60" || record.terms == "Direct 90" || record.terms == "MM30" || record.terms == "MM60" || record.terms == "MM90")>
                 Your prompt payment is greatly appreciated<br />
                 Payment to the following bank details:<br />
                 Kamado Joe UK Limited<br />
@@ -300,7 +300,7 @@
                 Account No: 83922575<br />
                 IBAN: GB54 HBUK 4012 7683 922575<br />
                 BIC: HBUKGB4B<br /><br />
-            <#elseif (record.currency == "Euro") && (record.terms != "Prepay" || record.terms != "Direct 30" || record.terms != "Direct 60" || record.terms != "Direct 90" || record.terms != "MM30" || record.terms != "MM60" || record.terms != "MM90")>
+            <#elseif record.currency == "Euro" && (record.terms != "Prepay" || record.terms != "Direct 30" || record.terms != "Direct 60" || record.terms != "Direct 90" || record.terms != "MM30" || record.terms != "MM60" || record.terms != "MM90")>
                 <b>Payment to the following Bank details:</b><br />
                 <b>HSBC Invoice Finance (UK) Ltd</b><br />
                 <b>BIC: HBUKGB41CM1</b><br />
@@ -311,7 +311,7 @@
                     HSBC Reference 39541 / (Your account number – See HSBC Statement)<br />
                 </#if>
                 Please quote your HSBC Reference and invoice number on  your payment instruction<br /><br />
-            <#elseif (record.currency =="USA") && (record.terms == "Prepay" || record.terms == "Direct 30" || record.terms == "Direct 60" || record.terms == "Direct 90" || record.terms == "MM30" || record.terms == "MM60" || record.terms == "MM90")>
+            <#elseif record.currency == "USA" && (record.terms == "Prepay" || record.terms == "Direct 30" || record.terms == "Direct 60" || record.terms == "Direct 90" || record.terms == "MM30" || record.terms == "MM60" || record.terms == "MM90")>
                 Your prompt payment is greatly appreciated<br />
                 Payment to the following bank details:<br />
                 Kamado Joe UK Limited<br />
@@ -319,7 +319,7 @@
                 Account No: 83916726<br />
                 IBAN: GB61 HBUK 4012 7683 9167 26<br />
                 BIC: HBUKGB4B<br /><br />
-            <#elseif (record.currency == "USA") && (record.terms != "Prepay" || record.terms != "Direct 30" || record.terms != "Direct 60" || record.terms != "Direct 90" || record.terms != "MM30" || record.terms != "MM60" || record.terms != "MM90")>
+            <#elseif record.currency == "USA" && (record.terms != "Prepay" || record.terms != "Direct 30" || record.terms != "Direct 60" || record.terms != "Direct 90" || record.terms != "MM30" || record.terms != "MM60" || record.terms != "MM90")>
                 <b>Payment to the following Bank details:</b><br />
                 <b>HSBC Invoice Finance (UK) Ltd</b><br />
                 <b>BIC: HBUKGB41CM1</b><br />
@@ -357,7 +357,7 @@
                 Account No:  83922591<br />
                 IBAN:  GB10HBUK40127683922591<br />
                 BIC:  HBUKGB4B<br /><br />
-            <#elseif record.currency =="Swedish Krona" && (record.terms != "Prepay" || record.terms != "Direct 30" || record.terms != "Direct 60" || record.terms != "Direct 90" || record.terms != "MM30" || record.terms != "MM60" || record.terms != "MM90")>
+            <#elseif record.currency == "Swedish Krona" && (record.terms != "Prepay" || record.terms != "Direct 30" || record.terms != "Direct 60" || record.terms != "Direct 90" || record.terms != "MM30" || record.terms != "MM60" || record.terms != "MM90")>
                 <b>Payment to the following bank details:</b><br />
                 <b>HSBC Invoice Finance (UK) Ltd</b><br />
                 <b>BIC:  HBUKGB41CM1</b><br />

@@ -3,7 +3,7 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['./BBSPurchaseOrderLibrary'],
+define(['./C4CPurchaseOrderLibrary'],
 function(poLibrary) {
    
     /**

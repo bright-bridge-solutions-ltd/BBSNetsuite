@@ -32,9 +32,9 @@
 		${subsidiary.email}<br />
 		<#if subsidiary.id == "3">accounts.uk@kamadojoe.com</#if><br />
 		<!-- Print GFR requirements if location is Waddinxween -->
-		<#if subsidiary.id == "3" && record.location.id != "225">
+		<#if subsidiary.id == "3" && record.location.id != "225" && record.location.id != "335">
 		Our VAT Registration # GB 292 5730 83
-		<#elseif subsidiary.id == "3" && record.location.id == "225">
+		<#elseif subsidiary.id == "3" && (record.location.id == "225" || record.location.id == "335")>
 		Our VAT Registration # NL 825 8328 95 B01
 		</#if>
 		</#if> 

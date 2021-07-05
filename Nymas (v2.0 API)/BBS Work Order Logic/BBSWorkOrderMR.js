@@ -28,9 +28,20 @@ function(runtime, search, record, format) {
     		type: search.Type.WORK_ORDER,
     		
     		filters: [{
+    			name: 'status',
+    			operator: search.Operator.ANYOF,
+    			values: ['WorkOrd:B'] // Work Order:Released
+    		},
+    				{
     			name: 'orderallocationstrategy',
     			operator: search.Operator.ANYOF,
     			values: ['@NONE@']
+    		},
+    				{
+    			name: 'type',
+    			join: 'item',
+    			operator: search.Operator.NONEOF,
+    			values: ['OthCharge']
     		},
     				{
     			name: 'mainline',
@@ -107,16 +118,24 @@ function(runtime, search, record, format) {
 		    			// call function to get the production end date from the sales order line
 		    			var productionEndDate = getProductionEndDate(assemblyItem, salesOrder);
 		    			
-		    			// update fields on the work order
-		    			workOrder.setValue({
-		    				fieldId: 'enddate',
-		    				value: productionEndDate
-		    			});
-		    			
-		    			workOrder.setValue({
-		    				fieldId: 'custbody_bbs_original_end_date',
-		    				value: productionEndDate
-		    			});
+		    			if (productionEndDate)
+		    				{
+				    			// update fields on the work order
+				    			workOrder.setValue({
+				    				fieldId: 'startdate',
+				    				value: new Date(productionEndDate.getFullYear(), productionEndDate.getMonth(), productionEndDate.getDate() - 2)
+				    			});
+				    			
+				    			workOrder.setValue({
+				    				fieldId: 'enddate',
+				    				value: productionEndDate
+				    			});
+				    			
+				    			workOrder.setValue({
+				    				fieldId: 'custbody_bbs_original_end_date',
+				    				value: productionEndDate
+				    			});
+		    				}
     				}
     			
     			// get count of item lines

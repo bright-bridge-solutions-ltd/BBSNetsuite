@@ -3,9 +3,9 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(['./BBSPurchaseOrderLibrary', 'N/email'],
+define(['./C4CPurchaseOrderLibrary'],
 
-function(poLibrary, email) {
+function(poLibrary) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -22,7 +22,7 @@ function(poLibrary, email) {
     	if (scriptContext.type == scriptContext.UserEventType.VIEW)
     		{
     			// set client script to run on the form
-    			scriptContext.form.clientScriptFileId = 4195; //3429;
+    			scriptContext.form.clientScriptFileId = 4195;
     			
     			// add a button to the form and call a client script function when the button is clicked
     			scriptContext.form.addButton({
@@ -58,25 +58,49 @@ function(poLibrary, email) {
      */
     function afterSubmit(scriptContext) {
     	
-    	// check the record is being created
-    	if (scriptContext.type == scriptContext.UserEventType.CREATE)
+    	// check the record is being edited
+    	if (scriptContext.type == scriptContext.UserEventType.EDIT)
     		{
-    			// get the current record
-    			var currentRecord = scriptContext.newRecord;
-    		
-    			// call library script function to generate the CSV file. Pass the ID of the current record
-    			var csvFile = poLibrary.generateCSV(currentRecord.id);
+    			// get the old and new approval statuses
+    			var oldApprovalStatus = scriptContext.oldRecord.getValue({
+    				fieldId: 'approvalstatus'
+    			});
     			
-    			// if we have been able to generate the CSV file
-    			if (csvFile)
+    			var newApprovalStatus = scriptContext.newRecord.getValue({
+    				fieldId: 'approvalstatus'
+    			});
+    			
+    			// has the approval status changed from 1 (Pending Approval) to 2 (Approved)
+    			if (oldApprovalStatus == 1 && newApprovalStatus == 2)
     				{
-	    				// get the supplier ID from the current record
-						var supplierID = currentRecord.getValue({
-							fieldId: 'entity'
-						});
-    				
-    					// call library script function to email the file to the supplier. Pass the ID of the current record, supplierID and csvFile
-						poLibrary.sendEmail(currentRecord.id, supplierID, csvFile);
+    					// call library script function to generate a CSV file of the purchase order. Pass the ID of the current record
+		    			var csvFile = poLibrary.generateCSV(scriptContext.newRecord.id);
+		    			
+		    			// if we have been able to generate the CSV file
+		    			if (csvFile)
+		    				{
+		    					// call library script function to generate a PDF file of the purchase order. Pass the ID of the current record
+			    				var pdfFile = poLibrary.generatePDF(scriptContext.newRecord.id);
+			    				
+			    				// if we have been able to generate the PDF file
+			    				if (pdfFile)
+			    					{
+			    						// declare and initialize variables
+			    						var emailAttachments = new Array();
+			    					
+				    					// push the csvFile/pdfFile objects to the emailAttachments array
+			    						emailAttachments.push(csvFile);
+			    						emailAttachments.push(pdfFile);
+		    						
+			    						// get the supplier ID from the current record
+										var supplierID = scriptContext.newRecord.getValue({
+											fieldId: 'entity'
+										});
+				    				
+				    					// call library script function to email the file to the supplier. Pass the current record ID and the supplierID variables and emailAttachments array
+										poLibrary.sendEmail(scriptContext.newRecord.id, supplierID, emailAttachments);
+			    					}
+		    				}
     				}
     		}
 

@@ -105,12 +105,22 @@ function(runtime, search, record, task, format) {
     	var subsidiaryLookup = search.lookupFields({
     		type: search.Type.SUBSIDIARY,
     		id: subsidiaryID,
-    		columns: ['custrecord_bbs_bank_gl_account']
+    		columns: ['custrecord_bbs_bank_gl_account', 'custrecord_bbs_intercompany_gl_account']
     	});
     	
-    	// retrieve values from the subsidiaryLookup object
-    	var bankGLAccountName 	= subsidiaryLookup.custrecord_bbs_bank_gl_account[0].text;
-    	var bankGLAccountID		= subsidiaryLookup.custrecord_bbs_bank_gl_account[0].value;
+    	// do we have an intercompany GL account
+    	if (subsidiaryLookup.custrecord_bbs_intercompany_gl_account.length > 0)
+    		{
+	    		// retrieve the intercompany GL account from the subsidiaryLookup object
+	        	var bankGLAccountName 	= subsidiaryLookup.custrecord_bbs_intercompany_gl_account[0].text;
+	        	var bankGLAccountID		= subsidiaryLookup.custrecord_bbs_intercompany_gl_account[0].value;
+    		}
+    	else
+    		{
+	    		// retrieve the bank GL account from the subsidiaryLookup object
+	        	var bankGLAccountName 	= subsidiaryLookup.custrecord_bbs_bank_gl_account[0].text;
+	        	var bankGLAccountID		= subsidiaryLookup.custrecord_bbs_bank_gl_account[0].value;
+    		}
     	
     	log.audit({
     		title: 'Processing Club',
