@@ -332,9 +332,13 @@ function(runtime, record, search, libraryModule, plugin, ui)
 	    		//
 				var transactionStatus = _transactionRecord.getValue({fieldId: 'status'});
 				
+				//Get the exclusion status
+	    		//
+				var excludeFromCalc = _transactionRecord.getValue({fieldId: 'custbody_bbstfc_exclude_transaction'});
+				
 				//If the transactionStatus is not Closed
 				//
-				if (transactionStatus != 'Closed')
+				if (transactionStatus != 'Closed' && !excludeFromCalc)
 					{
 						//Return values from the transaction record to gather required info to populate request
 						//
