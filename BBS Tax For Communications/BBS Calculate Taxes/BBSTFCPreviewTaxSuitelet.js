@@ -3,11 +3,11 @@
  * @NScriptType Suitelet
  * @NModuleScope Public
  */
-define(['N/plugin', './libraryModule'],
+define(['N/plugin', './libraryModule', 'N/http'],
 /**
  * @param {plugin} plugin
  */
-function(plugin, libraryModule) 
+function(plugin, libraryModule, http) 
 {
    
     /**
@@ -24,10 +24,15 @@ function(plugin, libraryModule)
     		//
     		var action 						= context.request.parameters['action'];
     		var subsidiaryID 				= context.request.parameters['subsidiaryID'];
-			var taxReq 						= context.request.parameters['taxReqObj'];
-    		var subsidiaryClientProfileID	= context.request.parameters['subsidiaryClientProfileID'];
+			var subsidiaryClientProfileID	= context.request.parameters['subsidiaryClientProfileID'];
     		var taxReqObj					= null;
     		var configuration 				= null;
+    		var taxReq 						= null;
+    		
+    		if (context.request.method === http.Method.POST) 
+		    	{
+    				taxReq 					= context.request.body
+		    	}
     		
     		switch(action)
     			{

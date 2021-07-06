@@ -122,7 +122,8 @@ function(record, search) {
 														    			    search.createColumn({name: "billcountrycode", label: "Billing Country Code"}),
 														    			    search.createColumn({name: "billphone", label: "Billing Phone"}),
 														    			    search.createColumn({name: "billstate", label: "Billing State/Province"}),
-														    			    search.createColumn({name: "billzip", label: "Billing Zip"})
+														    			    search.createColumn({name: "billzip", label: "Billing Zip"}),
+														    			    search.createColumn({name: "custbody_celigo_mag2_order_number", label: "Order Alias"})
 														    			 ]
 											    			});
 		    		
@@ -169,6 +170,7 @@ function(record, search) {
 		    				var baParts = billingAdressee.split(' ');
 		    				
 		    				magentoResponse.orderNumber				= salesorderSearchResults[resultCounter].getValue({name: "tranid"});
+		    				magentoResponse.orderAlias				= salesorderSearchResults[resultCounter].getValue({name: "custbody_celigo_mag2_order_number"});
 		    				magentoResponse.orderDate				= salesorderSearchResults[resultCounter].getValue({name: "trandate"});
 		    				magentoResponse.shipToName				= '';
 		    				magentoResponse.orderGrossValue			= Number(salesorderSearchResults[resultCounter].getValue({name: "grossamount"}));
@@ -296,7 +298,8 @@ function(record, search) {
     function magentoResponseObj()
     	{
     		this.orderNumber			= '';
-    		this.orderDate				= null;
+    		this.orderAlias				= '';
+			this.orderDate				= null;
     		this.shipToName				= '';
     		this.orderGrossValue		= Number(0);
     		this.currency				= '';
