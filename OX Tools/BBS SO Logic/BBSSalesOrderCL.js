@@ -32,6 +32,39 @@ function(search, dialog) {
      * @since 2015.2
      */
     function fieldChanged(scriptContext) {
+    	
+    	if (scriptContext.fieldId == 'shipdate')
+			{
+	    		// get the ship date
+	        	var shipDate = scriptContext.currentRecord.getValue({
+	        		fieldId: 'shipdate'
+	        	});
+	        	
+	        	// get count of item lines
+	        	var lineCount = scriptContext.currentRecord.getLineCount({
+	        		sublistId: 'item'
+	        	});
+	        	
+	        	// loop through item lines
+	        	for (var i = 0; i < lineCount; i++)
+	        		{
+	        			// set the supply required by date field on the line
+	        			scriptContext.currentRecord.selectLine({
+	        				sublistId: 'item',
+	        				line: i
+	        			});
+	        			
+	        			scriptContext.currentRecord.setCurrentSublistValue({
+	        				sublistId: 	'item',
+	        				fieldId: 	'requesteddate',
+	        				value: 		shipDate
+	        			});
+	        			
+	        			scriptContext.currentRecord.commitLine({
+	        				sublistId: 'item'
+	        			});
+	        		}
+			}
 
     }
 
@@ -46,6 +79,18 @@ function(search, dialog) {
      * @since 2015.2
      */
     function postSourcing(scriptContext) {
+    	
+    	if (scriptContext.sublistId == 'item' && scriptContext.fieldId == 'item')
+    		{
+	    		// set the supply required by date field on the current line using the header ship date field
+    			scriptContext.currentRecord.setCurrentSublistValue({
+    				sublistId: 	'item',
+    				fieldId:	'requesteddate',
+    				value: 		scriptContext.currentRecord.getValue({
+    	        					fieldId: 'shipdate'
+    	        				})
+    			});        	
+    		}
 
     }
 
@@ -235,7 +280,9 @@ function(search, dialog) {
     }
 
     return {
-        validateLine: validateLine
+        fieldChanged:	fieldChanged,
+        postSourcing:	postSourcing,
+    	validateLine: 	validateLine
     };
     
 });
