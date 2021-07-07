@@ -320,7 +320,10 @@ function(record, search, xml, config, https, encode, BBSObjects, secret, oauth, 
 																	      search.createColumn({name: "custrecord_bbs_config_url", label: "Shipping URL"}),
 																	      search.createColumn({name: "custrecord_bbs_config_url_delete", label: "Delete URL"}),
 																	      search.createColumn({name: "custrecord_bbs_config_url_label_recovery", label: "Label Recovery URL"}),
-																	      search.createColumn({name: "custrecord_bbs_config_use_image_convert", label: "Use Image Converter"})
+																	      search.createColumn({name: "custrecord_bbs_config_use_image_convert", label: "Use Image Converter"}),
+																	      search.createColumn({name: "custrecord_bbs_config_ref1_map", label: "Reference 1 Mapping"}),
+																	      search.createColumn({name: "custrecord_bbs_config_ref2_map", label: "Reference 2 Mapping"}),
+																	      search.createColumn({name: "custrecord_bbs_config_ref3_map", label: "Reference 3 Mapping"}),
 																	   ]
 																	}));
 			
@@ -338,8 +341,26 @@ function(record, search, xml, config, https, encode, BBSObjects, secret, oauth, 
 					var configIntermediate 		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_intermediate"});
 					var configLabelFormat		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_label_format"});
 					var configImageConvert		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_use_image_convert"});
+					var configRef1Mapping		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_ref1_map"});
+					var configRef2Mapping		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_ref2_map"});
+					var configRef3Mapping		= customrecord_bbs_carrier_configSearchObj[0].getValue({name: "custrecord_bbs_config_ref3_map"});
 					
-					carrierConfig = new BBSObjects.carrierConfiguration(configCarrier, clientId, configUser, configPassword, configUrl, configUrlDelete, configUrlLabelRecovery, configMajor, configMinor, configIntermediate, configLabelFormat, configImageConvert);
+					carrierConfig = new BBSObjects.carrierConfiguration(	configCarrier, 
+																			clientId, 
+																			configUser, 
+																			configPassword, 
+																			configUrl, 
+																			configUrlDelete, 
+																			configUrlLabelRecovery, 
+																			configMajor, 
+																			configMinor, 
+																			configIntermediate, 
+																			configLabelFormat, 
+																			configImageConvert,
+																			configRef1Mapping,
+																			configRef2Mapping,
+																			configRef3Mapping
+																			);
 				}
 			
 			return carrierConfig;

@@ -46,7 +46,7 @@ function(clientLibraryModule, url, currentRecord, search, https, message)
 			
 			
     		//See if we are excluded from AFC taxes
-    		//
+    		//	
     		var excludedFlag = currRec.getValue({fieldId: 'custbody_bbstfc_exclude_transaction'});
     		
     		if(excludedFlag)

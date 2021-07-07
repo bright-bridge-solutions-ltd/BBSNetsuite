@@ -325,6 +325,28 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 										    									});
 	    								
 	    								
+	    								//Get any custom mapping for the reference fields
+	    								//
+	    								var ref1 = '';
+	    								var ref2 = '';
+	    								var ref3 = '';
+	    								
+	    								if(integrationDetails.ref1Mapping != '' && integrationDetails.ref1Mapping != null)
+	    									{
+	    										ref1 = itemFulfillmentRecord.getValue({fieldId: integrationDetails.ref1Mapping});
+	    									}
+	    								
+	    								if(integrationDetails.ref2Mapping != '' && integrationDetails.ref2Mapping != null)
+	    									{
+	    										ref2 = itemFulfillmentRecord.getValue({fieldId: integrationDetails.ref2Mapping});
+	    									}
+    								
+	    								if(integrationDetails.ref3Mapping != '' && integrationDetails.ref3Mapping != null)
+	    									{
+	    										ref3 = itemFulfillmentRecord.getValue({fieldId: integrationDetails.ref3Mapping});
+	    									}
+    								
+	    								
 	    								//Get the required information from the item fulfilment record to build up the label
 	    								//
 	    								var shipmentReference 	= itemFulfillmentRecord.getValue({fieldId: 'tranid'});
@@ -335,6 +357,10 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 	    								var createdFrom 		= itemFulfillmentRecord.getValue({fieldId: 'createdfrom'});
 	    								var overrideEmail		= itemFulfillmentRecord.getValue({fieldId: 'custbody_bbs_ci_contact_email'});
 	    								var overrideMobile		= itemFulfillmentRecord.getValue({fieldId: 'custbody_bbs_ci_contact_mobile'});
+	    								
+	    								//Make sure that ref 1 always has something in it by defaulting in the tranid if ref 1 is blank
+	    								//
+	    								ref1 = (ref1 == '' || ref1 == null ? shipmentReference : ref1);
 	    								
 	    								//Load the related sales order
 	    								//
@@ -450,7 +476,7 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 
 	    								//Build up the process shipments request object
 	    								//
-	    								var processShipmentsRequest = new BBSObjects.processShipmentRequest(integrationDetails, shippingCarrierInfo, shipmentReference, shippingAddress, contactInfo, despatchDate, isSaturday, senderAddress, subsidiaryContactInfo, currencyISOCode, itemLineInfo);
+	    								var processShipmentsRequest = new BBSObjects.processShipmentRequest(integrationDetails, shippingCarrierInfo, ref1, shippingAddress, contactInfo, despatchDate, isSaturday, senderAddress, subsidiaryContactInfo, currencyISOCode, itemLineInfo, ref2, ref3);
 	    								
 	    								// check if totalWeight and packageCount are empty
 	    								if (totalWeight == '' && packageCount == '')

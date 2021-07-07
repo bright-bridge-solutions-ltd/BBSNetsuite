@@ -56,6 +56,8 @@ function(currentRecord, record, search) {
 					//
 					if(fulfilmentRecord != null)
 						{
+							var itemsObj = {};
+							
 							//Loop round the item lines
 							//
 							var itemCount = fulfilmentRecord.getLineCount({sublistId: 'item'});
@@ -67,6 +69,8 @@ function(currentRecord, record, search) {
 									var lineQty 		= Number(fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: items}));	
 									var lineItem 		= fulfilmentRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: items});	
 									var lineUnitWeight	= getItemWeight(lineItem);
+									
+									itemsObj[lineItem] = lineItem;
 									
 									//Total weight
 									//
@@ -99,6 +103,59 @@ function(currentRecord, record, search) {
 										}
 								}
 							
+							//Find all the commodity codes for the items
+							//
+							var itemArray 	= [];
+							var ref2		= '';
+							var ref3		= '';
+							
+							for ( var itemKey in itemsObj) 
+								{
+									itemArray.push(itemKey);
+								}
+							
+							if(itemArray.length > 0)
+								{
+									var itemSearchObj = getResults(search.create({
+																			   type: "item",
+																			   filters:
+																			   [
+																			      ["internalid","anyof",itemArray]
+																			   ],
+																			   columns:
+																			   [
+																			      search.createColumn({name: "custitem_commodity_code", summary: "GROUP", label: "Commodity Code"})
+																			   ]
+																			}));
+									
+									if(itemSearchObj != null && itemSearchObj.length > 0)
+										{
+											for (var int = 0; int < itemSearchObj.length; int++) 
+												{
+													var itemCommodityCode = itemSearchObj[int].getValue({name: "custitem_commodity_code", summary: "GROUP"});
+													
+													switch(int)
+														{
+															case 0:
+																ref2 = itemCommodityCode;
+																break;
+																
+															case 1:
+																ref2 += ', ' + itemCommodityCode;
+																break;
+																
+															case 2:
+																ref3 = itemCommodityCode;
+																break;
+																
+															case 3:
+																ref3 += ', ' + itemCommodityCode;
+																break;
+														}
+												}
+										}
+								}
+							
 							//Update the IF record with the total weight & packages
 							//
 							
@@ -117,7 +174,9 @@ function(currentRecord, record, search) {
 																	},
 														values:		{
 																	custbody_bbs_total_weight:			totalWeight.toFixed(2),
-																	custbody_bbs_number_of_packages:	Object.keys(packageData).length
+																	custbody_bbs_number_of_packages:	Object.keys(packageData).length,
+																	custbody_bbs_comm_code_sum_1:		ref2,
+																	custbody_bbs_comm_code_sum_2:		ref3,
 																	}
 														});
 								}

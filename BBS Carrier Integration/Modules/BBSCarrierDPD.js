@@ -684,9 +684,9 @@ function(encode, format, https, record, runtime, search, xml, cache, BBSObjects,
 			this.networkCode							= _shippingRequestData.shippingItemInfo.serviceCode;
 			this.numberOfParcels						= _shippingRequestData.packageCount;
 			this.totalWeight							= _shippingRequestData.weight;
-			this.shippingRef1							= _shippingRequestData.shippingReference;
-			this.shippingRef2							= '';
-			this.shippingRef3							= '';
+			this.shippingRef1							= _shippingRequestData.shippingReference.substring(0,25);
+			this.shippingRef2							= _shippingRequestData.shippingReference2.substring(0,25);
+			this.shippingRef3							= _shippingRequestData.shippingReference3.substring(0,25);
 			this.customsValue							= null;
 			this.deliveryInstructions					= '';
 			this.parcelDescription						= "";

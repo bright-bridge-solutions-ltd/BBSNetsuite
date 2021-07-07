@@ -8,7 +8,7 @@ function()
 	
 	//Object to hold the connection configuration
 	//
-	function _configuration(_primaryCarrier, _clientId, _username, _passsword, _url, _urlDelete, _urlLabelRecovery, _majorId, _minorId, _intermediateId, _labelFormat, _imageConvert)
+	function _configuration(_primaryCarrier, _clientId, _username, _passsword, _url, _urlDelete, _urlLabelRecovery, _majorId, _minorId, _intermediateId, _labelFormat, _imageConvert, _ref1Mapping, _ref2Mapping, _ref3Mapping)
 		{
 			//Constructor
 			//
@@ -24,6 +24,9 @@ function()
 			this.intermediateId		= _intermediateId;
 			this.labelFormat		= _labelFormat;
 			this.imageConvert		= _imageConvert;
+			this.ref1Mapping		= _ref1Mapping;
+			this.ref2Mapping		= _ref2Mapping;
+			this.ref3Mapping		= _ref3Mapping;
 		}
 	
 	
@@ -63,7 +66,7 @@ function()
 	
 	//Object to hold the request to create a shipment
 	//
-	function _processShipmentRequest(_configuration, _shippingItemInfo, _shippingReference, _address, _contact, _shippingDate, _isSaturday, _senderAddress, _senderContactInfo, _currencyISOCode, _itemDetails)
+	function _processShipmentRequest(_configuration, _shippingItemInfo, _shippingReference, _address, _contact, _shippingDate, _isSaturday, _senderAddress, _senderContactInfo, _currencyISOCode, _itemDetails, _shippingReference2, _shippingReference3)
 		{
 			this.configuration		= _configuration;		//Configuration object
 			this.shippingItemInfo	= _shippingItemInfo;	//Shipping info object
@@ -79,6 +82,9 @@ function()
 			this.senderContact		= _senderContactInfo;	//Contact object
 			this.currencyISOCode	= _currencyISOCode;
 			this.itemDetails		= _itemDetails;			//Array of item details
+			this.shippingReference2	= _shippingReference2;
+			this.shippingReference3	= _shippingReference3;
+			
 		}
 
 	//Object to hold the response from requesting a shipment
