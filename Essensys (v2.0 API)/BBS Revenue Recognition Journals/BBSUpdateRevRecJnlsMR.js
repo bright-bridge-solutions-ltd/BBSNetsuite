@@ -25,9 +25,11 @@ function(runtime, search, record, task) {
     		filters: [
 	          			["custcol_bbs_site", search.Operator.ANYOF, "@NONE@"],
 	          				"AND",
+	          			["custcol_bbs_unable_to_add_site", search.Operator.IS, "F"],
+	          				"AND",
 	          			[["memo", search.Operator.IS, "Rev Rec Source"],
 	          				"OR",
-	          			["memo", search.Operator.IS, "Rev Rec Destination"]],
+	          			["memo", search.Operator.IS, "Rev Rec Destination"]]
 	          		],
     		
     		columns: [{
@@ -91,15 +93,21 @@ function(runtime, search, record, task) {
 						// if this line does not already have a site
 						if (site == '' || site == null)
 							{
-		    					// get the source recognition plan
+		    					// get values from the line
 			        			var sourceRecognitionPlan = journalRecord.getSublistValue({
 			        				sublistId: 'line',
 			        				fieldId: 'sourcerevenueplan',
 			        				line: i
 			        			});
 			        			
-			        			// if this line has a source recognition plan
-			        			if (sourceRecognitionPlan != '' || sourceRecognitionPlan != null)
+			        			var unableToUpdate = journalRecord.getSublistValue({
+			        				sublistId: 'line',
+			        				fieldId: 'custcol_bbs_unable_to_add_site',
+			        				line: i
+			        			});
+			        			
+			        			// if this line has a source recognition plan and has not been flagged as unable to update
+			        			if (sourceRecognitionPlan != '' && sourceRecognitionPlan != null && unableToUpdate == false)
 			        				{
 				    					// if the source recognition plan doesn't already exist in the sourceRecognitionPlans object
 										if (!sourceRecognitionPlans[sourceRecognitionPlan])
@@ -109,9 +117,31 @@ function(runtime, search, record, task) {
 													{
 														// call function to retrieve details for the source recognition plan
 										    			var site = getSourceRecognitionPlanInfo(sourceRecognitionPlan);
-										    							
-										    			// add a new entry to the sourceRecognitionPlans object
-										    			sourceRecognitionPlans[sourceRecognitionPlan] = new sourceRecognitionPlanObj(site);
+										    			
+										    			// does the line have a site?
+										    			if (site)
+										    				{
+											    				// add a new entry to the sourceRecognitionPlans object
+												    			sourceRecognitionPlans[sourceRecognitionPlan] = new sourceRecognitionPlanObj(site);
+										    				}
+										    			else
+										    				{
+										    					// mark the line so it won't be picked up by the script again
+																journalRecord.selectLine({
+																	sublistId: 'line',
+																	line: i
+																});
+															
+																journalRecord.setCurrentSublistValue({
+																	sublistId: 'line',
+																	fieldId: 'custcol_bbs_unable_to_add_site',
+																	value: true
+																});
+																
+																journalRecord.commitLine({
+																	sublistId: 'line'
+																});
+										    				}
 													}
 												else
 													{
@@ -119,6 +149,24 @@ function(runtime, search, record, task) {
 														break;
 													}
 											}
+			        				}
+			        			else
+			        				{
+				        				// mark the line so it won't be picked up by the script again
+										journalRecord.selectLine({
+											sublistId: 'line',
+											line: i
+										});
+									
+										journalRecord.setCurrentSublistValue({
+											sublistId: 'line',
+											fieldId: 'custcol_bbs_unable_to_add_site',
+											value: true
+										});
+										
+										journalRecord.commitLine({
+											sublistId: 'line'
+										});
 			        				}
 							}
     				}
@@ -169,6 +217,22 @@ function(runtime, search, record, task) {
 												log.error({
 													title: 'Error Adding Site to Journal',
 													details: 'Tran ID: ' + jnlTranID + '<br>Internal ID: ' + jnlIntID + '<br>Site ID: ' + sourceRecognitionPlans[sourceRecognitionPlan].site + '<br>Line: ' + x + '<br>Error: ' + e.message 
+												});
+												
+												// mark the line so it won't be picked up by the script again
+												journalRecord.selectLine({
+													sublistId: 'line',
+													line: x
+												});
+											
+												journalRecord.setCurrentSublistValue({
+													sublistId: 'line',
+													fieldId: 'custcol_bbs_unable_to_add_site',
+													value: true
+												});
+												
+												journalRecord.commitLine({
+													sublistId: 'line'
 												});
 											}
 									}
@@ -225,12 +289,14 @@ function(runtime, search, record, task) {
     		type: search.Type.JOURNAL_ENTRY,
     		
     		filters: [
-	          			["custcol_bbs_site", search.Operator.ANYOF, "@NONE@"],
-	          				"AND",
-	          			[["memo", search.Operator.IS, "Rev Rec Source"],
-	          				"OR",
-	          			["memo", search.Operator.IS, "Rev Rec Destination"]],
-	          		],
+      					["custcol_bbs_site", search.Operator.ANYOF, "@NONE@"],
+      						"AND",
+      					["custcol_bbs_unable_to_add_site", search.Operator.IS, "F"],
+      						"AND",
+      					[["memo", search.Operator.IS, "Rev Rec Source"],
+      						"OR",
+      					["memo", search.Operator.IS, "Rev Rec Destination"]]
+      				],
     		
     		columns: [{
     			name: 'tranid',

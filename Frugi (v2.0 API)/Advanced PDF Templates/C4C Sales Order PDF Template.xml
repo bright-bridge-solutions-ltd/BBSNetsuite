@@ -158,7 +158,7 @@
 			<td colspan="10" rowpsan="8">${record.billaddr1}<#if record.billaddr2?has_content><br/>${record.billaddr2}</#if><br/>${record.billcity}<br/>${record.billstate}<br/>${record.billzip}<br/>${record.billcountry}</td>
 			<td colspan="10" rowpsan="8">${record.shipaddr1}<#if record.shipaddr2?has_content><br/>${record.shipaddr2}</#if><br/>${record.shipcity}<br/>${record.shipstate}<br/>${record.shipzip}<br/>${record.shipcountry}</td>
 			<td colspan="8" rowspan="8">Sales Order No<br/>Invoice / Tax Date<br/>Account Ref<br/>Payment Terms<br/>Web Ref<br/>Your Ref<br/>PO Number</td>
-			<td colspan="4" rowspan="8">${record.tranid}<br/>${record.trandate}<br/>${record.entity.accountnumber}<br/><b>TODO</b><br/><b>TODO</b><br/><b>TODO</b><br/>${record.otherrefnum}</td>
+			<td colspan="4" rowspan="8">${record.tranid}<br/>${record.trandate}<br/>${record.entity.accountnumber}<br/>${record.terms}<br/>${record.custbody_celigo_mag2_order_number}<br/>${record.otherrefnum}<br/>${record.otherrefnum}</td>
 		</tr>
 	</table>
 	

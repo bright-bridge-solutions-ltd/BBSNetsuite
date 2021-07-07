@@ -33,19 +33,56 @@ function(url) {
      */
     function fieldChanged(scriptContext) {
     	
-    	if (scriptContext.fieldId == 'custpage_customer_select' || scriptContext.fieldId == 'custpage_brand_select')
+    	if (scriptContext.fieldId == 'custpage_customer_select')
     		{
-    			// get the customer and brand select fields
+	    		// get field values from the form
+				var customer = scriptContext.currentRecord.getValue({
+					fieldId: 'custpage_customer_select'
+				});
+				
+				var priceListSelect = scriptContext.currentRecord.getValue({
+					fieldId: 'custpage_price_list_select'
+				});
+				
+				var brands = scriptContext.currentRecord.getValue({
+					fieldId: 'custpage_brand_select'
+				});
+				
+				// if the user has selected a customer and a price list
+				if (customer != '' && customer != null && priceListSelect != 0)
+					{
+						// reload the Suitelet
+						var suiteletURL = url.resolveScript({
+						    scriptId: 'customscript_bbs_price_list_sl',
+						    deploymentId: 'customdeploy_bbs_price_list_sl',
+						    params: {
+						    	customer: 	customer,
+						    	pricelist:	priceListSelect,
+						    	brands:		brands.toString()
+						    }
+						});
+					
+						window.onbeforeunload = null;
+						window.location.href = suiteletURL;
+					}
+    		}
+    	else if (scriptContext.fieldId == 'custpage_brand_select')
+    		{
+    			// get field values from the form
     			var customer = scriptContext.currentRecord.getValue({
     				fieldId: 'custpage_customer_select'
+    			});
+    			
+    			var priceListSelect = scriptContext.currentRecord.getValue({
+    				fieldId: 'custpage_price_list_select'
     			});
     			
     			var brands = scriptContext.currentRecord.getValue({
     				fieldId: 'custpage_brand_select'
     			});
     			
-    			// if the user has selected a customer and some brands
-    			if (customer != '' && customer != null && brands != '' && brands != null)
+    			// if the user has selected a customer, a price list and some brands
+    			if (customer != '' && customer != null && priceListSelect != 0 && brands != '' && brands != null)
     				{
     					// reload the Suitelet
 						var suiteletURL = url.resolveScript({
@@ -53,6 +90,7 @@ function(url) {
 						    deploymentId: 'customdeploy_bbs_price_list_sl',
 						    params: {
 						    	customer: 	customer,
+						    	pricelist:	priceListSelect,
 						    	brands:		brands.toString()
 						    }
 						});
@@ -61,50 +99,55 @@ function(url) {
 						window.location.href = suiteletURL;
     				}
     		}
-    	else if (scriptContext.fieldId == 'custpage_select_all_brands')
+    	else if (scriptContext.fieldId == 'custpage_price_list_select')
     		{
-	    		// get the customer and select all fields
+	    		// get field values from the form
 				var customer = scriptContext.currentRecord.getValue({
 					fieldId: 'custpage_customer_select'
 				});
 				
-				var selectAll = scriptContext.currentRecord.getValue({
-					fieldId: 'custpage_select_all_brands'
+				var priceListSelect = scriptContext.currentRecord.getValue({
+					fieldId: 'custpage_price_list_select'
 				});
-				
-				if (selectAll == false)
-					{
-						// enable the brand select field
-						scriptContext.currentRecord.getField({
+    			
+    			if (priceListSelect == 3) // Custom
+    				{
+    					// enable the brand select field and make it mandatory
+	    				var brandSelect = scriptContext.currentRecord.getField({
 						    fieldId: 'custpage_brand_select'
-						}).isDiabled = false;
-						
-						// set the value of the select all field
-						scriptContext.currentRecord.setValue({
-						    fieldId: 'custpage_select_all_brands',
-						    value: false
 						});
-					}
-				else if (selectAll == true && customer != '' && customer != null)
-					{
-						// disable the brand select field
-						scriptContext.currentRecord.getField({
+	    				
+	    				brandSelect.isDisabled 	= false;
+	    				brandSelect.isMandatory	= true;
+    				}
+    			else
+    				{
+	    				// disable the brand select field and make it non-mandatory
+	    				var brandSelect = scriptContext.currentRecord.getField({
 						    fieldId: 'custpage_brand_select'
-						}).isDiabled = true;
-					
-						// reload the Suitelet
-						var suiteletURL = url.resolveScript({
-						    scriptId: 'customscript_bbs_price_list_sl',
-						    deploymentId: 'customdeploy_bbs_price_list_sl',
-						    params: {
-						    	customer: 	customer,
-						    	selectall:	selectAll
-						    }
 						});
-					
-						window.onbeforeunload = null;
-						window.location.href = suiteletURL;
-					}
+	    				
+	    				brandSelect.isDisabled 	= true;
+	    				brandSelect.isMandatory	= false;
+	    				
+	    				// if the user has selected a customer and a price list
+	        			if (customer != '' && customer != null && priceListSelect != 0)
+	        				{
+	        					// reload the Suitelet
+	    						var suiteletURL = url.resolveScript({
+	    						    scriptId: 'customscript_bbs_price_list_sl',
+	    						    deploymentId: 'customdeploy_bbs_price_list_sl',
+	    						    params: {
+	    						    	customer: 	customer,
+	    						    	pricelist:	priceListSelect
+	    						    }
+	    						});
+	    					
+	    						window.onbeforeunload = null;
+	    						window.location.href = suiteletURL;
+	        				}
+	        			
+    				}
     		}
 
     }

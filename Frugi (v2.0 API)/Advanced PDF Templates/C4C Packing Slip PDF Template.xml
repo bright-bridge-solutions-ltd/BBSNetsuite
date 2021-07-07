@@ -395,8 +395,8 @@
         				<#list item_summary as item>
 							<tr>
 								<td align="center" colspan="10" line-height="170%">${item.item}</td>
-								<td align="center" colspan="18">${item.description?substring(0, 45)}</td>
-								<td align="center" colspan="6">${item.size?substring(0, 10)}</td>
+								<td align="center" colspan="18"><#if item.description?length gt 45>${item.description?substring(0, 45)}<#else>${item.description}</#if></td>
+								<td align="center" colspan="6"><#if item.size?length gt 10>${item.size?substring(0, 10)}<#else>${item.size}</#if></td>
 								<td align="center" colspan="4">&nbsp;</td>
 								<td align="center" colspan="3">${item.quantity?string["0"]}</td>
 								<td align="center" colspan="4">${item.rate}</td>

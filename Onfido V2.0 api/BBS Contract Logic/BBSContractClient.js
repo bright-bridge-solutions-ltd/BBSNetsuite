@@ -3,8 +3,8 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/search', 'N/format', 'N/ui/message', 'N/ui/dialog'],
-function(search, format, message, dialog) {
+define(['N/search', 'N/format', 'N/ui/message', 'N/ui/dialog', 'N/record', 'N/url'],
+function(search, format, message, dialog, record, url) {
     
     /**
      * Function to be executed after page is initialized.
@@ -16,6 +16,208 @@ function(search, format, message, dialog) {
      * @since 2015.2
      */
     function pageInit(scriptContext) {
+    	
+    	if (scriptContext.mode == 'create')
+    		{
+		    	// get the URL parameters
+		    	var urlParams 	= new URLSearchParams(window.location.search);
+		    	var copiedFrom	= urlParams.get('copiedfrom');
+		    	var type		= urlParams.get('type');
+		    	
+		    	if (copiedFrom != null && copiedFrom != '' && type != null && type != '')
+		    		{
+		    			// lookup fields on the contract record the current contract is being created from
+		    			var contractLookup = search.lookupFields({
+		    				type: 		'customrecord_bbs_contract',
+		    				id: 		copiedFrom,
+		    				columns:	['custrecord_bbs_contract_customer', 'custrecord_bbs_contract_partner_contract', 'custrecord_bbs_contract_billing_type', 'custrecord_bbs_contract_mgmt_fee', 'custrecord_bbs_contract_mgmt_fee_type', 'custrecord_bbs_contract_mgmt_fee_amt', 'custrecord_bbs_contract_term', 'custrecord__bbs_contract_actual_term', 'custrecord_bbs_contract_billing_level', 'custrecord_bbs_contract_exc_auto_bill', 'custrecord_bbs_contract_consol_inv', 'custrecord_bbs_contract_auto_renew', 'custrecord_bbs_contract_renewal_type', 'custrecord_bbs_contract_end_date', 'custrecord_bbs_contract_min_ann_use', 'custrecord_bbs_contract_bi_ann_use', 'custrecord_bbs_contract_qu_min_use', 'custrecord_bbs_contract_mon_min_use', 'custrecord_bbs_contract_annual_commit', 'custrecord_bbs_contract_link']
+		    			});
+		    		
+		    			switch(type) {
+		    				
+		    				case 'payg':
+		    					
+		    					// set fields on the form
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_customer',
+		    						value:		contractLookup.custrecord_bbs_contract_customer[0].value
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_billing_type',
+		    						value: 		1 // 1 = PAYG
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_partner_contract',
+		    						value: 		1 // 1 = No Partner Attached
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_setup_fee',
+		    						value: 		2 // 2 = No
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_mgmt_fee',
+		    						value: 		2 // 2 = No
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_billing_level',
+		    						value: 		2 // 2 = Child
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_consol_inv',
+		    						value: 		2 // 2 = No
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_auto_renew',
+		    						value: 		1 // 1 = Yes
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_renewal_type',
+		    						value: 		1 // 1 = Auto Expire
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_renewal_type',
+		    						value: 		1 // 1 = Auto Expire
+		    					});
+		    					
+		    					break;
+		    				
+		    				case 'renewal':
+		    					
+		    					// get the end date of the old contract and convert to a date object
+		    					var endDate = format.parse({
+				    				type: format.Type.DATE,
+				    				value: contractLookup.custrecord_bbs_contract_end_date
+								});
+		    					
+		    					// set the date of the new contract to be a day after the end date of the old contract
+		    					var startDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate() + 1);
+		    					
+		    					// set fields on the form
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_customer',
+		    						value:		contractLookup.custrecord_bbs_contract_customer[0].value
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_partner_contract',
+		    						value:		contractLookup.custrecord_bbs_contract_partner_contract[0].value
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_billing_type',
+		    						value:		contractLookup.custrecord_bbs_contract_billing_type[0].value
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_setup_fee',
+		    						value: 		2 // 2 = No
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_mgmt_fee',
+		    						value:		contractLookup.custrecord_bbs_contract_mgmt_fee[0].value
+		    					});
+		    					
+		    					if (contractLookup.custrecord_bbs_contract_mgmt_fee_type.length > 0)
+		    						{
+				    					scriptContext.currentRecord.setValue({
+				    						fieldId: 	'custrecord_bbs_contract_mgmt_fee_type',
+				    						value:		contractLookup.custrecord_bbs_contract_mgmt_fee_type[0].value
+				    					});
+		    						}
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_mgmt_fee_amt',
+		    						value:		contractLookup.custrecord_bbs_contract_mgmt_fee_amt
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_term',
+		    						value:		contractLookup.custrecord_bbs_contract_term
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord__bbs_contract_actual_term',
+		    						value:		contractLookup.custrecord__bbs_contract_actual_term
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_billing_level',
+		    						value:		contractLookup.custrecord_bbs_contract_billing_level[0].value
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_exc_auto_bill',
+		    						value:		contractLookup.custrecord_bbs_contract_exc_auto_bill
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_consol_inv',
+		    						value:		contractLookup.custrecord_bbs_contract_consol_inv[0].value
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_auto_renew',
+		    						value:		contractLookup.custrecord_bbs_contract_auto_renew[0].value
+		    					});
+		    					
+		    					if (contractLookup.custrecord_bbs_contract_renewal_type.length > 0)
+		    						{
+			    						scriptContext.currentRecord.setValue({
+				    						fieldId: 	'custrecord_bbs_contract_renewal_type',
+				    						value:		contractLookup.custrecord_bbs_contract_renewal_type[0].value
+				    					});
+		    						}
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_start_date',
+		    						value:		startDate
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_min_ann_use',
+		    						value:		contractLookup.custrecord_bbs_contract_min_ann_use
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_bi_ann_use',
+		    						value:		contractLookup.custrecord_bbs_contract_bi_ann_use
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_qu_min_use',
+		    						value:		contractLookup.custrecord_bbs_contract_qu_min_use
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_mon_min_use',
+		    						value:		contractLookup.custrecord_bbs_contract_mon_min_use
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_annual_commit',
+		    						value:		contractLookup.custrecord_bbs_contract_annual_commit
+		    					});
+		    					
+		    					scriptContext.currentRecord.setValue({
+		    						fieldId: 	'custrecord_bbs_contract_link',
+		    						value:		contractLookup.custrecord_bbs_contract_link
+		    					});
+		    					
+		    					break;
+		    			
+		    			}
+		    		}
+    		}
 
     }
 
@@ -137,6 +339,49 @@ function(search, format, message, dialog) {
      * @since 2015.2
      */
     function postSourcing(scriptContext) {
+    	
+    	if (scriptContext.fieldId == 'custrecord_bbs_contract_customer')
+    		{
+		    	// get the URL parameters
+		    	var urlParams 	= new URLSearchParams(window.location.search);
+		    	var copiedFrom	= urlParams.get('copiedfrom');
+		    	var type		= urlParams.get('type');
+		    	
+		    	if (copiedFrom != null && copiedFrom != '' && type != null && type != '')
+		    		{
+		    			// lookup fields on the contract record the current contract is being created from
+		    			var contractLookup = search.lookupFields({
+		    				type: 		'customrecord_bbs_contract',
+		    				id: 		copiedFrom,
+		    				columns:	['custrecord_bbs_contract_currency', 'custrecord_bbs_contract_subsidiary', 'custrecord_bbs_contract_sales_force_id', 'custrecord_bbs_contract_sf_acc_id', 'custrecord_bbs_contract_sf_opp_id']
+		    			});
+		    		
+		    			scriptContext.currentRecord.setValue({
+    						fieldId: 	'custrecord_bbs_contract_currency',
+    						value:		contractLookup.custrecord_bbs_contract_currency[0].value
+    					});
+		    			
+		    			scriptContext.currentRecord.setValue({
+		    				fieldId: 	'custrecord_bbs_contract_sales_force_id',
+		    				value: 		contractLookup.custrecord_bbs_contract_sales_force_id
+		    			});
+		    					
+		    			scriptContext.currentRecord.setValue({
+		    				fieldId: 	'custrecord_bbs_contract_sf_acc_id',
+		    				value: 		contractLookup.custrecord_bbs_contract_sf_acc_id
+		    			});
+		    					
+		    			scriptContext.currentRecord.setValue({
+		    				fieldId: 	'custrecord_bbs_contract_sf_opp_id',
+		    				value: 		contractLookup.custrecord_bbs_contract_sf_opp_id
+		    			});
+		    					
+		    			scriptContext.currentRecord.setValue({
+		    				fieldId: 	'custrecord_bbs_contract_subsidiary',
+		    				value: 		contractLookup.custrecord_bbs_contract_subsidiary[0].value
+		    			});		    		
+		    		}
+    		}
 
     }
 
@@ -356,10 +601,248 @@ function(search, format, message, dialog) {
 	        	return true;
 	        }
     }
+    
+    function deleteContract(recordID) {
+		
+		// display dialog asking user if they wish to continue
+		dialog.confirm({
+			title: 'Confirm Deletion',
+			message: 'Please confirm that you wish to delete this contract record and any associated product lines.'
+		}).then(success).catch(failure);
+
+		// helper function called when user selects OK or cancel on confirm dialog
+		function success(result)
+			{
+			 	// check if the user clicked ok
+				if (result == true)
+					{
+						// call helper functions to delete records
+    					deleteProductDetailRecords(recordID);
+    					deleteProductRecords(recordID);
+    					deleteMinimumUsageRecords(recordID);
+    					deleteContractRecord(recordID);
+    					
+    					// return the URL of the home page
+    					var reloadURL = url.resolveTaskLink({
+    						id: 'CARD_-29'
+    					});
+    					
+    					// redirect the user to the home page
+    					window.onbeforeunload = null;
+    					window.location.href = reloadURL;
+					}
+			}
+		
+		function failure()
+			{
+
+			}
+		
+    }
+    
+    function createPAYGContract(recordID) {
+    	
+    	// define the URL that will be called
+    	var reloadURL = url.resolveTaskLink({
+			id: 'EDIT_CUST_377',
+			params: {
+				copiedfrom: 	recordID,
+				type: 			'payg'
+			}
+		});
+    	
+    	// open a new contract record in a new tab/window
+    	window.open(reloadURL, '_blank');
+    	
+    }
+    
+    function createRenewalContract(recordID) {
+    	
+    	// define the URL that will be called
+    	var reloadURL = url.resolveTaskLink({
+			id: 'EDIT_CUST_377',
+			params: {
+				copiedfrom: 	recordID,
+				type: 			'renewal'
+			}
+		});
+    	
+    	// open a new contract record in a new tab/window
+    	window.open(reloadURL, '_blank');
+    	
+    }
+    
+    //=================
+	// HELPER FUNCTIONS
+	//=================
+	
+	function deleteProductDetailRecords(recordID) {
+			
+		// declare and initialize variables
+		var periodDetailRecord;
+			
+		// run search to find customrecord_bbs_contract_period records linked to this contract
+		var periodDetailSearch = search.create({
+			type: 'customrecord_bbs_contract_period',
+				
+			columns: [{
+				name: 'internalid'
+	    	}],
+	    		
+	    	filters: [{
+	    		join: 'custrecord_bbs_contract_period_contract',
+	    		name: 'internalid',
+	    		operator: 'is',
+	    		values: [recordID]
+	    	}],
+	    });
+			
+		// run search and process search results
+	    periodDetailSearch.run().each(function(result) {
+	    		
+	    	// get the internal ID of the record
+	    	periodDetailRecord = result.getValue({
+	    		name: 'internalid'
+	    	});
+	    		
+	    	try
+	    		{
+	    			// delete the record
+	    			record.delete({
+	    				type: 'customrecord_bbs_contract_period',
+	    				id: periodDetailRecord
+	    			});
+	    		}
+	    	catch(error)
+	    		{
+
+	    		}
+	    		
+	    	// continue processing search results
+	    	return true;
+	    });	    			
+	}
+	
+	function deleteProductRecords(recordID)  {
+			
+		// declare and initialize variables
+		var productRecord;
+			
+		// run search to find customrecord_bbs_contract_product records linked to this contract
+    	var productSearch = search.create({
+    		type: 'customrecord_bbs_contract_product',
+    		
+    		columns: [{
+				name: 'internalid'
+	    	}],
+	    		
+	    	filters: [{
+	    		join: 'custrecord_contract_product_parent',
+	    		name: 'internalid',
+	    		operator: 'is',
+	    		values: [recordID]
+	    	}],
+	    });
+    		
+    	// run search and process search results
+    	productSearch.run().each(function(result) {
+	    		
+	    	// get the internal ID of the record
+    		productRecord = result.getValue({
+	    		name: 'internalid'
+	    	});
+	    		
+	    	try
+	    		{
+	    			// delete the record
+	    			record.delete({
+	    				type: 'customrecord_bbs_contract_product',
+	    				id: productRecord
+	    			});
+	    		}
+	    	catch(error)
+	    		{
+	    			
+	    		}
+	    		
+	    	// continue processing search results
+	    	return true;
+    	});
+	}
+	
+	function deleteMinimumUsageRecords(recordID) {
+			
+		// declare and initialize variables
+		var minimumUsageRecord;
+			
+		// create search to find minimum usage records for this contract
+		var minimumUsageSearch = search.create({
+			type: 'customrecord_bbs_contract_minimum_usage',
+				
+			filters: [{
+				name: 'custrecord_bbs_contract_min_usage_parent',
+				operator: 'anyof',
+				values: [recordID]
+			}],
+				
+			columns: [{
+				name: 'internalid'
+			}],
+	
+		});
+			
+		// run search and process results
+		minimumUsageSearch.run().each(function(result){
+				
+			// get the internal ID of the record
+			minimumUsageRecord = result.getValue({
+				name: 'internalid'
+			});
+				
+			try
+	    		{
+	    			// delete the record
+	    			record.delete({
+	    				type: 'customrecord_bbs_contract_minimum_usage',
+	    				id: minimumUsageRecord
+	    			});
+	    		}
+			catch(error)
+	    		{
+	    			
+	    		}
+    		
+			// continue processing search results
+			return true;
+				
+		});
+			
+	}
+	
+	function deleteContractRecord(recordID) {
+			
+		// delete the contract record
+    	try
+	    	{
+	    		record.delete({
+	    			type: 'customrecord_bbs_contract',
+	    			id: recordID
+	    		});
+	    	}
+    	catch(error)
+	    	{
+	    			
+	    	}
+	}
 
     return {
-        fieldChanged: fieldChanged,
-        saveRecord: saveRecord
+        pageInit:				pageInit,
+    	fieldChanged: 			fieldChanged,
+    	postSourcing:			postSourcing,
+        saveRecord: 			saveRecord,
+        deleteContract:			deleteContract,
+        createPAYGContract:		createPAYGContract,
+        createRenewalContract:	createRenewalContract
     };
     
 });

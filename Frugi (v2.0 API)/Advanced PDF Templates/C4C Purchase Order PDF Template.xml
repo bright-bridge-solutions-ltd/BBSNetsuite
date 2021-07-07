@@ -185,7 +185,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="315pt" footer="nlfooter" footer-height="100pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="330pt" footer="nlfooter" footer-height="100pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
 	<#if record.item?has_content>
 		<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items -->

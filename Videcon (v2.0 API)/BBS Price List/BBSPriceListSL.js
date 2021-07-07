@@ -20,8 +20,8 @@ function(ui, search, render) {
 			{
     			// retrieve parameters that have been passed to the Suitelet
 				var customerID 	= context.request.parameters.customer;
+				var priceList	= context.request.parameters.pricelist;
 				var brands		= context.request.parameters.brands;
-				var selectAll	= context.request.parameters.selectall;
     		
     			// create form that will be displayed to the user
 				var form = ui.createForm({
@@ -30,7 +30,7 @@ function(ui, search, render) {
 	            });
 				
 				// set client script to run on the form
-				form.clientScriptFileId = 158526;
+				form.clientScriptFileId = 270163;
 				
 				// add field groups to the form
    		 		form.addFieldGroup({
@@ -49,7 +49,7 @@ function(ui, search, render) {
 				    type: ui.FieldType.INLINEHTML,
 				    label: 'Page Logo',
 				    container: 'header'
-				}).defaultValue = "<br/><img src='https://6765982-sb1.app.netsuite.com/core/media/media.nl?id=2273&amp;c=6765982_SB1&amp;h=l_StuPmlsC-62RMcdYxf3bUxn62g-5HlP-aFn8UlefU9XeLU' alt='Videcon Logo' style='width: 226px; height: 48px;'>";
+				}).defaultValue = "<br/><img src='https://6765982.app.netsuite.com/core/media/media.nl?id=2273&amp;c=6765982&amp;h=l_StuPmlsC-62RMcdYxf3bUxn62g-5HlP-aFn8UlefU9XeLU' alt='Videcon Logo' style='width: 226px; height: 48px;'>";
 				
 				var customerSelect = form.addField({
 					id: 'custpage_customer_select',
@@ -72,6 +72,36 @@ function(ui, search, render) {
 					displayType: ui.FieldDisplayType.HIDDEN
 				});
 				
+				var priceListSelect = form.addField({
+					id: 'custpage_price_list_select',
+					type: ui.FieldType.SELECT,
+					label: 'Price List',
+					container: 'select_fields'
+				});
+				
+				priceListSelect.addSelectOption({
+					value: 0,
+					text: '',
+					isSelected: true
+				});
+				
+				priceListSelect.addSelectOption({
+					value: 1,
+					text: 'Fire'
+				});
+				
+				priceListSelect.addSelectOption({
+					value: 2,
+					text: 'Videcon'
+				});
+				
+				priceListSelect.addSelectOption({
+					value: 3,
+					text: 'Custom'
+				});
+				
+				priceListSelect.isMandatory = true;
+				
 				var brandSelect = form.addField({
 					id: 'custpage_brand_select',
 					type: ui.FieldType.MULTISELECT,
@@ -80,25 +110,24 @@ function(ui, search, render) {
 					container: 'select_fields'
 				});
 				
-				brandSelect.isMandatory = true;
-				
 				brandSelect.updateBreakType({
 					breakType: ui.FieldBreakType.STARTCOL
 				});
 				
-				var selectAllBrands = form.addField({
-					id: 'custpage_select_all_brands',
-					type: ui.FieldType.CHECKBOX,
-					label: 'Select All Brands',
-					container: 'select_fields'
+				brandSelect.updateDisplayType({
+					displayType: ui.FieldDisplayType.DISABLED
 				});
 				
-				// if the user has selected a customer and some brands
-    			if (customerID != '' && customerID != null && ((brands != '' && brands != null) || selectAll == 'true'))
+				// if the user has selected a customer and a price list
+    			if (customerID != '' && customerID != null && priceList != '' && priceList != null)
     				{
-    					// set the customer and brand select fields
-    					customerSelect.defaultValue = customerID;
-    					customerName.defaultValue	= getCustomerName(customerID);
+    					// declare and initialize variables
+    					var priceListSearch = null;
+    				
+    					// set the customer and price list select fields
+    					customerSelect.defaultValue 	= customerID;
+    					customerName.defaultValue		= getCustomerName(customerID);
+    					priceListSelect.defaultValue 	= priceList;
     				
     					// add a sublist to the form
 	    				var sublist = form.addSublist({
@@ -143,63 +172,177 @@ function(ui, search, render) {
 							label: 'Unit Price'
 						});
 	    				
-	    				// create search to find item pricing for the selected customer/brands
-	    				var pricingSearch = search.create({
-	    					type: search.Type.PRICING,
-	    					
-	    					filters: [{
-	    						name: 'customer',
-	    						operator: search.Operator.ANYOF,
-	    						values: [customerID]
-	    					},
-	    							{
-	    						name: 'formulanumeric',
-	    						formula: '{unitprice}',
-	    						operator: search.Operator.GREATERTHAN,
-	    						values: [0]
-	    					},
-	    							{
-	    						name: 'custitem_bbs_exclude_from_price_list',
-	    						join: 'item',
-	    						operator: search.Operator.IS,
-	    						values: ['F']
-	    					}],
-	    					
-	    					columns: [{
-	    						name: 'cseg_bbs_brands',
-	    						join: 'item',
-	    						sort: search.Sort.ASC
-	    					},
-	    							{
-	    						name: 'item',
-	    						sort: search.Sort.ASC
-	    					},
-	    							{
-	    						name: 'salesdescription',
-	    						join: 'item'
-	    					},
-									{
-	    						name: 'saleunit'
-							},
-									{
-	    						name: 'currency'
-							},
-									{
-								name: 'unitprice'
-							}],
-	    					
-	    				});
+	    				switch(priceList) {
 	    				
-	    				if (selectAll == true)
-	    					{
-		    					// set the value of the select all brands field and disable the brands select field
-	    						selectAllBrands.defaultValue 	= true;
-	    						brandSelect.isMandatory 		= false;
-	    						brandSelect.updateDisplayType({
-	    							displayType: ui.FieldDisplayType.INLINE
-	    						});
-	    					}
-	    				else if (brands != '' && brands != null)
+	    				case '1': // Fire
+	    					
+	    					// create search to find item pricing for the selected customer/brands
+		    				pricingSearch = search.create({
+		    					type: search.Type.PRICING,
+		    					
+		    					filters: [{
+		    						name: 'customer',
+		    						operator: search.Operator.ANYOF,
+		    						values: [customerID]
+		    					},
+		    							{
+		    						name: 'formulanumeric',
+		    						formula: '{unitprice}',
+		    						operator: search.Operator.GREATERTHAN,
+		    						values: [0]
+		    					},
+		    							{
+		    						name: 'custitem_bbs_exclude_from_price_list',
+		    						join: 'item',
+		    						operator: search.Operator.IS,
+		    						values: ['F']
+		    					},
+		    							{
+		    						name: 'custitem_bbs_fire_price_list',
+		    						join: 'item',
+		    						operator: search.Operator.IS,
+		    						values: ['T']
+		    					}],
+		    					
+		    					columns: [{
+		    						name: 'cseg_bbs_brands',
+		    						join: 'item',
+		    						sort: search.Sort.ASC
+		    					},
+		    							{
+		    						name: 'item',
+		    						sort: search.Sort.ASC
+		    					},
+		    							{
+		    						name: 'salesdescription',
+		    						join: 'item'
+		    					},
+										{
+		    						name: 'saleunit'
+								},
+										{
+		    						name: 'currency'
+								},
+										{
+									name: 'unitprice'
+								}],
+		    					
+		    				});
+	    					
+	    					break;
+	    				
+	    				case '2': // Videcon
+	    					
+	    					// create search to find item pricing for the selected customer/brands
+		    				pricingSearch = search.create({
+		    					type: search.Type.PRICING,
+		    					
+		    					filters: [{
+		    						name: 'customer',
+		    						operator: search.Operator.ANYOF,
+		    						values: [customerID]
+		    					},
+		    							{
+		    						name: 'formulanumeric',
+		    						formula: '{unitprice}',
+		    						operator: search.Operator.GREATERTHAN,
+		    						values: [0]
+		    					},
+		    							{
+		    						name: 'custitem_bbs_exclude_from_price_list',
+		    						join: 'item',
+		    						operator: search.Operator.IS,
+		    						values: ['F']
+		    					},
+		    							{
+		    						name: 'custitem_bbs_videcon_price_list',
+		    						join: 'item',
+		    						operator: search.Operator.IS,
+		    						values: ['T']
+		    					}],
+		    					
+		    					columns: [{
+		    						name: 'cseg_bbs_brands',
+		    						join: 'item',
+		    						sort: search.Sort.ASC
+		    					},
+		    							{
+		    						name: 'item',
+		    						sort: search.Sort.ASC
+		    					},
+		    							{
+		    						name: 'salesdescription',
+		    						join: 'item'
+		    					},
+										{
+		    						name: 'saleunit'
+								},
+										{
+		    						name: 'currency'
+								},
+										{
+									name: 'unitprice'
+								}],
+		    					
+		    				});
+	    					
+	    					 break;
+	    				
+	    				case '3': // Custom
+	    					
+	    					// enable the brand select field and make it mandatory
+	    					brandSelect.updateDisplayType({
+	    						displayType: ui.FieldDisplayType.NORMAL
+	    					});
+	    					
+	    					brandSelect.isMandatory = true;
+	    					
+	    					// create search to find item pricing for the selected customer/brands
+		    				pricingSearch = search.create({
+		    					type: search.Type.PRICING,
+		    					
+		    					filters: [
+					    					["customer", search.Operator.ANYOF, customerID],
+						          				"AND",
+						          			["formulanumeric: {unitprice}", search.Operator.GREATERTHAN, 0],
+						          				"AND",
+						          			["item.custitem_bbs_exclude_from_price_list", search.Operator.IS, "F"],
+						          				"AND",
+						          			[["item.custitem_bbs_fire_price_list", search.Operator.IS, "T"],
+						          				"OR",
+						          			["item.custitem_bbs_videcon_price_list", search.Operator.IS, "T"]]
+					    				],
+		    					
+		    					columns: [{
+		    						name: 'cseg_bbs_brands',
+		    						join: 'item',
+		    						sort: search.Sort.ASC
+		    					},
+		    							{
+		    						name: 'item',
+		    						sort: search.Sort.ASC
+		    					},
+		    							{
+		    						name: 'salesdescription',
+		    						join: 'item'
+		    					},
+										{
+		    						name: 'saleunit'
+								},
+										{
+		    						name: 'currency'
+								},
+										{
+									name: 'unitprice'
+								}],
+		    					
+		    				});
+	    					
+	    					break;
+	    				
+	    				}
+	    				
+	    				if (brands != '' && brands != null)
 	    					{
 		    					// set the value of the brands select field
 	    						brandSelect.defaultValue = brands;
@@ -316,183 +459,410 @@ function(ui, search, render) {
 			}
     	else if (context.request.method == 'POST')
 			{
-    			// start off the XML
-    			var xml = 	'<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">';
-    				xml +=	'<pdfset>';
-    				xml +=	'<pdf>';
-    				xml += 	'<head>';
-    				xml +=	'<macrolist>';
-    				xml +=	'<macro id="header">';
-    				xml +=	'<p align="center"><img src="https://6765982-sb1.app.netsuite.com/core/media/media.nl?id=2273&amp;c=6765982_SB1&amp;h=l_StuPmlsC-62RMcdYxf3bUxn62g-5HlP-aFn8UlefU9XeLU" style="width: 275px; height: 60px;" /></p>';
-    				xml +=	'</macro>';
-    				xml +=	'<macro id="footer">';
-    				xml +=	'<table style="width: 100%; font-size: 14pt; margin-top: 20px;">';
-    				xml +=	'<tr>';
-    				xml +=	'<td colspan="12" align="center">01924 528001  •  fire@videcon.co.uk  •  www.videcon.co.uk</td>';
-    				xml +=	'</tr>';
-    				xml +=	'</table>';
-    				xml +=	'</macro>';
-    				xml +=	'</macrolist>';
-    				xml +=	'<style type="text/css">';
-    		    	xml += 	'* {font-family: Arial, sans-serif;}';
-    		    	xml += 	'table {font-size: 10pt;}';
-    		    	xml += 	'th {font-weight: bold; font-size: 10pt; vertical-align: middle; padding: 5px 6px 3px; background-color: #B32826; color: #FFFFFF;}';
-    		    	xml +=	'hr {width: 100%; margin-top: 20px; margin-bottom: 5px; height: 28px; background-color: #B32826;}';
-    		    	xml +=	'p { margin-top: 0; margin-bottom: 0; margin-left: 0; margin-right: 0;}';
-    		        xml += 	'</style>';
-    				xml	+=	'</head>';
-    				xml +=	'<body header="header" header-height="75pt" footer="footer" footer-height="30pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">';
-    				xml +=	'<p align="center"><span style="font-size:90px; color:#B32826; font-weight: bold;">FIRE DIVISION</span></p>';
-    				xml +=	'<p align="center"><span style="font-size:24px; font-weight: bold;">' + new Date().format('F Y').toUpperCase() + ' PRICE LIST</span></p>';
-    				xml +=	'<p align="center"><img src="https://6765982-sb1.app.netsuite.com/core/media/media.nl?id=158528&amp;c=6765982_SB1&amp;h=_CPONk7YD-cL7d2bFZVd8_GtFUSuKnXEL5H7xS0DW0_dM-bC" style="width: 650px; height: 650px;" /></p>';
-    				xml +=	'<p align="center"><span style="font-size:24px; font-weight: bold;">' + context.request.parameters.custpage_customer_name.replace(/&/g, '&amp;') + '</span></p>';
-    				xml +=	'</body>';
-        			xml +=	'</pdf>';
-    				xml +=	'<pdf>';
-    				xml +=	'<body padding="0.2in 0.2in 0.2in 0.2in" size="A4">';
-    				xml +=	'<img src="https://6765982-sb1.app.netsuite.com/core/media/media.nl?id=158529&amp;c=6765982_SB1&amp;h=hsN62wR_bXBu7ACf7QnjQr5jyfuFlRcT5svLwmbMXPGXtqYg" style="width: 700px; height: 1000px;" />';
-    				xml +=	'</body>';
-        			xml +=	'</pdf>';
-    				xml +=	'<pdf>';
-    				xml += 	'<head>';
-    				xml +=	'<macrolist>';
-    				xml +=	'<macro id="header">';
-    				xml +=	'<table style="width: 100%; font-size: 12pt;">';
-    				xml +=	'<tr>';
-    				xml += 	'<td colspan="4"><img src="https://6765982-sb1.app.netsuite.com/core/media/media.nl?id=158527&amp;c=6765982_SB1&amp;h=n3Ide7rT5hcv_KLrSm0SWxz4IefUJoyGsfAUX8N5wo1RydLW" style="width: 250px; height: 50px;" /></td>';
-    				xml +=	'<td colspan="4" style="vertical-align: middle;">&nbsp;</td>';
-    				xml +=	'<td align="right" colspan="4" style="vertical-align: middle;">Page <pagenumber/> of <totalpages/></td>';
-    				xml +=	'</tr>';
-    				xml +=	'</table>';
-    				xml	+=	'<hr/>';
-    				xml +=	'</macro>';
-    				xml +=	'<macro id="footer">';
-    				xml	+=	'<hr/>';
-    				xml +=	'<table style="width: 100%; font-size: 14pt; margin-top: 20px;">';
-    				xml +=	'<tr>';
-    				xml +=	'<td colspan="12" align="center">01924 528001  •  fire@videcon.co.uk  •  www.videcon.co.uk</td>';
-    				xml +=	'</tr>';
-    				xml +=	'</table>';
-    				xml +=	'</macro>';
-    				xml +=	'</macrolist>';
-    				xml +=	'<style type="text/css">';
-    		    	xml += 	'* {font-family: Arial, sans-serif;}';
-    		    	xml += 	'table {font-size: 10pt;}';
-    		    	xml +=	'table.itemtable {page-break-after: always;}';
-    		    	xml += 	'th {font-weight: bold; font-size: 10pt; vertical-align: middle; padding: 5px 6px 3px; background-color: #B32826; color: #FFFFFF;}';
-    		    	xml	+=	'td {padding: 5px 6px 3px;}';
-    		    	xml +=	'hr {width: 100%; margin-top: 20px; margin-bottom: 5px; height: 28px; background-color: #B32826;}';
-    		        xml += 	'</style>';
-    				xml	+=	'</head>';
-    				xml +=	'<body header="header" header-height="75pt" footer="footer" footer-height="40pt" padding="0.5in 0.5in 0.5in 0.5in" size="A4">';
-    				xml +=	'<table class="itemtable" style="width: 100%;">';
-    				xml +=	'<thead>';
-    				xml += 	'<tr>';
-    				xml += 	'<th colspan="4">Part Ref</th>';
-    				xml += 	'<th colspan="10">Item Description</th>';
-    				xml += 	'<th colspan="2" align="right">Cost</th>';
-    				xml += 	'</tr>';
-    				xml +=	'</thead>';
+    			// declare and initialize variables
+    			var xml = '';
     			
-    			// get count of lines on the sublist
-    			var lineCount = context.request.getLineCount('custpage_items');
-				
-				// loop through line count
-    			for (var i = 0; i < lineCount; i++)
-    				{
-    					// retrieve sublist values
-    					var brand = context.request.getSublistValue({
-    						group: 'custpage_items',
-    						name: 'custpage_brand',
-    						line: i
-    					}).replace(/&/g, '&amp;');
-    					
-    					var item = context.request.getSublistValue({
-    						group: 'custpage_items',
-    						name: 'custpage_item',
-    						line: i
-    					}).replace(/&/g, '&amp;');
-    					
-    					var description = context.request.getSublistValue({
-    						group: 'custpage_items',
-    						name: 'custpage_description',
-    						line: i
-    					}).replace(/&/g, '&amp;');
-    					
-    					var unitPrice = parseFloat(context.request.getSublistValue({
-    						group: 'custpage_items',
-    						name: 'custpage_unit_price',
-    						line: i
-    					})).toFixed(2);
-    					
-    					// if this is the first line
-    					if (i == 0)
-    						{
-    							// add a brand line to the item table
-    							xml += 	'<tr>';
-    							xml	+=	'<td colspan="4" style="background-color: #949599;">&nbsp;</td>';
-    							xml +=	'<td colspan="10" style="background-color: #949599; color: #FFFFFF; font-weight: bold;">' + brand.charAt(0).toUpperCase() + brand.slice(1).toLowerCase() + '</td>';
-    							xml +=	'<td colspan="2" style="background-color: #949599;">&nbsp;</td>';
-    							xml	+=	'</tr>';
-    						}
-    					else
-    						{
-    							// is the brand different to the line above
-    							var lastBrand = context.request.getSublistValue({
-    	    						group: 'custpage_items',
-    	    						name: 'custpage_brand',
-    	    						line: i-1
-    	    					});
-    							
-    							if (lastBrand != brand)
-    								{
-	    								// end the current table, start a new table and a brand line to the item table
-    									xml += 	'</table>';
-    									xml +=	'<table class="itemtable" style="width: 100%;">';
-    				    				xml +=	'<thead>';
-    				    				xml += 	'<tr>';
-    				    				xml += 	'<th colspan="4">Part Ref</th>';
-    				    				xml += 	'<th colspan="10">Item Description</th>';
-    				    				xml += 	'<th colspan="2" align="right">Cost</th>';
-    				    				xml += 	'</tr>';
-    				    				xml +=	'</thead>';
-    									xml += 	'<tr>';
+    			switch(context.request.parameters.custpage_price_list_select) {
+    			
+	    			case '1': // Fire
+	    				
+	    				xml += 	'<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">';
+	    				xml +=	'<pdfset>';
+	    				xml +=	'<pdf>';
+	    				xml += 	'<head>';
+	    				xml +=	'<macrolist>';
+	    				xml +=	'<macro id="header">';
+	    				xml +=	'</macro>';
+	    				xml +=	'<macro id="footer">';
+	    				xml	+=	'<p align="center"><span style="font-size:24px; font-weight: bold;">' + new Date().format('F Y').toUpperCase() + '</span></p>';
+	    				xml +=	'<br/><p align="center"><span style="font-size:24px; font-weight: bold;">' + context.request.parameters.custpage_customer_name.replace(/&/g, '&amp;') + '</span></p>';
+	    				xml +=	'</macro>';
+	    				xml +=	'<macro id="watermark">';
+	    				xml +=	'<img src="https://6765982.app.netsuite.com/core/media/media.nl?id=270154&amp;c=6765982&amp;h=FjF0Bde-j4gLBrcM8M94_0cQ_1o-GwGDfqqcAG0M-63rsN_m" style="width: 750px; height: 1050px;" />';
+	    				xml +=	'</macro>';
+	    				xml +=	'</macrolist>';
+	    				xml +=	'<style type="text/css">';
+	    		    	xml += 	'* {font-family: Arial, sans-serif;}';
+	    		    	xml += 	'table {font-size: 10pt;}';
+	    		    	xml += 	'th {font-weight: bold; font-size: 10pt; vertical-align: middle; padding: 5px 6px 3px; background-color: #B32826; color: #FFFFFF;}';
+	    		    	xml +=	'hr {width: 100%; margin-top: 20px; margin-bottom: 5px; height: 28px; background-color: #B32826;}';
+	    		    	xml +=	'p { margin-top: 0; margin-bottom: 0; margin-left: 0; margin-right: 0;}';
+	    		        xml += 	'</style>';
+	    				xml	+=	'</head>';
+	    				xml +=	'<body background-macro="watermark" header="header" header-height="0pt" footer="footer" footer-height="115pt" padding="0.0in 0.0in 0.0in 0.0in" size="A4">';
+	    				xml +=	'<p align="center">&nbsp;</p>';
+	    				xml +=	'</body>';
+	        			xml +=	'</pdf>';
+	    				xml +=	'<pdf>';
+	    				xml +=	'<head>';
+	    				xml +=	'<macrolist>';
+	    				xml +=	'<macro id="header">';
+	    				xml +=	'</macro>';
+	    				xml +=	'</macrolist>';
+	    				xml	+=	'</head>';
+	    				xml +=	'<body padding="0.0in 0.0in 0.0in 0.0in" header="header" header-height="0pt" size="A4">';
+	    				xml +=	'<img src="https://6765982.app.netsuite.com/core/media/media.nl?id=270155&amp;c=6765982&amp;h=AKnBpt9fiRjT9CAYx-fuFjPwRrgd6lTXrdZz1-J2nnwdxJ-R" style="width: 750px; height: 1050px;" />';
+	    				xml +=	'</body>';
+	        			xml +=	'</pdf>';
+	    				xml +=	'<pdf>';
+	    				xml += 	'<head>';
+	    				xml +=	'<macrolist>';
+	    				xml +=	'<macro id="header">';
+	    				xml +=	'<table style="width: 100%; font-size: 12pt;">';
+	    				xml +=	'<tr>';
+	    				xml += 	'<td colspan="4"><img src="https://6765982.app.netsuite.com/core/media/media.nl?id=270157&amp;c=6765982&amp;h=nO_g0uMa_jhu9F1vKqaKViZ5YGmmsQhbLbdQB8KnONzV7Ue8" style="width: 250px; height: 50px;" /></td>';
+	    				xml +=	'<td colspan="4" style="vertical-align: middle;">&nbsp;</td>';
+	    				xml +=	'<td align="right" colspan="4" style="vertical-align: middle;">Page <pagenumber/> of <totalpages/></td>';
+	    				xml +=	'</tr>';
+	    				xml +=	'</table>';
+	    				xml	+=	'<hr/>';
+	    				xml +=	'</macro>';
+	    				xml +=	'<macro id="footer">';
+	    				xml	+=	'<hr/>';
+	    				xml +=	'<table style="width: 100%; font-size: 14pt; margin-top: 20px;">';
+	    				xml +=	'<tr>';
+	    				xml +=	'<td colspan="12" align="center">01924 528001  •  fire@videcon.co.uk  •  www.videcon.co.uk</td>';
+	    				xml +=	'</tr>';
+	    				xml +=	'</table>';
+	    				xml +=	'</macro>';
+	    				xml +=	'</macrolist>';
+	    				xml +=	'<style type="text/css">';
+	    		    	xml += 	'* {font-family: Arial, sans-serif;}';
+	    		    	xml += 	'table {font-size: 10pt;}';
+	    		    	xml +=	'table.itemtable {page-break-after: always;}';
+	    		    	xml += 	'th {font-weight: bold; font-size: 10pt; vertical-align: middle; padding: 5px 6px 3px; background-color: #B32826; color: #FFFFFF;}';
+	    		    	xml	+=	'td {padding: 5px 6px 3px;}';
+	    		    	xml +=	'hr {width: 100%; margin-top: 20px; margin-bottom: 5px; height: 28px; background-color: #B32826;}';
+	    		        xml += 	'</style>';
+	    				xml	+=	'</head>';
+	    				xml +=	'<body header="header" header-height="75pt" footer="footer" footer-height="40pt" padding="0.4in 0.4in 0.4in 0.4in" size="A4">';
+	    				xml +=	'<table class="itemtable" style="width: 100%;">';
+	    				xml +=	'<thead>';
+	    				xml += 	'<tr>';
+	    				xml += 	'<th colspan="4">Part Ref</th>';
+	    				xml += 	'<th colspan="10">Item Description</th>';
+	    				xml += 	'<th colspan="2" align="right">Cost</th>';
+	    				xml += 	'</tr>';
+	    				xml +=	'</thead>';
+	    				
+	    				// get count of lines on the sublist
+	        			var lineCount = context.request.getLineCount('custpage_items');
+	    				
+	    				// loop through line count
+	        			for (var i = 0; i < lineCount; i++)
+	        				{
+	        					// retrieve sublist values
+	        					var brand = context.request.getSublistValue({
+	        						group: 'custpage_items',
+	        						name: 'custpage_brand',
+	        						line: i
+	        					}).replace(/&/g, '&amp;');
+	        					
+	        					var item = context.request.getSublistValue({
+	        						group: 'custpage_items',
+	        						name: 'custpage_item',
+	        						line: i
+	        					}).replace(/&/g, '&amp;');
+	        					
+	        					var description = context.request.getSublistValue({
+	        						group: 'custpage_items',
+	        						name: 'custpage_description',
+	        						line: i
+	        					}).replace(/&/g, '&amp;');
+	        					
+	        					var unitPrice = parseFloat(context.request.getSublistValue({
+	        						group: 'custpage_items',
+	        						name: 'custpage_unit_price',
+	        						line: i
+	        					})).toFixed(2);
+	        					
+	        					// if this is the first line
+	        					if (i == 0)
+	        						{
+	        							// add a brand line to the item table
+	        							xml += 	'<tr>';
 	        							xml	+=	'<td colspan="4" style="background-color: #949599;">&nbsp;</td>';
 	        							xml +=	'<td colspan="10" style="background-color: #949599; color: #FFFFFF; font-weight: bold;">' + brand.charAt(0).toUpperCase() + brand.slice(1).toLowerCase() + '</td>';
 	        							xml +=	'<td colspan="2" style="background-color: #949599;">&nbsp;</td>';
 	        							xml	+=	'</tr>';
-    								}
-    						}
-    				
-    					// add the item details to the XML
-    					if (i%2 == 0)
-    						{
-	    						xml += '<tr>';
-								xml +=	'<td colspan="4" style="font-weight: bold;">' + item + '</td>';
-		    					xml +=	'<td colspan="10">' + description + '</td>';
-		    					xml +=	'<td colspan="2" align="right" style="font-weight: bold;">£' + unitPrice + '</td>';
-		    					xml +=	'</tr>';
-    						}
-    					else
-    						{
-    							xml += '<tr>';
-    							xml +=	'<td colspan="4" style="font-weight: bold; background-color: #DCDCDF;">' + item + '</td>';
-    	    					xml +=	'<td colspan="10" style="background-color: #DCDCDF;">' + description + '</td>';
-    	    					xml +=	'<td colspan="2" align="right" style="font-weight: bold; background-color: #DCDCDF;">£' + unitPrice + '</td>';
-    	    					xml +=	'</tr>';
-    						}
-    				}
+	        						}
+	        					else
+	        						{
+	        							// is the brand different to the line above
+	        							var lastBrand = context.request.getSublistValue({
+	        	    						group: 'custpage_items',
+	        	    						name: 'custpage_brand',
+	        	    						line: i-1
+	        	    					});
+	        							
+	        							if (lastBrand != brand)
+	        								{
+	    	    								// end the current table, start a new table and a brand line to the item table
+	        									xml += 	'</table>';
+	        									xml +=	'<table class="itemtable" style="width: 100%;">';
+	        				    				xml +=	'<thead>';
+	        				    				xml += 	'<tr>';
+	        				    				xml += 	'<th colspan="4">Part Ref</th>';
+	        				    				xml += 	'<th colspan="10">Item Description</th>';
+	        				    				xml += 	'<th colspan="2" align="right">Cost</th>';
+	        				    				xml += 	'</tr>';
+	        				    				xml +=	'</thead>';
+	        									xml += 	'<tr>';
+	    	        							xml	+=	'<td colspan="4" style="background-color: #949599;">&nbsp;</td>';
+	    	        							xml +=	'<td colspan="10" style="background-color: #949599; color: #FFFFFF; font-weight: bold;">' + brand.charAt(0).toUpperCase() + brand.slice(1).toLowerCase() + '</td>';
+	    	        							xml +=	'<td colspan="2" style="background-color: #949599;">&nbsp;</td>';
+	    	        							xml	+=	'</tr>';
+	        								}
+	        						}
+	        				
+	        					// add the item details to the XML
+	        					if (i%2 == 0)
+	        						{
+	    	    						xml += '<tr>';
+	    								xml +=	'<td colspan="4" style="font-weight: bold;">' + item + '</td>';
+	    		    					xml +=	'<td colspan="10">' + description + '</td>';
+	    		    					xml +=	'<td colspan="2" align="right" style="font-weight: bold;">£' + unitPrice + '</td>';
+	    		    					xml +=	'</tr>';
+	        						}
+	        					else
+	        						{
+	        							xml += '<tr>';
+	        							xml +=	'<td colspan="4" style="font-weight: bold; background-color: #DCDCDF;">' + item + '</td>';
+	        	    					xml +=	'<td colspan="10" style="background-color: #DCDCDF;">' + description + '</td>';
+	        	    					xml +=	'<td colspan="2" align="right" style="font-weight: bold; background-color: #DCDCDF;">£' + unitPrice + '</td>';
+	        	    					xml +=	'</tr>';
+	        						}
+	        				}
+	        			
+	        			// add closing XML tags
+	        			xml += 	'</table>';
+	        			xml +=	'</body>';
+	        			xml +=	'</pdf>';
+	        			xml +=	'<pdf>';
+	    				xml += 	'<head>';
+	    				xml +=	'<macrolist>';
+	    				xml +=	'<macro id="header">';
+	    				xml +=	'</macro>';
+	    				xml +=	'<macro id="footer">';
+	    				xml +=	'<br/><p align="center"><span style="font-size:24px; font-weight: bold; color: #FFFFFF;">' + context.request.parameters.custpage_customer_name.replace(/&/g, '&amp;') + '</span></p>';
+	    				xml +=	'</macro>';
+	    				xml +=	'<macro id="watermark">';
+	    				xml +=	'<img src="https://6765982.app.netsuite.com/core/media/media.nl?id=270156&amp;c=6765982&amp;h=LbqE5qSqxS15kv2LiUcwbmqnQorjYtboMwLxJfNEDFjNDZTz" style="width: 750px; height: 1050px;" />';
+	    				xml +=	'</macro>';
+	    				xml +=	'</macrolist>';
+	    				xml +=	'<style type="text/css">';
+	    		    	xml += 	'* {font-family: Arial, sans-serif;}';
+	    		    	xml += 	'table {font-size: 10pt;}';
+	    		    	xml += 	'th {font-weight: bold; font-size: 10pt; vertical-align: middle; padding: 5px 6px 3px; background-color: #B32826; color: #FFFFFF;}';
+	    		    	xml +=	'hr {width: 100%; margin-top: 20px; margin-bottom: 5px; height: 28px; background-color: #B32826;}';
+	    		    	xml +=	'p { margin-top: 0; margin-bottom: 0; margin-left: 0; margin-right: 0;}';
+	    		        xml += 	'</style>';
+	    				xml	+=	'</head>';
+	    				xml +=	'<body background-macro="watermark" header="header" header-height="0pt" footer="footer" footer-height="375pt" padding="0.0in 0.0in 0.0in 0.0in" size="A4">';
+	    				xml +=	'<p align="center">&nbsp;</p>';
+	    				xml +=	'</body>';
+	        			xml +=	'</pdf>';
+	        			xml +=	'</pdfset>';
+	    				
+	    				break;
+	    				
+	    			default: // Videcon
+	    				
+	    				xml += 	'<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">';
+	    				xml +=	'<pdfset>';
+	    				xml +=	'<pdf>';
+	    				xml += 	'<head>';
+	    				xml +=	'<macrolist>';
+	    				xml +=	'<macro id="header">';
+	    				xml +=	'</macro>';
+	    				xml +=	'<macro id="footer">';
+	    				xml	+=	'<p align="center"><span style="font-size:24px; font-weight: bold;">' + new Date().format('F Y').toUpperCase() + '</span></p>';
+	    				xml +=	'<br/><p align="center"><span style="font-size:24px; font-weight: bold;">' + context.request.parameters.custpage_customer_name.replace(/&/g, '&amp;') + '</span></p>';
+	    				xml +=	'</macro>';
+	    				xml +=	'<macro id="watermark">';
+	    				xml +=	'<img src="https://6765982.app.netsuite.com/core/media/media.nl?id=270150&amp;c=6765982&amp;h=GJMXbcqQXmxh8mgNTK5BtneIXZ_oeRi1LTjEviTu-MgDIJcd" style="width: 750px; height: 1050px;" />';
+	    				xml +=	'</macro>';
+	    				xml +=	'</macrolist>';
+	    				xml +=	'<style type="text/css">';
+	    		    	xml += 	'* {font-family: Arial, sans-serif;}';
+	    		    	xml += 	'table {font-size: 10pt;}';
+	    		    	xml += 	'th {font-weight: bold; font-size: 10pt; vertical-align: middle; padding: 5px 6px 3px; background-color: #B32826; color: #FFFFFF;}';
+	    		    	xml +=	'hr {width: 100%; margin-top: 20px; margin-bottom: 5px; height: 28px; background-color: #B32826;}';
+	    		    	xml +=	'p { margin-top: 0; margin-bottom: 0; margin-left: 0; margin-right: 0;}';
+	    		        xml += 	'</style>';
+	    				xml	+=	'</head>';
+	    				xml +=	'<body background-macro="watermark" header="header" header-height="0pt" footer="footer" footer-height="140pt" padding="0.0in 0.0in 0.0in 0.0in" size="A4">';
+	    				xml +=	'<p align="center">&nbsp;</p>';
+	    				xml +=	'</body>';
+	        			xml +=	'</pdf>';
+	    				xml +=	'<pdf>';
+	    				xml +=	'<body padding="0.0in 0.0in 0.0in 0.0in" size="A4">';
+	    				xml +=	'<img src="https://6765982.app.netsuite.com/core/media/media.nl?id=270151&amp;c=6765982&amp;h=IFBkt5LtDe6GVHs4BM-wc3f6czdCPnrkuU1vCRLqQkl1Lx4c" style="width: 750px; height: 1050px;" />';
+	    				xml +=	'</body>';
+	        			xml +=	'</pdf>';
+	    				xml +=	'<pdf>';
+	    				xml += 	'<head>';
+	    				xml +=	'<macrolist>';
+	    				xml +=	'<macro id="header">';
+	    				xml +=	'<table style="width: 100%; font-size: 12pt;">';
+	    				xml +=	'<tr>';
+	    				xml += 	'<td colspan="4"><img src="https://6765982.app.netsuite.com/core/media/media.nl?id=2273&amp;c=6765982&amp;h=l_StuPmlsC-62RMcdYxf3bUxn62g-5HlP-aFn8UlefU9XeLU" style="width: 225px; height: 50px;" /></td>';
+	    				xml +=	'<td colspan="4" style="vertical-align: middle;">&nbsp;</td>';
+	    				xml +=	'<td align="right" colspan="4" style="vertical-align: middle;">Page <pagenumber/> of <totalpages/></td>';
+	    				xml +=	'</tr>';
+	    				xml +=	'</table>';
+	    				xml	+=	'<hr/>';
+	    				xml +=	'</macro>';
+	    				xml +=	'<macro id="footer">';
+	    				xml	+=	'<hr/>';
+	    				xml +=	'<table style="width: 100%; font-size: 14pt; margin-top: 20px;">';
+	    				xml +=	'<tr>';
+	    				xml +=	'<td colspan="12" align="center">01924 528000  •  sales@videcon.co.uk  •  www.videcon.co.uk</td>';
+	    				xml +=	'</tr>';
+	    				xml +=	'</table>';
+	    				xml +=	'</macro>';
+	    				xml +=	'</macrolist>';
+	    				xml +=	'<style type="text/css">';
+	    		    	xml += 	'* {font-family: Arial, sans-serif;}';
+	    		    	xml += 	'table {font-size: 10pt;}';
+	    		    	xml +=	'table.itemtable {page-break-after: always;}';
+	    		    	xml += 	'th {font-weight: bold; font-size: 10pt; vertical-align: middle; padding: 5px 6px 3px; background-color: #5180B8; color: #FFFFFF;}';
+	    		    	xml	+=	'td {padding: 5px 6px 3px;}';
+	    		    	xml +=	'hr {width: 100%; margin-top: 20px; margin-bottom: 5px; height: 28px; background-color: #5180B8;}';
+	    		        xml += 	'</style>';
+	    				xml	+=	'</head>';
+	    				xml +=	'<body header="header" header-height="75pt" footer="footer" footer-height="40pt" padding="0.4in 0.4in 0.4in 0.4in" size="A4">';
+	    				xml +=	'<table class="itemtable" style="width: 100%;">';
+	    				xml +=	'<thead>';
+	    				xml += 	'<tr>';
+	    				xml += 	'<th colspan="4">Part Ref</th>';
+	    				xml += 	'<th colspan="10">Item Description</th>';
+	    				xml += 	'<th colspan="2" align="right">Cost</th>';
+	    				xml += 	'</tr>';
+	    				xml +=	'</thead>';
+	    				
+	    				// get count of lines on the sublist
+	        			var lineCount = context.request.getLineCount('custpage_items');
+	    				
+	    				// loop through line count
+	        			for (var i = 0; i < lineCount; i++)
+	        				{
+	        					// retrieve sublist values
+	        					var brand = context.request.getSublistValue({
+	        						group: 'custpage_items',
+	        						name: 'custpage_brand',
+	        						line: i
+	        					}).replace(/&/g, '&amp;');
+	        					
+	        					var item = context.request.getSublistValue({
+	        						group: 'custpage_items',
+	        						name: 'custpage_item',
+	        						line: i
+	        					}).replace(/&/g, '&amp;');
+	        					
+	        					var description = context.request.getSublistValue({
+	        						group: 'custpage_items',
+	        						name: 'custpage_description',
+	        						line: i
+	        					}).replace(/&/g, '&amp;');
+	        					
+	        					var unitPrice = parseFloat(context.request.getSublistValue({
+	        						group: 'custpage_items',
+	        						name: 'custpage_unit_price',
+	        						line: i
+	        					})).toFixed(2);
+	        					
+	        					// if this is the first line
+	        					if (i == 0)
+	        						{
+	        							// add a brand line to the item table
+	        							xml += 	'<tr>';
+	        							xml	+=	'<td colspan="4" style="background-color: #949599;">&nbsp;</td>';
+	        							xml +=	'<td colspan="10" style="background-color: #949599; color: #FFFFFF; font-weight: bold;">' + brand.charAt(0).toUpperCase() + brand.slice(1).toLowerCase() + '</td>';
+	        							xml +=	'<td colspan="2" style="background-color: #949599;">&nbsp;</td>';
+	        							xml	+=	'</tr>';
+	        						}
+	        					else
+	        						{
+	        							// is the brand different to the line above
+	        							var lastBrand = context.request.getSublistValue({
+	        	    						group: 'custpage_items',
+	        	    						name: 'custpage_brand',
+	        	    						line: i-1
+	        	    					});
+	        							
+	        							if (lastBrand != brand)
+	        								{
+	    	    								// end the current table, start a new table and a brand line to the item table
+	        									xml += 	'</table>';
+	        									xml +=	'<table class="itemtable" style="width: 100%;">';
+	        				    				xml +=	'<thead>';
+	        				    				xml += 	'<tr>';
+	        				    				xml += 	'<th colspan="4">Part Ref</th>';
+	        				    				xml += 	'<th colspan="10">Item Description</th>';
+	        				    				xml += 	'<th colspan="2" align="right">Cost</th>';
+	        				    				xml += 	'</tr>';
+	        				    				xml +=	'</thead>';
+	        									xml += 	'<tr>';
+	    	        							xml	+=	'<td colspan="4" style="background-color: #949599;">&nbsp;</td>';
+	    	        							xml +=	'<td colspan="10" style="background-color: #949599; color: #FFFFFF; font-weight: bold;">' + brand.charAt(0).toUpperCase() + brand.slice(1).toLowerCase() + '</td>';
+	    	        							xml +=	'<td colspan="2" style="background-color: #949599;">&nbsp;</td>';
+	    	        							xml	+=	'</tr>';
+	        								}
+	        						}
+	        				
+	        					// add the item details to the XML
+	        					if (i%2 == 0)
+	        						{
+	    	    						xml += '<tr>';
+	    								xml +=	'<td colspan="4" style="font-weight: bold;">' + item + '</td>';
+	    		    					xml +=	'<td colspan="10">' + description + '</td>';
+	    		    					xml +=	'<td colspan="2" align="right" style="font-weight: bold;">£' + unitPrice + '</td>';
+	    		    					xml +=	'</tr>';
+	        						}
+	        					else
+	        						{
+	        							xml += '<tr>';
+	        							xml +=	'<td colspan="4" style="font-weight: bold; background-color: #DCDCDF;">' + item + '</td>';
+	        	    					xml +=	'<td colspan="10" style="background-color: #DCDCDF;">' + description + '</td>';
+	        	    					xml +=	'<td colspan="2" align="right" style="font-weight: bold; background-color: #DCDCDF;">£' + unitPrice + '</td>';
+	        	    					xml +=	'</tr>';
+	        						}
+	        				}
+	        			
+	        			// add closing XML tags
+	        			xml += 	'</table>';
+	        			xml +=	'</body>';
+	        			xml +=	'</pdf>';
+	        			xml +=	'<pdf>';
+	    				xml += 	'<head>';
+	    				xml +=	'<macrolist>';
+	    				xml +=	'<macro id="header">';
+	    				xml +=	'</macro>';
+	    				xml +=	'<macro id="footer">';
+	    				xml +=	'<br/><p align="center"><span style="font-size:24px; font-weight: bold; color: #FFFFFF;">' + context.request.parameters.custpage_customer_name.replace(/&/g, '&amp;') + '</span></p>';
+	    				xml +=	'</macro>';
+	    				xml +=	'<macro id="watermark">';
+	    				xml +=	'<img src="https://6765982.app.netsuite.com/core/media/media.nl?id=270153&amp;c=6765982&amp;h=fOO0jaVN4S2aEx5hjy-_rMhiq-jmtGcp8w53noF7FnkoTxRt" style="width: 750px; height: 1050px;" />';
+	    				xml +=	'</macro>';
+	    				xml +=	'</macrolist>';
+	    				xml +=	'<style type="text/css">';
+	    		    	xml += 	'* {font-family: Arial, sans-serif;}';
+	    		    	xml += 	'table {font-size: 10pt;}';
+	    		    	xml += 	'th {font-weight: bold; font-size: 10pt; vertical-align: middle; padding: 5px 6px 3px; background-color: #B32826; color: #FFFFFF;}';
+	    		    	xml +=	'hr {width: 100%; margin-top: 20px; margin-bottom: 5px; height: 28px; background-color: #B32826;}';
+	    		    	xml +=	'p { margin-top: 0; margin-bottom: 0; margin-left: 0; margin-right: 0;}';
+	    		        xml += 	'</style>';
+	    				xml	+=	'</head>';
+	    				xml +=	'<body background-macro="watermark" header="header" header-height="0pt" footer="footer" footer-height="375pt" padding="0.0in 0.0in 0.0in 0.0in" size="A4">';
+	    				xml +=	'<p align="center">&nbsp;</p>';
+	    				xml +=	'</body>';
+	        			xml +=	'</pdf>';
+	        			xml +=	'</pdfset>';
+	    				
+	    				break;
     			
-    			// add closing XML tags
-    			xml += 	'</table>';
-    			xml +=	'</body>';
-    			xml +=	'</pdf>';
-    			xml +=	'<pdf>';
-				xml +=	'<body padding="0.2in 0.2in 0.2in 0.2in" size="A4">';
-				xml +=	'<img src="https://6765982-sb1.app.netsuite.com/core/media/media.nl?id=158530&amp;c=6765982_SB1&amp;h=HJBZ2VyRTI47VQcENE0o5JupP9fiff1lpxSwOZWuuo7lMwM1" style="width: 700px; height: 1000px;" />';
-				xml +=	'</body>';
-    			xml +=	'</pdf>';
-    			xml +=	'</pdfset>';
+    			}
     			
     			// render the XML as a PDF file
     			var pdfFile = render.xmlToPdf({

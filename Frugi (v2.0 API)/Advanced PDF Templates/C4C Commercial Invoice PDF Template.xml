@@ -175,7 +175,7 @@
 			<td colspan="10" rowpsan="8">${salesorder.billaddr1}<#if salesorder.billaddr2?has_content><br/>${salesorder.billaddr2}</#if><br/>${salesorder.billcity}<br/>${salesorder.billstate}<br/>${salesorder.billzip}<br/>${salesorder.billcountry}</td>
 			<td colspan="10" rowpsan="8">${salesorder.shipaddr1}<#if salesorder.shipaddr2?has_content><br/>${salesorder.shipaddr2}</#if><br/>${salesorder.shipcity}<br/>${salesorder.shipstate}<br/>${salesorder.shipzip}<br/>${salesorder.shipcountry}</td>
 			<td colspan="8" rowspan="8">Sales Order No<br/>Invoice / Tax Date<br/>Account Ref<br/>Payment Terms<br/>Invoice No<br/>Web Ref<br/>Your Ref<br/>VAT / Tax Code</td>
-			<td colspan="4" rowspan="8">${record.createdfrom?keep_after("#")}<br/>${record.trandate}<br/>${customer.accountnumber}<br/><b>TODO</b><br/>${record.tranid}<br/><b>TODO</b><br/>${salesorder.otherrefnum}<br/>${salesorder.vatregnum}</td>
+			<td colspan="4" rowspan="8">${record.createdfrom?keep_after("#")}<br/>${record.trandate}<br/>${customer.accountnumber}<br/>${salesorder.terms}<br/>${record.tranid}<br/>${record.custbody_celigo_mag2_order_number}<br/>${salesorder.otherrefnum}<br/>${salesorder.vatregnum}</td>
 		</tr>
 	</table>
 	

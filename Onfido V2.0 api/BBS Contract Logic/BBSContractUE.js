@@ -47,7 +47,10 @@ function(ui, url, runtime, record, search, format, task, redirect) {
     	// check if the record is being viewed in the UI
     	if (scriptContext.type == scriptContext.UserEventType.VIEW && runtime.executionContext == runtime.ContextType.USER_INTERFACE)
     		{ 	
-		    	// get the currentRecord object
+    			// set client script to run on the form
+				scriptContext.form.clientScriptFileId = 39736;
+    		
+    			// get the currentRecord object
 		    	var currentRecord = scriptContext.newRecord;
 		    	
 		    	// get the internal ID of the current record
@@ -111,16 +114,26 @@ function(ui, url, runtime, record, search, format, task, redirect) {
 			    				// hide the 'Minimum Usage' sublist
 			    				sublist.displayType = ui.SublistDisplayType.HIDDEN;
 			    			}
+			    		
+			    		// add buttons to the form
+			    		scriptContext.form.addButton({
+			    			id: 'custpage_create_payg_contract',
+			    			label: 'Create PAYG Contract',
+			    			functionName: "createPAYGContract(" + recordID + ")" // call client script when button is clicked. Pass recordID to client script
+			    		});
+			    		
+			    		scriptContext.form.addButton({
+			    			id: 'custpage_create_renewal_contract',
+			    			label: 'Create Renewal Contract',
+			    			functionName: "createRenewalContract(" + recordID + ")" // call client script when button is clicked. Pass recordID to client script
+			    		});
 		    		}
 		    	else
 		    		{
 		    			// if the status variable returns 2 (Pending Approval)
 		    			if (status == 2)
 		    				{
-			    				// set client script to run on the form
-								scriptContext.form.clientScriptFileId = 47097;
-				    		
-				    			// add button to the form
+			    				// add button to the form
 					    		scriptContext.form.addButton({
 					    			id: 'custpage_delete_contract',
 					    			label: 'Delete Contract',
@@ -1483,9 +1496,9 @@ function(ui, url, runtime, record, search, format, task, redirect) {
 	    }
 
     return {
-        beforeLoad: contractBL,
-        beforeSubmit: contractBS,
-        afterSubmit: contractAS
+        beforeLoad: 	contractBL,
+        beforeSubmit: 	contractBS,
+        afterSubmit: 	contractAS
     };
     
 });
