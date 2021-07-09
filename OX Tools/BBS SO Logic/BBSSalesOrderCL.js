@@ -32,8 +32,41 @@ function(search, dialog) {
      * @since 2015.2
      */
     function fieldChanged(scriptContext) {
+    	
+    	if (scriptContext.fieldId == 'shipdate')
+			{
+	    		// get the ship date
+	        	var shipDate = scriptContext.currentRecord.getValue({
+	        		fieldId: 'shipdate'
+	        	});
+	        	
+	        	// get count of item lines
+	        	var lineCount = scriptContext.currentRecord.getLineCount({
+	        		sublistId: 'item'
+	        	});
+	        	
+	        	// loop through item lines
+	        	for (var i = 0; i < lineCount; i++)
+	        		{
+	        			// set the supply required by date field on the line
+	        			scriptContext.currentRecord.selectLine({
+	        				sublistId: 'item',
+	        				line: i
+	        			});
+	        			
+	        			scriptContext.currentRecord.setCurrentSublistValue({
+	        				sublistId: 	'item',
+	        				fieldId: 	'requesteddate',
+	        				value: 		shipDate
+	        			});
+	        			
+	        			scriptContext.currentRecord.commitLine({
+	        				sublistId: 'item'
+	        			});
+	        		}
+			}
 
-    }
+    }	
 
     /**
      * Function to be executed when field is slaved.
@@ -45,10 +78,75 @@ function(search, dialog) {
      *
      * @since 2015.2
      */
-    function postSourcing(scriptContext) {
+    function postSourcing(scriptContext) 
+    	{
+	    	if (scriptContext.sublistId == 'item' && scriptContext.fieldId == 'item')
+				{
+		    		// set the supply required by date field on the current line using the header ship date field
+					scriptContext.currentRecord.setCurrentSublistValue({
+						sublistId: 	'item',
+						fieldId:	'requesteddate',
+						value: 		scriptContext.currentRecord.getValue({
+			        					fieldId: 'shipdate'
+			        				})
+					});        	
+				}
+    	
+    		var sublistId 	= scriptContext.sublistId;
+    		var fieldId		= scriptContext.fieldId;
+    		
+    		if(sublistId == 'item' && fieldId == 'item')
+    			{
+    				//Lookup the item record
+    				//
+	    			var itemSearchObj = getResults(search.create({
+								    				   type: 	"item",
+								    				   filters:
+											    				   [
+											    				      ["internalid","anyof","13169"]
+											    				   ],
+								    				   columns:
+											    				   [
+											    				      search.createColumn({name: "custitem_bbs_moq", label: "MOQ UK"}),
+											    				      search.createColumn({name: "minimumquantity", label: "Minimum Quantity"})
+											    				   ]
+								    				}));
+	    			
+	    			if(itemSearchObj != null && itemSearchObj.length > 0)
+	    				{
+	    					var moqCheck = itemSearchObj[0].getValue({name: "custitem_bbs_moq"});
+	    					var moqValue = itemSearchObj[0].getValue({name: "minimumquantity"});
+	    					
+	    					if(moqCheck == 'T')
+	    						{
+			    					dialog.alert({
+													title: 		'Minimum Order Quantity Alert',
+													message: 	'This product needs to be ordered in multiples of ' + moqValue
+												});
+	    						}
+	    				}
+    			}
+	    }
 
-    }
-
+    //Page through results set from search
+    //
+    function getResults(_searchObject)
+	    {
+	    	var results = [];
+	
+	    	var pageData = _searchObject.runPaged({pageSize: 1000});
+	
+	    	for (var int = 0; int < pageData.pageRanges.length; int++) 
+	    		{
+	    			var searchPage = pageData.fetch({index: int});
+	    			var data = searchPage.data;
+	    			
+	    			results = results.concat(data);
+	    		}
+	
+	    	return results;
+	    }
+    
     /**
      * Function to be executed after sublist is inserted, removed, or edited.
      *

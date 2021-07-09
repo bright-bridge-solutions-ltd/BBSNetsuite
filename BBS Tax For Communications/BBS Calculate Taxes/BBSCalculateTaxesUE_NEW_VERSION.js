@@ -192,9 +192,17 @@ function(runtime, record, search, libraryModule, plugin, ui)
 	     * @param {string} scriptContext.type - Trigger type
 	     * @Since 2015.2
 	     */
-	    function calculateTaxesBS(scriptContext) {
+	    function calculateTaxesBS(scriptContext) 
+	    {
+	    	debugger;
 	    	
-	    	// get the current record
+	    	//*******************************************************************
+	    	//Process the values selected from the line level from & to addresses
+	    	//*******************************************************************
+	    	//
+	    	
+	    	//Get the current record
+	    	//
 	    	var currentRecord = scriptContext.newRecord;
 
 	    	//Get the plugin implementation
@@ -260,8 +268,611 @@ function(runtime, record, search, libraryModule, plugin, ui)
 			    				}
 						}
 				}
+			
+			//*******************************************************************
+	    	//Calculate the tax value & update the tax total on the transaction
+	    	//*******************************************************************
+	    	//
+			
+			//Get the plugin implementation
+			//
+			var  tfcPlugin = plugin.loadImplementation({
+														type: 'customscript_bbstfc_plugin',
+														});
+			
+			//Call the plugin
+			//
+			if(tfcPlugin != null)
+				{
+					try
+						{
+							//Get the current record
+							var newRecord 			= 	scriptContext.newRecord;
+							var currentRecordType	=	newRecord.type;
+							var currentRecordID		=	newRecord.id;
+							var recordMode 			= 	scriptContext.type;
+							
+							//Work out what to do based on the record mode
+							//
+							if(recordMode == scriptContext.UserEventType.CREATE || recordMode == scriptContext.UserEventType.EDIT)
+								{
+									//Calculate the taxes based on the new record only
+									//
+									var taxTotalObj = calculateTaxesTotal(tfcPlugin, newRecord, currentRecordType, currentRecordID);	//Parameters are plugin, record to process, record type, record id
+									
+									if(taxTotalObj)
+										{
+											newRecord.setValue({fieldId: 'custbody_bbs_tfc_errors', value: taxTotalObj.message});
+											
+											var totalTaxes 	= Number(taxTotalObj.taxTotal);
+											totalTaxes 		= Math.round((totalTaxes * 100.00)) / 100.00;
+											
+											newRecord.setValue({fieldId: 'taxamountoverride', value: taxTotalObj.taxTotal});
+										}
+								
+								}
+						}
+					catch(err)
+						{
+							log.error({
+										title:		'Error calling plugin',
+										details:	err
+									});
+						}
+				}
 	    }
 	
+	    
+	    function calculateTaxesTotal(tfcPlugin, _transactionRecord, _transactionRecordType, _transactionRecordId)
+		    {
+	    		var totalTaxes 		= Number(0);
+	    		var resultObj 		= {};
+	    		resultObj.message 	= '';
+	    		resultObj.taxTotal 	= Number(0);
+	    		
+		    	//Get the transaction status
+	    		//
+				var transactionStatus = _transactionRecord.getValue({fieldId: 'status'});
+				
+				//Get the exclusion status
+	    		//
+				var excludeFromCalc = _transactionRecord.getValue({fieldId: 'custbody_bbstfc_exclude_transaction'});
+				
+				//If the transactionStatus is not Closed
+				//
+				if (transactionStatus != 'Closed' && !excludeFromCalc)
+					{
+						//Return values from the transaction record to gather required info to populate request
+						//
+						var tranID = search.lookupFields({
+														type: 		_transactionRecordType,
+														id: 		_transactionRecordId,
+														columns: 	'tranid'
+														})['tranid'];									//Get the document number as the record on a new transaction will have "To Be Generated" in the tranid field
+	
+						var tranDate			=	_transactionRecord.getValue({fieldId: 'trandate'});
+						var createdFrom			=	_transactionRecord.getValue({fieldId: 'createdfrom'});
+						var customerID			=	_transactionRecord.getValue({fieldId: 'entity'});
+						var currency			=	_transactionRecord.getValue({fieldId: 'currency'});
+						var subsidiaryID		=	_transactionRecord.getValue({fieldId: 'subsidiary'});
+						var lineCount			=	_transactionRecord.getLineCount({sublistId: 'item'});
+						
+						//Check the record is not a standalone transaction
+						//
+						if (createdFrom)
+							{
+								//Call function to return/lookup the transaction date on the related transaction
+								//
+								tranDate = libraryModule.getCreatedFromTransactionInfo(createdFrom);	
+							}
+	
+						
+						
+						//Call function to return/lookup fields on the customer record
+						//
+						var customerLookup 		= 	libraryModule.getCustomerInfo(customerID);
+						var customerName		=	customerLookup[0];
+						var customerType		=	customerLookup[1];
+						var defaultSalesType	=	customerLookup[2];
+						var lifeline			=	customerLookup[3];
+						
+						//Call function to return/lookup fields on the subsidiary record
+						//
+						var subsidiaryClientProfileID = libraryModule.getSubsidiaryInfo(subsidiaryID);
+						
+						//Call function to return/lookup fields on the address record
+						//
+						var addressData	= libraryModule.libGetDestinationPcode(_transactionRecord);
+						
+						//Call function to return any exemptions for the customer
+						//
+						var customerExemptions = libraryModule.getCustomerExemptions(customerID, tranDate);
+						
+						//Call function to return/lookup fields on the currency record
+						//
+						var ISOCode = libraryModule.getISOCode(currency);
+						
+						//Get the configuration
+						//
+						var configuration = tfcPlugin.getTFCConfiguration(subsidiaryID);
+						
+						//Construct a tax request
+						//
+						var taxReqObj = new libraryModule.libCalcTaxesRequestObj();
+						
+						//Have we got a configuration object
+						//
+						if (configuration != null)
+							{
+								//Fill in the request config & company data properties
+								//
+								taxReqObj.cfg.retnb 	= 	configuration.nonBillableTaxes;
+								taxReqObj.cfg.retext	=	configuration.extendedTaxInfo;
+								taxReqObj.cfg.incrf		=	configuration.reportingInfo;
+								taxReqObj.cmpn.bscl		=	configuration.businessClass;
+								taxReqObj.cmpn.svcl		=	configuration.serviceClass;
+								taxReqObj.cmpn.fclt		=	configuration.ownFacilities;
+								taxReqObj.cmpn.frch		=	configuration.franchise;
+								taxReqObj.cmpn.reg		=	configuration.regulated;
+						
+								//Create a new invoice line object
+								//
+						        var taxReqInvObj = new libraryModule.libInvoicesObj();
+								
+						        //Fill in the invoice line object properties (details about the invoice/sales order we are processing)
+								//
+								taxReqInvObj.cmmt			=	false;
+								taxReqInvObj.bill.pcd		=	addressData.pcode;
+								taxReqInvObj.bill.int		= 	addressData.incorporated;
+								taxReqInvObj.cust			=	customerType;
+								taxReqInvObj.lfln			=	lifeline;
+								taxReqInvObj.date			=	tranDate;
+								taxReqInvObj.exms			=	customerExemptions;
+								taxReqInvObj.invm			=	true; 
+								taxReqInvObj.dtl			=	true; // return Line Item level tax results
+								taxReqInvObj.summ			=	true; // return summarized tax results
+								taxReqInvObj.acct			=	customerName;
+								taxReqInvObj.custref		=	customerName;
+								taxReqInvObj.invn			=	tranID;
+								taxReqInvObj.bcyc			=	tranDate.getMonth() + 1;
+								taxReqInvObj.bpd.month		=	tranDate.getMonth() + 1;
+								taxReqInvObj.bpd.year		=	tranDate.getFullYear();
+								taxReqInvObj.ccycd			=	ISOCode;
+								taxReqInvObj.doc 			= 	null;	
+								
+								//Loop through each item line to process
+								//
+								for (var i = 0; i < lineCount; i++)
+									{
+								        //Retrieve line item values
+										//
+										var itemID				=	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: i});
+										var itemType			=	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'itemtype', line: i});
+										var itemRate			=	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'amount', line: i});
+										var quantity			=	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: i});
+										var salesType			=	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_tfc_sales_type', line: i});
+										var discountType		=	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_tfc_discount_type', line: i});
+										var privateLineSplit	=	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: 'custcol_bbs_tfc_private_line_split', line: i});
+										var fromAddress			= 	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: configuration.fromAddressFieldId, line: i});
+										var toAddress			=	_transactionRecord.getSublistValue({sublistId: 'item', fieldId: configuration.toAddressFieldId, line: i});
+										var llbAddress			=	'';
+										
+										//Do we have a line level billing address set up?
+										//
+										if(configuration.llbAddressFieldId != null && configuration.llbAddressFieldId != '')
+											{
+												llbAddress = _transactionRecord.getSublistValue({sublistId: 'item', fieldId: configuration.llbAddressFieldId, line: i});
+											}
+										
+										
+										//Do we have a salesType
+										//
+										if (salesType)
+											{
+												//Call function to return the AFC sales type code
+												//
+												salesType = libraryModule.getSalesTypeCode(salesType);
+											}
+										else
+											{
+												//Set the salesType variable using defaultSalesType
+												//
+												salesType = defaultSalesType;
+											}
+										
+										//Do we have a discountType
+										//
+										if (discountType)
+											{
+												//Call function to return the AFC discount type code
+												//
+												discountType = libraryModule.getDiscountTypeCode(discountType);
+											}
+										else
+											{
+												//Set the discountType variable to 0 (None)
+												//
+												discountType = 0;
+											}
+										
+										//Call function to return/lookup fields on the item record
+										//
+										var itemLookup 			= 	libraryModule.getTransactionServicePair(itemType, itemID);
+										var transactionType		=	itemLookup[0];
+										var serviceType			=	itemLookup[1];
+										
+										//Check we have a transaction/service pair
+										//
+										if (transactionType != '' && serviceType != '' && transactionType != null && serviceType != null)
+											{
+												//Create a new invoice item object
+										        //
+										        var taxReqItemObj = new libraryModule.libLineItemObj();
+										        
+										        //Fill in the invoice item object properties
+												//
+												taxReqItemObj.ref		=	i;
+												taxReqItemObj.chg		=	itemRate;
+												taxReqItemObj.line		=	Math.ceil(quantity); // round to nearest integer number
+												taxReqItemObj.loc		=	1;
+												taxReqItemObj.min		=	0;
+												taxReqItemObj.sale		=	salesType;
+												taxReqItemObj.incl		=	false;
+												taxReqItemObj.proadj	=	0;
+												taxReqItemObj.tran		=	transactionType;
+												taxReqItemObj.serv		=	serviceType;
+												taxReqItemObj.dbt		=	false;
+												taxReqItemObj.adj		=	false;
+												taxReqItemObj.adjm		=	0;
+												taxReqItemObj.disc		=	discountType;
+												taxReqItemObj.prop		=	0;
+												taxReqItemObj.bill.pcd	=	addressData.pcode;
+												taxReqItemObj.bill.int	=	addressData.incorporated;
+												taxReqItemObj.cust		=	customerType;
+												taxReqItemObj.lfln		=	lifeline;
+												taxReqItemObj.date		=	tranDate;
+												taxReqItemObj.qty		=	1;
+												taxReqItemObj.glref		=	i;
+												
+												//Have we got a private line split
+												//
+												if (privateLineSplit)
+													{
+														//Fill in the private line split property in the item object
+														//
+														taxReqItemObj.plsp = privateLineSplit;
+													}
+												
+												//Have we got a from address
+												//
+												if (fromAddress)
+													{
+														//Call library function to return data for the selected address
+														//
+														var fromAddressData = libraryModule.getAddressData(fromAddress);
+													
+														//Fill in the from properties in the item object
+														//
+														taxReqItemObj.from		= new libraryModule.libLocationObj();
+														taxReqItemObj.from.pcd 	= fromAddressData.pCode;
+														taxReqItemObj.from.int	= fromAddressData.incorporated;
+														
+														//If we are using VOIP services (trans type 19/59) we should put the from address in as the billing address
+														//as these services a billed at point of primary use
+														//
+														if(transactionType == '19' || transactionType == '59')
+															{
+																taxReqItemObj.bill.pcd	=	fromAddressData.pCode;
+																taxReqItemObj.bill.int	=	fromAddressData.incorporated;
+															}
+													}
+												
+												//Have we got a to address
+												//
+												if (toAddress)
+													{
+														//Call library function to return data for the selected address
+														//
+														var toAddressData = libraryModule.getAddressData(toAddress);
+													
+														//Fill in the to properties in the item object
+														//
+														taxReqItemObj.to		= new libraryModule.libLocationObj();
+														taxReqItemObj.to.pcd	= toAddressData.pCode;
+														taxReqItemObj.to.int 	= toAddressData.incorporated;
+													}
+										        
+												//Have we got a line level billing address
+												//
+												if (llbAddress != '')
+													{
+														//Call library function to return data for the selected address
+														//
+														var llbAddressData = libraryModule.getAddressData(llbAddress);
+													
+														//Fill in the to properties in the item object
+														//
+														taxReqItemObj.bill		= new libraryModule.libLocationObj();
+														taxReqItemObj.bill.pcd	= llbAddressData.pCode;
+														taxReqItemObj.bill.int 	= llbAddressData.incorporated;
+													}
+												
+										        //Add the item object to the invoice line object array
+										        //
+										        taxReqInvObj.itms.push(taxReqItemObj);
+											}
+									}
+	
+							    //End of loop
+							    //
+							      	
+							    //Add the invoice line object to the request object
+							    //
+							    taxReqObj.inv.push(taxReqInvObj);
+			
+							    //Check to see if we are exceeding the maximum number of lines to process
+							    //
+							    if(taxReqObj.inv[0].itms.length > configuration.maxTaxLinesToProcess)
+							    	{
+							    		var linesExceededMsg = 'Number of lines to process has exceeded maximum allowed ' + taxReqObj.inv[0].itms.length + '/' + configuration.maxTaxLinesToProcess;
+							    		
+							    		//Report an error 
+							    		//
+								    	log.error({
+													title: 	linesExceededMsg,
+													details: ''
+												});
+								    	
+								    	resultObj.message 	= linesExceededMsg;
+							    		resultObj.taxTotal 	= Number(0);
+							    	}
+							    else
+							    	{
+								    	//Declare and initialize variables
+										//
+										var linesToUpdate 	= new Array();
+										var errorMessages 	= '';
+										var taxSummary 		= {};
+										var outputArray 	= new Array();
+										
+										//LICENCE CHECK
+							    		//
+							    		var licenceResponse = libraryModule.doLicenceCheck();
+							    		
+							    		if(licenceResponse.status == 'OK')
+							    			{
+								    			//Call the plugin to get the taxes
+												//
+												var taxResult = tfcPlugin.getTaxCalculation(taxReqObj, subsidiaryClientProfileID);
+												
+												//Check the result of the call to the plugin
+												//
+												if(taxResult != null && taxResult.httpResponseCode == '200')
+													{
+														//Call functions to return the tax categories, levels and types
+														//
+														var taxCategories 	= libraryModule.getTaxCategories();
+														var taxLevels		= libraryModule.getTaxLevels();
+														var taxTypes		= libraryModule.getTaxTypes();
+														
+														//Get the API response body
+														//
+														var taxResultDetails = taxResult.apiResponse;
+														
+														//Get the errors
+														//
+														var errors = taxResultDetails['err'];
+														
+														//Do we have any errors
+														//
+														if (errors)
+															{
+																//Process errors
+																//
+																for (var int9 = 0; int9 < errors.length; int9++)
+																	{
+																		log.error({
+																			title: 'Error Returned by Avalara',
+																			details: errors[int9].msg
+																		});
+																		
+																		//Add the error to the errorMessages string
+																		//
+																		errorMessages += errors[int9].msg;
+																		errorMessages += '<br>';
+																		
+																		resultObj.message 	= errorMessages;
+															    		resultObj.taxTotal 	= Number(0);
+																	}
+															}
+														else
+															{
+																//Get the invoices
+																//
+																var invoices = taxResultDetails['inv'];
+																		
+																//Loop through invoices
+																//
+																for (var i = 0; i < invoices.length; i++)
+																	{
+																		//Get the errors
+																		//
+																		var errors = invoices[i]['err'];
+																				
+																		//Have we got any errors?
+																		//
+																		if (errors)
+																			{
+																				//Process errors
+																				//
+																				for (var int2 = 0; int2 < errors.length; int2++)
+																					{
+																						log.error({
+																							title: 'Error Returned by Avalara',
+																							details: errors[int2].msg
+																						});
+																						
+																						//Add the error to the errorMessages string
+																						//
+																						errorMessages += errors[int2].msg;
+																						errorMessages += '<br>';
+																						
+																						
+																					}
+																			}
+																		else
+																			{
+																				//Get the tax summary
+																				//
+																				var taxes = invoices[i]['summ'];
+																		
+																				//Do we have any taxes
+																				//
+																				if (taxes)
+																					{
+																						//Loop through taxes
+																						//
+																						for (var int3 = 0; int3 < taxes.length; int3++)
+																							{
+																								//Get the errors
+																								//
+																								var errors = taxes[int3]['err'];
+																											
+																								//Have we got any errors
+																								//
+																								if (errors)
+																									{
+																										//Process errors
+																										//
+																										for (var int4 = 0; int4 < errors.length; int4++)
+																											{
+																												log.error({
+																													title: 'Error Returned by Avalara',
+																													details: errors[int4].msg
+																												});
+																															
+																												//Add the error to the errorMessages string
+																												//
+																												errorMessages += errors[int4].msg;
+																												errorMessages += '<br>';
+																											}
+																									}
+																								else
+																									{
+																										//Get the tax name, tax category, tax level, tax type and tax amount
+																										//
+																										var taxAmount	= 	parseFloat(taxes[int3].tax);
+																										
+																										
+																										//Add the tax amount to the totalTaxes variable
+																										//
+																										totalTaxes += taxAmount;
+																										
+																									}
+																							}
+																					}
+																				else
+																					{
+																						//Get the items
+																						//
+																						var items = invoices[i]['itms'];
+																								
+																						//Do we have any items
+																						//
+																						if (items)
+																							{
+																								//Loop through items
+																								//
+																								for (var int5 = 0; int5 < items.length; int5++)
+																									{
+																										//Get the errors
+																										//
+																										var errors = items[int5]['err'];
+																													
+																										//Have we got any errors
+																										//
+																										if (errors)
+																											{
+																												//Process errors
+																												//
+																												for (var int6 = 0; int6 < errors.length; int6++)
+																													{
+																														log.error({
+																															title: 'Error Returned by Avalara',
+																															details: errors[int6].msg
+																														});
+																																	
+																														//Add the error to the errorMessages string
+																														//
+																														errorMessages += errors[int6].msg;
+																														errorMessages += '<br>';
+																													}
+																											}
+																										else
+																											{
+																												//Get the taxes
+																												//
+																												var taxes = items[int5]['txs'];
+																														
+																												//Do we have any taxes
+																												//
+																												if (taxes)
+																													{
+																														//Loop through taxes
+																														//
+																														for (var int7 = 0; int7 < taxes.length; int7++)
+																															{
+																																//Get the tax name, tax category, tax level, tax type and tax amount
+																																//
+																																var taxAmount	= 	parseFloat(taxes[int7].tax);
+																																		
+																																//Add the tax amount to the totalTaxes variable
+																																//
+																																totalTaxes += taxAmount;
+																																
+																															}
+																													}
+																											}
+																									}
+																							}
+																					}
+																			}
+																		
+																		resultObj.message 	= errorMessages;
+															    		resultObj.taxTotal 	= Number(totalTaxes);
+																
+																	}
+															}
+													}
+												else
+													{	
+														//Add the response code and API response to the error messages
+														//
+														errorMessages += 'httpResponseCode: ' + taxResult.httpResponseCode;
+														errorMessages += '<br>';
+														errorMessages += 'responseMessage: ' + taxResult.responseMessage;
+														
+														resultObj.message 	= errorMessages;
+											    		resultObj.taxTotal 	= Number(0);
+													}
+							    			}
+							    		else
+							    			{
+								    			errorMessages += 'Licence Check Status: ' + licenceResponse.status;
+												errorMessages += '<br>';
+												errorMessages += 'Licence Check Message: ' + licenceResponse.message;
+												
+												resultObj.message 	= errorMessages;
+									    		resultObj.taxTotal 	= Number(0);
+							    			}
+							    	}
+							}
+					}
+				
+				return resultObj;
+		    }
+	    
+	    
 		/**
 	     * Function definition to be triggered after record is saved.
 	     *

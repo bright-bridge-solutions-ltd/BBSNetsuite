@@ -391,7 +391,11 @@ function(clientLibraryModule, url, currentRecord, search, https, message)
 				    										    						    					{
 				    										    							    					//Process the response
 				    										    													//
-				    										    													var AVA_TotalTax = Number(respObj.taxTotal);
+				    										    						    						var AVA_TotalTax = Number(respObj.taxTotal);
+				    										    						    						
+				    										    						    						//Update the error message field
+				    										    						    						//
+				    										    													currRec.setValue({fieldId: 'custbody_bbs_tfc_errors', value: respObj.message, ignoreFieldChange: true});
 				    										    													
 				    										    													if(this.document)
 				    										    														{
