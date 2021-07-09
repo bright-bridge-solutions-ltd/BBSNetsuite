@@ -118,6 +118,7 @@ function buildOutput(_fulfillmentId)
 										var soCustomer 			= salesOrderRecord.getFieldValue('entity');
 										var soSubsidiary		= Number(salesOrderRecord.getFieldValue('subsidiary'));		//1=Borg, 7=FreshGround, 8=Sterizen
 										var soShipCost 			= Number(salesOrderRecord.getFieldValue('shippingcost'));
+										var soHandlingCost 		= Number(salesOrderRecord.getFieldValue('handlingcost'));
 										var soCurrency 			= salesOrderRecord.getFieldValue('currency');
 										var soCurrencySymbol	= getCurrencySymbol(soCurrency);
 										var soPlacedByEmail 	= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('custbody_bbs_order_contact_email')),'');
@@ -135,6 +136,7 @@ function buildOutput(_fulfillmentId)
 										var soCustomer 			= salesOrderRecord.getFieldValue('entity');
 										var soSubsidiary		= Number(salesOrderRecord.getFieldValue('subsidiary'));		//1=Borg, 7=FreshGround, 8=Sterizen
 										var soShipCost 			= Number(salesOrderRecord.getFieldValue('shippingcost'));
+										var soHandlingCost 		= Number(salesOrderRecord.getFieldValue('handlingcost'));
 										var soCurrency 			= salesOrderRecord.getFieldValue('currency');
 										var soCurrencySymbol	= getCurrencySymbol(soCurrency);
 										var soPlacedByEmail 	= isNull(nlapiEscapeXML(salesOrderRecord.getFieldValue('custbody_bbs_order_contact_email')),'');
@@ -500,7 +502,7 @@ function buildOutput(_fulfillmentId)
 											
 												xml += '  </table>';
 												
-												var total = Number(subTotal + soShipCost); 
+												var total = Number(subTotal + soShipCost + soHandlingCost); 
 												grossWeight = netWeight + ((netWeight/100.00) * 5.0);
 												
 												xml += '<div style="page-break-inside: avoid;">'
@@ -517,6 +519,13 @@ function buildOutput(_fulfillmentId)
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '          <td align="left"  colspan="15" style="padding-left: 0px; font-size: 9px;">Shipping Cost (' + ifShipMethod + ')</td>';
 												xml += '          <td align="right" colspan="2"  style="padding-left: 0px; font-size: 9px;">' + soShipCost.numberFormat('0.00') + '</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '        </tr>';
+												xml += '    	<tr>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
+												xml += '          <td align="left"  colspan="15" style="padding-left: 0px; font-size: 9px;">Global Port Congestion Surcharge</td>';
+												xml += '          <td align="right" colspan="2"  style="padding-left: 0px; font-size: 9px;">' + soHandlingCost.numberFormat('0.00') + '</td>';
 												xml += '          <td align="left"  colspan="2"  style="padding-left: 0px; font-size: 9px;">&nbsp;</td>';
 												xml += '        </tr>';
 												xml += '    	<tr>';

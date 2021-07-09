@@ -724,7 +724,8 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																		
 																		//Find the bom & bom revision for the assembly
 																		//
-																		var bomResults = findBomFromAssembly(itemId);
+																		var searchDate = (itemStartDate != null && itemStartDate != '' ? itemStartDate : format.format({value: new Date(), type: format.Type.DATE}))
+																		var bomResults = findBomFromAssembly(itemId, searchDate);
 																		
 																		if(bomResults != null && bomResults.length > 0)
 																			{
@@ -1022,18 +1023,20 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
     
     //Function to search for a bom from an assembly
     //
-    function findBomFromAssembly(_assemblyId)
+    function findBomFromAssembly(_assemblyId, _searchDate)
     	{
 	    	return getResults(search.create({
 												 		   type: "bom",
 												 		   filters:
-												 		   [
-												 		      ["assemblyitem.assembly","anyof",_assemblyId], 
-												 		      "AND", 
-												 		      ["assemblyitem.default","is","T"], 
-												 		      "AND", 
-												 		      ["revision.isinactive","is","F"]
-												 		   ],
+													 	  [
+													 	      ["assemblyitem.assembly","anyof",_assemblyId], 
+													 	      "AND", 
+													 	      ["assemblyitem.default","is","T"], 
+													 	      "AND", 
+													 	      ["revision.isinactive","is","F"], 
+													 	      "AND", 
+													 	      [[["revision.effectivestartdate","onorbefore",_searchDate],"AND",["revision.effectiveenddate","onorafter",_searchDate]],"OR",["revision.effectivestartdate","isempty",""]]
+													 	   ],
 												 		   columns:
 												 		   [
 												 		      search.createColumn({name: "name", label: "Name"}),
