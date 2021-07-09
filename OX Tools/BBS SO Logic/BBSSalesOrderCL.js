@@ -78,6 +78,7 @@ function(search, dialog) {
      *
      * @since 2015.2
      */
+<<<<<<< HEAD
     function postSourcing(scriptContext) 
     	{
 	    	if (scriptContext.sublistId == 'item' && scriptContext.fieldId == 'item')
@@ -127,6 +128,21 @@ function(search, dialog) {
 	    				}
     			}
 	    }
+=======
+    function postSourcing(scriptContext) {
+    	
+    	if (scriptContext.sublistId == 'item' && scriptContext.fieldId == 'item')
+    		{
+	    		// set the supply required by date field on the current line using the header ship date field
+    			scriptContext.currentRecord.setCurrentSublistValue({
+    				sublistId: 	'item',
+    				fieldId:	'requesteddate',
+    				value: 		scriptContext.currentRecord.getValue({
+    	        					fieldId: 'shipdate'
+    	        				})
+    			});        	
+    		}
+>>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite.git
 
     //Page through results set from search
     //
@@ -333,7 +349,9 @@ function(search, dialog) {
     }
 
     return {
-        validateLine: validateLine
+        fieldChanged:	fieldChanged,
+        postSourcing:	postSourcing,
+    	validateLine: 	validateLine
     };
     
 });

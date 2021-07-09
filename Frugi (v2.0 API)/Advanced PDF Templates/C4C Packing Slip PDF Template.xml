@@ -148,7 +148,7 @@
 	
 		<table class="header" style="width: 100%; margin-top: 20px;">
 			<tr>
-				<td colspan="10">Delivery</td>
+				<td colspan="10"><b>Delivery</b></td>
 				<td colspan="10">&nbsp;</td>
 				<td colspan="8">&nbsp;</td>
 				<td colspan="4">&nbsp;</td>
@@ -163,7 +163,7 @@
 				<td colspan="10" rowpsan="8">${record.shipaddr1}<#if record.shipaddr2?has_content><br/>${record.shipaddr2}</#if><br/>${record.shipcity}<br/>${record.shipstate}<br/>${record.shipzip}<br/>${record.shipcountry}</td>
 				<td colspan="10" rowpsan="8">&nbsp;</td>
 				<td colspan="8" rowspan="8">Sales Order No<br/>Invoice / Tax Date<br/>Account Ref<br/>Payment Terms<br/>Invoice No<br/>Web Ref<br/>Your Ref<br/>VAT / Tax Code</td>
-				<td colspan="4" rowspan="8">${record.createdfrom?keep_after("#")}<br/>${record.trandate}<br/>${record.entity.accountnumber}<br/><b>TODO</b><br/><b>TODO</b><br/><b>TODO</b><br/>${record.createdfrom.otherrefnum}<br/>${record.entity.vatregnumber}</td>
+				<td colspan="4" rowspan="8">${record.createdfrom?keep_after("#")}<br/>${record.trandate}<br/>${record.entity.accountnumber}<br/>${record.createdfrom.terms}<br/>${record.createdfrom?keep_after("#")}<br/>${record.custbody_celigo_mag2_order_number}<br/>${record.createdfrom.otherrefnum}<br/>${record.entity.vatregnumber}</td>
 			</tr>
 		</table>
 		
@@ -192,7 +192,8 @@
 		
 		<!-- Check if we have any item lines to follow -->
 		<#list salesorder.item as tranline>
-			<#if tranline.quantityremaining gt 0>
+			<#assign quantityRemaining = tranline.quantity - tranline.quantityfulfilled>
+			<#if quantityRemaining gt 0>
 				<#assign backOrderedItems += 1>
 			</#if>
 		</#list>
@@ -221,11 +222,12 @@
 					</tr>
 				</thead>
 				<#list salesorder.item as tranline> <!-- start items -->
-					<#if tranline.quantityremaining gt 0>
+					<#assign quantityRemaining = tranline.quantity - tranline.quantityfulfilled>
+					<#if quantityRemaining gt 0>
 						<tr>
 							<td colspan="6">${tranline.item}</td>
 							<td colspan="16">${tranline.description}</td>
-							<td colspan="6" align="right">${tranline.quantityremaining?string["0"]}</td>
+							<td colspan="6" align="right">${quantityRemaining?string["0"]}</td>
 							<td colspan="2">&nbsp;</td>
 						</tr>
 					</#if>

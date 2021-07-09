@@ -39,7 +39,7 @@ function(sftpLibrary, record) {
     	catch(e)
     		{
     			log.error({
-    				title: 'Error Loading Purchase Order  ' + poID,
+    				title: 'Error Loading Purchase Order  ' + recordID,
     				details: e
     			});
     		}

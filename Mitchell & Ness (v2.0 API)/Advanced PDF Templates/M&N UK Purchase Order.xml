@@ -1,0 +1,281 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+	<head>
+    	<macrolist>
+        	<macro id="nlheader">
+            	<table class="header" style="width: 100%;" padding-bottom="10px">
+            		<tr>
+						<td rowspan="3"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: left; margin: 7px" /> </#if></td>
+						<td align="right"><span class="title">${record@title}</span></td>
+					</tr>
+					<tr>
+						<td align="right"><span class="number">${record.tranid}</span></td>
+					</tr>
+					<tr>
+						<td align="right"></td>
+					</tr>
+				</table>
+        	</macro>
+        	<macro id="nlfooter">
+            	<table class="footer" style="width: 100%;">
+            		<tr>
+						<td align="right"><pagenumber/> of <totalpages/></td>
+					</tr>
+				</table>
+        	</macro>
+    	</macrolist>
+    	<style type="text/css">
+    		* {
+				<#if .locale == "zh_CN">
+					font-family: Verdana, Geneva, sans-serif;
+				<#elseif .locale == "zh_TW">
+					font-family: Verdana, Geneva, sans-serif;
+				<#elseif .locale == "ja_JP">
+					font-family: Verdana, Geneva, sans-serif;
+				<#elseif .locale == "ko_KR">
+					font-family: Verdana, Geneva, sans-serif;
+				<#elseif .locale == "th_TH">
+					font-family: Verdana, Geneva, sans-serif;
+				<#else>
+					font-family: Verdana, sans-serif;
+				</#if>
+			}
+			table {
+				font-size: 6pt;
+				table-layout: fixed;
+	            font-family: verdana;
+			}
+	        th {
+	            font-weight: bold;
+	            font-size: 6pt;
+	            vertical-align: middle;
+	            padding: 5px 6px 3px;
+	            background-color: #e0e0e0;
+	            color: #333333;
+	        }
+	        td { 
+	          	padding-right: 6px;
+				padding-left: 6px;
+				padding-bottom: 4px;
+				padding-top: 4px;
+	          	font-size: 7pt;
+	        }  
+			td p { 
+				align:left;
+			}
+       	 	b {
+            	font-weight: bold;
+            	color: #333333;
+        	}
+	        table.header td {
+	            padding: 0;
+	           	font-size: 6pt;
+	        }
+	        table.footer td {
+	            padding: 0;
+	           	font-size: 6pt;
+	        }
+	        table.itemtable th {
+	            padding-bottom: 5px;
+	            padding-top: 5px;
+	          	border: .5px solid #e3e3e3;
+	          	font-size: 6pt;
+	        }
+	        table.itemtable td {
+	            padding-bottom: 5px;
+	            padding-top: 5px;
+	          	border-bottom: .5px solid #e3e3e3;
+	          	font-size: 6pt;
+	        }
+	        table.body td {
+	            padding-top: 2px;
+	          	border: .5px solid #e3e3e3;
+	          	font-size: 6pt;
+	        }
+	        table.total {
+	            page-break-inside: avoid;
+	          	font-size: 12pt;
+	        }
+	        tr.totalrow {
+	            line-height: 200%;
+	    		font-size: 8pt;
+	          page-break-inside: avoid;
+	        }
+	        td.totalboxtop {
+	            font-size: 10pt;
+	            background-color: #e3e3e3;
+	        }
+	        td.addressheader {
+	            font-size: 8pt;
+	            padding-top: 6px;
+	            padding-bottom: 2px;
+	        }
+	        td.address {
+	            padding-top: 0;
+	        }
+	        td.totalboxmid {
+	            font-size: 18pt;
+	            padding-top: 10px;
+	            background-color: #e3e3e3;
+	        }
+	        td.totalboxbot {
+	            background-color: #ffffff;
+	            font-weight: bold;
+	            font-size: 8pt;
+	        }
+	        span.title {
+	            font-size: 18pt;
+	        }
+	        span.number {
+	            font-size: 12pt;
+	        }
+	        span.itemname {
+	            font-weight: bold;
+	            line-height: 150%;
+	        }
+	        hr {
+	            width: 100%;
+	            color: #e3e3e3;
+	            background-color: #e3e3e3;
+	            height: 1px;
+	        }
+		</style>
+	</head>
+	
+	<body header="nlheader" header-height="10%" footer="nlfooter" footer-height="20pt" padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
+    	
+    	<table style="width: 100%;" padding-bottom="10px">
+    		<tr>
+				<td class="addressheader" colspan="6"><b>${record.billaddress@label}</b></td>
+     			<td class="addressheader" colspan="6"><b>${record.shipaddress@label}</b></td>
+      			<td class="addressheader" colspan="6"><b>Bill To</b></td>
+			</tr>
+			<tr>
+				<td class="address" colspan="6" rowspan="2">${record.billaddress}</td>
+    			<td class="address" colspan="6" rowspan="2">${record.shipaddress}</td>
+    			<td class="address" colspan="6" rowspan="2">${companyinformation.mainaddress_text}</td>
+			</tr
+		</table>
+		
+		<table class="body" style="width: 100%;" padding-bottom="10px">
+			<tr>
+				<th>Issue Date</th>
+			  	<th>X-Factory Date</th>
+			    <th>X-Factory Date (Revised)</th>
+			    <th>Warehouse ETA</th>
+				<th>${record.custbody_mn_shipvia_po@label}</th>
+			</tr>
+			<tr>
+				<td>${record.trandate}</td>
+			    <td>${record.custbody_mn_xfactory_date}</td>
+			    <td>${record.custbody_mn_xfactorydate_revised}</td>  
+			    <td>${record.duedate}</td>
+				<td>${record.custbody_mn_shipvia_po}</td>
+			</tr>
+		</table>
+		
+		<table class="body" style="width: 100%;" padding-bottom="10px">
+			<tr>
+				<th>Purchase Contact</th>
+			    <th>Vendor Contact</th>
+			    <th>Phone</th>
+				<th>E-mail</th>
+			</tr>
+			<tr>
+				<td>${record.purchasecontact}</td>
+				<td>${record.entity}</td>
+			    <td>${record.entity.phone}</td>
+     			<td>${record.entity.email}</td>
+			</tr>
+		</table>
+		
+		<#if record.item?has_content>
+			<table class="itemtable" style="width: 100%;" border-left=".5px" border-right=".5px" border-color="#d3d3d3">
+				<thead>
+					<tr>
+						<th colspan="9">${item.item@label}</th> 
+						<th align="left" colspan="4">Dev. No.</th> 
+						<th align="left" colspan="5">UPC</th>
+						<th align="left" colspan="5">Desc.</th>
+						<th align="left" colspan="4">Team</th> 
+						<th align="left" colspan="4">Color</th>
+						<th align="left" colspan="4">Notes</th> 
+						<th align="left" colspan="3">QTY</th> 
+						<th align="left" colspan="3">FOB</th>
+						<th align="left" colspan="3">Retail</th>
+						<th align="left" colspan="4">${item.amount@label}</th>
+					</tr>
+				</thead>
+				<#list record.item as item><!-- start items -->
+					<tr>
+			 			<td class="itemname" align="left" colspan="9" line-height="150%"><p style="text-align: left;">${item.item}</p></td>
+						<td align="left" colspan="4">${item.custcol_dev_no_transline}</td>
+						<td align="left" colspan="5">${item.custcol_mn_upcnumber_po}</td>
+						<td align="left" colspan="5">${item.custcol_mn_po_displayname}</td>
+						<td align="left" colspan="4">${item.custcol_mn_teamname}</td>
+						<td align="left" colspan="4">${item.custcol_mn_garmentcolor_poc}</td>
+						<td align="left" colspan="4">${item.custcol_mn_customnotes}</td>
+						<td align="left" colspan="3">${item.quantity}</td>
+						<td align="left" colspan="3">${item.rate}</td>
+			  			<td align="left" colspan="3">${item.custcolcustcol_mn_po_retailrate}</td>
+						<td align="left" colspan="4">${item.amount}</td>
+					</tr>
+				</#list><!-- end items -->
+			</table>
+		</#if>
+		
+		<#if record.expense?has_content>
+			<table class="itemtable" style="width: 100%;">
+				<thead>
+					<tr>
+						<th colspan="12">${expense.category@label}</th>
+						<th colspan="10">${expense.account@label}</th>
+						<th align="right" colspan="4">${expense.amount@label}</th>
+					</tr>
+				</thead>
+				<#list record.expense as expense><!-- start expenses -->
+					<tr>
+						<td colspan="12">${expense.category}</td>
+						<td colspan="10"><span class="itemname">${expense.account}</span></td>
+						<td align="right" colspan="4">${expense.amount}</td>
+					</tr>
+				</#list><!-- end expenses -->
+			</table>
+		</#if>
+
+		<table class="total" style="width: 100%;">
+			<tr class="totalrow">
+				<td background-color="#ffffff" colspan="6">&nbsp;</td>
+				<td align="right"  background-color="#ffffff" font-size="10px"><b>${record.total@label}</b></td>
+				<td align="right"  background-color="#ffffff" font-size="10px">${record.total}</td>
+			</tr>
+		</table>
+		
+		<table class="total" style="width: 100%;">
+			<tr class="totalrow">
+				<td background-color="#ffffff" colspan="6" top-padding=".5px">&nbsp;</td>
+				<td align="right" background-color="#ffffff" font-size="10px"><b>Total Quantity</b></td>
+				<td align="right" background-color="#ffffff" font-size="10px">${record.custbody_mn_quantityordered}</td>
+			</tr>
+		</table>
+
+		<table style="width: 25%;">
+			<tr>
+				<td background-color="#e3e3e3" class="total" colspan="6"><b>Customer PO</b></td>
+			</tr>
+			<tr>
+				<td class="totalrow" colspan="6" font-size="6pt" padding-top="5px" rowspan="2">${record.custbody_mn_customer_po}</td>
+			</tr>
+		</table>
+
+		<table style="width:25%;">
+			<tr>
+				<td background-color="#e3e3e3" class="total" colspan="6"><b>Vendor Notes</b></td>
+			</tr>
+			<tr>
+				<td class="totalrow" colspan="6" font-size="6pt" padding-top="5px" rowspan="2">${record.custbody_mn_vendornotes}</td>
+			</tr>
+		</table>
+
+	</body>
+</pdf>

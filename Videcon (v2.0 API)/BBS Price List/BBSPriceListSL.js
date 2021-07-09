@@ -301,17 +301,23 @@ function(ui, search, render) {
 		    				pricingSearch = search.create({
 		    					type: search.Type.PRICING,
 		    					
-		    					filters: [
-					    					["customer", search.Operator.ANYOF, customerID],
-						          				"AND",
-						          			["formulanumeric: {unitprice}", search.Operator.GREATERTHAN, 0],
-						          				"AND",
-						          			["item.custitem_bbs_exclude_from_price_list", search.Operator.IS, "F"],
-						          				"AND",
-						          			[["item.custitem_bbs_fire_price_list", search.Operator.IS, "T"],
-						          				"OR",
-						          			["item.custitem_bbs_videcon_price_list", search.Operator.IS, "T"]]
-					    				],
+		    					filters: [{
+		    						name: 'customer',
+		    						operator: search.Operator.ANYOF,
+		    						values: [customerID]
+		    					},
+		    							{
+		    						name: 'formulanumeric',
+		    						formula: '{unitprice}',
+		    						operator: search.Operator.GREATERTHAN,
+		    						values: [0]
+		    					},
+		    							{
+		    						name: 'custitem_bbs_exclude_from_price_list',
+		    						join: 'item',
+		    						operator: search.Operator.IS,
+		    						values: ['F']
+		    					}],
 		    					
 		    					columns: [{
 		    						name: 'cseg_bbs_brands',
@@ -391,7 +397,7 @@ function(ui, search, render) {
 									name: 'unitprice'
 								});
 	    						
-	    						if (brand)
+	    						if (brand != null && brand != '')
 	    							{
 	    								sublist.setSublistValue({
 											id: 'custpage_brand',
@@ -400,7 +406,7 @@ function(ui, search, render) {
 			    						});
 	    							}
 	    						
-	    						if (item)
+	    						if (item != null && item != '')
 	    							{
 		    							sublist.setSublistValue({
 											id: 'custpage_item',
@@ -409,7 +415,7 @@ function(ui, search, render) {
 										});
 	    							}
 	    					
-		    					if (description)
+		    					if (description != null && description != '')
 		    						{
 			    						sublist.setSublistValue({
 											id: 'custpage_description',
@@ -418,7 +424,7 @@ function(ui, search, render) {
 										});
 		    						}
 		    					
-		    					if (saleUnit)
+		    					if (saleUnit != null && saleUnit != '')
 		    						{
 				    					sublist.setSublistValue({
 											id: 'custpage_sale_unit',
@@ -427,7 +433,7 @@ function(ui, search, render) {
 										});
 		    						}
 		    					
-		    					if (currency)
+		    					if (currency != null && currency != '')
 		    						{
 				    					sublist.setSublistValue({
 											id: 'custpage_currency',
@@ -436,7 +442,7 @@ function(ui, search, render) {
 										});
 		    						}
 		    					
-		    					if (unitPrice)
+		    					if (unitPrice != null && unitPrice != '')
 		    						{
 				    					sublist.setSublistValue({
 											id: 'custpage_unit_price',
@@ -556,19 +562,19 @@ function(ui, search, render) {
 	        						group: 'custpage_items',
 	        						name: 'custpage_brand',
 	        						line: i
-	        					}).replace(/&/g, '&amp;');
+	        					});
 	        					
 	        					var item = context.request.getSublistValue({
 	        						group: 'custpage_items',
 	        						name: 'custpage_item',
 	        						line: i
-	        					}).replace(/&/g, '&amp;');
+	        					});
 	        					
 	        					var description = context.request.getSublistValue({
 	        						group: 'custpage_items',
 	        						name: 'custpage_description',
 	        						line: i
-	        					}).replace(/&/g, '&amp;');
+	        					});
 	        					
 	        					var unitPrice = parseFloat(context.request.getSublistValue({
 	        						group: 'custpage_items',
@@ -582,7 +588,7 @@ function(ui, search, render) {
 	        							// add a brand line to the item table
 	        							xml += 	'<tr>';
 	        							xml	+=	'<td colspan="4" style="background-color: #949599;">&nbsp;</td>';
-	        							xml +=	'<td colspan="10" style="background-color: #949599; color: #FFFFFF; font-weight: bold;">' + brand.charAt(0).toUpperCase() + brand.slice(1).toLowerCase() + '</td>';
+	        							xml +=	'<td colspan="10" style="background-color: #949599; color: #FFFFFF; font-weight: bold;">' + (brand != null && brand != '' ? brand.charAt(0).toUpperCase() + brand.slice(1).toLowerCase() : '') + '</td>';
 	        							xml +=	'<td colspan="2" style="background-color: #949599;">&nbsp;</td>';
 	        							xml	+=	'</tr>';
 	        						}
@@ -609,7 +615,7 @@ function(ui, search, render) {
 	        				    				xml +=	'</thead>';
 	        									xml += 	'<tr>';
 	    	        							xml	+=	'<td colspan="4" style="background-color: #949599;">&nbsp;</td>';
-	    	        							xml +=	'<td colspan="10" style="background-color: #949599; color: #FFFFFF; font-weight: bold;">' + brand.charAt(0).toUpperCase() + brand.slice(1).toLowerCase() + '</td>';
+	    	        							xml +=	'<td colspan="10" style="background-color: #949599; color: #FFFFFF; font-weight: bold;">' + (brand != null && brand != '' ? brand.charAt(0).toUpperCase() + brand.slice(1).toLowerCase() : '') + '</td>';
 	    	        							xml +=	'<td colspan="2" style="background-color: #949599;">&nbsp;</td>';
 	    	        							xml	+=	'</tr>';
 	        								}
@@ -619,16 +625,16 @@ function(ui, search, render) {
 	        					if (i%2 == 0)
 	        						{
 	    	    						xml += '<tr>';
-	    								xml +=	'<td colspan="4" style="font-weight: bold;">' + item + '</td>';
-	    		    					xml +=	'<td colspan="10">' + description + '</td>';
+	    								xml +=	'<td colspan="4" style="font-weight: bold;">' + (item != null && item != '' ? item.replace(/&/g, '&amp;') : '') + '</td>';
+	    		    					xml +=	'<td colspan="10">' + (description != null && description != '' ? description.replace(/&/g, '&amp;') : '') + '</td>';
 	    		    					xml +=	'<td colspan="2" align="right" style="font-weight: bold;">£' + unitPrice + '</td>';
 	    		    					xml +=	'</tr>';
 	        						}
 	        					else
 	        						{
 	        							xml += '<tr>';
-	        							xml +=	'<td colspan="4" style="font-weight: bold; background-color: #DCDCDF;">' + item + '</td>';
-	        	    					xml +=	'<td colspan="10" style="background-color: #DCDCDF;">' + description + '</td>';
+	        							xml +=	'<td colspan="4" style="font-weight: bold; background-color: #DCDCDF;">' + (item != null && item != '' ? item.replace(/&/g, '&amp;') : '') + '</td>';
+	        	    					xml +=	'<td colspan="10" style="background-color: #DCDCDF;">' + (description != null && description != '' ? description.replace(/&/g, '&amp;') : '') + '</td>';
 	        	    					xml +=	'<td colspan="2" align="right" style="font-weight: bold; background-color: #DCDCDF;">£' + unitPrice + '</td>';
 	        	    					xml +=	'</tr>';
 	        						}

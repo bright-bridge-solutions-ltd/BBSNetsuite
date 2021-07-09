@@ -18,7 +18,7 @@ function(ui, search, record) {
     	
     	if (context.request.method == 'GET')
 			{
-				// retrieve parameters that have been passed to the Suitelet
+	    		// retrieve parameters that have been passed to the Suitelet
 				var supplierID 	= context.request.parameters.supplier;
 			
 				// create form that will be displayed to the user
@@ -139,7 +139,7 @@ function(ui, search, record) {
 			}
     	else if (context.request.method == 'POST')
     		{
-	    		// create form that will be displayed to the user
+    			// create form that will be displayed to the user
 				var form = ui.createForm({
 	                title: 'Fendercare - Supplier Webform',
 	                hideNavBar: true
@@ -166,6 +166,7 @@ function(ui, search, record) {
 							id: context.request.parameters.custpage_supplier_id,
 							values: {
 								custentity_bbs_supp_webform_submitted:	true,
+								custentity_bbs_supp_webform_ip_address:	context.request.headers['ns-client-ip'],
 								phone:	context.request.parameters.custpage_phone_number,
 								email:	context.request.parameters.custpage_email_address
 							},

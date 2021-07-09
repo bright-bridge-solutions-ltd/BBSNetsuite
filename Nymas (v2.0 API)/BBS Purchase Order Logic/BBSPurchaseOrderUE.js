@@ -230,6 +230,15 @@ function(format, record, search, format) {
 		    								fieldId: 'rate',
 		    								line: i
 		    							});
+			    						
+			    						// call function to get the finishing drawing
+		    							finishingDrawing = getFinishingDrawing(
+		    																	purchaseOrder.getSublistValue({
+		    																		sublistId: 'item',
+		    																		fieldId: 'assembly',
+		    																		line: i
+		    																	})
+		    																);
 		    							
 		    							// push a new instance of the output summary object into the output array
 										itemSummary.push(new outputSummary(
@@ -326,9 +335,6 @@ function(format, record, search, format) {
 			    															fieldId: 'quantity',
 			    															line: x
 			    														});
-										    							
-										    							// call function to get the finishing drawing
-										    							finishingDrawing = getFinishingDrawing(componentItemID);
 										    							
 										    							// push a new instance of the output summary object into the output array
 								    									itemSummary.push(new outputSummary(

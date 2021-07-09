@@ -125,12 +125,8 @@ function(runtime, record, search) {
 	    							// call function to get the latest due date
 	    	    					var latestDueDate = getLatestDueDate(salesOrder);
 	    	    					
-	    	    					// get the date 30 days in the future
-									var thirtyDaysAhead = new Date();
-										thirtyDaysAhead = new Date(thirtyDaysAhead.getFullYear(), thirtyDaysAhead.getMonth(), thirtyDaysAhead.getDate()+30);
-								
-									// call function to close all remaining lines on the sales order more than 30 days in the future
-									salesOrder = closeAllRemainingLines(salesOrder, thirtyDaysAhead);
+	    	    					// call function to close all remaining lines on the sales order with an ETA more than 30 days in the future
+									salesOrder = closeAllRemainingLines(salesOrder, true);
 
 									var totalRemaining = getTotalRemaining(salesOrder);
 									
@@ -343,7 +339,7 @@ function(runtime, record, search) {
     	
     }
     
-    function closeAllRemainingLines(salesOrder, thirtyDaysAhead) {
+    function closeAllRemainingLines(salesOrder, moreThan30DaysAhead) {
     	
     	// get count of sales order lines
     	var lineCount = salesOrder.getLineCount({
@@ -368,17 +364,16 @@ function(runtime, record, search) {
 				// if this line has a backorder quantity
 				if (backorderQty > 0)
 					{
-						// if we have a date that is thirty days ahead
-						if (thirtyDaysAhead)
+						// if we should close any lines with an ETA more than 30 days in the future
+						if (moreThan30DaysAhead == true)
 							{
-								// get the expected ship date from the line
-								var expShipDate = salesOrder.getCurrentSublistValue({
+								// get the days late field from the line
+								var daysLate = salesOrder.getCurrentSublistValue({
 									sublistId: 'item',
-									fieldId: 'expectedshipdate'
+									fieldId: 'dayslate'
 								});
-						
-								// is the expShipDate more than 30 days ahead
-								if (expShipDate.getTime() > thirtyDaysAhead.getTime())
+								
+								if (daysLate > 30)
 									{
 										// mark the line as closed
 										salesOrder.setCurrentSublistValue({
