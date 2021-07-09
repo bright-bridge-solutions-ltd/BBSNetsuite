@@ -142,6 +142,9 @@ function(search, dialog) {
     	        				})
     			});        	
     		}
+<<<<<<< HEAD
+>>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite.git
+=======
 >>>>>>> branch 'master' of https://github.com/bright-bridge-solutions-ltd/BBSNetsuite.git
 
     //Page through results set from search
