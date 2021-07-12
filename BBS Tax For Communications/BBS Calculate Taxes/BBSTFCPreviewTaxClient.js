@@ -391,12 +391,15 @@ function(clientLibraryModule, url, currentRecord, search, https, message)
 				    										    						    					{
 				    										    							    					//Process the response
 				    										    													//
-				    										    						    						var AVA_TotalTax = Number(respObj.taxTotal);
+				    										    						    						var AVA_TotalTax 	= Number(respObj.taxTotal);
+				    										    						    						AVA_TotalTax 		= Math.round((AVA_TotalTax * 100.00)) / 100.00;
 				    										    						    						
 				    										    						    						//Update the error message field
 				    										    						    						//
 				    										    													currRec.setValue({fieldId: 'custbody_bbs_tfc_errors', value: respObj.message, ignoreFieldChange: true});
 				    										    													
+				    										    													//Update the totals on the form
+				    										    													//
 				    										    													if(this.document)
 				    										    														{
 				    										    															 document.forms['main_form'].elements['taxamountoverride'].value = format_currency(AVA_TotalTax);  
@@ -438,6 +441,17 @@ function(clientLibraryModule, url, currentRecord, search, https, message)
 				    										    													NetTotal = Math.round((NetTotal * 100.00)) / 100.00;
 				    										    													
 				    										    													currRec.setValue({fieldId: 'total', value: NetTotal, ignoreFieldChange: false});
+				    										    													
+				    										    													//Update the item lines to say that they are taxable
+				    										    													//
+				    										    													itemLineCount = currRec.getLineCount({sublistId: 'item'});
+				    										    													
+				    										    													for (var i = 0; i < itemLineCount; i++)
+				    										    														{
+				    										    															currRec.selectLine({sublistId: 'item', line: i});
+				    										    															currRec.setCurrentSublistValue({sublistId: 'item', fieldId: 'istaxable', value: true, ignoreFieldChange: false});
+				    										    															currRec.commitLine({sublistId: 'item', ignoreRecalc: false});
+				    										    														}
 				    										    						    					}
 				    										    						    				
 				    										    						    					userMessage.hide();

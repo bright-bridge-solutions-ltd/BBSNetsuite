@@ -274,6 +274,8 @@ function(runtime, record, search, libraryModule, plugin, ui)
 	    	//*******************************************************************
 	    	//
 			
+			debugger;
+			
 			//Get the plugin implementation
 			//
 			var  tfcPlugin = plugin.loadImplementation({
@@ -307,7 +309,54 @@ function(runtime, record, search, libraryModule, plugin, ui)
 											var totalTaxes 	= Number(taxTotalObj.taxTotal);
 											totalTaxes 		= Math.round((totalTaxes * 100.00)) / 100.00;
 											
-											newRecord.setValue({fieldId: 'taxamountoverride', value: taxTotalObj.taxTotal});
+											newRecord.setValue({fieldId: 'taxamountoverride', value: totalTaxes});
+											
+											var TaxTotal 		= Number(0);
+											var Subtotal 		= Number(0);
+											var discount 		= Number(0);
+											var Shippingcost 	= Number(0);
+											var Handlingcost 	= Number(0);
+											var GiftCertCost 	= Number(0);
+											
+											TaxTotal 	= (newRecord.getValue({fieldId: 'taxamountoverride'}) != null && newRecord.getValue({fieldId: 'taxamountoverride'}) != '' )? parseFloat(newRecord.getValue({fieldId: 'taxamountoverride'})) : 0; 
+					
+											Subtotal	= parseFloat(newRecord.getValue({fieldId: 'subtotal'}));
+											
+											discount 	= parseFloat(newRecord.getValue({fieldId: 'discounttotal'}));
+					
+											if((newRecord.getValue({fieldId: 'shippingcost'}) != null) && (newRecord.getValue({fieldId: 'shippingcost'}) != ''))
+											     {
+											       	Shippingcost = parseFloat(newRecord.getValue({fieldId: 'shippingcost'}));
+											     }
+											
+											if((newRecord.getValue({fieldId: 'handlingcost'}) != null) && (newRecord.getValue({fieldId: 'handlingcost'}) != ''))
+											     {
+											    	 Handlingcost = parseFloat(newRecord.getValue({fieldId: 'handlingcost'}));
+											     }
+					
+											if((newRecord.getValue({fieldId: 'giftcertapplied'}) != null) && (newRecord.getValue({fieldId: 'giftcertapplied'}) != ''))
+												{
+													GiftCertCost = parseFloat(newRecord.getValue({fieldId: 'giftcertapplied'}));
+												}
+					
+											var NetTotal = Subtotal + discount + TaxTotal + Shippingcost + Handlingcost + GiftCertCost;
+											
+											NetTotal = Math.round((NetTotal * 100.00)) / 100.00;
+											
+											newRecord.setValue({fieldId: 'total', value: NetTotal});
+											
+											//Update the item lines to say that they are taxable
+											//
+											itemLineCount = newRecord.getLineCount({sublistId: 'item'});
+											
+											for (var i = 0; i < itemLineCount; i++)
+												{
+													//newRecord.selectLine({sublistId: 'item', line: i});
+													//newRecord.setCurrentSublistValue({sublistId: 'item', fieldId: 'istaxable', value: true});
+													//newRecord.commitLine({sublistId: 'item', ignoreRecalc: false});
+													newRecord.setSublistValue({sublistId: 'item', fieldId: 'istaxable', value: true, line: i});
+													
+												}
 										}
 								
 								}
@@ -344,12 +393,6 @@ function(runtime, record, search, libraryModule, plugin, ui)
 					{
 						//Return values from the transaction record to gather required info to populate request
 						//
-						var tranID = search.lookupFields({
-														type: 		_transactionRecordType,
-														id: 		_transactionRecordId,
-														columns: 	'tranid'
-														})['tranid'];									//Get the document number as the record on a new transaction will have "To Be Generated" in the tranid field
-	
 						var tranDate			=	_transactionRecord.getValue({fieldId: 'trandate'});
 						var createdFrom			=	_transactionRecord.getValue({fieldId: 'createdfrom'});
 						var customerID			=	_transactionRecord.getValue({fieldId: 'entity'});
@@ -433,7 +476,7 @@ function(runtime, record, search, libraryModule, plugin, ui)
 								taxReqInvObj.summ			=	true; // return summarized tax results
 								taxReqInvObj.acct			=	customerName;
 								taxReqInvObj.custref		=	customerName;
-								taxReqInvObj.invn			=	tranID;
+								taxReqInvObj.invn			=	'';
 								taxReqInvObj.bcyc			=	tranDate.getMonth() + 1;
 								taxReqInvObj.bpd.month		=	tranDate.getMonth() + 1;
 								taxReqInvObj.bpd.year		=	tranDate.getFullYear();
