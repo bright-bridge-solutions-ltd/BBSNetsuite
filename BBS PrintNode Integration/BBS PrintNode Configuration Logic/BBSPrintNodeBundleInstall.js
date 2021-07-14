@@ -108,10 +108,12 @@ function(record, search) {
     										type: 		'customrecord_bbs_printnode_config',
     										id: 		configRecordID,
     										values: 	{
-    													custrecord_bbs_printnode_conf_api_key:	null		//Remove api key
+	    													custrecord_bbs_printnode_conf_api_key:		null,	//Remove api key
+	    													custrecord_bbs_printnode_conf_ad_script:	null,	//Remove additional documentation script id
+	    													custrecord_bbs_printnode_conf_ad_deploy:	null	//Remove additional documentation deployment id
     													},
     										options:	{
-    													ignoreMandatoryFields:				true
+    														ignoreMandatoryFields:				true
     													}
     					});
     					

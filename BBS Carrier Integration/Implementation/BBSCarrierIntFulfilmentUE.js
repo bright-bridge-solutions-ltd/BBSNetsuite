@@ -222,7 +222,7 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
      * @Since 2015.2
      */
     function carrierIntFulfilmentBL(scriptContext) {
-    	
+    	/*
     	// check that the record is being viewed
     	if (scriptContext.type == 'view')
     		{
@@ -255,7 +255,7 @@ function(config, runtime, url, record, search, file, email, BBSObjects, BBSCommo
 							    	    			});
     				}
     		}
-    	
+    	*/
     }
 	
     /**

@@ -55,7 +55,6 @@ function(https, record, search, plugin, render, file, encode, runtime, url, oaut
 								    	    			});
 	    				}
 	    		}
-	    	
 	    }
     
     /**
@@ -134,13 +133,11 @@ function(https, record, search, plugin, render, file, encode, runtime, url, oaut
 							packingStation = userPrefWorkstation;
 						}
     				
-    				//packingStation = (packingStation == null || packingStation == '' ? userWorkstation : packingStation);
-    				
     				//Has the IF changed from picked to packed, or has it been created at packed
     				//
     				if((oldShippingStatus == 'A' && newShippingStatus == 'B') || (scriptContext.type == 'create' && newShippingStatus == 'B'))
     					{
-    						//Do we have a workstation assigned to the IF record
+    						//Do we have a workstation 
     						//
     						if(packingStation != null && packingStation != '')
     							{
@@ -191,96 +188,173 @@ function(https, record, search, plugin, render, file, encode, runtime, url, oaut
 			    									//
 			    									doLicenceCheck();
 			    								
+			    									//Get the printnode config record
 			    									//
-			    									//Process the packing slip
-			    									//
-			    									if(documentPrinter != null && documentPrinter != '')
+			    									var pnConfig = null;
+			    									
+			    									try
 			    										{
-					    									try
-					    										{
-						    										var printFile = render.packingSlip({
-																    									entityId: 	recordId,
-																    									printMode: 	render.PrintMode.PDF
-																    									});
-		
-						    										var contents 		= printFile.getContents();
-		
-						    										var printRequestObj = new pnPrintRequestObj(documentPrinter, 'Packing Slip', 'pdf_base64', contents, '', 1);
-						    										var printResult 	= pnPlugin.sendPrint(printRequestObj);
-		
-					    										}
-					    									catch(err)
-					    										{
-					    											log.error({title: 'Error in processing packing slip via printnode', details: err});
-					    										}
+			    											pnConfig = pnPlugin.getConfiguration();
+			    										}
+			    									catch(err)
+			    										{
+			    											pnConfig = null;
+			    											log.error({title: 'Error getting printnode configuration', details: err});
 			    										}
 			    									
-			    									//
-			    									//Process the carrier labels
-			    									//
-			    									if(labelPrinter != null && labelPrinter != '')
+			    									if(pnConfig)
 			    										{
-					    									//Find any attachments to the IF record
+					    									//==========================================================
+					    									//Process the packing slip
+					    									//==========================================================
 					    									//
-					    									var itemfulfillmentSearchObj = getResults(search.create({
-					    										   type: "itemfulfillment",
-					    										   filters:
-					    										   [
-					    										      ["type","anyof","ItemShip"], 
-					    										      "AND", 
-					    										      ["mainline","is","T"], 
-					    										      "AND", 
-					    										      ["internalid","anyof",recordId], 
-					    										      "AND", 
-					    										      ["file.internalid","noneof","@NONE@"]
-					    										   ],
-					    										   columns:
-					    										   [
-					    										      search.createColumn({name: "tranid", label: "Document Number"}),
-					    										      search.createColumn({name: "entity", label: "Name"}),
-					    										      search.createColumn({name: "name",join: "file",label: "Name"}),
-					    										      search.createColumn({name: "filetype",join: "file",label: "Type"}),
-					    										      search.createColumn({name: "description",join: "file",label: "Description"}),
-					    										      search.createColumn({name: "internalid",join: "file",label: "Internal ID"}),
-					    										      search.createColumn({name: "url",join: "file",label: "URL"})
-					    										   ]
-					    										}));
-					    										
-					    									if(itemfulfillmentSearchObj != null && itemfulfillmentSearchObj.length > 0)
+					    									if(documentPrinter != null && documentPrinter != '')
 					    										{
-					    											for (var resultCount = 0; resultCount < itemfulfillmentSearchObj.length; resultCount++) 
-						    											{
-					    													//Get the internal id of the file
-					    													//
-																			var fileId = itemfulfillmentSearchObj[resultCount].getValue({name: "internalid",join: "file"});
-																			
-																			//Load the file, get its contents, encode to base64 & send to printnode
-																			//
-																			var fileObj = null;
-																			
-																			try
-																				{
-																					fileObj = file.load({id: fileId});
+							    									try
+							    										{
+								    										var printFile = render.packingSlip({
+																		    									entityId: 	recordId,
+																		    									printMode: 	render.PrintMode.PDF
+																		    									});
+				
+								    										var contents 		= printFile.getContents();
+				
+								    										var printRequestObj = new pnPrintRequestObj(documentPrinter, 'Packing Slip', 'pdf_base64', contents, '', 1);
+								    										var printResult 	= pnPlugin.sendPrint(printRequestObj);
+				
+							    										}
+							    									catch(err)
+							    										{
+							    											log.error({title: 'Error in processing packing slip via printnode', details: err});
+							    										}
+					    										}
+					    									
+					    									//==========================================================
+					    									//Process any additional documentation
+					    									//==========================================================
+					    									//
+					    									if(documentPrinter != null && documentPrinter != '')
+					    										{
+							    									if(pnConfig.adScriptId != '' && pnConfig.adDeploymentId != '')
+							    										{
+								    										var suiteletUrl 		= url.resolveScript({
+								    																					scriptId: 			pnConfig.adScriptId, 
+								    																					deploymentId: 		pnConfig.adDeploymentId,
+								    																					returnExternalUrl:	true});
+								    										
+								    					    				suiteletUrl 		   += '&id=' + recordId;
+								    					    				
+								    					    				var response 			= null;
+								    					    				
+								    					    				try
+								    					    					{
+										    					    				response = https.get({
+										    							    										url:		suiteletUrl,
+										    							    										headers: 	{'Content-Type': 'application/json'}
+										    							    										});
+								    					    					}
+								    					    				catch(err)
+								    					    					{
+								    					    						response = null;
+								    					    						log.error({title: 'Error in calling additional documentation ', details: err});
+								    					    					}
+								    					    				
+								    					    				if(response)
+								    					    					{
+								    					    						var reponseObj = null;
+								    					    						
+								    					    						try
+								    					    							{
+								    					    								reponseObj = JSON.parse(response.body);
+								    					    							}
+								    					    						catch(err)
+								    					    							{
+								    					    								reponseObj = null;
+								    					    							}
+								    					    						
+								    					    						if(reponseObj)
+								    					    							{
+								    					    								if(reponseObj.contents.length > 0)
+								    					    									{
+											    					    							var printRequestObj = new pnPrintRequestObj(documentPrinter, reponseObj.name, 'pdf_base64', reponseObj.contents, '', 1);
+														    										var printResult 	= pnPlugin.sendPrint(printRequestObj);
+										    					    							}
+								    					    							}
+								    					    					}
+								    					    				
+							    										}
+					    										}
+					    									
+					    									//==========================================================
+					    									//Process the carrier labels
+					    									//==========================================================
+					    									//
+					    									if(labelPrinter != null && labelPrinter != '')
+					    										{
+							    									//Find any attachments to the IF record
+							    									//
+							    									var itemfulfillmentSearchObj = getResults(search.create({
+							    										   type: "itemfulfillment",
+							    										   filters:
+							    										   [
+							    										      ["type","anyof","ItemShip"], 
+							    										      "AND", 
+							    										      ["mainline","is","T"], 
+							    										      "AND", 
+							    										      ["internalid","anyof",recordId], 
+							    										      "AND", 
+							    										      ["file.internalid","noneof","@NONE@"],
+							    										      "AND", 
+							    										      ["file.filetype","anyof",pnConfig.labelFileType]
+							    										   ],
+							    										   columns:
+							    										   [
+							    										      search.createColumn({name: "tranid", label: "Document Number"}),
+							    										      search.createColumn({name: "entity", label: "Name"}),
+							    										      search.createColumn({name: "name",join: "file",label: "Name"}),
+							    										      search.createColumn({name: "filetype",join: "file",label: "Type"}),
+							    										      search.createColumn({name: "description",join: "file",label: "Description"}),
+							    										      search.createColumn({name: "internalid",join: "file",label: "Internal ID"}),
+							    										      search.createColumn({name: "url",join: "file",label: "URL"})
+							    										   ]
+							    										}));
+							    										
+							    									if(itemfulfillmentSearchObj != null && itemfulfillmentSearchObj.length > 0)
+							    										{
+							    											for (var resultCount = 0; resultCount < itemfulfillmentSearchObj.length; resultCount++) 
+								    											{
+							    													//Get the internal id of the file
+							    													//
+																					var fileId = itemfulfillmentSearchObj[resultCount].getValue({name: "internalid",join: "file"});
+																					
+																					//Load the file, get its contents, encode to base64 & send to printnode
+																					//
+																					var fileObj = null;
+																					
+																					try
+																						{
+																							fileObj = file.load({id: fileId});
+																						}
+																					catch(err)	
+																						{
+																							fileObj = null;
+																							log.error({title: 'Error in processing carrier label via printnode', details: err});
+																						}
+																					
+																					if(fileObj != null)
+																						{
+																							var contents 		= fileObj.getContents();
+																							var encodedContents	= encode.convert({
+																																	string:			contents,
+																																	inputEncoding:	encode.Encoding.UTF_8,
+																																	outputEncoding:	encode.Encoding.BASE_64
+																																	});
+												    										var printRequestObj = new pnPrintRequestObj(labelPrinter, 'Carrier Label', 'raw_base64', encodedContents, '', 1);
+												    										var printResult 	= pnPlugin.sendPrint(printRequestObj);
+				
+																						}
 																				}
-																			catch(err)	
-																				{
-																					fileObj = null;
-																					log.error({title: 'Error in processing pcarrier labvel via printnode', details: err});
-																				}
-																			
-																			if(fileObj != null)
-																				{
-																					var contents 		= fileObj.getContents();
-																					var encodedContents	= encode.convert({
-																															string:			contents,
-																															inputEncoding:	encode.Encoding.UTF_8,
-																															outputEncoding:	encode.Encoding.BASE_64
-																															});
-										    										var printRequestObj = new pnPrintRequestObj(labelPrinter, 'Carrier Label', 'raw_base64', encodedContents, '', 1);
-										    										var printResult 	= pnPlugin.sendPrint(printRequestObj);
-		
-																				}
-																		}
+							    										}
 					    										}
 			    										}
 												}

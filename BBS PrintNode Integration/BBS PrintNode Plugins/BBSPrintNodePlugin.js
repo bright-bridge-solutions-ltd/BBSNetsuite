@@ -69,7 +69,10 @@ function(email, encode, file, https, record, runtime, search, BBSPrintNodeLibrar
 					      search.createColumn({name: "custrecord_bbs_printnode_conf_ep_ping", label: "End Point - Ping"}),
 					      search.createColumn({name: "custrecord_bbs_printnode_conf_ep_pjob", label: "End Point - Print Job"}),
 					      search.createColumn({name: "custrecord_bbs_printnode_conf_ep_whoami", label: "End Point - Whoami"}),
-					      search.createColumn({name: "custrecord_bbs_printnode_conf_endpoint", label: "End Point Prefix"})
+					      search.createColumn({name: "custrecord_bbs_printnode_conf_endpoint", label: "End Point Prefix"}),
+					      search.createColumn({name: "custrecord_bbs_printnode_conf_ad_script", label: "Commercial Invoice Script"}),
+					      search.createColumn({name: "custrecord_bbs_printnode_conf_ad_deploy", label: "Commercial Invoice Deployment"}),
+					      search.createColumn({name: "custrecord_bbs_printnode_conf_lab_type", label: "Label File Type"})
 					   ]
 					}));
 					
@@ -86,6 +89,9 @@ function(email, encode, file, https, record, runtime, search, BBSPrintNodeLibrar
 						var endpointPing			= customrecord_bbs_printnode_configSearchObj[0].getValue({name: 'custrecord_bbs_printnode_conf_ep_ping'});
 						var endpointPrintJob		= customrecord_bbs_printnode_configSearchObj[0].getValue({name: 'custrecord_bbs_printnode_conf_ep_pjob'});
 						var endpointWhoami			= customrecord_bbs_printnode_configSearchObj[0].getValue({name: 'custrecord_bbs_printnode_conf_ep_whoami'});
+						var adScriptId				= customrecord_bbs_printnode_configSearchObj[0].getValue({name: 'custrecord_bbs_printnode_conf_ad_script'});
+						var adDeploymentId			= customrecord_bbs_printnode_configSearchObj[0].getValue({name: 'custrecord_bbs_printnode_conf_ad_deploy'});
+						var labelFileType			= customrecord_bbs_printnode_configSearchObj[0].getValue({name: 'custrecord_bbs_printnode_conf_lab_type'});
 						
 						config.apiKey				 	= apiKey;
 						config.endpointDoPing			= endpointPrefix + endpointPing;
@@ -98,6 +104,133 @@ function(email, encode, file, https, record, runtime, search, BBSPrintNodeLibrar
 																					inputEncoding:	encode.Encoding.UTF_8,
 																					outputEncoding:	encode.Encoding.BASE_64
 																					});
+						config.adScriptId				= adScriptId;
+						config.adDeploymentId			= adDeploymentId;
+						
+						var fileType = 'UNKNOWN';
+						
+						switch(Number(labelFileType))
+							{
+								case 50:
+									fileType = 'APPCACHE '; 
+									break;
+								case 34:
+									fileType = 'AUTOCAD'; 
+									break;
+								case 6:
+									fileType = 'BMPIMAGE'; 
+									break;
+								case 51:
+									fileType = 'CERTIFICATE'; 
+									break;
+								case 39:
+									fileType = 'CONFIG'; 
+									break;
+								case 11:
+									fileType = 'STYLESHEET'; 
+									break;
+								case 14:
+									fileType = 'CSV'; 
+									break;
+								case 22:
+									fileType = 'EXCEL'; 
+									break;
+								case 1:
+									fileType = 'FLASH'; 
+									break;
+								case 41:
+									fileType = 'FREEMARKER'; 
+									break;
+								case 4:
+									fileType = 'GIFIMAGE'; 
+									break;
+								case 27:
+									fileType = 'GZIP'; 
+									break;
+								case 9:
+									fileType = 'HTMLDOC '; 
+									break;
+								case 8:
+									fileType = 'ICON'; 
+									break;
+								case 13:
+									fileType = 'JAVASCRIPT'; 
+									break;
+								case 2:
+									fileType = 'JPGIMAGE'; 
+									break;
+								case 38:
+									fileType = 'JSON'; 
+									break;
+								case 35:
+									fileType = 'MESSAGERFC'; 
+									break;
+								case 30:
+									fileType = 'MP3'; 
+									break;
+								case 29:
+									fileType = 'MPEGMOVIE'; 
+									break;
+								case 17:
+									fileType = 'PDF'; 
+									break;
+								case 3:
+									fileType = 'PJPGIMAGE'; 
+									break;
+								case 10:
+									fileType = 'PLAINTEXT'; 
+									break;
+								case 5:
+									fileType = 'PNGIMAGE'; 
+									break;
+								case 21:
+									fileType = 'POSTSCRIPT'; 
+									break;
+								case 23:
+									fileType = 'POWERPOINT'; 
+									break;
+								case 25:
+									fileType = 'MSPROJECT'; 
+									break;
+								case 28:
+									fileType = 'QUICKTIME'; 
+									break;
+								case 20:
+									fileType = 'RTF'; 
+									break;
+								case 52:
+									fileType = 'SCSS'; 
+									break;
+								case 18:
+									fileType = 'SMS'; 
+									break;
+								case 48:
+									fileType = 'SVG '; 
+									break;
+								case 36:
+									fileType = 'TAR'; 
+									break;
+								case 7:
+									fileType = 'TIFFIMAGE'; 
+									break;
+								case 24:
+									fileType = 'VISIO'; 
+									break;
+								case 19:
+									fileType = 'WORD'; 
+									break;
+								case 12:
+									fileType = 'XMLDOC'; 
+									break;
+								case 40:
+									fileType = 'XSD'; 
+									break;
+								case 26:
+									fileType = 'ZIP'; 
+									break;
+							}
+
+						config.labelFileType			= fileType;
 					}
 				
 				return config;
@@ -392,7 +525,8 @@ function(email, encode, file, https, record, runtime, search, BBSPrintNodeLibrar
 	        		doPing:					doPing,
 	        		getAccountInfo:			getAccountInfo,
 	        		getPrinters:			getPrinters,
-	        		sendPrint:				sendPrint
+	        		sendPrint:				sendPrint,
+	        		getConfiguration:		getConfiguration
 	    		};
 	    
 	});

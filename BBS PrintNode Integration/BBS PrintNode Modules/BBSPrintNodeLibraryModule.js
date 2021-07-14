@@ -27,6 +27,9 @@ function(record, config, runtime, search, plugin, format, oauth, secret, xml, ht
 			this.endpointWhoAmI				= '';
 			this.endpointPrintJob			= '';
 			this.credentialsEncoded			= '';
+			this.adScriptId					= '';
+			this.adDeploymentId				= '';
+			this.labelFileType				= '';
 		}
 	
 	//Generic response from api object
