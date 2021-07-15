@@ -36,6 +36,21 @@ function scheduled(type)
 			   "AND", 
 			   ["accounttype","noneof","Stat"], 
 			   "AND", 
+			   ["mainline","is","T"], 
+			   "AND", 
+			   ["cogs","is","F"], 
+			   "AND", 
+			   ["shipping","is","F"], 
+			   "AND", 
+			   ["taxline","is","F"], 
+			   "AND", 
+			   [["reversaldate","on","today"],"OR",[["reversaldate","isnotempty",""],"AND",["reversaldate","onorbefore","today"],"AND",["datecreated","on","today"]]]
+			], 
+	/*		[
+			   ["type","anyof","Journal"], 
+			   "AND", 
+			   ["accounttype","noneof","Stat"], 
+			   "AND", 
 			   ["reversaldate","on","today"], 
 			   "AND", 
 			   ["mainline","is","T"], 
@@ -45,7 +60,7 @@ function scheduled(type)
 			   ["shipping","is","F"], 
 			   "AND", 
 			   ["taxline","is","F"]
-			], 
+			], */
 			[
 			   new nlobjSearchColumn("internalid",null,"GROUP").setSort(false)
 			]

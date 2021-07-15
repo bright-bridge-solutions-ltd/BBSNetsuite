@@ -3,8 +3,9 @@
  * @NScriptType Suitelet
  * @NModuleScope SameAccount
  */
-define(['N/render', 'N/record'],
-function(render, record) {
+define(['N/render', 'N/record', 'N/runtime'],
+function(render, record, runtime) 
+{
    
     /**
      * Definition of the Suitelet script trigger point.
@@ -20,9 +21,20 @@ function(render, record) {
     	renderedDocument.name 		= '';
     	renderedDocument.contents	= '';
     	
-    	// retrieve parameters that were passed from the client script
+    	//Retrieve parameters that were passed from the calling script
+    	//
 		var fulfilmentID = context.request.parameters['id'];
 		
+		//Retrieve script parameters
+		//
+		var currentScript = runtime.getCurrentScript();
+		
+		//Get the pdf template id
+		//
+		var templateId = currentScript.getParameter({name: 'custscript_bbs_pdf_template_id'});
+		
+		//Do we have an IF record id
+		//
 		if(fulfilmentID != null && fulfilmentID != '')
 			{
 				// load the item fulfilment record
@@ -32,48 +44,43 @@ function(render, record) {
 				});
 				
 				// retrieve details from the fulfilment record
-				var salesOrderID = itemFulfilment.getValue({
-					fieldId: 'createdfrom'
-				});
-				
-				var subsidiaryID = itemFulfilment.getValue({
-					fieldId: 'subsidiary'
-				});
-				
-				var customerID = itemFulfilment.getValue({
-					fieldId: 'entity'
-				});
+				var salesOrderID 	= itemFulfilment.getValue({fieldId: 'createdfrom'});
+				var subsidiaryID 	= itemFulfilment.getValue({fieldId: 'subsidiary'});
+				var customerID 		= itemFulfilment.getValue({fieldId: 'entity'});
 				
 				// load the sales order record
 				var salesOrder = record.load({
-					type: record.Type.SALES_ORDER,
-					id: salesOrderID
-				});
+											type: 	record.Type.SALES_ORDER,
+											id: 	salesOrderID
+											});
 				
 				// load the subsidiary record
 				var subsidiary = record.load({
-					type: record.Type.SUBSIDIARY,
-					id: subsidiaryID
-				});
+											type: 	record.Type.SUBSIDIARY,
+											id: 	subsidiaryID
+											});
 				
 				// load the customer record
 				var customer = record.load({
-					type: record.Type.CUSTOMER,
-					id: customerID
-				});
+											type: 	record.Type.CUSTOMER,
+											id: 	customerID
+											});
 				
-				// render the transaction file
+				
 				try
 					{
+						//Create a renderer
+						//
 						var renderer = render.create();
 						
-						renderer.setTemplateById(109);
+						renderer.setTemplateById(templateId);
 						renderer.addRecord({templateName: 'record', record: itemFulfilment});
 						renderer.addRecord({templateName: 'salesorder', record: salesOrder});
 						renderer.addRecord({templateName: 'subsidiary', record: subsidiary});
 						renderer.addRecord({templateName: 'customer', record: customer});
 						
-						// create the PDF file
+						//Create the PDF file
+						//
 						var renderedFile 			= renderer.renderAsPdf();
 						renderedDocument.name 		= "Commercial Invoice " + fulfilmentID + ".pdf";
 						renderedDocument.contents	= renderedFile.getContents();
@@ -84,8 +91,8 @@ function(render, record) {
 					}
 			}
 		
-		// return the file 
-		
+		//Return the object containing the name & the contents
+		//
 		context.response.write(JSON.stringify(renderedDocument));
 
     }

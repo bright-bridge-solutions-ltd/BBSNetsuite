@@ -128,11 +128,11 @@ function(search, dialog) {
 	    	    					
 	    	    					if(moqCheck)
 	    	    						{
-	    	    							alert('This product needs to be ordered in multiples of ' + moqValue);
-	    			    					/*dialog.alert({
+	    	    							//alert('This product needs to be ordered in multiples of ' + moqValue);
+	    			    					dialog.alert({
 	    													title: 		'Minimum Order Quantity Alert',
 	    													message: 	'This product needs to be ordered in multiples of ' + moqValue
-	    												});*/
+	    												});
 	    	    						}
 	    	    				}
     					}

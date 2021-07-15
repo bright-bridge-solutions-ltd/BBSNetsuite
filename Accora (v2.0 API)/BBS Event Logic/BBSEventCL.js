@@ -38,9 +38,47 @@ function(url, dialog) {
 			}
 	}
 
+function createCase(customer, subject, contact, user, email, phone, subsidiary) {
+		
+		// check if the customer parameter returns a value
+		if (customer)
+			{
+				var params = {};
+
+				params['record.company'] 	= 		customer;
+				params['record.title'] 		=  		subject;
+				params['record.contact'] 	=  		contact;
+				params['record.profile'] 	= 		6;
+				params['record.category'] 	= 		22;
+				params['record.assigned'] 	= 		user;
+				params['record.priority'] 	= 		2;
+				params['record.status'] 	= 		5;
+				params['record.phone'] 		= 		phone;
+				params['record.email'] 		= 		email;
+				
+				// get the URL to create a new quote record
+				var newQuoteURL = url.resolveTaskLink({
+														id: 		'EDIT_SUPPORTCASE',
+														params: 	params
+													});
+				
+				// open a new quote in a new tab/window
+				window.open(newQuoteURL);
+			}
+		else // customer parameter is empty
+			{
+				// show an alert to the user
+				dialog.alert({
+					title: '⚠️ Error',
+					message: 'A new case cannot be created as this event record is not associated to a customer'
+				});
+			}
+	}
+
     return {
-    	pageInit: pageInit,
-    	createQuote: createQuote
+    	pageInit: 		pageInit,
+    	createQuote: 	createQuote,
+    	createCase:		createCase
     };
     
 });

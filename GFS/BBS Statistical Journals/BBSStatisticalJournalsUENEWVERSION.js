@@ -81,9 +81,9 @@ function statisticalJournalsBS(type)
 									//Make the parcels & consigments -ve if we are on an income account & the value on the line is a debit
 									//or if the journal is a reversal, we are on an income account & the value is a credit
 									//
-									if(	(accountType = 'Income' && reversingJournal != 'T' && debitValue != null && debitValue != '')
+									if(	(accountType == 'Income' && reversingJournal != 'T' && debitValue != null && debitValue != '')
 										|| 
-										(accountType = 'Income' && reversingJournal != 'F' && creditValue != null && creditValue != '')
+										(accountType == 'Income' && reversingJournal != 'F' && creditValue != null && creditValue != '')
 										)
 										{
 											//Check if the parcels variable is a positive value
@@ -111,9 +111,9 @@ function statisticalJournalsBS(type)
 									//Make the parcels & consigments +ve if we are on an income account & the value on the line is a credit
 									//or if the journal is a reversal, we are on an income account & the value is a debit
 									//
-									if(	(accountType = 'Income' && reversingJournal != 'T' && creditValue != null && creditValue != '')
+									if(	(accountType == 'Income' && reversingJournal != 'T' && creditValue != null && creditValue != '')
 										|| 
-										(accountType = 'Income' && reversingJournal != 'F' && debitValue != null && debitValue != '')
+										(accountType == 'Income' && reversingJournal != 'F' && debitValue != null && debitValue != '')
 										)
 										{
 											//Check if the parcels variable is a positive value
