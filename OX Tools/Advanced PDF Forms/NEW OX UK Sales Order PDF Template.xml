@@ -3,9 +3,7 @@
 <head>
     <link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
 
-    <!--Settings-->
-    <#setting time_zone = "GMT">
-
+    
     <!--Set the VAT & EORI number to its default value-->
     <#assign vatNumber = "GB407311196">
 	<#assign eoriNumber = "GB407311196000">
@@ -195,6 +193,7 @@
 <body header="nlheader" header-height="240px" footer="nlfooter" footer-height="5px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
 <#if record.item?has_content>
+     <#assign totalAmount = 0 totalVAT = 0>
   <table style="width: 100%;">
       <#list record.item?sort_by("isclosed") as item>
         <#if item_index==0>
@@ -228,6 +227,8 @@
           <td align="right" colspan="2"  style="font-size: 7pt;" >${item.amount}</td>
           <td align="right" colspan="2"  style="font-size: 7pt;" >${item.tax1amt}</td>
         </tr>
+          <#assign totalAmount = totalAmount + item.amount>
+          <#assign totalVAT = totalVAT + item.tax1amt>
         </#if>
         
         
@@ -260,10 +261,10 @@
             </tr>
         </#if>
         
-        <#if record.shipcomplete || item.quantitycommitted?number gt 0>
+         <#if item.isclosed?string("Yes", "No") == 'No'>
           <tr>
             <td align="right" colspan="4"  style="font-size: 7pt;" >&nbsp;</td>
-            <td align="left"  colspan="10" style="font-size: 7pt; color: #A9A9A9">Scheduled Despatch Date: ${record.shipdate?string.short}</td>
+            <td align="left"  colspan="10" style="font-size: 7pt; color: #A9A9A9">Scheduled Despatch Date: ${item.expectedshipdate}</td>
             <td align="right" colspan="6"  style="font-size: 7pt;" >&nbsp;</td>
           </tr>
         </#if>
@@ -282,7 +283,7 @@
               </#if>
               <td colspan="1"  align="left"  style="font-size: 7pt; border-top: 1px solid black;">&nbsp;</td>
               <td colspan="3"  align="left"  style="font-size: 7pt; border-top: 1px solid black;"><b>Goods Net:</b></td>
-              <td colspan="2"  align="right" style="font-size: 7pt; border-top: 1px solid black;">${record.subtotal}</td>
+              <td colspan="2"  align="right" style="font-size: 7pt; border-top: 1px solid black;">${totalAmount}</td>
           </tr>
           <tr>
               <#if record.message?length gt 0>
@@ -302,12 +303,13 @@
           <tr>
               <td colspan="1"  align="left"  style="font-size: 7pt;">&nbsp;</td>
               <td colspan="3"  align="left"  style="font-size: 7pt; "><b>VAT:</b></td>
-              <td colspan="2"  align="right" style="font-size: 7pt; ">${record.taxtotal}</td>
+              <td colspan="2"  align="right" style="font-size: 7pt; ">${totalVAT}</td>
           </tr>
           <tr>
+              <#assign totalOrder = totalAmount + totalVAT>
               <td colspan="1"  align="left"  style="font-size: 7pt;">&nbsp;</td>
               <td colspan="3"  align="left"  style="font-size: 7pt; "><b>Total:</b></td>
-              <td colspan="2"  align="right" style="font-size: 7pt; ">${record.total}</td>
+              <td colspan="2"  align="right" style="font-size: 7pt; ">${totalOrder}</td>
           </tr>
           <tr>
               <td colspan="1"  align="left"  style="font-size: 7pt;">&nbsp;</td>

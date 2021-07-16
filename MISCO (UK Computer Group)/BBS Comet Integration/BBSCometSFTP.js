@@ -323,6 +323,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				shippingSubrecord.setValue({fieldId: 'zip',    		value: headerShipPostCode});
 																				shippingSubrecord.setValue({fieldId: 'adressee', 	value: headerShipCompany});
 																				shippingSubrecord.setValue({fieldId: 'attention', 	value: headerShipAdressee});
+																				shippingSubrecord.setValue({fieldId: 'country', 	value: translateCountry(headerShipCountry)});
 																				
 																				//Billing Address
 																				//
@@ -334,6 +335,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				billingSubrecord.setValue({fieldId: 'zip', 			value: headerBillPostCode});
 																				billingSubrecord.setValue({fieldId: 'adressee', 	value: headerBillCompany});
 																				billingSubrecord.setValue({fieldId: 'attention', 	value: headerBillAdressee});
+																				billingSubrecord.setValue({fieldId: 'country', 		value: translateCountry((headerBillCountry)});
 																				
 																				//Line Processing
 																				//
@@ -917,6 +919,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				shippingSubrecord.setValue({fieldId: 'zip', 		value: headerShipPostCode});
 																				shippingSubrecord.setValue({fieldId: 'adressee', 	value: headerShipCompany});
 																				shippingSubrecord.setValue({fieldId: 'attention', 	value: headerShipAdressee});
+																				shippingSubrecord.setValue({fieldId: 'country', 	value: translateCountry(headerShipCountry)});
 																				
 																				//Billing Address
 																				//
@@ -928,6 +931,7 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 																				billingSubrecord.setValue({fieldId: 'zip', 			value: headerBillPostCode});
 																				billingSubrecord.setValue({fieldId: 'adressee', 	value: headerBillCompany});
 																				billingSubrecord.setValue({fieldId: 'attention', 	value: headerBillAdressee});
+																				billingSubrecord.setValue({fieldId: 'country', 		value: translateCountry(headerBillCountry)});
 																				
 																				//Line Processing
 																				//
@@ -2428,6 +2432,26 @@ function(sftp, file, search, xml, record, runtime, email, format, task)
 			    	    }
 			    }
 	    }
+    
+    function translateCountry(_countryName)
+    	{
+    		var countryCode 	= 'GB';
+    		var countries_list 	= {AD:  'Andorra', AE:  'United Arab Emirates', AF:  'Afghanistan', AG:  'Antigua and Barbuda', AI:  'Anguilla', AL:  'Albania', AM:  'Armenia', AO:  'Angola', AQ:  'Antarctica', AR:  'Argentina', AS:  'American Samoa', AT:  'Austria', AU:  'Australia', AW:  'Aruba', AX:  'Aland Islands', AZ:  'Azerbaijan', BA:  'Bosnia and Herzegovina', BB:  'Barbados', BD:  'Bangladesh', BE:  'Belgium', BF:  'Burkina Faso', BG:  'Bulgaria', BH:  'Bahrain', BI:  'Burundi', BJ:  'Benin', BL:  'Saint Barth�lemy', BM:  'Bermuda', BN:  'Brunei Darrussalam', BO:  'Bolivia', BQ:  'Bonaire, Saint Eustatius, and Saba', BR:  'Brazil', BS:  'Bahamas', BT:  'Bhutan', BV:  'Bouvet Island', BW:  'Botswana', BY:  'Belarus', BZ:  'Belize', CA:  'Canada', CC:  'Cocos (Keeling) Islands', CD:  'Congo, Democratic People\'s Republic', CF:  'Central African Republic', CG:  'Congo, Republic of', CH:  'Switzerland', CI:  'Cote d\'Ivoire', CK:  'Cook Islands', CL:  'Chile', CM:  'Cameroon', CN:  'China', CO:  'Colombia', CR:  'Costa Rica', CU:  'Cuba', CV:  'Cape Verde', CW:  'Curacao', CX:  'Christmas Island', CY:  'Cyprus', CZ:  'Czech Republic', DE:  'Germany', DJ:  'Djibouti', DK:  'Denmark', DM:  'Dominica', DO:  'Dominican Republic', DZ:  'Algeria', EA:  'Ceuta and Melilla', EC:  'Ecuador', EE:  'Estonia', EG:  'Egypt', EH:  'Western Sahara', ER:  'Eritrea', ES:  'Spain', ET:  'Ethiopia', FI:  'Finland', FJ:  'Fiji', FK:  'Falkland Islands', FM:  'Micronesia, Federal State of', FO:  'Faroe Islands', FR:  'France', GA:  'Gabon', GB:  'United Kingdom', GD:  'Grenada', GE:  'Georgia', GF:  'French Guiana', GG:  'Guernsey', GH:  'Ghana', GI:  'Gibraltar', GL:  'Greenland', GM:  'Gambia', GN:  'Guinea', GP:  'Guadeloupe', GQ:  'Equatorial Guinea', GR:  'Greece', GS:  'South Georgia', GT:  'Guatemala', GU:  'Guam', GW:  'Guinea-Bissau', GY:  'Guyana', HK:  'Hong Kong', HM:  'Heard and McDonald Islands', HN:  'Honduras', HR:  'Croatia/Hrvatska', HT:  'Haiti', HU:  'Hungary', IC:  'Canary Islands', ID:  'Indonesia', IE:  'Ireland', IL:  'Israel', IM:  'Isle of Man', IN:  'India', IO:  'British Indian Ocean Territory', IQ:  'Iraq', IR:  'Iran (Islamic Republic of)', IS:  'Iceland', IT:  'Italy', JE:  'Jersey', JM:  'Jamaica', JO:  'Jordan', JP:  'Japan', KE:  'Kenya', KG:  'Kyrgyzstan', KH:  'Cambodia', KI:  'Kiribati', KM:  'Comoros', KN:  'Saint Kitts and Nevis', KP:  'Korea, Democratic People\'s Republic', KR:  'Korea, Republic of', KW:  'Kuwait', KY:  'Cayman Islands', KZ:  'Kazakhstan', LA:  'Lao People\'s Democratic Republic', LB:  'Lebanon', LC:  'Saint Lucia', LI:  'Liechtenstein', LK:  'Sri Lanka', LR:  'Liberia', LS:  'Lesotho', LT:  'Lithuania', LU:  'Luxembourg', LV:  'Latvia', LY:  'Libyan Arab Jamahiriya', MA:  'Morocco', MC:  'Monaco', MD:  'Moldova, Republic of', ME:  'Montenegro', MF:  'Saint Martin', MG:  'Madagascar', MH:  'Marshall Islands', MK:  'Macedonia', ML:  'Mali', MM:  'Myanmar', MN:  'Mongolia', MO:  'Macau', MP:  'Northern Mariana Islands', MQ:  'Martinique', MR:  'Mauritania', MS:  'Montserrat', MT:  'Malta', MU:  'Mauritius', MV:  'Maldives', MW:  'Malawi', MX:  'Mexico', MY:  'Malaysia', MZ:  'Mozambique', NA:  'Namibia', NC:  'New Caledonia', NE:  'Niger', NF:  'Norfolk Island', NG:  'Nigeria', NI:  'Nicaragua', NL:  'Netherlands', NO:  'Norway', NP:  'Nepal', NR:  'Nauru', NU:  'Niue', NZ:  'New Zealand', OM:  'Oman', PA:  'Panama', PE:  'Peru', PF:  'French Polynesia', PG:  'Papua New Guinea', PH:  'Philippines', PK:  'Pakistan', PL:  'Poland', PM:  'St. Pierre and Miquelon', PN:  'Pitcairn Island', PR:  'Puerto Rico', PS:  'Palestinian Territories', PT:  'Portugal', PW:  'Palau', PY:  'Paraguay', QA:  'Qatar', RE:  'Reunion Island', RO:  'Romania', RS:  'Serbia', RU:  'Russian Federation', RW:  'Rwanda', SA:  'Saudi Arabia', SB:  'Solomon Islands', SC:  'Seychelles', SD:  'Sudan', SE:  'Sweden', SG:  'Singapore', SH:  'Saint Helena', SI:  'Slovenia', SJ:  'Svalbard and Jan Mayen Islands', SK:  'Slovak Republic', SL:  'Sierra Leone', SM:  'San Marino', SN:  'Senegal', SO:  'Somalia', SR:  'Suriname', SS:  'South Sudan', ST:  'Sao Tome and Principe', SV:  'El Salvador', SX:  'Sint Maarten', SY:  'Syrian Arab Republic', SZ:  'Swaziland', TC:  'Turks and Caicos Islands', TD:  'Chad', TF:  'French Southern Territories', TG:  'Togo', TH:  'Thailand', TJ:  'Tajikistan', TK:  'Tokelau', TM:  'Turkmenistan', TN:  'Tunisia', TO:  'Tonga', TP:  'East Timor', TR:  'Turkey', TT:  'Trinidad and Tobago', TV:  'Tuvalu', TW:  'Taiwan', TZ:  'Tanzania', UA:  'Ukraine', UG:  'Uganda', UM:  'US Minor Outlying Islands', US:  'United States', UY:  'Uruguay', UZ:  'Uzbekistan', VA:  'Holy See (City Vatican State)', VC:  'Saint Vincent and the Grenadines', VE:  'Venezuela', VG:  'Virgin Islands (British)', VI:  'Virgin Islands (USA)', VN:  'Vietnam', VU:  'Vanuatu', WF:  'Wallis and Futuna Islands', WS:  'Samoa', XK:  'Kosovo', YE:  'Yemen', YT:  'Mayotte', ZA:  'South Africa', ZM:  'Zambia', ZW:  'Zimbabwe'};
+
+    		for( var key in countries_list)
+	    		{
+	    		  	if(countries_list[key].indexOf(_countryName) != -1)
+		    		  {
+	    		  			countryCode = key;
+	    		  			break;
+		    		  }
+	    		}
+
+    		return countryCode;
+    	}
+    
+    
+    
     
     return {execute: execute};
 

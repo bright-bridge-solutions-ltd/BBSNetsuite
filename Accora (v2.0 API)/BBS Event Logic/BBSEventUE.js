@@ -52,6 +52,7 @@ function(record, runtime, search) {
 	    		var subject 	= currentRecord.getValue({fieldId: 'title'});
 	    		var email		= currentRecord.getValue({fieldId: 'custevent_acc_contact_email'});
 	    		var phone		= currentRecord.getValue({fieldId: 'custevent_acc_contact_phone'});
+	    		var specialist	= currentRecord.getValue({fieldId: 'custevent_acc_product_specialist'});
 	    		var user		= runtime.getCurrentUser().id;
 	    		var isSupport	= false;
 	    		
@@ -80,7 +81,7 @@ function(record, runtime, search) {
 	    		scriptContext.form.addButton({
 	    			id: 'custpage_create_case',
 	    			label: 'Create Case',
-	    			functionName: "createCase('" + customer + "','" + subject + "','" + contact + "','" + user + "','" + email + "','" + phone + "','" + subsidiary + "')" 
+	    			functionName: "createCase('" + customer + "','" + subject + "','" + contact + "','" + user + "','" + email + "','" + phone + "','" + subsidiary + "','" + specialist + "','" + "')" 
 	    		});
     		}   	
     }

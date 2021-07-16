@@ -1606,13 +1606,13 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 			    		
 			    		//Do we have enough in stock?
 	    				//
-	    				if(nymasOnHand >= _memberQty)
+	    				if(nymasAvailable >= _memberQty)
 	    					{
 	    						//Yes - return quantity available
 	    						//
 	    						var availableDate = new Date();
 	    						
-			    				availData.supplySource 		= 'Stock (' + nymasOnHand.toString() + ')';
+			    				availData.supplySource 		= 'Stock (' + nymasAvailable.toString() + ')';
 			    				availData.availableDate		= format.format({value: availableDate, type: format.Type.DATE});	//'Now';
 			    				availData.transactionFound	= true;
 			    				availData.availableDateDate	= availableDate;
