@@ -89,11 +89,24 @@ function(runtime, record, transaction, search)
 		    				
 		    				//Did we find any results
 		    				//
-		    				if(customerSearchObj != null && customerSearchObj.length == 1)
+		    				if(customerSearchObj != null && customerSearchObj.length > 0)
 		    					{
-		    						//Get the customer id
+		    						//Get the customer id's
 		    						//
-		    						var customerId = customerSearchObj[0].getValue({name: "internalid"});
+		    						var customersObj 	= {};
+		    						var customerArray	= [];
+		    						
+		    						for (var int = 0; int < customerSearchObj.length; int++) 
+			    						{
+		    								var customerId 				= customerSearchObj[int].getValue({name: "internalid"});
+		    								customersObj[customerId] 	= customerId;
+										}
+		    						
+		    						for ( var customer in customersObj) 
+			    						{
+		    								customerArray.push(customer);
+										}
+		    						
 		    						
 		    						//See if we can find a payment transaction 
 		    						//
@@ -105,7 +118,7 @@ function(runtime, record, transaction, search)
 														    							      "AND", 
 														    							      ["mainline","is","T"], 
 														    							      "AND", 
-														    							      ["name","anyof",customerId], 
+														    							      ["name","anyof",customerArray], 
 														    							      "AND", 
 														    							      ["memo","isnot","VOID"], 
 														    							      "AND", 

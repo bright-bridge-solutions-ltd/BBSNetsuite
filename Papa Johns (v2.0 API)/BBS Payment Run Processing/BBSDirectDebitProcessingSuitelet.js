@@ -440,6 +440,30 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					                            	    ["formulanumeric: NVL({amountremaining},0) - NVL({custbody_dd_future_payments},0)","greaterthan","0"]	//Amount remaining minus amount on future payment runs > 0
 							            	      	];
 					            
+					            
+					            //Filter by customer
+					            //
+					            if(paramCustomer != null && paramCustomer != '')
+					            	{
+					            		filterObj.push("AND", ["name","anyof",paramCustomer]);
+					            	}
+					            
+					            //Filter by franchise owner
+					            //
+					            if(paramFranchisee != null && paramFranchisee != '')
+					            	{
+					            		filterObj.push("AND", ["customer.custentity_bbs_franchise_owner","anyof",paramFranchisee]);
+					            	}
+					            
+					            //Filter by as of date
+					            //
+					            if(paramAsOfDate != null && paramAsOfDate != '')
+					            	{
+					            		filterObj.push("AND", ["duedate","onorbefore",paramAsOfDate]);
+					            	}
+		            
+					            //Filter by class
+					            //
 					            if(paramClass != null && paramClass != '')
 					            	{
 					            		filterObj.push("AND", ["class","anyof",paramClass]);
@@ -448,31 +472,16 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 					            			{
 					            				if(paramEpos == 'T')
 					            					{
-					            						filterObj.push("AND", ["memo","contains","EPOS"]);
+					            						//filterObj.push("AND", ["memo","contains","EPOS"]);
+					            						filterObj.push("AND", [["memomain","contains","EPOS"],"OR",["memomain","contains","Add%On"]]);
 					            					}
 					            				else
 					            					{
-					            						filterObj.push("AND", ["memo","doesnotcontain","EPOS"]);
+					            						//filterObj.push("AND", ["memo","doesnotcontain","EPOS"]);
+					            						filterObj.push("AND", [["memomain","doesnotcontain","EPOS"],"OR",["memomain","contains","Add%On"]]);
 					            					}
 					            			}
-					            	}
-					            
-					            if(paramCustomer != null && paramCustomer != '')
-					            	{
-					            		filterObj.push("AND", ["name","anyof",paramCustomer]);
-					            	}
-					            
-					            if(paramFranchisee != null && paramFranchisee != '')
-					            	{
-					            		filterObj.push("AND", ["customer.custentity_bbs_franchise_owner","anyof",paramFranchisee]);
-					            	}
-			            
-					            if(paramAsOfDate != null && paramAsOfDate != '')
-					            	{
-					            		filterObj.push("AND", ["duedate","onorbefore",paramAsOfDate]);
-					            	}
-		            
-							            	     
+					            	}        	     
 							            	   
 							            	
 					            
@@ -564,9 +573,9 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																continue;
 															}
 														
-														//Royalty (1), Food - EPOS (2), Loan (3)
+														//Everything except Food 
 														//
-														if(lineClassId == 1 || (lineClassId == 2 && paramEpos == 'T')  || lineClassId == 3)
+														if(lineClassId != 2)
 															{
 																//Have we reached the limit?
 																//
@@ -580,14 +589,38 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																	}
 															}
 														
-														//Property (5), Misc (6), Turnkey (4)
+														//Food (Class = 2)
 														//
-														if(lineClassId == 5 || lineClassId == 6 || lineClassId == 4)
+														if(lineClassId == 2)
 															{
-																//Do nothing, no limit on these classes of invoices
+																//Have we found a line that has the words 'Add-On' in the memo field
 																//
+																if(lineMemo.search(/add.*on/i) != -1)
+																	{
+																		//Do nothing - i.e. allow it to be added to the sublist & do not increment the count of invoices
+																	}
+																else
+																	{
+																		//Have we reached the limit?
+																		//
+																		if(invoiceCount == Number(paramCollectionQty))
+																			{
+																				continue;	//Skip on to the next iteration of the loop
+																			}
+																		else
+																			{
+																				//Increment the count of invoivces & allow th eline to be added to the sublist
+																				//
+																				invoiceCount++;
+																			}
+																	}
+															
+																
 															}
 														
+														/*
+														 * Now not calculated in this manner
+														 * 
 														//Food - NOT EPOS (2)
 														//
 														if(lineClassId == 2 && paramEpos != 'T')
@@ -635,6 +668,7 @@ function(runtime, search, task, serverWidget, dialog, message, format, http, rec
 																	}
 																
 															}
+															*/
 													}
 												
 												

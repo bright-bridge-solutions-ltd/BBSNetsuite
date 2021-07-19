@@ -15,8 +15,9 @@ function(currentRecord, format, dialog, url, runtime)
 			
 			if(stage == 1)
 				{
-					scriptContext.currentRecord.getField({fieldId: 'custpage_entry_collect_qty'}).isDisplay = false;
+					//scriptContext.currentRecord.getField({fieldId: 'custpage_entry_collect_qty'}).isDisplay = false;
 					scriptContext.currentRecord.getField({fieldId: 'custpage_entry_epos'}).isDisplay = false;
+					scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_collect_qty', value: ''});
 				}
 	    }
 	
@@ -55,20 +56,39 @@ function(currentRecord, format, dialog, url, runtime)
 					    		
 					    		switch(Number(fieldValue))
 					    			{
+					    				case 1:		//Royalty
+							    			scriptContext.currentRecord.getField({fieldId: 'custpage_entry_epos'}).isDisplay = false;
+							    			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_collect_qty', value: '1'});
+							    			break;
+						    			
 							    		case 2:		//Food
 							    			scriptContext.currentRecord.getField({fieldId: 'custpage_entry_epos'}).isDisplay = true;
-							    			scriptContext.currentRecord.getField({fieldId: 'custpage_entry_collect_qty'}).isDisplay = true;
+							    			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_collect_qty', value: '3'});
 							    			break;
 							    			
-							    		case 1:		//Royalty
 								    	case 3:		//Loan
 								    		scriptContext.currentRecord.getField({fieldId: 'custpage_entry_epos'}).isDisplay = false;
-							    			scriptContext.currentRecord.getField({fieldId: 'custpage_entry_collect_qty'}).isDisplay = true;
+							    			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_collect_qty', value: '10'});
 							    			break;
 							    	
-							    		default:	//Property, Misc, Turnkey
+								    	case 4:		//Turnkey
+								    		scriptContext.currentRecord.getField({fieldId: 'custpage_entry_epos'}).isDisplay = false;
+							    			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_collect_qty', value: '10'});
+							    			break;
+							    			
+								    	case 5:		//Property
+								    		scriptContext.currentRecord.getField({fieldId: 'custpage_entry_epos'}).isDisplay = false;
+							    			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_collect_qty', value: '10'});
+							    			break;
+							    			
+								    	case 6:		//Misc
+								    		scriptContext.currentRecord.getField({fieldId: 'custpage_entry_epos'}).isDisplay = false;
+							    			scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_collect_qty', value: '1'});
+							    			break;
+							    			
+							    		default:	//Any Other
 							    			scriptContext.currentRecord.getField({fieldId: 'custpage_entry_epos'}).isDisplay = false;
-						    				scriptContext.currentRecord.getField({fieldId: 'custpage_entry_collect_qty'}).isDisplay = false;
+						    				scriptContext.currentRecord.setValue({fieldId: 'custpage_entry_collect_qty', value: '1'});
 							    			break;
 					    			}
 					    		break;
